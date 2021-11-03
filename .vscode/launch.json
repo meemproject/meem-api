@@ -28,18 +28,6 @@
 			"remoteRoot": "${workspaceRoot}"
 		},
 		{
-			"name": "Attach Cron",
-			"type": "node",
-			"request": "attach",
-			"port": 4006,
-			"address": "localhost",
-			"restart": true,
-			"sourceMaps": true,
-			// "outDir": null,
-			"localRoot": "${workspaceRoot}",
-			"remoteRoot": "${workspaceRoot}"
-		},
-		{
 			"name": "Mocha (Test single file)",
 			"type": "node",
 			"request": "launch",

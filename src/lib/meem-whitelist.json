@@ -1,0 +1,107 @@
+{
+    "0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d": {
+        "name": "Bored Ape Yacht Club",
+        "creator": "Yuga Labs LLC",
+        "license": "none",
+        "terms": "https://boredapeyachtclub.com/#/terms",
+        "website": ""
+    },
+    "0x60e4d786628fea6478f785a6d7e704777c86a7c6": {
+        "name": "Mutant Ape Yacht Club",
+        "creator": "",
+        "license": "none",
+        "terms": "",
+        "website": ""
+    },
+    "0xff9c1b15b16263c61d017ee9f65c50e4ae0113d7": {
+        "name": "Loot",
+        "creator": "",
+        "license": "none",
+        "terms": "",
+        "website": "https://www.lootproject.com/"
+    },
+    "0x1cb1a5e65610aeff2551a50f76a87a7d3fb649c6": {
+        "name": "CrypToadz by GREMPLIN",
+        "creator": "CC0",
+        "license": "none",
+        "terms": "",
+        "website": ""
+    },
+    "0xc2c747e0f7004f9e8817db2ca4997657a7746928": {
+        "name": "Hashmasks",
+        "creator": "",
+        "license": "none",
+        "terms": "https://www.thehashmasks.com/terms",
+        "website": ""
+    },
+    "0xba30e5f9bb24caa003e9f2f0497ad287fdf95623": {
+        "name": "Bored Ape Kennel Club",
+        "creator": "",
+        "license": "none",
+        "terms": "https://boredapeyachtclub.com/#/terms",
+        "website": "https://boredapeyachtclub.com/#/kennel-club"
+    },
+    "0xf4ee95274741437636e748ddac70818b4ed7d043": {
+        "name": "The Doge Pound",
+        "creator": "The Doge Pound",
+        "license": "none",
+        "terms": "https://thedogepoundnft.com/terms",
+        "website": "https://thedogepoundnft.com/"
+    },
+    "0x219b8ab790decc32444a6600971c7c3718252539": {
+        "name": "Sneaky Vampire Syndicate",
+        "creator": "Superand LLC",
+        "license": "none",
+        "terms": "https://legacy.svs.gg/terms",
+        "website": "https://svs.gg/"
+    },
+    "0xccc441ac31f02cd96c153db6fd5fe0a2f4e6a68d": {
+        "name": "FLUF",
+        "creator": "Nonfungible Labs",
+        "license": "none",
+        "terms": "https://fluf.world/licensing/",
+        "website": "https://fluf.world/"
+    },
+    "0x05a46f1e545526fb803ff974c790acea34d1f2d6": {
+        "name": "The n project",
+        "creator": "0x25ce5b3b5eae246c8abcfdb71593678f424fce47",
+        "license": "none",
+        "terms": "",
+        "website": ""
+    },
+    "0x4f89cd0cae1e54d98db6a80150a824a533502eea": {
+        "name": "PEACEFUL GROUPIES",
+        "creator": "",
+        "license": "none",
+        "terms": "",
+        "website": ""
+    },
+    "0xc8bcbe0e8ae36d8f9238cd320ef6de88784b1734": {
+        "name": "Winter Bears",
+        "creator": "",
+        "license": "none",
+        "terms": "https://www.winterbearsnft.com/",
+        "website": ""
+    },
+    "0x31385d3520bced94f77aae104b406994d8f2168c": {
+        "name": "BASTARD GAN PUNKS V2",
+        "creator": "",
+        "license": "none",
+        "terms": "https://bastardganpunks.club/",
+        "website": ""
+    },
+    "0x392179031da3012dac321703a29e4c9fbd26316b": {
+        "name": "Al Cabones",
+        "creator": "",
+        "license": "none",
+        "terms": "",
+        "website": "https://www.alcabones.io/#faq-section"
+    },
+    "0x15a2d6c2b4b9903c27f50cb8b32160ab17f186e2": {
+        "name": "GOOP TROOP",
+        "creator": "0x46f8b522819a407da64474ca21d28a6b50aeac74",
+        "license": "none",
+        "terms": "",
+        "website": "https://opensea.io/collection/goop-troop"
+    }
+}

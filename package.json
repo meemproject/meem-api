@@ -15,8 +15,8 @@
 		"########## Run ##########": "",
 		"start": "RUN_PRODUCTION=true node ./build/cluster.js",
 		"start-cron": "RUN_PRODUCTION=true node build/cron/cron.js",
-		"cron": "npm run kill-inspect && NODE_ENV=local PORT=3005 tsnd --inspect=4006 --respawn --transpile-only --ignore-watch=src/types/shared.generated.ts src/cron/cron.ts",
-		"local": "npm run kill-inspect && NODE_ENV=local PORT=3005 tsnd --inspect=4005 --respawn --transpile-only --ignore-watch=src/types/shared.generated.ts src/server.ts",
+		"cron": "npm run kill-inspect && NODE_ENV=local PORT=3005 tsnd --inspect=4006 --respawn --transpile-only --ignore-watch=src/types/meem.generated.ts src/cron/cron.ts",
+		"local": "npm run kill-inspect && NODE_ENV=local PORT=3005 tsnd --inspect=4005 --respawn --transpile-only --ignore-watch=src/types/meem.generated.ts src/server.ts",
 		"########## DB Migrations ##########": "",
 		"db:migrate": "sequelize db:migrate",
 		"db:migrate:local": "NODE_ENV=local node ./node_modules/.bin/sequelize db:migrate",
@@ -42,7 +42,11 @@
 		"########## Misc ##########": "",
 		"cost": "cost-of-modules",
 		"postinstall": "if [ \"${RUN_POSTINSTALL:=\"false\"}\" = \"true\" ]; then npm run build; else echo \"Skipping postinstall RUN_POSTINSTALL is not set to true.\" && exit 0; fi",
-		"kill-inspect": "kill-port 4005"
+		"kill-inspect": "kill-port 4005",
+		"########## Meems ##########": "",
+		"generateTypes": "typechain --target=ethers-v5 'src/abis/*.json' --out-dir='src/types'",
+		"fetchMeemABI": "tsnd --transpile-only src/scripts/fetchMeemABI.ts",
+		"fetchWhitelist": "tsnd --transpile-only src/scripts/fetchWhitelist.ts"
 	},
 	"dependencies": {
 		"@kengoldfarb/log": "^1.0.3",
@@ -53,6 +57,7 @@
 		"cookie-parser": "^1.4.1",
 		"cron": "^1.1.0",
 		"dotenv": "^10.0.0",
+		"ethers": "^5.5.1",
 		"express": "^4.17.1",
 		"fs-extra": "^10.0.0",
 		"globby": "^11",
@@ -72,6 +77,7 @@
 	},
 	"devDependencies": {
 		"@kengoldfarb/semantic-release-config": "^1.0.0",
+		"@typechain/ethers-v5": "^8.0.1",
 		"@types/aws-lambda": "^8.10.85",
 		"@types/bcrypt": "^5.0.0",
 		"@types/busboy": "^0.3.1",
@@ -106,7 +112,8 @@
 		"prettier": "^2.4.1",
 		"sqlite3": "^5.0.2",
 		"ts-node": "^10.4.0",
-		"ts-node-dev": "1.1.8"
+		"ts-node-dev": "1.1.8",
+		"typechain": "^6.0.2"
 	},
 	"optionalDependencies": {
 		"fsevents": "^2.3.2"

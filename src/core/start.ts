@@ -45,7 +45,7 @@ async function loadServices() {
 	global.services = {}
 	const servicesPath = path.join(
 		configuration.currentPath,
-		'/services/**/*Service.{js,ts}'
+		'/services/**/*.{js,ts}'
 	)
 	const paths = await globby(servicesPath)
 	const promises = paths.map(async servicePath => {
@@ -117,6 +117,23 @@ export default async function start() {
 			canSubscribe: socketsConfig.canSubscribe,
 			adapters: socketsConfig.adapters
 		})
+	}
+
+	if (config.GENERATE_SHARED_TYPES) {
+		const typeGeneratorTimer = log.timerStart()
+		services.types
+			.generateTypesFile()
+			.then(() => {
+				log.info(
+					`Shared types file generated: ${(
+						log.timerEnd(typeGeneratorTimer) / 1000
+					).toFixed(4)} seconds`
+				)
+			})
+			.catch(e => {
+				log.warn('Unable to generate shared types file')
+				log.warn(e)
+			})
 	}
 
 	return {

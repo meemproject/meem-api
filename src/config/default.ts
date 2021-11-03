@@ -12,6 +12,7 @@ export default {
 	SERVERLESS: process.env.SERVERLESS === 'true',
 	LOG_LEVEL: process.env.LOG_LEVEL ?? 'warn',
 	ENABLE_REQUEST_LOGGING: process.env.ENABLE_REQUEST_LOGGING === 'true',
+	GENERATE_SHARED_TYPES: process.env.GENERATE_SHARED_TYPES === 'true',
 	TESTING: process.env.TESTING === 'true',
 	DISABLE_RATE_LIMIT: process.env.DISABLE_RATE_LIMIT === 'true',
 
@@ -49,5 +50,9 @@ export default {
 	// Only needed if redis is being shared by multiple API instances on different environments
 	REDIS_KEY_PREFIX: process.env.REDIS_KEY_PREFIX,
 	AWS_WEBSOCKET_GATEWAY_URL: process.env.AWS_WEBSOCKET_GATEWAY_URL,
-	SERVERLESS_LOG_FULL_REQUEST: process.env.SERVERLESS_LOG_FULL_REQUEST
+	SERVERLESS_LOG_FULL_REQUEST: process.env.SERVERLESS_LOG_FULL_REQUEST,
+	NETWORK: process.env.NETWORK ?? 'rinkeby',
+	WALLET_PRIVATE_KEY: process.env.WALLET_PRIVATE_KEY ?? '',
+	MEEM_PROXY_ADDRESS: process.env.MEEM_PROXY_ADDRESS ?? '',
+	INFURA_ID: process.env.INFURA_ID ?? ''
 }
