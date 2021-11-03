@@ -1,0 +1,33 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"esModuleInterop": true,
+		"target": "ES2019",
+		"lib": [
+			"ES2020",
+			"ES2019",
+			"ES2018",
+			"ES2017",
+			"ES2015",
+			"ES5"
+		],
+		"allowJs": true,
+		"noImplicitAny": true,
+		"forceConsistentCasingInFileNames": true,
+		"noImplicitReturns": true,
+		"strict": true,
+		"noUnusedLocals": true,
+		"resolveJsonModule": true,
+		"moduleResolution": "node",
+		"sourceMap": true,
+		"outDir": "build",
+		"baseUrl": "."
+	},
+	"include": [
+		"src/**/*"
+	],
+	"exclude": [
+		"**/node_modules/*",
+		"src/swagger/**/*"
+	]
+}

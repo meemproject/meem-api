@@ -1,0 +1,69 @@
+// 20170402175629
+// https://raw.githubusercontent.com/katopz/universal-boilerplate/master/.vscode/launch.json
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Attach API",
+			"type": "node",
+			"request": "attach",
+			"port": 4005,
+			"address": "localhost",
+			"restart": true,
+			"sourceMaps": true,
+			// "outDir": null,
+			"localRoot": "${workspaceRoot}",
+			"remoteRoot": "${workspaceRoot}"
+		},
+		{
+			"name": "Attach Cron",
+			"type": "node",
+			"request": "attach",
+			"port": 4006,
+			"address": "localhost",
+			"restart": true,
+			"sourceMaps": true,
+			// "outDir": null,
+			"localRoot": "${workspaceRoot}",
+			"remoteRoot": "${workspaceRoot}"
+		},
+		{
+			"name": "Attach Cron",
+			"type": "node",
+			"request": "attach",
+			"port": 4006,
+			"address": "localhost",
+			"restart": true,
+			"sourceMaps": true,
+			// "outDir": null,
+			"localRoot": "${workspaceRoot}",
+			"remoteRoot": "${workspaceRoot}"
+		},
+		{
+			"name": "Mocha (Test single file)",
+			"type": "node",
+			"request": "launch",
+			"runtimeArgs": [
+				"${workspaceRoot}/node_modules/.bin/mocha",
+				"-r",
+				"ts-node/register/transpile-only",
+				"--exit",
+				"--inspect-brk",
+				"${relativeFile}"
+			],
+			"runtimeExecutable": "${env:NVM_BIN}/node",
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen",
+			"port": 9229,
+			"cwd": "${workspaceRoot}",
+			"env": {
+				"NODE_ENV": "local",
+				"PORT": "4004",
+				"BLUEBIRD_W_FORGOTTEN_RETURN": "0",
+				"TESTING": "true",
+				"DISABLE_MIGRATIONS": "true",
+				"ENABLE_SWAGGER_DOCS": "true"
+			}
+		}
+	]
+}

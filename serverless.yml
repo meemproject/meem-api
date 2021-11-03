@@ -1,0 +1,64 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: my-api
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  memorySize: 2048
+  timeout: 30
+  logs:
+    websocket: true
+  environment:
+    SERVERLESS: true
+    LOG_LEVEL: ${env:LOG_LEVEL, ''}
+
+package:
+  excludeDevDependencies: true
+  include:
+    - build/**
+  exclude:
+    - .circleci/**
+    - .vscode/**
+    - backup/**
+    - coverage/**
+    - docker/**
+    - docs/**
+    - load-testing/**
+    - scripts/**
+    - src/**
+    - tmp/**
+
+functions:
+  catchAll:
+    handler: build/serverless/handler.handle
+    events:
+      - httpApi: '*'
+  sockets:
+    handler: build/serverless/socket.handle
+    events:
+      - websocket: $connect
+      - websocket: $disconnect
+      - websocket: $default
+  cron:
+    handler: build/serverless/cron.handle
+    timeout: 600
+    events:
+      - schedule:
+          rate: rate(30 minutes)
+          # CHANGE THIS TO "true" TO RUN CRONS
+          enabled: false
+          input:
+            job: TestCron
+

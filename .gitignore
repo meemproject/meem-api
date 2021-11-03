@@ -1,0 +1,58 @@
+############################
+# npm
+############################
+node_modules
+npm-debug.log
+
+
+############################
+# tmp, editor & OS files
+############################
+.tmp
+.DS_STORE
+*#
+*~
+.idea
+
+
+############################
+# Tests
+############################
+testApp
+coverage
+
+############################
+# Development
+############################
+.env
+.env.*
+.env.*.sls
+!.env.example.sls
+!.env.example
+*.dump
+
+############################
+# Other
+############################
+.node_history
+
+# Omit the build directory except for readme
+build/*
+!build/README.md
+build-sls/
+
+public/*
+!public/README.md
+
+api-docs.json
+
+test.js
+scratch.txt
+
+.serverless
+backup/
+
+yarn-error.log
+
+tmp/*
+!tmp/.keep
