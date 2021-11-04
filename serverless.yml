@@ -11,18 +11,26 @@
 #
 # Happy Coding!
 
-service: my-api
+service: meem-api
 
 provider:
   name: aws
-  runtime: nodejs12.x
-  memorySize: 2048
+  runtime: nodejs14.x
+  memorySize: 256
   timeout: 30
-  logs:
-    websocket: true
+  # logs:
+  #   websocket: true
   environment:
     SERVERLESS: true
-    LOG_LEVEL: ${env:LOG_LEVEL, ''}
+    LOG_LEVEL: ${env:LOG_LEVEL, 'debug'}
+    ENABLE_REQUEST_LOGGING: ${env:ENABLE_REQUEST_LOGGING, 'false'}
+    ORM_DISABLE: ${env:ORM_DISABLE, 'true'}
+    INFURA_ID: ${env:INFURA_ID, ''}
+    MEEM_PROXY_ADDRESS: ${env:MEEM_PROXY_ADDRESS, ''}
+    NETWORK: ${env:NETWORK, ''}
+    WALLET_PRIVATE_KEY: ${env:WALLET_PRIVATE_KEY, ''}
+    GENERATE_SHARED_TYPES: ${env:GENERATE_SHARED_TYPES, 'false'}
+    GITHUB_KEY: ${env:GITHUB_KEY, ''}
 
 package:
   excludeDevDependencies: true
@@ -51,14 +59,14 @@ functions:
       - websocket: $connect
       - websocket: $disconnect
       - websocket: $default
-  cron:
-    handler: build/serverless/cron.handle
-    timeout: 600
-    events:
-      - schedule:
-          rate: rate(30 minutes)
-          # CHANGE THIS TO "true" TO RUN CRONS
-          enabled: false
-          input:
-            job: TestCron
+  # cron:
+  #   handler: build/serverless/cron.handle
+  #   timeout: 600
+  #   events:
+  #     - schedule:
+  #         rate: rate(30 minutes)
+  #         # CHANGE THIS TO "true" TO RUN CRONS
+  #         enabled: false
+  #         input:
+  #           job: TestCron
 
