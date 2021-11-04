@@ -51,12 +51,6 @@ export namespace MeemAPI {
 		website: string
 	}
 
-	export interface IMeemSplit {
-		toAddress: string
-		amount: number
-		lockedBy?: string
-	}
-
 	export enum Chain {
 		Ethereum,
 		Polygon,
@@ -96,6 +90,89 @@ export namespace MeemAPI {
 		Mumbai = 'mumbai'
 	}
 
+	export interface IMeemSplit {
+		toAddress: string
+		amount: number
+		lockedBy?: string
+	}
+
+	export interface IMeemMetadata {
+		name: string
+		description: string
+		external_url: string
+		image: string
+		image_original_url: string
+		background_color: string | null
+		attributes: any[]
+	}
+
+	export interface IMeemPermission {
+		permission: Permission
+		addresses: string[]
+		numTokens: number
+		lockedBy: string
+	}
+
+	export interface IMeemProperties {
+		totalChildren: number
+		totalChildrenLockedBy: string
+		childrenPerWallet: number
+		childrenPerWalletLockedBy: string
+		copyPermissions: IMeemPermission[]
+		remixPermissions: IMeemPermission[]
+		readPermissions: IMeemPermission[]
+		copyPermissionsLockedBy: string
+		remixPermissionsLockedBy: string
+		readPermissionsLockedBy: string
+		splits: IMeemSplit[]
+		splitsLockedBy: string
+	}
+
+	export interface IMeem {
+		owner: string
+		chain: Chain
+		parent: string
+		uparentTokenId: number
+		root: string
+		urootTokenId: number
+		properties: IMeemProperties
+		childProperties: IMeemProperties
+	}
+
+	export interface MeemPermissions {
+		copyPermissions: [
+			{
+				permission: number
+				addresses: string[]
+				numTokens: number
+				lockedBy: string
+			}
+		]
+		remixPermissions: [
+			{
+				permission: number
+				addresses: string[]
+				numTokens: number
+				lockedBy: string
+			}
+		]
+		readPermissions: [
+			{
+				permission: number
+				addresses: string[]
+				numTokens: number
+				lockedBy: string
+			}
+		]
+		copyPermissionsLockedBy: string
+		remixPermissionsLockedBy: string
+		readPermissionsLockedBy: string
+		splits: IMeemSplit[]
+		splitsLockedBy: string
+		totalCopies: number
+		totalCopiesLockedBy: string
+	}
+
 	export namespace v1 {
 		/** Get Config */
 		export namespace GetConfig {
@@ -106,6 +183,32 @@ export namespace MeemAPI {
 			export const method = HttpMethod.Get
 
 			export interface IQueryParams {}
+
+			export interface IRequestBody {}
+
+			export interface IResponseBody extends IApiResponseBody {}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		/** Get Info about Token */
+		export namespace GetIPFSFile {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/ipfs`
+
+			export const method = HttpMethod.Get
+
+			export interface IQueryParams {
+				filename: string
+			}
 
 			export interface IRequestBody {}
 
@@ -138,9 +241,7 @@ export namespace MeemAPI {
 			export interface IRequestBody {}
 
 			export interface IResponseBody extends IApiResponseBody {
-				meem: {
-					chain: number
-				}
+				meem: IMeem
 			}
 
 			export interface IDefinition {

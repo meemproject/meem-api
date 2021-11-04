@@ -24,12 +24,6 @@ export interface IWhitelistItem {
 	website: string
 }
 
-export interface IMeemSplit {
-	toAddress: string
-	amount: number
-	lockedBy?: string
-}
-
 export enum Chain {
 	Ethereum,
 	Polygon,
@@ -67,4 +61,87 @@ export enum NetworkName {
 	Rinkeby = 'rinkeby',
 	Polygon = 'matic',
 	Mumbai = 'mumbai'
+}
+
+export interface IMeemSplit {
+	toAddress: string
+	amount: number
+	lockedBy?: string
+}
+
+export interface IMeemMetadata {
+	name: string
+	description: string
+	external_url: string
+	image: string
+	image_original_url: string
+	background_color: string | null
+	attributes: any[]
+}
+
+export interface IMeemPermission {
+	permission: Permission
+	addresses: string[]
+	numTokens: number
+	lockedBy: string
+}
+
+export interface IMeemProperties {
+	totalChildren: number
+	totalChildrenLockedBy: string
+	childrenPerWallet: number
+	childrenPerWalletLockedBy: string
+	copyPermissions: IMeemPermission[]
+	remixPermissions: IMeemPermission[]
+	readPermissions: IMeemPermission[]
+	copyPermissionsLockedBy: string
+	remixPermissionsLockedBy: string
+	readPermissionsLockedBy: string
+	splits: IMeemSplit[]
+	splitsLockedBy: string
+}
+
+export interface IMeem {
+	owner: string
+	chain: Chain
+	parent: string
+	uparentTokenId: number
+	root: string
+	urootTokenId: number
+	properties: IMeemProperties
+	childProperties: IMeemProperties
+}
+
+export interface MeemPermissions {
+	copyPermissions: [
+		{
+			permission: number
+			addresses: string[]
+			numTokens: number
+			lockedBy: string
+		}
+	]
+	remixPermissions: [
+		{
+			permission: number
+			addresses: string[]
+			numTokens: number
+			lockedBy: string
+		}
+	]
+	readPermissions: [
+		{
+			permission: number
+			addresses: string[]
+			numTokens: number
+			lockedBy: string
+		}
+	]
+	copyPermissionsLockedBy: string
+	remixPermissionsLockedBy: string
+	readPermissionsLockedBy: string
+	splits: IMeemSplit[]
+	splitsLockedBy: string
+	totalCopies: number
+	totalCopiesLockedBy: string
 }

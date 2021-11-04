@@ -18,12 +18,13 @@ export default class MeemController {
 		req: IRequest<MeemAPI.v1.GetMeem.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeem.IResponseBody>
 	): Promise<Response> {
-		const { tokenId } = req.query
+		const { tokenId } = req.params
 		const meemContract = services.meem.meemContract()
 
-		const m = await meemContract.getMeem(tokenId)
+		const meem = await meemContract.getMeem(tokenId)
 
-		return res.json({ m })
+		// TODO: Clean up this output so it matches IMeem
+		return res.json({ meem })
 	}
 
 	public static async mintMeem(
@@ -35,6 +36,7 @@ export default class MeemController {
 
 		const m = await meemContract.getMeem(tokenId)
 
+		// TODO: Finish minting
 		return res.json({ m })
 	}
 
@@ -52,5 +54,20 @@ export default class MeemController {
 		const tokenURI = await contract.tokenURI(tokenId)
 
 		return res.json({ owner, tokenURI })
+	}
+
+	public static async getIPFSFile(
+		req: IRequest<MeemAPI.v1.GetIPFSFile.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetIPFSFile.IResponseBody>
+	): Promise<any> {
+		const { filename } = req.query
+		const { body, type } = await services.ipfs.getIPFSFile(filename)
+
+		if (type === 'application/json') {
+			return res.json({ metadata: { ...body } })
+		}
+
+		res.setHeader('content-type', type)
+		return res.end(body, 'binary')
 	}
 }

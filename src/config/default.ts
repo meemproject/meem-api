@@ -54,5 +54,8 @@ export default {
 	NETWORK: process.env.NETWORK ?? 'rinkeby',
 	WALLET_PRIVATE_KEY: process.env.WALLET_PRIVATE_KEY ?? '',
 	MEEM_PROXY_ADDRESS: process.env.MEEM_PROXY_ADDRESS ?? '',
-	INFURA_ID: process.env.INFURA_ID ?? ''
+	INFURA_ID: process.env.INFURA_ID ?? '',
+	IPFS_CONTENT_GATEWAY_URL:
+		process.env.IPFS_CONTENT_GATEWAY_URL ?? 'https://gateway.ipfs.io',
+	GITHUB_KEY: process.env.GITHUB_KEY ?? ''
 }

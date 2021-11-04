@@ -1,6 +1,7 @@
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 import { isUndefined as _isUndefined, keys as _keys } from 'lodash'
+import request from 'superagent'
 import ERC721ABI from '../abis/ERC721.json'
 import MeemABI from '../abis/Meem.json'
 import meemWhitelist from '../lib/meem-whitelist.json'
@@ -237,11 +238,31 @@ export default class MeemService {
 			throw new Error('TOKEN_NOT_OWNED')
 		}
 
-		const meemImage = await createMeemImage({
-			imageUrl: asset.imageUrl,
-			responseType: 'base64',
-			options: {} // TODO: Specify options if needed
-		})
+		const tokenURI = await contract.tokenURI(data.tokenId)
+		let metadata: Record<string, any> = {}
+		if (/^ipfs/.test(tokenURI)) {
+			const result = await services.ipfs.getIPFSFile(tokenURI)
+			if (result.type !== 'application/json') {
+				throw new Error('INVALID_METADATA')
+			}
+			metadata = result.body
+		} else {
+			const result = await request.get(tokenURI)
+			if (result.type !== 'application/json') {
+				throw new Error('INVALID_METADATA')
+			}
+			metadata = result.body
+		}
+
+		log.debug(`Image: ${metadata.image}`)
+
+		// TODO: Create image w/ sharp
+
+		// const meemImage = await createMeemImage({
+		// 	imageUrl: asset.imageUrl,
+		// 	responseType: 'base64',
+		// 	options: {} // TODO: Specify options if needed
+		// })
 
 		const meemMetadata = await saveMeemMetadata(asset, meemImage)
 
