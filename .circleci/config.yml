@@ -48,12 +48,13 @@ workflows:
   version: 2
   do_build:
     jobs:
-      - test:
-          context: private_packages
-          filters:
-            branches:
-              ignore:
-                - master
+      # TODO: Enable tests
+      # - test:
+      #     context: private_packages
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
       - release:
           context: private_packages
           filters:

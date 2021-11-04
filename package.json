@@ -1,12 +1,11 @@
 {
-	"name": "@kengoldfarb/starter",
+	"name": "@meemproject/meem-api",
 	"version": "1.0.0",
-	"description": "An API starting point that runs anywhere including aws lambda via Serverless",
+	"description": "Meem API",
 	"main": "build/server.js",
 	"engines": {
 		"node": "^14"
 	},
-	"type": "commonjs",
 	"scripts": {
 		"########## Build ##########": "",
 		"clean": "rm -rf build/*",
@@ -120,16 +119,5 @@
 	},
 	"optionalDependencies": {
 		"fsevents": "^2.3.2"
-	},
-	"author": "💈  Barbershop <hello@barbershop.io> (http://barbershop.io)",
-	"contributors": [
-		{
-			"name": "Ken Goldfarb",
-			"email": "ken@barbershop.io"
-		},
-		{
-			"name": "Corban Baxter",
-			"email": "corban@barbershop.io"
-		}
-	]
+	}
 }
