@@ -23,7 +23,7 @@ function handleStringErrorKey(res: Response, errorKey: string) {
 
 	return res.status(err.httpCode).json({
 		status: 'failure',
-		code: err.code,
+		code: errorKey,
 		reason: err.reason,
 		friendlyReason: err.friendlyReason
 	})
@@ -33,14 +33,6 @@ function errorHandler(res: Response, errorKey: any) {
 	try {
 		switch (typeof errorKey) {
 			case 'object':
-				if (errorKey.lthrResponseError === true) {
-					return res.status(errorKey.httpCode).json({
-						status: errorKey.status,
-						code: errorKey.code,
-						reason: errorKey.reason,
-						friendlyReason: errorKey.friendlyReason
-					})
-				}
 				if (errorKey.message) {
 					return handleStringErrorKey(res, errorKey.message)
 				}

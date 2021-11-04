@@ -5,6 +5,7 @@ import express, { Express } from 'express'
 import globby from 'globby'
 import socketsConfig from '../sockets'
 import Configuration from './Configuration'
+import errorMiddleware from './errorMiddleware'
 import Orm from './Orm'
 import Sockets from './Sockets'
 
@@ -135,6 +136,8 @@ export default async function start() {
 				log.warn(e)
 			})
 	}
+
+	errorMiddleware(app)
 
 	return {
 		server,

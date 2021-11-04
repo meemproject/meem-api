@@ -1,5 +1,4 @@
 import { Response } from 'express'
-import meemWhitelist from '../lib/meem-whitelist.json'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -8,22 +7,10 @@ export default class MeemController {
 		req: IRequest<MeemAPI.v1.GetWhitelist.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetWhitelist.IResponseBody>
 	): Promise<Response> {
-		const list: Record<string, MeemAPI.IWhitelistItem> = {}
-		Object.keys(meemWhitelist).forEach(k => {
-			const item = (meemWhitelist as MeemAPI.IWhitelist)[k]
-			const license = Object.keys(MeemAPI.License).includes(item.license)
-				? item.license
-				: MeemAPI.License.Unknown
-			list[k] = {
-				...item,
-				license
-			}
-		})
+		const whitelist = services.meem.getWhitelist()
 
 		return res.json({
-			whitelist: {
-				...list
-			}
+			whitelist
 		})
 	}
 
@@ -37,5 +24,33 @@ export default class MeemController {
 		const m = await meemContract.getMeem(tokenId)
 
 		return res.json({ m })
+	}
+
+	public static async mintMeem(
+		req: IRequest<MeemAPI.v1.MintMeem.IDefinition>,
+		res: IResponse<MeemAPI.v1.MintMeem.IResponseBody>
+	): Promise<Response> {
+		const { tokenId } = req.query
+		const meemContract = services.meem.meemContract()
+
+		const m = await meemContract.getMeem(tokenId)
+
+		return res.json({ m })
+	}
+
+	public static async getTokenInfo(
+		req: IRequest<MeemAPI.v1.GetTokenInfo.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetTokenInfo.IResponseBody>
+	): Promise<Response> {
+		const { tokenId, networkName, address } = req.query
+		const contract = services.meem.erc721Contract({
+			networkName,
+			address
+		})
+
+		const owner = await contract.ownerOf(tokenId)
+		const tokenURI = await contract.tokenURI(tokenId)
+
+		return res.json({ owner, tokenURI })
 	}
 }

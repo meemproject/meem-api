@@ -51,6 +51,51 @@ export namespace MeemAPI {
 		website: string
 	}
 
+	export interface IMeemSplit {
+		toAddress: string
+		amount: number
+		lockedBy?: string
+	}
+
+	export enum Chain {
+		Ethereum,
+		Polygon,
+		Cardano,
+		Solana
+	}
+
+	export enum PermissionType {
+		Copy,
+		Remix,
+		Read
+	}
+
+	export enum Permission {
+		Owner,
+		Anyone,
+		Addresses,
+		Holders
+	}
+
+	export enum PropertyType {
+		Meem,
+		Child
+	}
+
+	export enum NetworkChainId {
+		Mainnet = 1,
+		Rinkeby = 4,
+		Polygon = 137,
+		Mumbai = 80001
+	}
+
+	export enum NetworkName {
+		Mainnet = 'homestead',
+		Rinkeby = 'rinkeby',
+		Polygon = 'matic',
+		Mumbai = 'mumbai'
+	}
+
 	export namespace v1 {
 		/** Get Config */
 		export namespace GetConfig {
@@ -108,6 +153,37 @@ export namespace MeemAPI {
 			export type Response = IResponseBody | IError
 		}
 
+		/** Get Info about Token */
+		export namespace GetTokenInfo {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/tokenInfo`
+
+			export const method = HttpMethod.Get
+
+			export interface IQueryParams {
+				address: string
+				tokenId: number
+				networkName: NetworkName
+			}
+
+			export interface IRequestBody {}
+
+			export interface IResponseBody extends IApiResponseBody {
+				owner: string
+				tokenURI: string
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
 		/** Get whitelisted NFT contracts */
 		export namespace GetWhitelist {
 			export interface IPathParams {}
@@ -124,6 +200,61 @@ export namespace MeemAPI {
 				whitelist: {
 					[contractAddress: string]: IWhitelistItem
 				}
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		/** Mint a new Meem */
+		export namespace MintMeem {
+			export interface IPathParams {
+				/** The token id to fetch */
+				tokenId: string
+			}
+
+			export const path = (options: IPathParams) => `/api/1.0/meems`
+
+			export const method = HttpMethod.Post
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {
+				tokenAddress: string
+				tokenId: number
+				chain: number
+				accountAddress: string
+				meemImageOptions: {
+					flipX: boolean
+					flipY: boolean
+				}
+				permissions: {
+					owner: {
+						copyPermissions: [
+							{
+								permission: number
+								addresses: string[]
+								numTokens: number
+								lockedBy?: string
+							}
+						]
+						totalChildren: number
+						totalChildrenLockedBy?: string
+						splits: IMeemSplit[]
+					}
+				}
+				useTestnet?: boolean
+			}
+
+			export interface IResponseBody extends IApiResponseBody {
+				transactionHash: string
+				tokenId: string
 			}
 
 			export interface IDefinition {

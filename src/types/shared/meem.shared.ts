@@ -23,3 +23,48 @@ export interface IWhitelistItem {
 	/** Link to the NFT website */
 	website: string
 }
+
+export interface IMeemSplit {
+	toAddress: string
+	amount: number
+	lockedBy?: string
+}
+
+export enum Chain {
+	Ethereum,
+	Polygon,
+	Cardano,
+	Solana
+}
+
+export enum PermissionType {
+	Copy,
+	Remix,
+	Read
+}
+
+export enum Permission {
+	Owner,
+	Anyone,
+	Addresses,
+	Holders
+}
+
+export enum PropertyType {
+	Meem,
+	Child
+}
+
+export enum NetworkChainId {
+	Mainnet = 1,
+	Rinkeby = 4,
+	Polygon = 137,
+	Mumbai = 80001
+}
+
+export enum NetworkName {
+	Mainnet = 'homestead',
+	Rinkeby = 'rinkeby',
+	Polygon = 'matic',
+	Mumbai = 'mumbai'
+}
