@@ -106,7 +106,7 @@ export const handle: APIGatewayProxyHandlerV2 = async (event, context) => {
 	context.callbackWaitsForEmptyEventLoop = false
 
 	if (!request || !server) {
-		server = (await start) as Express.Application
+		server = (await start()) as Express.Application
 		request = supertest(server)
 	}
 
