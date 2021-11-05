@@ -158,16 +158,15 @@ export type FacetStructOutput = [string, string[]] & {
 
 export interface MeemInterface extends ethers.utils.Interface {
   functions: {
-    "DEFAULT_ADMIN_ROLE()": FunctionFragment;
+    "ADMIN_ROLE()": FunctionFragment;
     "MINTER_ROLE()": FunctionFragment;
-    "PAUSER_ROLE()": FunctionFragment;
-    "UPGRADER_ROLE()": FunctionFragment;
     "grantRole(address,bytes32)": FunctionFragment;
     "hasRole(address,bytes32)": FunctionFragment;
     "revokeRole(address,bytes32)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "baseTokenURI()": FunctionFragment;
+    "burn(uint256)": FunctionFragment;
     "contractAddress()": FunctionFragment;
     "contractURI()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
@@ -176,7 +175,6 @@ export interface MeemInterface extends ethers.utils.Interface {
     "ownerOf(uint256)": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
-    "setContractURI(string)": FunctionFragment;
     "symbol()": FunctionFragment;
     "tokenByIndex(uint256)": FunctionFragment;
     "tokenOfOwnerByIndex(address,uint256)": FunctionFragment;
@@ -186,10 +184,9 @@ export interface MeemInterface extends ethers.utils.Interface {
     "childDepth()": FunctionFragment;
     "childrenOf(uint256)": FunctionFragment;
     "getMeem(uint256)": FunctionFragment;
+    "isNFTWrapped(address,uint256)": FunctionFragment;
     "mint(address,string,uint8,address,uint256,address,uint256,(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address))": FunctionFragment;
     "numChildrenOf(uint256)": FunctionFragment;
-    "setChildDepth(uint256)": FunctionFragment;
-    "setTokenCounter(uint256)": FunctionFragment;
     "tokenIdsOfOwner(address)": FunctionFragment;
     "addPermission(uint256,uint8,uint8,(uint8,address[],uint256,address))": FunctionFragment;
     "lockChildrenPerWallet(uint256)": FunctionFragment;
@@ -202,7 +199,6 @@ export interface MeemInterface extends ethers.utils.Interface {
     "getRaribleV2Royalties(uint256)": FunctionFragment;
     "nonOwnerSplitAllocationAmount()": FunctionFragment;
     "removeSplitAt(uint256,uint8,uint256)": FunctionFragment;
-    "setNonOwnerSplitAllocationAmount(uint256)": FunctionFragment;
     "updateSplitAt(uint256,uint8,uint256,(address,uint256,address))": FunctionFragment;
     "acceptOwnership()": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -219,19 +215,11 @@ export interface MeemInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(
-    functionFragment: "DEFAULT_ADMIN_ROLE",
+    functionFragment: "ADMIN_ROLE",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "MINTER_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "PAUSER_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "UPGRADER_ROLE",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -255,6 +243,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "baseTokenURI",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "burn", values: [BigNumberish]): string;
   encodeFunctionData(
     functionFragment: "contractAddress",
     values?: undefined
@@ -283,10 +272,6 @@ export interface MeemInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "setApprovalForAll",
     values: [string, boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setContractURI",
-    values: [string]
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
@@ -322,6 +307,10 @@ export interface MeemInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "isNFTWrapped",
+    values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "mint",
     values: [
       string,
@@ -337,14 +326,6 @@ export interface MeemInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "numChildrenOf",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setChildDepth",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setTokenCounter",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -402,10 +383,6 @@ export interface MeemInterface extends ethers.utils.Interface {
     values: [BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "setNonOwnerSplitAllocationAmount",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "updateSplitAt",
     values: [BigNumberish, BigNumberish, BigNumberish, SplitStruct]
   ): string;
@@ -452,20 +429,9 @@ export interface MeemInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "DEFAULT_ADMIN_ROLE",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "ADMIN_ROLE", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "MINTER_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "PAUSER_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "UPGRADER_ROLE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
@@ -477,6 +443,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "baseTokenURI",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "contractAddress",
     data: BytesLike
@@ -503,10 +470,6 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "setApprovalForAll",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setContractURI",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tokenByIndex",
@@ -528,17 +491,13 @@ export interface MeemInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "childDepth", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "childrenOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getMeem", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "isNFTWrapped",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "numChildrenOf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setChildDepth",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setTokenCounter",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -584,10 +543,6 @@ export interface MeemInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "removeSplitAt",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setNonOwnerSplitAllocationAmount",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -797,13 +752,9 @@ export interface Meem extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
+    ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     MINTER_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    PAUSER_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    UPGRADER_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     grantRole(
       user: string,
@@ -835,6 +786,11 @@ export interface Meem extends BaseContract {
     ): Promise<[BigNumber] & { balance: BigNumber }>;
 
     baseTokenURI(overrides?: CallOverrides): Promise<[string]>;
+
+    burn(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     contractAddress(overrides?: CallOverrides): Promise<[string]>;
 
@@ -879,11 +835,6 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setContractURI(
-      newContractURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
     tokenByIndex(
@@ -925,6 +876,12 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[MeemStructOutput]>;
 
+    isNFTWrapped(
+      contractAddress: string,
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     mint(
       to: string,
       mTokenURI: string,
@@ -942,16 +899,6 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
-
-    setChildDepth(
-      newChildDepth: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setTokenCounter(
-      tokenCounter: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     tokenIdsOfOwner(
       _owner: string,
@@ -1028,11 +975,6 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setNonOwnerSplitAllocationAmount(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     updateSplitAt(
       tokenId: BigNumberish,
       propertyType: BigNumberish,
@@ -1092,13 +1034,9 @@ export interface Meem extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+  ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
   MINTER_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  PAUSER_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  UPGRADER_ROLE(overrides?: CallOverrides): Promise<string>;
 
   grantRole(
     user: string,
@@ -1127,6 +1065,11 @@ export interface Meem extends BaseContract {
   balanceOf(_owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   baseTokenURI(overrides?: CallOverrides): Promise<string>;
+
+  burn(
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   contractAddress(overrides?: CallOverrides): Promise<string>;
 
@@ -1168,11 +1111,6 @@ export interface Meem extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setContractURI(
-    newContractURI: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   symbol(overrides?: CallOverrides): Promise<string>;
 
   tokenByIndex(
@@ -1209,6 +1147,12 @@ export interface Meem extends BaseContract {
     overrides?: CallOverrides
   ): Promise<MeemStructOutput>;
 
+  isNFTWrapped(
+    contractAddress: string,
+    tokenId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   mint(
     to: string,
     mTokenURI: string,
@@ -1226,16 +1170,6 @@ export interface Meem extends BaseContract {
     tokenId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
-
-  setChildDepth(
-    newChildDepth: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setTokenCounter(
-    tokenCounter: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   tokenIdsOfOwner(
     _owner: string,
@@ -1310,11 +1244,6 @@ export interface Meem extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setNonOwnerSplitAllocationAmount(
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   updateSplitAt(
     tokenId: BigNumberish,
     propertyType: BigNumberish,
@@ -1367,13 +1296,9 @@ export interface Meem extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+    ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
     MINTER_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    PAUSER_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    UPGRADER_ROLE(overrides?: CallOverrides): Promise<string>;
 
     grantRole(
       user: string,
@@ -1402,6 +1327,8 @@ export interface Meem extends BaseContract {
     balanceOf(_owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     baseTokenURI(overrides?: CallOverrides): Promise<string>;
+
+    burn(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     contractAddress(overrides?: CallOverrides): Promise<string>;
 
@@ -1443,11 +1370,6 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setContractURI(
-      newContractURI: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     symbol(overrides?: CallOverrides): Promise<string>;
 
     tokenByIndex(
@@ -1484,6 +1406,12 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<MeemStructOutput>;
 
+    isNFTWrapped(
+      contractAddress: string,
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     mint(
       to: string,
       mTokenURI: string,
@@ -1495,22 +1423,12 @@ export interface Meem extends BaseContract {
       mProperties: MeemPropertiesStruct,
       mChildProperties: MeemPropertiesStruct,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<void>;
 
     numChildrenOf(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    setChildDepth(
-      newChildDepth: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setTokenCounter(
-      tokenCounter: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     tokenIdsOfOwner(
       _owner: string,
@@ -1584,11 +1502,6 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       idx: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setNonOwnerSplitAllocationAmount(
-      amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1773,13 +1686,9 @@ export interface Meem extends BaseContract {
   };
 
   estimateGas: {
-    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+    ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     MINTER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    PAUSER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    UPGRADER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     grantRole(
       user: string,
@@ -1808,6 +1717,11 @@ export interface Meem extends BaseContract {
     balanceOf(_owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     baseTokenURI(overrides?: CallOverrides): Promise<BigNumber>;
+
+    burn(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     contractAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1852,11 +1766,6 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setContractURI(
-      newContractURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
     tokenByIndex(
@@ -1896,6 +1805,12 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    isNFTWrapped(
+      contractAddress: string,
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     mint(
       to: string,
       mTokenURI: string,
@@ -1912,16 +1827,6 @@ export interface Meem extends BaseContract {
     numChildrenOf(
       tokenId: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    setChildDepth(
-      newChildDepth: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setTokenCounter(
-      tokenCounter: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     tokenIdsOfOwner(
@@ -1996,11 +1901,6 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       idx: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setNonOwnerSplitAllocationAmount(
-      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2060,15 +1960,9 @@ export interface Meem extends BaseContract {
   };
 
   populateTransaction: {
-    DEFAULT_ADMIN_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     MINTER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    PAUSER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    UPGRADER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     grantRole(
       user: string,
@@ -2100,6 +1994,11 @@ export interface Meem extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     baseTokenURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    burn(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     contractAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -2144,11 +2043,6 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setContractURI(
-      newContractURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     tokenByIndex(
@@ -2188,6 +2082,12 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    isNFTWrapped(
+      contractAddress: string,
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     mint(
       to: string,
       mTokenURI: string,
@@ -2204,16 +2104,6 @@ export interface Meem extends BaseContract {
     numChildrenOf(
       tokenId: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    setChildDepth(
-      newChildDepth: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTokenCounter(
-      tokenCounter: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     tokenIdsOfOwner(
@@ -2288,11 +2178,6 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       idx: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setNonOwnerSplitAllocationAmount(
-      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
