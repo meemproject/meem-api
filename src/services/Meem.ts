@@ -1,13 +1,15 @@
-import { BigNumber } from 'bignumber.js'
+import * as path from 'path'
 import { ethers } from 'ethers'
 import { isUndefined as _isUndefined, keys as _keys } from 'lodash'
+import sharp from 'sharp'
 import request from 'superagent'
+import { v4 as uuidv4 } from 'uuid'
 import ERC721ABI from '../abis/ERC721.json'
 import MeemABI from '../abis/Meem.json'
 import meemWhitelist from '../lib/meem-whitelist.json'
 import { Meem, ERC721 } from '../types'
 import { MeemAPI } from '../types/meem.generated'
-import { NetworkName } from '../types/shared/meem.shared'
+import { IERC721Metadata, NetworkName } from '../types/shared/meem.shared'
 
 export default class MeemService {
 	/** Get generic ERC721 contract instance */
@@ -41,6 +43,25 @@ export default class MeemService {
 		const contract = new ethers.Contract(address, ERC721ABI, wallet) as ERC721
 
 		return contract
+	}
+
+	public static async getErc721Metadata(tokenURI: string) {
+		let metadata: IERC721Metadata
+		if (/^ipfs/.test(tokenURI)) {
+			const result = await services.ipfs.getIPFSFile(tokenURI)
+			if (result.type !== 'application/json' || !result.body?.image) {
+				throw new Error('INVALID_METADATA')
+			}
+			metadata = result.body
+		} else {
+			const result = await request.get(tokenURI)
+			if (result.type !== 'application/json' || !result.body?.image) {
+				throw new Error('INVALID_METADATA')
+			}
+			metadata = result.body
+		}
+
+		return metadata
 	}
 
 	/** Get a Meem contract instance */
@@ -77,102 +98,28 @@ export default class MeemService {
 	}
 
 	public static async saveMeemMetadataasync(
-		asset: OpenSeaAsset,
-		imageBase64: string,
+		meemData: {
+			imageBase64: string
+			tokenAddress: string
+			tokenId?: number
+			collectionName?: string
+		},
+		originalMetadata: IERC721Metadata,
+		tokenURI: string,
 		meemId?: string
-	): Promise<{ metadata: MeemMetadata; tokenUri: string }> {
+	): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
 		const id = meemId || uuidv4()
 
-		const octokit = new Octokit({
-			auth: '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'
+		const result = await services.git.saveMeemMetadata({
+			...meemData,
+			name: originalMetadata.name || '',
+			description: originalMetadata.description || '',
+			originalImage: originalMetadata.image,
+			tokenURI,
+			meemId: id
 		})
 
-		const master = await octokit.git.getRef({
-			owner: 'meemproject',
-			repo: 'metadata',
-			ref: 'heads/test'
-		})
-
-		const treeItems: {
-			path: string
-			mode: '100644'
-			type: 'blob'
-			sha: string
-		}[] = []
-
-		const imageGit = await octokit.git.createBlob({
-			owner: 'meemproject',
-			repo: 'metadata',
-			content: imageBase64,
-			encoding: 'base64'
-		})
-
-		treeItems.push({
-			path: `meem/images/${id}.png`,
-			sha: imageGit.data.sha,
-			mode: '100644',
-			type: 'blob'
-		})
-
-		const metadata: MeemMetadata = {
-			name: asset.collection?.name
-				? `${asset.collection.name} – ${asset.name || asset.tokenId}`
-				: `${asset.name || asset.tokenId}`,
-			description: asset.description,
-			external_url: `https://meem.wtf/meem/${id}`,
-			image: `https://raw.githubusercontent.com/meemproject/metadata/test/meem/images/${id}.png`,
-			image_original_url: asset.imageUrlOriginal || asset.imageUrl,
-			background_color: asset.backgroundColor,
-			attributes: [
-				...asset.traits,
-				{
-					display_type: 'number',
-					trait_type: 'Meem Generation',
-					value: 0
-				}
-			]
-		}
-
-		const metadataGit = await octokit.git.createBlob({
-			owner: 'meemproject',
-			repo: 'metadata',
-			content: JSON.stringify(metadata),
-			encoding: 'utf-8'
-		})
-
-		treeItems.push({
-			path: `meem/${id}.json`,
-			sha: metadataGit.data.sha,
-			mode: '100644',
-			type: 'blob'
-		})
-
-		const tree = await octokit.git.createTree({
-			owner: 'meemproject',
-			repo: 'metadata',
-			tree: treeItems,
-			base_tree: master.data.object.sha
-		})
-
-		const commit = await octokit.git.createCommit({
-			owner: 'meemproject',
-			repo: 'metadata',
-			message: `New Meem Created: ${id}`,
-			tree: tree.data.sha,
-			parents: [master.data.object.sha]
-		})
-
-		await octokit.git.updateRef({
-			owner: 'meemproject',
-			repo: 'metadata',
-			ref: 'heads/test',
-			sha: commit.data.sha
-		})
-
-		return {
-			metadata,
-			tokenUri: `https://raw.githubusercontent.com/meemproject/metadata/test/meem/${id}.json`
-		}
+		return result
 	}
 
 	/** Mint a Meem */
@@ -200,17 +147,17 @@ export default class MeemService {
 			throw new Error('INVALID_PERMISSIONS')
 		}
 
-		const meemRegistry = await services.meem.getWhitelist()
+		// const meemRegistry = await services.meem.getWhitelist()
 
-		const validMeemProject = _keys(meemRegistry).find(
-			contractId => contractId === data.tokenAddress
-		)
+		// const validMeemProject = _keys(meemRegistry).find(
+		// 	contractId => contractId === data.tokenAddress
+		// )
 
-		if (!validMeemProject) {
-			throw new Error('INVALID_MEEM_PROJECT')
-		}
+		// if (!validMeemProject) {
+		// 	throw new Error('INVALID_MEEM_PROJECT')
+		// }
 
-		// const network = data.useTestnet ? Network.Rinkeby : Network.Main
+		// const network = data.mintToTestnet ? Network.Rinkeby : Network.Main
 
 		// const seaport = new OpenSeaPort(web3.currentProvider, {
 		// 	networkName: Network.Main
@@ -226,11 +173,14 @@ export default class MeemService {
 		// 	asset
 		// })
 
-		// const ownsNFT = data.useTestnet ? true : balance.greaterThan(0)
+		// const ownsNFT = data.mintToTestnet ? true : balance.greaterThan(0)
 		const contract = this.erc721Contract({
-			networkName: data.useTestnet ? NetworkName.Rinkeby : NetworkName.Mainnet,
+			networkName: data.verifyOwnerOnTestnet
+				? NetworkName.Rinkeby
+				: NetworkName.Mainnet,
 			address: data.tokenAddress
 		})
+
 		const owner = await contract.ownerOf(data.tokenId)
 		const isNFTOwner = owner.toLowerCase() === data.accountAddress.toLowerCase()
 
@@ -239,169 +189,196 @@ export default class MeemService {
 		}
 
 		const tokenURI = await contract.tokenURI(data.tokenId)
-		let metadata: Record<string, any> = {}
-		if (/^ipfs/.test(tokenURI)) {
-			const result = await services.ipfs.getIPFSFile(tokenURI)
-			if (result.type !== 'application/json') {
-				throw new Error('INVALID_METADATA')
+
+		const metadata = await this.getErc721Metadata(tokenURI)
+
+		let image
+
+		if (/^ipfs/.test(metadata.image)) {
+			const result = await services.ipfs.getIPFSFile(metadata.image)
+			if (!/image/.test(result.type)) {
+				throw new Error('INVALID_IMAGE_TYPE')
 			}
-			metadata = result.body
+			image = Buffer.from(result.body)
 		} else {
-			const result = await request.get(tokenURI)
-			if (result.type !== 'application/json') {
-				throw new Error('INVALID_METADATA')
-			}
-			metadata = result.body
+			const { body } = await request.get(metadata.image)
+			image = Buffer.from(body)
 		}
 
-		log.debug(`Image: ${metadata.image}`)
+		const badgeImagePath = path.resolve(__dirname, '../lib/meem-badge.png')
+		const badgeImage = sharp(badgeImagePath)
+		const meemImage = sharp(image)
 
-		// TODO: Create image w/ sharp
+		const meemImageMetadata = await meemImage.metadata()
+		const meemImageWidth = meemImageMetadata.width || 400
+		// const meemImageHeight = meemImageMetadata.height || 400
+		const meemBadgeOffset = Math.round(meemImageWidth * 0.02)
+		const meemBadgeWidth = Math.round(meemImageWidth * 0.2)
+		// const badgeWidth = meemImageWidth * 0.2
 
-		// const meemImage = await createMeemImage({
-		// 	imageUrl: asset.imageUrl,
-		// 	responseType: 'base64',
-		// 	options: {} // TODO: Specify options if needed
-		// })
+		const badgeImageBuffer = await badgeImage.resize(meemBadgeWidth).toBuffer()
 
-		const meemMetadata = await saveMeemMetadata(asset, meemImage)
+		const compositeMeemImage = await meemImage
+			.composite([
+				{
+					input: badgeImageBuffer,
+					top: meemBadgeOffset,
+					left: meemBadgeOffset,
+					blend: 'hard-light'
+				}
+			])
+			.toBuffer()
 
-		const meemContract = this.meemContract()
+		const base64MeemImage = compositeMeemImage.toString('base64')
+
+		const meemMetadata = await MeemService.saveMeemMetadataasync(
+			{
+				imageBase64: base64MeemImage,
+				tokenAddress: data.tokenAddress,
+				tokenId: data.tokenId
+			},
+			metadata,
+			tokenURI
+		)
+
+		return meemMetadata
+
+		// const meemContract = this.meemContract()
 
 		// Mint the Meem
 
-		const splitsData: MeemSplit[] = []
+		// const splitsData: SplitStruct[] = []
 
-		try {
-			data.permissions.owner.splits.forEach(s => {
-				if (s.toAddress && !_isUndefined(s.amount)) {
-					splitsData.push({
-						toAddress: s.toAddress,
-						amount: s.amount,
-						lockedBy: s.lockedBy
-							? s.lockedBy
-							: '0x0000000000000000000000000000000000000000'
-					})
-				} else {
-					throw Error('Splits formatted incorrectly')
-				}
-			})
-		} catch (e) {
-			throw new Error(
-				'invalid-argument',
-				`Error validating splits format: ${e}`
-			)
-		}
+		// try {
+		// 	data.permissions.owner.splits.forEach(s => {
+		// 		if (s.toAddress && !_isUndefined(s.amount)) {
+		// 			splitsData.push({
+		// 				toAddress: s.toAddress,
+		// 				amount: s.amount,
+		// 				lockedBy: s.lockedBy
+		// 					? s.lockedBy
+		// 					: '0x0000000000000000000000000000000000000000'
+		// 			})
+		// 		} else {
+		// 			throw Error('Splits formatted incorrectly')
+		// 		}
+		// 	})
+		// } catch (e) {
+		// 	throw new Error(
+		// 		'invalid-argument',
+		// 		`Error validating splits format: ${e}`
+		// 	)
+		// }
 
-		await meemContract.setNonOwnerSplitAllocationAmount(100)
+		// await meemContract.setNonOwnerSplitAllocationAmount(100)
 
-		const meem = await meemContract.mint(
-			data.accountAddress,
-			meemMetadata.tokenUri,
-			data.chain,
-			data.tokenAddress,
-			data.tokenId,
-			data.tokenAddress,
-			data.tokenId,
-			{
-				copyPermissions: data.permissions.owner.copyPermissions.map((p, i) => {
-					return {
-						permission: _isUndefined(
-							data.permissions.owner.copyPermissions[i].permission
-						)
-							? 1
-							: data.permissions.owner.copyPermissions[i].permission,
-						addresses: _isUndefined(
-							data.permissions.owner.copyPermissions[i].addresses
-						)
-							? []
-							: data.permissions.owner.copyPermissions[i].addresses,
-						numTokens: _isUndefined(
-							data.permissions.owner.copyPermissions[i].numTokens
-						)
-							? 0
-							: data.permissions.owner.copyPermissions[i].numTokens,
-						lockedBy:
-							data.permissions.owner.copyPermissions[i].lockedBy ||
-							'0x0000000000000000000000000000000000000000'
-					}
-				}),
-				remixPermissions: [
-					{
-						permission: 1,
-						addresses: [],
-						numTokens: 0,
-						lockedBy: '0x0000000000000000000000000000000000000000'
-					}
-				],
-				readPermissions: [
-					{
-						permission: 1,
-						addresses: [],
-						numTokens: 0,
-						lockedBy: '0x0000000000000000000000000000000000000000'
-					}
-				],
-				copyPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-				remixPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-				readPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-				splits: splitsData,
-				splitsLockedBy: '0x0000000000000000000000000000000000000000',
-				childrenPerWallet: -1,
-				childrenPerWalletLockedBy: '0x0000000000000000000000000000000000000000',
-				totalChildren: _isUndefined(data.permissions?.owner?.totalChildren)
-					? -1
-					: data.permissions?.owner?.totalChildren,
-				totalChildrenLockedBy: '0x0000000000000000000000000000000000000000'
-			},
-			{
-				copyPermissions: [
-					{
-						permission: 0,
-						addresses: [],
-						numTokens: 0,
-						lockedBy: '0x0000000000000000000000000000000000000000'
-					}
-				],
-				remixPermissions: [
-					{
-						permission: 0,
-						addresses: [],
-						numTokens: 0,
-						lockedBy: '0x0000000000000000000000000000000000000000'
-					}
-				],
-				readPermissions: [
-					{
-						permission: 0,
-						addresses: [],
-						numTokens: 0,
-						lockedBy: '0x0000000000000000000000000000000000000000'
-					}
-				],
-				copyPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-				remixPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-				readPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-				splits: splitsData,
-				splitsLockedBy: '0x0000000000000000000000000000000000000000',
-				childrenPerWallet: -1,
-				childrenPerWalletLockedBy: '0x0000000000000000000000000000000000000000',
-				totalChildren: 0,
-				totalChildrenLockedBy: '0x0000000000000000000000000000000000000000'
-			}
-		)
+		// const meem = await meemContract.mint(
+		// 	data.accountAddress,
+		// 	meemMetadata.tokenUri,
+		// 	data.chain,
+		// 	data.tokenAddress,
+		// 	data.tokenId,
+		// 	data.tokenAddress,
+		// 	data.tokenId,
+		// 	{
+		// 		copyPermissions: data.permissions.owner.copyPermissions.map((p, i) => {
+		// 			return {
+		// 				permission: _isUndefined(
+		// 					data.permissions.owner.copyPermissions[i].permission
+		// 				)
+		// 					? 1
+		// 					: data.permissions.owner.copyPermissions[i].permission,
+		// 				addresses: _isUndefined(
+		// 					data.permissions.owner.copyPermissions[i].addresses
+		// 				)
+		// 					? []
+		// 					: data.permissions.owner.copyPermissions[i].addresses,
+		// 				numTokens: _isUndefined(
+		// 					data.permissions.owner.copyPermissions[i].numTokens
+		// 				)
+		// 					? 0
+		// 					: data.permissions.owner.copyPermissions[i].numTokens,
+		// 				lockedBy:
+		// 					data.permissions.owner.copyPermissions[i].lockedBy ||
+		// 					'0x0000000000000000000000000000000000000000'
+		// 			}
+		// 		}),
+		// 		remixPermissions: [
+		// 			{
+		// 				permission: 1,
+		// 				addresses: [],
+		// 				numTokens: 0,
+		// 				lockedBy: '0x0000000000000000000000000000000000000000'
+		// 			}
+		// 		],
+		// 		readPermissions: [
+		// 			{
+		// 				permission: 1,
+		// 				addresses: [],
+		// 				numTokens: 0,
+		// 				lockedBy: '0x0000000000000000000000000000000000000000'
+		// 			}
+		// 		],
+		// 		copyPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
+		// 		remixPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
+		// 		readPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
+		// 		splits: splitsData,
+		// 		splitsLockedBy: '0x0000000000000000000000000000000000000000',
+		// 		childrenPerWallet: -1,
+		// 		childrenPerWalletLockedBy: '0x0000000000000000000000000000000000000000',
+		// 		totalChildren: _isUndefined(data.permissions?.owner?.totalChildren)
+		// 			? -1
+		// 			: data.permissions?.owner?.totalChildren,
+		// 		totalChildrenLockedBy: '0x0000000000000000000000000000000000000000'
+		// 	},
+		// 	{
+		// 		copyPermissions: [
+		// 			{
+		// 				permission: 0,
+		// 				addresses: [],
+		// 				numTokens: 0,
+		// 				lockedBy: '0x0000000000000000000000000000000000000000'
+		// 			}
+		// 		],
+		// 		remixPermissions: [
+		// 			{
+		// 				permission: 0,
+		// 				addresses: [],
+		// 				numTokens: 0,
+		// 				lockedBy: '0x0000000000000000000000000000000000000000'
+		// 			}
+		// 		],
+		// 		readPermissions: [
+		// 			{
+		// 				permission: 0,
+		// 				addresses: [],
+		// 				numTokens: 0,
+		// 				lockedBy: '0x0000000000000000000000000000000000000000'
+		// 			}
+		// 		],
+		// 		copyPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
+		// 		remixPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
+		// 		readPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
+		// 		splits: splitsData,
+		// 		splitsLockedBy: '0x0000000000000000000000000000000000000000',
+		// 		childrenPerWallet: -1,
+		// 		childrenPerWalletLockedBy: '0x0000000000000000000000000000000000000000',
+		// 		totalChildren: 0,
+		// 		totalChildrenLockedBy: '0x0000000000000000000000000000000000000000'
+		// 	}
+		// )
 
-		const receipt = await meem.wait()
+		// const receipt = await meem.wait()
 
-		const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
+		// const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
 
-		if (transferEvent && transferEvent.args && transferEvent.args[2]) {
-			const tokenId = (transferEvent.args[2] as BigNumber).toNumber()
-			return {
-				transactionHash: receipt.transactionHash,
-				tokenId
-			}
-		}
-		throw new Error('TRANSFER_EVENT_NOT_FOUND')
+		// if (transferEvent && transferEvent.args && transferEvent.args[2]) {
+		// 	const tokenId = (transferEvent.args[2] as BigNumber).toNumber()
+		// 	return {
+		// 		transactionHash: receipt.transactionHash,
+		// 		tokenId
+		// 	}
+		// }
+		// throw new Error('TRANSFER_EVENT_NOT_FOUND')
 	}
 }

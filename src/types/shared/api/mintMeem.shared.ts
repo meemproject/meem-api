@@ -38,7 +38,8 @@ export namespace MintMeem {
 				splits: IMeemSplit[]
 			}
 		}
-		useTestnet?: boolean
+		verifyOwnerOnTestnet?: boolean
+		mintToTestnet?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

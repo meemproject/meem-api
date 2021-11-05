@@ -5,11 +5,21 @@ import { MeemAPI } from '../types/meem.generated'
 // https://www.reddit.com/r/ipfs/comments/lvwn4o/ipfs_http_gateways_ranked_by_performance/
 
 export default class GitService {
-	public static async saveMeemMetadata(
-		imageBase64: string,
+	public static async saveMeemMetadata(data: {
+		name: string
+		description: string
+		imageBase64: string
+		originalImage: string
+		tokenURI: string
+		tokenAddress: string
+		tokenId?: number
+		collectionName?: string
 		meemId?: string
-	): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenUri: string }> {
-		const id = meemId || uuidv4()
+	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
+		// TODO: Get/Normalize collection name
+		// TODO: Get/Normalize content description
+		// TODO: Get/Normalize traits/attributes/properties for metadata
+		const id = data.meemId || uuidv4()
 
 		const octokit = new Octokit({
 			auth: config.GITHUB_KEY
@@ -31,7 +41,7 @@ export default class GitService {
 		const imageGit = await octokit.git.createBlob({
 			owner: 'meemproject',
 			repo: 'metadata',
-			content: imageBase64,
+			content: data.imageBase64,
 			encoding: 'base64'
 		})
 
@@ -42,17 +52,38 @@ export default class GitService {
 			type: 'blob'
 		})
 
+		const etherscanUrl = `https://etherscan.io/token/${data.tokenAddress}?a=${data.tokenId}`
+
+		let metadataDescription = `Meem Content Description\n\n${data.description}`
+
+		metadataDescription += '\n\nMeem Content Details'
+
+		metadataDescription += `\n\nContract Address: ${data.tokenAddress}`
+
+		if (data.tokenId) {
+			metadataDescription += `\n\nToken ID: ${data.tokenId}`
+		}
+
+		metadataDescription += `\n\nView on Etherscan: ${etherscanUrl}`
+
 		const metadata: MeemAPI.IMeemMetadata = {
-			name: asset.collection?.name
-				? `${asset.collection.name} – ${asset.name || asset.tokenId}`
-				: `${asset.name || asset.tokenId}`,
-			description: asset.description,
+			name: data.collectionName
+				? `${data.collectionName} – ${data.name || data.tokenId}`
+				: `${data.name || data.tokenId}`,
+			description: metadataDescription,
 			external_url: `https://meem.wtf/meem/${id}`,
+			meem_properties: {
+				generation: 0,
+				root_token_uri: data.tokenURI,
+				root_token_address: data.tokenAddress,
+				root_token_id: data.tokenId || null,
+				parent_token_id: null,
+				parent_token_address: null,
+				attributes: []
+			},
 			image: `https://raw.githubusercontent.com/meemproject/metadata/test/meem/images/${id}.png`,
-			image_original_url: asset.imageUrlOriginal || asset.imageUrl,
-			background_color: asset.backgroundColor,
+			image_original_url: data.originalImage,
 			attributes: [
-				...asset.traits,
 				{
 					display_type: 'number',
 					trait_type: 'Meem Generation',
@@ -99,7 +130,7 @@ export default class GitService {
 
 		return {
 			metadata,
-			tokenUri: `https://raw.githubusercontent.com/meemproject/metadata/test/meem/${id}.json`
+			tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/test/meem/${id}.json`
 		}
 	}
 }

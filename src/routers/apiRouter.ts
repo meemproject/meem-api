@@ -11,6 +11,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/config', ConfigController.getConfig)
 	router.getAsync('/whitelist', MeemController.getWhitelist)
 	router.getAsync('/meems/:tokenId', MeemController.getMeem)
+	router.postAsync('/meems/mint', MeemController.mintMeem)
 	router.getAsync('/tokenOwner', MeemController.getTokenInfo)
 	router.getAsync('/ipfs', MeemController.getIPFSFile)
 }
