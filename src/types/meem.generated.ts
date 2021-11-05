@@ -107,9 +107,9 @@ export namespace MeemAPI {
 			generation: number
 			root_token_uri: string
 			root_token_address: string
-			root_token_id: string | null
+			root_token_id: number | null
 			parent_token_address: string | null
-			parent_token_id: string | null
+			parent_token_id: number | null
 			attributes: any[]
 		}
 	}
@@ -149,7 +149,7 @@ export namespace MeemAPI {
 
 	export interface IERC721Metadata {
 		name?: string
-		image: string
+		image?: string
 		description?: string
 	}
 	export interface MeemPermissions {

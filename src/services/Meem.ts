@@ -45,17 +45,17 @@ export default class MeemService {
 		return contract
 	}
 
-	public static async getErc721Metadata(tokenURI: string) {
+	public static async getErc721Metadata(uri: string) {
 		let metadata: IERC721Metadata
-		if (/^ipfs/.test(tokenURI)) {
-			const result = await services.ipfs.getIPFSFile(tokenURI)
-			if (result.type !== 'application/json' || !result.body?.image) {
+		if (/^ipfs/.test(uri)) {
+			const result = await services.ipfs.getIPFSFile(uri)
+			if (result.type !== 'application/json') {
 				throw new Error('INVALID_METADATA')
 			}
 			metadata = result.body
 		} else {
-			const result = await request.get(tokenURI)
-			if (result.type !== 'application/json' || !result.body?.image) {
+			const result = await request.get(uri)
+			if (result.type !== 'application/json') {
 				throw new Error('INVALID_METADATA')
 			}
 			metadata = result.body
@@ -114,7 +114,7 @@ export default class MeemService {
 			...meemData,
 			name: originalMetadata.name || '',
 			description: originalMetadata.description || '',
-			originalImage: originalMetadata.image,
+			originalImage: originalMetadata.image || '',
 			tokenURI,
 			meemId: id
 		})
@@ -188,9 +188,23 @@ export default class MeemService {
 			throw new Error('TOKEN_NOT_OWNED')
 		}
 
+		let contractMetadata: IERC721Metadata = {}
 		const tokenURI = await contract.tokenURI(data.tokenId)
+		try {
+			const contractURI = await contract.contractURI()
+			contractMetadata = await this.getErc721Metadata(contractURI)
+		} catch (e) {
+			// No contractURI
+		}
 
 		const metadata = await this.getErc721Metadata(tokenURI)
+
+		if (!metadata.image) {
+			throw new Error('INVALID_METADATA')
+		}
+
+		metadata.description =
+			metadata.description || contractMetadata.description || ''
 
 		let image
 
@@ -231,15 +245,21 @@ export default class MeemService {
 
 		const base64MeemImage = compositeMeemImage.toString('base64')
 
-		const meemMetadata = await MeemService.saveMeemMetadataasync(
-			{
-				imageBase64: base64MeemImage,
-				tokenAddress: data.tokenAddress,
-				tokenId: data.tokenId
-			},
-			metadata,
-			tokenURI
-		)
+		const meemMetadata = {
+			base64MeemImage,
+			metadata
+		}
+		// const meemMetadata = await MeemService.saveMeemMetadataasync(
+		// 	{
+		// 		collectionName: contractMetadata.name,
+
+		// 		imageBase64: base64MeemImage,
+		// 		tokenAddress: data.tokenAddress,
+		// 		tokenId: data.tokenId
+		// 	},
+		// 	metadata,
+		// 	tokenURI
+		// )
 
 		return meemMetadata
 
