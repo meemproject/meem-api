@@ -85,8 +85,9 @@ async function loadAllMiddleware(app: Express) {
 }
 
 export default async function start() {
-	global.configuration = new Configuration()
-	global.config = await configuration.load()
+	const g = global as any
+	g.configuration = new Configuration()
+	g.config = await configuration.load()
 	const level = (config.LOG_LEVEL as LogLevel) ?? LogLevel.Warn
 	log.setOptions({
 		useColors: true,
@@ -95,9 +96,9 @@ export default async function start() {
 
 	log.info(`Set log level to: ${level}`)
 
-	global.log = log
+	g.log = log
 	const app = express()
-	global.orm = new Orm()
+	g.orm = new Orm()
 	const promises = [loadServices(), loadAllMiddleware(app)]
 	if (!config.ORM_DISABLE) {
 		promises.push(orm.init())
@@ -112,7 +113,7 @@ export default async function start() {
 	const server = config.SERVER_LISTENING ? await listen(app) : undefined
 
 	if (server) {
-		global.sockets = new Sockets({
+		g.sockets = new Sockets({
 			server,
 			eventHandlers: socketsConfig.eventHandlers,
 			canSubscribe: socketsConfig.canSubscribe,
