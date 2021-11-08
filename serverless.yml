@@ -31,6 +31,7 @@ provider:
     WALLET_PRIVATE_KEY: ${env:WALLET_PRIVATE_KEY, ''}
     GENERATE_SHARED_TYPES: ${env:GENERATE_SHARED_TYPES, 'false'}
     GITHUB_KEY: ${env:GITHUB_KEY, ''}
+    CORS_ALLOW_ALL: ${env:CORS_ALLOW_ALL, 'true'}
 
 package:
   excludeDevDependencies: true
