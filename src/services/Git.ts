@@ -13,12 +13,14 @@ export default class GitService {
 		tokenURI: string
 		tokenAddress: string
 		tokenId?: number
+		tokenMetadata: any
 		collectionName?: string
 		meemId?: string
 	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
 		// TODO: Get/Normalize collection name
 		// TODO: Get/Normalize content description
 		// TODO: Get/Normalize traits/attributes/properties for metadata
+		// TODO: Handle Child Meem token id/address/uri/metadata
 		const id = data.meemId || uuidv4()
 
 		const octokit = new Octokit({
@@ -77,12 +79,14 @@ export default class GitService {
 				root_token_uri: data.tokenURI,
 				root_token_address: data.tokenAddress,
 				root_token_id: data.tokenId || null,
-				parent_token_id: null,
-				parent_token_address: null,
-				attributes: []
+				root_token_metadata: data.tokenMetadata,
+				parent_token_uri: data.tokenURI,
+				parent_token_id: data.tokenId || null,
+				parent_token_address: data.tokenAddress,
+				parent_token_metadata: data.tokenMetadata
 			},
 			image: `https://raw.githubusercontent.com/meemproject/metadata/test/meem/images/${id}.png`,
-			image_original_url: data.originalImage,
+			image_original: data.originalImage,
 			attributes: [
 				{
 					display_type: 'number',

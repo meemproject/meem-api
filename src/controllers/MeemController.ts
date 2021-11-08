@@ -39,6 +39,18 @@ export default class MeemController {
 		return res.json({ meem })
 	}
 
+	public static async createMeemImage(
+		req: IRequest<MeemAPI.v1.MintMeem.IDefinition>,
+		res: IResponse<MeemAPI.v1.MintMeem.IResponseBody>
+	): Promise<Response> {
+		const data = req.body
+
+		const image = await services.meem.createMeemImage(data)
+
+		// TODO: Finish minting
+		return res.json({ image })
+	}
+
 	public static async getTokenInfo(
 		req: IRequest<MeemAPI.v1.GetTokenInfo.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetTokenInfo.IResponseBody>
