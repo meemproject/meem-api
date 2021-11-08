@@ -36,6 +36,7 @@ package:
   excludeDevDependencies: true
   include:
     - build/**
+    - src/types/meem.generated.ts
   exclude:
     - .circleci/**
     - .vscode/**
