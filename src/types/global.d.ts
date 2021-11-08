@@ -12,6 +12,11 @@ import Orm from '../core/Orm'
 import { IAppRouter } from '../core/router'
 import Sockets from '../core/Sockets'
 
+declare const configuration: Configuration
+declare const sockets: Sockets | undefined
+declare const config: typeof defaultConfig
+declare const log: typeof logger
+declare const orm: Orm
 declare global {
 	const configuration: Configuration
 	const sockets: Sockets | undefined

@@ -12,6 +12,9 @@ module.exports = {
 		config: true,
 		orm: true,
 		Promise: true,
+		configuration: true,
+		config: true,
+		orm: true
 	},
 	rules: {
 		"no-param-reassign": ["error", { "props": false }],
