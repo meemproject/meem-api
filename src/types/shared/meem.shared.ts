@@ -74,9 +74,19 @@ export interface IMeemMetadata {
 	description: string
 	external_url: string
 	image: string
-	image_original_url: string
-	background_color: string | null
+	image_original: string
 	attributes: any[]
+	meem_properties: {
+		generation: number
+		root_token_uri: string
+		root_token_address: string
+		root_token_id: number | null
+		root_token_metadata: any
+		parent_token_uri: any | null
+		parent_token_address: string | null
+		parent_token_id: number | null
+		parent_token_metadata: any | null
+	}
 }
 
 export interface IMeemPermission {
@@ -112,6 +122,11 @@ export interface IMeem {
 	childProperties: IMeemProperties
 }
 
+export interface IERC721Metadata {
+	name?: string
+	image?: string
+	description?: string
+}
 export interface MeemPermissions {
 	copyPermissions: [
 		{

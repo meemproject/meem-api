@@ -8,7 +8,7 @@ export namespace MintMeem {
 		tokenId: string
 	}
 
-	export const path = (options: IPathParams) => `/api/1.0/meems`
+	export const path = (options: IPathParams) => `/api/1.0/meems/mint`
 
 	export const method = HttpMethod.Post
 
@@ -38,7 +38,8 @@ export namespace MintMeem {
 				splits: IMeemSplit[]
 			}
 		}
-		useTestnet?: boolean
+		verifyOwnerOnTestnet?: boolean
+		mintToTestnet?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

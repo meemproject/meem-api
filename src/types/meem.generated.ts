@@ -101,9 +101,19 @@ export namespace MeemAPI {
 		description: string
 		external_url: string
 		image: string
-		image_original_url: string
-		background_color: string | null
+		image_original: string
 		attributes: any[]
+		meem_properties: {
+			generation: number
+			root_token_uri: string
+			root_token_address: string
+			root_token_id: number | null
+			root_token_metadata: any
+			parent_token_uri: any | null
+			parent_token_address: string | null
+			parent_token_id: number | null
+			parent_token_metadata: any | null
+		}
 	}
 
 	export interface IMeemPermission {
@@ -139,6 +149,11 @@ export namespace MeemAPI {
 		childProperties: IMeemProperties
 	}
 
+	export interface IERC721Metadata {
+		name?: string
+		image?: string
+		description?: string
+	}
 	export interface MeemPermissions {
 		copyPermissions: [
 			{
@@ -174,6 +189,40 @@ export namespace MeemAPI {
 	}
 
 	export namespace v1 {
+		/** Create Meem Image */
+		export namespace CreateMeemImage {
+			export interface IPathParams {}
+
+			export const path = (options: IPathParams) =>
+				`/api/1.0/meems/create-image`
+
+			export const method = HttpMethod.Post
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {
+				tokenAddress?: string
+				tokenId?: number
+				chain?: number
+				base64Image?: string
+				imageUrl?: string
+				useTestnet?: boolean
+			}
+
+			export interface IResponseBody extends IApiResponseBody {
+				image: string
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
 		/** Get Config */
 		export namespace GetConfig {
 			export interface IPathParams {}
@@ -320,7 +369,7 @@ export namespace MeemAPI {
 				tokenId: string
 			}
 
-			export const path = (options: IPathParams) => `/api/1.0/meems`
+			export const path = (options: IPathParams) => `/api/1.0/meems/mint`
 
 			export const method = HttpMethod.Post
 
@@ -350,7 +399,8 @@ export namespace MeemAPI {
 						splits: IMeemSplit[]
 					}
 				}
-				useTestnet?: boolean
+				verifyOwnerOnTestnet?: boolean
+				mintToTestnet?: boolean
 			}
 
 			export interface IResponseBody extends IApiResponseBody {

@@ -31,13 +31,24 @@ export default class MeemController {
 		req: IRequest<MeemAPI.v1.MintMeem.IDefinition>,
 		res: IResponse<MeemAPI.v1.MintMeem.IResponseBody>
 	): Promise<Response> {
-		const { tokenId } = req.query
-		const meemContract = services.meem.meemContract()
+		const data = req.body
 
-		const m = await meemContract.getMeem(tokenId)
+		const meem = await services.meem.mintMeem(data)
 
 		// TODO: Finish minting
-		return res.json({ m })
+		return res.json({ meem })
+	}
+
+	public static async createMeemImage(
+		req: IRequest<MeemAPI.v1.MintMeem.IDefinition>,
+		res: IResponse<MeemAPI.v1.MintMeem.IResponseBody>
+	): Promise<Response> {
+		const data = req.body
+
+		const image = await services.meem.createMeemImage(data)
+
+		// TODO: Finish minting
+		return res.json({ image })
 	}
 
 	public static async getTokenInfo(
