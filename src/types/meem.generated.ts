@@ -364,12 +364,9 @@ export namespace MeemAPI {
 
 		/** Mint a new Meem */
 		export namespace MintMeem {
-			export interface IPathParams {
-				/** The token id to fetch */
-				tokenId: string
-			}
+			export interface IPathParams {}
 
-			export const path = (options: IPathParams) => `/api/1.0/meems/mint`
+			export const path = () => `/api/1.0/meems/mint`
 
 			export const method = HttpMethod.Post
 
@@ -378,7 +375,7 @@ export namespace MeemAPI {
 			export interface IRequestBody {
 				tokenAddress: string
 				tokenId: number
-				chain: number
+				chain: Chain
 				accountAddress: string
 				meemImageOptions: {
 					flipX: boolean
