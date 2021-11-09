@@ -49,12 +49,12 @@ workflows:
   do_build:
     jobs:
       # TODO: Enable tests
-      # - test:
-      #     context: private_packages
-      #     filters:
-      #       branches:
-      #         ignore:
-      #           - master
+      - test:
+          context: private_packages
+          filters:
+            branches:
+              ignore:
+                - master
       - release:
           context: private_packages
           filters:

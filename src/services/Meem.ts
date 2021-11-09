@@ -1,6 +1,6 @@
 import * as path from 'path'
 import { ethers } from 'ethers'
-import { create, isUndefined as _isUndefined, keys as _keys } from 'lodash'
+import { isUndefined as _isUndefined, keys as _keys } from 'lodash'
 import sharp from 'sharp'
 import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
