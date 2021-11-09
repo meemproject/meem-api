@@ -60,10 +60,13 @@ export default class MeemService {
 			metadata = result.body
 		} else {
 			const result = await request.get(uri)
-			if (result.type !== 'application/json') {
+			if (result.type === 'application/json') {
+				metadata = result.body
+			} else if (result.type === 'text/plain') {
+				metadata = JSON.parse(result.text)
+			} else {
 				throw new Error('INVALID_METADATA')
 			}
-			metadata = result.body
 		}
 
 		return metadata
@@ -402,6 +405,116 @@ export default class MeemService {
 		} catch (e) {
 			throw new Error('INVALID_SPLITS')
 		}
+
+		return [
+			data.accountAddress,
+			meemMetadata.tokenURI,
+			data.chain,
+			childMeemData ? childMeemData.rootTokenAddress : data.tokenAddress,
+			childMeemData ? childMeemData.rootTokenId : data.tokenId,
+			data.tokenAddress,
+			data.tokenId,
+			childMeemData
+				? childMeemData.properties
+				: {
+						copyPermissions: data.permissions.owner.copyPermissions.map(
+							(p, i) => {
+								return {
+									permission: _isUndefined(
+										data.permissions.owner.copyPermissions[i].permission
+									)
+										? 1
+										: data.permissions.owner.copyPermissions[i].permission,
+									addresses: _isUndefined(
+										data.permissions.owner.copyPermissions[i].addresses
+									)
+										? []
+										: data.permissions.owner.copyPermissions[i].addresses,
+									numTokens: _isUndefined(
+										data.permissions.owner.copyPermissions[i].numTokens
+									)
+										? 0
+										: data.permissions.owner.copyPermissions[i].numTokens,
+									lockedBy:
+										data.permissions.owner.copyPermissions[i].lockedBy ||
+										'0x0000000000000000000000000000000000000000'
+								}
+							}
+						),
+						remixPermissions: [
+							{
+								permission: 1,
+								addresses: [],
+								numTokens: 0,
+								lockedBy: '0x0000000000000000000000000000000000000000'
+							}
+						],
+						readPermissions: [
+							{
+								permission: 1,
+								addresses: [],
+								numTokens: 0,
+								lockedBy: '0x0000000000000000000000000000000000000000'
+							}
+						],
+						copyPermissionsLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						remixPermissionsLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						readPermissionsLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						splits: splitsData,
+						splitsLockedBy: '0x0000000000000000000000000000000000000000',
+						childrenPerWallet: -1,
+						childrenPerWalletLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						totalChildren: _isUndefined(data.permissions?.owner?.totalChildren)
+							? -1
+							: data.permissions?.owner?.totalChildren,
+						totalChildrenLockedBy: '0x0000000000000000000000000000000000000000'
+				  },
+			childMeemData
+				? childMeemData.childProperties
+				: {
+						copyPermissions: [
+							{
+								permission: 0,
+								addresses: [],
+								numTokens: 0,
+								lockedBy: '0x0000000000000000000000000000000000000000'
+							}
+						],
+						remixPermissions: [
+							{
+								permission: 0,
+								addresses: [],
+								numTokens: 0,
+								lockedBy: '0x0000000000000000000000000000000000000000'
+							}
+						],
+						readPermissions: [
+							{
+								permission: 0,
+								addresses: [],
+								numTokens: 0,
+								lockedBy: '0x0000000000000000000000000000000000000000'
+							}
+						],
+						copyPermissionsLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						remixPermissionsLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						readPermissionsLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						splits: splitsData,
+						splitsLockedBy: '0x0000000000000000000000000000000000000000',
+						childrenPerWallet: -1,
+						childrenPerWalletLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						totalChildren: 0,
+						totalChildrenLockedBy: '0x0000000000000000000000000000000000000000'
+				  }
+		]
 
 		const meem = await meemContract.mint(
 			data.accountAddress,
