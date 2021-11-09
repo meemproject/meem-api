@@ -33,10 +33,9 @@ export default class MeemController {
 	): Promise<Response> {
 		const data = req.body
 
-		const meem = await services.meem.mintMeem(data)
+		const mintInfo = await services.meem.mintMeem(data)
 
-		// TODO: Finish minting
-		return res.json({ meem })
+		return res.json({ ...mintInfo })
 	}
 
 	public static async createMeemImage(

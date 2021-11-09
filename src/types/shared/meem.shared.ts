@@ -24,6 +24,10 @@ export interface IWhitelistItem {
 	website: string
 }
 
+/** The zero address. Used in Meems to denote fields that are not set. */
+export const zeroAddress = '0x0000000000000000000000000000000000000000'
+
+/** The chain id corresponding to the smart contract */
 export enum Chain {
 	Ethereum,
 	Polygon,
@@ -31,12 +35,14 @@ export enum Chain {
 	Solana
 }
 
+/** The permission type corresponding to the smart contract */
 export enum PermissionType {
 	Copy,
 	Remix,
 	Read
 }
 
+/** The permission corresponding to the smart contract */
 export enum Permission {
 	Owner,
 	Anyone,
@@ -44,11 +50,13 @@ export enum Permission {
 	Holders
 }
 
+/** The propety type corresponding to the smart contract */
 export enum PropertyType {
 	Meem,
 	Child
 }
 
+/** Various eth-like chains and their corresponding ids */
 export enum NetworkChainId {
 	Mainnet = 1,
 	Rinkeby = 4,
@@ -56,6 +64,7 @@ export enum NetworkChainId {
 	Mumbai = 80001
 }
 
+/** The network name as expected by ethers.providers.InfuraProvider */
 export enum NetworkName {
 	Mainnet = 'homestead',
 	Rinkeby = 'rinkeby',
@@ -63,10 +72,25 @@ export enum NetworkName {
 	Mumbai = 'mumbai'
 }
 
+/** Convert Chain to NetworkName */
+export const chainToNetworkName = (chain: Chain): NetworkName => {
+	switch (chain) {
+		case Chain.Ethereum:
+			return NetworkName.Mainnet
+
+		case Chain.Polygon:
+			return NetworkName.Polygon
+
+		default:
+			throw new Error('INVALID_CHAIN')
+	}
+}
+
+/** A single split */
 export interface IMeemSplit {
 	toAddress: string
 	amount: number
-	lockedBy?: string
+	lockedBy: string
 }
 
 export interface IMeemMetadata {
@@ -113,11 +137,12 @@ export interface IMeemProperties {
 
 export interface IMeem {
 	owner: string
+	tokenURI: string
 	chain: Chain
 	parent: string
-	uparentTokenId: number
+	parentTokenId: number
 	root: string
-	urootTokenId: number
+	rootTokenId: number
 	properties: IMeemProperties
 	childProperties: IMeemProperties
 }
@@ -126,37 +151,4 @@ export interface IERC721Metadata {
 	name?: string
 	image?: string
 	description?: string
-}
-export interface MeemPermissions {
-	copyPermissions: [
-		{
-			permission: number
-			addresses: string[]
-			numTokens: number
-			lockedBy: string
-		}
-	]
-	remixPermissions: [
-		{
-			permission: number
-			addresses: string[]
-			numTokens: number
-			lockedBy: string
-		}
-	]
-	readPermissions: [
-		{
-			permission: number
-			addresses: string[]
-			numTokens: number
-			lockedBy: string
-		}
-	]
-	copyPermissionsLockedBy: string
-	remixPermissionsLockedBy: string
-	readPermissionsLockedBy: string
-	splits: IMeemSplit[]
-	splitsLockedBy: string
-	totalCopies: number
-	totalCopiesLockedBy: string
 }

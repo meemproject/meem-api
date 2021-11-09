@@ -1,5 +1,10 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { Chain, IMeemSplit } from '../meem.shared'
+import {
+	Chain,
+	IMeemPermission,
+	IMeemSplit,
+	IMeemProperties
+} from '../meem.shared'
 
 /** Mint a new Meem */
 export namespace MintMeem {
@@ -11,37 +16,40 @@ export namespace MintMeem {
 
 	export interface IQueryParams {}
 
+	// export interface IMintMeemProperties extends Partial<IMeemProperties> {
+	// 	splits: IMeemSplit[]
+	// }
+
 	export interface IRequestBody {
+		/** The contract address of the original NFT that is being minted as a Meem */
 		tokenAddress: string
+
+		/** The tokenId of the original NFT */
 		tokenId: number
+
+		/** The chain where the original NFT lives */
 		chain: Chain
+
+		/** The address of the original NFT owner. Also where the Meem will be minted to. */
 		accountAddress: string
-		meemImageOptions: {
-			flipX: boolean
-			flipY: boolean
-		}
-		permissions: {
-			owner: {
-				copyPermissions: [
-					{
-						permission: number
-						addresses: string[]
-						numTokens: number
-						lockedBy?: string
-					}
-				]
-				totalChildren: number
-				totalChildrenLockedBy?: string
-				splits: IMeemSplit[]
-			}
-		}
-		verifyOwnerOnTestnet?: boolean
-		mintToTestnet?: boolean
+
+		properties?: Partial<IMeemProperties>
+
+		childProperties?: Partial<IMeemProperties>
+
+		// /** Permissions to associate with this Meem */
+		// permissions: IMeemPermission[]
+
+		// /** Splits to apply */
+		// splits?: IMeemSplit[]
+
+		/** Set to true to disable ownership checks. This option is only respected on testnet. */
+		shouldIgnoreOwnership?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
 		transactionHash: string
-		tokenId: string
+		tokenId: number
 	}
 
 	export interface IDefinition {

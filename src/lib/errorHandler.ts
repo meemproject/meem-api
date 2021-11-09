@@ -1,5 +1,17 @@
 import { Response } from 'express'
 
+function errorcodeToErrorString(code: number) {
+	const allErrors: Record<string, any> = config.errors
+	const errorKeys = Object.keys(allErrors)
+	const errIdx = errorKeys.findIndex(
+		k => allErrors[k].contractErrorCode === code
+	)
+	if (errIdx > -1) {
+		return errorKeys[errIdx]
+	}
+	return 'UNKNOWN_CONTRACT_ERROR'
+}
+
 function genericError(res: Response) {
 	return res.status(500).json({
 		status: 'failure',
@@ -33,7 +45,16 @@ function errorHandler(res: Response, errorKey: any) {
 	try {
 		switch (typeof errorKey) {
 			case 'object':
-				if (errorKey.message) {
+				if (errorKey.error) {
+					let errStr = 'UNKNOWN_CONTRACT_ERROR'
+					try {
+						const body = JSON.parse(errorKey.error.error.body)
+						errStr = errorcodeToErrorString(body.error.code)
+						return handleStringErrorKey(res, errStr)
+					} catch (e) {
+						// Unable to parse
+					}
+				} else if (errorKey.message) {
 					return handleStringErrorKey(res, errorKey.message)
 				}
 				return genericError(res)
