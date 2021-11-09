@@ -330,7 +330,7 @@ export default class MeemService {
 
 		const meemContract = this.meemContract()
 
-		log.debug([
+		const mintParams: Parameters<Meem['mint']> = [
 			data.accountAddress,
 			meemMetadata.tokenURI,
 			data.chain,
@@ -344,23 +344,11 @@ export default class MeemService {
 				totalChildren: data.childProperties?.totalChildren ?? 0,
 				splits: data.childProperties?.splits ?? data.properties?.splits
 			})
-		])
+		]
 
-		const meem = await meemContract.mint(
-			data.accountAddress,
-			meemMetadata.tokenURI,
-			data.chain,
-			contractInfo.rootTokenAddress,
-			contractInfo.rootTokenId,
-			contractInfo.parentTokenAddress,
-			contractInfo.parentTokenId,
-			this.buildProperties(data.properties),
-			this.buildProperties({
-				...data.childProperties,
-				totalChildren: data.childProperties?.totalChildren ?? 0,
-				splits: data.childProperties?.splits ?? data.properties?.splits
-			})
-		)
+		log.debug('Minting meem w/ params', { mintParams })
+
+		const meem = await meemContract.mint(...mintParams)
 
 		const receipt = await meem.wait()
 

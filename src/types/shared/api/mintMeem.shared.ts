@@ -16,10 +16,6 @@ export namespace MintMeem {
 
 	export interface IQueryParams {}
 
-	// export interface IMintMeemProperties extends Partial<IMeemProperties> {
-	// 	splits: IMeemSplit[]
-	// }
-
 	export interface IRequestBody {
 		/** The contract address of the original NFT that is being minted as a Meem */
 		tokenAddress: string
@@ -36,12 +32,6 @@ export namespace MintMeem {
 		properties?: Partial<IMeemProperties>
 
 		childProperties?: Partial<IMeemProperties>
-
-		// /** Permissions to associate with this Meem */
-		// permissions: IMeemPermission[]
-
-		// /** Splits to apply */
-		// splits?: IMeemSplit[]
 
 		/** Set to true to disable ownership checks. This option is only respected on testnet. */
 		shouldIgnoreOwnership?: boolean
