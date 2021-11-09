@@ -8,7 +8,7 @@ import ERC721ABI from '../abis/ERC721.json'
 import MeemABI from '../abis/Meem.json'
 import meemWhitelist from '../lib/meem-whitelist.json'
 import { Meem, ERC721 } from '../types'
-import { SplitStruct } from '../types/Meem'
+import { MeemPropertiesStructOutput, SplitStruct } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 import { IERC721Metadata, NetworkName } from '../types/shared/meem.shared'
 
@@ -126,6 +126,7 @@ export default class MeemService {
 		return list
 	}
 
+	/* Create a badged meem image */
 	public static async createMeemImage(
 		data: MeemAPI.v1.CreateMeemImage.IRequestBody
 	): Promise<string> {
@@ -195,26 +196,47 @@ export default class MeemService {
 		}
 	}
 
-	public static async saveMeemMetadataasync(
-		meemData: {
-			imageBase64: string
-			tokenAddress: string
-			tokenId?: number
-			collectionName?: string
-		},
-		originalMetadata: IERC721Metadata,
-		tokenURI: string,
+	public static async saveMeemMetadataasync({
+		imageBase64,
+		tokenAddress,
+		tokenId,
+		collectionName,
+		parentMetadata,
+		tokenURI,
+		meemId,
+		rootTokenURI,
+		rootTokenAddress,
+		rootTokenId,
+		rootTokenMetadata
+	}: {
+		imageBase64: string
+		tokenAddress: string
+		tokenId?: number
+		collectionName?: string
+		parentMetadata: IERC721Metadata
+		tokenURI: string
 		meemId?: string
-	): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
+		rootTokenURI?: string
+		rootTokenAddress?: string
+		rootTokenId?: number
+		rootTokenMetadata?: IERC721Metadata
+	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
 		const id = meemId || uuidv4()
 
 		const result = await services.git.saveMeemMetadata({
-			...meemData,
-			name: originalMetadata.name || '',
-			description: originalMetadata.description || '',
-			originalImage: originalMetadata.image || '',
+			rootTokenURI,
+			rootTokenAddress,
+			rootTokenId,
+			rootTokenMetadata,
+			imageBase64,
+			tokenAddress,
+			tokenId,
+			collectionName,
+			name: parentMetadata.name || '',
+			description: parentMetadata.description || '',
+			originalImage: parentMetadata.image || '',
 			tokenURI,
-			tokenMetadata: originalMetadata,
+			tokenMetadata: parentMetadata,
 			meemId: id
 		})
 
@@ -246,28 +268,77 @@ export default class MeemService {
 			throw new Error('INVALID_PERMISSIONS')
 		}
 
+		const isMeemToken = data.tokenAddress === config.MEEM_PROXY_ADDRESS
 		const meemRegistry = await services.meem.getWhitelist()
 
-		const validMeemProject = _keys(meemRegistry).find(
-			contractId => contractId === data.tokenAddress
-		)
+		const validMeemProject =
+			isMeemToken ||
+			_keys(meemRegistry).find(contractId => contractId === data.tokenAddress)
 
-		if (!validMeemProject) {
-			throw new Error('INVALID_MEEM_PROJECT')
-		}
+		// if (!validMeemProject) {
+		// 	throw new Error('INVALID_MEEM_PROJECT')
+		// }
 
-		const contract = this.erc721Contract({
-			networkName: data.verifyOwnerOnTestnet
-				? NetworkName.Rinkeby
-				: NetworkName.Mainnet,
-			address: data.tokenAddress
-		})
+		const contract = isMeemToken
+			? this.meemContract()
+			: this.erc721Contract({
+					networkName: data.verifyOwnerOnTestnet
+						? NetworkName.Rinkeby
+						: NetworkName.Mainnet,
+					address: data.tokenAddress
+			  })
 
 		const owner = await contract.ownerOf(data.tokenId)
 		const isNFTOwner = owner.toLowerCase() === data.accountAddress.toLowerCase()
 
-		if (!isNFTOwner) {
-			throw new Error('TOKEN_NOT_OWNED')
+		// if (!isMeemToken && !isNFTOwner) {
+		// 	throw new Error('TOKEN_NOT_OWNED')
+		// }
+
+		let childMeemData:
+			| {
+					rootTokenAddress: string
+					rootTokenId: number
+					rootTokenURI: string
+					rootMetadata: IERC721Metadata
+					properties: MeemPropertiesStructOutput
+					childProperties: MeemPropertiesStructOutput
+					generation: number
+			  }
+			| undefined
+
+		if (isMeemToken) {
+			const meem = await (contract as Meem).getMeem(data.tokenId)
+			const rootContract = this.erc721Contract({
+				networkName: data.verifyOwnerOnTestnet
+					? NetworkName.Rinkeby
+					: NetworkName.Mainnet,
+				address: meem.root
+			})
+			let rootContractMetadata: IERC721Metadata = {}
+			const rootTokenURI = await rootContract.tokenURI(meem.rootTokenId)
+
+			try {
+				const rootContractURI = await rootContract.contractURI()
+				rootContractMetadata = await this.getErc721Metadata(rootContractURI)
+			} catch (e) {
+				// No contractURI
+			}
+
+			const rootMetadata = await this.getErc721Metadata(rootTokenURI)
+
+			rootMetadata.description =
+				rootMetadata.description || rootContractMetadata.description || ''
+
+			childMeemData = {
+				rootTokenAddress: meem.root,
+				rootTokenId: meem.rootTokenId.toNumber(),
+				rootTokenURI,
+				rootMetadata,
+				properties: meem.properties,
+				childProperties: meem.childProperties,
+				generation: 0
+			}
 		}
 
 		let contractMetadata: IERC721Metadata = {}
@@ -286,24 +357,27 @@ export default class MeemService {
 
 		const imageBase64String = image.toString('base64')
 
-		const base64MeemImage = await this.createMeemImage({
-			base64Image: imageBase64String
-		})
+		const base64MeemImage = isMeemToken
+			? imageBase64String
+			: await this.createMeemImage({
+					base64Image: imageBase64String
+			  })
 
 		metadata.description =
 			metadata.description || contractMetadata.description || ''
 
-		const meemMetadata = await this.saveMeemMetadataasync(
-			{
-				collectionName: contractMetadata.name,
-
-				imageBase64: base64MeemImage,
-				tokenAddress: data.tokenAddress,
-				tokenId: data.tokenId
-			},
-			metadata,
-			tokenURI
-		)
+		const meemMetadata = await this.saveMeemMetadataasync({
+			collectionName: contractMetadata.name,
+			imageBase64: base64MeemImage,
+			tokenAddress: data.tokenAddress,
+			tokenId: data.tokenId,
+			parentMetadata: metadata,
+			tokenURI,
+			rootTokenAddress: childMeemData?.rootTokenAddress,
+			rootTokenId: childMeemData?.rootTokenId,
+			rootTokenURI: childMeemData?.rootTokenURI,
+			rootTokenMetadata: childMeemData?.rootMetadata
+		})
 
 		const meemContract = this.meemContract()
 
@@ -333,96 +407,110 @@ export default class MeemService {
 			data.accountAddress,
 			meemMetadata.tokenURI,
 			data.chain,
+			childMeemData ? childMeemData.rootTokenAddress : data.tokenAddress,
+			childMeemData ? childMeemData.rootTokenId : data.tokenId,
 			data.tokenAddress,
 			data.tokenId,
-			data.tokenAddress,
-			data.tokenId,
-			{
-				copyPermissions: data.permissions.owner.copyPermissions.map((p, i) => {
-					return {
-						permission: _isUndefined(
-							data.permissions.owner.copyPermissions[i].permission
-						)
-							? 1
-							: data.permissions.owner.copyPermissions[i].permission,
-						addresses: _isUndefined(
-							data.permissions.owner.copyPermissions[i].addresses
-						)
-							? []
-							: data.permissions.owner.copyPermissions[i].addresses,
-						numTokens: _isUndefined(
-							data.permissions.owner.copyPermissions[i].numTokens
-						)
-							? 0
-							: data.permissions.owner.copyPermissions[i].numTokens,
-						lockedBy:
-							data.permissions.owner.copyPermissions[i].lockedBy ||
-							'0x0000000000000000000000000000000000000000'
-					}
-				}),
-				remixPermissions: [
-					{
-						permission: 1,
-						addresses: [],
-						numTokens: 0,
-						lockedBy: '0x0000000000000000000000000000000000000000'
-					}
-				],
-				readPermissions: [
-					{
-						permission: 1,
-						addresses: [],
-						numTokens: 0,
-						lockedBy: '0x0000000000000000000000000000000000000000'
-					}
-				],
-				copyPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-				remixPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-				readPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-				splits: splitsData,
-				splitsLockedBy: '0x0000000000000000000000000000000000000000',
-				childrenPerWallet: -1,
-				childrenPerWalletLockedBy: '0x0000000000000000000000000000000000000000',
-				totalChildren: _isUndefined(data.permissions?.owner?.totalChildren)
-					? -1
-					: data.permissions?.owner?.totalChildren,
-				totalChildrenLockedBy: '0x0000000000000000000000000000000000000000'
-			},
-			{
-				copyPermissions: [
-					{
-						permission: 0,
-						addresses: [],
-						numTokens: 0,
-						lockedBy: '0x0000000000000000000000000000000000000000'
-					}
-				],
-				remixPermissions: [
-					{
-						permission: 0,
-						addresses: [],
-						numTokens: 0,
-						lockedBy: '0x0000000000000000000000000000000000000000'
-					}
-				],
-				readPermissions: [
-					{
-						permission: 0,
-						addresses: [],
-						numTokens: 0,
-						lockedBy: '0x0000000000000000000000000000000000000000'
-					}
-				],
-				copyPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-				remixPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-				readPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-				splits: splitsData,
-				splitsLockedBy: '0x0000000000000000000000000000000000000000',
-				childrenPerWallet: -1,
-				childrenPerWalletLockedBy: '0x0000000000000000000000000000000000000000',
-				totalChildren: 0,
-				totalChildrenLockedBy: '0x0000000000000000000000000000000000000000'
-			}
+			childMeemData
+				? childMeemData.properties
+				: {
+						copyPermissions: data.permissions.owner.copyPermissions.map(
+							(p, i) => {
+								return {
+									permission: _isUndefined(
+										data.permissions.owner.copyPermissions[i].permission
+									)
+										? 1
+										: data.permissions.owner.copyPermissions[i].permission,
+									addresses: _isUndefined(
+										data.permissions.owner.copyPermissions[i].addresses
+									)
+										? []
+										: data.permissions.owner.copyPermissions[i].addresses,
+									numTokens: _isUndefined(
+										data.permissions.owner.copyPermissions[i].numTokens
+									)
+										? 0
+										: data.permissions.owner.copyPermissions[i].numTokens,
+									lockedBy:
+										data.permissions.owner.copyPermissions[i].lockedBy ||
+										'0x0000000000000000000000000000000000000000'
+								}
+							}
+						),
+						remixPermissions: [
+							{
+								permission: 1,
+								addresses: [],
+								numTokens: 0,
+								lockedBy: '0x0000000000000000000000000000000000000000'
+							}
+						],
+						readPermissions: [
+							{
+								permission: 1,
+								addresses: [],
+								numTokens: 0,
+								lockedBy: '0x0000000000000000000000000000000000000000'
+							}
+						],
+						copyPermissionsLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						remixPermissionsLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						readPermissionsLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						splits: splitsData,
+						splitsLockedBy: '0x0000000000000000000000000000000000000000',
+						childrenPerWallet: -1,
+						childrenPerWalletLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						totalChildren: _isUndefined(data.permissions?.owner?.totalChildren)
+							? -1
+							: data.permissions?.owner?.totalChildren,
+						totalChildrenLockedBy: '0x0000000000000000000000000000000000000000'
+				  },
+			childMeemData
+				? childMeemData.childProperties
+				: {
+						copyPermissions: [
+							{
+								permission: 0,
+								addresses: [],
+								numTokens: 0,
+								lockedBy: '0x0000000000000000000000000000000000000000'
+							}
+						],
+						remixPermissions: [
+							{
+								permission: 0,
+								addresses: [],
+								numTokens: 0,
+								lockedBy: '0x0000000000000000000000000000000000000000'
+							}
+						],
+						readPermissions: [
+							{
+								permission: 0,
+								addresses: [],
+								numTokens: 0,
+								lockedBy: '0x0000000000000000000000000000000000000000'
+							}
+						],
+						copyPermissionsLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						remixPermissionsLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						readPermissionsLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						splits: splitsData,
+						splitsLockedBy: '0x0000000000000000000000000000000000000000',
+						childrenPerWallet: -1,
+						childrenPerWalletLockedBy:
+							'0x0000000000000000000000000000000000000000',
+						totalChildren: 0,
+						totalChildrenLockedBy: '0x0000000000000000000000000000000000000000'
+				  }
 		)
 
 		const receipt = await meem.wait()

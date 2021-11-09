@@ -14,13 +14,16 @@ export default class GitService {
 		tokenAddress: string
 		tokenId?: number
 		tokenMetadata: any
+		rootTokenURI?: string
+		rootTokenAddress?: string
+		rootTokenId?: number
+		rootTokenMetadata?: any
 		collectionName?: string
 		meemId?: string
 	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
 		// TODO: Get/Normalize collection name
 		// TODO: Get/Normalize content description
-		// TODO: Get/Normalize traits/attributes/properties for metadata
-		// TODO: Handle Child Meem token id/address/uri/metadata
+		// TODO: Get generation?
 		const id = data.meemId || uuidv4()
 
 		const octokit = new Octokit({
@@ -76,10 +79,10 @@ export default class GitService {
 			external_url: `https://meem.wtf/meem/${id}`,
 			meem_properties: {
 				generation: 0,
-				root_token_uri: data.tokenURI,
-				root_token_address: data.tokenAddress,
-				root_token_id: data.tokenId || null,
-				root_token_metadata: data.tokenMetadata,
+				root_token_uri: data.rootTokenURI || data.tokenURI,
+				root_token_address: data.rootTokenAddress || data.tokenAddress,
+				root_token_id: data.rootTokenId || data.tokenId || null,
+				root_token_metadata: data.rootTokenMetadata || data.tokenMetadata,
 				parent_token_uri: data.tokenURI,
 				parent_token_id: data.tokenId || null,
 				parent_token_address: data.tokenAddress,
