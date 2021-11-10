@@ -359,10 +359,10 @@ export default class MeemService {
 			data.accountAddress,
 			meemMetadata.tokenURI,
 			chain,
-			contractInfo.rootTokenAddress,
-			contractInfo.rootTokenId,
 			contractInfo.parentTokenAddress,
 			contractInfo.parentTokenId,
+			contractInfo.rootTokenAddress,
+			contractInfo.rootTokenId,
 			this.buildProperties(data.properties),
 			this.buildProperties({
 				...data.childProperties,
