@@ -72,16 +72,16 @@ function parseMultipart(options: {
 	})
 }
 
-export const handle: APIGatewayProxyHandlerV2 = async (event, context) => {
-	const {
-		headers,
-		queryStringParameters,
-		body,
-		isBase64Encoded,
-		requestContext
-	} = event
+export const handle: LambdaEvent = async (event, context) => {
+	// const {
+	// 	headers,
+	// 	queryStringParameters,
+	// 	body,
+	// 	isBase64Encoded,
+	// 	requestContext
+	// } = event
 
-	const { path, method: httpMethod } = requestContext.http
+	// const { path, method: httpMethod } = requestContext.http
 
 	if (process.env.SERVERLESS_LOG_FULL_REQUEST === 'true') {
 		// eslint-disable-next-line no-console
