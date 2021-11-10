@@ -275,7 +275,10 @@ export default class MeemService {
 			throw new Error('MISSING_ACCOUNT_ADDRESS')
 		}
 
-		const isMeemToken = data.tokenAddress === config.MEEM_PROXY_ADDRESS
+		const isMeemToken =
+			data.tokenAddress.toLowerCase() ===
+			config.MEEM_PROXY_ADDRESS.toLowerCase()
+		const chain = isMeemToken ? 1 : data.chain
 		const shouldIgnoreWhitelist =
 			config.NETWORK === MeemAPI.NetworkName.Rinkeby &&
 			data.shouldIgnoreWhitelist
@@ -293,7 +296,7 @@ export default class MeemService {
 		const contract = isMeemToken
 			? this.meemContract()
 			: this.erc721Contract({
-					networkName: MeemAPI.chainToNetworkName(data.chain),
+					networkName: MeemAPI.chainToNetworkName(chain),
 					address: data.tokenAddress
 			  })
 
@@ -313,7 +316,11 @@ export default class MeemService {
 		const contractInfo = await this.getContractInfo({
 			contractAddress: data.tokenAddress,
 			tokenId: data.tokenId,
-			networkName: MeemAPI.NetworkName.Mainnet
+			networkName:
+				// If this isn't a Meem token and we're using testnet, get token contract from mainnet
+				!isMeemToken && config.NETWORK === MeemAPI.NetworkName.Rinkeby
+					? MeemAPI.NetworkName.Mainnet
+					: config.NETWORK
 		})
 
 		const image = await this.getImageFromMetadata(
@@ -346,7 +353,7 @@ export default class MeemService {
 		const mintParams: Parameters<Meem['mint']> = [
 			data.accountAddress,
 			meemMetadata.tokenURI,
-			data.chain,
+			chain,
 			contractInfo.rootTokenAddress,
 			contractInfo.rootTokenId,
 			contractInfo.parentTokenAddress,
