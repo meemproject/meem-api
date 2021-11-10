@@ -1,6 +1,4 @@
 import * as path from 'path'
-import ethReveal from 'eth-reveal'
-import revertReason from 'eth-revert-reason'
 import { ethers } from 'ethers'
 import { isUndefined as _isUndefined } from 'lodash'
 import sharp from 'sharp'
