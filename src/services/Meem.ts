@@ -118,6 +118,11 @@ export default class MeemService {
 		return meemContract
 	}
 
+	public static meemInterface() {
+		const inter = new ethers.utils.Interface(MeemABI)
+		return inter
+	}
+
 	public static getWhitelist() {
 		const list: Record<string, MeemAPI.IWhitelistItem> = {}
 		Object.keys(meemWhitelist).forEach(k => {
@@ -385,10 +390,6 @@ export default class MeemService {
 	}
 
 	public static async isValidMeemProject(contractAddress: string) {
-		if (config.DISABLE_WHITELIST_CHECK) {
-			return true
-		}
-
 		const isMeemToken = contractAddress === config.MEEM_PROXY_ADDRESS
 		if (isMeemToken) {
 			return true
