@@ -122,7 +122,7 @@ const errors = {
 		friendlyReason: 'Sorry, something went wrong'
 	},
 	MISSING_REQUIRED_ROLE: {
-		contractErrorCode: 1,
+		contractErrorCode: 'MissingRequiredRole',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'The user is missing the required role to perform that action.',
@@ -130,70 +130,70 @@ const errors = {
 			'The user is missing the required role to perform that action.'
 	},
 	NOT_TOKEN_OWNER: {
-		contractErrorCode: 2,
+		contractErrorCode: 'NotTokenOwner',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'The user must be the token owner to perform that action.',
 		friendlyReason: 'The user must be the token owner to perform that action.'
 	},
 	INVALID_NON_OWNER_SPLIT_ALLOCATION_AMOUNT: {
-		contractErrorCode: 3,
+		contractErrorCode: 'InvalidNonOwnerSplitAllocationAmount',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'An invalid split allocation was sent.',
 		friendlyReason: 'An invalid split allocation was sent.'
 	},
 	NO_RENOUNCE_OTHERS: {
-		contractErrorCode: 4,
+		contractErrorCode: 'NoRenounceOthers',
 		httpCode: 400,
 		status: 'failure',
 		reason: "You can't renounce for others.",
 		friendlyReason: "You can't renounce for others."
 	},
 	INVALID_ZERO_ADDRESS_QUERY: {
-		contractErrorCode: 5,
+		contractErrorCode: 'InvalidZeroAddressQuery',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'An invalid query against the zero address was made.',
 		friendlyReason: 'An invalid query against the zero address was made.'
 	},
 	INDEX_OUT_OF_RANGE: {
-		contractErrorCode: 6,
+		contractErrorCode: 'IndexOutOfRange',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'The array index is out of range.',
 		friendlyReason: 'The array index is out of range.'
 	},
 	TOKEN_NOT_FOUND: {
-		contractErrorCode: 7,
+		contractErrorCode: 'TokenNotFound',
 		httpCode: 404,
 		status: 'failure',
 		reason: 'The token could not be found.',
 		friendlyReason: 'The token could not be found.'
 	},
 	TOKEN_ALREADY_EXISTS: {
-		contractErrorCode: 8,
+		contractErrorCode: 'TokenAlreadyExists',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'The token already exists.',
 		friendlyReason: 'The token already exists.'
 	},
 	NO_APPROVE_SELF: {
-		contractErrorCode: 9,
+		contractErrorCode: 'NoApproveSelf',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'You can not approve yourself.',
 		friendlyReason: 'You can not approve yourself.'
 	},
 	NOT_APPROVED: {
-		contractErrorCode: 10,
+		contractErrorCode: 'NotApproved',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'The address is not approved to perform that action.',
 		friendlyReason: 'The address is not approved to perform that action.'
 	},
 	ERC721_RECEIVER_NOT_IMPLEMENTED: {
-		contractErrorCode: 11,
+		contractErrorCode: 'ERC721ReceiverNotImplemented',
 		httpCode: 400,
 		status: 'failure',
 		reason:
@@ -202,49 +202,49 @@ const errors = {
 			'The address is not safe to send. It must implement ERC721Receiver.'
 	},
 	TO_ADDRESS_INVALID: {
-		contractErrorCode: 12,
+		contractErrorCode: 'ToAddressInvalid',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'The to address is invalid.',
 		friendlyReason: 'The to address is invalid.'
 	},
 	NO_TRANSFER_WRAPPED_NFT: {
-		contractErrorCode: 13,
+		contractErrorCode: 'NoTransferWrappedNFT',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'A wNFT may not be transferred. It may only be claimed.',
 		friendlyReason: 'A wNFT may not be transferred. It may only be claimed.'
 	},
 	NFT_ALREADY_WRAPPED: {
-		contractErrorCode: 14,
+		contractErrorCode: 'NFTAlreadyWrapped',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'A Meem has already been created from that NFT.',
 		friendlyReason: 'A Meem has already been created from that NFT.'
 	},
 	PROPERTY_LOCKED: {
-		contractErrorCode: 15,
+		contractErrorCode: 'PropertyLocked',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'The property may not be updated because it is locked.',
 		friendlyReason: 'The property may not be updated because it is locked.'
 	},
 	INVALID_PROPERTY_TYPE: {
-		contractErrorCode: 16,
+		contractErrorCode: 'InvalidPropertyType',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'An invalid property type was sent to the contract.',
 		friendlyReason: 'An invalid property type was sent to the contract.'
 	},
 	INVALID_PERMISSION_TYPE: {
-		contractErrorCode: 17,
+		contractErrorCode: 'InvalidPermissionType',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'An invalid permission type was sent to the contract.',
 		friendlyReason: 'An invalid permission type was sent to the contract.'
 	},
 	INVALID_TOTAL_CHILDREN: {
-		contractErrorCode: 18,
+		contractErrorCode: 'InvalidTotalChildren',
 		httpCode: 400,
 		status: 'failure',
 		reason:

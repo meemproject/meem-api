@@ -1,4 +1,6 @@
 import * as path from 'path'
+import ethReveal from 'eth-reveal'
+import revertReason from 'eth-revert-reason'
 import { ethers } from 'ethers'
 import { isUndefined as _isUndefined } from 'lodash'
 import sharp from 'sharp'
@@ -116,6 +118,11 @@ export default class MeemService {
 		) as Meem
 
 		return meemContract
+	}
+
+	public static meemInterface() {
+		const inter = new ethers.utils.Interface(MeemABI)
+		return inter
 	}
 
 	public static getWhitelist() {
@@ -385,10 +392,6 @@ export default class MeemService {
 	}
 
 	public static async isValidMeemProject(contractAddress: string) {
-		if (config.DISABLE_WHITELIST_CHECK) {
-			return true
-		}
-
 		const isMeemToken = contractAddress === config.MEEM_PROXY_ADDRESS
 		if (isMeemToken) {
 			return true

@@ -1,10 +1,10 @@
 import { Response } from 'express'
 
-function errorcodeToErrorString(code: number) {
+function errorcodeToErrorString(contractErrorName: string) {
 	const allErrors: Record<string, any> = config.errors
 	const errorKeys = Object.keys(allErrors)
 	const errIdx = errorKeys.findIndex(
-		k => allErrors[k].contractErrorCode === code
+		k => allErrors[k].contractErrorCode === contractErrorName
 	)
 	if (errIdx > -1) {
 		return errorKeys[errIdx]
@@ -46,16 +46,20 @@ function errorHandler(res: Response, errorKey: any) {
 		log.debug(errorKey)
 		switch (typeof errorKey) {
 			case 'object':
-				if (errorKey.error) {
+				if (errorKey?.error?.error?.body) {
 					let errStr = 'UNKNOWN_CONTRACT_ERROR'
 					try {
 						const body = JSON.parse(errorKey.error.error.body)
-						errStr = errorcodeToErrorString(body.error.code)
-						return handleStringErrorKey(res, errStr)
+						log.warn(body)
+						const inter = services.meem.meemInterface()
+						const errInfo = inter.parseError(body.error.data)
+						errStr = errorcodeToErrorString(errInfo.name)
 					} catch (e) {
 						// Unable to parse
 					}
-				} else if (errorKey.message) {
+					return handleStringErrorKey(res, errStr)
+				}
+				if (errorKey.message) {
 					return handleStringErrorKey(res, errorKey.message)
 				}
 				return genericError(res)
