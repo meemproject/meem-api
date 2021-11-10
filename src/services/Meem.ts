@@ -172,7 +172,10 @@ export default class MeemService {
 		}
 
 		try {
-			const badgeImagePath = path.resolve(__dirname, '../lib/meem-badge.png')
+			const badgeImagePath = path.resolve(
+				process.cwd(),
+				'src/lib/meem-badge.png'
+			)
 			const badgeImage = sharp(badgeImagePath)
 			const meemImage = sharp(image)
 

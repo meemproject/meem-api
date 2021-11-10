@@ -38,6 +38,7 @@ package:
   include:
     - build/**
     - src/types/meem.generated.ts
+    - src/lib/meem-badge.png
   exclude:
     - .circleci/**
     - .vscode/**
