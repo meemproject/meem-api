@@ -200,6 +200,7 @@ export default class MeemService {
 
 			return base64MeemImage
 		} catch (e) {
+			log.crit(e)
 			throw new Error('UNKNOWN')
 		}
 	}

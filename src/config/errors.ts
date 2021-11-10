@@ -108,6 +108,12 @@ const errors = {
 		reason: 'Error confirming token transfer',
 		friendlyReason: 'Error confirming token transfer'
 	},
+	CREATE_IMAGE_ERROR: {
+		httpCode: 500,
+		status: 'failure',
+		reason: 'There was an error creating the image',
+		friendlyReason: 'There was an error creating the image'
+	},
 	// Contract errors
 	UNKNOWN_CONTRACT_ERROR: {
 		httpCode: 500,
