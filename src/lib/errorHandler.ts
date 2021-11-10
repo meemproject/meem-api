@@ -43,6 +43,7 @@ function handleStringErrorKey(res: Response, errorKey: string) {
 
 function errorHandler(res: Response, errorKey: any) {
 	try {
+		log.debug(errorKey)
 		switch (typeof errorKey) {
 			case 'object':
 				if (errorKey.error) {
