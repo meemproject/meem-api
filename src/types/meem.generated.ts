@@ -51,6 +51,10 @@ export namespace MeemAPI {
 		website: string
 	}
 
+	/** The zero address. Used in Meems to denote fields that are not set. */
+	export const zeroAddress = '0x0000000000000000000000000000000000000000'
+
+	/** The chain id corresponding to the smart contract */
 	export enum Chain {
 		Ethereum,
 		Polygon,
@@ -58,12 +62,14 @@ export namespace MeemAPI {
 		Solana
 	}
 
+	/** The permission type corresponding to the smart contract */
 	export enum PermissionType {
 		Copy,
 		Remix,
 		Read
 	}
 
+	/** The permission corresponding to the smart contract */
 	export enum Permission {
 		Owner,
 		Anyone,
@@ -71,11 +77,13 @@ export namespace MeemAPI {
 		Holders
 	}
 
+	/** The propety type corresponding to the smart contract */
 	export enum PropertyType {
 		Meem,
 		Child
 	}
 
+	/** Various eth-like chains and their corresponding ids */
 	export enum NetworkChainId {
 		Mainnet = 1,
 		Rinkeby = 4,
@@ -83,6 +91,7 @@ export namespace MeemAPI {
 		Mumbai = 80001
 	}
 
+	/** The network name as expected by ethers.providers.InfuraProvider */
 	export enum NetworkName {
 		Mainnet = 'homestead',
 		Rinkeby = 'rinkeby',
@@ -90,10 +99,25 @@ export namespace MeemAPI {
 		Mumbai = 'mumbai'
 	}
 
+	/** Convert Chain to NetworkName */
+	export const chainToNetworkName = (chain: Chain): NetworkName => {
+		switch (chain) {
+			case Chain.Ethereum:
+				return NetworkName.Mainnet
+
+			case Chain.Polygon:
+				return NetworkName.Polygon
+
+			default:
+				throw new Error('INVALID_CHAIN')
+		}
+	}
+
+	/** A single split */
 	export interface IMeemSplit {
 		toAddress: string
 		amount: number
-		lockedBy?: string
+		lockedBy: string
 	}
 
 	export interface IMeemMetadata {
@@ -140,11 +164,12 @@ export namespace MeemAPI {
 
 	export interface IMeem {
 		owner: string
+		tokenURI?: string
 		chain: Chain
 		parent: string
-		uparentTokenId: number
+		parentTokenId: number
 		root: string
-		urootTokenId: number
+		rootTokenId: number
 		properties: IMeemProperties
 		childProperties: IMeemProperties
 	}
@@ -154,47 +179,13 @@ export namespace MeemAPI {
 		image?: string
 		description?: string
 	}
-	export interface MeemPermissions {
-		copyPermissions: [
-			{
-				permission: number
-				addresses: string[]
-				numTokens: number
-				lockedBy: string
-			}
-		]
-		remixPermissions: [
-			{
-				permission: number
-				addresses: string[]
-				numTokens: number
-				lockedBy: string
-			}
-		]
-		readPermissions: [
-			{
-				permission: number
-				addresses: string[]
-				numTokens: number
-				lockedBy: string
-			}
-		]
-		copyPermissionsLockedBy: string
-		remixPermissionsLockedBy: string
-		readPermissionsLockedBy: string
-		splits: IMeemSplit[]
-		splitsLockedBy: string
-		totalCopies: number
-		totalCopiesLockedBy: string
-	}
 
 	export namespace v1 {
 		/** Create Meem Image */
 		export namespace CreateMeemImage {
 			export interface IPathParams {}
 
-			export const path = (options: IPathParams) =>
-				`/api/1.0/meems/create-image`
+			export const path = () => `/api/1.0/meems/create-image`
 
 			export const method = HttpMethod.Post
 
@@ -373,36 +364,29 @@ export namespace MeemAPI {
 			export interface IQueryParams {}
 
 			export interface IRequestBody {
+				/** The contract address of the original NFT that is being minted as a Meem */
 				tokenAddress: string
+
+				/** The tokenId of the original NFT */
 				tokenId: number
+
+				/** The chain where the original NFT lives */
 				chain: Chain
+
+				/** The address of the original NFT owner. Also where the Meem will be minted to. */
 				accountAddress: string
-				meemImageOptions: {
-					flipX: boolean
-					flipY: boolean
-				}
-				permissions: {
-					owner: {
-						copyPermissions: [
-							{
-								permission: number
-								addresses: string[]
-								numTokens: number
-								lockedBy?: string
-							}
-						]
-						totalChildren: number
-						totalChildrenLockedBy?: string
-						splits: IMeemSplit[]
-					}
-				}
-				verifyOwnerOnTestnet?: boolean
-				mintToTestnet?: boolean
+
+				properties?: Partial<IMeemProperties>
+
+				childProperties?: Partial<IMeemProperties>
+
+				/** Set to true to disable ownership checks. This option is only respected on testnet. */
+				shouldIgnoreOwnership?: boolean
 			}
 
 			export interface IResponseBody extends IApiResponseBody {
 				transactionHash: string
-				tokenId: string
+				tokenId: number
 			}
 
 			export interface IDefinition {

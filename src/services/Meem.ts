@@ -1,6 +1,6 @@
 import * as path from 'path'
 import { ethers } from 'ethers'
-import { isUndefined as _isUndefined, keys as _keys } from 'lodash'
+import { isUndefined as _isUndefined } from 'lodash'
 import sharp from 'sharp'
 import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
@@ -8,7 +8,12 @@ import ERC721ABI from '../abis/ERC721.json'
 import MeemABI from '../abis/Meem.json'
 import meemWhitelist from '../lib/meem-whitelist.json'
 import { Meem, ERC721 } from '../types'
-import { MeemPropertiesStructOutput, SplitStruct } from '../types/Meem'
+import {
+	MeemPermissionStructOutput,
+	MeemPropertiesStructOutput,
+	MeemStructOutput,
+	SplitStructOutput
+} from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 import { IERC721Metadata, NetworkName } from '../types/shared/meem.shared'
 
@@ -199,19 +204,7 @@ export default class MeemService {
 		}
 	}
 
-	public static async saveMeemMetadataasync({
-		imageBase64,
-		tokenAddress,
-		tokenId,
-		collectionName,
-		parentMetadata,
-		tokenURI,
-		meemId,
-		rootTokenURI,
-		rootTokenAddress,
-		rootTokenId,
-		rootTokenMetadata
-	}: {
+	public static async saveMeemMetadataasync(options: {
 		imageBase64: string
 		tokenAddress: string
 		tokenId?: number
@@ -224,6 +217,20 @@ export default class MeemService {
 		rootTokenId?: number
 		rootTokenMetadata?: IERC721Metadata
 	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
+		const {
+			imageBase64,
+			tokenAddress,
+			tokenId,
+			collectionName,
+			parentMetadata,
+			tokenURI,
+			meemId,
+			rootTokenURI,
+			rootTokenAddress,
+			rootTokenId,
+			rootTokenMetadata
+		} = options
+
 		const id = meemId || uuidv4()
 
 		const result = await services.git.saveMeemMetadata({
@@ -264,99 +271,47 @@ export default class MeemService {
 			throw new Error('MISSING_ACCOUNT_ADDRESS')
 		}
 
-		if (
-			!data.permissions?.owner?.copyPermissions ||
-			!data.permissions?.owner?.splits
-		) {
-			throw new Error('INVALID_PERMISSIONS')
-		}
-
 		const isMeemToken = data.tokenAddress === config.MEEM_PROXY_ADDRESS
-		const meemRegistry = await services.meem.getWhitelist()
 
-		const validMeemProject =
-			isMeemToken ||
-			_keys(meemRegistry).find(contractId => contractId === data.tokenAddress)
+		if (!isMeemToken) {
+			const isValidMeemProject = await this.isValidMeemProject(
+				data.tokenAddress
+			)
 
-		// if (!validMeemProject) {
-		// 	throw new Error('INVALID_MEEM_PROJECT')
-		// }
+			if (!isValidMeemProject) {
+				throw new Error('INVALID_MEEM_PROJECT')
+			}
+		}
 
 		const contract = isMeemToken
 			? this.meemContract()
 			: this.erc721Contract({
-					networkName: data.verifyOwnerOnTestnet
-						? NetworkName.Rinkeby
-						: NetworkName.Mainnet,
+					networkName: MeemAPI.chainToNetworkName(data.chain),
 					address: data.tokenAddress
 			  })
 
-		const owner = await contract.ownerOf(data.tokenId)
-		const isNFTOwner = owner.toLowerCase() === data.accountAddress.toLowerCase()
+		const shouldIgnoreOwnership =
+			config.NETWORK === MeemAPI.NetworkName.Rinkeby &&
+			data.shouldIgnoreOwnership
 
-		// if (!isMeemToken && !isNFTOwner) {
-		// 	throw new Error('TOKEN_NOT_OWNED')
-		// }
-
-		let childMeemData:
-			| {
-					rootTokenAddress: string
-					rootTokenId: number
-					rootTokenURI: string
-					rootMetadata: IERC721Metadata
-					properties: MeemPropertiesStructOutput
-					childProperties: MeemPropertiesStructOutput
-					generation: number
-			  }
-			| undefined
-
-		if (isMeemToken) {
-			const meem = await (contract as Meem).getMeem(data.tokenId)
-			const rootContract = this.erc721Contract({
-				networkName: data.verifyOwnerOnTestnet
-					? NetworkName.Rinkeby
-					: NetworkName.Mainnet,
-				address: meem.root
-			})
-			let rootContractMetadata: IERC721Metadata = {}
-			const rootTokenURI = await rootContract.tokenURI(meem.rootTokenId)
-
-			try {
-				const rootContractURI = await rootContract.contractURI()
-				rootContractMetadata = await this.getErc721Metadata(rootContractURI)
-			} catch (e) {
-				// No contractURI
-			}
-
-			const rootMetadata = await this.getErc721Metadata(rootTokenURI)
-
-			rootMetadata.description =
-				rootMetadata.description || rootContractMetadata.description || ''
-
-			childMeemData = {
-				rootTokenAddress: meem.root,
-				rootTokenId: meem.rootTokenId.toNumber(),
-				rootTokenURI,
-				rootMetadata,
-				properties: meem.properties,
-				childProperties: meem.childProperties,
-				generation: 0
+		if (!shouldIgnoreOwnership) {
+			const owner = await contract.ownerOf(data.tokenId)
+			const isNFTOwner =
+				owner.toLowerCase() === data.accountAddress.toLowerCase()
+			if (!isNFTOwner) {
+				throw new Error('TOKEN_NOT_OWNED')
 			}
 		}
 
-		let contractMetadata: IERC721Metadata = {}
-		const tokenURI = await contract.tokenURI(data.tokenId)
+		const contractInfo = await this.getContractInfo({
+			contractAddress: data.tokenAddress,
+			tokenId: data.tokenId,
+			networkName: MeemAPI.NetworkName.Mainnet
+		})
 
-		try {
-			const contractURI = await contract.contractURI()
-			contractMetadata = await this.getErc721Metadata(contractURI)
-		} catch (e) {
-			// No contractURI
-		}
-
-		const metadata = await this.getErc721Metadata(tokenURI)
-
-		const image = await this.getImageFromMetadata(metadata)
+		const image = await this.getImageFromMetadata(
+			contractInfo.parentTokenMetadata
+		)
 
 		const imageBase64String = image.toString('base64')
 
@@ -366,265 +321,40 @@ export default class MeemService {
 					base64Image: imageBase64String
 			  })
 
-		metadata.description =
-			metadata.description || contractMetadata.description || ''
-
 		const meemMetadata = await this.saveMeemMetadataasync({
-			collectionName: contractMetadata.name,
+			collectionName: contractInfo.parentContractMetadata?.name,
 			imageBase64: base64MeemImage,
 			tokenAddress: data.tokenAddress,
 			tokenId: data.tokenId,
-			parentMetadata: metadata,
-			tokenURI,
-			rootTokenAddress: childMeemData?.rootTokenAddress,
-			rootTokenId: childMeemData?.rootTokenId,
-			rootTokenURI: childMeemData?.rootTokenURI,
-			rootTokenMetadata: childMeemData?.rootMetadata
+			parentMetadata: contractInfo.parentTokenMetadata,
+			tokenURI: contractInfo.parentTokenURI,
+			rootTokenAddress: contractInfo.rootTokenAddress,
+			rootTokenId: contractInfo.rootTokenId,
+			rootTokenURI: contractInfo.rootTokenURI,
+			rootTokenMetadata: contractInfo.rootTokenMetadata
 		})
 
 		const meemContract = this.meemContract()
 
-		// Mint the Meem
-
-		const splitsData: SplitStruct[] = []
-
-		try {
-			data.permissions.owner.splits.forEach(s => {
-				if (s.toAddress && !_isUndefined(s.amount)) {
-					splitsData.push({
-						toAddress: s.toAddress,
-						amount: s.amount,
-						lockedBy: s.lockedBy
-							? s.lockedBy
-							: '0x0000000000000000000000000000000000000000'
-					})
-				} else {
-					throw new Error('Splits formatted incorrectly')
-				}
-			})
-		} catch (e) {
-			throw new Error('INVALID_SPLITS')
-		}
-
-		return [
+		const mintParams: Parameters<Meem['mint']> = [
 			data.accountAddress,
 			meemMetadata.tokenURI,
 			data.chain,
-			childMeemData ? childMeemData.rootTokenAddress : data.tokenAddress,
-			childMeemData ? childMeemData.rootTokenId : data.tokenId,
-			data.tokenAddress,
-			data.tokenId,
-			childMeemData
-				? childMeemData.properties
-				: {
-						copyPermissions: data.permissions.owner.copyPermissions.map(
-							(p, i) => {
-								return {
-									permission: _isUndefined(
-										data.permissions.owner.copyPermissions[i].permission
-									)
-										? 1
-										: data.permissions.owner.copyPermissions[i].permission,
-									addresses: _isUndefined(
-										data.permissions.owner.copyPermissions[i].addresses
-									)
-										? []
-										: data.permissions.owner.copyPermissions[i].addresses,
-									numTokens: _isUndefined(
-										data.permissions.owner.copyPermissions[i].numTokens
-									)
-										? 0
-										: data.permissions.owner.copyPermissions[i].numTokens,
-									lockedBy:
-										data.permissions.owner.copyPermissions[i].lockedBy ||
-										'0x0000000000000000000000000000000000000000'
-								}
-							}
-						),
-						remixPermissions: [
-							{
-								permission: 1,
-								addresses: [],
-								numTokens: 0,
-								lockedBy: '0x0000000000000000000000000000000000000000'
-							}
-						],
-						readPermissions: [
-							{
-								permission: 1,
-								addresses: [],
-								numTokens: 0,
-								lockedBy: '0x0000000000000000000000000000000000000000'
-							}
-						],
-						copyPermissionsLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						remixPermissionsLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						readPermissionsLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						splits: splitsData,
-						splitsLockedBy: '0x0000000000000000000000000000000000000000',
-						childrenPerWallet: -1,
-						childrenPerWalletLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						totalChildren: _isUndefined(data.permissions?.owner?.totalChildren)
-							? -1
-							: data.permissions?.owner?.totalChildren,
-						totalChildrenLockedBy: '0x0000000000000000000000000000000000000000'
-				  },
-			childMeemData
-				? childMeemData.childProperties
-				: {
-						copyPermissions: [
-							{
-								permission: 0,
-								addresses: [],
-								numTokens: 0,
-								lockedBy: '0x0000000000000000000000000000000000000000'
-							}
-						],
-						remixPermissions: [
-							{
-								permission: 0,
-								addresses: [],
-								numTokens: 0,
-								lockedBy: '0x0000000000000000000000000000000000000000'
-							}
-						],
-						readPermissions: [
-							{
-								permission: 0,
-								addresses: [],
-								numTokens: 0,
-								lockedBy: '0x0000000000000000000000000000000000000000'
-							}
-						],
-						copyPermissionsLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						remixPermissionsLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						readPermissionsLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						splits: splitsData,
-						splitsLockedBy: '0x0000000000000000000000000000000000000000',
-						childrenPerWallet: -1,
-						childrenPerWalletLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						totalChildren: 0,
-						totalChildrenLockedBy: '0x0000000000000000000000000000000000000000'
-				  }
+			contractInfo.rootTokenAddress,
+			contractInfo.rootTokenId,
+			contractInfo.parentTokenAddress,
+			contractInfo.parentTokenId,
+			this.buildProperties(data.properties),
+			this.buildProperties({
+				...data.childProperties,
+				totalChildren: data.childProperties?.totalChildren ?? 0,
+				splits: data.childProperties?.splits ?? data.properties?.splits
+			})
 		]
 
-		const meem = await meemContract.mint(
-			data.accountAddress,
-			meemMetadata.tokenURI,
-			data.chain,
-			childMeemData ? childMeemData.rootTokenAddress : data.tokenAddress,
-			childMeemData ? childMeemData.rootTokenId : data.tokenId,
-			data.tokenAddress,
-			data.tokenId,
-			childMeemData
-				? childMeemData.properties
-				: {
-						copyPermissions: data.permissions.owner.copyPermissions.map(
-							(p, i) => {
-								return {
-									permission: _isUndefined(
-										data.permissions.owner.copyPermissions[i].permission
-									)
-										? 1
-										: data.permissions.owner.copyPermissions[i].permission,
-									addresses: _isUndefined(
-										data.permissions.owner.copyPermissions[i].addresses
-									)
-										? []
-										: data.permissions.owner.copyPermissions[i].addresses,
-									numTokens: _isUndefined(
-										data.permissions.owner.copyPermissions[i].numTokens
-									)
-										? 0
-										: data.permissions.owner.copyPermissions[i].numTokens,
-									lockedBy:
-										data.permissions.owner.copyPermissions[i].lockedBy ||
-										'0x0000000000000000000000000000000000000000'
-								}
-							}
-						),
-						remixPermissions: [
-							{
-								permission: 1,
-								addresses: [],
-								numTokens: 0,
-								lockedBy: '0x0000000000000000000000000000000000000000'
-							}
-						],
-						readPermissions: [
-							{
-								permission: 1,
-								addresses: [],
-								numTokens: 0,
-								lockedBy: '0x0000000000000000000000000000000000000000'
-							}
-						],
-						copyPermissionsLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						remixPermissionsLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						readPermissionsLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						splits: splitsData,
-						splitsLockedBy: '0x0000000000000000000000000000000000000000',
-						childrenPerWallet: -1,
-						childrenPerWalletLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						totalChildren: _isUndefined(data.permissions?.owner?.totalChildren)
-							? -1
-							: data.permissions?.owner?.totalChildren,
-						totalChildrenLockedBy: '0x0000000000000000000000000000000000000000'
-				  },
-			childMeemData
-				? childMeemData.childProperties
-				: {
-						copyPermissions: [
-							{
-								permission: 0,
-								addresses: [],
-								numTokens: 0,
-								lockedBy: '0x0000000000000000000000000000000000000000'
-							}
-						],
-						remixPermissions: [
-							{
-								permission: 0,
-								addresses: [],
-								numTokens: 0,
-								lockedBy: '0x0000000000000000000000000000000000000000'
-							}
-						],
-						readPermissions: [
-							{
-								permission: 0,
-								addresses: [],
-								numTokens: 0,
-								lockedBy: '0x0000000000000000000000000000000000000000'
-							}
-						],
-						copyPermissionsLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						remixPermissionsLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						readPermissionsLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						splits: splitsData,
-						splitsLockedBy: '0x0000000000000000000000000000000000000000',
-						childrenPerWallet: -1,
-						childrenPerWalletLockedBy:
-							'0x0000000000000000000000000000000000000000',
-						totalChildren: 0,
-						totalChildrenLockedBy: '0x0000000000000000000000000000000000000000'
-				  }
-		)
+		log.debug('Minting meem w/ params', { mintParams })
+
+		const meem = await meemContract.mint(...mintParams)
 
 		const receipt = await meem.wait()
 
@@ -638,5 +368,219 @@ export default class MeemService {
 			}
 		}
 		throw new Error('TRANSFER_EVENT_NOT_FOUND')
+	}
+
+	public static async isValidMeemProject(contractAddress: string) {
+		const isMeemToken = contractAddress === config.MEEM_PROXY_ADDRESS
+		if (isMeemToken) {
+			return true
+		}
+		const meemRegistry = await this.getWhitelist()
+
+		const isValidMeemProject = Object.keys(meemRegistry).find(
+			contractId => contractId.toLowerCase() === contractAddress.toLowerCase()
+		)
+
+		return !!isValidMeemProject
+	}
+
+	public static async getContractInfo(options: {
+		contractAddress: string
+		tokenId: number
+		networkName: NetworkName
+	}) {
+		const { contractAddress, tokenId, networkName } = options
+		const isMeemToken =
+			contractAddress.toLowerCase() === config.MEEM_PROXY_ADDRESS.toLowerCase()
+
+		const contract = this.erc721Contract({
+			networkName,
+			address: contractAddress
+		})
+
+		const {
+			tokenURI: parentTokenURI,
+			tokenMetadata: parentTokenMetadata,
+			contractURI: parentContractURI,
+			contractMetadata: parentContractMetadata
+		} = await this.getMetadata({
+			contract,
+			tokenId
+		})
+
+		// Fetch root data unless this isn't a Meem in which case root is the parent
+		let rootTokenAddress = contractAddress
+		let rootTokenId = tokenId
+		let rootTokenMetadata = parentTokenMetadata
+		let rootTokenURI = parentTokenURI
+		let rootContractURI = parentContractURI
+		let rootContractMetadata = parentContractMetadata
+
+		if (isMeemToken) {
+			const meemContract = this.meemContract()
+			const meem = await meemContract.getMeem(tokenId)
+			rootTokenAddress = meem.root
+			rootTokenId = meem.rootTokenId.toNumber()
+
+			const meemInfo = await this.getMetadata({
+				contract: meemContract,
+				tokenId
+			})
+
+			rootTokenMetadata = meemInfo.tokenMetadata
+			rootTokenURI = meemInfo.tokenURI
+			rootContractMetadata = meemInfo.contractMetadata
+			rootContractURI = meemInfo.contractURI
+		}
+
+		return {
+			parentTokenAddress: contractAddress,
+			parentTokenId: tokenId,
+			parentTokenURI,
+			parentTokenMetadata,
+			parentContractURI,
+			parentContractMetadata,
+			rootTokenAddress,
+			rootTokenId,
+			rootTokenURI,
+			rootTokenMetadata,
+			rootContractURI,
+			rootContractMetadata
+		}
+	}
+
+	public static async getMetadata(options: {
+		contract: ERC721 | Meem
+		tokenId: number
+	}) {
+		const { contract, tokenId } = options
+		const tokenURI = await contract.tokenURI(tokenId)
+		const tokenMetadata = await this.getErc721Metadata(tokenURI)
+		let contractURI: string | undefined
+		let contractMetadata: IERC721Metadata | undefined
+
+		try {
+			contractURI = await contract.contractURI()
+		} catch (e) {
+			log.warn(e)
+		}
+		if (contractURI) {
+			try {
+				contractMetadata = await this.getErc721Metadata(contractURI)
+			} catch (e) {
+				log.warn(e)
+			}
+		}
+
+		return {
+			tokenURI,
+			tokenMetadata,
+			contractURI,
+			contractMetadata
+		}
+	}
+
+	/** Take a partial set of properties and return a full set w/ defaults */
+	public static buildProperties(
+		props?: Partial<MeemAPI.IMeemProperties>
+	): MeemAPI.IMeemProperties {
+		return {
+			copyPermissions: props?.copyPermissions ?? [
+				{
+					permission: 1,
+					addresses: [],
+					numTokens: 0,
+					lockedBy: MeemAPI.zeroAddress
+				}
+			],
+			remixPermissions: props?.remixPermissions ?? [
+				{
+					permission: 1,
+					addresses: [],
+					numTokens: 0,
+					lockedBy: MeemAPI.zeroAddress
+				}
+			],
+			readPermissions: props?.readPermissions ?? [
+				{
+					permission: 1,
+					addresses: [],
+					numTokens: 0,
+					lockedBy: MeemAPI.zeroAddress
+				}
+			],
+			copyPermissionsLockedBy:
+				props?.copyPermissionsLockedBy ?? MeemAPI.zeroAddress,
+			remixPermissionsLockedBy:
+				props?.remixPermissionsLockedBy ?? MeemAPI.zeroAddress,
+			readPermissionsLockedBy:
+				props?.readPermissionsLockedBy ?? MeemAPI.zeroAddress,
+			splits: props?.splits ?? [],
+			splitsLockedBy: props?.splitsLockedBy ?? MeemAPI.zeroAddress,
+			childrenPerWallet: props?.childrenPerWallet ?? -1,
+			childrenPerWalletLockedBy:
+				props?.childrenPerWalletLockedBy ?? MeemAPI.zeroAddress,
+			totalChildren: props?.totalChildren ?? -1,
+			totalChildrenLockedBy: props?.totalChildrenLockedBy ?? MeemAPI.zeroAddress
+		}
+	}
+
+	public static meemToInterface(meem: MeemStructOutput): MeemAPI.IMeem {
+		return {
+			owner: meem[0],
+			chain: meem[1],
+			parent: meem[2],
+			parentTokenId: meem[3].toNumber(),
+			root: meem[4],
+			rootTokenId: meem[5].toNumber(),
+			properties: this.meemPropertiesToInterface(meem[6]),
+			childProperties: this.meemPropertiesToInterface(meem[7])
+		}
+	}
+
+	public static meemPropertiesToInterface(
+		meemProperties: MeemPropertiesStructOutput
+	): MeemAPI.IMeemProperties {
+		return {
+			totalChildren: meemProperties[0].toNumber(),
+			totalChildrenLockedBy: meemProperties[1],
+			childrenPerWallet: meemProperties[2].toNumber(),
+			childrenPerWalletLockedBy: meemProperties[3],
+			copyPermissions: meemProperties[4].map(perm =>
+				this.meemPermissionToInterface(perm)
+			),
+			remixPermissions: meemProperties[5].map(perm =>
+				this.meemPermissionToInterface(perm)
+			),
+			readPermissions: meemProperties[6].map(perm =>
+				this.meemPermissionToInterface(perm)
+			),
+			copyPermissionsLockedBy: meemProperties[7],
+			remixPermissionsLockedBy: meemProperties[8],
+			readPermissionsLockedBy: meemProperties[9],
+			splits: meemProperties[10].map(s => this.meemSplitToInterface(s)),
+			splitsLockedBy: meemProperties[11]
+		}
+	}
+
+	public static meemPermissionToInterface(
+		meemPermission: MeemPermissionStructOutput
+	): MeemAPI.IMeemPermission {
+		return {
+			permission: meemPermission[0],
+			addresses: meemPermission[1],
+			numTokens: meemPermission[2].toNumber(),
+			lockedBy: meemPermission[3]
+		}
+	}
+
+	public static meemSplitToInterface(
+		split: SplitStructOutput
+	): MeemAPI.IMeemSplit {
+		return {
+			toAddress: split[0],
+			amount: split[1].toNumber(),
+			lockedBy: split[2]
+		}
 	}
 }

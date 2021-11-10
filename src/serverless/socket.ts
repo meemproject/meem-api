@@ -23,7 +23,7 @@ export const handle: APIGatewayProxyHandler = async (event, _context) => {
 		const { eventType, connectionId } = requestContext
 
 		if (config.AWS_WEBSOCKET_GATEWAY_URL) {
-			sockets.connectLambda({
+			sockets?.connectLambda({
 				endpoint: config.AWS_WEBSOCKET_GATEWAY_URL
 			})
 		} else {
@@ -36,7 +36,7 @@ export const handle: APIGatewayProxyHandler = async (event, _context) => {
 					break
 
 				case 'DISCONNECT':
-					sockets.handleDisconnect({ socketId: connectionId })
+					sockets?.handleDisconnect({ socketId: connectionId })
 					break
 
 				case 'MESSAGE': {
@@ -47,12 +47,20 @@ export const handle: APIGatewayProxyHandler = async (event, _context) => {
 							switch (eventName) {
 								case 'subscribe':
 									log.debug('calling subscribe')
-									await sockets.subscribe(connectionId, data)
+									// await sockets?.subscribe(connectionId, data)
+									await sockets?.subscribe({
+										socketId: connectionId,
+										events: data
+									})
 									break
 
 								case 'unsubscribe':
 									log.debug('calling unsubscribe')
-									await sockets.unsubscribe(connectionId, data)
+									// await sockets?.unsubscribe(connectionId, data)
+									await sockets?.unsubscribe({
+										socketId: connectionId,
+										events: data
+									})
 									break
 
 								default:

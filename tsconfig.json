@@ -16,7 +16,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"noImplicitReturns": true,
 		"strict": true,
-		"noUnusedLocals": true,
+		"noUnusedLocals": false,
 		"resolveJsonModule": true,
 		"moduleResolution": "node",
 		"sourceMap": true,

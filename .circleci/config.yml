@@ -55,6 +55,8 @@ workflows:
             branches:
               ignore:
                 - master
+                - stage
+                - dev
       - release:
           context: private_packages
           filters:

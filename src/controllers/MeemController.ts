@@ -24,7 +24,7 @@ export default class MeemController {
 		const meem = await meemContract.getMeem(tokenId)
 
 		// TODO: Clean up this output so it matches IMeem
-		return res.json({ meem })
+		return res.json({ meem: services.meem.meemToInterface(meem) })
 	}
 
 	public static async mintMeem(
@@ -33,15 +33,14 @@ export default class MeemController {
 	): Promise<Response> {
 		const data = req.body
 
-		const meem = await services.meem.mintMeem(data)
+		const mintInfo = await services.meem.mintMeem(data)
 
-		// TODO: Finish minting
-		return res.json({ meem })
+		return res.json({ ...mintInfo })
 	}
 
 	public static async createMeemImage(
-		req: IRequest<MeemAPI.v1.MintMeem.IDefinition>,
-		res: IResponse<MeemAPI.v1.MintMeem.IResponseBody>
+		req: IRequest<MeemAPI.v1.CreateMeemImage.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateMeemImage.IResponseBody>
 	): Promise<Response> {
 		const data = req.body
 
