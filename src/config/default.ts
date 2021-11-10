@@ -57,5 +57,6 @@ export default {
 	INFURA_ID: process.env.INFURA_ID ?? '',
 	IPFS_CONTENT_GATEWAY_URL:
 		process.env.IPFS_CONTENT_GATEWAY_URL ?? 'https://gateway.ipfs.io',
-	GITHUB_KEY: process.env.GITHUB_KEY ?? ''
+	GITHUB_KEY: process.env.GITHUB_KEY ?? '',
+	DISABLE_WHITELIST_CHECK: process.env.DISABLE_WHITELIST_CHECK === 'true'
 }

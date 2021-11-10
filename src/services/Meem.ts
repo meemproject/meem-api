@@ -204,7 +204,7 @@ export default class MeemService {
 			return base64MeemImage
 		} catch (e) {
 			log.crit(e)
-			throw new Error('UNKNOWN')
+			throw new Error('CREATE_IMAGE_ERROR')
 		}
 	}
 
@@ -276,8 +276,11 @@ export default class MeemService {
 		}
 
 		const isMeemToken = data.tokenAddress === config.MEEM_PROXY_ADDRESS
+		const shouldIgnoreWhitelist =
+			config.NETWORK === MeemAPI.NetworkName.Rinkeby &&
+			data.shouldIgnoreWhitelist
 
-		if (!isMeemToken) {
+		if (!isMeemToken && !shouldIgnoreWhitelist) {
 			const isValidMeemProject = await this.isValidMeemProject(
 				data.tokenAddress
 			)
@@ -375,6 +378,10 @@ export default class MeemService {
 	}
 
 	public static async isValidMeemProject(contractAddress: string) {
+		if (config.DISABLE_WHITELIST_CHECK) {
+			return true
+		}
+
 		const isMeemToken = contractAddress === config.MEEM_PROXY_ADDRESS
 		if (isMeemToken) {
 			return true

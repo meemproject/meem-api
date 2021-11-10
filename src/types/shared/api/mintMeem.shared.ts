@@ -35,6 +35,9 @@ export namespace MintMeem {
 
 		/** Set to true to disable ownership checks. This option is only respected on testnet. */
 		shouldIgnoreOwnership?: boolean
+
+		/** Set to true to disable whitelist checks. This option is only respected on testnet */
+		shouldIgnoreWhitelist?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
