@@ -283,7 +283,7 @@ export default class Sockets {
 			gateway.postToConnection(data, (err, gatewayResponse) => {
 				if (err) {
 					log.warn(err)
-					resolve()
+					resolve(null)
 					return
 				}
 				resolve(gatewayResponse)

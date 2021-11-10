@@ -164,7 +164,7 @@ export namespace MeemAPI {
 
 	export interface IMeem {
 		owner: string
-		tokenURI: string
+		tokenURI?: string
 		chain: Chain
 		parent: string
 		parentTokenId: number
@@ -185,8 +185,7 @@ export namespace MeemAPI {
 		export namespace CreateMeemImage {
 			export interface IPathParams {}
 
-			export const path = (options: IPathParams) =>
-				`/api/1.0/meems/create-image`
+			export const path = () => `/api/1.0/meems/create-image`
 
 			export const method = HttpMethod.Post
 

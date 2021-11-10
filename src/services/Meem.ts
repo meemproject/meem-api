@@ -8,6 +8,12 @@ import ERC721ABI from '../abis/ERC721.json'
 import MeemABI from '../abis/Meem.json'
 import meemWhitelist from '../lib/meem-whitelist.json'
 import { Meem, ERC721 } from '../types'
+import {
+	MeemPermissionStructOutput,
+	MeemPropertiesStructOutput,
+	MeemStructOutput,
+	SplitStructOutput
+} from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 import { IERC721Metadata, NetworkName } from '../types/shared/meem.shared'
 
@@ -516,6 +522,65 @@ export default class MeemService {
 				props?.childrenPerWalletLockedBy ?? MeemAPI.zeroAddress,
 			totalChildren: props?.totalChildren ?? -1,
 			totalChildrenLockedBy: props?.totalChildrenLockedBy ?? MeemAPI.zeroAddress
+		}
+	}
+
+	public static meemToInterface(meem: MeemStructOutput): MeemAPI.IMeem {
+		return {
+			owner: meem[0],
+			chain: meem[1],
+			parent: meem[2],
+			parentTokenId: meem[3].toNumber(),
+			root: meem[4],
+			rootTokenId: meem[5].toNumber(),
+			properties: this.meemPropertiesToInterface(meem[6]),
+			childProperties: this.meemPropertiesToInterface(meem[7])
+		}
+	}
+
+	public static meemPropertiesToInterface(
+		meemProperties: MeemPropertiesStructOutput
+	): MeemAPI.IMeemProperties {
+		return {
+			totalChildren: meemProperties[0].toNumber(),
+			totalChildrenLockedBy: meemProperties[1],
+			childrenPerWallet: meemProperties[2].toNumber(),
+			childrenPerWalletLockedBy: meemProperties[3],
+			copyPermissions: meemProperties[4].map(perm =>
+				this.meemPermissionToInterface(perm)
+			),
+			remixPermissions: meemProperties[5].map(perm =>
+				this.meemPermissionToInterface(perm)
+			),
+			readPermissions: meemProperties[6].map(perm =>
+				this.meemPermissionToInterface(perm)
+			),
+			copyPermissionsLockedBy: meemProperties[7],
+			remixPermissionsLockedBy: meemProperties[8],
+			readPermissionsLockedBy: meemProperties[9],
+			splits: meemProperties[10].map(s => this.meemSplitToInterface(s)),
+			splitsLockedBy: meemProperties[11]
+		}
+	}
+
+	public static meemPermissionToInterface(
+		meemPermission: MeemPermissionStructOutput
+	): MeemAPI.IMeemPermission {
+		return {
+			permission: meemPermission[0],
+			addresses: meemPermission[1],
+			numTokens: meemPermission[2].toNumber(),
+			lockedBy: meemPermission[3]
+		}
+	}
+
+	public static meemSplitToInterface(
+		split: SplitStructOutput
+	): MeemAPI.IMeemSplit {
+		return {
+			toAddress: split[0],
+			amount: split[1].toNumber(),
+			lockedBy: split[2]
 		}
 	}
 }

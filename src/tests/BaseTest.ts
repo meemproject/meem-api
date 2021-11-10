@@ -2,7 +2,7 @@ import { Server } from 'http'
 import { Suite } from 'mocha'
 import supertest, { SuperTest, Test, Response } from 'supertest'
 import start from '../core/start'
-import { HttpMethod } from '../types/app'
+import { MeemAPI } from '../types/meem.generated'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
@@ -48,7 +48,7 @@ export default class BaseTest {
 
 	protected async makeRequest(options: {
 		path: string
-		method: HttpMethod
+		method: MeemAPI.HttpMethod
 		query?: Record<string, any>
 		// eslint-disable-next-line @typescript-eslint/ban-types
 		data?: string | object
@@ -76,21 +76,21 @@ export default class BaseTest {
 
 	protected wait(ms: number) {
 		return new Promise(resolve => {
-			setTimeout(() => resolve(), ms)
+			setTimeout(() => resolve(null), ms)
 		})
 	}
 
-	protected getRequest(method: HttpMethod) {
+	protected getRequest(method: MeemAPI.HttpMethod) {
 		switch (method) {
-			case HttpMethod.Options:
+			case MeemAPI.HttpMethod.Options:
 				return this.request.options
-			case HttpMethod.Delete:
+			case MeemAPI.HttpMethod.Delete:
 				return this.request.delete
-			case HttpMethod.Patch:
+			case MeemAPI.HttpMethod.Patch:
 				return this.request.patch
-			case HttpMethod.Post:
+			case MeemAPI.HttpMethod.Post:
 				return this.request.post
-			case HttpMethod.Get:
+			case MeemAPI.HttpMethod.Get:
 			default:
 				return this.request.get
 		}

@@ -137,7 +137,7 @@ export interface IMeemProperties {
 
 export interface IMeem {
 	owner: string
-	tokenURI: string
+	tokenURI?: string
 	chain: Chain
 	parent: string
 	parentTokenId: number
