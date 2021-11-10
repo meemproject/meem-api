@@ -52,9 +52,7 @@ export default {
 	REDIS_KEY_PREFIX: process.env.REDIS_KEY_PREFIX,
 	AWS_WEBSOCKET_GATEWAY_URL: process.env.AWS_WEBSOCKET_GATEWAY_URL,
 	SERVERLESS_LOG_FULL_REQUEST: process.env.SERVERLESS_LOG_FULL_REQUEST,
-	NETWORK:
-		(process.env.NETWORK as MeemAPI.NetworkName) ??
-		('rinkeby' as MeemAPI.NetworkName),
+	NETWORK: (process.env.NETWORK ?? 'rinkeby') as MeemAPI.NetworkName,
 	WALLET_PRIVATE_KEY: process.env.WALLET_PRIVATE_KEY ?? '',
 	MEEM_PROXY_ADDRESS: process.env.MEEM_PROXY_ADDRESS ?? '',
 	INFURA_ID: process.env.INFURA_ID ?? '',
