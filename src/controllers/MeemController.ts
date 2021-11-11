@@ -1,3 +1,4 @@
+import AWS from 'aws-sdk'
 import { Response } from 'express'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
@@ -33,9 +34,22 @@ export default class MeemController {
 	): Promise<Response> {
 		const data = req.body
 
-		const mintInfo = await services.meem.mintMeem(data)
+		const lambda = new AWS.Lambda({
+			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+			region: 'us-east-1'
+		})
 
-		return res.json({ ...mintInfo })
+		lambda.invoke({
+			FunctionName: 'mint',
+			Payload: JSON.stringify(data)
+		})
+
+		// TODO: Notify via Websockets
+
+		return res.json({
+			status: 'success'
+		})
 	}
 
 	public static async createMeemImage(

@@ -1,0 +1,46 @@
+{
+    "body": {
+        "tokenAddress": "0x1cb1a5e65610aeff2551a50f76a87a7d3fb649c6",
+        "tokenId": 268,
+        "chain": 0,
+        "accountAddress": "0xde19C037a85A609ec33Fc747bE9Db8809175C3a5",
+        "shouldIgnoreWhitelist": true,
+        "shouldIgnoreOwnership": true,
+        "properties": {
+            "totalChildren": -1,
+            "copyPermissions": [
+                {
+                    "permission": 1,
+                    "addresses": [],
+                    "numTokens": 0,
+                    "lockedBy": "0x0000000000000000000000000000000000000000"
+                }
+            ],
+            "splits": [
+                {
+                    "toAddress": "0x40c6BeE45d94063c5B05144489cd8A9879899592",
+                    "amount": 1000,
+                    "lockedBy": "0x0000000000000000000000000000000000000000"
+                }
+            ]
+        },
+        "childProperties": {
+            "totalChildren": -1,
+            "copyPermissions": [
+                {
+                    "permission": 1,
+                    "addresses": [],
+                    "numTokens": 0,
+                    "lockedBy": "0x0000000000000000000000000000000000000000"
+                }
+            ],
+            "splits": [
+                {
+                    "toAddress": "0x40c6BeE45d94063c5B05144489cd8A9879899592",
+                    "amount": 1000,
+                    "lockedBy": "0x0000000000000000000000000000000000000000"
+                }
+            ]
+        }
+    }
+}

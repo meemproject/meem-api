@@ -32,22 +32,77 @@ export default class TypesService {
 			process.cwd(),
 			'src/types/shared/api/**/*.ts'
 		)
+		const eventsGlob = path.join(
+			process.cwd(),
+			'src/types/shared/events/**/*.ts'
+		)
 
-		const [files, endpointFiles] = await Promise.all([
+		const [files, endpointFiles, eventsFiles] = await Promise.all([
 			globby(sharedTypesGlob, {
-				ignore: [endpointsGlob]
+				ignore: [endpointsGlob, eventsGlob]
 			}),
-			globby(endpointsGlob)
+			globby(endpointsGlob),
+			globby(eventsGlob)
 		])
 
-		const [types, endpointTypes] = await Promise.all([
+		const [types, endpointTypes, eventTypes] = await Promise.all([
 			Promise.all(files.map(f => this.parseTypes(f))),
-			Promise.all(endpointFiles.map(f => this.parseTypes(f)))
+			Promise.all(endpointFiles.map(f => this.parseTypes(f))),
+			Promise.all(eventsFiles.map(f => this.parseTypes(f)))
 		])
+
+		const eventDefinitions: string[] = []
+		const eventNamespaces: string[] = []
+		const eventListeners: string[] = []
+		const generatedEventTypes: string[] = []
+		eventTypes.forEach(eventType => {
+			const matches = eventType.match(/namespace (\w+)/)
+			if (matches && matches[1]) {
+				const namespace = matches[1]
+				eventNamespaces.push(namespace)
+				const eventName = `${namespace
+					.charAt(0)
+					.toLowerCase()}${namespace.slice(1)}`
+				eventDefinitions.push(`${namespace} = '${eventName}',`)
+				generatedEventTypes.push(
+					eventType.replace(
+						/export namespace (\w+) {([.\n]*)/,
+						`export namespace $1 {\nexport const eventName = MeemEvent.${namespace}\n $2`
+					)
+				)
+			}
+		})
+		const subscribeTypes: string[] = []
+		eventNamespaces.forEach(ns => {
+			if (!['Subscribe', 'Unsubscribe'].includes(ns)) {
+				subscribeTypes.push(
+					`(Events.${ns}.ISubscribePayload & { type: MeemEvent.${ns} })`
+				)
+			}
+		})
+
+		eventNamespaces.forEach(ns => {
+			if (!['Subscribe', 'Unsubscribe'].includes(ns)) {
+				eventListeners.push(
+					`({
+						eventName: MeemEvent.${ns},
+						handler: (options: {detail: Events.${ns}.IEventPayload}) => void
+					})`
+				)
+			}
+		})
 
 		const allTypes = `export namespace MeemAPI {\n${types.join(
 			'\n\n'
-		)}\nexport namespace v1 {\n${endpointTypes.join('\n\n')}\n}}`
+		)}\nexport namespace v1 {\n${endpointTypes.join(
+			'\n\n'
+		)}\n}\nexport enum MeemEvent {\n
+			${(eventDefinitions ?? []).join('\n')}
+		\n}\nexport namespace Events {\n${generatedEventTypes.join(
+			'\n\n'
+		)}\n}\n\nexport type SubscribeType=${subscribeTypes.join(
+			' | '
+		)}\n\nexport type EventListener=${eventListeners.join(' | ')}}`
 
 		return { allTypes }
 	}

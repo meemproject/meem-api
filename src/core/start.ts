@@ -3,11 +3,9 @@ import path from 'path'
 import log, { LogLevel } from '@kengoldfarb/log'
 import express, { Express } from 'express'
 import globby from 'globby'
-import socketsConfig from '../sockets'
 import Configuration from './Configuration'
 import errorMiddleware from './errorMiddleware'
 import Orm from './Orm'
-import Sockets from './Sockets'
 
 process.on('uncaughtException', err => {
 	// eslint-disable-next-line no-console
@@ -112,6 +110,9 @@ export default async function start() {
 
 	const server = config.SERVER_LISTENING ? await listen(app) : undefined
 
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	const Sockets = (await import('./Sockets')).default
+	const socketsConfig = (await import('../sockets')).default
 	if (server) {
 		g.sockets = new Sockets({
 			server,

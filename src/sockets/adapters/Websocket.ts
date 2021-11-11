@@ -46,7 +46,7 @@ export default class WebsocketAdapter extends SocketAdapter {
 				try {
 					const { eventName, data } = JSON.parse(rawData.toString())
 					if (this.onMessage) {
-						this.onMessage({ eventName, data })
+						this.onMessage({ socketId: socket.id, eventName, data })
 					}
 				} catch (e) {
 					try {

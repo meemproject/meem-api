@@ -381,6 +381,14 @@ export default class MeemService {
 
 		if (transferEvent && transferEvent.args && transferEvent.args[2]) {
 			const tokenId = (transferEvent.args[2] as ethers.BigNumber).toNumber()
+			await sockets?.emit({
+				subscription: MeemAPI.MeemEvent.MeemMinted,
+				eventName: MeemAPI.MeemEvent.MeemMinted,
+				data: {
+					tokenId,
+					transactionHash: receipt.transactionHash
+				}
+			})
 			return {
 				transactionHash: receipt.transactionHash,
 				tokenId

@@ -44,29 +44,11 @@ export const handle: APIGatewayProxyHandler = async (event, _context) => {
 						log.debug('parsing body')
 						try {
 							const { eventName, data } = JSON.parse(body)
-							switch (eventName) {
-								case 'subscribe':
-									log.debug('calling subscribe')
-									// await sockets?.subscribe(connectionId, data)
-									await sockets?.subscribe({
-										socketId: connectionId,
-										events: data
-									})
-									break
-
-								case 'unsubscribe':
-									log.debug('calling unsubscribe')
-									// await sockets?.unsubscribe(connectionId, data)
-									await sockets?.unsubscribe({
-										socketId: connectionId,
-										events: data
-									})
-									break
-
-								default:
-									log.warn(`No handler for eventName: ${eventName}`)
-									break
-							}
+							await sockets?.handleMessage({
+								socketId: connectionId,
+								eventName,
+								data
+							})
 						} catch (e) {
 							log.warn(e)
 						}
