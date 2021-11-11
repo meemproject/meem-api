@@ -40,10 +40,12 @@ export default class MeemController {
 			region: 'us-east-1'
 		})
 
-		lambda.invoke({
-			FunctionName: 'mint',
-			Payload: JSON.stringify(data)
-		})
+		await lambda
+			.invoke({
+				FunctionName: config.LAMBDA_MINT_FUNCTION,
+				Payload: JSON.stringify(data)
+			})
+			.promise()
 
 		// TODO: Notify via Websockets
 
