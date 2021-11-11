@@ -52,6 +52,8 @@ export default {
 	REDIS_KEY_PREFIX: process.env.REDIS_KEY_PREFIX,
 	AWS_WEBSOCKET_GATEWAY_URL: process.env.AWS_WEBSOCKET_GATEWAY_URL,
 	SERVERLESS_LOG_FULL_REQUEST: process.env.SERVERLESS_LOG_FULL_REQUEST,
+	APP_AWS_ACCESS_KEY_ID: process.env.APP_AWS_ACCESS_KEY_ID ?? '',
+	APP_AWS_SECRET_ACCESS_KEY: process.env.APP_AWS_SECRET_ACCESS_KEY ?? '',
 	NETWORK: (process.env.NETWORK ?? 'rinkeby') as MeemAPI.NetworkName,
 	WALLET_PRIVATE_KEY: process.env.WALLET_PRIVATE_KEY ?? '',
 	MEEM_PROXY_ADDRESS: process.env.MEEM_PROXY_ADDRESS ?? '',
@@ -59,5 +61,8 @@ export default {
 	IPFS_CONTENT_GATEWAY_URL:
 		process.env.IPFS_CONTENT_GATEWAY_URL ?? 'https://gateway.ipfs.io',
 	GITHUB_KEY: process.env.GITHUB_KEY ?? '',
-	ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY ?? ''
+	ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY ?? '',
+	DYNAMODB_SOCKETS_TABLE: process.env.DYNAMODB_SOCKETS_TABLE ?? '',
+	ENABLE_TEST_ENDPOINTS: process.env.ENABLE_TEST_ENDPOINTS === 'true',
+	WEBSOCKETS_ENABLED: process.env.WEBSOCKETS_ENABLED === 'true'
 }

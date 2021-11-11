@@ -41,8 +41,9 @@ export namespace MintMeem {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		transactionHash: string
-		tokenId: number
+		// transactionHash: string
+		// tokenId: number
+		status: 'success'
 	}
 
 	export interface IDefinition {

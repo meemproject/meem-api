@@ -2,8 +2,7 @@
 import { Server } from 'http'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
-import { Op } from 'sequelize'
-import type User from '../models/User'
+import { MeemAPI } from '../types/meem.generated'
 
 export enum ConnectionType {
 	None = 'none',
@@ -18,10 +17,7 @@ export type SocketAdapterOnDisconnect = (options: {
 	socketId: string
 }) => Promise<void>
 
-export type SocketAdapterOnMessage = (options: {
-	eventName: string
-	data: Record<string, any>
-}) => Promise<void>
+export type SocketAdapterOnMessage = (options: IEmitOptions) => Promise<void>
 
 export interface ISocketAdapterInitOptions {
 	server: Server
@@ -35,20 +31,23 @@ export interface IEmitOptions {
 	data: Record<string, any>
 }
 
-export type EventHandler = (data: Record<string, any>) => Promise<void>
+export type EventHandler<TData = Record<string, any>> = (options: {
+	socketId: string
+	data?: Partial<TData>
+}) => Promise<void>
+
 export type CanSubscribeHandler = (options: {
-	user?: User | null
-	events: IEvent[]
+	events: MeemAPI.IEvent[]
 }) => Promise<boolean>
 
 export interface IEventHandlers {
 	[eventName: string]: EventHandler[]
 }
 
-export interface IEvent {
-	key: string
-	data?: Record<string, any>
-}
+// export interface IEvent {
+// 	key: string
+// 	data?: Record<string, any>
+// }
 
 export interface ISocketsConfig {
 	canSubscribe: CanSubscribeHandler
@@ -107,11 +106,13 @@ export default class Sockets {
 	}
 
 	public addAdapter(adapter: SocketAdapter) {
+		log.trace(`Sockets adding adapter: ${adapter.constructor.name}`)
 		adapter.init({
 			server: this.server,
 			onMessage: this.handleMessage.bind(this),
 			onDisconnect: this.handleDisconnect.bind(this)
 		})
+		this.adapters.push(adapter)
 	}
 
 	public connectLambda(options: { endpoint: string }) {
@@ -120,11 +121,12 @@ export default class Sockets {
 	}
 
 	public async handleMessage(options: {
+		socketId: string
 		eventName: string
-		data: Record<string, any>
+		data?: Record<string, any>
 	}) {
-		const { eventName, data } = options
-		log.trace(`Sockets received event: ${eventName}`)
+		const { socketId, eventName, data } = options
+		log.trace(`Sockets received event: ${eventName}`, data)
 		if (
 			this.eventHandlers[eventName] &&
 			this.eventHandlers[eventName].length > 0
@@ -132,8 +134,23 @@ export default class Sockets {
 			log.trace(
 				`Executing ${this.eventHandlers[eventName].length} event handlers for ${eventName}`
 			)
-			const promises = this.eventHandlers[eventName].map(h => h(data))
-			await Promise.allSettled(promises)
+			const promises = this.eventHandlers[eventName].map(h =>
+				h({ socketId, data })
+			)
+			const results = await Promise.allSettled(promises)
+			const errors: any[] = []
+			results.forEach(result => {
+				if (result.status === 'rejected') {
+					log.warn(result.reason)
+					// Call the event error handler
+					errors.push(result.reason)
+				}
+			})
+			if (errors.length > 0) {
+				// TODO: Emit errors
+			}
+
+			log.trace('Event handlers finished')
 		} else {
 			log.trace(`No event handlers found for: ${eventName}`)
 		}
@@ -143,52 +160,23 @@ export default class Sockets {
 		const { socketId } = options
 
 		log.trace(`Removed socket ${socketId}`)
+		await services.db.removeSubscriptions({
+			connectionId: socketId
+		})
 	}
 
 	public async subscribe(options: {
-		user?: User | null
 		socketId: string
-		events: IEvent[]
+		events: MeemAPI.IEvent[]
 	}) {
-		const { user, socketId, events } = options
-		const canSubscribe = await this.canSubscribe({ user, events })
+		const { socketId, events } = options
+		const canSubscribe = await this.canSubscribe({ events })
 		if (canSubscribe) {
 			// Save subscription
-			let socket = await orm.models.Socket.findOne({
-				where: {
-					socketId
-				},
-				include: [orm.models.SocketSubscription]
+			await services.db.saveSubscription({
+				connectionId: socketId,
+				events
 			})
-
-			if (!socket) {
-				socket = orm.models.Socket.build({
-					socketId,
-					UserId: user?.id
-				})
-
-				await socket.save()
-			}
-
-			const subscriptionsToAdd = events.filter(event => {
-				if (socket?.SocketSubscriptions) {
-					const existingEvent = socket.SocketSubscriptions.find(
-						s => s.key === event.key
-					)
-					if (existingEvent) {
-						return true
-					}
-				}
-				return false
-			})
-
-			if (subscriptionsToAdd.length > 0) {
-				const socketSubscriptions = subscriptionsToAdd.map(event => ({
-					key: event.key,
-					SocketId: socket?.id
-				}))
-				await orm.models.SocketSubscription.bulkCreate(socketSubscriptions)
-			}
 		} else {
 			// Emit error
 			this.emitToSocket({
@@ -201,28 +189,14 @@ export default class Sockets {
 		}
 	}
 
-	public async unsubscribe(options: { socketId: string; events: IEvent[] }) {
+	public async unsubscribe(options: {
+		socketId: string
+		events: MeemAPI.IEvent[]
+	}) {
 		const { socketId, events } = options
 
 		// Remove subscription
-		const socket = await orm.models.Socket.findOne({
-			where: {
-				socketId
-			}
-		})
-
-		const keys = events.map(e => e.key)
-
-		if (socket) {
-			await orm.models.SocketSubscription.destroy({
-				where: {
-					key: {
-						[Op.in]: keys
-					},
-					SocketId: socket.id
-				}
-			})
-		}
+		log.warn('TODO unsubscribe', { socketId, events })
 	}
 
 	/** Emit an event to any socket that is subscribed to it */
@@ -238,25 +212,25 @@ export default class Sockets {
 	}) {
 		const { subscription, eventName, data } = options
 
-		const where = config.TESTING
-			? {}
-			: {
-					subscriptions: {
-						[Op.contains]: [subscription]
-					}
-			  }
-
-		const sockets = await orm.models.Socket.findAll({
-			where
+		const subscriptions = await services.db.getSubscriptions({
+			subscriptionKey: subscription
 		})
 
-		const promises = sockets.map(s =>
-			this.emitToSocket({
-				socketId: s.id,
-				eventName,
-				data
-			})
-		)
+		log.debug(subscriptions)
+
+		const promises: Promise<any>[] = []
+
+		subscriptions.Items?.forEach(s => {
+			if (s.connectionId.S) {
+				promises.push(
+					this.emitToSocket({
+						socketId: s.connectionId.S,
+						eventName,
+						data
+					})
+				)
+			}
+		})
 
 		await Promise.allSettled(promises)
 	}

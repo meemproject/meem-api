@@ -1,0 +1,115 @@
+import AWS from 'aws-sdk'
+import { MeemAPI } from '../types/meem.generated'
+
+AWS.config.update({
+	region: 'us-east-1'
+})
+
+export default class DbService {
+	public static async saveSubscription(options: {
+		connectionId: string
+		events: MeemAPI.IEvent[]
+	}) {
+		const { connectionId, events } = options
+		const db = new AWS.DynamoDB({
+			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
+		})
+		const items = events.map(e => ({
+			PutRequest: {
+				Item: {
+					connectionId: {
+						S: connectionId
+					},
+					subscriptionKey: {
+						S: e.key
+					}
+				}
+			}
+		}))
+
+		const result = await db
+			.batchWriteItem({
+				RequestItems: {
+					[config.DYNAMODB_SOCKETS_TABLE]: items
+				}
+			})
+			.promise()
+
+		return result
+	}
+
+	public static async getSubscriptions(options: { subscriptionKey: string }) {
+		const { subscriptionKey } = options
+		const db = new AWS.DynamoDB({
+			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
+		})
+
+		const result = await db
+			.query({
+				TableName: config.DYNAMODB_SOCKETS_TABLE,
+				KeyConditionExpression: '#subscriptionKey = :subscriptionKey',
+				ExpressionAttributeNames: {
+					'#subscriptionKey': 'subscriptionKey'
+				},
+				ExpressionAttributeValues: {
+					':subscriptionKey': {
+						S: subscriptionKey
+					}
+				}
+			})
+			.promise()
+
+		return result
+	}
+
+	public static async removeSubscriptions(options: { connectionId: string }) {
+		const { connectionId } = options
+		const db = new AWS.DynamoDB({
+			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
+		})
+
+		const result = await db
+			.query({
+				TableName: config.DYNAMODB_SOCKETS_TABLE,
+				IndexName: 'connectionId-index',
+				KeyConditionExpression: '#connectionId = :connectionId',
+				ExpressionAttributeNames: {
+					'#connectionId': 'connectionId'
+				},
+				ExpressionAttributeValues: {
+					':connectionId': {
+						S: connectionId
+					}
+				}
+			})
+			.promise()
+
+		const items = result.Items
+			? result.Items.map(item => ({
+					DeleteRequest: {
+						Key: {
+							subscriptionKey: {
+								S: item.subscriptionKey.S
+							},
+							connectionId: {
+								S: connectionId
+							}
+						}
+					}
+			  }))
+			: []
+
+		if (items.length > 0) {
+			await db
+				.batchWriteItem({
+					RequestItems: {
+						[config.DYNAMODB_SOCKETS_TABLE]: items
+					}
+				})
+				.promise()
+		}
+	}
+}

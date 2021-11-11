@@ -4,8 +4,6 @@
 /* eslint-disable global-require */
 /* eslint-disable @typescript-eslint/no-var-requires */
 import util from 'util'
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { ProxyHandler } from 'aws-lambda'
 import supertest, { SuperTest, Test } from 'supertest'
 import start from '../core/start'
 import { MeemAPI } from '../types/meem.generated'

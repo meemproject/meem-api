@@ -17,3 +17,14 @@ export enum HttpMethod {
 export interface IApiResponseBody {
 	apiVersion: string
 }
+
+/** The source of the event. Who emits the event. */
+export enum EventSource {
+	Server = 'server',
+	Client = 'client'
+}
+
+export interface IEvent {
+	key: string
+	data?: Record<string, any>
+}

@@ -25,6 +25,17 @@ export namespace MeemAPI {
 		apiVersion: string
 	}
 
+	/** The source of the event. Who emits the event. */
+	export enum EventSource {
+		Server = 'server',
+		Client = 'client'
+	}
+
+	export interface IEvent {
+		key: string
+		data?: Record<string, any>
+	}
+
 	export enum License {
 		Cc0 = 'cc0',
 		Unknown = 'unknown'
@@ -388,8 +399,9 @@ export namespace MeemAPI {
 			}
 
 			export interface IResponseBody extends IApiResponseBody {
-				transactionHash: string
-				tokenId: number
+				// transactionHash: string
+				// tokenId: number
+				status: 'success'
 			}
 
 			export interface IDefinition {
@@ -402,4 +414,120 @@ export namespace MeemAPI {
 			export type Response = IResponseBody | IError
 		}
 	}
+	export enum MeemEvent {
+		Err = 'err',
+		MeemMinted = 'meemMinted',
+		Subscribe = 'subscribe',
+		SubscribeAck = 'subscribeAck',
+		Unsubscribe = 'unsubscribe',
+		UnubscribeAck = 'unubscribeAck'
+	}
+	export namespace Events {
+		export namespace Err {
+			export const eventName = MeemEvent.Err
+
+			export const eventSource = EventSource.Server
+
+			export interface ISubscribePayload {}
+
+			export interface IEventPayload extends Record<string, any> {}
+		}
+
+		export namespace MeemMinted {
+			export const eventName = MeemEvent.MeemMinted
+
+			export const eventSource = EventSource.Server
+
+			export interface ISubscribePayload {}
+
+			export interface IEventPayload {
+				tokenId: string
+				transactionHash: string
+			}
+		}
+
+		export namespace Subscribe {
+			export const eventName = MeemEvent.Subscribe
+
+			export const eventSource = EventSource.Client
+
+			export interface IEventPayload {
+				// @ts-ignore
+				type: MeemEvent.Subscribe
+				events: {
+					key: string
+					data?: Record<string, any>
+				}[]
+			}
+		}
+
+		export namespace SubscribeAck {
+			export const eventName = MeemEvent.SubscribeAck
+
+			export const eventSource = EventSource.Server
+
+			export interface ISubscribePayload {}
+
+			export interface IEventPayload {
+				// @ts-ignore
+				events: SubscribeType[]
+			}
+		}
+
+		export namespace Unsubscribe {
+			export const eventName = MeemEvent.Unsubscribe
+
+			export const eventSource = EventSource.Client
+
+			export interface IEventPayload {
+				// @ts-ignore
+				type: MeemEvent.Unsubscribe
+				// @ts-ignore
+				events: SubscribeType[]
+			}
+		}
+
+		export namespace UnubscribeAck {
+			export const eventName = MeemEvent.UnubscribeAck
+
+			export const eventSource = EventSource.Server
+
+			export interface ISubscribePayload {}
+
+			export interface IEventPayload {
+				// @ts-ignore
+				events: SubscribeType[]
+			}
+		}
+	}
+
+	export type SubscribeType =
+		| (Events.Err.ISubscribePayload & { type: MeemEvent.Err })
+		| (Events.MeemMinted.ISubscribePayload & { type: MeemEvent.MeemMinted })
+		| (Events.SubscribeAck.ISubscribePayload & { type: MeemEvent.SubscribeAck })
+		| (Events.UnubscribeAck.ISubscribePayload & {
+				type: MeemEvent.UnubscribeAck
+		  })
+
+	export type EventListener =
+		| {
+				eventName: MeemEvent.Err
+				handler: (options: { detail: Events.Err.IEventPayload }) => void
+		  }
+		| {
+				eventName: MeemEvent.MeemMinted
+				handler: (options: { detail: Events.MeemMinted.IEventPayload }) => void
+		  }
+		| {
+				eventName: MeemEvent.SubscribeAck
+				handler: (options: {
+					detail: Events.SubscribeAck.IEventPayload
+				}) => void
+		  }
+		| {
+				eventName: MeemEvent.UnubscribeAck
+				handler: (options: {
+					detail: Events.UnubscribeAck.IEventPayload
+				}) => void
+		  }
 }

@@ -35,8 +35,8 @@ export default class MeemController {
 		const data = req.body
 
 		const lambda = new AWS.Lambda({
-			accessKeyId: config.AWS_ACCESS_KEY_ID,
-			secretAccessKey: config.AWS_SECRET_ACCESS_KEY,
+			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
 			region: 'us-east-1'
 		})
 
@@ -47,7 +47,9 @@ export default class MeemController {
 
 		// TODO: Notify via Websockets
 
-		return res.json({})
+		return res.json({
+			status: 'success'
+		})
 	}
 
 	public static async createMeemImage(

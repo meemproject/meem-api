@@ -1,6 +1,7 @@
 import coreExpress, { Express } from 'express'
 import ConfigController from '../controllers/ConfigController'
 import MeemController from '../controllers/MeemController'
+import TestController from '../controllers/TestController'
 import extendedRouter from '../core/router'
 
 export default (app: Express, _express: typeof coreExpress) => {
@@ -15,4 +16,8 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/meems/create-image', MeemController.createMeemImage)
 	router.getAsync('/tokenOwner', MeemController.getTokenInfo)
 	router.getAsync('/ipfs', MeemController.getIPFSFile)
+
+	if (config.ENABLE_TEST_ENDPOINTS) {
+		router.getAsync('/test/emit', TestController.testEmit)
+	}
 }
