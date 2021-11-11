@@ -41,15 +41,13 @@ export default class MeemController {
 		})
 
 		lambda.invoke({
-			FunctionName: 'mint-func',
-			Payload: JSON.stringify({
-				// Function params
-			})
+			FunctionName: 'mint',
+			Payload: JSON.stringify(data)
 		})
 
-		const mintInfo = await services.meem.mintMeem(data)
+		// TODO: Notify via Websockets
 
-		return res.json({ ...mintInfo })
+		return res.json({})
 	}
 
 	public static async createMeemImage(
