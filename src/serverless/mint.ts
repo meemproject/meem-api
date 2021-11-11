@@ -12,27 +12,20 @@ let server: Express.Application
 let request: SuperTest<Test>
 
 export const handle = async (
-	event: { body: MeemAPI.v1.MintMeem.IRequestBody },
+	body: MeemAPI.v1.MintMeem.IRequestBody,
 	context: AWSLambda.Context
 ) => {
-	const { body } = event
-
-	if (process.env.SERVERLESS_LOG_FULL_REQUEST === 'true') {
-		// eslint-disable-next-line no-console
-		console.log(util.inspect({ event }, true, 999, true))
-	} else {
-		// eslint-disable-next-line no-console
-		console.log(
-			util.inspect(
-				{
-					event
-				},
-				true,
-				999,
-				true
-			)
+	// eslint-disable-next-line no-console
+	console.log(
+		util.inspect(
+			{
+				body
+			},
+			true,
+			999,
+			true
 		)
-	}
+	)
 	context.callbackWaitsForEmptyEventLoop = false
 
 	if (!request || !server) {
@@ -40,16 +33,6 @@ export const handle = async (
 		server = result.app
 		request = supertest(server)
 	}
-
-	// @ts-ignore
-	// if (event.source === 'serverless-plugin-warmup') {
-	// 	// eslint-disable-next-line no-console
-	// 	console.log('WARMED LAMBDA FUNCTION: handler')
-	// 	return {
-	// 		statusCode: 200,
-	// 		body: ''
-	// 	}
-	// }
 
 	if (config.AWS_WEBSOCKET_GATEWAY_URL) {
 		sockets?.connectLambda({
