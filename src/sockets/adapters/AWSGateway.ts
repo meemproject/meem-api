@@ -57,7 +57,7 @@ export default class AWSGatewayAdapter extends SocketAdapter {
 			gateway.postToConnection(data, (err, gatewayResponse) => {
 				if (err) {
 					log.warn(err)
-					resolve()
+					resolve(null)
 					return
 				}
 				resolve(gatewayResponse)
