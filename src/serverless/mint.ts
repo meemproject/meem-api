@@ -25,7 +25,7 @@ export const handle = async (
 		console.log(
 			util.inspect(
 				{
-					body
+					event
 				},
 				true,
 				999,
