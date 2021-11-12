@@ -609,13 +609,19 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "ERC721ReceiverNotImplemented",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "InvalidPropertyType",
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "minAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxAmount",
+        type: "uint256",
+      },
+    ],
+    name: "InvalidNonOwnerSplitAllocationAmount",
     type: "error",
   },
   {
@@ -632,6 +638,125 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "newChildDepth",
+        type: "uint256",
+      },
+    ],
+    name: "setChildDepth",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "newContractURI",
+        type: "string",
+      },
+    ],
+    name: "setContractURI",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "setNonOwnerSplitAllocationAmount",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenCounter",
+        type: "uint256",
+      },
+    ],
+    name: "setTokenCounter",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ChildDepthExceeded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ChildrenPerWalletExceeded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ERC721ReceiverNotImplemented",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "minAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxAmount",
+        type: "uint256",
+      },
+    ],
+    name: "InvalidNonOwnerSplitAllocationAmount",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidParent",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidPermissionType",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidPropertyType",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "MissingRequiredPermissions",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "requiredRole",
+        type: "bytes32",
+      },
+    ],
+    name: "MissingRequiredRole",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "MissingRequiredSplits",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "parentAddress",
         type: "address",
@@ -643,6 +768,11 @@ const _abi = [
       },
     ],
     name: "NFTAlreadyWrapped",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NoPermission",
     type: "error",
   },
   {
@@ -692,6 +822,11 @@ const _abi = [
       },
     ],
     name: "TokenNotFound",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TotalChildrenExceeded",
     type: "error",
   },
   {
@@ -915,7 +1050,7 @@ const _abi = [
           },
           {
             internalType: "enum Chain",
-            name: "chain",
+            name: "parentChain",
             type: "uint8",
           },
           {
@@ -929,6 +1064,11 @@ const _abi = [
             type: "uint256",
           },
           {
+            internalType: "enum Chain",
+            name: "rootChain",
+            type: "uint8",
+          },
+          {
             internalType: "address",
             name: "root",
             type: "address",
@@ -936,6 +1076,11 @@ const _abi = [
           {
             internalType: "uint256",
             name: "rootTokenId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "generation",
             type: "uint256",
           },
           {
@@ -1250,6 +1395,11 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "enum Chain",
+        name: "chain",
+        type: "uint8",
+      },
+      {
         internalType: "address",
         name: "contractAddress",
         type: "address",
@@ -1285,7 +1435,7 @@ const _abi = [
       },
       {
         internalType: "enum Chain",
-        name: "chain",
+        name: "parentChain",
         type: "uint8",
       },
       {
@@ -1297,6 +1447,11 @@ const _abi = [
         internalType: "uint256",
         name: "parentTokenId",
         type: "uint256",
+      },
+      {
+        internalType: "enum Chain",
+        name: "rootChain",
+        type: "uint8",
       },
       {
         internalType: "address",
@@ -1608,6 +1763,11 @@ const _abi = [
         name: "mChildProperties",
         type: "tuple",
       },
+      {
+        internalType: "enum PermissionType",
+        name: "permissionType",
+        type: "uint8",
+      },
     ],
     name: "mint",
     outputs: [],
@@ -1628,6 +1788,30 @@ const _abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+    ],
+    name: "ownedChildrenOf",
+    outputs: [
+      {
+        internalType: "uint256[]",
+        name: "",
+        type: "uint256[]",
       },
     ],
     stateMutability: "view",
@@ -2060,6 +2244,22 @@ const _abi = [
       },
     ],
     name: "IndexOutOfRange",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "minAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxAmount",
+        type: "uint256",
+      },
+    ],
+    name: "InvalidNonOwnerSplitAllocationAmount",
     type: "error",
   },
   {

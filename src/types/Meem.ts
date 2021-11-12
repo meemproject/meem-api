@@ -101,11 +101,13 @@ export type MeemPropertiesStructOutput = [
 
 export type MeemStruct = {
   owner: string;
-  chain: BigNumberish;
+  parentChain: BigNumberish;
   parent: string;
   parentTokenId: BigNumberish;
+  rootChain: BigNumberish;
   root: string;
   rootTokenId: BigNumberish;
+  generation: BigNumberish;
   properties: MeemPropertiesStruct;
   childProperties: MeemPropertiesStruct;
 };
@@ -115,17 +117,21 @@ export type MeemStructOutput = [
   number,
   string,
   BigNumber,
+  number,
   string,
+  BigNumber,
   BigNumber,
   MeemPropertiesStructOutput,
   MeemPropertiesStructOutput
 ] & {
   owner: string;
-  chain: number;
+  parentChain: number;
   parent: string;
   parentTokenId: BigNumber;
+  rootChain: number;
   root: string;
   rootTokenId: BigNumber;
+  generation: BigNumber;
   properties: MeemPropertiesStructOutput;
   childProperties: MeemPropertiesStructOutput;
 };
@@ -181,12 +187,17 @@ export interface MeemInterface extends ethers.utils.Interface {
     "tokenURI(uint256)": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
+    "setChildDepth(uint256)": FunctionFragment;
+    "setContractURI(string)": FunctionFragment;
+    "setNonOwnerSplitAllocationAmount(uint256)": FunctionFragment;
+    "setTokenCounter(uint256)": FunctionFragment;
     "childDepth()": FunctionFragment;
     "childrenOf(uint256)": FunctionFragment;
     "getMeem(uint256)": FunctionFragment;
-    "isNFTWrapped(address,uint256)": FunctionFragment;
-    "mint(address,string,uint8,address,uint256,address,uint256,(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address))": FunctionFragment;
+    "isNFTWrapped(uint8,address,uint256)": FunctionFragment;
+    "mint(address,string,uint8,address,uint256,uint8,address,uint256,(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),uint8)": FunctionFragment;
     "numChildrenOf(uint256)": FunctionFragment;
+    "ownedChildrenOf(uint256,address)": FunctionFragment;
     "tokenIdsOfOwner(address)": FunctionFragment;
     "addPermission(uint256,uint8,uint8,(uint8,address[],uint256,address))": FunctionFragment;
     "lockChildrenPerWallet(uint256)": FunctionFragment;
@@ -295,6 +306,22 @@ export interface MeemInterface extends ethers.utils.Interface {
     values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "setChildDepth",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setContractURI",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setNonOwnerSplitAllocationAmount",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setTokenCounter",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "childDepth",
     values?: undefined
   ): string;
@@ -308,7 +335,7 @@ export interface MeemInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "isNFTWrapped",
-    values: [string, BigNumberish]
+    values: [BigNumberish, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "mint",
@@ -318,15 +345,21 @@ export interface MeemInterface extends ethers.utils.Interface {
       BigNumberish,
       string,
       BigNumberish,
+      BigNumberish,
       string,
       BigNumberish,
       MeemPropertiesStruct,
-      MeemPropertiesStruct
+      MeemPropertiesStruct,
+      BigNumberish
     ]
   ): string;
   encodeFunctionData(
     functionFragment: "numChildrenOf",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ownedChildrenOf",
+    values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "tokenIdsOfOwner",
@@ -488,6 +521,22 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "setChildDepth",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setContractURI",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setNonOwnerSplitAllocationAmount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setTokenCounter",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "childDepth", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "childrenOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getMeem", data: BytesLike): Result;
@@ -498,6 +547,10 @@ export interface MeemInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "numChildrenOf",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ownedChildrenOf",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -864,6 +917,26 @@ export interface Meem extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setChildDepth(
+      newChildDepth: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setContractURI(
+      newContractURI: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setNonOwnerSplitAllocationAmount(
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setTokenCounter(
+      tokenCounter: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     childDepth(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     childrenOf(
@@ -877,6 +950,7 @@ export interface Meem extends BaseContract {
     ): Promise<[MeemStructOutput]>;
 
     isNFTWrapped(
+      chain: BigNumberish,
       contractAddress: string,
       tokenId: BigNumberish,
       overrides?: CallOverrides
@@ -885,13 +959,15 @@ export interface Meem extends BaseContract {
     mint(
       to: string,
       mTokenURI: string,
-      chain: BigNumberish,
+      parentChain: BigNumberish,
       parent: string,
       parentTokenId: BigNumberish,
+      rootChain: BigNumberish,
       root: string,
       rootTokenId: BigNumberish,
       mProperties: MeemPropertiesStruct,
       mChildProperties: MeemPropertiesStruct,
+      permissionType: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -899,6 +975,12 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    ownedChildrenOf(
+      tokenId: BigNumberish,
+      owner: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber[]]>;
 
     tokenIdsOfOwner(
       _owner: string,
@@ -1135,6 +1217,26 @@ export interface Meem extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setChildDepth(
+    newChildDepth: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setContractURI(
+    newContractURI: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setNonOwnerSplitAllocationAmount(
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setTokenCounter(
+    tokenCounter: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   childDepth(overrides?: CallOverrides): Promise<BigNumber>;
 
   childrenOf(
@@ -1148,6 +1250,7 @@ export interface Meem extends BaseContract {
   ): Promise<MeemStructOutput>;
 
   isNFTWrapped(
+    chain: BigNumberish,
     contractAddress: string,
     tokenId: BigNumberish,
     overrides?: CallOverrides
@@ -1156,13 +1259,15 @@ export interface Meem extends BaseContract {
   mint(
     to: string,
     mTokenURI: string,
-    chain: BigNumberish,
+    parentChain: BigNumberish,
     parent: string,
     parentTokenId: BigNumberish,
+    rootChain: BigNumberish,
     root: string,
     rootTokenId: BigNumberish,
     mProperties: MeemPropertiesStruct,
     mChildProperties: MeemPropertiesStruct,
+    permissionType: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1170,6 +1275,12 @@ export interface Meem extends BaseContract {
     tokenId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  ownedChildrenOf(
+    tokenId: BigNumberish,
+    owner: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber[]>;
 
   tokenIdsOfOwner(
     _owner: string,
@@ -1394,6 +1505,26 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setChildDepth(
+      newChildDepth: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setContractURI(
+      newContractURI: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setNonOwnerSplitAllocationAmount(
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setTokenCounter(
+      tokenCounter: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     childDepth(overrides?: CallOverrides): Promise<BigNumber>;
 
     childrenOf(
@@ -1407,6 +1538,7 @@ export interface Meem extends BaseContract {
     ): Promise<MeemStructOutput>;
 
     isNFTWrapped(
+      chain: BigNumberish,
       contractAddress: string,
       tokenId: BigNumberish,
       overrides?: CallOverrides
@@ -1415,13 +1547,15 @@ export interface Meem extends BaseContract {
     mint(
       to: string,
       mTokenURI: string,
-      chain: BigNumberish,
+      parentChain: BigNumberish,
       parent: string,
       parentTokenId: BigNumberish,
+      rootChain: BigNumberish,
       root: string,
       rootTokenId: BigNumberish,
       mProperties: MeemPropertiesStruct,
       mChildProperties: MeemPropertiesStruct,
+      permissionType: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1429,6 +1563,12 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    ownedChildrenOf(
+      tokenId: BigNumberish,
+      owner: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber[]>;
 
     tokenIdsOfOwner(
       _owner: string,
@@ -1793,6 +1933,26 @@ export interface Meem extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    setChildDepth(
+      newChildDepth: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setContractURI(
+      newContractURI: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setNonOwnerSplitAllocationAmount(
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setTokenCounter(
+      tokenCounter: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     childDepth(overrides?: CallOverrides): Promise<BigNumber>;
 
     childrenOf(
@@ -1806,6 +1966,7 @@ export interface Meem extends BaseContract {
     ): Promise<BigNumber>;
 
     isNFTWrapped(
+      chain: BigNumberish,
       contractAddress: string,
       tokenId: BigNumberish,
       overrides?: CallOverrides
@@ -1814,18 +1975,26 @@ export interface Meem extends BaseContract {
     mint(
       to: string,
       mTokenURI: string,
-      chain: BigNumberish,
+      parentChain: BigNumberish,
       parent: string,
       parentTokenId: BigNumberish,
+      rootChain: BigNumberish,
       root: string,
       rootTokenId: BigNumberish,
       mProperties: MeemPropertiesStruct,
       mChildProperties: MeemPropertiesStruct,
+      permissionType: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     numChildrenOf(
       tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    ownedChildrenOf(
+      tokenId: BigNumberish,
+      owner: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -2070,6 +2239,26 @@ export interface Meem extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    setChildDepth(
+      newChildDepth: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setContractURI(
+      newContractURI: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setNonOwnerSplitAllocationAmount(
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setTokenCounter(
+      tokenCounter: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     childDepth(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     childrenOf(
@@ -2083,6 +2272,7 @@ export interface Meem extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     isNFTWrapped(
+      chain: BigNumberish,
       contractAddress: string,
       tokenId: BigNumberish,
       overrides?: CallOverrides
@@ -2091,18 +2281,26 @@ export interface Meem extends BaseContract {
     mint(
       to: string,
       mTokenURI: string,
-      chain: BigNumberish,
+      parentChain: BigNumberish,
       parent: string,
       parentTokenId: BigNumberish,
+      rootChain: BigNumberish,
       root: string,
       rootTokenId: BigNumberish,
       mProperties: MeemPropertiesStruct,
       mChildProperties: MeemPropertiesStruct,
+      permissionType: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     numChildrenOf(
       tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    ownedChildrenOf(
+      tokenId: BigNumberish,
+      owner: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

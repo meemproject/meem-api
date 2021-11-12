@@ -37,6 +37,7 @@ export default class MeemController {
 		const meemContract = services.meem.meemContract()
 
 		const isAlreadyWrapped = await meemContract.isNFTWrapped(
+			data.chain,
 			data.tokenAddress,
 			data.tokenId
 		)

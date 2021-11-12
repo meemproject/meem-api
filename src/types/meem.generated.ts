@@ -176,11 +176,13 @@ export namespace MeemAPI {
 	export interface IMeem {
 		owner: string
 		tokenURI?: string
-		chain: Chain
+		parentChain: Chain
 		parent: string
 		parentTokenId: number
+		rootChain: Chain
 		root: string
 		rootTokenId: number
+		generation: number
 		properties: IMeemProperties
 		childProperties: IMeemProperties
 	}

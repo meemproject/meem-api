@@ -15,7 +15,11 @@ import {
 	SplitStructOutput
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
-import { IERC721Metadata, NetworkName } from '../types/shared/meem.shared'
+import {
+	IERC721Metadata,
+	NetworkName,
+	PermissionType
+} from '../types/shared/meem.shared'
 
 export default class MeemService {
 	/** Get generic ERC721 contract instance */
@@ -361,6 +365,8 @@ export default class MeemService {
 			chain,
 			contractInfo.parentTokenAddress,
 			contractInfo.parentTokenId,
+			// TODO: Set root chain based on parent if necessary
+			chain,
 			contractInfo.rootTokenAddress,
 			contractInfo.rootTokenId,
 			this.buildProperties(data.properties),
@@ -368,7 +374,9 @@ export default class MeemService {
 				...data.childProperties,
 				totalChildren: data.childProperties?.totalChildren ?? 0,
 				splits: data.childProperties?.splits ?? data.properties?.splits
-			})
+			}),
+			// TODO: Set permission type based on copy/remix
+			PermissionType.Copy
 		]
 
 		log.debug('Minting meem w/ params', { mintParams })
@@ -555,13 +563,15 @@ export default class MeemService {
 	public static meemToInterface(meem: MeemStructOutput): MeemAPI.IMeem {
 		return {
 			owner: meem[0],
-			chain: meem[1],
+			parentChain: meem[1],
 			parent: meem[2],
 			parentTokenId: meem[3].toNumber(),
-			root: meem[4],
-			rootTokenId: meem[5].toNumber(),
-			properties: this.meemPropertiesToInterface(meem[6]),
-			childProperties: this.meemPropertiesToInterface(meem[7])
+			rootChain: meem[4],
+			root: meem[5],
+			rootTokenId: meem[6].toNumber(),
+			generation: meem[7].toNumber(),
+			properties: this.meemPropertiesToInterface(meem[8]),
+			childProperties: this.meemPropertiesToInterface(meem[9])
 		}
 	}
 
