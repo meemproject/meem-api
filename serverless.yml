@@ -60,6 +60,8 @@ package:
 functions:
   mint:
     handler: build/serverless/mint.handle
+    timeout: 300
+    memorySize: 512
   catchAll:
     handler: build/serverless/handler.handle
     events:

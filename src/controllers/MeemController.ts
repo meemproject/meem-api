@@ -82,18 +82,22 @@ export default class MeemController {
 			throw new Error('NFT_ALREADY_WRAPPED')
 		}
 
-		const lambda = new AWS.Lambda({
-			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-			region: 'us-east-1'
-		})
-
-		await lambda
-			.invoke({
-				FunctionName: config.LAMBDA_MINT_FUNCTION,
-				Payload: JSON.stringify(data)
+		if (config.DISABLE_ASYNC_MINTING) {
+			await services.meem.mintMeem(data)
+		} else {
+			const lambda = new AWS.Lambda({
+				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+				region: 'us-east-1'
 			})
-			.promise()
+
+			await lambda
+				.invoke({
+					FunctionName: config.LAMBDA_MINT_FUNCTION,
+					Payload: JSON.stringify(data)
+				})
+				.promise()
+		}
 
 		// TODO: Notify via Websockets
 
