@@ -332,11 +332,13 @@ export default class MeemService {
 					: config.NETWORK
 		})
 
-		const image = await this.getImageFromMetadata(
-			contractInfo.parentTokenMetadata
-		)
+		const image = data.base64Image
+			? data.base64Image
+			: await this.getImageFromMetadata(contractInfo.parentTokenMetadata)
 
-		const imageBase64String = image.toString('base64')
+		const imageBase64String = data.base64Image
+			? data.base64Image
+			: image.toString('base64')
 
 		const base64MeemImage = isMeemToken
 			? imageBase64String
