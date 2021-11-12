@@ -324,7 +324,7 @@ export namespace MeemAPI {
 			export interface IRequestBody {}
 
 			export interface IResponseBody extends IApiResponseBody {
-				meems: MeemStructOutput[]
+				meems: any[]
 			}
 
 			export interface IDefinition {
