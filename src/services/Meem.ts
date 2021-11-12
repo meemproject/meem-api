@@ -325,11 +325,7 @@ export default class MeemService {
 		const contractInfo = await this.getContractInfo({
 			contractAddress: data.tokenAddress,
 			tokenId: data.tokenId,
-			networkName:
-				// If this isn't a Meem token and we're using testnet, get token contract from mainnet
-				!isMeemToken && config.NETWORK === MeemAPI.NetworkName.Rinkeby
-					? MeemAPI.NetworkName.Mainnet
-					: config.NETWORK
+			networkName: config.NETWORK
 		})
 
 		const image = data.base64Image
