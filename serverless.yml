@@ -62,10 +62,16 @@ functions:
     handler: build/serverless/mint.handle
     timeout: 300
     memorySize: 512
+  images:
+    handler: build/serverless/handler.handle
+    memorySize: 512
+    events:
+      - httpApi: '/images/*'
   catchAll:
     handler: build/serverless/handler.handle
     events:
-      - httpApi: '*'
+      - httpApi: '/api/*'
+      - httpApi: '/'
   sockets:
     handler: build/serverless/socket.handle
     events:
