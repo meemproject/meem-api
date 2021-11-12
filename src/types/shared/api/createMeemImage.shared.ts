@@ -4,7 +4,7 @@ import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 export namespace CreateMeemImage {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/meems/create-image`
+	export const path = () => `/images/1.0/meems/create-image`
 
 	export const method = HttpMethod.Post
 

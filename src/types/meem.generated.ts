@@ -198,7 +198,7 @@ export namespace MeemAPI {
 		export namespace CreateMeemImage {
 			export interface IPathParams {}
 
-			export const path = () => `/api/1.0/meems/create-image`
+			export const path = () => `/images/1.0/meems/create-image`
 
 			export const method = HttpMethod.Post
 
@@ -324,7 +324,7 @@ export namespace MeemAPI {
 			export interface IRequestBody {}
 
 			export interface IResponseBody extends IApiResponseBody {
-				meems: any[]
+				meems: any[] // TODO: replace with IMeem type
 			}
 
 			export interface IDefinition {
