@@ -28,6 +28,42 @@ export default class MeemController {
 		return res.json({ meem: services.meem.meemToInterface(meem) })
 	}
 
+	public static async getMeems(
+		req: IRequest<MeemAPI.v1.GetMeems.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetMeems.IResponseBody>
+	): Promise<Response> {
+		const { parent, parentTokenId, parentChain } = req.query
+		const meemContract = services.meem.meemContract()
+
+		if (parent && parentTokenId) {
+			const isMeem = await meemContract.isNFTWrapped(
+				parentChain || 0,
+				parent,
+				parentTokenId
+			)
+			if (isMeem) {
+				// TODO: Get the actual meem via contract address and tokenId
+				const meem = await meemContract.getMeem(0)
+				return res.json({
+					meems: [
+						{
+							...meem,
+							parent,
+							parentTokenId,
+							parentChain: parentChain || 0
+						}
+					]
+				})
+			}
+			return res.json({
+				meems: []
+			})
+		}
+		return res.json({
+			meems: []
+		})
+	}
+
 	public static async mintMeem(
 		req: IRequest<MeemAPI.v1.MintMeem.IDefinition>,
 		res: IResponse<MeemAPI.v1.MintMeem.IResponseBody>
