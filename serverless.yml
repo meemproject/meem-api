@@ -66,9 +66,7 @@ functions:
     handler: build/serverless/handler.handle
     memorySize: 512
     events:
-      - httpApi:
-         method: '*'
-         path: '/images/*'
+      - httpApi: '/images/*'
   catchAll:
     handler: build/serverless/handler.handle
     events:
