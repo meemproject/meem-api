@@ -68,13 +68,25 @@ functions:
     events:
       - httpApi:
          method: '*'
-         path: '/images/*'
+         path: '/images/1.0/{p1}'
+      - httpApi:
+         method: '*'
+         path: '/images/1.0/{p1}/{p2}'
+      - httpApi:
+         method: '*'
+         path: '/images/1.0/{p1}/{p2}/{p3}'
   catchAll:
     handler: build/serverless/handler.handle
     events:
       - httpApi:
          method: '*'
-         path: '/api/*'
+         path: '/api/1.0/{p1}'
+      - httpApi:
+         method: '*'
+         path: '/api/1.0/{p1}/{p2}'
+      - httpApi:
+         method: '*'
+         path: '/api/1.0/{p1}/{p2}/{p3}'
       - httpApi:
          method: '*'
          path: '/'
