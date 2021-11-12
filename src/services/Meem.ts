@@ -381,18 +381,18 @@ export default class MeemService {
 
 		if (transferEvent && transferEvent.args && transferEvent.args[2]) {
 			const tokenId = (transferEvent.args[2] as ethers.BigNumber).toNumber()
+			const returnData = {
+				toAddress: data.accountAddress,
+				tokenURI: meemMetadata.tokenURI,
+				tokenId,
+				transactionHash: receipt.transactionHash
+			}
 			await sockets?.emit({
 				subscription: MeemAPI.MeemEvent.MeemMinted,
 				eventName: MeemAPI.MeemEvent.MeemMinted,
-				data: {
-					tokenId,
-					transactionHash: receipt.transactionHash
-				}
+				data: returnData
 			})
-			return {
-				transactionHash: receipt.transactionHash,
-				tokenId
-			}
+			return returnData
 		}
 		throw new Error('TRANSFER_EVENT_NOT_FOUND')
 	}

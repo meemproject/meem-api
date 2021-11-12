@@ -34,6 +34,17 @@ export default class MeemController {
 	): Promise<Response> {
 		const data = req.body
 
+		const meemContract = services.meem.meemContract()
+
+		const isAlreadyWrapped = await meemContract.isNFTWrapped(
+			data.tokenAddress,
+			data.tokenId
+		)
+
+		if (isAlreadyWrapped) {
+			throw new Error('NFT_ALREADY_WRAPPED')
+		}
+
 		const lambda = new AWS.Lambda({
 			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
 			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
