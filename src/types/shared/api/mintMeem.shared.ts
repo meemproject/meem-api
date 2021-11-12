@@ -26,6 +26,9 @@ export namespace MintMeem {
 		/** The chain where the original NFT lives */
 		chain: Chain
 
+		/** Base64 image string to use for the minted meem image */
+		base64Image?: string
+
 		/** The address of the original NFT owner. Also where the Meem will be minted to. */
 		accountAddress: string
 
