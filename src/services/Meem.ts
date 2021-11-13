@@ -6,6 +6,7 @@ import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
 import ERC721ABI from '../abis/ERC721.json'
 import MeemABI from '../abis/Meem.json'
+import errors from '../config/errors'
 import meemWhitelist from '../lib/meem-whitelist.json'
 import { Meem, ERC721 } from '../types'
 import {
@@ -269,18 +270,23 @@ export default class MeemService {
 	/** Mint a Meem */
 	public static async mintMeem(data: MeemAPI.v1.MintMeem.IRequestBody) {
 		if (!data.tokenAddress) {
+			await sockets?.emitError(errors.MISSING_TOKEN_ADDRESS)
+			sockets?.emitError(errors.MISSING_TOKEN_ADDRESS)
 			throw new Error('MISSING_TOKEN_ADDRESS')
 		}
 
 		if (_isUndefined(data.chain)) {
+			await sockets?.emitError(errors.MISSING_CHAIN_ID)
 			throw new Error('MISSING_CHAIN_ID_ID')
 		}
 
 		if (_isUndefined(data.tokenId)) {
+			await sockets?.emitError(errors.MISSING_TOKEN_ID)
 			throw new Error('MISSING_TOKEN_ID')
 		}
 
 		if (!data.accountAddress) {
+			await sockets?.emitError(errors.MISSING_ACCOUNT_ADDRESS)
 			throw new Error('MISSING_ACCOUNT_ADDRESS')
 		}
 
@@ -298,6 +304,7 @@ export default class MeemService {
 			)
 
 			if (!isValidMeemProject) {
+				await sockets?.emitError(errors.INVALID_MEEM_PROJECT)
 				throw new Error('INVALID_MEEM_PROJECT')
 			}
 		}
@@ -318,6 +325,7 @@ export default class MeemService {
 			const isNFTOwner =
 				owner.toLowerCase() === data.accountAddress.toLowerCase()
 			if (!isNFTOwner) {
+				await sockets?.emitError(errors.TOKEN_NOT_OWNED)
 				throw new Error('TOKEN_NOT_OWNED')
 			}
 		}
@@ -400,6 +408,7 @@ export default class MeemService {
 			})
 			return returnData
 		}
+		await sockets?.emitError(errors.TRANSFER_EVENT_NOT_FOUND)
 		throw new Error('TRANSFER_EVENT_NOT_FOUND')
 	}
 

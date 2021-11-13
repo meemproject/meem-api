@@ -2,6 +2,7 @@
 import { Server } from 'http'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
+import errors from '../config/errors'
 import { MeemAPI } from '../types/meem.generated'
 
 export enum ConnectionType {
@@ -227,6 +228,44 @@ export default class Sockets {
 						socketId: s.connectionId.S,
 						eventName,
 						data
+					})
+				)
+			}
+		})
+
+		await Promise.allSettled(promises)
+	}
+
+	/** Emit an error message for the provided error code to any socket that is subscribed to it */
+	public async emitError(
+		/** The error code */
+		error: {
+			httpCode: number
+			status: string
+			reason: string
+			friendlyReason: string
+		}
+	) {
+		const subscription = MeemAPI.MeemEvent.Err
+		const eventName = MeemAPI.MeemEvent.Err
+
+		const subscriptions = await services.db.getSubscriptions({
+			subscriptionKey: subscription
+		})
+
+		log.debug(subscriptions)
+
+		const promises: Promise<any>[] = []
+
+		subscriptions.Items?.forEach(s => {
+			if (s.connectionId.S) {
+				promises.push(
+					this.emitToSocket({
+						socketId: s.connectionId.S,
+						eventName,
+						data: {
+							message: error.friendlyReason
+						}
 					})
 				)
 			}
