@@ -2,7 +2,6 @@
 import { Server } from 'http'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
-import errors from '../config/errors'
 import { MeemAPI } from '../types/meem.generated'
 
 export enum ConnectionType {
