@@ -263,9 +263,7 @@ export default class Sockets {
 					this.emitToSocket({
 						socketId: s.connectionId.S,
 						eventName,
-						data: {
-							message: error.friendlyReason
-						}
+						data: error
 					})
 				)
 			}
