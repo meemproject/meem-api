@@ -235,6 +235,42 @@ export default class Sockets {
 		await Promise.allSettled(promises)
 	}
 
+	/** Emit an error message for the provided error code to any socket that is subscribed to it */
+	public async emitError(
+		/** The error code */
+		error: {
+			httpCode: number
+			status: string
+			reason: string
+			friendlyReason: string
+		}
+	) {
+		const subscription = MeemAPI.MeemEvent.Err
+		const eventName = MeemAPI.MeemEvent.Err
+
+		const subscriptions = await services.db.getSubscriptions({
+			subscriptionKey: subscription
+		})
+
+		log.debug(subscriptions)
+
+		const promises: Promise<any>[] = []
+
+		subscriptions.Items?.forEach(s => {
+			if (s.connectionId.S) {
+				promises.push(
+					this.emitToSocket({
+						socketId: s.connectionId.S,
+						eventName,
+						data: error
+					})
+				)
+			}
+		})
+
+		await Promise.allSettled(promises)
+	}
+
 	/** Emit to a specific socket connection */
 	public async emitToSocket(options: {
 		socketId: string
