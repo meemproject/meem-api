@@ -79,6 +79,9 @@ export const chainToNetworkName = (chain: Chain): NetworkName => {
 		case Chain.Ethereum:
 			return NetworkName.Mainnet
 
+		case Chain.Rinkeby:
+			return NetworkName.Rinkeby
+
 		case Chain.Polygon:
 			return NetworkName.Polygon
 
