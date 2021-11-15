@@ -182,6 +182,7 @@ export namespace MeemAPI {
 		parentChain: Chain
 		parent: string
 		parentTokenId: number
+		generation: number
 		rootChain: Chain
 		root: string
 		rootTokenId: number
