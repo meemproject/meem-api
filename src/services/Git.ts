@@ -1,4 +1,5 @@
 import { Octokit } from '@octokit/rest'
+import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -78,7 +79,6 @@ export default class GitService {
 			description: metadataDescription,
 			external_url: `https://meem.wtf/meem/${id}`,
 			meem_properties: {
-				generation: 0,
 				root_token_uri: data.rootTokenURI || data.tokenURI,
 				root_token_address: data.rootTokenAddress || data.tokenAddress,
 				root_token_id: data.rootTokenId || data.tokenId || null,
@@ -89,14 +89,7 @@ export default class GitService {
 				parent_token_metadata: data.tokenMetadata
 			},
 			image: `https://raw.githubusercontent.com/meemproject/metadata/test/meem/images/${id}.png`,
-			image_original: data.originalImage,
-			attributes: [
-				{
-					display_type: 'number',
-					trait_type: 'Meem Generation',
-					value: 0
-				}
-			]
+			image_original: data.originalImage
 		}
 
 		const metadataGit = await octokit.git.createBlob({
@@ -138,6 +131,56 @@ export default class GitService {
 		return {
 			metadata,
 			tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/test/meem/${id}.json`
+		}
+	}
+
+	public static async updateMeemMetadata(data: {
+		tokenURI: string
+		generation: number
+		tokenId: number
+		metadataId: string
+	}): Promise<{ metadata: any }> {
+		const result = await request.get(data.tokenURI)
+		const metadata = JSON.parse(result.text)
+
+		metadata.meem_properties.generation = data.generation
+		metadata.meem_properties.token_id = data.tokenId
+		metadata.attributes = [
+			{
+				display_type: 'number',
+				trait_type: 'Meem Generation',
+				value: data.generation
+			}
+		]
+
+		const octokit = new Octokit({
+			auth: config.GITHUB_KEY
+		})
+
+		const fileBlob = await octokit.repos.getContent({
+			owner: 'meemproject',
+			repo: 'metadata',
+			ref: 'heads/test',
+			path: `meem/${data.metadataId}.json`
+		})
+
+		const { sha } = fileBlob.data
+		const metadataString = JSON.stringify(metadata)
+		const base64EncodedMetadata = Buffer.from(metadataString).toString('base64')
+
+		await octokit.repos.createOrUpdateFileContents({
+			owner: 'meemproject',
+			repo: 'metadata',
+			content: base64EncodedMetadata,
+			encoding: 'utf-8',
+			branch: 'test',
+			path: `meem/${data.metadataId}.json`,
+			message: `Meem Updated: ${data.metadataId}`,
+			sha
+		})
+
+		return {
+			metadata
 		}
 	}
 }

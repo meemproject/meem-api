@@ -308,7 +308,7 @@ export default class MeemService {
 		return result
 	}
 
-	/** Mint a Meem */
+	// /** Mint a Meem */
 	public static async mintMeem(data: MeemAPI.v1.MintMeem.IRequestBody) {
 		try {
 			if (!data.tokenAddress) {
@@ -326,6 +326,8 @@ export default class MeemService {
 			if (!data.accountAddress) {
 				throw new Error('MISSING_ACCOUNT_ADDRESS')
 			}
+
+			const meemId = uuidv4()
 
 			const isMeemToken =
 				data.tokenAddress.toLowerCase() ===
@@ -394,7 +396,8 @@ export default class MeemService {
 				rootTokenAddress: contractInfo.rootTokenAddress,
 				rootTokenId: contractInfo.rootTokenId,
 				rootTokenURI: contractInfo.rootTokenURI,
-				rootTokenMetadata: contractInfo.rootTokenMetadata
+				rootTokenMetadata: contractInfo.rootTokenMetadata,
+				meemId
 			})
 
 			const meemContract = this.meemContract()
@@ -440,7 +443,17 @@ export default class MeemService {
 					eventName: MeemAPI.MeemEvent.MeemMinted,
 					data: returnData
 				})
-				return returnData
+				const newMeem = await meemContract.getMeem(returnData.tokenId)
+				const metadata = services.git.updateMeemMetadata({
+					tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/test/meem/${meemId}.json`,
+					generation: newMeem.generation.toNumber(),
+					tokenId: returnData.tokenId,
+					metadataId: meemId
+				})
+				return {
+					...returnData,
+					...metadata
+				}
 			}
 			throw new Error('TRANSFER_EVENT_NOT_FOUND')
 		} catch (e) {
