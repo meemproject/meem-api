@@ -93,7 +93,7 @@ export default class MeemController {
 
 			await lambda
 				.invoke({
-					InvocationType: 'EVENT',
+					InvocationType: 'Event',
 					FunctionName: config.LAMBDA_MINT_FUNCTION,
 					Payload: JSON.stringify(data)
 				})
