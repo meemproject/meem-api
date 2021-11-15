@@ -103,7 +103,6 @@ export interface IMeemMetadata {
 	external_url: string
 	image: string
 	image_original: string
-	attributes: any[]
 	meem_properties: {
 		root_token_uri: string
 		root_token_address: string

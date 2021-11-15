@@ -444,16 +444,15 @@ export default class MeemService {
 					data: returnData
 				})
 				const newMeem = await meemContract.getMeem(returnData.tokenId)
-				const metadata = services.git.updateMeemMetadata({
+
+				await services.git.updateMeemMetadata({
 					tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/test/meem/${meemId}.json`,
 					generation: newMeem.generation.toNumber(),
 					tokenId: returnData.tokenId,
 					metadataId: meemId
 				})
-				return {
-					...returnData,
-					...metadata
-				}
+
+				return returnData
 			}
 			throw new Error('TRANSFER_EVENT_NOT_FOUND')
 		} catch (e) {
