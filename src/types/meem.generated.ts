@@ -217,7 +217,6 @@ export namespace MeemAPI {
 				chain?: number
 				base64Image?: string
 				imageUrl?: string
-				useTestnet?: boolean
 			}
 
 			export interface IResponseBody extends IApiResponseBody {

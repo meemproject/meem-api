@@ -206,9 +206,7 @@ export default class MeemService {
 			}
 
 			const contract = this.erc721Contract({
-				networkName: data.useTestnet
-					? NetworkName.Rinkeby
-					: NetworkName.Mainnet,
+				networkName: MeemAPI.chainToNetworkName(data.chain),
 				address: data.tokenAddress
 			})
 
