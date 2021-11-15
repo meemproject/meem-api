@@ -277,8 +277,22 @@ export default class Sockets {
 		eventName: string
 		data: Record<string, any>
 	}) {
+		const { socketId } = options
 		const promises = this.adapters.map(a => a.emit(options))
-		await Promise.allSettled(promises)
+		// await Promise.allSettled(promises)
+		try {
+			await Promise.all(promises)
+		} catch (e) {
+			log.warn(e)
+			// Remove the subscription if the emit failed
+			try {
+				await services.db.removeSubscriptions({
+					connectionId: socketId
+				})
+			} catch (e2) {
+				log.warn(e2)
+			}
+		}
 	}
 
 	public postToAWSGateway(

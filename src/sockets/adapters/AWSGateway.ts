@@ -48,7 +48,7 @@ export default class AWSGatewayAdapter extends SocketAdapter {
 	private postToAWSGateway(
 		data: AWS.ApiGatewayManagementApi.PostToConnectionRequest
 	) {
-		return new Promise(resolve => {
+		return new Promise((resolve, reject) => {
 			const gateway = new AWS.ApiGatewayManagementApi({
 				apiVersion: '2018-11-29',
 				endpoint: config.AWS_WEBSOCKET_GATEWAY_URL
@@ -56,8 +56,7 @@ export default class AWSGatewayAdapter extends SocketAdapter {
 			log.debug({ data })
 			gateway.postToConnection(data, (err, gatewayResponse) => {
 				if (err) {
-					log.warn(err)
-					resolve(null)
+					reject(err)
 					return
 				}
 				resolve(gatewayResponse)
