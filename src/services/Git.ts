@@ -164,7 +164,7 @@ export default class GitService {
 			path: `meem/${data.metadataId}.json`
 		})
 
-		const { sha } = fileBlob.data
+		const { sha } = fileBlob.data as any
 		const metadataString = JSON.stringify(metadata)
 		const base64EncodedMetadata = Buffer.from(metadataString).toString('base64')
 
