@@ -459,6 +459,8 @@ export default class MeemService {
 		} catch (e) {
 			const err = e as any
 
+			log.warn(err)
+
 			if (err.error?.error?.body) {
 				let errStr = 'UNKNOWN_CONTRACT_ERROR'
 				try {
