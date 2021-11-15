@@ -332,7 +332,6 @@ export default class MeemService {
 			const isMeemToken =
 				data.tokenAddress.toLowerCase() ===
 				config.MEEM_PROXY_ADDRESS.toLowerCase()
-			const chain = isMeemToken ? 1 : data.chain
 			const shouldIgnoreWhitelist =
 				config.NETWORK === MeemAPI.NetworkName.Rinkeby &&
 				data.shouldIgnoreWhitelist
@@ -350,7 +349,7 @@ export default class MeemService {
 			const contract = isMeemToken
 				? this.meemContract()
 				: this.erc721Contract({
-						networkName: MeemAPI.chainToNetworkName(chain),
+						networkName: MeemAPI.chainToNetworkName(data.chain),
 						address: data.tokenAddress
 				  })
 
@@ -370,7 +369,7 @@ export default class MeemService {
 			const contractInfo = await this.getContractInfo({
 				contractAddress: data.tokenAddress,
 				tokenId: data.tokenId,
-				networkName: MeemAPI.chainToNetworkName(chain)
+				networkName: MeemAPI.chainToNetworkName(data.chain)
 			})
 
 			const image = data.base64Image
@@ -405,11 +404,11 @@ export default class MeemService {
 			const mintParams: Parameters<Meem['mint']> = [
 				data.accountAddress,
 				meemMetadata.tokenURI,
-				chain,
+				data.chain,
 				contractInfo.parentTokenAddress,
 				contractInfo.parentTokenId,
 				// TODO: Set root chain based on parent if necessary
-				chain,
+				data.chain,
 				contractInfo.rootTokenAddress,
 				contractInfo.rootTokenId,
 				this.buildProperties(data.properties),
