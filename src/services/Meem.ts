@@ -22,6 +22,49 @@ import {
 	PermissionType
 } from '../types/shared/meem.shared'
 
+function errorcodeToErrorString(contractErrorName: string) {
+	const allErrors: Record<string, any> = config.errors
+	const errorKeys = Object.keys(allErrors)
+	const errIdx = errorKeys.findIndex(
+		k => allErrors[k].contractErrorCode === contractErrorName
+	)
+	if (errIdx > -1) {
+		return errorKeys[errIdx]
+	}
+	return 'UNKNOWN_CONTRACT_ERROR'
+}
+
+function genericError(message?: string) {
+	return {
+		status: 'failure',
+		code: 'SERVER_ERROR',
+		reason: 'Unable to find specific error',
+		friendlyReason:
+			message ||
+			'Sorry, something went wrong. Please try again in a few minutes.'
+	}
+}
+
+function handleStringErrorKey(errorKey: string) {
+	let err = config.errors.SERVER_ERROR
+	// @ts-ignore
+	if (errorKey && config.errors[errorKey]) {
+		// @ts-ignore
+		err = config.errors[errorKey]
+	} else {
+		log.warn(
+			`errorResponder Middleware: Invalid error key specified: ${errorKey}`
+		)
+	}
+
+	return {
+		status: 'failure',
+		httpCode: 500,
+		reason: err.reason,
+		friendlyReason: err.friendlyReason
+	}
+}
+
 export default class MeemService {
 	/** Get generic ERC721 contract instance */
 	public static erc721Contract(options: {
@@ -269,147 +312,178 @@ export default class MeemService {
 
 	/** Mint a Meem */
 	public static async mintMeem(data: MeemAPI.v1.MintMeem.IRequestBody) {
-		if (!data.tokenAddress) {
-			await sockets?.emitError(errors.MISSING_TOKEN_ADDRESS)
-			sockets?.emitError(errors.MISSING_TOKEN_ADDRESS)
-			throw new Error('MISSING_TOKEN_ADDRESS')
-		}
-
-		if (_isUndefined(data.chain)) {
-			await sockets?.emitError(errors.MISSING_CHAIN_ID)
-			throw new Error('MISSING_CHAIN_ID_ID')
-		}
-
-		if (_isUndefined(data.tokenId)) {
-			await sockets?.emitError(errors.MISSING_TOKEN_ID)
-			throw new Error('MISSING_TOKEN_ID')
-		}
-
-		if (!data.accountAddress) {
-			await sockets?.emitError(errors.MISSING_ACCOUNT_ADDRESS)
-			throw new Error('MISSING_ACCOUNT_ADDRESS')
-		}
-
-		const isMeemToken =
-			data.tokenAddress.toLowerCase() ===
-			config.MEEM_PROXY_ADDRESS.toLowerCase()
-		const chain = isMeemToken ? 1 : data.chain
-		const shouldIgnoreWhitelist =
-			config.NETWORK === MeemAPI.NetworkName.Rinkeby &&
-			data.shouldIgnoreWhitelist
-
-		if (!isMeemToken && !shouldIgnoreWhitelist) {
-			const isValidMeemProject = await this.isValidMeemProject(
-				data.tokenAddress
-			)
-
-			if (!isValidMeemProject) {
-				await sockets?.emitError(errors.INVALID_MEEM_PROJECT)
-				throw new Error('INVALID_MEEM_PROJECT')
+		try {
+			if (!data.tokenAddress) {
+				await sockets?.emitError(errors.MISSING_TOKEN_ADDRESS)
+				sockets?.emitError(errors.MISSING_TOKEN_ADDRESS)
+				throw new Error('MISSING_TOKEN_ADDRESS')
 			}
-		}
 
-		const contract = isMeemToken
-			? this.meemContract()
-			: this.erc721Contract({
-					networkName: MeemAPI.chainToNetworkName(chain),
-					address: data.tokenAddress
-			  })
-
-		const shouldIgnoreOwnership =
-			config.NETWORK === MeemAPI.NetworkName.Rinkeby &&
-			data.shouldIgnoreOwnership
-
-		if (!shouldIgnoreOwnership) {
-			const owner = await contract.ownerOf(data.tokenId)
-			const isNFTOwner =
-				owner.toLowerCase() === data.accountAddress.toLowerCase()
-			if (!isNFTOwner) {
-				await sockets?.emitError(errors.TOKEN_NOT_OWNED)
-				throw new Error('TOKEN_NOT_OWNED')
+			if (_isUndefined(data.chain)) {
+				await sockets?.emitError(errors.MISSING_CHAIN_ID)
+				throw new Error('MISSING_CHAIN_ID_ID')
 			}
-		}
 
-		const contractInfo = await this.getContractInfo({
-			contractAddress: data.tokenAddress,
-			tokenId: data.tokenId,
-			networkName: config.NETWORK
-		})
-
-		const image = data.base64Image
-			? data.base64Image
-			: await this.getImageFromMetadata(contractInfo.parentTokenMetadata)
-
-		const imageBase64String = data.base64Image
-			? data.base64Image
-			: image.toString('base64')
-
-		const base64MeemImage = isMeemToken
-			? imageBase64String
-			: await this.createMeemImage({
-					base64Image: imageBase64String
-			  })
-
-		const meemMetadata = await this.saveMeemMetadataasync({
-			collectionName: contractInfo.parentContractMetadata?.name,
-			imageBase64: base64MeemImage,
-			tokenAddress: data.tokenAddress,
-			tokenId: data.tokenId,
-			parentMetadata: contractInfo.parentTokenMetadata,
-			tokenURI: contractInfo.parentTokenURI,
-			rootTokenAddress: contractInfo.rootTokenAddress,
-			rootTokenId: contractInfo.rootTokenId,
-			rootTokenURI: contractInfo.rootTokenURI,
-			rootTokenMetadata: contractInfo.rootTokenMetadata
-		})
-
-		const meemContract = this.meemContract()
-
-		const mintParams: Parameters<Meem['mint']> = [
-			data.accountAddress,
-			meemMetadata.tokenURI,
-			chain,
-			contractInfo.parentTokenAddress,
-			contractInfo.parentTokenId,
-			// TODO: Set root chain based on parent if necessary
-			chain,
-			contractInfo.rootTokenAddress,
-			contractInfo.rootTokenId,
-			this.buildProperties(data.properties),
-			this.buildProperties({
-				...data.childProperties,
-				totalChildren: data.childProperties?.totalChildren ?? 0,
-				splits: data.childProperties?.splits ?? data.properties?.splits
-			}),
-			// TODO: Set permission type based on copy/remix
-			PermissionType.Copy
-		]
-
-		log.debug('Minting meem w/ params', { mintParams })
-
-		const meem = await meemContract.mint(...mintParams)
-
-		const receipt = await meem.wait()
-
-		const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
-
-		if (transferEvent && transferEvent.args && transferEvent.args[2]) {
-			const tokenId = (transferEvent.args[2] as ethers.BigNumber).toNumber()
-			const returnData = {
-				toAddress: data.accountAddress,
-				tokenURI: meemMetadata.tokenURI,
-				tokenId,
-				transactionHash: receipt.transactionHash
+			if (_isUndefined(data.tokenId)) {
+				await sockets?.emitError(errors.MISSING_TOKEN_ID)
+				throw new Error('MISSING_TOKEN_ID')
 			}
-			await sockets?.emit({
-				subscription: MeemAPI.MeemEvent.MeemMinted,
-				eventName: MeemAPI.MeemEvent.MeemMinted,
-				data: returnData
+
+			if (!data.accountAddress) {
+				await sockets?.emitError(errors.MISSING_ACCOUNT_ADDRESS)
+				throw new Error('MISSING_ACCOUNT_ADDRESS')
+			}
+
+			const isMeemToken =
+				data.tokenAddress.toLowerCase() ===
+				config.MEEM_PROXY_ADDRESS.toLowerCase()
+			const chain = isMeemToken ? 1 : data.chain
+			const shouldIgnoreWhitelist =
+				config.NETWORK === MeemAPI.NetworkName.Rinkeby &&
+				data.shouldIgnoreWhitelist
+
+			if (!isMeemToken && !shouldIgnoreWhitelist) {
+				const isValidMeemProject = await this.isValidMeemProject(
+					data.tokenAddress
+				)
+
+				if (!isValidMeemProject) {
+					await sockets?.emitError(errors.INVALID_MEEM_PROJECT)
+					throw new Error('INVALID_MEEM_PROJECT')
+				}
+			}
+
+			const contract = isMeemToken
+				? this.meemContract()
+				: this.erc721Contract({
+						networkName: MeemAPI.chainToNetworkName(chain),
+						address: data.tokenAddress
+				  })
+
+			const shouldIgnoreOwnership =
+				config.NETWORK === MeemAPI.NetworkName.Rinkeby &&
+				data.shouldIgnoreOwnership
+
+			if (!shouldIgnoreOwnership) {
+				const owner = await contract.ownerOf(data.tokenId)
+				const isNFTOwner =
+					owner.toLowerCase() === data.accountAddress.toLowerCase()
+				if (!isNFTOwner) {
+					await sockets?.emitError(errors.TOKEN_NOT_OWNED)
+					throw new Error('TOKEN_NOT_OWNED')
+				}
+			}
+
+			const contractInfo = await this.getContractInfo({
+				contractAddress: data.tokenAddress,
+				tokenId: data.tokenId,
+				networkName: MeemAPI.chainToNetworkName(chain)
 			})
-			return returnData
+
+			const image = data.base64Image
+				? data.base64Image
+				: await this.getImageFromMetadata(contractInfo.parentTokenMetadata)
+
+			const imageBase64String = data.base64Image
+				? data.base64Image
+				: image.toString('base64')
+
+			const base64MeemImage = isMeemToken
+				? imageBase64String
+				: await this.createMeemImage({
+						base64Image: imageBase64String
+				  })
+
+			const meemMetadata = await this.saveMeemMetadataasync({
+				collectionName: contractInfo.parentContractMetadata?.name,
+				imageBase64: base64MeemImage,
+				tokenAddress: data.tokenAddress,
+				tokenId: data.tokenId,
+				parentMetadata: contractInfo.parentTokenMetadata,
+				tokenURI: contractInfo.parentTokenURI,
+				rootTokenAddress: contractInfo.rootTokenAddress,
+				rootTokenId: contractInfo.rootTokenId,
+				rootTokenURI: contractInfo.rootTokenURI,
+				rootTokenMetadata: contractInfo.rootTokenMetadata
+			})
+
+			const meemContract = this.meemContract()
+
+			const mintParams: Parameters<Meem['mint']> = [
+				data.accountAddress,
+				meemMetadata.tokenURI,
+				chain,
+				contractInfo.parentTokenAddress,
+				contractInfo.parentTokenId,
+				// TODO: Set root chain based on parent if necessary
+				chain,
+				contractInfo.rootTokenAddress,
+				contractInfo.rootTokenId,
+				this.buildProperties(data.properties),
+				this.buildProperties({
+					...data.childProperties,
+					totalChildren: data.childProperties?.totalChildren ?? 0,
+					splits: data.childProperties?.splits ?? data.properties?.splits
+				}),
+				// TODO: Set permission type based on copy/remix
+				PermissionType.Copy
+			]
+
+			log.debug('Minting meem w/ params', { mintParams })
+
+			const meem = await meemContract.mint(...mintParams)
+
+			const receipt = await meem.wait()
+
+			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
+
+			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
+				const tokenId = (transferEvent.args[2] as ethers.BigNumber).toNumber()
+				const returnData = {
+					toAddress: data.accountAddress,
+					tokenURI: meemMetadata.tokenURI,
+					tokenId,
+					transactionHash: receipt.transactionHash
+				}
+				await sockets?.emit({
+					subscription: MeemAPI.MeemEvent.MeemMinted,
+					eventName: MeemAPI.MeemEvent.MeemMinted,
+					data: returnData
+				})
+				return returnData
+			}
+			await sockets?.emitError(errors.TRANSFER_EVENT_NOT_FOUND)
+			throw new Error('TRANSFER_EVENT_NOT_FOUND')
+		} catch (e) {
+			const err = e as any
+
+			if (err.error?.error?.body) {
+				let errStr = 'UNKNOWN_CONTRACT_ERROR'
+				try {
+					const body = JSON.parse(err.error.error.body)
+					log.warn(body)
+					const inter = services.meem.meemInterface()
+					const errInfo = inter.parseError(body.error.data)
+					errStr = errorcodeToErrorString(errInfo.name)
+				} catch (e) {
+					// Unable to parse
+					return genericError()
+				}
+				const error = handleStringErrorKey(errStr)
+				await sockets?.emitError(error)
+				throw new Error(errStr)
+			}
+			if (err.message) {
+				log.warn('ERROR MESSAGE', err.message)
+				const error = genericError(err.message)
+				await sockets?.emitError({
+					...error,
+					httpCode: 500
+				})
+			}
+			await sockets?.emitError(errors.SERVER_ERROR)
+			throw new Error('SERVER_ERROR')
 		}
-		await sockets?.emitError(errors.TRANSFER_EVENT_NOT_FOUND)
-		throw new Error('TRANSFER_EVENT_NOT_FOUND')
 	}
 
 	public static async isValidMeemProject(contractAddress: string) {
@@ -432,6 +506,7 @@ export default class MeemService {
 		networkName: NetworkName
 	}) {
 		const { contractAddress, tokenId, networkName } = options
+		log.debug(networkName, contractAddress)
 		const isMeemToken =
 			contractAddress.toLowerCase() === config.MEEM_PROXY_ADDRESS.toLowerCase()
 
