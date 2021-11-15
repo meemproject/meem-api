@@ -167,14 +167,16 @@ export default class Sockets {
 
 	public async subscribe(options: {
 		socketId: string
+		walletAddress?: string
 		events: MeemAPI.IEvent[]
 	}) {
-		const { socketId, events } = options
+		const { socketId, walletAddress, events } = options
 		const canSubscribe = await this.canSubscribe({ events })
 		if (canSubscribe) {
 			// Save subscription
 			await services.db.saveSubscription({
 				connectionId: socketId,
+				walletAddress,
 				events
 			})
 		} else {
@@ -237,6 +239,7 @@ export default class Sockets {
 
 	/** Emit an error message for the provided error code to any socket that is subscribed to it */
 	public async emitError(
+		// TODO: Add walletAddress and emit to just that
 		/** The error code */
 		error: {
 			httpCode: number

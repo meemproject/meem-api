@@ -6,6 +6,7 @@ export namespace Subscribe {
 	export interface IEventPayload {
 		// @ts-ignore
 		type: MeemEvent.Subscribe
+		walletAddress?: string
 		events: {
 			key: string
 			data?: Record<string, any>

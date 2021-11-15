@@ -32,7 +32,8 @@ export enum Chain {
 	Ethereum,
 	Polygon,
 	Cardano,
-	Solana
+	Solana,
+	Rinkeby
 }
 
 /** The permission type corresponding to the smart contract */

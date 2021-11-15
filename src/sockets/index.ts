@@ -36,6 +36,7 @@ const socketsConfig: ISocketsConfig = {
 				log.debug({ socketId, data })
 				await services.db.saveSubscription({
 					connectionId: socketId,
+					walletAddress: data?.walletAddress,
 					events: data?.events
 				})
 			}
