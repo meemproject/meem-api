@@ -465,7 +465,7 @@ export default class MeemService {
 					const inter = services.meem.meemInterface()
 					const errInfo = inter.parseError(body.error.data)
 					errStr = errorcodeToErrorString(errInfo.name)
-				} catch (e) {
+				} catch (parseError) {
 					// Unable to parse
 					return genericError()
 				}
