@@ -70,7 +70,8 @@ export namespace MeemAPI {
 		Ethereum,
 		Polygon,
 		Cardano,
-		Solana
+		Solana,
+		Rinkeby
 	}
 
 	/** The permission type corresponding to the smart contract */
@@ -115,6 +116,9 @@ export namespace MeemAPI {
 		switch (chain) {
 			case Chain.Ethereum:
 				return NetworkName.Mainnet
+
+			case Chain.Rinkeby:
+				return NetworkName.Rinkeby
 
 			case Chain.Polygon:
 				return NetworkName.Polygon
@@ -498,6 +502,7 @@ export namespace MeemAPI {
 			export interface IEventPayload {
 				// @ts-ignore
 				type: MeemEvent.Subscribe
+				walletAddress?: string
 				events: {
 					key: string
 					data?: Record<string, any>

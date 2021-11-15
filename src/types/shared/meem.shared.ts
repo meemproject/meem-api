@@ -32,7 +32,8 @@ export enum Chain {
 	Ethereum,
 	Polygon,
 	Cardano,
-	Solana
+	Solana,
+	Rinkeby
 }
 
 /** The permission type corresponding to the smart contract */
@@ -77,6 +78,9 @@ export const chainToNetworkName = (chain: Chain): NetworkName => {
 	switch (chain) {
 		case Chain.Ethereum:
 			return NetworkName.Mainnet
+
+		case Chain.Rinkeby:
+			return NetworkName.Rinkeby
 
 		case Chain.Polygon:
 			return NetworkName.Polygon

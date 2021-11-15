@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk'
+import { PutItemInputAttributeMap } from 'aws-sdk/clients/dynamodb'
 import { MeemAPI } from '../types/meem.generated'
 
 AWS.config.update({
@@ -8,25 +9,35 @@ AWS.config.update({
 export default class DbService {
 	public static async saveSubscription(options: {
 		connectionId: string
+		walletAddress?: string
 		events: MeemAPI.IEvent[]
 	}) {
-		const { connectionId, events } = options
+		const { connectionId, walletAddress, events } = options
 		const db = new AWS.DynamoDB({
 			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
 			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
 		})
-		const items = events.map(e => ({
-			PutRequest: {
-				Item: {
-					connectionId: {
-						S: connectionId
-					},
-					subscriptionKey: {
-						S: e.key
-					}
+		const items = events.map(e => {
+			const item: PutItemInputAttributeMap = {
+				connectionId: {
+					S: connectionId
+				},
+				subscriptionKey: {
+					S: e.key
 				}
 			}
-		}))
+
+			if (walletAddress) {
+				item.walletAddress = {
+					S: walletAddress
+				}
+			}
+			return {
+				PutRequest: {
+					Item: item
+				}
+			}
+		})
 
 		const result = await db
 			.batchWriteItem({
@@ -39,12 +50,17 @@ export default class DbService {
 		return result
 	}
 
-	public static async getSubscriptions(options: { subscriptionKey: string }) {
+	public static async getSubscriptions(options: {
+		subscriptionKey: string
+		walletAddress?: string
+	}) {
 		const { subscriptionKey } = options
 		const db = new AWS.DynamoDB({
 			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
 			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
 		})
+
+		// TODO: Query/filter by walletAddress if set
 
 		const result = await db
 			.query({
