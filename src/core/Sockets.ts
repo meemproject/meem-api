@@ -239,23 +239,21 @@ export default class Sockets {
 
 	/** Emit an error message for the provided error code to any socket that is subscribed to it */
 	public async emitError(
-		// TODO: Add walletAddress and emit to just that
 		/** The error code */
 		error: {
 			httpCode: number
 			status: string
 			reason: string
 			friendlyReason: string
-		}
+		},
+		walletAddress?: string
 	) {
 		const subscription = MeemAPI.MeemEvent.Err
 		const eventName = MeemAPI.MeemEvent.Err
-
 		const subscriptions = await services.db.getSubscriptions({
-			subscriptionKey: subscription
+			subscriptionKey: subscription,
+			walletAddress
 		})
-
-		log.debug(subscriptions)
 
 		const promises: Promise<any>[] = []
 

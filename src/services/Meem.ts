@@ -314,23 +314,18 @@ export default class MeemService {
 	public static async mintMeem(data: MeemAPI.v1.MintMeem.IRequestBody) {
 		try {
 			if (!data.tokenAddress) {
-				await sockets?.emitError(errors.MISSING_TOKEN_ADDRESS)
-				sockets?.emitError(errors.MISSING_TOKEN_ADDRESS)
 				throw new Error('MISSING_TOKEN_ADDRESS')
 			}
 
 			if (_isUndefined(data.chain)) {
-				await sockets?.emitError(errors.MISSING_CHAIN_ID)
-				throw new Error('MISSING_CHAIN_ID_ID')
+				throw new Error('MISSING_CHAIN_ID')
 			}
 
 			if (_isUndefined(data.tokenId)) {
-				await sockets?.emitError(errors.MISSING_TOKEN_ID)
 				throw new Error('MISSING_TOKEN_ID')
 			}
 
 			if (!data.accountAddress) {
-				await sockets?.emitError(errors.MISSING_ACCOUNT_ADDRESS)
 				throw new Error('MISSING_ACCOUNT_ADDRESS')
 			}
 
@@ -348,7 +343,6 @@ export default class MeemService {
 				)
 
 				if (!isValidMeemProject) {
-					await sockets?.emitError(errors.INVALID_MEEM_PROJECT)
 					throw new Error('INVALID_MEEM_PROJECT')
 				}
 			}
@@ -369,7 +363,6 @@ export default class MeemService {
 				const isNFTOwner =
 					owner.toLowerCase() === data.accountAddress.toLowerCase()
 				if (!isNFTOwner) {
-					await sockets?.emitError(errors.TOKEN_NOT_OWNED)
 					throw new Error('TOKEN_NOT_OWNED')
 				}
 			}
@@ -452,7 +445,6 @@ export default class MeemService {
 				})
 				return returnData
 			}
-			await sockets?.emitError(errors.TRANSFER_EVENT_NOT_FOUND)
 			throw new Error('TRANSFER_EVENT_NOT_FOUND')
 		} catch (e) {
 			const err = e as any
@@ -470,18 +462,15 @@ export default class MeemService {
 					return genericError()
 				}
 				const error = handleStringErrorKey(errStr)
-				await sockets?.emitError(error)
+				await sockets?.emitError(error, data.accountAddress)
 				throw new Error(errStr)
 			}
 			if (err.message) {
-				log.warn('ERROR MESSAGE', err.message)
-				const error = genericError(err.message)
-				await sockets?.emitError({
-					...error,
-					httpCode: 500
-				})
+				const error = handleStringErrorKey(err.message)
+				await sockets?.emitError(error, data.accountAddress)
+				throw new Error(err.message)
 			}
-			await sockets?.emitError(errors.SERVER_ERROR)
+			await sockets?.emitError(errors.SERVER_ERROR, data.accountAddress)
 			throw new Error('SERVER_ERROR')
 		}
 	}
