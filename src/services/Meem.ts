@@ -578,7 +578,8 @@ export default class MeemService {
 			rootTokenId: meem[6].toNumber(),
 			generation: meem[7].toNumber(),
 			properties: this.meemPropertiesToInterface(meem[8]),
-			childProperties: this.meemPropertiesToInterface(meem[9])
+			childProperties: this.meemPropertiesToInterface(meem[9]),
+			mintedAt: meem[10].toNumber()
 		}
 	}
 

@@ -110,6 +110,7 @@ export type MeemStruct = {
   generation: BigNumberish;
   properties: MeemPropertiesStruct;
   childProperties: MeemPropertiesStruct;
+  mintedAt: BigNumberish;
 };
 
 export type MeemStructOutput = [
@@ -122,7 +123,8 @@ export type MeemStructOutput = [
   BigNumber,
   BigNumber,
   MeemPropertiesStructOutput,
-  MeemPropertiesStructOutput
+  MeemPropertiesStructOutput,
+  BigNumber
 ] & {
   owner: string;
   parentChain: number;
@@ -134,6 +136,7 @@ export type MeemStructOutput = [
   generation: BigNumber;
   properties: MeemPropertiesStructOutput;
   childProperties: MeemPropertiesStructOutput;
+  mintedAt: BigNumber;
 };
 
 export type PartStruct = { account: string; value: BigNumberish };

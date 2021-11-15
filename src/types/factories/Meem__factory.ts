@@ -1383,6 +1383,11 @@ const _abi = [
             name: "childProperties",
             type: "tuple",
           },
+          {
+            internalType: "uint256",
+            name: "mintedAt",
+            type: "uint256",
+          },
         ],
         internalType: "struct Meem",
         name: "",
