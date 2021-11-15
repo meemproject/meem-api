@@ -140,6 +140,7 @@ export interface IMeemProperties {
 }
 
 export interface IMeem {
+	/** Address of the token owner */
 	owner: string
 	tokenURI?: string
 	parentChain: Chain
@@ -151,6 +152,8 @@ export interface IMeem {
 	generation: number
 	properties: IMeemProperties
 	childProperties: IMeemProperties
+	/** Unix timestamp of when the Meem was minted */
+	mintedAt: number
 }
 
 export interface IERC721Metadata {
