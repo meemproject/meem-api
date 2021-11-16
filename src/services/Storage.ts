@@ -33,6 +33,8 @@ export default class StorageService {
 			})
 			.promise()
 
+		log.debug('PUT object finished', { result })
+
 		return result
 	}
 
