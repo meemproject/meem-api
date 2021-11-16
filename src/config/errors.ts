@@ -251,6 +251,13 @@ const errors = {
 			'An invalid number for totalChildren was sent. It can not be less than the existing number of children.',
 		friendlyReason:
 			'An invalid number for totalChildren was sent. It can not be less than the existing number of children.'
+	},
+	CHILD_DEPTH_EXCEEDED: {
+		contractErrorCode: 'ChildDepthExceeded',
+		httpCode: 400,
+		status: 'failure',
+		reason: 'Child Meem depth exceeded. Choose a different Meem.',
+		friendlyReason: 'Child Meem depth exceeded. Choose a different Meem.'
 	}
 }
 
