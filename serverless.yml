@@ -38,6 +38,7 @@ provider:
     DYNAMODB_SOCKETS_TABLE: ${env:DYNAMODB_SOCKETS_TABLE, ''}
     AWS_WEBSOCKET_GATEWAY_URL: ${env:AWS_WEBSOCKET_GATEWAY_URL, ''}
     LAMBDA_MINT_FUNCTION: ${env:LAMBDA_MINT_FUNCTION, ''}
+    S3_BUCKET: ${env:S3_BUCKET, ''}
 
 package:
   excludeDevDependencies: true

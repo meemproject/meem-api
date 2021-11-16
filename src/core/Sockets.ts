@@ -159,7 +159,7 @@ export default class Sockets {
 	public async handleDisconnect(options: { socketId: string }) {
 		const { socketId } = options
 
-		log.trace(`Removed socket ${socketId}`)
+		log.debug(`Socket disconnect: ${socketId}`)
 		await services.db.removeSubscriptions({
 			connectionId: socketId
 		})

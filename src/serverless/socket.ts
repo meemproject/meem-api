@@ -22,6 +22,10 @@ export const handle: APIGatewayProxyHandler = async (event, _context) => {
 		const { requestContext, body } = event
 		const { eventType, connectionId } = requestContext
 
+		if (!sockets) {
+			log.crit('Sockets not initialized')
+		}
+
 		if (config.AWS_WEBSOCKET_GATEWAY_URL) {
 			sockets?.connectLambda({
 				endpoint: config.AWS_WEBSOCKET_GATEWAY_URL
