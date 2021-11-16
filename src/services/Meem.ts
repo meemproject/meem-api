@@ -248,6 +248,9 @@ export default class MeemService {
 						blend: 'hard-light'
 					}
 				])
+				.png({
+					quality: 99
+				})
 				.toBuffer()
 
 			const base64MeemImage = compositeMeemImage.toString('base64')

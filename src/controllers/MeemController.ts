@@ -131,8 +131,10 @@ export default class MeemController {
 
 		const image = await services.meem.createMeemImage(data)
 
+		res.end(image)
+
 		// TODO: Finish minting
-		return res.json({ image })
+		// return res.json({ image })
 	}
 
 	public static async getTokenInfo(
