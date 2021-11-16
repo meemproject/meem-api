@@ -1,5 +1,6 @@
 import AWS from 'aws-sdk'
 import { Response } from 'express'
+import { v4 as uuidv4 } from 'uuid'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -82,8 +83,23 @@ export default class MeemController {
 			throw new Error('NFT_ALREADY_WRAPPED')
 		}
 
+		let s3ImagePath: string | undefined
+		if (data.base64Image) {
+			s3ImagePath = `mintImages/${uuidv4()}.png`
+			await services.storage.putObject({
+				path: s3ImagePath,
+				data: Buffer.from(data.base64Image, 'base64')
+			})
+		}
+
+		const mintData = {
+			...data,
+			base64Image: undefined,
+			s3ImagePath
+		}
+
 		if (config.DISABLE_ASYNC_MINTING) {
-			await services.meem.mintMeem(data)
+			await services.meem.mintMeem(mintData)
 		} else {
 			const lambda = new AWS.Lambda({
 				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
@@ -95,7 +111,7 @@ export default class MeemController {
 				.invoke({
 					InvocationType: 'Event',
 					FunctionName: config.LAMBDA_MINT_FUNCTION,
-					Payload: JSON.stringify(data)
+					Payload: JSON.stringify(mintData)
 				})
 				.promise()
 		}

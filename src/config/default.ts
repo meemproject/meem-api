@@ -66,5 +66,6 @@ export default {
 	ENABLE_TEST_ENDPOINTS: process.env.ENABLE_TEST_ENDPOINTS === 'true',
 	WEBSOCKETS_ENABLED: process.env.WEBSOCKETS_ENABLED === 'true',
 	LAMBDA_MINT_FUNCTION: process.env.LAMBDA_MINT_FUNCTION ?? '',
-	DISABLE_ASYNC_MINTING: process.env.DISABLE_ASYNC_MINTING === 'true'
+	DISABLE_ASYNC_MINTING: process.env.DISABLE_ASYNC_MINTING === 'true',
+	S3_BUCKET: process.env.S3_BUCKET ?? ''
 }
