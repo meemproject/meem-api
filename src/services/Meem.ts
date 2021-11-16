@@ -309,7 +309,11 @@ export default class MeemService {
 	}
 
 	/** Mint a Meem */
-	public static async mintMeem(data: MeemAPI.v1.MintMeem.IRequestBody) {
+	public static async mintMeem(
+		data: Omit<MeemAPI.v1.MintMeem.IRequestBody, 'base64Image'> & {
+			s3ImagePath?: string
+		}
+	) {
 		try {
 			if (!data.tokenAddress) {
 				throw new Error('MISSING_TOKEN_ADDRESS')
@@ -370,13 +374,21 @@ export default class MeemService {
 				networkName: MeemAPI.chainToNetworkName(data.chain)
 			})
 
-			const image = data.base64Image
-				? data.base64Image
-				: await this.getImageFromMetadata(contractInfo.parentTokenMetadata)
+			let base64Image: string | undefined
 
-			const imageBase64String = data.base64Image
-				? data.base64Image
-				: image.toString('base64')
+			if (data.s3ImagePath) {
+				const imageData = await services.storage.getObject({
+					path: data.s3ImagePath
+				})
+
+				base64Image = imageData.toString('base64')
+			}
+
+			const image =
+				base64Image ||
+				(await this.getImageFromMetadata(contractInfo.parentTokenMetadata))
+
+			const imageBase64String = base64Image || image.toString('base64')
 
 			const base64MeemImage = isMeemToken
 				? imageBase64String
@@ -384,18 +396,23 @@ export default class MeemService {
 						base64Image: imageBase64String
 				  })
 
-			const meemMetadata = await this.saveMeemMetadataasync({
-				collectionName: contractInfo.parentContractMetadata?.name,
-				imageBase64: base64MeemImage,
-				tokenAddress: data.tokenAddress,
-				tokenId: data.tokenId,
-				parentMetadata: contractInfo.parentTokenMetadata,
-				tokenURI: contractInfo.parentTokenURI,
-				rootTokenAddress: contractInfo.rootTokenAddress,
-				rootTokenId: contractInfo.rootTokenId,
-				rootTokenURI: contractInfo.rootTokenURI,
-				rootTokenMetadata: contractInfo.rootTokenMetadata
-			})
+			const [meemMetadata] = await Promise.all([
+				this.saveMeemMetadataasync({
+					collectionName: contractInfo.parentContractMetadata?.name,
+					imageBase64: base64MeemImage,
+					tokenAddress: data.tokenAddress,
+					tokenId: data.tokenId,
+					parentMetadata: contractInfo.parentTokenMetadata,
+					tokenURI: contractInfo.parentTokenURI,
+					rootTokenAddress: contractInfo.rootTokenAddress,
+					rootTokenId: contractInfo.rootTokenId,
+					rootTokenURI: contractInfo.rootTokenURI,
+					rootTokenMetadata: contractInfo.rootTokenMetadata
+				}),
+				data.s3ImagePath
+					? services.storage.deleteObject({ path: data.s3ImagePath })
+					: Promise.resolve(null)
+			])
 
 			const meemContract = this.meemContract()
 
