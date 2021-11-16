@@ -18,6 +18,8 @@ export default class StorageService {
 			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
 		})
 
+		log.debug(`PUT S3 Object: ${path}`)
+
 		const result = await s3
 			.putObject({
 				Bucket: config.S3_BUCKET,
@@ -42,6 +44,8 @@ export default class StorageService {
 			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
 		})
 
+		log.debug(`GET S3 Object: ${path}`)
+
 		const result = await s3
 			.getObject({
 				Bucket: config.S3_BUCKET,
@@ -59,6 +63,8 @@ export default class StorageService {
 			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
 			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
 		})
+
+		log.debug(`DELETE S3 Object: ${path}`)
 
 		const result = await s3
 			.deleteObject({
