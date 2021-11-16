@@ -103,9 +103,7 @@ export interface IMeemMetadata {
 	external_url: string
 	image: string
 	image_original: string
-	attributes: any[]
 	meem_properties: {
-		generation: number
 		root_token_uri: string
 		root_token_address: string
 		root_token_id: number | null
@@ -146,10 +144,10 @@ export interface IMeem {
 	parentChain: Chain
 	parent: string
 	parentTokenId: number
+	generation: number
 	rootChain: Chain
 	root: string
 	rootTokenId: number
-	generation: number
 	properties: IMeemProperties
 	childProperties: IMeemProperties
 	/** Unix timestamp of when the Meem was minted */

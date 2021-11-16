@@ -331,6 +331,8 @@ export default class MeemService {
 				throw new Error('MISSING_ACCOUNT_ADDRESS')
 			}
 
+			const meemId = uuidv4()
+
 			const isMeemToken =
 				data.tokenAddress.toLowerCase() ===
 				config.MEEM_PROXY_ADDRESS.toLowerCase()
@@ -407,7 +409,8 @@ export default class MeemService {
 					rootTokenAddress: contractInfo.rootTokenAddress,
 					rootTokenId: contractInfo.rootTokenId,
 					rootTokenURI: contractInfo.rootTokenURI,
-					rootTokenMetadata: contractInfo.rootTokenMetadata
+					rootTokenMetadata: contractInfo.rootTokenMetadata,
+					meemId
 				}),
 				data.s3ImagePath
 					? services.storage.deleteObject({ path: data.s3ImagePath })
@@ -457,6 +460,15 @@ export default class MeemService {
 					eventName: MeemAPI.MeemEvent.MeemMinted,
 					data: returnData
 				})
+				const newMeem = await meemContract.getMeem(returnData.tokenId)
+
+				await services.git.updateMeemMetadata({
+					tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/test/meem/${meemId}.json`,
+					generation: newMeem.generation.toNumber(),
+					tokenId: returnData.tokenId,
+					metadataId: meemId
+				})
+
 				return returnData
 			}
 			throw new Error('TRANSFER_EVENT_NOT_FOUND')
