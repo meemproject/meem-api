@@ -65,7 +65,7 @@ functions:
     memorySize: 512
   images:
     handler: build/serverless/handler.handle
-    memorySize: 512
+    memorySize: 768
     events:
       - httpApi:
          method: '*'
