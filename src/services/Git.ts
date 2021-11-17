@@ -26,6 +26,8 @@ export default class GitService {
 		// TODO: Get/Normalize content description
 		// TODO: Get generation?
 		const id = data.meemId || uuidv4()
+		const branchName =
+			config.NETWORK === MeemAPI.NetworkName.Rinkeby ? `test` : `master`
 
 		const octokit = new Octokit({
 			auth: config.GITHUB_KEY
@@ -34,7 +36,7 @@ export default class GitService {
 		const master = await octokit.git.getRef({
 			owner: 'meemproject',
 			repo: 'metadata',
-			ref: 'heads/test'
+			ref: `heads/${branchName}`
 		})
 
 		const treeItems: {
@@ -77,7 +79,7 @@ export default class GitService {
 				? `${data.collectionName} – ${data.name || data.tokenId}`
 				: `${data.name || data.tokenId}`,
 			description: metadataDescription,
-			external_url: `https://meem.wtf/meem/${id}`,
+			external_url: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${id}.json`,
 			meem_properties: {
 				root_token_uri: data.rootTokenURI || data.tokenURI,
 				root_token_address: data.rootTokenAddress || data.tokenAddress,
@@ -88,7 +90,7 @@ export default class GitService {
 				parent_token_address: data.tokenAddress,
 				parent_token_metadata: data.tokenMetadata
 			},
-			image: `https://raw.githubusercontent.com/meemproject/metadata/test/meem/images/${id}.png`,
+			image: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/images/${id}.png`,
 			image_original: data.originalImage
 		}
 
@@ -124,13 +126,13 @@ export default class GitService {
 		await octokit.git.updateRef({
 			owner: 'meemproject',
 			repo: 'metadata',
-			ref: 'heads/test',
+			ref: `heads/${branchName}`,
 			sha: commit.data.sha
 		})
 
 		return {
 			metadata,
-			tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/test/meem/${id}.json`
+			tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${id}.json`
 		}
 	}
 
@@ -140,11 +142,19 @@ export default class GitService {
 		tokenId: number
 		metadataId: string
 	}): Promise<{ metadata: any }> {
+		const branchName =
+			config.NETWORK === MeemAPI.NetworkName.Rinkeby ? `test` : `master`
 		const result = await request.get(data.tokenURI)
 		const metadata = JSON.parse(result.text)
 
+		const meemDomain =
+			config.NETWORK === MeemAPI.NetworkName.Rinkeby
+				? `https://dev.meem.wtf`
+				: `https://meem.wtf`
+
 		metadata.meem_properties.generation = data.generation
 		metadata.meem_properties.token_id = data.tokenId
+		metadata.external_url = `${meemDomain}/meems/${data.tokenId}`
 		metadata.attributes = [
 			{
 				display_type: 'number',
@@ -160,7 +170,7 @@ export default class GitService {
 		const fileBlob = await octokit.repos.getContent({
 			owner: 'meemproject',
 			repo: 'metadata',
-			ref: 'heads/test',
+			ref: `heads/${branchName}`,
 			path: `meem/${data.metadataId}.json`
 		})
 
@@ -173,7 +183,7 @@ export default class GitService {
 			repo: 'metadata',
 			content: base64EncodedMetadata,
 			encoding: 'utf-8',
-			branch: 'test',
+			branch: branchName,
 			path: `meem/${data.metadataId}.json`,
 			message: `Meem Updated: ${data.metadataId}`,
 			sha

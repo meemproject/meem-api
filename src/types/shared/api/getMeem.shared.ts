@@ -19,6 +19,7 @@ export namespace GetMeem {
 
 	export interface IResponseBody extends IApiResponseBody {
 		meem: IMeem
+		metadata: any
 	}
 
 	export interface IDefinition {
