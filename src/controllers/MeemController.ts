@@ -23,10 +23,18 @@ export default class MeemController {
 		const { tokenId } = req.params
 		const meemContract = services.meem.meemContract()
 
-		const meem = await meemContract.getMeem(tokenId)
+		const meem: any = await meemContract.getMeem(tokenId)
+		const tokenURI = await meemContract.tokenURI(tokenId)
+		const metadata = await services.meem.getErc721Metadata(tokenURI)
 
 		// TODO: Clean up this output so it matches IMeem
-		return res.json({ meem: services.meem.meemToInterface(meem) })
+		return res.json({
+			meem: {
+				...services.meem.meemToInterface(meem),
+				tokenURI
+			},
+			metadata
+		})
 	}
 
 	public static async getMeems(
