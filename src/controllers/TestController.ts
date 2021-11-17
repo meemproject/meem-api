@@ -26,4 +26,33 @@ export default class ConfigController {
 			config: { version: config.version }
 		})
 	}
+
+	public static async testWrapped(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		const contract = services.meem.meemContract()
+
+		const result = await contract.wrappedTokens([
+			{
+				chain: MeemAPI.Chain.Rinkeby,
+				contractAddress: '0x3d60EFFFC36bCdD32f8966A0339B6f78Aaff121e',
+				tokenId: 48
+			}
+			// {
+			// 	chain: MeemAPI.Chain.Rinkeby,
+			// 	contractAddress: '0x3d60EFFFC36bCdD32f8966A0339B6f78Aaff121e',
+			// 	tokenId: 49
+			// },
+			// {
+			// 	chain: MeemAPI.Chain.Rinkeby,
+			// 	contractAddress: '0x3d60EFFFC36bCdD32f8966A0339B6f78Aaff121e',
+			// 	tokenId: 50
+			// }
+		])
+
+		return res.json({
+			result
+		})
+	}
 }

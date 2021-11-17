@@ -17,6 +17,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/meems/:tokenId', MeemController.getMeem)
 	router.postAsync('/meems/mint', MeemController.mintMeem)
 	router.postAsync('/meems/create-image', MeemController.createMeemImage)
+	router.postAsync('/meems/getWrappedTokens', MeemController.getWrappedTokens)
 	router.getAsync('/tokenOwner', MeemController.getTokenInfo)
 	router.getAsync('/ipfs', MeemController.getIPFSFile)
 
@@ -24,5 +25,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	if (config.ENABLE_TEST_ENDPOINTS) {
 		router.getAsync('/test/emit', TestController.testEmit)
+		router.getAsync('/test/wrapped', TestController.testWrapped)
 	}
 }
