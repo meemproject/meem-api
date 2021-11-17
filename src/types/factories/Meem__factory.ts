@@ -1000,6 +1000,753 @@ const _abi = [
     type: "event",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "string",
+        name: "mTokenURI",
+        type: "string",
+      },
+      {
+        internalType: "enum Chain",
+        name: "parentChain",
+        type: "uint8",
+      },
+      {
+        internalType: "address",
+        name: "parent",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "parentTokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum Chain",
+        name: "rootChain",
+        type: "uint8",
+      },
+      {
+        internalType: "address",
+        name: "root",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "rootTokenId",
+        type: "uint256",
+      },
+      {
+        components: [
+          {
+            internalType: "int256",
+            name: "totalChildren",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "totalChildrenLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "childrenPerWallet",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "childrenPerWalletLockedBy",
+            type: "address",
+          },
+          {
+            components: [
+              {
+                internalType: "enum Permission",
+                name: "permission",
+                type: "uint8",
+              },
+              {
+                internalType: "address[]",
+                name: "addresses",
+                type: "address[]",
+              },
+              {
+                internalType: "uint256",
+                name: "numTokens",
+                type: "uint256",
+              },
+              {
+                internalType: "address",
+                name: "lockedBy",
+                type: "address",
+              },
+            ],
+            internalType: "struct MeemPermission[]",
+            name: "copyPermissions",
+            type: "tuple[]",
+          },
+          {
+            components: [
+              {
+                internalType: "enum Permission",
+                name: "permission",
+                type: "uint8",
+              },
+              {
+                internalType: "address[]",
+                name: "addresses",
+                type: "address[]",
+              },
+              {
+                internalType: "uint256",
+                name: "numTokens",
+                type: "uint256",
+              },
+              {
+                internalType: "address",
+                name: "lockedBy",
+                type: "address",
+              },
+            ],
+            internalType: "struct MeemPermission[]",
+            name: "remixPermissions",
+            type: "tuple[]",
+          },
+          {
+            components: [
+              {
+                internalType: "enum Permission",
+                name: "permission",
+                type: "uint8",
+              },
+              {
+                internalType: "address[]",
+                name: "addresses",
+                type: "address[]",
+              },
+              {
+                internalType: "uint256",
+                name: "numTokens",
+                type: "uint256",
+              },
+              {
+                internalType: "address",
+                name: "lockedBy",
+                type: "address",
+              },
+            ],
+            internalType: "struct MeemPermission[]",
+            name: "readPermissions",
+            type: "tuple[]",
+          },
+          {
+            internalType: "address",
+            name: "copyPermissionsLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "remixPermissionsLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "readPermissionsLockedBy",
+            type: "address",
+          },
+          {
+            components: [
+              {
+                internalType: "address",
+                name: "toAddress",
+                type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "amount",
+                type: "uint256",
+              },
+              {
+                internalType: "address",
+                name: "lockedBy",
+                type: "address",
+              },
+            ],
+            internalType: "struct Split[]",
+            name: "splits",
+            type: "tuple[]",
+          },
+          {
+            internalType: "address",
+            name: "splitsLockedBy",
+            type: "address",
+          },
+        ],
+        internalType: "struct MeemProperties",
+        name: "mProperties",
+        type: "tuple",
+      },
+      {
+        components: [
+          {
+            internalType: "int256",
+            name: "totalChildren",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "totalChildrenLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "childrenPerWallet",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "childrenPerWalletLockedBy",
+            type: "address",
+          },
+          {
+            components: [
+              {
+                internalType: "enum Permission",
+                name: "permission",
+                type: "uint8",
+              },
+              {
+                internalType: "address[]",
+                name: "addresses",
+                type: "address[]",
+              },
+              {
+                internalType: "uint256",
+                name: "numTokens",
+                type: "uint256",
+              },
+              {
+                internalType: "address",
+                name: "lockedBy",
+                type: "address",
+              },
+            ],
+            internalType: "struct MeemPermission[]",
+            name: "copyPermissions",
+            type: "tuple[]",
+          },
+          {
+            components: [
+              {
+                internalType: "enum Permission",
+                name: "permission",
+                type: "uint8",
+              },
+              {
+                internalType: "address[]",
+                name: "addresses",
+                type: "address[]",
+              },
+              {
+                internalType: "uint256",
+                name: "numTokens",
+                type: "uint256",
+              },
+              {
+                internalType: "address",
+                name: "lockedBy",
+                type: "address",
+              },
+            ],
+            internalType: "struct MeemPermission[]",
+            name: "remixPermissions",
+            type: "tuple[]",
+          },
+          {
+            components: [
+              {
+                internalType: "enum Permission",
+                name: "permission",
+                type: "uint8",
+              },
+              {
+                internalType: "address[]",
+                name: "addresses",
+                type: "address[]",
+              },
+              {
+                internalType: "uint256",
+                name: "numTokens",
+                type: "uint256",
+              },
+              {
+                internalType: "address",
+                name: "lockedBy",
+                type: "address",
+              },
+            ],
+            internalType: "struct MeemPermission[]",
+            name: "readPermissions",
+            type: "tuple[]",
+          },
+          {
+            internalType: "address",
+            name: "copyPermissionsLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "remixPermissionsLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "readPermissionsLockedBy",
+            type: "address",
+          },
+          {
+            components: [
+              {
+                internalType: "address",
+                name: "toAddress",
+                type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "amount",
+                type: "uint256",
+              },
+              {
+                internalType: "address",
+                name: "lockedBy",
+                type: "address",
+              },
+            ],
+            internalType: "struct Split[]",
+            name: "splits",
+            type: "tuple[]",
+          },
+          {
+            internalType: "address",
+            name: "splitsLockedBy",
+            type: "address",
+          },
+        ],
+        internalType: "struct MeemProperties",
+        name: "mChildProperties",
+        type: "tuple",
+      },
+      {
+        internalType: "enum PermissionType",
+        name: "permissionType",
+        type: "uint8",
+      },
+    ],
+    name: "mint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "idx",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "max",
+        type: "uint256",
+      },
+    ],
+    name: "IndexOutOfRange",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidPermissionType",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidPropertyType",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "currentTotalChildren",
+        type: "uint256",
+      },
+    ],
+    name: "InvalidTotalChildren",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "NotTokenOwner",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "lockedBy",
+        type: "address",
+      },
+    ],
+    name: "PropertyLocked",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "TokenNotFound",
+    type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "lockedBy",
+        type: "address",
+      },
+    ],
+    name: "ChildrenPerWalletLocked",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "int256",
+        name: "newTotalChildren",
+        type: "int256",
+      },
+    ],
+    name: "ChildrenPerWalletSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "enum PermissionType",
+        name: "permissionType",
+        type: "uint8",
+      },
+      {
+        components: [
+          {
+            internalType: "enum Permission",
+            name: "permission",
+            type: "uint8",
+          },
+          {
+            internalType: "address[]",
+            name: "addresses",
+            type: "address[]",
+          },
+          {
+            internalType: "uint256",
+            name: "numTokens",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "lockedBy",
+            type: "address",
+          },
+        ],
+        indexed: false,
+        internalType: "struct MeemPermission[]",
+        name: "permission",
+        type: "tuple[]",
+      },
+    ],
+    name: "PermissionsSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "lockedBy",
+        type: "address",
+      },
+    ],
+    name: "TotalChildrenLocked",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "int256",
+        name: "newTotalChildren",
+        type: "int256",
+      },
+    ],
+    name: "TotalChildrenSet",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        internalType: "enum PermissionType",
+        name: "permissionType",
+        type: "uint8",
+      },
+      {
+        components: [
+          {
+            internalType: "enum Permission",
+            name: "permission",
+            type: "uint8",
+          },
+          {
+            internalType: "address[]",
+            name: "addresses",
+            type: "address[]",
+          },
+          {
+            internalType: "uint256",
+            name: "numTokens",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "lockedBy",
+            type: "address",
+          },
+        ],
+        internalType: "struct MeemPermission",
+        name: "permission",
+        type: "tuple",
+      },
+    ],
+    name: "addPermission",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "lockChildrenPerWallet",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "lockTotalChildren",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        internalType: "enum PermissionType",
+        name: "permissionType",
+        type: "uint8",
+      },
+      {
+        internalType: "uint256",
+        name: "idx",
+        type: "uint256",
+      },
+    ],
+    name: "removePermissionAt",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "int256",
+        name: "newTotalChildren",
+        type: "int256",
+      },
+    ],
+    name: "setChildrenPerWallet",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "int256",
+        name: "newTotalChildren",
+        type: "int256",
+      },
+    ],
+    name: "setTotalChildren",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        internalType: "enum PermissionType",
+        name: "permissionType",
+        type: "uint8",
+      },
+      {
+        internalType: "uint256",
+        name: "idx",
+        type: "uint256",
+      },
+      {
+        components: [
+          {
+            internalType: "enum Permission",
+            name: "permission",
+            type: "uint8",
+          },
+          {
+            internalType: "address[]",
+            name: "addresses",
+            type: "address[]",
+          },
+          {
+            internalType: "uint256",
+            name: "numTokens",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "lockedBy",
+            type: "address",
+          },
+        ],
+        internalType: "struct MeemPermission",
+        name: "permission",
+        type: "tuple",
+      },
+    ],
+    name: "updatePermissionAt",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "childDepth",
     outputs: [
@@ -1429,359 +2176,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        internalType: "string",
-        name: "mTokenURI",
-        type: "string",
-      },
-      {
-        internalType: "enum Chain",
-        name: "parentChain",
-        type: "uint8",
-      },
-      {
-        internalType: "address",
-        name: "parent",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "parentTokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "enum Chain",
-        name: "rootChain",
-        type: "uint8",
-      },
-      {
-        internalType: "address",
-        name: "root",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "rootTokenId",
-        type: "uint256",
-      },
-      {
-        components: [
-          {
-            internalType: "int256",
-            name: "totalChildren",
-            type: "int256",
-          },
-          {
-            internalType: "address",
-            name: "totalChildrenLockedBy",
-            type: "address",
-          },
-          {
-            internalType: "int256",
-            name: "childrenPerWallet",
-            type: "int256",
-          },
-          {
-            internalType: "address",
-            name: "childrenPerWalletLockedBy",
-            type: "address",
-          },
-          {
-            components: [
-              {
-                internalType: "enum Permission",
-                name: "permission",
-                type: "uint8",
-              },
-              {
-                internalType: "address[]",
-                name: "addresses",
-                type: "address[]",
-              },
-              {
-                internalType: "uint256",
-                name: "numTokens",
-                type: "uint256",
-              },
-              {
-                internalType: "address",
-                name: "lockedBy",
-                type: "address",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-            name: "copyPermissions",
-            type: "tuple[]",
-          },
-          {
-            components: [
-              {
-                internalType: "enum Permission",
-                name: "permission",
-                type: "uint8",
-              },
-              {
-                internalType: "address[]",
-                name: "addresses",
-                type: "address[]",
-              },
-              {
-                internalType: "uint256",
-                name: "numTokens",
-                type: "uint256",
-              },
-              {
-                internalType: "address",
-                name: "lockedBy",
-                type: "address",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-            name: "remixPermissions",
-            type: "tuple[]",
-          },
-          {
-            components: [
-              {
-                internalType: "enum Permission",
-                name: "permission",
-                type: "uint8",
-              },
-              {
-                internalType: "address[]",
-                name: "addresses",
-                type: "address[]",
-              },
-              {
-                internalType: "uint256",
-                name: "numTokens",
-                type: "uint256",
-              },
-              {
-                internalType: "address",
-                name: "lockedBy",
-                type: "address",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-            name: "readPermissions",
-            type: "tuple[]",
-          },
-          {
-            internalType: "address",
-            name: "copyPermissionsLockedBy",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "remixPermissionsLockedBy",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "readPermissionsLockedBy",
-            type: "address",
-          },
-          {
-            components: [
-              {
-                internalType: "address",
-                name: "toAddress",
-                type: "address",
-              },
-              {
-                internalType: "uint256",
-                name: "amount",
-                type: "uint256",
-              },
-              {
-                internalType: "address",
-                name: "lockedBy",
-                type: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-            name: "splits",
-            type: "tuple[]",
-          },
-          {
-            internalType: "address",
-            name: "splitsLockedBy",
-            type: "address",
-          },
-        ],
-        internalType: "struct MeemProperties",
-        name: "mProperties",
-        type: "tuple",
-      },
-      {
-        components: [
-          {
-            internalType: "int256",
-            name: "totalChildren",
-            type: "int256",
-          },
-          {
-            internalType: "address",
-            name: "totalChildrenLockedBy",
-            type: "address",
-          },
-          {
-            internalType: "int256",
-            name: "childrenPerWallet",
-            type: "int256",
-          },
-          {
-            internalType: "address",
-            name: "childrenPerWalletLockedBy",
-            type: "address",
-          },
-          {
-            components: [
-              {
-                internalType: "enum Permission",
-                name: "permission",
-                type: "uint8",
-              },
-              {
-                internalType: "address[]",
-                name: "addresses",
-                type: "address[]",
-              },
-              {
-                internalType: "uint256",
-                name: "numTokens",
-                type: "uint256",
-              },
-              {
-                internalType: "address",
-                name: "lockedBy",
-                type: "address",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-            name: "copyPermissions",
-            type: "tuple[]",
-          },
-          {
-            components: [
-              {
-                internalType: "enum Permission",
-                name: "permission",
-                type: "uint8",
-              },
-              {
-                internalType: "address[]",
-                name: "addresses",
-                type: "address[]",
-              },
-              {
-                internalType: "uint256",
-                name: "numTokens",
-                type: "uint256",
-              },
-              {
-                internalType: "address",
-                name: "lockedBy",
-                type: "address",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-            name: "remixPermissions",
-            type: "tuple[]",
-          },
-          {
-            components: [
-              {
-                internalType: "enum Permission",
-                name: "permission",
-                type: "uint8",
-              },
-              {
-                internalType: "address[]",
-                name: "addresses",
-                type: "address[]",
-              },
-              {
-                internalType: "uint256",
-                name: "numTokens",
-                type: "uint256",
-              },
-              {
-                internalType: "address",
-                name: "lockedBy",
-                type: "address",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-            name: "readPermissions",
-            type: "tuple[]",
-          },
-          {
-            internalType: "address",
-            name: "copyPermissionsLockedBy",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "remixPermissionsLockedBy",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "readPermissionsLockedBy",
-            type: "address",
-          },
-          {
-            components: [
-              {
-                internalType: "address",
-                name: "toAddress",
-                type: "address",
-              },
-              {
-                internalType: "uint256",
-                name: "amount",
-                type: "uint256",
-              },
-              {
-                internalType: "address",
-                name: "lockedBy",
-                type: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-            name: "splits",
-            type: "tuple[]",
-          },
-          {
-            internalType: "address",
-            name: "splitsLockedBy",
-            type: "address",
-          },
-        ],
-        internalType: "struct MeemProperties",
-        name: "mChildProperties",
-        type: "tuple",
-      },
-      {
-        internalType: "enum PermissionType",
-        name: "permissionType",
-        type: "uint8",
-      },
-    ],
-    name: "mint",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "tokenId",
         type: "uint256",
@@ -1844,395 +2238,37 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "idx",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "max",
-        type: "uint256",
-      },
-    ],
-    name: "IndexOutOfRange",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "InvalidPermissionType",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "InvalidPropertyType",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "currentTotalChildren",
-        type: "uint256",
-      },
-    ],
-    name: "InvalidTotalChildren",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "NotTokenOwner",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "lockedBy",
-        type: "address",
-      },
-    ],
-    name: "PropertyLocked",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "TokenNotFound",
-    type: "error",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "lockedBy",
-        type: "address",
-      },
-    ],
-    name: "ChildrenPerWalletLocked",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "int256",
-        name: "newTotalChildren",
-        type: "int256",
-      },
-    ],
-    name: "ChildrenPerWalletSet",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "enum PropertyType",
-        name: "propertyType",
-        type: "uint8",
-      },
-      {
-        indexed: false,
-        internalType: "enum PermissionType",
-        name: "permissionType",
-        type: "uint8",
-      },
-      {
         components: [
           {
-            internalType: "enum Permission",
-            name: "permission",
+            internalType: "enum Chain",
+            name: "chain",
             type: "uint8",
           },
           {
-            internalType: "address[]",
-            name: "addresses",
-            type: "address[]",
+            internalType: "address",
+            name: "contractAddress",
+            type: "address",
           },
           {
             internalType: "uint256",
-            name: "numTokens",
+            name: "tokenId",
             type: "uint256",
           },
-          {
-            internalType: "address",
-            name: "lockedBy",
-            type: "address",
-          },
         ],
-        indexed: false,
-        internalType: "struct MeemPermission[]",
-        name: "permission",
+        internalType: "struct WrappedItem[]",
+        name: "items",
         type: "tuple[]",
       },
     ],
-    name: "PermissionsSet",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
+    name: "wrappedTokens",
+    outputs: [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "lockedBy",
-        type: "address",
+        internalType: "uint256[]",
+        name: "",
+        type: "uint256[]",
       },
     ],
-    name: "TotalChildrenLocked",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "int256",
-        name: "newTotalChildren",
-        type: "int256",
-      },
-    ],
-    name: "TotalChildrenSet",
-    type: "event",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "enum PropertyType",
-        name: "propertyType",
-        type: "uint8",
-      },
-      {
-        internalType: "enum PermissionType",
-        name: "permissionType",
-        type: "uint8",
-      },
-      {
-        components: [
-          {
-            internalType: "enum Permission",
-            name: "permission",
-            type: "uint8",
-          },
-          {
-            internalType: "address[]",
-            name: "addresses",
-            type: "address[]",
-          },
-          {
-            internalType: "uint256",
-            name: "numTokens",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "lockedBy",
-            type: "address",
-          },
-        ],
-        internalType: "struct MeemPermission",
-        name: "permission",
-        type: "tuple",
-      },
-    ],
-    name: "addPermission",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "lockChildrenPerWallet",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "lockTotalChildren",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "enum PropertyType",
-        name: "propertyType",
-        type: "uint8",
-      },
-      {
-        internalType: "enum PermissionType",
-        name: "permissionType",
-        type: "uint8",
-      },
-      {
-        internalType: "uint256",
-        name: "idx",
-        type: "uint256",
-      },
-    ],
-    name: "removePermissionAt",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "int256",
-        name: "newTotalChildren",
-        type: "int256",
-      },
-    ],
-    name: "setChildrenPerWallet",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "int256",
-        name: "newTotalChildren",
-        type: "int256",
-      },
-    ],
-    name: "setTotalChildren",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "enum PropertyType",
-        name: "propertyType",
-        type: "uint8",
-      },
-      {
-        internalType: "enum PermissionType",
-        name: "permissionType",
-        type: "uint8",
-      },
-      {
-        internalType: "uint256",
-        name: "idx",
-        type: "uint256",
-      },
-      {
-        components: [
-          {
-            internalType: "enum Permission",
-            name: "permission",
-            type: "uint8",
-          },
-          {
-            internalType: "address[]",
-            name: "addresses",
-            type: "address[]",
-          },
-          {
-            internalType: "uint256",
-            name: "numTokens",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "lockedBy",
-            type: "address",
-          },
-        ],
-        internalType: "struct MeemPermission",
-        name: "permission",
-        type: "tuple",
-      },
-    ],
-    name: "updatePermissionAt",
-    outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {

@@ -165,4 +165,16 @@ export default class MeemController {
 		res.setHeader('content-type', type)
 		return res.end(body, 'binary')
 	}
+
+	public static async getWrappedTokens(
+		req: IRequest<MeemAPI.v1.GetWrappedTokens.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetWrappedTokens.IResponseBody>
+	): Promise<any> {
+		const contract = services.meem.meemContract()
+		const tokenIds = await contract.wrappedTokens(req.body.nfts)
+
+		return res.json({
+			tokenIds: tokenIds.map(t => t.toNumber())
+		})
+	}
 }
