@@ -142,10 +142,7 @@ export default class MeemService {
 			const dataIndex = metadata.image.indexOf('base64,')
 			image = Buffer.from(metadata.image.substring(dataIndex + 7), 'base64')
 		} else {
-			const { body, error } = await request.get(metadata.image)
-			if (error) {
-				throw new Error(error.message)
-			}
+			const { body } = await request.get(metadata.image)
 			image = Buffer.from(body)
 		}
 
