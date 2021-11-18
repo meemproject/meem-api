@@ -231,7 +231,14 @@ export default class MeemService {
 			const meemImage = sharp(image)
 
 			const meemImageMetadata = await meemImage.metadata()
-			const meemImageWidth = meemImageMetadata.width || 400
+			let meemImageWidth = meemImageMetadata.width || 400
+
+			// Set max image size to 1024
+			if (meemImageWidth > 1024) {
+				meemImageWidth = meemImageWidth > 1024 ? 1024 : meemImageWidth
+				meemImage.resize(meemImageWidth)
+			}
+
 			const meemBadgeOffset = Math.round(meemImageWidth * 0.02)
 			const meemBadgeWidth = Math.round(meemImageWidth * 0.2)
 
@@ -263,6 +270,8 @@ export default class MeemService {
 	}
 
 	public static async saveMeemMetadataasync(options: {
+		name?: string
+		description?: string
 		imageBase64: string
 		tokenAddress: string
 		tokenId?: number
@@ -276,6 +285,8 @@ export default class MeemService {
 		rootTokenMetadata?: IERC721Metadata
 	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
 		const {
+			name,
+			description,
 			imageBase64,
 			tokenAddress,
 			tokenId,
@@ -300,8 +311,11 @@ export default class MeemService {
 			tokenAddress,
 			tokenId,
 			collectionName,
-			name: parentMetadata.name || '',
-			description: parentMetadata.description || '',
+			name: name || parentMetadata.name || '',
+			description:
+				description || parentMetadata.description || collectionName
+					? `${collectionName} – #${tokenId}`
+					: '',
 			originalImage: parentMetadata.image || '',
 			tokenURI,
 			tokenMetadata: parentMetadata,
@@ -403,6 +417,8 @@ export default class MeemService {
 
 			const [meemMetadata] = await Promise.all([
 				this.saveMeemMetadataasync({
+					name: data.name,
+					description: data.description,
 					collectionName: contractInfo.parentContractMetadata?.name,
 					imageBase64: base64MeemImage,
 					tokenAddress: data.tokenAddress,
