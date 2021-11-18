@@ -16,6 +16,17 @@ export default class MeemController {
 		})
 	}
 
+	public static async getAccessList(
+		req: IRequest<MeemAPI.v1.GetAccessList.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetAccessList.IResponseBody>
+	): Promise<Response> {
+		const access = services.meem.getAccessList()
+
+		return res.json({
+			access
+		})
+	}
+
 	public static async getMeem(
 		req: IRequest<MeemAPI.v1.GetMeem.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeem.IResponseBody>

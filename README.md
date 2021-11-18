@@ -20,6 +20,10 @@ Create a `.env` file and fill out details (see `.env.example`)
 
 `yarn fetchWhitelist` - Fetches whitelist file and places it in `src/lib/`
 
+### Get access list
+
+`yarn fetchAccess` - Fetches access list file and places it in `src/lib/`
+
 ## Services
 
 Get an ethers instance of the Meem contract:
