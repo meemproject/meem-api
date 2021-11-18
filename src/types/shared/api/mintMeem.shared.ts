@@ -17,6 +17,12 @@ export namespace MintMeem {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
+		/** Optional name of the Meem to be stored in the Meem metadata */
+		name?: string
+
+		/** Optional description of the Meem to be stored in the Meem metadata */
+		description?: string
+
 		/** The contract address of the original NFT that is being minted as a Meem */
 		tokenAddress: string
 
