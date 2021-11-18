@@ -121,6 +121,14 @@ const errors = {
 		reason: 'An unknown contract error occurred. Check the API logs.',
 		friendlyReason: 'Sorry, something went wrong'
 	},
+	MINTING_ACCESS_DENIED: {
+		contractErrorCode: 'MintingAccessDenied',
+		httpCode: 400,
+		status: 'failure',
+		reason: 'The account address does not have permission to mint this token.',
+		friendlyReason:
+			'The account address does not have permission to mint this token.'
+	},
 	MISSING_REQUIRED_ROLE: {
 		contractErrorCode: 'MissingRequiredRole',
 		httpCode: 400,

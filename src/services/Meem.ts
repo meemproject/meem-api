@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 import ERC721ABI from '../abis/ERC721.json'
 import MeemABI from '../abis/Meem.json'
 import errors from '../config/errors'
+import meemAccessList from '../lib/meem-access.json'
 import meemWhitelist from '../lib/meem-whitelist.json'
 import { Meem, ERC721 } from '../types'
 import {
@@ -17,6 +18,7 @@ import {
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 import {
+	IAccessList,
 	IERC721Metadata,
 	NetworkName,
 	PermissionType
@@ -169,6 +171,10 @@ export default class MeemService {
 	public static meemInterface() {
 		const inter = new ethers.utils.Interface(MeemABI)
 		return inter
+	}
+
+	public static getAccessList(): IAccessList {
+		return meemAccessList
 	}
 
 	public static getWhitelist() {
@@ -367,6 +373,17 @@ export default class MeemService {
 				}
 			}
 
+			if (!shouldIgnoreWhitelist) {
+				const isAccessAllowed = await this.isAccessAllowed(
+					data.accountAddress,
+					data.tokenAddress
+				)
+
+				if (!isAccessAllowed) {
+					throw new Error('MINTING_ACCESS_DENIED')
+				}
+			}
+
 			const contract = isMeemToken
 				? this.meemContract()
 				: this.erc721Contract({
@@ -534,6 +551,39 @@ export default class MeemService {
 		)
 
 		return !!isValidMeemProject
+	}
+
+	public static async isAccessAllowed(
+		accountAddress: string,
+		contractAddress: string
+	) {
+		let isAccessAllowed = false
+
+		const accessList = await this.getAccessList()
+
+		const accountAccessKey = Object.keys(accessList.addresses).find(
+			address => address.toLowerCase() === accountAddress.toLowerCase()
+		)
+
+		const contractAccessKey = Object.keys(accessList.tokens).find(
+			contractId => contractId.toLowerCase() === contractAddress.toLowerCase()
+		)
+
+		if (contractAccessKey) {
+			const contractAccess = accessList.tokens[contractAccessKey]
+			isAccessAllowed =
+				contractAccess.allAddresses ||
+				!!contractAccess.addresses?.includes(accountAddress)
+		}
+
+		if (!contractAccessKey && accountAccessKey) {
+			const accountAccess = accessList.addresses[accountAccessKey]
+			isAccessAllowed =
+				accountAccess.allTokens ||
+				!!accountAccess.tokens?.includes(contractAddress)
+		}
+
+		return isAccessAllowed
 	}
 
 	public static async getContractInfo(options: {

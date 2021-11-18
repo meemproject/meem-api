@@ -3,6 +3,33 @@ export enum License {
 	Unknown = 'unknown'
 }
 
+export interface IAccessList {
+	addresses: {
+		/* The wallet address to configure access */
+		[address: string]: IAccessAddressListItem
+	}
+	tokens: {
+		/* The token address to confibure access */
+		[address: string]: IAccessTokenListItem
+	}
+}
+
+export interface IAccessAddressListItem {
+	/** Whether to allow mint access to all tokens */
+	allTokens?: boolean
+
+	/** Specific tokens to allow mint access (overriden by allTokens) */
+	tokens?: string[]
+}
+
+export interface IAccessTokenListItem {
+	/** Whether to allow mint access to all addresses */
+	allAddresses?: boolean
+
+	/** Specific addresses to allow mint access for this token (overriden by allAddresses) */
+	addresses?: string[]
+}
+
 export interface IWhitelist {
 	[contractAddress: string]: IWhitelistItem
 }

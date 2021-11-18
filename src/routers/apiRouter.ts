@@ -11,6 +11,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	app.use('/api/1.0/', router)
 	app.use('/images/1.0/', imageRouter)
 
+	router.getAsync('/access', MeemController.getAccessList)
 	router.getAsync('/config', ConfigController.getConfig)
 	router.getAsync('/whitelist', MeemController.getWhitelist)
 	router.getAsync('/meems', MeemController.getMeems)
