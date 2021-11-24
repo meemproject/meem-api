@@ -356,6 +356,7 @@ export default class MeemService {
 
 			const meemId = uuidv4()
 
+			let meemAccess: any
 			const isMeemToken =
 				data.tokenAddress.toLowerCase() ===
 				config.MEEM_PROXY_ADDRESS.toLowerCase()
@@ -363,24 +364,30 @@ export default class MeemService {
 				config.NETWORK === MeemAPI.NetworkName.Rinkeby &&
 				data.shouldIgnoreWhitelist
 
-			if (!isMeemToken && !shouldIgnoreWhitelist) {
+			if (!shouldIgnoreWhitelist) {
+				const access = await this.isAccessAllowed(
+					data.accountAddress,
+					data.tokenAddress
+				)
+
+				meemAccess = access
+
+				if (!meemAccess.isAccessAllowed) {
+					throw new Error('MINTING_ACCESS_DENIED')
+				}
+			}
+
+			if (
+				!isMeemToken &&
+				!shouldIgnoreWhitelist &&
+				!meemAccess.contractAccess?.allTokens
+			) {
 				const isValidMeemProject = await this.isValidMeemProject(
 					data.tokenAddress
 				)
 
 				if (!isValidMeemProject) {
 					throw new Error('INVALID_MEEM_PROJECT')
-				}
-			}
-
-			if (!shouldIgnoreWhitelist) {
-				const isAccessAllowed = await this.isAccessAllowed(
-					data.accountAddress,
-					data.tokenAddress
-				)
-
-				if (!isAccessAllowed) {
-					throw new Error('MINTING_ACCESS_DENIED')
 				}
 			}
 
@@ -558,6 +565,7 @@ export default class MeemService {
 		contractAddress: string
 	) {
 		let isAccessAllowed = false
+		const access: any = {}
 
 		const accessList = await this.getAccessList()
 
@@ -574,6 +582,7 @@ export default class MeemService {
 			isAccessAllowed =
 				contractAccess.allAddresses ||
 				!!contractAccess.addresses?.includes(accountAddress)
+			access.contractAccess = contractAccess
 		}
 
 		if (!contractAccessKey && accountAccessKey) {
@@ -581,9 +590,13 @@ export default class MeemService {
 			isAccessAllowed =
 				accountAccess.allTokens ||
 				!!accountAccess.tokens?.includes(contractAddress)
+			access.accountAccess = accountAccess
 		}
 
-		return isAccessAllowed
+		return {
+			isAccessAllowed,
+			...access
+		}
 	}
 
 	public static async getContractInfo(options: {
