@@ -7,6 +7,10 @@
         "0xEC41a0AAea12ad8F588e5aD0e71A837d83e05792": {
             "allTokens": true,
             "tokens": []
+        },
+        "0x1EcE5F31d84aD3f56DD07B26fBD59816126D8aB5": {
+            "allTokens": true,
+            "tokens": [] 
         }
     },
     "tokens": {}
