@@ -426,25 +426,55 @@ export namespace MeemAPI {
 			export type Response = IResponseBody | IError
 		}
 
-		/** Get Meem */
-		export namespace GetTwitterAuthCallback {
+		/** Get Twitter Access Token */
+		export namespace GetTwitterAccessToken {
 			export interface IPathParams {}
 
 			export const path = (options: IPathParams) =>
-				`/api/1.0/meemid/twitter/callback`
+				`/api/1.0/meemid/twitter/access-token`
 
 			export const method = HttpMethod.Get
 
-			export interface IQueryParams {
-				oauth_token: string
-				oauth_verifier: string
+			export interface IQueryParams {}
+
+			export interface IRequestBody {
+				oauthToken: string
+				oauthTokenSecret: string
+				oauthVerifier: string
 			}
+
+			export interface IResponseBody extends IApiResponseBody {
+				accessToken: string
+				accessTokenSecret: string
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		/** Get Twitter Auth Url */
+		export namespace GetTwitterAuthUrl {
+			export interface IPathParams {}
+
+			export const path = (options: IPathParams) =>
+				`/api/1.0/meemid/twitter/request-url`
+
+			export const method = HttpMethod.Get
+
+			export interface IQueryParams {}
 
 			export interface IRequestBody {}
 
 			export interface IResponseBody extends IApiResponseBody {
-				accessToken: string
-				accessSecret: string
+				url: string
+				oauthToken: string
+				oauthTokenSecret: string
 			}
 
 			export interface IDefinition {

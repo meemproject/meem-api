@@ -1,24 +1,25 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
-/** Get Meem */
-export namespace GetTwitterAuthCallback {
+/** Get Twitter Access Token */
+export namespace GetTwitterAccessToken {
 	export interface IPathParams {}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemid/twitter/callback`
+		`/api/1.0/meemid/twitter/access-token`
 
 	export const method = HttpMethod.Get
 
-	export interface IQueryParams {
-		oauth_token: string
-		oauth_verifier: string
-	}
+	export interface IQueryParams {}
 
-	export interface IRequestBody {}
+	export interface IRequestBody {
+		oauthToken: string
+		oauthTokenSecret: string
+		oauthVerifier: string
+	}
 
 	export interface IResponseBody extends IApiResponseBody {
 		accessToken: string
-		accessSecret: string
+		accessTokenSecret: string
 	}
 
 	export interface IDefinition {

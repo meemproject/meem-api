@@ -1,36 +1,45 @@
 import AWS from 'aws-sdk'
 import { Response } from 'express'
+import TwitterApi from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class MeemController {
 	// TODO: Move to dedicated MeemID controller?
-	public static async getTwitterAuthCallback(
-		req: IRequest<MeemAPI.v1.GetTwitterAuthCallback.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetTwitterAuthCallback.IResponseBody>
+	public static async getTwitterAuthUrl(
+		req: IRequest<MeemAPI.v1.GetTwitterAuthUrl.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetTwitterAuthUrl.IResponseBody>
 	): Promise<Response> {
-		// Exact tokens from query string
-		// eslint-disable-next-line @typescript-eslint/naming-convention
-		const { oauth_token, oauth_verifier } = req.query
-		// TODO: Get the saved oauth_token_secret from session
-		const oauthTokenSecret = ''
-
-		if (!oauth_token || !oauth_verifier || !oauth_token_secret) {
-			return res.status(400).send('You denied the app or your session expired!')
-		}
-
-		// Obtain the persistent tokens
-		// Create a client from temporary tokens
 		const client = new TwitterApi({
-			appKey: CONSUMER_KEY,
-			appSecret: CONSUMER_SECRET,
-			accessToken: oauth_token,
-			accessSecret: oauth_token_secret
+			appKey: config.TWITTER_CONSUMER_KEY,
+			appSecret: config.TWITTER_CONSUMER_SECRET
 		})
+		const authLink = await client.generateAuthLink(
+			config.TWITTER_AUTH_CALLBACK_URL
+		)
 		return res.json({
-			accessToken: '',
-			accessSecret: ''
+			url: authLink.url,
+			oauthToken: authLink.oauth_token,
+			oauthTokenSecret: authLink.oauth_token_secret
+		})
+	}
+
+	public static async getTwitterAccessToken(
+		req: IRequest<MeemAPI.v1.GetTwitterAccessToken.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetTwitterAccessToken.IResponseBody>
+	): Promise<Response> {
+		const data = req.body
+		const client = new TwitterApi({
+			appKey: config.TWITTER_CONSUMER_KEY,
+			appSecret: config.TWITTER_CONSUMER_SECRET,
+			accessToken: data.oauthToken,
+			accessSecret: data.oauthTokenSecret
+		})
+		const loginResult = await client.login(data.oauthVerifier)
+		return res.json({
+			accessToken: loginResult.accessToken,
+			accessTokenSecret: loginResult.accessSecret
 		})
 	}
 

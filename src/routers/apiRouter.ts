@@ -15,8 +15,12 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/config', ConfigController.getConfig)
 	router.getAsync('/whitelist', MeemController.getWhitelist)
 	router.getAsync(
-		'/meemid/twitter/callback',
-		MeemController.getTwitterAuthCallback
+		'/meemid/twitter/request-url',
+		MeemController.getTwitterAuthUrl
+	)
+	router.postAsync(
+		'/meemid/twitter/access-token',
+		MeemController.getTwitterAccessToken
 	)
 	router.getAsync('/meems', MeemController.getMeems)
 	router.getAsync('/meems/:tokenId', MeemController.getMeem)
