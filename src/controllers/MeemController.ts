@@ -5,6 +5,35 @@ import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class MeemController {
+	// TODO: Move to dedicated MeemID controller?
+	public static async getTwitterAuthCallback(
+		req: IRequest<MeemAPI.v1.GetTwitterAuthCallback.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetTwitterAuthCallback.IResponseBody>
+	): Promise<Response> {
+		// Exact tokens from query string
+		// eslint-disable-next-line @typescript-eslint/naming-convention
+		const { oauth_token, oauth_verifier } = req.query
+		// TODO: Get the saved oauth_token_secret from session
+		const oauthTokenSecret = ''
+
+		if (!oauth_token || !oauth_verifier || !oauth_token_secret) {
+			return res.status(400).send('You denied the app or your session expired!')
+		}
+
+		// Obtain the persistent tokens
+		// Create a client from temporary tokens
+		const client = new TwitterApi({
+			appKey: CONSUMER_KEY,
+			appSecret: CONSUMER_SECRET,
+			accessToken: oauth_token,
+			accessSecret: oauth_token_secret
+		})
+		return res.json({
+			accessToken: '',
+			accessSecret: ''
+		})
+	}
+
 	public static async getWhitelist(
 		req: IRequest<MeemAPI.v1.GetWhitelist.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetWhitelist.IResponseBody>

@@ -14,7 +14,6 @@ export interface IEndpoint {
 	requestBody?: IRequestBody
 	responseBody?: IResponseBody
 }
-
 export interface IRequest<TDefinition extends IEndpoint = IEndpoint>
 	extends Omit<Request, 'params' | 'query' | 'body'> {
 	params: TDefinition['pathParams']
