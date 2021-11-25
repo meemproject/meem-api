@@ -4,8 +4,7 @@ import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 export namespace GetTwitterAuthUrl {
 	export interface IPathParams {}
 
-	export const path = (options: IPathParams) =>
-		`/api/1.0/meemid/twitter/request-url`
+	export const path = () => `/api/1.0/meemid/twitter/request-url`
 
 	export const method = HttpMethod.Get
 

@@ -430,10 +430,9 @@ export namespace MeemAPI {
 		export namespace GetTwitterAccessToken {
 			export interface IPathParams {}
 
-			export const path = (options: IPathParams) =>
-				`/api/1.0/meemid/twitter/access-token`
+			export const path = () => `/api/1.0/meemid/twitter/access-token`
 
-			export const method = HttpMethod.Get
+			export const method = HttpMethod.Post
 
 			export interface IQueryParams {}
 
@@ -462,8 +461,7 @@ export namespace MeemAPI {
 		export namespace GetTwitterAuthUrl {
 			export interface IPathParams {}
 
-			export const path = (options: IPathParams) =>
-				`/api/1.0/meemid/twitter/request-url`
+			export const path = () => `/api/1.0/meemid/twitter/request-url`
 
 			export const method = HttpMethod.Get
 
