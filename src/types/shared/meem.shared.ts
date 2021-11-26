@@ -23,6 +23,8 @@ export interface IAccessAddressListItem {
 }
 
 export interface IAccessTokenListItem {
+	chain: Chain
+
 	/** Whether to allow mint access to all addresses */
 	allAddresses?: boolean
 
@@ -35,6 +37,8 @@ export interface IWhitelist {
 }
 
 export interface IWhitelistItem {
+	chain: Chain
+
 	/** The NFT name */
 	name: string
 
@@ -185,4 +189,39 @@ export interface IERC721Metadata {
 	name?: string
 	image?: string
 	description?: string
+}
+
+export interface INFT {
+	/** The address of the contract of the NFT */
+	tokenAddress: string
+	/** The token id of the NFT */
+	tokenId: string
+	/** The type of NFT contract standard */
+	contractType: string
+	/** The address of the owner of the NFT */
+	ownerOf: string
+	/** The blocknumber when the amount or owner changed */
+	blockNumber: string
+	/** The blocknumber when the NFT was minted */
+	blockNumberMinted: string
+	/** The uri to the metadata of the token */
+	tokenUri?: string
+	/** The metadata of the token */
+	metadata?: string
+	/** When the metadata was last updated */
+	syncedAt?: string
+	/** The number of this item the user owns (used by ERC1155) */
+	amount?: string
+	/** The name of the Token contract */
+	name: string
+	/** The symbol of the NFT contract */
+	symbol: string
+}
+
+export interface IChainNFTsResult {
+	total: number
+	page: number
+	pageSize: number
+	chain: Chain
+	nfts: INFT[]
 }

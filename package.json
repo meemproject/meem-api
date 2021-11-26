@@ -53,6 +53,7 @@
 		"@octokit/rest": "^18.12.0",
 		"@sentry/node": "^6.14.0",
 		"@types/sharp": "^0.29.3",
+		"aws-sdk": "^2.1020.0",
 		"bcrypt": "^5.0.1",
 		"bignumber.js": "^9.0.1",
 		"body-parser": "^1.18.2",
@@ -68,6 +69,7 @@
 		"jsonwebtoken": "^8",
 		"lodash": "^4.17.21",
 		"luxon": "^2.0.2",
+		"moralis": "^0.0.135",
 		"pg": "^8.7.1",
 		"sequelize": "^6.9.0",
 		"serverless": "^2.64.1",
@@ -78,8 +80,7 @@
 		"typescript": "^4.4.4",
 		"umzug": "^2.3.0",
 		"uuid": "^8.3.2",
-		"ws": "^8.2.3",
-		"aws-sdk": "^2.1020.0"
+		"ws": "^8.2.3"
 	},
 	"devDependencies": {
 		"@kengoldfarb/semantic-release-config": "^1.0.0",

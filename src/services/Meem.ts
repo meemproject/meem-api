@@ -1,13 +1,15 @@
 import * as path from 'path'
 import { ethers } from 'ethers'
-import { isUndefined as _isUndefined } from 'lodash'
+import _ from 'lodash'
 import sharp from 'sharp'
 import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
 import ERC721ABI from '../abis/ERC721.json'
 import MeemABI from '../abis/Meem.json'
 import errors from '../config/errors'
+import meemAccessListTesting from '../lib/meem-access-testing.json'
 import meemAccessList from '../lib/meem-access.json'
+import meemWhitelistTesting from '../lib/meem-whitelist-testing.json'
 import meemWhitelist from '../lib/meem-whitelist.json'
 import { Meem, ERC721 } from '../types'
 import {
@@ -77,17 +79,15 @@ export default class MeemService {
 		let provider: ethers.providers.Provider
 		switch (networkName) {
 			case NetworkName.Mainnet:
+				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_MAINNET)
+				break
+
 			case NetworkName.Rinkeby:
-				provider = new ethers.providers.InfuraProvider(
-					networkName,
-					config.INFURA_ID
-				)
+				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_RINKEBY)
 				break
 
 			case NetworkName.Polygon:
-				provider = new ethers.providers.JsonRpcProvider(
-					'https://polygon-rpc.com'
-				)
+				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_POLYGON)
 				break
 
 			default:
@@ -153,9 +153,10 @@ export default class MeemService {
 
 	/** Get a Meem contract instance */
 	public static meemContract() {
-		const provider = new ethers.providers.InfuraProvider(
-			config.NETWORK,
-			config.INFURA_ID
+		const provider = new ethers.providers.JsonRpcProvider(
+			config.NETWORK === 'rinkeby'
+				? config.JSON_RPC_RINKEBY
+				: config.JSON_RPC_POLYGON
 		)
 		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 
@@ -174,13 +175,18 @@ export default class MeemService {
 	}
 
 	public static getAccessList(): IAccessList {
-		return meemAccessList
+		return config.ENABLE_WHITELIST_TEST_DATA
+			? _.merge(meemAccessList, meemAccessListTesting)
+			: meemAccessList
 	}
 
 	public static getWhitelist() {
 		const list: Record<string, MeemAPI.IWhitelistItem> = {}
-		Object.keys(meemWhitelist).forEach(k => {
-			const item = (meemWhitelist as MeemAPI.IWhitelist)[k]
+		const whitelist = config.ENABLE_WHITELIST_TEST_DATA
+			? _.merge(meemWhitelist, meemWhitelistTesting)
+			: meemWhitelist
+		Object.keys(whitelist).forEach(k => {
+			const item = (whitelist as MeemAPI.IWhitelist)[k]
 			const license = Object.keys(MeemAPI.License).includes(item.license)
 				? item.license
 				: MeemAPI.License.Unknown
@@ -203,11 +209,11 @@ export default class MeemService {
 				throw new Error('MISSING_TOKEN_ADDRESS')
 			}
 
-			if (_isUndefined(data.chain)) {
+			if (_.isUndefined(data.chain)) {
 				throw new Error('MISSING_CHAIN_ID')
 			}
 
-			if (_isUndefined(data.tokenId)) {
+			if (_.isUndefined(data.tokenId)) {
 				throw new Error('MISSING_TOKEN_ID')
 			}
 
@@ -342,11 +348,11 @@ export default class MeemService {
 				throw new Error('MISSING_TOKEN_ADDRESS')
 			}
 
-			if (_isUndefined(data.chain)) {
+			if (_.isUndefined(data.chain)) {
 				throw new Error('MISSING_CHAIN_ID')
 			}
 
-			if (_isUndefined(data.tokenId)) {
+			if (_.isUndefined(data.tokenId)) {
 				throw new Error('MISSING_TOKEN_ID')
 			}
 
@@ -365,14 +371,13 @@ export default class MeemService {
 				data.shouldIgnoreWhitelist
 
 			if (!shouldIgnoreWhitelist) {
-				const access = await this.isAccessAllowed(
-					data.accountAddress,
-					data.tokenAddress
-				)
+				const isAccessAllowed = await this.isAccessAllowed({
+					chain: data.chain,
+					accountAddress: data.accountAddress,
+					contractAddress: data.tokenAddress
+				})
 
-				meemAccess = access
-
-				if (!meemAccess.isAccessAllowed) {
+				if (!isAccessAllowed) {
 					throw new Error('MINTING_ACCESS_DENIED')
 				}
 			}
@@ -382,9 +387,10 @@ export default class MeemService {
 				!shouldIgnoreWhitelist &&
 				!meemAccess.contractAccess?.allTokens
 			) {
-				const isValidMeemProject = await this.isValidMeemProject(
-					data.tokenAddress
-				)
+				const isValidMeemProject = await this.isValidMeemProject({
+					chain: data.chain,
+					contractAddress: data.tokenAddress
+				})
 
 				if (!isValidMeemProject) {
 					throw new Error('INVALID_MEEM_PROJECT')
@@ -546,7 +552,11 @@ export default class MeemService {
 		}
 	}
 
-	public static async isValidMeemProject(contractAddress: string) {
+	public static async isValidMeemProject(options: {
+		chain: MeemAPI.Chain
+		contractAddress: string
+	}) {
+		const { chain, contractAddress } = options
 		const isMeemToken = contractAddress === config.MEEM_PROXY_ADDRESS
 		if (isMeemToken) {
 			return true
@@ -554,16 +564,20 @@ export default class MeemService {
 		const meemRegistry = await this.getWhitelist()
 
 		const isValidMeemProject = Object.keys(meemRegistry).find(
-			contractId => contractId.toLowerCase() === contractAddress.toLowerCase()
+			contractId =>
+				meemRegistry[contractId].chain === chain &&
+				contractId.toLowerCase() === contractAddress.toLowerCase()
 		)
 
 		return !!isValidMeemProject
 	}
 
-	public static async isAccessAllowed(
-		accountAddress: string,
+	public static async isAccessAllowed(options: {
+		chain: MeemAPI.Chain
+		accountAddress: string
 		contractAddress: string
-	) {
+	}) {
+		const { chain, accountAddress, contractAddress } = options
 		let isAccessAllowed = false
 		const access: any = {}
 
@@ -580,8 +594,10 @@ export default class MeemService {
 		if (contractAccessKey) {
 			const contractAccess = accessList.tokens[contractAccessKey]
 			isAccessAllowed =
-				contractAccess.allAddresses ||
-				!!contractAccess.addresses?.includes(accountAddress)
+				contractAccess.chain === chain &&
+				(contractAccess.allAddresses ||
+					!!contractAccess.addresses?.includes(accountAddress))
+
 			access.contractAccess = contractAccess
 		}
 
@@ -593,10 +609,7 @@ export default class MeemService {
 			access.accountAccess = accountAccess
 		}
 
-		return {
-			isAccessAllowed,
-			...access
-		}
+		return isAccessAllowed
 	}
 
 	public static async getContractInfo(options: {

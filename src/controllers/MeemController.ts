@@ -191,9 +191,24 @@ export default class MeemController {
 	): Promise<any> {
 		const contract = services.meem.meemContract()
 		const tokenIds = await contract.wrappedTokens(req.body.nfts)
+		const wrappedTokens: {
+			chain: MeemAPI.Chain
+			contractAddress: string
+			tokenId: number
+			wrappedTokenId: number
+		}[] = []
+
+		req.body.nfts.forEach((nft, i) => {
+			if (tokenIds[i].toNumber() !== 0) {
+				wrappedTokens.push({
+					...nft,
+					wrappedTokenId: tokenIds[i].toNumber()
+				})
+			}
+		})
 
 		return res.json({
-			tokenIds: tokenIds.map(t => t.toNumber())
+			wrappedTokens
 		})
 	}
 }

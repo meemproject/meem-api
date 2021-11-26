@@ -36,6 +36,9 @@ export namespace MeemAPI {
 		data?: Record<string, any>
 	}
 
+	export type AsyncReturnType<T extends (...args: any) => Promise<any>> =
+		T extends (...args: any) => Promise<infer R> ? R : any
+
 	export enum License {
 		Cc0 = 'cc0',
 		Unknown = 'unknown'
@@ -61,6 +64,8 @@ export namespace MeemAPI {
 	}
 
 	export interface IAccessTokenListItem {
+		chain: Chain
+
 		/** Whether to allow mint access to all addresses */
 		allAddresses?: boolean
 
@@ -73,6 +78,8 @@ export namespace MeemAPI {
 	}
 
 	export interface IWhitelistItem {
+		chain: Chain
+
 		/** The NFT name */
 		name: string
 
@@ -223,6 +230,41 @@ export namespace MeemAPI {
 		name?: string
 		image?: string
 		description?: string
+	}
+
+	export interface INFT {
+		/** The address of the contract of the NFT */
+		tokenAddress: string
+		/** The token id of the NFT */
+		tokenId: string
+		/** The type of NFT contract standard */
+		contractType: string
+		/** The address of the owner of the NFT */
+		ownerOf: string
+		/** The blocknumber when the amount or owner changed */
+		blockNumber: string
+		/** The blocknumber when the NFT was minted */
+		blockNumberMinted: string
+		/** The uri to the metadata of the token */
+		tokenUri?: string
+		/** The metadata of the token */
+		metadata?: string
+		/** When the metadata was last updated */
+		syncedAt?: string
+		/** The number of this item the user owns (used by ERC1155) */
+		amount?: string
+		/** The name of the Token contract */
+		name: string
+		/** The symbol of the NFT contract */
+		symbol: string
+	}
+
+	export interface IChainNFTsResult {
+		total: number
+		page: number
+		pageSize: number
+		chain: Chain
+		nfts: INFT[]
 	}
 
 	export namespace v1 {
@@ -395,6 +437,38 @@ export namespace MeemAPI {
 			export type Response = IResponseBody | IError
 		}
 
+		/** Get NFTs owned by an account */
+		export namespace GetNFTs {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/nfts`
+
+			export const method = HttpMethod.Get
+
+			export interface IQueryParams {
+				address: string
+				/** Limit results to only these chains */
+				chains?: Chain[]
+				offset?: number
+				limit?: number
+			}
+
+			export interface IRequestBody {}
+
+			export interface IResponseBody extends IApiResponseBody {
+				chains: IChainNFTsResult[]
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
 		/** Get Info about Token */
 		export namespace GetTokenInfo {
 			export interface IPathParams {}
@@ -477,8 +551,13 @@ export namespace MeemAPI {
 			}
 
 			export interface IResponseBody extends IApiResponseBody {
-				/** The corresponding Meem tokenId, or 0 if not already wrapped */
-				tokenIds: number[]
+				/** The wrapped tokens */
+				wrappedTokens: {
+					chain: Chain
+					contractAddress: string
+					tokenId: number
+					wrappedTokenId: number
+				}[]
 			}
 
 			export interface IDefinition {

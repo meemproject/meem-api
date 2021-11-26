@@ -67,5 +67,10 @@ export default {
 	WEBSOCKETS_ENABLED: process.env.WEBSOCKETS_ENABLED === 'true',
 	LAMBDA_MINT_FUNCTION: process.env.LAMBDA_MINT_FUNCTION ?? '',
 	DISABLE_ASYNC_MINTING: process.env.DISABLE_ASYNC_MINTING === 'true',
-	S3_BUCKET: process.env.S3_BUCKET ?? ''
+	S3_BUCKET: process.env.S3_BUCKET ?? '',
+	MORALIS_API_KEY: process.env.MORALIS_API_KEY ?? '',
+	JSON_RPC_MAINNET: process.env.JSON_RPC_MAINNET ?? '',
+	JSON_RPC_RINKEBY: process.env.JSON_RPC_RINKEBY ?? '',
+	JSON_RPC_POLYGON: process.env.JSON_RPC_POLYGON ?? '',
+	ENABLE_WHITELIST_TEST_DATA: process.env.ENABLE_WHITELIST_TEST_DATA === 'true'
 }
