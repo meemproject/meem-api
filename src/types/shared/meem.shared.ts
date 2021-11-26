@@ -121,6 +121,23 @@ export const chainToNetworkName = (chain: Chain): NetworkName => {
 	}
 }
 
+/** Convert Chain to friendly, readable network name */
+export const chainToFriendlyNetworkName = (chain: Chain) => {
+	switch (chain) {
+		case Chain.Ethereum:
+			return 'Ethereum'
+
+		case Chain.Rinkeby:
+			return 'Rinkeby'
+
+		case Chain.Polygon:
+			return 'Polygon'
+
+		default:
+			throw new Error('INVALID_CHAIN')
+	}
+}
+
 /** A single split */
 export interface IMeemSplit {
 	toAddress: string

@@ -70,9 +70,67 @@ function handleStringErrorKey(errorKey: string) {
 }
 
 export default class MeemService {
+	public static async getGasEstimate(chain: MeemAPI.NetworkName) {
+		const result = {
+			standard: 30,
+			fast: 30,
+			rapid: 30
+		}
+		switch (chain) {
+			case MeemAPI.NetworkName.Polygon: {
+				try {
+					const { body } = await request.get(
+						'https://gpoly.blockscan.com/gasapi.ashx?apikey=key&method=pendingpooltxgweidata'
+					)
+					if (body.result.standardgaspricegwei) {
+						result.standard = body.result.standardgaspricegwei
+					}
+					if (body.result.fastgaspricegwei) {
+						result.fast = body.result.fastgaspricegwei
+					}
+					if (body.result.rapidgaspricegwei) {
+						result.rapid = body.result.rapidgaspricegwei
+					}
+				} catch (e) {
+					log.warn(e)
+				}
+				break
+			}
+
+			default:
+				log.debug(`Gas estimate not implemented for Chain: ${chain}`)
+				break
+		}
+
+		return result
+	}
+
+	public static getProvider(options: { networkName: MeemAPI.NetworkName }) {
+		const { networkName } = options
+		let provider: ethers.providers.Provider
+		switch (networkName) {
+			case NetworkName.Mainnet:
+				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_MAINNET)
+				break
+
+			case NetworkName.Rinkeby:
+				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_RINKEBY)
+				break
+
+			case NetworkName.Polygon:
+				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_POLYGON)
+				break
+
+			default:
+				throw new Error('INVALID_NETWORK')
+		}
+
+		return provider
+	}
+
 	/** Get generic ERC721 contract instance */
 	public static erc721Contract(options: {
-		networkName: NetworkName
+		networkName: MeemAPI.NetworkName
 		address: string
 	}) {
 		const { networkName, address } = options
@@ -362,39 +420,31 @@ export default class MeemService {
 
 			const meemId = uuidv4()
 
-			let meemAccess: any
+			// let meemAccess: any
 			const isMeemToken =
 				data.tokenAddress.toLowerCase() ===
 				config.MEEM_PROXY_ADDRESS.toLowerCase()
-			const shouldIgnoreWhitelist =
-				config.NETWORK === MeemAPI.NetworkName.Rinkeby &&
-				data.shouldIgnoreWhitelist
+			// const shouldIgnoreWhitelist =
+			// 	config.NETWORK === MeemAPI.NetworkName.Rinkeby &&
+			// 	data.shouldIgnoreWhitelist
 
-			if (!shouldIgnoreWhitelist) {
-				const isAccessAllowed = await this.isAccessAllowed({
-					chain: data.chain,
-					accountAddress: data.accountAddress,
-					contractAddress: data.tokenAddress
-				})
+			const isAccessAllowed = await this.isAccessAllowed({
+				chain: data.chain,
+				accountAddress: data.accountAddress,
+				contractAddress: data.tokenAddress
+			})
 
-				if (!isAccessAllowed) {
-					throw new Error('MINTING_ACCESS_DENIED')
-				}
+			if (!isAccessAllowed) {
+				throw new Error('MINTING_ACCESS_DENIED')
 			}
 
-			if (
-				!isMeemToken &&
-				!shouldIgnoreWhitelist &&
-				!meemAccess.contractAccess?.allTokens
-			) {
-				const isValidMeemProject = await this.isValidMeemProject({
-					chain: data.chain,
-					contractAddress: data.tokenAddress
-				})
+			const isValidMeemProject = await this.isValidMeemProject({
+				chain: data.chain,
+				contractAddress: data.tokenAddress
+			})
 
-				if (!isValidMeemProject) {
-					throw new Error('INVALID_MEEM_PROJECT')
-				}
+			if (!isValidMeemProject) {
+				throw new Error('INVALID_MEEM_PROJECT')
 			}
 
 			const contract = isMeemToken
@@ -468,6 +518,18 @@ export default class MeemService {
 
 			const meemContract = this.meemContract()
 
+			const gasPrices = await this.getGasEstimate(config.NETWORK)
+
+			if (gasPrices.standard > config.MAX_GAS_PRICE_GWEI) {
+				throw new Error('GAS_PRICE_TOO_HIGH')
+			}
+
+			// Use the rapid price as long as it's under our maximum, otherwise fall back to standard
+			const gasPrice =
+				gasPrices.rapid < config.MAX_GAS_PRICE_GWEI
+					? ethers.utils.parseUnits(gasPrices.rapid.toString(), 'gwei')
+					: ethers.utils.parseUnits(gasPrices.standard.toString(), 'gwei')
+
 			const mintParams: Parameters<Meem['mint']> = [
 				data.accountAddress,
 				meemMetadata.tokenURI,
@@ -485,14 +547,19 @@ export default class MeemService {
 					splits: data.childProperties?.splits ?? data.properties?.splits
 				}),
 				// TODO: Set permission type based on copy/remix
-				PermissionType.Copy
+				PermissionType.Copy,
+				{
+					gasPrice
+				}
 			]
 
 			log.debug('Minting meem w/ params', { mintParams })
 
-			const meem = await meemContract.mint(...mintParams)
+			const mintTx = await meemContract.mint(...mintParams)
 
-			const receipt = await meem.wait()
+			log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
+
+			const receipt = await mintTx.wait()
 
 			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
 
@@ -509,14 +576,19 @@ export default class MeemService {
 					eventName: MeemAPI.MeemEvent.MeemMinted,
 					data: returnData
 				})
-				const newMeem = await meemContract.getMeem(returnData.tokenId)
-
-				await services.git.updateMeemMetadata({
-					tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/test/meem/${meemId}.json`,
-					generation: newMeem.generation.toNumber(),
-					tokenId: returnData.tokenId,
-					metadataId: meemId
-				})
+				try {
+					const newMeem = await meemContract.getMeem(returnData.tokenId)
+					const branchName =
+						config.NETWORK === MeemAPI.NetworkName.Rinkeby ? `test` : `master`
+					await services.git.updateMeemMetadata({
+						tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${meemId}.json`,
+						generation: newMeem.generation.toNumber(),
+						tokenId: returnData.tokenId,
+						metadataId: meemId
+					})
+				} catch (updateErr) {
+					log.warn('Error updating Meem metadata', updateErr)
+				}
 
 				return returnData
 			}
