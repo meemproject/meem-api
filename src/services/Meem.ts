@@ -70,41 +70,6 @@ function handleStringErrorKey(errorKey: string) {
 }
 
 export default class MeemService {
-	public static async getGasEstimate(chain: MeemAPI.NetworkName) {
-		const result = {
-			standard: 30,
-			fast: 30,
-			rapid: 30
-		}
-		switch (chain) {
-			case MeemAPI.NetworkName.Polygon: {
-				try {
-					const { body } = await request.get(
-						'https://gpoly.blockscan.com/gasapi.ashx?apikey=key&method=pendingpooltxgweidata'
-					)
-					if (body.result.standardgaspricegwei) {
-						result.standard = body.result.standardgaspricegwei
-					}
-					if (body.result.fastgaspricegwei) {
-						result.fast = body.result.fastgaspricegwei
-					}
-					if (body.result.rapidgaspricegwei) {
-						result.rapid = body.result.rapidgaspricegwei
-					}
-				} catch (e) {
-					log.warn(e)
-				}
-				break
-			}
-
-			default:
-				log.debug(`Gas estimate not implemented for Chain: ${chain}`)
-				break
-		}
-
-		return result
-	}
-
 	public static getProvider(options: { networkName: MeemAPI.NetworkName }) {
 		const { networkName } = options
 		let provider: ethers.providers.Provider
@@ -420,13 +385,9 @@ export default class MeemService {
 
 			const meemId = uuidv4()
 
-			// let meemAccess: any
 			const isMeemToken =
 				data.tokenAddress.toLowerCase() ===
 				config.MEEM_PROXY_ADDRESS.toLowerCase()
-			// const shouldIgnoreWhitelist =
-			// 	config.NETWORK === MeemAPI.NetworkName.Rinkeby &&
-			// 	data.shouldIgnoreWhitelist
 
 			const isAccessAllowed = await this.isAccessAllowed({
 				chain: data.chain,
@@ -438,14 +399,15 @@ export default class MeemService {
 				throw new Error('MINTING_ACCESS_DENIED')
 			}
 
-			const isValidMeemProject = await this.isValidMeemProject({
-				chain: data.chain,
-				contractAddress: data.tokenAddress
-			})
+			// TODO: Remove redundant check and rely only on access?
+			// const isValidMeemProject = await this.isValidMeemProject({
+			// 	chain: data.chain,
+			// 	contractAddress: data.tokenAddress
+			// })
 
-			if (!isValidMeemProject) {
-				throw new Error('INVALID_MEEM_PROJECT')
-			}
+			// if (!isValidMeemProject) {
+			// 	throw new Error('INVALID_MEEM_PROJECT')
+			// }
 
 			const contract = isMeemToken
 				? this.meemContract()
@@ -454,17 +416,11 @@ export default class MeemService {
 						address: data.tokenAddress
 				  })
 
-			const shouldIgnoreOwnership =
-				config.NETWORK === MeemAPI.NetworkName.Rinkeby &&
-				data.shouldIgnoreOwnership
-
-			if (!shouldIgnoreOwnership) {
-				const owner = await contract.ownerOf(data.tokenId)
-				const isNFTOwner =
-					owner.toLowerCase() === data.accountAddress.toLowerCase()
-				if (!isNFTOwner) {
-					throw new Error('TOKEN_NOT_OWNED')
-				}
+			const owner = await contract.ownerOf(data.tokenId)
+			const isNFTOwner =
+				owner.toLowerCase() === data.accountAddress.toLowerCase()
+			if (!isNFTOwner) {
+				throw new Error('TOKEN_NOT_OWNED')
 			}
 
 			const contractInfo = await this.getContractInfo({
@@ -518,17 +474,13 @@ export default class MeemService {
 
 			const meemContract = this.meemContract()
 
-			const gasPrices = await this.getGasEstimate(config.NETWORK)
+			const { recommendedGwei } = await services.web3.getGasEstimate({
+				chain: MeemAPI.networkNameToChain(config.NETWORK)
+			})
 
-			if (gasPrices.standard > config.MAX_GAS_PRICE_GWEI) {
+			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
 				throw new Error('GAS_PRICE_TOO_HIGH')
 			}
-
-			// Use the rapid price as long as it's under our maximum, otherwise fall back to standard
-			const gasPrice =
-				gasPrices.rapid < config.MAX_GAS_PRICE_GWEI
-					? ethers.utils.parseUnits(gasPrices.rapid.toString(), 'gwei')
-					: ethers.utils.parseUnits(gasPrices.standard.toString(), 'gwei')
 
 			const mintParams: Parameters<Meem['mint']> = [
 				data.accountAddress,
@@ -549,7 +501,7 @@ export default class MeemService {
 				// TODO: Set permission type based on copy/remix
 				PermissionType.Copy,
 				{
-					gasPrice
+					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
 				}
 			]
 

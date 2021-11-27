@@ -121,6 +121,23 @@ export const chainToNetworkName = (chain: Chain): NetworkName => {
 	}
 }
 
+/** Convert NetworkName to Chain */
+export const networkNameToChain = (networkName: NetworkName): Chain => {
+	switch (networkName) {
+		case NetworkName.Mainnet:
+			return Chain.Ethereum
+
+		case NetworkName.Rinkeby:
+			return Chain.Rinkeby
+
+		case NetworkName.Polygon:
+			return Chain.Polygon
+
+		default:
+			throw new Error('INVALID_CHAIN')
+	}
+}
+
 /** Convert Chain to friendly, readable network name */
 export const chainToFriendlyNetworkName = (chain: Chain) => {
 	switch (chain) {

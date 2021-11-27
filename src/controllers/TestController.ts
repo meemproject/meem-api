@@ -31,7 +31,10 @@ export default class ConfigController {
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		const gas = await services.meem.getGasEstimate(MeemAPI.NetworkName.Polygon)
+		// const gas = await services.meem.getGasEstimate(MeemAPI.NetworkName.Polygon)
+		const gas = await services.web3.getGasEstimate({
+			chain: MeemAPI.networkNameToChain(config.NETWORK)
+		})
 
 		return res.json({
 			gas
