@@ -1,0 +1,17 @@
+{
+    "addresses": {},
+    "tokens": {
+        "0x6444070d9b4776a2363d1bac287571db11d692eb": {
+            "chain": 1,
+            "allAddresses": true
+        },
+        "0xbbc36838b7b9C5A052f51477FEA23F1Ec4aAcf0c": {
+            "chain": 1,
+            "allAddresses": true
+        },
+        "0x87e5882fa0ea7e391b7e31E8b23a8a38F35C84Ac": {
+            "chain": 4,
+            "allAddresses": true
+        }
+    }
+}

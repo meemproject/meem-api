@@ -24,8 +24,13 @@ export namespace GetWrappedTokens {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The corresponding Meem tokenId, or 0 if not already wrapped */
-		tokenIds: number[]
+		/** The wrapped tokens */
+		wrappedTokens: {
+			chain: Chain
+			contractAddress: string
+			tokenId: number
+			wrappedTokenId: number
+		}[]
 	}
 
 	export interface IDefinition {

@@ -13,6 +13,16 @@ async function downloadMeemABI() {
 		path.join(process.cwd(), 'src', 'lib', 'meem-whitelist.json'),
 		text
 	)
+
+	const { text: testingText } = await request.get(
+		'https://raw.githubusercontent.com/meemproject/meem-registry/master/meem-whitelist-testing.json'
+	)
+
+	await fs.ensureDir(path.join(process.cwd(), 'src', 'lib'))
+	await fs.writeFile(
+		path.join(process.cwd(), 'src', 'lib', 'meem-whitelist-testing.json'),
+		testingText
+	)
 }
 
 downloadMeemABI()
