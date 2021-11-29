@@ -69,6 +69,7 @@
 		"jsonwebtoken": "^8",
 		"lodash": "^4.17.21",
 		"luxon": "^2.0.2",
+		"moralis": "^0.0.135",
 		"pg": "^8.7.1",
 		"sequelize": "^6.9.0",
 		"serverless": "^2.64.1",

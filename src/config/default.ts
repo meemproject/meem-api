@@ -68,6 +68,26 @@ export default {
 	LAMBDA_MINT_FUNCTION: process.env.LAMBDA_MINT_FUNCTION ?? '',
 	DISABLE_ASYNC_MINTING: process.env.DISABLE_ASYNC_MINTING === 'true',
 	S3_BUCKET: process.env.S3_BUCKET ?? '',
+	MORALIS_API_KEY: process.env.MORALIS_API_KEY ?? '',
+	JSON_RPC_MAINNET:
+		process.env.JSON_RPC_MAINNET ??
+		'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/eth/mainnet',
+	JSON_RPC_RINKEBY:
+		process.env.JSON_RPC_RINKEBY ??
+		'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/eth/rinkeby',
+	JSON_RPC_POLYGON:
+		process.env.JSON_RPC_POLYGON ??
+		'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/polygon/mainnet',
+	ENABLE_WHITELIST_TEST_DATA: process.env.ENABLE_WHITELIST_TEST_DATA === 'true',
+	MAX_GAS_PRICE_GWEI: process.env.MAX_GAS_PRICE_GWEI
+		? +process.env.MAX_GAS_PRICE_GWEI
+		: 50,
+	MIN_GASE_PRICE_GWEI: process.env.MIN_GASE_PRICE_GWEI
+		? +process.env.MIN_GASE_PRICE_GWEI
+		: 31,
+	GAS_ESTIMATE_THRESHOLD_GWEI: process.env.GAS_ESTIMATE_THRESHOLD_GWEI
+		? +process.env.GAS_ESTIMATE_THRESHOLD_GWEI
+		: 10,
 	TWITTER_CONSUMER_KEY: process.env.TWITTER_CONSUMER_KEY ?? '',
 	TWITTER_CONSUMER_SECRET: process.env.TWITTER_CONSUMER_SECRET ?? '',
 	TWITTER_AUTH_CALLBACK_URL: process.env.TWITTER_AUTH_CALLBACK_URL ?? ''

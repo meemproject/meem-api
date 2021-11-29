@@ -39,6 +39,14 @@ provider:
     AWS_WEBSOCKET_GATEWAY_URL: ${env:AWS_WEBSOCKET_GATEWAY_URL, ''}
     LAMBDA_MINT_FUNCTION: ${env:LAMBDA_MINT_FUNCTION, ''}
     S3_BUCKET: ${env:S3_BUCKET, ''}
+    MORALIS_API_KEY: ${env:MORALIS_API_KEY, ''}
+    JSON_RPC_MAINNET: ${env:JSON_RPC_MAINNET, 'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/eth/mainnet'}
+    JSON_RPC_RINKEBY: ${env:JSON_RPC_RINKEBY, 'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/eth/rinkeby'}
+    JSON_RPC_POLYGON: ${env:JSON_RPC_POLYGON, 'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/polygon/mainnet'}
+    ENABLE_WHITELIST_TEST_DATA: ${env:ENABLE_WHITELIST_TEST_DATA, 'false'}
+    MAX_GAS_PRICE_GWEI: ${env:MAX_GAS_PRICE_GWEI, '50'}
+    MIN_GASE_PRICE_GWEI: ${env:MIN_GASE_PRICE_GWEI, '31'}
+    GAS_ESTIMATE_THRESHOLD_GWEI: ${env:GAS_ESTIMATE_THRESHOLD_GWEI, '10'}
 
 package:
   excludeDevDependencies: true

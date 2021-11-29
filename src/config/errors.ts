@@ -266,6 +266,13 @@ const errors = {
 		status: 'failure',
 		reason: 'Child Meem depth exceeded. Choose a different Meem.',
 		friendlyReason: 'Child Meem depth exceeded. Choose a different Meem.'
+	},
+	GAS_PRICE_TOO_HIGH: {
+		httpCode: 503,
+		status: 'failure',
+		reason: 'The current gas price is too high. Please wait and try again.',
+		friendlyReason:
+			'The current gas price is too high. Please wait and try again.'
 	}
 }
 
