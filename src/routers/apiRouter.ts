@@ -15,6 +15,8 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/access', MeemController.getAccessList)
 	router.getAsync('/config', ConfigController.getConfig)
 	router.getAsync('/whitelist', MeemController.getWhitelist)
+	router.postAsync('/meemid', MeemController.createOrUpdateMeemId)
+	router.postAsync('/meemids/search', MeemController.searchMeemIds)
 	router.getAsync(
 		'/meemid/twitter/request-url',
 		MeemController.getTwitterAuthUrl

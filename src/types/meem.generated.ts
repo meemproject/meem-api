@@ -301,6 +301,23 @@ export namespace MeemAPI {
 		nfts: INFT[]
 	}
 
+	export enum MeemIdAccountType {
+		Twitter = 'twitter'
+	}
+
+	export interface IMeemIdAccount {
+		type: MeemIdAccountType
+		id: string
+		username?: string
+		name?: string
+	}
+
+	export interface IMeemId {
+		accountAddress: string
+		id: string
+		verifiedAccounts: IMeemIdAccount[]
+	}
+
 	export namespace v1 {
 		/** Create Meem Image */
 		export namespace CreateMeemImage {
@@ -322,6 +339,36 @@ export namespace MeemAPI {
 
 			export interface IResponseBody extends IApiResponseBody {
 				image: string
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		/** Create Meem Image */
+		export namespace CreateOrUpdateMeemId {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/meemid`
+
+			export const method = HttpMethod.Post
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {
+				accountAddress: string
+				id?: string
+				account?: IMeemIdAccount
+			}
+
+			export interface IResponseBody extends IApiResponseBody {
+				meemId: IMeemId
 			}
 
 			export interface IDefinition {
@@ -707,6 +754,34 @@ export namespace MeemAPI {
 				// transactionHash: string
 				// tokenId: number
 				status: 'success'
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		/** Get Meem */
+		export namespace SearchMeemIds {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/meemids/search`
+
+			export const method = HttpMethod.Post
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {
+				accountAddress?: string
+			}
+
+			export interface IResponseBody extends IApiResponseBody {
+				meemIds: IMeemId[]
 			}
 
 			export interface IDefinition {
