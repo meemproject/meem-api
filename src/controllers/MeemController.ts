@@ -43,6 +43,34 @@ export default class MeemController {
 		})
 	}
 
+	public static async getTwitterAccessToken(
+		req: IRequest<MeemAPI.v1.GetTwitterAccessToken.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetTwitterAccessToken.IResponseBody>
+	): Promise<Response> {
+		const data = req.body
+		const client = new TwitterApi({
+			appKey: config.TWITTER_CONSUMER_KEY,
+			appSecret: config.TWITTER_CONSUMER_SECRET,
+			accessToken: data.oauthToken,
+			accessSecret: data.oauthTokenSecret
+		})
+		const loginResult = await client.login(data.oauthVerifier)
+		// TODO: Get user data?
+		if (loginResult.accessToken && loginResult.accessSecret) {
+			services.meem.createOrUpdateMeemIdAccount({
+				accountAddress: data.accountAddress,
+				account: {
+					type: 'twitter',
+					id: ''
+				}
+			})
+		}
+		return res.json({
+			accessToken: loginResult.accessToken,
+			accessTokenSecret: loginResult.accessSecret
+		})
+	}
+
 	public static async getWhitelist(
 		req: IRequest<MeemAPI.v1.GetWhitelist.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetWhitelist.IResponseBody>

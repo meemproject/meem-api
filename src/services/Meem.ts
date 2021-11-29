@@ -20,6 +20,7 @@ import { MeemAPI } from '../types/meem.generated'
 import {
 	IAccessList,
 	IERC721Metadata,
+	IMeemIdAccount,
 	NetworkName,
 	PermissionType
 } from '../types/shared/meem.shared'
@@ -800,6 +801,22 @@ export default class MeemService {
 			toAddress: split[0],
 			amount: split[1].toNumber(),
 			lockedBy: split[2]
+		}
+	}
+
+	public static createOrUpdateMeemIdAccount({
+		account,
+		accountAddress
+	}: {
+		account: IMeemIdAccount
+		accountAddress: string
+	}): MeemAPI.IMeemId {
+		// TODO: Create MeemId contract if one does not exist
+		// TODO: Create/Update private MeemId record with account
+		return {
+			id: '',
+			accountAddress,
+			verifiedAccounts: [account]
 		}
 	}
 }

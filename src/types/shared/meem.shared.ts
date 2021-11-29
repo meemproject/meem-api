@@ -186,3 +186,20 @@ export interface IERC721Metadata {
 	image?: string
 	description?: string
 }
+
+export enum MeemIdAccountType {
+	Twitter = 'twitter'
+}
+
+export interface IMeemIdAccount {
+	type: MeemIdAccountType
+	id: string
+	username?: string
+	name?: string
+}
+
+export interface IMeemId {
+	accountAddress: string
+	id: string
+	verifiedAccounts: IMeemIdAccount[]
+}
