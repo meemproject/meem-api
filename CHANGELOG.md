@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/meemproject/meem-api-aws/compare/v1.1.0...v1.1.1) (2021-11-30)
+
+
+### Bug Fixes
+
+* catch getWrappedTokens error ([3b5555b](https://github.com/meemproject/meem-api-aws/commit/3b5555b))
+
 # [1.1.0](https://github.com/meemproject/meem-api-aws/compare/v1.0.0...v1.1.0) (2021-11-30)
 
 
