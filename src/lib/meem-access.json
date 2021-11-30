@@ -13,5 +13,10 @@
             "tokens": []
         }
     },
-    "tokens": {}
+    "tokens": {
+        "0x1CB1A5e65610AEFF2551A50f76a87a7d3fB649C6": {
+            "chain": 0,
+            "allAddresses": true
+        }
+    }
 }
