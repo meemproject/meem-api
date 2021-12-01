@@ -7,6 +7,7 @@ import Ipfs from '../services/Ipfs'
 import Lint from '../services/Lint'
 import Meem from '../services/Meem'
 import Storage from '../services/Storage'
+import Twitter from '../services/Twitter'
 import Types from '../services/Types'
 import Web3 from '../services/Web3'
 
@@ -20,6 +21,7 @@ declare global {
 		let meem: typeof Meem
 		let storage: typeof Storage
 		let types: typeof Types
+		let twitter: typeof Twitter
 		let web3: typeof Web3
 	}
 }

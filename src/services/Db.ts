@@ -128,4 +128,67 @@ export default class DbService {
 				.promise()
 		}
 	}
+
+	public static async saveTweetsCheckpoint(options: {
+		accountId: string
+		lastTweetId: string
+	}) {
+		const { accountId, lastTweetId } = options
+		const db = new AWS.DynamoDB({
+			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
+		})
+
+		const item: PutItemInputAttributeMap = {
+			accountId: {
+				S: accountId
+			},
+			sinceId: {
+				S: lastTweetId
+			}
+		}
+
+		const items = [
+			{
+				PutRequest: {
+					Item: item
+				}
+			}
+		]
+
+		const result = await db
+			.batchWriteItem({
+				RequestItems: {
+					[config.DYNAMODB_TWEETS_TABLE]: items
+				}
+			})
+			.promise()
+
+		return result
+	}
+
+	public static async getTweetsCheckpoint(options: { accountId: string }) {
+		const { accountId } = options
+		const db = new AWS.DynamoDB({
+			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
+		})
+
+		const result = await db
+			.query({
+				TableName: config.DYNAMODB_TWEETS_TABLE,
+				KeyConditionExpression: '#accountId = :accountId',
+				ExpressionAttributeNames: {
+					'#accountId': 'accountId'
+				},
+				ExpressionAttributeValues: {
+					':accountId': {
+						S: accountId
+					}
+				}
+			})
+			.promise()
+
+		return result.Items && result.Items.length > 0 ? result.Items[0] : null
+	}
 }

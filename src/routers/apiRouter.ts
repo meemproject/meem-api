@@ -3,6 +3,7 @@ import ConfigController from '../controllers/ConfigController'
 import MeemController from '../controllers/MeemController'
 import NFTController from '../controllers/NFTController'
 import TestController from '../controllers/TestController'
+import TweetController from '../controllers/TweetController'
 import extendedRouter from '../core/router'
 
 export default (app: Express, _express: typeof coreExpress) => {
@@ -33,6 +34,9 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/tokenOwner', MeemController.getTokenInfo)
 	router.getAsync('/ipfs', MeemController.getIPFSFile)
 	router.getAsync('/nfts', NFTController.getNFTs)
+
+	// Twitter
+	router.getAsync('/tweets', TweetController.getMeemTweets)
 
 	imageRouter.postAsync('/meems/create-image', MeemController.createMeemImage)
 

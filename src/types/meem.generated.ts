@@ -587,6 +587,32 @@ export namespace MeemAPI {
 			export type Response = IResponseBody | IError
 		}
 
+		/** Get Meem Tweets */
+		export namespace GetMeemTweets {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/tweets`
+
+			export const method = HttpMethod.Get
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {}
+
+			export interface IResponseBody extends IApiResponseBody {
+				tweets: any[]
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
 		/** Get Twitter Access Token */
 		export namespace GetTwitterAccessToken {
 			export interface IPathParams {}
