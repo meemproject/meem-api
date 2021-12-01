@@ -44,6 +44,45 @@ export namespace MeemAPI {
 		Unknown = 'unknown'
 	}
 
+	export interface IWhitelist {
+		[contractAddress: string]: IWhitelistItem
+	}
+
+	export interface IWhitelistItem {
+		/** The chain for the contract */
+		chain: Chain
+
+		/** Whether all holders are whitelisted */
+		allAddresses?: boolean
+
+		/** Specific addresses to allow mint access for this token (overriden by allAddresses) */
+		addresses?: string[]
+
+		/** The NFT name */
+		name: string
+
+		/** The NFT description */
+		description: string
+
+		/** The name of the original NFT creator */
+		creator?: string
+
+		/** The license */
+		license: License
+
+		/** Link to the license */
+		licenseURL?: string
+
+		/** Description of the T&C */
+		terms?: string
+
+		/** Link to the terms and conditions */
+		termsURL?: string
+
+		/** Link to the NFT website */
+		websiteURL?: string
+	}
+
 	export interface IAccessList {
 		addresses: {
 			/* The wallet address to configure access */
@@ -51,7 +90,7 @@ export namespace MeemAPI {
 		}
 		tokens: {
 			/* The token address to confibure access */
-			[address: string]: IAccessTokenListItem
+			[address: string]: IWhitelistItem
 		}
 	}
 
@@ -61,39 +100,6 @@ export namespace MeemAPI {
 
 		/** Specific tokens to allow mint access (overriden by allTokens) */
 		tokens?: string[]
-	}
-
-	export interface IAccessTokenListItem {
-		chain: Chain
-
-		/** Whether to allow mint access to all addresses */
-		allAddresses?: boolean
-
-		/** Specific addresses to allow mint access for this token (overriden by allAddresses) */
-		addresses?: string[]
-	}
-
-	export interface IWhitelist {
-		[contractAddress: string]: IWhitelistItem
-	}
-
-	export interface IWhitelistItem {
-		chain: Chain
-
-		/** The NFT name */
-		name: string
-
-		/** The name of the original NFT creator */
-		creator: string
-
-		/** The license */
-		license: License
-
-		/** Link to the terms and conditions */
-		terms: string
-
-		/** Link to the NFT website */
-		website: string
 	}
 
 	/** The zero address. Used in Meems to denote fields that are not set. */
