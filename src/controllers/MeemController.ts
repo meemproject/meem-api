@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk'
+import { ethers } from 'ethers'
 import { Response } from 'express'
 import TwitterApi from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
@@ -273,7 +274,12 @@ export default class MeemController {
 		res: IResponse<MeemAPI.v1.GetWrappedTokens.IResponseBody>
 	): Promise<any> {
 		const contract = services.meem.meemContract()
-		const tokenIds = await contract.wrappedTokens(req.body.nfts)
+		let tokenIds: ethers.BigNumber[] = []
+		try {
+			tokenIds = await contract.wrappedTokens(req.body.nfts)
+		} catch (e) {
+			log.warn(e)
+		}
 		const wrappedTokens: {
 			chain: MeemAPI.Chain
 			contractAddress: string
@@ -282,7 +288,7 @@ export default class MeemController {
 		}[] = []
 
 		req.body.nfts.forEach((nft, i) => {
-			if (tokenIds[i].toNumber() !== 0) {
+			if (typeof tokenIds[i] !== 'undefined' && tokenIds[i].toNumber() !== 0) {
 				wrappedTokens.push({
 					...nft,
 					wrappedTokenId: tokenIds[i].toNumber()

@@ -9,8 +9,6 @@ import MeemABI from '../abis/Meem.json'
 import errors from '../config/errors'
 import meemAccessListTesting from '../lib/meem-access-testing.json'
 import meemAccessList from '../lib/meem-access.json'
-import meemWhitelistTesting from '../lib/meem-whitelist-testing.json'
-import meemWhitelist from '../lib/meem-whitelist.json'
 import { Meem, ERC721 } from '../types'
 import {
 	MeemPermissionStructOutput,
@@ -199,29 +197,19 @@ export default class MeemService {
 		return inter
 	}
 
-	public static getAccessList(): IAccessList {
-		return config.ENABLE_WHITELIST_TEST_DATA
-			? _.merge(meemAccessList, meemAccessListTesting)
-			: meemAccessList
+	public static getAccessList(): MeemAPI.IAccessList {
+		return (
+			config.ENABLE_WHITELIST_TEST_DATA
+				? _.merge(meemAccessList, meemAccessListTesting)
+				: meemAccessList
+		) as MeemAPI.IAccessList
 	}
 
 	public static getWhitelist() {
-		const list: Record<string, MeemAPI.IWhitelistItem> = {}
-		const whitelist = config.ENABLE_WHITELIST_TEST_DATA
-			? _.merge(meemWhitelist, meemWhitelistTesting)
-			: meemWhitelist
-		Object.keys(whitelist).forEach(k => {
-			const item = (whitelist as MeemAPI.IWhitelist)[k]
-			const license = Object.keys(MeemAPI.License).includes(item.license)
-				? item.license
-				: MeemAPI.License.Unknown
-			list[k] = {
-				...item,
-				license
-			}
-		})
+		const list = this.getAccessList()
+		const whitelist = list.tokens
 
-		return list
+		return whitelist
 	}
 
 	/* Create a badged meem image */
