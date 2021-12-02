@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/meemproject/meem-api-aws/compare/v1.1.2...v1.2.0) (2021-12-01)
+
+
+### Features
+
+* combine whitelist / access ([94a2afe](https://github.com/meemproject/meem-api-aws/commit/94a2afe))
+
 ## [1.1.2](https://github.com/meemproject/meem-api-aws/compare/v1.1.1...v1.1.2) (2021-11-30)
 
 ## [1.1.1](https://github.com/meemproject/meem-api-aws/compare/v1.1.0...v1.1.1) (2021-11-30)
