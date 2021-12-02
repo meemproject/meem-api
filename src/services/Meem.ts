@@ -462,12 +462,14 @@ export default class MeemService {
 
 			const meemContract = this.meemContract()
 
-			const { recommendedGwei } = await services.web3.getGasEstimate({
+			let { recommendedGwei } = await services.web3.getGasEstimate({
 				chain: MeemAPI.networkNameToChain(config.NETWORK)
 			})
 
 			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
-				throw new Error('GAS_PRICE_TOO_HIGH')
+				// throw new Error('GAS_PRICE_TOO_HIGH')
+				log.warn(`Recommended fee over max: ${recommendedGwei}`)
+				recommendedGwei = config.MAX_GAS_PRICE_GWEI
 			}
 
 			const mintParams: Parameters<Meem['mint']> = [
