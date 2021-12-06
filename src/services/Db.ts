@@ -131,38 +131,53 @@ export default class DbService {
 
 	public static async saveTweetsCheckpoint(options: {
 		accountId: string
-		lastTweetId: string
+		sinceId: string
+		newestId: string
+		nextToken: string
 	}) {
-		const { accountId, lastTweetId } = options
-		const db = new AWS.DynamoDB({
+		const { accountId, sinceId, newestId, nextToken } = options
+		const db = new AWS.DynamoDB.DocumentClient({
 			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
 			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
 		})
 
-		const item: PutItemInputAttributeMap = {
-			accountId: {
-				S: accountId
-			},
-			sinceId: {
-				S: lastTweetId
-			}
+		const item: { [key: string]: any } = {
+			accountId,
+			sinceId,
+			newestId,
+			nextToken
 		}
 
-		const items = [
-			{
-				PutRequest: {
-					Item: item
-				}
-			}
-		]
+		let updateExpression = 'set'
+		const expressionAttributeNames: AWS.DynamoDB.ExpressionAttributeNameMap = {}
+		const expressionAttributeValues: AWS.DynamoDB.ExpressionAttributeValueMap =
+			{}
 
-		const result = await db
-			.batchWriteItem({
-				RequestItems: {
-					[config.DYNAMODB_TWEETS_TABLE]: items
-				}
-			})
-			.promise()
+		const itemKeys = Object.keys(item)
+
+		itemKeys.forEach((property, i) => {
+			if (property !== 'accountId') {
+				updateExpression += ` #${property} = :${property}${
+					i < itemKeys.length - 1 ? ',' : ''
+				}`
+				expressionAttributeNames[`#${property}`] = property
+				expressionAttributeValues[`:${property}`] = item[property] || ''
+			}
+		})
+
+		const params: AWS.DynamoDB.UpdateItemInput = {
+			TableName: config.DYNAMODB_TWEETS_TABLE,
+			Key: {
+				accountId: item.accountId
+			},
+			UpdateExpression: updateExpression,
+			ExpressionAttributeNames: expressionAttributeNames,
+			ExpressionAttributeValues: expressionAttributeValues
+		}
+
+		log.debug(params)
+
+		const result = await db.update(params).promise()
 
 		return result
 	}

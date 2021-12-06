@@ -1,3 +1,4 @@
+import { TweetV2 } from 'twitter-api-v2'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
 /** Get Meem Tweets */
@@ -13,7 +14,8 @@ export namespace GetMeemTweets {
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		tweets: any[]
+		tweets: TweetV2[]
+		meta: any
 	}
 
 	export interface IDefinition {

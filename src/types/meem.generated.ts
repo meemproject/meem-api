@@ -600,7 +600,8 @@ export namespace MeemAPI {
 			export interface IRequestBody {}
 
 			export interface IResponseBody extends IApiResponseBody {
-				tweets: any[]
+				tweets: TweetV2[]
+				meta: any
 			}
 
 			export interface IDefinition {

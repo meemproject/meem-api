@@ -11,8 +11,6 @@ export default class TweetController {
 		res: IResponse<MeemAPI.v1.GetMeemTweets.IResponseBody>
 	): Promise<any> {
 		const tweets = await services.twitter.getMeemTweets()
-		return res.json({
-			tweets
-		})
+		return res.json(tweets)
 	}
 }

@@ -2,42 +2,82 @@
 // import request from 'superagent'
 // import { MeemAPI } from '../types/meem.generated'
 
-import { TwitterApi } from 'twitter-api-v2'
+import { TweetV2, TwitterApi } from 'twitter-api-v2'
 import DbService from './Db'
 
 export default class TwitterService {
-	public static async getMeemTweets(): Promise<any[]> {
+	public static async getMeemTweets(): Promise<{
+		tweets: TweetV2[]
+		meta: any
+	}> {
 		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 
 		const tweetCheckpoint = await DbService.getTweetsCheckpoint({
 			accountId: config.TWITTER_MEEM_ACCOUNT_ID
 		})
 
-		log.debug(tweetCheckpoint?.sinceId.S)
-
 		try {
 			const twitterResponse = await client.v2.userMentionTimeline(
 				config.TWITTER_MEEM_ACCOUNT_ID,
 				{
-					max_results: 10,
-					since_id: '721009365688291328',
-					'tweet.fields': ['created_at']
+					max_results: 5,
+					since_id: tweetCheckpoint
+						? tweetCheckpoint?.sinceId.S
+						: config.TWITTER_OLDEST_TWEET_ID,
+					'tweet.fields': ['created_at'],
+					pagination_token:
+						tweetCheckpoint?.nextToken.S !== ''
+							? tweetCheckpoint?.nextToken.S
+							: undefined
 				}
 			)
-			const tweets = twitterResponse.data.data || []
 
-			if (tweets.length > 0) {
-				const lastTweetId = tweets[0].id
+			// If tweet checkpoint does not contain a next token but the response does, save newestId
+			// If tweets response does not contain a next token, change sinceId to newestId and remove next token on checkpoint
+
+			const tweets = twitterResponse.data.data || []
+			const nextToken = twitterResponse.data.meta.next_token
+			const shouldUpdateNewestId =
+				!tweetCheckpoint ||
+				(!!nextToken && tweetCheckpoint.nextToken.S === '') ||
+				(!nextToken &&
+					tweetCheckpoint?.newestId.S === tweetCheckpoint?.sinceId.S)
+
+			if (tweetCheckpoint) {
+				const newestId = shouldUpdateNewestId
+					? twitterResponse.data.meta.newest_id ||
+					  tweetCheckpoint?.newestId.S ||
+					  ''
+					: tweetCheckpoint?.newestId.S || ''
+				const sinceId = !nextToken
+					? newestId || tweetCheckpoint.sinceId.S || ''
+					: tweetCheckpoint.sinceId.S || config.TWITTER_OLDEST_TWEET_ID
+
 				DbService.saveTweetsCheckpoint({
 					accountId: config.TWITTER_MEEM_ACCOUNT_ID,
-					lastTweetId
+					sinceId,
+					newestId,
+					nextToken: nextToken || ''
+				})
+			} else {
+				DbService.saveTweetsCheckpoint({
+					accountId: config.TWITTER_MEEM_ACCOUNT_ID,
+					sinceId: config.TWITTER_OLDEST_TWEET_ID,
+					newestId: twitterResponse.data.meta.newest_id,
+					nextToken: nextToken || ''
 				})
 			}
 
-			return tweets
+			return {
+				tweets,
+				meta: twitterResponse.data.meta
+			}
 		} catch (e) {
 			log.warn(e)
-			return []
+			return {
+				tweets: [],
+				meta: {}
+			}
 		}
 	}
 }
