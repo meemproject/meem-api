@@ -2,10 +2,10 @@ import { TweetV2 } from 'twitter-api-v2'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
 /** Get Meem Tweets */
-export namespace GetMeemTweets {
+export namespace GetMeemActionTweets {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/tweets`
+	export const path = () => `/api/1.0/tweets/action`
 
 	export const method = HttpMethod.Get
 

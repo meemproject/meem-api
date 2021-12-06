@@ -130,19 +130,19 @@ export default class DbService {
 	}
 
 	public static async saveTweetsCheckpoint(options: {
-		accountId: string
+		type: string
 		sinceId: string
 		newestId: string
 		nextToken: string
 	}) {
-		const { accountId, sinceId, newestId, nextToken } = options
+		const { type, sinceId, newestId, nextToken } = options
 		const db = new AWS.DynamoDB.DocumentClient({
 			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
 			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
 		})
 
 		const item: { [key: string]: any } = {
-			accountId,
+			type,
 			sinceId,
 			newestId,
 			nextToken
@@ -156,7 +156,7 @@ export default class DbService {
 		const itemKeys = Object.keys(item)
 
 		itemKeys.forEach((property, i) => {
-			if (property !== 'accountId') {
+			if (property !== 'type') {
 				updateExpression += ` #${property} = :${property}${
 					i < itemKeys.length - 1 ? ',' : ''
 				}`
@@ -166,9 +166,9 @@ export default class DbService {
 		})
 
 		const params: AWS.DynamoDB.UpdateItemInput = {
-			TableName: config.DYNAMODB_TWEETS_TABLE,
+			TableName: config.DYNAMODB_TWEET_CHECKPOINTS_TABLE,
 			Key: {
-				accountId: item.accountId
+				type: item.type
 			},
 			UpdateExpression: updateExpression,
 			ExpressionAttributeNames: expressionAttributeNames,
@@ -182,8 +182,8 @@ export default class DbService {
 		return result
 	}
 
-	public static async getTweetsCheckpoint(options: { accountId: string }) {
-		const { accountId } = options
+	public static async getTweetsCheckpoint(options: { type: string }) {
+		const { type } = options
 		const db = new AWS.DynamoDB({
 			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
 			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
@@ -191,14 +191,14 @@ export default class DbService {
 
 		const result = await db
 			.query({
-				TableName: config.DYNAMODB_TWEETS_TABLE,
-				KeyConditionExpression: '#accountId = :accountId',
+				TableName: config.DYNAMODB_TWEET_CHECKPOINTS_TABLE,
+				KeyConditionExpression: '#type = :type',
 				ExpressionAttributeNames: {
-					'#accountId': 'accountId'
+					'#type': 'type'
 				},
 				ExpressionAttributeValues: {
-					':accountId': {
-						S: accountId
+					':type': {
+						S: type
 					}
 				}
 			})

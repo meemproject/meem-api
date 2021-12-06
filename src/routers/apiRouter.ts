@@ -36,7 +36,8 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/nfts', NFTController.getNFTs)
 
 	// Twitter
-	router.getAsync('/tweets', TweetController.getMeemTweets)
+	router.getAsync('/tweets/mention', TweetController.getMeemMentionTweets)
+	router.getAsync('/tweets/action', TweetController.getMeemActionTweets)
 
 	imageRouter.postAsync('/meems/create-image', MeemController.createMeemImage)
 
