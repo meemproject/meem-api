@@ -227,7 +227,7 @@ export default class Web3 {
 	}
 
 	private static chainToMoralis(chain: MeemAPI.Chain): MoralisChainList {
-		switch (chain) {
+		switch (+chain) {
 			case MeemAPI.Chain.Rinkeby:
 				return 'rinkeby'
 

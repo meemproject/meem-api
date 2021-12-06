@@ -153,7 +153,7 @@ export namespace MeemAPI {
 
 	/** Convert Chain to NetworkName */
 	export const chainToNetworkName = (chain: Chain): NetworkName => {
-		switch (chain) {
+		switch (+chain) {
 			case Chain.Ethereum:
 				return NetworkName.Mainnet
 
@@ -187,7 +187,7 @@ export namespace MeemAPI {
 
 	/** Convert Chain to friendly, readable network name */
 	export const chainToFriendlyNetworkName = (chain: Chain) => {
-		switch (chain) {
+		switch (+chain) {
 			case Chain.Ethereum:
 				return 'Ethereum'
 
@@ -585,8 +585,8 @@ export namespace MeemAPI {
 					chain: Chain
 					/** The original NFT contract address */
 					contractAddress: string
-					/** The original NFT tokenId */
-					tokenId: number
+					/** The original NFT tokenId. Bignumberish */
+					tokenId: string
 				}[]
 			}
 
@@ -595,8 +595,9 @@ export namespace MeemAPI {
 				wrappedTokens: {
 					chain: Chain
 					contractAddress: string
-					tokenId: number
-					wrappedTokenId: number
+					tokenId: string
+					/** The hex string of the wrapped token id */
+					wrappedTokenId: string
 				}[]
 			}
 

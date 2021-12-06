@@ -591,7 +591,8 @@ export default class MeemService {
 		accountAddress: string
 		contractAddress: string
 	}) {
-		const { chain, accountAddress, contractAddress } = options
+		const { accountAddress, contractAddress } = options
+		const chain = +options.chain
 		let isAccessAllowed = false
 		const access: any = {}
 

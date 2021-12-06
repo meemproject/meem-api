@@ -18,8 +18,8 @@ export namespace GetWrappedTokens {
 			chain: Chain
 			/** The original NFT contract address */
 			contractAddress: string
-			/** The original NFT tokenId */
-			tokenId: number
+			/** The original NFT tokenId. Bignumberish */
+			tokenId: string
 		}[]
 	}
 
@@ -28,8 +28,9 @@ export namespace GetWrappedTokens {
 		wrappedTokens: {
 			chain: Chain
 			contractAddress: string
-			tokenId: number
-			wrappedTokenId: number
+			tokenId: string
+			/** The hex string of the wrapped token id */
+			wrappedTokenId: string
 		}[]
 	}
 
