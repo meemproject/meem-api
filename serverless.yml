@@ -105,14 +105,14 @@ functions:
       - websocket: $connect
       - websocket: $disconnect
       - websocket: $default
-  # cron:
-  #   handler: build/serverless/cron.handle
-  #   timeout: 600
-  #   events:
-  #     - schedule:
-  #         rate: rate(30 minutes)
-  #         # CHANGE THIS TO "true" TO RUN CRONS
-  #         enabled: false
-  #         input:
-  #           job: TestCron
+  cron:
+    handler: build/serverless/cron.handle
+    timeout: 600
+    events:
+      - schedule:
+          rate: rate(1 minutes)
+          # CHANGE THIS TO "true" TO RUN CRONS
+          enabled: true
+          input:
+            job: TwitterCron
 
