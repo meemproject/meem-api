@@ -112,7 +112,7 @@ export enum NetworkName {
 
 /** Convert Chain to NetworkName */
 export const chainToNetworkName = (chain: Chain): NetworkName => {
-	switch (chain) {
+	switch (+chain) {
 		case Chain.Ethereum:
 			return NetworkName.Mainnet
 
@@ -146,7 +146,7 @@ export const networkNameToChain = (networkName: NetworkName): Chain => {
 
 /** Convert Chain to friendly, readable network name */
 export const chainToFriendlyNetworkName = (chain: Chain) => {
-	switch (chain) {
+	switch (+chain) {
 		case Chain.Ethereum:
 			return 'Ethereum'
 

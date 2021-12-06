@@ -200,15 +200,15 @@ export default class MeemController {
 		const wrappedTokens: {
 			chain: MeemAPI.Chain
 			contractAddress: string
-			tokenId: number
-			wrappedTokenId: number
+			tokenId: string
+			wrappedTokenId: string
 		}[] = []
 
 		req.body.nfts.forEach((nft, i) => {
 			if (typeof tokenIds[i] !== 'undefined' && tokenIds[i].toNumber() !== 0) {
 				wrappedTokens.push({
 					...nft,
-					wrappedTokenId: tokenIds[i].toNumber()
+					wrappedTokenId: tokenIds[i].toHexString()
 				})
 			}
 		})
