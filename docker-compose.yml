@@ -2,7 +2,6 @@ version: '2'
 services:
     postgres:
         image: postgres
-        restart: always
         ports:
             - "5432:5432"
         environment:
@@ -10,21 +9,21 @@ services:
             POSTGRES_USER: localuser
             POSTGRES_DB: local
 
-    redis:
-        image: redis
-        ports:
-            - "6379:6379"
+    # redis:
+    #     image: redis
+    #     ports:
+    #         - "6379:6379"
 
-    # Used to build and deploy to aws via serverless
-    # Building node_modules on non-linux systems can cause runtime errors
-    linux:
-        build: docker/lambda
-        container_name: deploy_linux
-        tty: true
-        volumes:
-            - "./src:/app/src"
-            - "./package.json:/app/package.json"
-            - "./tsconfig.json:/app/tsconfig.json"
-            - "./serverless.yml:/app/serverless.yml"
-            - "./.yarnclean.ci:/app/.yarnclean"
-            - "./yarn.lock:/app/yarn.lock"
+    # # Used to build and deploy to aws via serverless
+    # # Building node_modules on non-linux systems can cause runtime errors
+    # linux:
+    #     build: docker/lambda
+    #     container_name: deploy_linux
+    #     tty: true
+    #     volumes:
+    #         - "./src:/app/src"
+    #         - "./package.json:/app/package.json"
+    #         - "./tsconfig.json:/app/tsconfig.json"
+    #         - "./serverless.yml:/app/serverless.yml"
+    #         - "./.yarnclean.ci:/app/.yarnclean"
+    #         - "./yarn.lock:/app/yarn.lock"

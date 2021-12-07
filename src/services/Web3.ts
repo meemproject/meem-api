@@ -220,6 +220,15 @@ export default class Web3 {
 		return result
 	}
 
+	public static toBigNumber(
+		val: BigNumber.Value | ethers.BigNumberish
+	): ethers.BigNumber {
+		const bn = new BigNumber(val as BigNumber.Value)
+		const ebn = ethers.BigNumber.from(`0x${bn.toString(16)}`)
+
+		return ebn
+	}
+
 	private static async startMoralis() {
 		await Moralis.Web3API.initialize({
 			apiKey: config.MORALIS_API_KEY

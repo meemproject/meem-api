@@ -57,6 +57,7 @@ export default {
 	NETWORK: (process.env.NETWORK ?? 'rinkeby') as MeemAPI.NetworkName,
 	WALLET_PRIVATE_KEY: process.env.WALLET_PRIVATE_KEY ?? '',
 	MEEM_PROXY_ADDRESS: process.env.MEEM_PROXY_ADDRESS ?? '',
+	MEEM_ID_PROXY_ADDRESS: process.env.MEEM_ID_PROXY_ADDRESS ?? '',
 	INFURA_ID: process.env.INFURA_ID ?? '',
 	IPFS_CONTENT_GATEWAY_URL:
 		process.env.IPFS_CONTENT_GATEWAY_URL ?? 'https://gateway.ipfs.io',

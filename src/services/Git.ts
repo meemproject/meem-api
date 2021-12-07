@@ -1,4 +1,5 @@
 import { Octokit } from '@octokit/rest'
+import { ethers } from 'ethers'
 import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
 import { MeemAPI } from '../types/meem.generated'
@@ -13,11 +14,11 @@ export default class GitService {
 		originalImage: string
 		tokenURI: string
 		tokenAddress: string
-		tokenId?: number
+		tokenId?: ethers.BigNumberish
 		tokenMetadata: any
 		rootTokenURI?: string
 		rootTokenAddress?: string
-		rootTokenId?: number
+		rootTokenId?: ethers.BigNumberish
 		rootTokenMetadata?: any
 		collectionName?: string
 		meemId?: string
@@ -74,6 +75,13 @@ export default class GitService {
 
 		metadataDescription += `\n\nView on Etherscan: ${etherscanUrl}`
 
+		let rootTokenId = null
+		if (data.rootTokenId) {
+			rootTokenId = services.web3.toBigNumber(data.rootTokenId).toHexString()
+		} else if (data.tokenId) {
+			rootTokenId = services.web3.toBigNumber(data.tokenId).toHexString()
+		}
+
 		const metadata: MeemAPI.IMeemMetadata = {
 			name: data.collectionName
 				? `${data.collectionName} – ${data.name || data.tokenId}`
@@ -83,10 +91,12 @@ export default class GitService {
 			meem_properties: {
 				root_token_uri: data.rootTokenURI || data.tokenURI,
 				root_token_address: data.rootTokenAddress || data.tokenAddress,
-				root_token_id: data.rootTokenId || data.tokenId || null,
+				root_token_id: rootTokenId,
 				root_token_metadata: data.rootTokenMetadata || data.tokenMetadata,
 				parent_token_uri: data.tokenURI,
-				parent_token_id: data.tokenId || null,
+				parent_token_id: data.tokenId
+					? services.web3.toBigNumber(data.tokenId).toHexString()
+					: null,
 				parent_token_address: data.tokenAddress,
 				parent_token_metadata: data.tokenMetadata
 			},
