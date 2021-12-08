@@ -4,6 +4,7 @@ import MeemController from '../controllers/MeemController'
 import NFTController from '../controllers/NFTController'
 import TestController from '../controllers/TestController'
 import TweetController from '../controllers/TweetController'
+import WebhookController from '../controllers/WebhookController'
 import extendedRouter from '../core/router'
 
 export default (app: Express, _express: typeof coreExpress) => {
@@ -15,6 +16,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	router.getAsync('/access', MeemController.getAccessList)
 	router.getAsync('/config', ConfigController.getConfig)
+	router.getAsync('/runMigrations', ConfigController.runMigrations)
 	router.getAsync('/whitelist', MeemController.getWhitelist)
 	router.postAsync('/meemid', MeemController.createOrUpdateMeemId)
 	router.postAsync('/meemids/search', MeemController.searchMeemIds)
@@ -34,6 +36,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/tokenOwner', MeemController.getTokenInfo)
 	router.getAsync('/ipfs', MeemController.getIPFSFile)
 	router.getAsync('/nfts', NFTController.getNFTs)
+	router.postAsync('/webhook/moralis', WebhookController.handleMoralisWebhook)
 
 	// Twitter
 	router.getAsync('/tweets/mention', TweetController.getMeemMentionTweets)

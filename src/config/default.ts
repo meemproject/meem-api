@@ -10,6 +10,7 @@ export default {
 	errors,
 	PORT: process.env.PORT ?? 1313,
 	SERVER_LISTENING: process.env.SERVER_LISTENING !== 'false',
+	SERVER_ADMIN_KEY: process.env.SERVER_ADMIN_KEY ?? 'xGugNAB2PEX4uY4sPF',
 	SERVERLESS: process.env.SERVERLESS === 'true',
 	LOG_LEVEL: process.env.LOG_LEVEL ?? 'warn',
 	ENABLE_REQUEST_LOGGING: process.env.ENABLE_REQUEST_LOGGING === 'true',
@@ -22,6 +23,7 @@ export default {
 		process.env.DATABASE_URL_TESTING ||
 		`sqlite:${__dirname}/../../tmp/testing.db`,
 	DISABLE_MIGRATIONS: process.env.DISABLE_MIGRATIONS === 'true',
+	DISABLE_ORM_SYNC: process.env.DISABLE_ORM_SYNC === 'true',
 	DATABASE_POOL_MAX: process.env.DATABASE_POOL_MAX
 		? +process.env.DATABASE_POOL_MAX
 		: 5,
@@ -57,6 +59,7 @@ export default {
 	NETWORK: (process.env.NETWORK ?? 'rinkeby') as MeemAPI.NetworkName,
 	WALLET_PRIVATE_KEY: process.env.WALLET_PRIVATE_KEY ?? '',
 	MEEM_PROXY_ADDRESS: process.env.MEEM_PROXY_ADDRESS ?? '',
+	MEEM_ID_PROXY_ADDRESS: process.env.MEEM_ID_PROXY_ADDRESS ?? '',
 	INFURA_ID: process.env.INFURA_ID ?? '',
 	IPFS_CONTENT_GATEWAY_URL:
 		process.env.IPFS_CONTENT_GATEWAY_URL ?? 'https://gateway.ipfs.io',

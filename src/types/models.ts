@@ -1,11 +1,9 @@
-import Socket from '../models/Socket'
-import SocketSubscription from '../models/SocketSubscription'
-import User from '../models/User'
+import Meem from '../models/Meem'
+import Tweet from '../models/Tweet'
 
 export interface IModels {
-	Socket: typeof Socket
-	SocketSubscription: typeof SocketSubscription
-	User: typeof User
+	Meem: typeof Meem
+	Tweet: typeof Tweet
 }
 
 export type AppModel = IModels[keyof IModels]

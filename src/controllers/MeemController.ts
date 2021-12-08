@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk'
+import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import { Response } from 'express'
 import TwitterApi from 'twitter-api-v2'
@@ -275,8 +276,14 @@ export default class MeemController {
 	): Promise<any> {
 		const contract = services.meem.meemContract()
 		let tokenIds: ethers.BigNumber[] = []
+
+		const nfts = req.body.nfts.map(n => ({
+			...n,
+			tokenId: services.web3.toBigNumber(n.tokenId)
+		}))
+
 		try {
-			tokenIds = await contract.wrappedTokens(req.body.nfts)
+			tokenIds = await contract.wrappedTokens(nfts)
 		} catch (e) {
 			log.warn(e)
 		}
@@ -287,10 +294,11 @@ export default class MeemController {
 			wrappedTokenId: string
 		}[] = []
 
-		req.body.nfts.forEach((nft, i) => {
+		nfts.forEach((nft, i) => {
 			if (typeof tokenIds[i] !== 'undefined' && tokenIds[i].toNumber() !== 0) {
 				wrappedTokens.push({
 					...nft,
+					tokenId: nft.tokenId.toHexString(),
 					wrappedTokenId: tokenIds[i].toHexString()
 				})
 			}

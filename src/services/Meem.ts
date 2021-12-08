@@ -299,14 +299,14 @@ export default class MeemService {
 		description?: string
 		imageBase64: string
 		tokenAddress: string
-		tokenId?: number
+		tokenId?: ethers.BigNumberish
 		collectionName?: string
 		parentMetadata: IERC721Metadata
 		tokenURI: string
 		meemId?: string
 		rootTokenURI?: string
 		rootTokenAddress?: string
-		rootTokenId?: number
+		rootTokenId?: ethers.BigNumberish
 		rootTokenMetadata?: IERC721Metadata
 	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
 		const {
@@ -631,7 +631,7 @@ export default class MeemService {
 
 	public static async getContractInfo(options: {
 		contractAddress: string
-		tokenId: number
+		tokenId: ethers.BigNumberish
 		networkName: NetworkName
 	}) {
 		const { contractAddress, tokenId, networkName } = options
@@ -666,7 +666,7 @@ export default class MeemService {
 			const meemContract = this.meemContract()
 			const meem = await meemContract.getMeem(tokenId)
 			rootTokenAddress = meem.root
-			rootTokenId = meem.rootTokenId.toNumber()
+			rootTokenId = meem.rootTokenId
 
 			const meemInfo = await this.getMetadata({
 				contract: meemContract,
@@ -697,7 +697,7 @@ export default class MeemService {
 
 	public static async getMetadata(options: {
 		contract: ERC721 | Meem
-		tokenId: number
+		tokenId: ethers.BigNumberish
 	}) {
 		const { contract, tokenId } = options
 		const tokenURI = await contract.tokenURI(tokenId)
