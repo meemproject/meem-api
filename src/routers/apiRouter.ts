@@ -3,6 +3,7 @@ import ConfigController from '../controllers/ConfigController'
 import MeemController from '../controllers/MeemController'
 import NFTController from '../controllers/NFTController'
 import TestController from '../controllers/TestController'
+import WebhookController from '../controllers/WebhookController'
 import extendedRouter from '../core/router'
 
 export default (app: Express, _express: typeof coreExpress) => {
@@ -14,6 +15,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	router.getAsync('/access', MeemController.getAccessList)
 	router.getAsync('/config', ConfigController.getConfig)
+	router.getAsync('/runMigrations', ConfigController.runMigrations)
 	router.getAsync('/whitelist', MeemController.getWhitelist)
 	router.getAsync('/meems', MeemController.getMeems)
 	router.getAsync('/meems/:tokenId', MeemController.getMeem)
@@ -23,6 +25,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/tokenOwner', MeemController.getTokenInfo)
 	router.getAsync('/ipfs', MeemController.getIPFSFile)
 	router.getAsync('/nfts', NFTController.getNFTs)
+	router.postAsync('/webhook/moralis', WebhookController.handleMoralisWebhook)
 
 	imageRouter.postAsync('/meems/create-image', MeemController.createMeemImage)
 

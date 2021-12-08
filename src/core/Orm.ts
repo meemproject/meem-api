@@ -107,11 +107,15 @@ export default class ORM {
 			await this.runMigrations()
 		}
 
-		log.info('Start Sync ORM')
 		try {
-			await this.sequelize.sync({
-				force: config.ORM_FORCE_SYNC
-			})
+			if (!config.DISABLE_ORM_SYNC) {
+				log.info('Start Sync ORM')
+				await this.sequelize.sync({
+					force: config.ORM_FORCE_SYNC
+				})
+			} else {
+				log.info('ORM sync disabled')
+			}
 		} catch (e) {
 			log.warn(e)
 		}
@@ -160,7 +164,7 @@ export default class ORM {
 		})
 	}
 
-	private async runMigrations() {
+	public async runMigrations() {
 		const umzug = new Umzug({
 			storage: 'sequelize',
 			storageOptions: {

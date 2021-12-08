@@ -47,6 +47,8 @@ provider:
     MAX_GAS_PRICE_GWEI: ${env:MAX_GAS_PRICE_GWEI, '50'}
     MIN_GASE_PRICE_GWEI: ${env:MIN_GASE_PRICE_GWEI, '31'}
     GAS_ESTIMATE_THRESHOLD_GWEI: ${env:GAS_ESTIMATE_THRESHOLD_GWEI, '10'}
+    DISABLE_MIGRATIONS: ${env:DISABLE_MIGRATIONS, 'true'}
+    DISABLE_ORM_SYNC: ${env:DISABLE_ORM_SYNC, 'true'}
 
 package:
   excludeDevDependencies: true

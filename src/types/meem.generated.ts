@@ -218,11 +218,11 @@ export namespace MeemAPI {
 		meem_properties: {
 			root_token_uri: string
 			root_token_address: string
-			root_token_id: number | null
+			root_token_id: string | null
 			root_token_metadata: any
 			parent_token_uri: any | null
 			parent_token_address: string | null
-			parent_token_id: number | null
+			parent_token_id: string | null
 			parent_token_metadata: any | null
 		}
 	}
