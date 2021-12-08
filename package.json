@@ -47,7 +47,9 @@
 		"generateTypes": "typechain --target=ethers-v5 'src/abis/*.json' --out-dir='src/types'",
 		"fetchMeemABI": "tsnd --transpile-only src/scripts/fetchMeemABI.ts",
 		"fetchWhitelist": "tsnd --transpile-only src/scripts/fetchWhitelist.ts",
-		"fetchAccess": "tsnd --transpile-only src/scripts/fetchAccess.ts"
+		"fetchAccess": "tsnd --transpile-only src/scripts/fetchAccess.ts",
+		"fetchMeemIdABI": "tsnd --transpile-only src/scripts/fetchMeemIdABI.ts",
+		"fetchMeemMarketABI": "tsnd --transpile-only src/scripts/fetchMeemMarketABI.ts"
 	},
 	"dependencies": {
 		"@kengoldfarb/log": "^1.0.3",
