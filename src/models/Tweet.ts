@@ -45,5 +45,8 @@ export default class Tweet extends BaseModel<Tweet> {
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.Meem)
+		this.belongsToMany(models.Hashtag, {
+			through: models.TweetHashtag
+		})
 	}
 }

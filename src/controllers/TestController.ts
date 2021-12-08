@@ -1,4 +1,8 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response } from 'express'
+import { DateTime, Duration } from 'luxon'
+import { Op } from 'sequelize'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ConfigController {
@@ -62,6 +66,42 @@ export default class ConfigController {
 
 		return res.json({
 			result
+		})
+	}
+
+	public static async testTweets(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		const tweet = await orm.models.Tweet.findOne({
+			where: {
+				tweetId: 'blahblah'
+			}
+		})
+
+		const since = DateTime.now().minus(
+			Duration.fromObject({
+				hours: 1
+			})
+		)
+
+		const tweets = await orm.models.Tweet.findAll({
+			where: {
+				createdAt: {
+					[Op.gt]: since.toJSDate()
+				}
+			}
+		})
+
+		const tweetWithHashtags = await orm.models.Tweet.findOne({
+			where: {
+				tweetId: 'blahblah'
+			},
+			include: [orm.models.Hashtag]
+		})
+
+		return res.json({
+			status: 'success'
 		})
 	}
 }
