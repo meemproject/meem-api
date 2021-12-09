@@ -2,10 +2,10 @@ import { TweetV2 } from 'twitter-api-v2'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
 /** Get Meem Tweets */
-export namespace GetMeemActionTweets {
+export namespace GetTweets {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/tweets/action`
+	export const path = () => `/api/1.0/tweets`
 
 	export const method = HttpMethod.Get
 
@@ -15,7 +15,6 @@ export namespace GetMeemActionTweets {
 
 	export interface IResponseBody extends IApiResponseBody {
 		tweets: TweetV2[]
-		meta: any
 	}
 
 	export interface IDefinition {

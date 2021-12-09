@@ -39,8 +39,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/webhook/moralis', WebhookController.handleMoralisWebhook)
 
 	// Twitter
-	router.getAsync('/tweets/mention', TweetController.getMeemMentionTweets)
-	router.getAsync('/tweets/action', TweetController.getMeemActionTweets)
+	router.getAsync('/tweets', TweetController.getTweets)
 
 	imageRouter.postAsync('/meems/create-image', MeemController.createMeemImage)
 

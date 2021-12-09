@@ -7,14 +7,13 @@ import {
 	TweetStream,
 	TwitterApi,
 	TweetV2,
-	TweetV2SingleStreamResult,
-	UserV2
+	TweetV2SingleStreamResult
 } from 'twitter-api-v2'
 import Tweet from '../models/Tweet'
 import DbService from './Db'
 
 export default class TwitterService {
-	public static async getMeemMentionTweets(): Promise<{
+	public static async getMeemMentionTweetsFromTwitter(): Promise<{
 		tweets: TweetV2[]
 		meta: any
 	}> {
@@ -91,30 +90,27 @@ export default class TwitterService {
 		}
 	}
 
-	public static async getMeemActionTweets(): Promise<{
+	public static async getMeemActionTweetsFromTwitter(action: string): Promise<{
 		tweets: TweetV2[]
 		meta: any
 	}> {
 		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 
 		const tweetCheckpoint = await DbService.getTweetsCheckpoint({
-			type: 'action_meem'
+			type: `action_${action}`
 		})
 
 		try {
 			// TODO: Swap out TWITTER_MEEM_ACTION for actual TWITTER_MEEM_ACTION and delete action_meem checkpoint ind DB
-			const twitterResponse = await client.v2.search(
-				`#${config.TWITTER_MEEM_ACTION}`,
-				{
-					max_results: 10,
-					since_id: tweetCheckpoint ? tweetCheckpoint?.sinceId.S : undefined,
-					'tweet.fields': ['created_at'],
-					next_token:
-						tweetCheckpoint?.nextToken.S !== ''
-							? tweetCheckpoint?.nextToken.S
-							: undefined
-				}
-			)
+			const twitterResponse = await client.v2.search(`\\${action}`, {
+				max_results: 10,
+				since_id: tweetCheckpoint ? tweetCheckpoint?.sinceId.S : undefined,
+				'tweet.fields': ['created_at'],
+				next_token:
+					tweetCheckpoint?.nextToken.S !== ''
+						? tweetCheckpoint?.nextToken.S
+						: undefined
+			})
 
 			const tweets = twitterResponse.data.data || []
 
@@ -165,6 +161,15 @@ export default class TwitterService {
 		}
 	}
 
+	public static async getTweets(): Promise<Tweet[]> {
+		const tweets = await orm.models.Tweet.findAll({
+			limit: 100,
+			order: [['createdAt', 'DESC']]
+		})
+
+		return tweets
+	}
+
 	public static async connectToTwitterStream(): Promise<TweetStream> {
 		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 		try {
@@ -201,7 +206,7 @@ export default class TwitterService {
 					// 		includes: eventData.includes,
 					// 		matching_rules: eventData.matching_rules
 					// 	})
-					TwitterService.handleTweet(eventData)
+					TwitterService.mintAndStoreTweet(eventData)
 				}
 			)
 
@@ -221,7 +226,7 @@ export default class TwitterService {
 		}
 	}
 
-	private static async handleTweet(
+	private static async mintAndStoreTweet(
 		event: TweetV2SingleStreamResult
 	): Promise<void> {
 		// TODO: check whitelist for twitter user ID
