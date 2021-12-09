@@ -9,6 +9,7 @@ import {
 	TweetV2,
 	TweetV2SingleStreamResult
 } from 'twitter-api-v2'
+import Hashtag from '../models/Hashtag'
 import Tweet from '../models/Tweet'
 import DbService from './Db'
 
@@ -163,6 +164,13 @@ export default class TwitterService {
 
 	public static async getTweets(): Promise<Tweet[]> {
 		const tweets = await orm.models.Tweet.findAll({
+			include: {
+				model: Hashtag,
+				attributes: ['id', 'tag'],
+				through: {
+					attributes: []
+				}
+			},
 			limit: 100,
 			order: [['createdAt', 'DESC']]
 		})
