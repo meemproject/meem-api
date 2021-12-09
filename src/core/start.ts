@@ -101,6 +101,7 @@ export default async function start() {
 	if (!config.ORM_DISABLE) {
 		promises.push(orm.init())
 	}
+
 	await Promise.all(promises)
 
 	let port = config.PORT
@@ -120,6 +121,10 @@ export default async function start() {
 			canSubscribe: socketsConfig.canSubscribe,
 			adapters: socketsConfig.adapters
 		})
+	}
+
+	if (!config.DISABLE_TWITTER_STREAM) {
+		g.twitterStream = await services.twitter.connectToTwitterStream()
 	}
 
 	if (config.GENERATE_SHARED_TYPES) {

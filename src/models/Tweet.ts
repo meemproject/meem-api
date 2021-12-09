@@ -28,7 +28,15 @@ export default class Tweet extends BaseModel<Tweet> {
 			type: DataTypes.STRING,
 			allowNull: false
 		},
+		sanitizedText: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
 		username: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		userProfileImageUrl: {
 			type: DataTypes.STRING,
 			allowNull: false
 		}
@@ -40,8 +48,14 @@ export default class Tweet extends BaseModel<Tweet> {
 
 	public text!: string
 
+	/** The tweet text with meem actions removed */
+	public sanitizedText!: string
+
 	/** The twitter username */
 	public username!: string
+
+	/** URL for the twitter user's profile picture */
+	public userProfileImageUrl!: string
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.Meem)

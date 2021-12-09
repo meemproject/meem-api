@@ -2,7 +2,15 @@
 // import request from 'superagent'
 // import { MeemAPI } from '../types/meem.generated'
 
-import { TweetV2, TwitterApi } from 'twitter-api-v2'
+import {
+	ETwitterStreamEvent,
+	TweetStream,
+	TwitterApi,
+	TweetV2,
+	TweetV2SingleStreamResult,
+	UserV2
+} from 'twitter-api-v2'
+import Tweet from '../models/Tweet'
 import DbService from './Db'
 
 export default class TwitterService {
@@ -155,5 +163,110 @@ export default class TwitterService {
 				meta: {}
 			}
 		}
+	}
+
+	public static async connectToTwitterStream(): Promise<TweetStream> {
+		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+		try {
+			const stream = await client.v2.searchStream({
+				'tweet.fields': ['created_at', 'entities'],
+				'user.fields': ['profile_image_url'],
+				expansions: ['author_id']
+			})
+
+			log.trace('Tweet stream connected!')
+
+			// Awaits for a tweet
+			stream.on(
+				// Emitted when Node.js {response} emits a 'error' event (contains its payload).
+				ETwitterStreamEvent.ConnectionError,
+				err => log.debug('Tweet stream connection error!', err)
+			)
+
+			stream.on(
+				// Emitted when Node.js {response} is closed by remote or using .close().
+				ETwitterStreamEvent.ConnectionClosed,
+				() => log.debug('Tweet stream connection has been closed.')
+			)
+
+			stream.on(
+				// Emitted when a Twitter payload (a tweet or not, given the endpoint).
+				ETwitterStreamEvent.Data,
+				async eventData => {
+					// await firebase.db
+					// 	.collection('tweets')
+					// 	.doc(eventData.data.id)
+					// 	.set({
+					// 		...eventData.data,
+					// 		includes: eventData.includes,
+					// 		matching_rules: eventData.matching_rules
+					// 	})
+					TwitterService.handleTweet(eventData)
+				}
+			)
+
+			stream.on(
+				// Emitted when a Twitter sent a signal to maintain connection active
+				ETwitterStreamEvent.DataKeepAlive,
+				() => log.trace('Tweet stream sent a keep-alive packet.')
+			)
+
+			// Enable reconnect feature
+			stream.autoReconnect = true
+
+			return stream
+		} catch (e) {
+			log.error(e)
+			throw new Error('Error connecting to Twitter stream')
+		}
+	}
+
+	private static async handleTweet(
+		event: TweetV2SingleStreamResult
+	): Promise<void> {
+		// TODO: check whitelist for twitter user ID
+		// TODO: if user is whitelisted, store tweet data in db
+		// TODO: mint tweet meem
+		// TODO: in meem webhook, update tweet in db with meem token id
+
+		const hashtags = event.data.entities?.hashtags || []
+		const meemActions = new RegExp('\\\\meem', 'gi')
+
+		let sanitizedText = event.data.text.replace(meemActions, '')
+
+		sanitizedText = sanitizedText.replace(/\s\s+/g, ' ')
+
+		const user = event.includes?.users?.find(u => u.id === event.data.author_id)
+		const tweet = await orm.models.Tweet.create({
+			tweetId: event.data.id,
+			text: event.data.text,
+			sanitizedText: sanitizedText.trim(),
+			username: user?.username || '',
+			userProfileImageUrl: user?.profile_image_url || ''
+		})
+
+		await Promise.all(
+			hashtags.map(async hashtag => {
+				let existingTag = await orm.models.Hashtag.findOne({
+					where: {
+						tag: hashtag.tag
+					}
+				})
+
+				if (!existingTag) {
+					existingTag = await orm.models.Hashtag.create({
+						tag: hashtag.tag
+					})
+				}
+
+				return orm.models.TweetHashtag.create({
+					HashtagId: existingTag.id,
+					TweetId: tweet.id
+				})
+			})
+		)
+
+		// log.debug(event)
+		// log.debug(tweet)
 	}
 }
