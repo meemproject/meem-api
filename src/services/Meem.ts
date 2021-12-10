@@ -485,7 +485,9 @@ export default class MeemService {
 				this.buildProperties(data.properties),
 				this.buildProperties({
 					...data.childProperties,
-					totalChildren: data.childProperties?.totalChildren ?? 0,
+					totalChildren: services.web3
+						.toBigNumber(data.childProperties?.totalChildren ?? 0)
+						.toHexString(),
 					splits: data.childProperties?.splits ?? data.properties?.splits
 				}),
 				// TODO: Set permission type based on copy/remix
@@ -733,7 +735,7 @@ export default class MeemService {
 				{
 					permission: 1,
 					addresses: [],
-					numTokens: 0,
+					numTokens: services.web3.toBigNumber(0).toHexString(),
 					lockedBy: MeemAPI.zeroAddress
 				}
 			],
@@ -741,7 +743,7 @@ export default class MeemService {
 				{
 					permission: 1,
 					addresses: [],
-					numTokens: 0,
+					numTokens: services.web3.toBigNumber(0).toHexString(),
 					lockedBy: MeemAPI.zeroAddress
 				}
 			],
@@ -749,7 +751,7 @@ export default class MeemService {
 				{
 					permission: 1,
 					addresses: [],
-					numTokens: 0,
+					numTokens: services.web3.toBigNumber(0).toHexString(),
 					lockedBy: MeemAPI.zeroAddress
 				}
 			],
@@ -761,10 +763,14 @@ export default class MeemService {
 				props?.readPermissionsLockedBy ?? MeemAPI.zeroAddress,
 			splits: props?.splits ?? [],
 			splitsLockedBy: props?.splitsLockedBy ?? MeemAPI.zeroAddress,
-			childrenPerWallet: props?.childrenPerWallet ?? -1,
+			childrenPerWallet: services.web3
+				.toBigNumber(props?.childrenPerWallet ?? -1)
+				.toHexString(),
 			childrenPerWalletLockedBy:
 				props?.childrenPerWalletLockedBy ?? MeemAPI.zeroAddress,
-			totalChildren: props?.totalChildren ?? -1,
+			totalChildren: services.web3
+				.toBigNumber(props?.totalChildren ?? -1)
+				.toHexString(),
 			totalChildrenLockedBy: props?.totalChildrenLockedBy ?? MeemAPI.zeroAddress
 		}
 	}
@@ -774,10 +780,10 @@ export default class MeemService {
 			owner: meem[0],
 			parentChain: meem[1],
 			parent: meem[2],
-			parentTokenId: meem[3].toNumber(),
+			parentTokenId: meem[3].toHexString(),
 			rootChain: meem[4],
 			root: meem[5],
-			rootTokenId: meem[6].toNumber(),
+			rootTokenId: meem[6].toHexString(),
 			generation: meem[7].toNumber(),
 			properties: this.meemPropertiesToInterface(meem[8]),
 			childProperties: this.meemPropertiesToInterface(meem[9]),
@@ -789,9 +795,9 @@ export default class MeemService {
 		meemProperties: MeemPropertiesStructOutput
 	): MeemAPI.IMeemProperties {
 		return {
-			totalChildren: meemProperties[0].toNumber(),
+			totalChildren: meemProperties[0].toHexString(),
 			totalChildrenLockedBy: meemProperties[1],
-			childrenPerWallet: meemProperties[2].toNumber(),
+			childrenPerWallet: meemProperties[2].toHexString(),
 			childrenPerWalletLockedBy: meemProperties[3],
 			copyPermissions: meemProperties[4].map(perm =>
 				this.meemPermissionToInterface(perm)
@@ -816,7 +822,7 @@ export default class MeemService {
 		return {
 			permission: meemPermission[0],
 			addresses: meemPermission[1],
-			numTokens: meemPermission[2].toNumber(),
+			numTokens: meemPermission[2].toHexString(),
 			lockedBy: meemPermission[3]
 		}
 	}

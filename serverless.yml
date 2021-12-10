@@ -49,6 +49,7 @@ provider:
     GAS_ESTIMATE_THRESHOLD_GWEI: ${env:GAS_ESTIMATE_THRESHOLD_GWEI, '10'}
     DISABLE_MIGRATIONS: ${env:DISABLE_MIGRATIONS, 'true'}
     DISABLE_ORM_SYNC: ${env:DISABLE_ORM_SYNC, 'true'}
+    ENABLE_CONTRACT_LISTENERS: ${env:ENABLE_CONTRACT_LISTENERS, 'false'}
 
 package:
   excludeDevDependencies: true

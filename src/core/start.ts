@@ -3,6 +3,7 @@ import path from 'path'
 import log, { LogLevel } from '@kengoldfarb/log'
 import express, { Express } from 'express'
 import globby from 'globby'
+import ContractListener from '../listeners/ContractListener'
 import Configuration from './Configuration'
 import errorMiddleware from './errorMiddleware'
 import Orm from './Orm'
@@ -140,6 +141,14 @@ export default async function start() {
 	}
 
 	errorMiddleware(app)
+
+	if (config.ENABLE_CONTRACT_LISTENERS) {
+		g.listeners = {
+			contract: new ContractListener()
+		}
+
+		g.listeners.contract.start()
+	}
 
 	return {
 		server,
