@@ -2,13 +2,7 @@
 // import request from 'superagent'
 // import { MeemAPI } from '../types/meem.generated'
 
-import {
-	ETwitterStreamEvent,
-	TweetStream,
-	TwitterApi,
-	TweetV2,
-	TweetV2SingleStreamResult
-} from 'twitter-api-v2'
+import { TwitterApi, TweetV2, TweetV2SingleStreamResult } from 'twitter-api-v2'
 import Hashtag from '../models/Hashtag'
 import Tweet from '../models/Tweet'
 import DbService from './Db'
