@@ -142,11 +142,13 @@ export default async function start() {
 
 	errorMiddleware(app)
 
-	g.listeners = {
-		contract: new ContractListener()
-	}
+	if (config.ENABLE_CONTRACT_LISTENERS) {
+		g.listeners = {
+			contract: new ContractListener()
+		}
 
-	g.listeners.contract.start()
+		g.listeners.contract.start()
+	}
 
 	return {
 		server,
