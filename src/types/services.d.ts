@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import Child from '../services/Child'
+import ContractEvents from '../services/ContractEvents'
 import Db from '../services/Db'
 import Git from '../services/Git'
 import Ipfs from '../services/Ipfs'
@@ -13,6 +14,7 @@ import Web3 from '../services/Web3'
 declare global {
 	namespace services {
 		let child: typeof Child
+		let contractEvents: typeof ContractEvents
 		let db: typeof Db
 		let git: typeof Git
 		let ipfs: typeof Ipfs
