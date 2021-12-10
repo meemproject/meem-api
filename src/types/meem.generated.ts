@@ -230,14 +230,17 @@ export namespace MeemAPI {
 	export interface IMeemPermission {
 		permission: Permission
 		addresses: string[]
-		numTokens: number
+		/** BigNumber hex string */
+		numTokens: string
 		lockedBy: string
 	}
 
 	export interface IMeemProperties {
-		totalChildren: number
+		/** BigNumber hex string */
+		totalChildren: string
 		totalChildrenLockedBy: string
-		childrenPerWallet: number
+		/** BigNumber hex string */
+		childrenPerWallet: string
 		childrenPerWalletLockedBy: string
 		copyPermissions: IMeemPermission[]
 		remixPermissions: IMeemPermission[]
@@ -255,11 +258,13 @@ export namespace MeemAPI {
 		tokenURI?: string
 		parentChain: Chain
 		parent: string
-		parentTokenId: number
+		/** BigNumber hex string */
+		parentTokenId: string
 		generation: number
 		rootChain: Chain
 		root: string
-		rootTokenId: number
+		/** BigNumber hex string */
+		rootTokenId: string
 		properties: IMeemProperties
 		childProperties: IMeemProperties
 		/** Unix timestamp of when the Meem was minted */

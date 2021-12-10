@@ -1,7 +1,7 @@
 import path from 'path'
 import globby from 'globby'
 import pg from 'pg'
-import { Sequelize } from 'sequelize'
+import { Sequelize, SyncOptions } from 'sequelize'
 import Umzug from 'umzug'
 import { AppModel, IModels } from '../types/models'
 
@@ -48,7 +48,7 @@ export default class ORM {
 
 		const modelDirectory = path.resolve(
 			configuration.currentPath,
-			'models/**/*.ts'
+			'models/**/*.(ts|js)'
 		)
 
 		const files = await globby(modelDirectory)
@@ -162,6 +162,16 @@ export default class ORM {
 				})
 			})
 		})
+	}
+
+	public async runSync(options?: SyncOptions) {
+		try {
+			const timer = log.timerStart()
+			await this.sequelize.sync(options)
+			log.info(`ORM Sync: ${(log.timerEnd(timer) / 1000).toFixed(4)} seconds`)
+		} catch (e) {
+			log.warn(e)
+		}
 	}
 
 	public async runMigrations() {

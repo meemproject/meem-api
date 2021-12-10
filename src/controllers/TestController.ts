@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { ethers } from 'ethers'
 import { Request, Response } from 'express'
 import { DateTime, Duration } from 'luxon'
 import { Op } from 'sequelize'
@@ -35,14 +36,20 @@ export default class ConfigController {
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		// const gas = await services.meem.getGasEstimate(MeemAPI.NetworkName.Polygon)
-		const gas = await services.web3.getGasEstimate({
-			chain: MeemAPI.networkNameToChain(config.NETWORK)
-		})
+		log.debug(ethers.BigNumber.from(-1))
+		log.debug(services.web3.toBigNumber(-1))
 
 		return res.json({
-			gas
+			status: 'success'
 		})
+		// const gas = await services.meem.getGasEstimate(MeemAPI.NetworkName.Polygon)
+		// const gas = await services.web3.getGasEstimate({
+		// 	chain: MeemAPI.networkNameToChain(config.NETWORK)
+		// })
+
+		// return res.json({
+		// 	gas
+		// })
 
 		const contract = services.meem.meemContract()
 

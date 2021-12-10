@@ -224,7 +224,13 @@ export default class Web3 {
 		val: BigNumber.Value | ethers.BigNumberish
 	): ethers.BigNumber {
 		const bn = new BigNumber(val.toString() as BigNumber.Value)
-		const ebn = ethers.BigNumber.from(`0x${bn.toString(16)}`)
+		let bigStr = bn.toString(16)
+		let isNegative = false
+		if (/^-/.test(bigStr)) {
+			bigStr = bigStr.substr(1)
+			isNegative = true
+		}
+		const ebn = ethers.BigNumber.from(`${isNegative ? '-' : ''}0x${bigStr}`)
 
 		return ebn
 	}
