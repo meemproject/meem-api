@@ -48,9 +48,6 @@ export default class Tweet extends BaseModel<Tweet> {
 
 	public text!: string
 
-	/** The tweet text with meem actions removed */
-	public sanitizedText!: string
-
 	/** The twitter username */
 	public username!: string
 

@@ -187,17 +187,18 @@ export default class TwitterService {
 		// TODO: in meem webhook, update tweet in db with meem token id
 
 		const hashtags = event.data.entities?.hashtags || []
-		const meemActions = new RegExp('\\\\meem', 'gi')
 
-		let sanitizedText = event.data.text.replace(meemActions, '')
+		// TODO: If we need to remove the meem actions from the tweet text?
+		// const meemActions = new RegExp('\\\\meem', 'gi')
 
-		sanitizedText = sanitizedText.replace(/\s\s+/g, ' ')
+		// let sanitizedText = event.data.text.replace(meemActions, '')
+
+		// sanitizedText = sanitizedText.replace(/\s\s+/g, ' ').trim()
 
 		const user = event.includes?.users?.find(u => u.id === event.data.author_id)
 		const tweet = await orm.models.Tweet.create({
 			tweetId: event.data.id,
 			text: event.data.text,
-			sanitizedText: sanitizedText.trim(),
 			username: user?.username || '',
 			userProfileImageUrl: user?.profile_image_url || ''
 		})
