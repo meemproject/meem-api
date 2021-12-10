@@ -178,63 +178,7 @@ export default class TwitterService {
 		return tweets
 	}
 
-	public static async connectToTwitterStream(): Promise<TweetStream> {
-		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
-		try {
-			const stream = await client.v2.searchStream({
-				'tweet.fields': ['created_at', 'entities'],
-				'user.fields': ['profile_image_url'],
-				expansions: ['author_id']
-			})
-
-			log.trace('Tweet stream connected!')
-
-			// Awaits for a tweet
-			stream.on(
-				// Emitted when Node.js {response} emits a 'error' event (contains its payload).
-				ETwitterStreamEvent.ConnectionError,
-				err => log.debug('Tweet stream connection error!', err)
-			)
-
-			stream.on(
-				// Emitted when Node.js {response} is closed by remote or using .close().
-				ETwitterStreamEvent.ConnectionClosed,
-				() => log.debug('Tweet stream connection has been closed.')
-			)
-
-			stream.on(
-				// Emitted when a Twitter payload (a tweet or not, given the endpoint).
-				ETwitterStreamEvent.Data,
-				async eventData => {
-					// await firebase.db
-					// 	.collection('tweets')
-					// 	.doc(eventData.data.id)
-					// 	.set({
-					// 		...eventData.data,
-					// 		includes: eventData.includes,
-					// 		matching_rules: eventData.matching_rules
-					// 	})
-					TwitterService.mintAndStoreTweet(eventData)
-				}
-			)
-
-			stream.on(
-				// Emitted when a Twitter sent a signal to maintain connection active
-				ETwitterStreamEvent.DataKeepAlive,
-				() => log.trace('Tweet stream sent a keep-alive packet.')
-			)
-
-			// Enable reconnect feature
-			stream.autoReconnect = true
-
-			return stream
-		} catch (e) {
-			log.error(e)
-			throw new Error('Error connecting to Twitter stream')
-		}
-	}
-
-	private static async mintAndStoreTweet(
+	public static async mintAndStoreTweet(
 		event: TweetV2SingleStreamResult
 	): Promise<void> {
 		// TODO: check whitelist for twitter user ID

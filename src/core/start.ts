@@ -4,6 +4,7 @@ import log, { LogLevel } from '@kengoldfarb/log'
 import express, { Express } from 'express'
 import globby from 'globby'
 import ContractListener from '../listeners/ContractListener'
+import TwitterListener from '../listeners/TwitterListener'
 import Configuration from './Configuration'
 import errorMiddleware from './errorMiddleware'
 import Orm from './Orm'
@@ -124,10 +125,6 @@ export default async function start() {
 		})
 	}
 
-	if (!config.DISABLE_TWITTER_STREAM) {
-		g.twitterStream = await services.twitter.connectToTwitterStream()
-	}
-
 	if (config.GENERATE_SHARED_TYPES) {
 		const typeGeneratorTimer = log.timerStart()
 		services.types
@@ -153,6 +150,14 @@ export default async function start() {
 		}
 
 		g.listeners.contract.start()
+	}
+
+	if (config.ENABLE_TWITTER_LISTENERS) {
+		g.listeners = {
+			twitter: new TwitterListener()
+		}
+
+		g.listeners.twitter.start()
 	}
 
 	return {
