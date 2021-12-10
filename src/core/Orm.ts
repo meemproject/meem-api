@@ -48,7 +48,7 @@ export default class ORM {
 
 		const modelDirectory = path.resolve(
 			configuration.currentPath,
-			'models/**/*.ts'
+			'models/**/*.(ts|js)'
 		)
 
 		const files = await globby(modelDirectory)
