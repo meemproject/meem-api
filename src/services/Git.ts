@@ -12,20 +12,25 @@ export default class GitService {
 		description: string
 		imageBase64: string
 		originalImage: string
-		tokenURI: string
-		tokenAddress: string
+		tokenURI?: string
+		tokenAddress?: string
 		tokenId?: ethers.BigNumberish
-		tokenMetadata: any
+		tokenMetadata?: any
 		rootTokenURI?: string
 		rootTokenAddress?: string
 		rootTokenId?: ethers.BigNumberish
 		rootTokenMetadata?: any
 		collectionName?: string
 		meemId?: string
+		generation?: number
 	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
 		// TODO: Get/Normalize collection name
 		// TODO: Get/Normalize content description
 		// TODO: Get generation?
+		// TODO: Extend for different dApps
+
+		const isOriginal = data.generation === 0
+
 		const id = data.meemId || uuidv4()
 		const branchName =
 			config.NETWORK === MeemAPI.NetworkName.Rinkeby ? `test` : `master`
@@ -61,21 +66,26 @@ export default class GitService {
 			type: 'blob'
 		})
 
-		const etherscanUrl = `https://etherscan.io/token/${data.tokenAddress}?a=${data.tokenId}`
+		let metadataDescription = isOriginal
+			? data.description
+			: `Meem Content Description\n\n${data.description}`
 
-		let metadataDescription = `Meem Content Description\n\n${data.description}`
+		if (!isOriginal) {
+			const etherscanUrl = `https://etherscan.io/token/${data.tokenAddress}?a=${data.tokenId}`
 
-		metadataDescription += '\n\nMeem Content Details'
+			metadataDescription += '\n\nMeem Content Details'
 
-		metadataDescription += `\n\nContract Address: ${data.tokenAddress}`
+			metadataDescription += `\n\nContract Address: ${data.tokenAddress}`
 
-		if (data.tokenId) {
-			metadataDescription += `\n\nToken ID: ${data.tokenId}`
+			if (data.tokenId) {
+				metadataDescription += `\n\nToken ID: ${data.tokenId}`
+			}
+
+			metadataDescription += `\n\nView on Etherscan: ${etherscanUrl}`
 		}
 
-		metadataDescription += `\n\nView on Etherscan: ${etherscanUrl}`
-
 		let rootTokenId = null
+
 		if (data.rootTokenId) {
 			rootTokenId = services.web3.toBigNumber(data.rootTokenId).toHexString()
 		} else if (data.tokenId) {
@@ -89,16 +99,20 @@ export default class GitService {
 			description: metadataDescription,
 			external_url: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${id}.json`,
 			meem_properties: {
-				root_token_uri: data.rootTokenURI || data.tokenURI,
-				root_token_address: data.rootTokenAddress || data.tokenAddress,
-				root_token_id: rootTokenId,
-				root_token_metadata: data.rootTokenMetadata || data.tokenMetadata,
-				parent_token_uri: data.tokenURI,
+				root_token_uri: isOriginal ? null : data.rootTokenURI || data.tokenURI,
+				root_token_address: isOriginal
+					? null
+					: data.rootTokenAddress || data.tokenAddress,
+				root_token_id: isOriginal ? null : rootTokenId,
+				root_token_metadata: isOriginal
+					? null
+					: data.rootTokenMetadata || data.tokenMetadata,
+				parent_token_uri: isOriginal ? null : data.tokenURI,
 				parent_token_id: data.tokenId
 					? services.web3.toBigNumber(data.tokenId).toHexString()
 					: null,
-				parent_token_address: data.tokenAddress,
-				parent_token_metadata: data.tokenMetadata
+				parent_token_address: isOriginal ? null : data.tokenAddress,
+				parent_token_metadata: isOriginal ? null : data.tokenMetadata
 			},
 			image: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/images/${id}.png`,
 			image_original: data.originalImage
