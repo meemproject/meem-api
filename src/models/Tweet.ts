@@ -28,10 +28,6 @@ export default class Tweet extends BaseModel<Tweet> {
 			type: DataTypes.STRING,
 			allowNull: false
 		},
-		sanitizedText: {
-			type: DataTypes.STRING,
-			allowNull: false
-		},
 		username: {
 			type: DataTypes.STRING,
 			allowNull: false
