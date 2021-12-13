@@ -184,7 +184,7 @@ export interface IMeemMetadata {
 		parent_token_id: string | null
 		parent_token_metadata: any | null
 	}
-	customMetadata?: any
+	extension_properties?: any
 }
 
 export interface IMeemPermission {

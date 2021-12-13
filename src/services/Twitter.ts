@@ -276,7 +276,15 @@ export default class TwitterService {
 				meemId,
 				generation: 0,
 				extensionProperties: {
-					tweet
+					tweet: {
+						id: tweet.id,
+						tweetId: tweet.tweetId,
+						text: tweet.text,
+						username: tweet.username,
+						userProfileImageUrl: tweet.userProfileImageUrl,
+						updatedAt: tweet.updatedAt,
+						createdAt: tweet.createdAt
+					}
 				}
 			})
 
