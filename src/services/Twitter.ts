@@ -370,7 +370,7 @@ export default class TwitterService {
 			if (err.error?.error?.body) {
 				let errStr = 'UNKNOWN_CONTRACT_ERROR'
 				try {
-					const body = JSON.parse(e.error.error.body)
+					const body = JSON.parse(err.error.error.body)
 					log.warn(body)
 					const inter = services.meem.meemInterface()
 					const errInfo = inter.parseError(body.error.data)
