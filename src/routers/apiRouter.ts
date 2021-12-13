@@ -1,4 +1,5 @@
 import coreExpress, { Express } from 'express'
+import AuthController from '../controllers/AuthController'
 import ConfigController from '../controllers/ConfigController'
 import MeemController from '../controllers/MeemController'
 import NFTController from '../controllers/NFTController'
@@ -12,6 +13,9 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	app.use('/api/1.0/', router)
 	app.use('/images/1.0/', imageRouter)
+
+	router.getAsync('/getNonce', AuthController.getNonce)
+	router.postAsync('/login', AuthController.login)
 
 	router.getAsync('/access', MeemController.getAccessList)
 	router.getAsync('/config', ConfigController.getConfig)

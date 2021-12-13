@@ -11,6 +11,12 @@ export default {
 	PORT: process.env.PORT ?? 1313,
 	SERVER_LISTENING: process.env.SERVER_LISTENING !== 'false',
 	SERVER_ADMIN_KEY: process.env.SERVER_ADMIN_KEY ?? 'xGugNAB2PEX4uY4sPF',
+	JWT_SECRET:
+		process.env.JWT_SECRET ??
+		'ac741f40d71a2564e08180f5eb1cc9dd28e288ed75b33c34cba2fc18a3c31a64e719835877c7a6db9fdae8054037053172aba56f4dabc5f1b',
+	JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN
+		? +process.env.JWT_EXPIRES_IN
+		: 604800, // 7 days
 	SERVERLESS: process.env.SERVERLESS === 'true',
 	LOG_LEVEL: process.env.LOG_LEVEL ?? 'warn',
 	ENABLE_REQUEST_LOGGING: process.env.ENABLE_REQUEST_LOGGING === 'true',
