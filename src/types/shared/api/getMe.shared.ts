@@ -1,7 +1,7 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 import { IMeemId } from '../meem.shared'
 
-export namespace GetMeemId {
+export namespace GetMe {
 	export interface IPathParams {}
 
 	export const path = () => `/api/1.0/me`

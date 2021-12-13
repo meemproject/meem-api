@@ -6,7 +6,6 @@ import TwitterApi from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
-import { IMeemId } from '../types/shared/meem.shared'
 
 export default class MeemController {
 	// TODO: Move to dedicated MeemID controller?
@@ -43,50 +42,6 @@ export default class MeemController {
 		return res.json({
 			accessToken: loginResult.accessToken,
 			accessTokenSecret: loginResult.accessSecret
-		})
-	}
-
-	public static async searchMeemIds(
-		req: IRequest<MeemAPI.v1.SearchMeemIds.IDefinition>,
-		res: IResponse<MeemAPI.v1.SearchMeemIds.IResponseBody>
-	): Promise<Response> {
-		const data = req.body
-		const meemIds: IMeemId[] = []
-
-		if (data.accountAddress) {
-			const meemId = services.meem.searchForMeemIdByAccountAddress(
-				data.accountAddress
-			)
-			if (meemId) {
-				meemIds.push(meemId)
-			}
-		}
-
-		return res.json({
-			meemIds
-		})
-	}
-
-	public static async createOrUpdateMeemId(
-		req: IRequest<MeemAPI.v1.CreateOrUpdateMeemId.IDefinition>,
-		res: IResponse<MeemAPI.v1.CreateOrUpdateMeemId.IResponseBody>
-	): Promise<Response> {
-		const data = req.body
-
-		// TODO: Get Meem Id from accountAddress or create new Meem ID
-		const meemId: IMeemId = services.meem.searchForMeemIdByAccountAddress(
-			data.accountAddress
-		) || {
-			id: '',
-			accountAddress: data.accountAddress || '',
-			verifiedAccounts: data.account ? [data.account] : []
-		}
-
-		// TODO: Add account to verified accounts on Meem ID
-		meemId.verifiedAccounts = data.account ? [data.account] : []
-
-		return res.json({
-			meemId
 		})
 	}
 

@@ -473,7 +473,7 @@ export namespace MeemAPI {
 			export type Response = IResponseBody | IError
 		}
 
-		export namespace GetMeemId {
+		export namespace GetMe {
 			export interface IPathParams {}
 
 			export const path = () => `/api/1.0/me`
