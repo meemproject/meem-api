@@ -13,6 +13,49 @@ import { MeemAPI } from '../types/meem.generated'
 import { PermissionType } from '../types/shared/meem.shared'
 import DbService from './Db'
 
+function errorcodeToErrorString(contractErrorName: string) {
+	const allErrors: Record<string, any> = config.errors
+	const errorKeys = Object.keys(allErrors)
+	const errIdx = errorKeys.findIndex(
+		k => allErrors[k].contractErrorCode === contractErrorName
+	)
+	if (errIdx > -1) {
+		return errorKeys[errIdx]
+	}
+	return 'UNKNOWN_CONTRACT_ERROR'
+}
+
+function genericError(message?: string) {
+	return {
+		status: 'failure',
+		code: 'SERVER_ERROR',
+		reason: 'Unable to find specific error',
+		friendlyReason:
+			message ||
+			'Sorry, something went wrong. Please try again in a few minutes.'
+	}
+}
+
+function handleStringErrorKey(errorKey: string) {
+	let err = config.errors.SERVER_ERROR
+	// @ts-ignore
+	if (errorKey && config.errors[errorKey]) {
+		// @ts-ignore
+		err = config.errors[errorKey]
+	} else {
+		log.warn(
+			`errorResponder Middleware: Invalid error key specified: ${errorKey}`
+		)
+	}
+
+	return {
+		status: 'failure',
+		httpCode: 500,
+		reason: err.reason,
+		friendlyReason: err.friendlyReason
+	}
+}
+
 export default class TwitterService {
 	public static async getMeemMentionTweetsFromTwitter(): Promise<{
 		tweets: TweetV2[]
@@ -316,6 +359,8 @@ export default class TwitterService {
 
 			log.debug('Minting Tweet MEEM w/ params', { mintParams })
 
+			await meemContract.setNonOwnerSplitAllocationAmount(0)
+
 			const mintTx = await meemContract.mint(...mintParams)
 
 			log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
@@ -352,6 +397,22 @@ export default class TwitterService {
 				}
 			}
 		} catch (e) {
+			const err = e as any
+			log.warn(err)
+			if (err.error?.error?.body) {
+				let errStr = 'UNKNOWN_CONTRACT_ERROR'
+				try {
+					const body = JSON.parse(e.error.error.body)
+					log.warn(body)
+					const inter = services.meem.meemInterface()
+					const errInfo = inter.parseError(body.error.data)
+					errStr = errorcodeToErrorString(errInfo.name)
+				} catch (parseError) {
+					// Unable to parse
+					throw new Error('SERVER_ERROR')
+				}
+				throw new Error(errStr)
+			}
 			throw new Error('SERVER_ERROR')
 		}
 
