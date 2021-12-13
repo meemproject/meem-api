@@ -23,6 +23,7 @@ export default class GitService {
 		collectionName?: string
 		meemId?: string
 		generation?: number
+		extensionProperties?: any
 	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
 		// TODO: Get/Normalize collection name
 		// TODO: Get/Normalize content description
@@ -115,7 +116,10 @@ export default class GitService {
 				parent_token_metadata: isOriginal ? null : data.tokenMetadata
 			},
 			image: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/images/${id}.png`,
-			image_original: data.originalImage
+			image_original: data.originalImage,
+			...(data.extensionProperties && {
+				extension_properties: data.extensionProperties
+			})
 		}
 
 		const metadataGit = await octokit.git.createBlob({

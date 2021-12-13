@@ -274,7 +274,10 @@ export default class TwitterService {
 				imageBase64: '',
 				originalImage: '',
 				meemId,
-				generation: 0
+				generation: 0,
+				extensionProperties: {
+					tweet
+				}
 			})
 
 			let { recommendedGwei } = await services.web3.getGasEstimate({
