@@ -92,7 +92,7 @@ export default class Web3 {
 
 			if (chain === MeemAPI.Chain.Rinkeby) {
 				return {
-					recommendedGwei: 2
+					recommendedGwei: 4
 				}
 			}
 

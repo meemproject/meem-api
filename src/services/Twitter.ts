@@ -299,8 +299,8 @@ export default class TwitterService {
 				],
 				splits: [
 					{
-						toAddress: accountAddress,
-						amount: 10000,
+						toAddress: '0x40c6BeE45d94063c5B05144489cd8A9879899592',
+						amount: 100,
 						lockedBy: MeemAPI.zeroAddress
 					}
 				]
@@ -309,11 +309,11 @@ export default class TwitterService {
 			const mintParams: Parameters<Meem['mint']> = [
 				accountAddress,
 				meemMetadata.tokenURI,
-				1,
+				MeemAPI.Chain.Polygon,
 				MeemAPI.zeroAddress,
 				0,
 				// TODO: Set root chain based on parent if necessary
-				1,
+				MeemAPI.Chain.Polygon,
 				MeemAPI.zeroAddress,
 				0,
 				properties,
