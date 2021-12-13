@@ -71,7 +71,24 @@ export default class AuthController {
 			throw new Error('MEEM_ID_NOT_FOUND')
 		}
 
-		const meemId = await services.meemId.getMeemId(item.MeemIdentificationId)
+		const meemId = await services.meemId.getMeemId({
+			meemIdentificationId: item.MeemIdentificationId
+		})
+		return res.json({
+			meemId
+		})
+	}
+
+	public static async getMe(
+		req: IRequest<MeemAPI.v1.GetMe.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetMe.IResponseBody>
+	): Promise<Response> {
+		if (!req.meemId) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+		const meemId = await services.meemId.getMeemId({
+			meemIdentification: req.meemId
+		})
 		return res.json({
 			meemId
 		})

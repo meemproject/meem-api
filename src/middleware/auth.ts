@@ -18,7 +18,11 @@ export default (app: Express) => {
 						where: {
 							id: jwtData.meemId
 						},
-						include: [orm.models.Wallet, orm.models.Twitter]
+						include: [
+							orm.models.Wallet,
+							orm.models.Twitter,
+							orm.models.MeemPass
+						]
 					})
 
 					if (meemId) {

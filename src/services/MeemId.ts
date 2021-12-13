@@ -4,6 +4,7 @@ import jsonwebtoken from 'jsonwebtoken'
 import { Op } from 'sequelize'
 import { v4 as uuidv4 } from 'uuid'
 import MeemIDABI from '../abis/MeemID.json'
+import MeemIdentification from '../models/MeemIdentification'
 import Twitter from '../models/Twitter'
 import Wallet from '../models/Wallet'
 import { MeemID } from '../types'
@@ -85,7 +86,7 @@ export default class MeemIdService {
 			throw new Error('MEEM_ID_NOT_FOUND')
 		}
 
-		const meemId = await this.getMeemId(meemIdentificationId)
+		const meemId = await this.getMeemId({ meemIdentificationId })
 
 		return { meemId, jwt: this.generateJWT({ meemId: meemIdentificationId }) }
 	}
@@ -228,7 +229,7 @@ export default class MeemIdService {
 
 		await Promise.all(promises)
 
-		const meemId = await this.getMeemId(meemIdentificationId)
+		const meemId = await this.getMeemId({ meemIdentificationId })
 
 		const jwt = this.generateJWT({
 			meemId: meemIdentificationId
@@ -240,15 +241,20 @@ export default class MeemIdService {
 		}
 	}
 
-	public static async getMeemId(
-		meemIdentificationId: string
-	): Promise<MeemAPI.IMeemId> {
-		const meemIdentification = await orm.models.MeemIdentification.findOne({
-			where: {
-				id: meemIdentificationId
-			},
-			include: [orm.models.Twitter, orm.models.Wallet, orm.models.MeemPass]
-		})
+	public static async getMeemId(options: {
+		meemIdentificationId?: string
+		meemIdentification?: MeemIdentification | null
+	}): Promise<MeemAPI.IMeemId> {
+		const { meemIdentificationId } = options
+		let { meemIdentification } = options
+		if (!meemIdentification) {
+			meemIdentification = await orm.models.MeemIdentification.findOne({
+				where: {
+					id: meemIdentificationId
+				},
+				include: [orm.models.Twitter, orm.models.Wallet, orm.models.MeemPass]
+			})
+		}
 
 		if (!meemIdentification) {
 			throw new Error('MEEM_ID_NOT_FOUND')
