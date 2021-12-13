@@ -29,10 +29,6 @@ export default class GitService {
 		// TODO: Get generation?
 		// TODO: Extend for different dApps
 
-		if (!data.tokenAddress) {
-			throw new Error('MISSING_TOKEN_ADDRESS')
-		}
-
 		const isOriginal = data.generation === 0
 
 		const id = data.meemId || uuidv4()
@@ -106,7 +102,7 @@ export default class GitService {
 				root_token_uri: isOriginal ? null : data.rootTokenURI || data.tokenURI!,
 				root_token_address: isOriginal
 					? null
-					: data.rootTokenAddress || data.tokenAddress,
+					: data.rootTokenAddress || data.tokenAddress!,
 				root_token_id: isOriginal ? null : rootTokenId,
 				root_token_metadata: isOriginal
 					? null
@@ -115,7 +111,7 @@ export default class GitService {
 				parent_token_id: data.tokenId
 					? services.web3.toBigNumber(data.tokenId).toHexString()
 					: null,
-				parent_token_address: isOriginal ? null : data.tokenAddress,
+				parent_token_address: isOriginal ? null : data.tokenAddress!,
 				parent_token_metadata: isOriginal ? null : data.tokenMetadata
 			},
 			image: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/images/${id}.png`,
