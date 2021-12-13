@@ -128,4 +128,82 @@ export default class DbService {
 				.promise()
 		}
 	}
+
+	public static async saveTweetsCheckpoint(options: {
+		type: string
+		sinceId: string
+		newestId: string
+		nextToken: string
+	}) {
+		const { type, sinceId, newestId, nextToken } = options
+		const db = new AWS.DynamoDB.DocumentClient({
+			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
+		})
+
+		const item: { [key: string]: any } = {
+			type,
+			sinceId,
+			newestId,
+			nextToken
+		}
+
+		let updateExpression = 'set'
+		const expressionAttributeNames: AWS.DynamoDB.ExpressionAttributeNameMap = {}
+		const expressionAttributeValues: AWS.DynamoDB.ExpressionAttributeValueMap =
+			{}
+
+		const itemKeys = Object.keys(item)
+
+		itemKeys.forEach((property, i) => {
+			if (property !== 'type') {
+				updateExpression += ` #${property} = :${property}${
+					i < itemKeys.length - 1 ? ',' : ''
+				}`
+				expressionAttributeNames[`#${property}`] = property
+				expressionAttributeValues[`:${property}`] = item[property] || ''
+			}
+		})
+
+		const params: AWS.DynamoDB.UpdateItemInput = {
+			TableName: config.DYNAMODB_TWEET_CHECKPOINTS_TABLE,
+			Key: {
+				type: item.type
+			},
+			UpdateExpression: updateExpression,
+			ExpressionAttributeNames: expressionAttributeNames,
+			ExpressionAttributeValues: expressionAttributeValues
+		}
+
+		log.debug(params)
+
+		const result = await db.update(params).promise()
+
+		return result
+	}
+
+	public static async getTweetsCheckpoint(options: { type: string }) {
+		const { type } = options
+		const db = new AWS.DynamoDB({
+			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
+		})
+
+		const result = await db
+			.query({
+				TableName: config.DYNAMODB_TWEET_CHECKPOINTS_TABLE,
+				KeyConditionExpression: '#type = :type',
+				ExpressionAttributeNames: {
+					'#type': 'type'
+				},
+				ExpressionAttributeValues: {
+					':type': {
+						S: type
+					}
+				}
+			})
+			.promise()
+
+		return result.Items && result.Items.length > 0 ? result.Items[0] : null
+	}
 }

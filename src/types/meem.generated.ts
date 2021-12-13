@@ -312,6 +312,23 @@ export namespace MeemAPI {
 		nfts: INFT[]
 	}
 
+	export enum MeemIdAccountType {
+		Twitter = 'twitter'
+	}
+
+	export interface IMeemIdAccount {
+		type: MeemIdAccountType
+		id: string
+		username?: string
+		name?: string
+	}
+
+	export interface IMeemId {
+		accountAddress: string
+		id: string
+		verifiedAccounts: IMeemIdAccount[]
+	}
+
 	export namespace v1 {
 		/** Create Meem Image */
 		export namespace CreateMeemImage {
@@ -333,6 +350,36 @@ export namespace MeemAPI {
 
 			export interface IResponseBody extends IApiResponseBody {
 				image: string
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		/** Create Meem Image */
+		export namespace CreateOrUpdateMeemId {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/meemid`
+
+			export const method = HttpMethod.Post
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {
+				accountAddress: string
+				id?: string
+				account?: IMeemIdAccount
+			}
+
+			export interface IResponseBody extends IApiResponseBody {
+				meemId: IMeemId
 			}
 
 			export interface IDefinition {
@@ -573,6 +620,91 @@ export namespace MeemAPI {
 			export type Response = IResponseBody | IError
 		}
 
+		/** Get Meem Tweets */
+		export namespace GetTweets {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/tweets`
+
+			export const method = HttpMethod.Get
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {}
+
+			export interface IResponseBody extends IApiResponseBody {
+				tweets: any[]
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		/** Get Twitter Access Token */
+		export namespace GetTwitterAccessToken {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/meemid/twitter/access-token`
+
+			export const method = HttpMethod.Post
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {
+				oauthToken: string
+				oauthTokenSecret: string
+				oauthVerifier: string
+			}
+
+			export interface IResponseBody extends IApiResponseBody {
+				accessToken: string
+				accessTokenSecret: string
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		/** Get Twitter Auth Url */
+		export namespace GetTwitterAuthUrl {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/meemid/twitter/request-url`
+
+			export const method = HttpMethod.Get
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {}
+
+			export interface IResponseBody extends IApiResponseBody {
+				url: string
+				oauthToken: string
+				oauthTokenSecret: string
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
 		/** Get whitelisted NFT contracts */
 		export namespace GetWhitelist {
 			export interface IPathParams {}
@@ -721,6 +853,34 @@ export namespace MeemAPI {
 				// transactionHash: string
 				// tokenId: number
 				status: 'success'
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		/** Get Meem */
+		export namespace SearchMeemIds {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/meemids/search`
+
+			export const method = HttpMethod.Post
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {
+				accountAddress?: string
+			}
+
+			export interface IResponseBody extends IApiResponseBody {
+				meemIds: IMeemId[]
 			}
 
 			export interface IDefinition {
