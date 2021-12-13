@@ -1,3 +1,4 @@
+import AWS from 'aws-sdk'
 import { Response } from 'express'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
@@ -42,15 +43,31 @@ export default class AuthController {
 		res: IResponse<MeemAPI.v1.CreateOrUpdateMeemId.IResponseBody>
 	): Promise<Response> {
 		// Verify twitter and wallet, create MeemId and return JWT
-		const { meemId, jwt } = await services.meemId.createOrUpdateMeemId({
+		const data = {
 			address: req.body.address,
 			signature: req.body.signature,
 			twitterAccessToken: req.body.twitterAccessToken,
 			twitterAccessSecret: req.body.twitterAccessSecret
-		})
+		}
+		if (config.DISABLE_ASYNC_MINTING) {
+			await services.meemId.createOrUpdateMeemId(data)
+		} else {
+			const lambda = new AWS.Lambda({
+				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+				region: 'us-east-1'
+			})
+
+			await lambda
+				.invoke({
+					InvocationType: 'Event',
+					FunctionName: config.LAMBDA_MEEMID_UPDATE_FUNCTION,
+					Payload: JSON.stringify(data)
+				})
+				.promise()
+		}
 		return res.json({
-			meemId,
-			jwt
+			status: 'success'
 		})
 	}
 

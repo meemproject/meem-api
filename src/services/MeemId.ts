@@ -231,6 +231,12 @@ export default class MeemIdService {
 
 		const meemId = await this.getMeemId({ meemIdentificationId })
 
+		await sockets?.emit({
+			subscription: MeemAPI.MeemEvent.MeemIdUpdated,
+			eventName: MeemAPI.MeemEvent.MeemIdUpdated,
+			data: { meemId }
+		})
+
 		const jwt = this.generateJWT({
 			meemId: meemIdentificationId
 		})

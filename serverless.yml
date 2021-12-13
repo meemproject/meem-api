@@ -74,6 +74,9 @@ functions:
     handler: build/serverless/mint.handle
     timeout: 300
     memorySize: 512
+  meemIdUpdate:
+    handler: build/serverless/meemIdUpdate.handle
+    timeout: 300
   images:
     handler: build/serverless/handler.handle
     memorySize: 768

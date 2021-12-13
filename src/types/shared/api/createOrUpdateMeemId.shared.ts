@@ -23,10 +23,7 @@ export namespace CreateOrUpdateMeemId {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The MeemId */
-		meemId: IMeemId
-		/** JWT that can be used for future authentication */
-		jwt: string
+		status: 'success'
 	}
 
 	export interface IDefinition {

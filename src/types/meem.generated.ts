@@ -381,10 +381,7 @@ export namespace MeemAPI {
 			}
 
 			export interface IResponseBody extends IApiResponseBody {
-				/** The MeemId */
-				meemId: IMeemId
-				/** JWT that can be used for future authentication */
-				jwt: string
+				status: 'success'
 			}
 
 			export interface IDefinition {
@@ -961,6 +958,7 @@ export namespace MeemAPI {
 	}
 	export enum MeemEvent {
 		Err = 'err',
+		MeemIdUpdated = 'meemIdUpdated',
 		MeemMinted = 'meemMinted',
 		Subscribe = 'subscribe',
 		SubscribeAck = 'subscribeAck',
@@ -976,6 +974,18 @@ export namespace MeemAPI {
 			export interface ISubscribePayload {}
 
 			export interface IEventPayload extends Record<string, any> {}
+		}
+
+		export namespace MeemIdUpdated {
+			export const eventName = MeemEvent.MeemIdUpdated
+
+			export const eventSource = EventSource.Server
+
+			export interface ISubscribePayload {}
+
+			export interface IEventPayload {
+				meemId: IMeemId
+			}
 		}
 
 		export namespace MeemMinted {
@@ -1058,6 +1068,9 @@ export namespace MeemAPI {
 
 	export type SubscribeType =
 		| (Events.Err.ISubscribePayload & { type: MeemEvent.Err })
+		| (Events.MeemIdUpdated.ISubscribePayload & {
+				type: MeemEvent.MeemIdUpdated
+		  })
 		| (Events.MeemMinted.ISubscribePayload & { type: MeemEvent.MeemMinted })
 		| (Events.SubscribeAck.ISubscribePayload & { type: MeemEvent.SubscribeAck })
 		| (Events.UnubscribeAck.ISubscribePayload & {
@@ -1068,6 +1081,12 @@ export namespace MeemAPI {
 		| {
 				eventName: MeemEvent.Err
 				handler: (options: { detail: Events.Err.IEventPayload }) => void
+		  }
+		| {
+				eventName: MeemEvent.MeemIdUpdated
+				handler: (options: {
+					detail: Events.MeemIdUpdated.IEventPayload
+				}) => void
 		  }
 		| {
 				eventName: MeemEvent.MeemMinted
