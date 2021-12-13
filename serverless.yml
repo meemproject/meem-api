@@ -24,7 +24,7 @@ provider:
     SERVERLESS: true
     LOG_LEVEL: ${env:LOG_LEVEL, 'debug'}
     ENABLE_REQUEST_LOGGING: ${env:ENABLE_REQUEST_LOGGING, 'false'}
-    ORM_DISABLE: ${env:ORM_DISABLE, 'true'}
+    ORM_DISABLE: ${env:ORM_DISABLE, 'false'}
     INFURA_ID: ${env:INFURA_ID, ''}
     MEEM_PROXY_ADDRESS: ${env:MEEM_PROXY_ADDRESS, ''}
     NETWORK: ${env:NETWORK, ''}
