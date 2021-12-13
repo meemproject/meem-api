@@ -117,7 +117,7 @@ export default class MeemController {
 		res: IResponse<MeemAPI.v1.GetMeem.IResponseBody>
 	): Promise<Response> {
 		const { tokenId } = req.params
-		const meemContract = services.meem.meemContract()
+		const meemContract = services.meem.getMeemContract()
 
 		const meem: any = await meemContract.getMeem(tokenId)
 		const tokenURI = await meemContract.tokenURI(tokenId)
@@ -138,7 +138,7 @@ export default class MeemController {
 		res: IResponse<MeemAPI.v1.GetMeems.IResponseBody>
 	): Promise<Response> {
 		const { parent, parentTokenId, parentChain } = req.query
-		const meemContract = services.meem.meemContract()
+		const meemContract = services.meem.getMeemContract()
 
 		if (parent && parentTokenId) {
 			const isMeem = await meemContract.isNFTWrapped(
@@ -175,7 +175,7 @@ export default class MeemController {
 	): Promise<Response> {
 		const data = req.body
 
-		const meemContract = services.meem.meemContract()
+		const meemContract = services.meem.getMeemContract()
 
 		const isAlreadyWrapped = await meemContract.isNFTWrapped(
 			data.chain,
@@ -274,7 +274,7 @@ export default class MeemController {
 		req: IRequest<MeemAPI.v1.GetWrappedTokens.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetWrappedTokens.IResponseBody>
 	): Promise<any> {
-		const contract = services.meem.meemContract()
+		const contract = services.meem.getMeemContract()
 		let tokenIds: ethers.BigNumber[] = []
 
 		const nfts = req.body.nfts.map(n => ({
