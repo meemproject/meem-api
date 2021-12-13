@@ -2,11 +2,49 @@ import AWS from 'aws-sdk'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import { Response } from 'express'
+import TwitterApi from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class MeemController {
+	// TODO: Move to dedicated MeemID controller?
+	public static async getTwitterAuthUrl(
+		req: IRequest<MeemAPI.v1.GetTwitterAuthUrl.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetTwitterAuthUrl.IResponseBody>
+	): Promise<Response> {
+		const client = new TwitterApi({
+			appKey: config.TWITTER_CONSUMER_KEY,
+			appSecret: config.TWITTER_CONSUMER_SECRET
+		})
+		const authLink = await client.generateAuthLink(
+			config.TWITTER_AUTH_CALLBACK_URL
+		)
+		return res.json({
+			url: authLink.url,
+			oauthToken: authLink.oauth_token,
+			oauthTokenSecret: authLink.oauth_token_secret
+		})
+	}
+
+	public static async getTwitterAccessToken(
+		req: IRequest<MeemAPI.v1.GetTwitterAccessToken.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetTwitterAccessToken.IResponseBody>
+	): Promise<Response> {
+		const data = req.body
+		const client = new TwitterApi({
+			appKey: config.TWITTER_CONSUMER_KEY,
+			appSecret: config.TWITTER_CONSUMER_SECRET,
+			accessToken: data.oauthToken,
+			accessSecret: data.oauthTokenSecret
+		})
+		const loginResult = await client.login(data.oauthVerifier)
+		return res.json({
+			accessToken: loginResult.accessToken,
+			accessTokenSecret: loginResult.accessSecret
+		})
+	}
+
 	public static async getWhitelist(
 		req: IRequest<MeemAPI.v1.GetWhitelist.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetWhitelist.IResponseBody>

@@ -36,8 +36,10 @@ export default class ConfigController {
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		log.debug(ethers.BigNumber.from(-1))
-		log.debug(services.web3.toBigNumber(-1))
+		// log.debug(ethers.BigNumber.from(-1))
+		// log.debug(services.web3.toBigNumber(-1))
+
+		// await services.twitter.getUser()
 
 		return res.json({
 			status: 'success'

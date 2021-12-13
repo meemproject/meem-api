@@ -11,6 +11,7 @@ import Configuration from '../core/Configuration'
 import Orm from '../core/Orm'
 import { IAppRouter } from '../core/router'
 import Sockets from '../core/Sockets'
+import MeemIdentification from '../models/MeemIdentification'
 
 declare const configuration: Configuration
 declare const sockets: Sockets | undefined
@@ -35,10 +36,16 @@ declare global {
 	}
 
 	namespace Express {
+		interface IMeemRequest {
+			meemId?: MeemIdentification
+		}
+
 		export interface Response {
 			error(e: Error): any
 		}
 
 		export function Router(options?: RouterOptions): IAppRouter
+
+		export interface Request extends IMeemRequest {}
 	}
 }

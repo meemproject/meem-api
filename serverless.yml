@@ -74,6 +74,9 @@ functions:
     handler: build/serverless/mint.handle
     timeout: 300
     memorySize: 512
+  meemIdUpdate:
+    handler: build/serverless/meemIdUpdate.handle
+    timeout: 300
   images:
     handler: build/serverless/handler.handle
     memorySize: 768
@@ -108,14 +111,14 @@ functions:
       - websocket: $connect
       - websocket: $disconnect
       - websocket: $default
-  # cron:
-  #   handler: build/serverless/cron.handle
-  #   timeout: 600
-  #   events:
-  #     - schedule:
-  #         rate: rate(30 minutes)
-  #         # CHANGE THIS TO "true" TO RUN CRONS
-  #         enabled: false
-  #         input:
-  #           job: TestCron
+  cron:
+    handler: build/serverless/cron.handle
+    timeout: 600
+    events:
+      - schedule:
+          rate: rate(1 minutes)
+          # CHANGE THIS TO "true" TO RUN CRONS
+          enabled: true
+          input:
+            job: TwitterCron
 

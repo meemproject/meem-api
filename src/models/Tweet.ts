@@ -31,6 +31,10 @@ export default class Tweet extends BaseModel<Tweet> {
 		username: {
 			type: DataTypes.STRING,
 			allowNull: false
+		},
+		userProfileImageUrl: {
+			type: DataTypes.STRING,
+			allowNull: false
 		}
 	}
 
@@ -42,6 +46,9 @@ export default class Tweet extends BaseModel<Tweet> {
 
 	/** The twitter username */
 	public username!: string
+
+	/** URL for the twitter user's profile picture */
+	public userProfileImageUrl!: string
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.Meem)

@@ -270,3 +270,17 @@ export interface IChainNFTsResult {
 	chain: Chain
 	nfts: INFT[]
 }
+
+export interface IMeemId {
+	/** List of wallet addresses */
+	wallets: string[]
+	/** List of twitter IDs */
+	twitters: string[]
+
+	meemPass: {
+		twitter: {
+			isWhitelisted: boolean
+			tweetsPerDayQuota: number
+		}
+	}
+}
