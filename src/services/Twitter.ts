@@ -24,38 +24,6 @@ function errorcodeToErrorString(contractErrorName: string) {
 	}
 	return 'UNKNOWN_CONTRACT_ERROR'
 }
-
-function genericError(message?: string) {
-	return {
-		status: 'failure',
-		code: 'SERVER_ERROR',
-		reason: 'Unable to find specific error',
-		friendlyReason:
-			message ||
-			'Sorry, something went wrong. Please try again in a few minutes.'
-	}
-}
-
-function handleStringErrorKey(errorKey: string) {
-	let err = config.errors.SERVER_ERROR
-	// @ts-ignore
-	if (errorKey && config.errors[errorKey]) {
-		// @ts-ignore
-		err = config.errors[errorKey]
-	} else {
-		log.warn(
-			`errorResponder Middleware: Invalid error key specified: ${errorKey}`
-		)
-	}
-
-	return {
-		status: 'failure',
-		httpCode: 500,
-		reason: err.reason,
-		friendlyReason: err.friendlyReason
-	}
-}
-
 export default class TwitterService {
 	public static async getMeemMentionTweetsFromTwitter(): Promise<{
 		tweets: TweetV2[]
