@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize'
+import { Op, DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
 import type MeemIdentification from './MeemIdentification'
@@ -23,6 +23,28 @@ export default class Wallet extends BaseModel<Wallet> {
 		nonce: {
 			type: DataTypes.STRING
 		}
+	}
+
+	public static async findAllByAddresses(addresses: string[]) {
+		const result = await orm.models.Wallet.findAll({
+			where: orm.sequelize.where(
+				orm.sequelize.fn('lower', orm.sequelize.col('address')),
+				{ [Op.in]: addresses.map(w => w.toLowerCase()) }
+			)
+		})
+
+		return result
+	}
+
+	public static async findByAddress(address: string) {
+		const result = await orm.models.Wallet.findOne({
+			where: orm.sequelize.where(
+				orm.sequelize.fn('lower', orm.sequelize.col('address')),
+				address.toLowerCase()
+			)
+		})
+
+		return result
 	}
 
 	public id!: string

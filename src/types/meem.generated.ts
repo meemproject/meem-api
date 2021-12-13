@@ -312,21 +312,18 @@ export namespace MeemAPI {
 		nfts: INFT[]
 	}
 
-	export enum MeemIdAccountType {
-		Twitter = 'twitter'
-	}
-
-	export interface IMeemIdAccount {
-		type: MeemIdAccountType
-		id: string
-		username?: string
-		name?: string
-	}
-
 	export interface IMeemId {
-		accountAddress: string
-		id: string
-		verifiedAccounts: IMeemIdAccount[]
+		/** List of wallet addresses */
+		wallets: string[]
+		/** List of twitter IDs */
+		twitters: string[]
+
+		meemPass: {
+			twitter: {
+				isWhitelisted: boolean
+				tweetsPerDayQuota: number
+			}
+		}
 	}
 
 	export namespace v1 {
@@ -362,24 +359,32 @@ export namespace MeemAPI {
 			export type Response = IResponseBody | IError
 		}
 
-		/** Create Meem Image */
 		export namespace CreateOrUpdateMeemId {
 			export interface IPathParams {}
 
-			export const path = () => `/api/1.0/meemid`
+			export const path = () => `/api/1.0/meemId`
 
 			export const method = HttpMethod.Post
 
 			export interface IQueryParams {}
 
 			export interface IRequestBody {
-				accountAddress: string
-				id?: string
-				account?: IMeemIdAccount
+				/** Wallet address to add or lookup by */
+				address: string
+				/** Signature of wallet address */
+				signature: string
+
+				/** Twitter account to add or lookup by */
+				twitterAccessToken: string
+				/** Twitter account to add or lookup by */
+				twitterAccessSecret: string
 			}
 
 			export interface IResponseBody extends IApiResponseBody {
+				/** The MeemId */
 				meemId: IMeemId
+				/** JWT that can be used for future authentication */
+				jwt: string
 			}
 
 			export interface IDefinition {
@@ -487,6 +492,37 @@ export namespace MeemAPI {
 			export interface IResponseBody extends IApiResponseBody {
 				meem: IMeem
 				metadata: any
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		export namespace GetMeemId {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/meemId`
+
+			export const method = HttpMethod.Get
+
+			export interface IQueryParams {
+				/** Wallet address to lookup by */
+				address?: string
+				/** Twitter id to lookup by */
+				twitterId?: string
+			}
+
+			export interface IRequestBody {}
+
+			export interface IResponseBody extends IApiResponseBody {
+				/** The MeemId */
+				meemId: IMeemId
 			}
 
 			export interface IDefinition {
@@ -793,9 +829,13 @@ export namespace MeemAPI {
 
 				/** Login twitter access token */
 				twitterAccessToken?: string
+				twitterAccessSecret?: string
 			}
 
 			export interface IResponseBody extends IApiResponseBody {
+				/** The MeemId */
+				meemId: IMeemId
+				/** JWT that can be used for future authentication */
 				jwt: string
 			}
 

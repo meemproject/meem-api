@@ -1,7 +1,7 @@
 import coreExpress, { Express } from 'express'
-import AuthController from '../controllers/AuthController'
 import ConfigController from '../controllers/ConfigController'
 import MeemController from '../controllers/MeemController'
+import MeemIdController from '../controllers/MeemIdController'
 import NFTController from '../controllers/NFTController'
 import TestController from '../controllers/TestController'
 import TweetController from '../controllers/TweetController'
@@ -15,8 +15,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 	app.use('/api/1.0/', router)
 	app.use('/images/1.0/', imageRouter)
 
-	router.getAsync('/getNonce', AuthController.getNonce)
-	router.postAsync('/login', AuthController.login)
+	router.getAsync('/getNonce', MeemIdController.getNonce)
+	router.postAsync('/login', MeemIdController.login)
+	router.postAsync('/meemId', MeemIdController.createOrUpdateMeemId)
+	router.getAsync('/meemId', MeemIdController.getMeemId)
 
 	router.getAsync('/access', MeemController.getAccessList)
 	router.getAsync('/config', ConfigController.getConfig)

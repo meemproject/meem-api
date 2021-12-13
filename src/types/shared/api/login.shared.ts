@@ -1,4 +1,5 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { IMeemId } from '../meem.shared'
 
 export namespace Login {
 	export interface IPathParams {}
@@ -17,9 +18,13 @@ export namespace Login {
 
 		/** Login twitter access token */
 		twitterAccessToken?: string
+		twitterAccessSecret?: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
+		/** The MeemId */
+		meemId: IMeemId
+		/** JWT that can be used for future authentication */
 		jwt: string
 	}
 
