@@ -26,6 +26,21 @@ function errorcodeToErrorString(contractErrorName: string) {
 	return 'UNKNOWN_CONTRACT_ERROR'
 }
 export default class TwitterService {
+	public static async getUser(options: {
+		accessToken: string
+		accessSecret: string
+	}) {
+		const { accessToken, accessSecret } = options
+		const api = new TwitterApi({
+			appKey: config.TWITTER_CONSUMER_KEY,
+			appSecret: config.TWITTER_CONSUMER_SECRET,
+			accessToken,
+			accessSecret
+		})
+		const user = await api.currentUser()
+		return user
+	}
+
 	public static async getMeemMentionTweetsFromTwitter(): Promise<{
 		tweets: TweetV2[]
 		meta: any

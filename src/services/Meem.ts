@@ -17,14 +17,6 @@ import {
 	SplitStructOutput
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
-import {
-	IAccessList,
-	IERC721Metadata,
-	IMeemId,
-	IMeemIdAccount,
-	NetworkName,
-	PermissionType
-} from '../types/shared/meem.shared'
 
 function errorcodeToErrorString(contractErrorName: string) {
 	const allErrors: Record<string, any> = config.errors
@@ -74,15 +66,15 @@ export default class MeemService {
 		const { networkName } = options
 		let provider: ethers.providers.Provider
 		switch (networkName) {
-			case NetworkName.Mainnet:
+			case MeemAPI.NetworkName.Mainnet:
 				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_MAINNET)
 				break
 
-			case NetworkName.Rinkeby:
+			case MeemAPI.NetworkName.Rinkeby:
 				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_RINKEBY)
 				break
 
-			case NetworkName.Polygon:
+			case MeemAPI.NetworkName.Polygon:
 				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_POLYGON)
 				break
 
@@ -101,15 +93,15 @@ export default class MeemService {
 		const { networkName, address } = options
 		let provider: ethers.providers.Provider
 		switch (networkName) {
-			case NetworkName.Mainnet:
+			case MeemAPI.NetworkName.Mainnet:
 				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_MAINNET)
 				break
 
-			case NetworkName.Rinkeby:
+			case MeemAPI.NetworkName.Rinkeby:
 				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_RINKEBY)
 				break
 
-			case NetworkName.Polygon:
+			case MeemAPI.NetworkName.Polygon:
 				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_POLYGON)
 				break
 
@@ -125,7 +117,7 @@ export default class MeemService {
 	}
 
 	public static async getErc721Metadata(uri: string) {
-		let metadata: IERC721Metadata
+		let metadata: MeemAPI.IERC721Metadata
 		if (/^data:application\/json/.test(uri)) {
 			const json = Buffer.from(uri.substring(29), 'base64').toString()
 			const result = JSON.parse(json)
@@ -150,7 +142,7 @@ export default class MeemService {
 		return metadata
 	}
 
-	public static async getImageFromMetadata(metadata: IERC721Metadata) {
+	public static async getImageFromMetadata(metadata: MeemAPI.IERC721Metadata) {
 		if (!metadata.image) {
 			throw new Error('INVALID_METADATA')
 		}
@@ -301,13 +293,13 @@ export default class MeemService {
 		tokenAddress: string
 		tokenId?: ethers.BigNumberish
 		collectionName?: string
-		parentMetadata: IERC721Metadata
+		parentMetadata: MeemAPI.IERC721Metadata
 		tokenURI: string
 		meemId?: string
 		rootTokenURI?: string
 		rootTokenAddress?: string
 		rootTokenId?: ethers.BigNumberish
-		rootTokenMetadata?: IERC721Metadata
+		rootTokenMetadata?: MeemAPI.IERC721Metadata
 	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
 		const {
 			name,
@@ -493,7 +485,7 @@ export default class MeemService {
 					splits: data.childProperties?.splits ?? data.properties?.splits
 				}),
 				// TODO: Set permission type based on copy/remix
-				PermissionType.Copy,
+				MeemAPI.PermissionType.Copy,
 				{
 					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
 				}
@@ -636,7 +628,7 @@ export default class MeemService {
 	public static async getContractInfo(options: {
 		contractAddress: string
 		tokenId: ethers.BigNumberish
-		networkName: NetworkName
+		networkName: MeemAPI.NetworkName
 	}) {
 		const { contractAddress, tokenId, networkName } = options
 		log.debug(networkName, contractAddress)
@@ -707,7 +699,7 @@ export default class MeemService {
 		const tokenURI = await contract.tokenURI(tokenId)
 		const tokenMetadata = await this.getErc721Metadata(tokenURI)
 		let contractURI: string | undefined
-		let contractMetadata: IERC721Metadata | undefined
+		let contractMetadata: MeemAPI.IERC721Metadata | undefined
 
 		try {
 			contractURI = await contract.contractURI()
@@ -839,35 +831,5 @@ export default class MeemService {
 			amount: split[1].toNumber(),
 			lockedBy: split[2]
 		}
-	}
-
-	public static createOrUpdateMeemId({
-		meemId,
-		account,
-		accountAddress
-	}: {
-		meemId?: string
-		account: IMeemIdAccount
-		accountAddress: string
-	}): MeemAPI.IMeemId {
-		// TODO: Create MeemId contract if one does not exist
-		// TODO: Create/Update private MeemId record with account
-		return {
-			id: meemId || '',
-			accountAddress,
-			verifiedAccounts: [account]
-		}
-	}
-
-	public static searchForMeemIdByAccountAddress(
-		accountAddress: string
-	): IMeemId {
-		// TODO: Get Meem Id from accountAddress
-		const meemId: IMeemId = {
-			id: '',
-			accountAddress: accountAddress || '',
-			verifiedAccounts: []
-		}
-		return meemId
 	}
 }

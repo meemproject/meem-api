@@ -24,7 +24,7 @@ provider:
     SERVERLESS: true
     LOG_LEVEL: ${env:LOG_LEVEL, 'debug'}
     ENABLE_REQUEST_LOGGING: ${env:ENABLE_REQUEST_LOGGING, 'false'}
-    ORM_DISABLE: ${env:ORM_DISABLE, 'true'}
+    ORM_DISABLE: ${env:ORM_DISABLE, 'false'}
     INFURA_ID: ${env:INFURA_ID, ''}
     MEEM_PROXY_ADDRESS: ${env:MEEM_PROXY_ADDRESS, ''}
     NETWORK: ${env:NETWORK, ''}
@@ -38,6 +38,7 @@ provider:
     DYNAMODB_SOCKETS_TABLE: ${env:DYNAMODB_SOCKETS_TABLE, ''}
     AWS_WEBSOCKET_GATEWAY_URL: ${env:AWS_WEBSOCKET_GATEWAY_URL, ''}
     LAMBDA_MINT_FUNCTION: ${env:LAMBDA_MINT_FUNCTION, ''}
+    LAMBDA_MEEMID_UPDATE_FUNCTION: ${env:LAMBDA_MEEMID_UPDATE_FUNCTION, ''}
     S3_BUCKET: ${env:S3_BUCKET, ''}
     MORALIS_API_KEY: ${env:MORALIS_API_KEY, ''}
     JSON_RPC_MAINNET: ${env:JSON_RPC_MAINNET, 'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/eth/mainnet'}
@@ -50,6 +51,8 @@ provider:
     DISABLE_MIGRATIONS: ${env:DISABLE_MIGRATIONS, 'true'}
     DISABLE_ORM_SYNC: ${env:DISABLE_ORM_SYNC, 'true'}
     ENABLE_CONTRACT_LISTENERS: ${env:ENABLE_CONTRACT_LISTENERS, 'false'}
+    DATABASE_URL: ${env:DATABASE_URL, ''}
+    MEEMPASS_DEFAULT_TWEETS_PER_DAY_QUOTA: ${env:MEEMPASS_DEFAULT_TWEETS_PER_DAY_QUOTA, '0'}
 
 package:
   excludeDevDependencies: true
@@ -74,6 +77,9 @@ functions:
     handler: build/serverless/mint.handle
     timeout: 300
     memorySize: 512
+  meemIdUpdate:
+    handler: build/serverless/meemIdUpdate.handle
+    timeout: 300
   images:
     handler: build/serverless/handler.handle
     memorySize: 768
@@ -101,6 +107,15 @@ functions:
          path: '/api/1.0/{p1}/{p2}/{p3}'
       - httpApi:
          method: '*'
+         path: '/admin/1.0/{p1}'
+      - httpApi:
+         method: '*'
+         path: '/admin/1.0/{p1}/{p2}'
+      - httpApi:
+         method: '*'
+         path: '/admin/1.0/{p1}/{p2}/{p3}'
+      - httpApi:
+         method: '*'
          path: '/'
   sockets:
     handler: build/serverless/socket.handle
@@ -108,14 +123,14 @@ functions:
       - websocket: $connect
       - websocket: $disconnect
       - websocket: $default
-  cron:
-    handler: build/serverless/cron.handle
-    timeout: 600
-    events:
-      - schedule:
-          rate: rate(1 minutes)
-          # CHANGE THIS TO "true" TO RUN CRONS
-          enabled: true
-          input:
-            job: TwitterCron
+  # cron:
+  #   handler: build/serverless/cron.handle
+  #   timeout: 600
+  #   events:
+  #     - schedule:
+  #         rate: rate(1 minutes)
+  #         # CHANGE THIS TO "true" TO RUN CRONS
+  #         enabled: true
+  #         input:
+  #           job: TwitterCron
 

@@ -1,29 +1,31 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 import { IMeemId } from '../meem.shared'
 
-export namespace CreateOrUpdateMeemId {
+export namespace Login {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/meemId`
+	export const path = () => `/api/1.0/login`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Wallet address to add or lookup by */
-		address: string
-		/** Signature of wallet address */
-		signature: string
+		/** Login w/ wallet. Both address and signature must be provided */
+		address?: string
+		/** Login w/ wallet. Both address and signature must be provided */
+		signature?: string
 
-		/** Twitter account to add or lookup by */
-		twitterAccessToken: string
-		/** Twitter account to add or lookup by */
-		twitterAccessSecret: string
+		/** Login twitter access token */
+		twitterAccessToken?: string
+		twitterAccessSecret?: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		/** The MeemId */
+		meemId: IMeemId
+		/** JWT that can be used for future authentication */
+		jwt: string
 	}
 
 	export interface IDefinition {

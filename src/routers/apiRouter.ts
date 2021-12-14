@@ -1,6 +1,7 @@
 import coreExpress, { Express } from 'express'
 import ConfigController from '../controllers/ConfigController'
 import MeemController from '../controllers/MeemController'
+import MeemIdController from '../controllers/MeemIdController'
 import NFTController from '../controllers/NFTController'
 import TestController from '../controllers/TestController'
 import TweetController from '../controllers/TweetController'
@@ -14,11 +15,15 @@ export default (app: Express, _express: typeof coreExpress) => {
 	app.use('/api/1.0/', router)
 	app.use('/images/1.0/', imageRouter)
 
+	router.getAsync('/getNonce', MeemIdController.getNonce)
+	router.postAsync('/login', MeemIdController.login)
+	router.postAsync('/meemId', MeemIdController.createOrUpdateMeemId)
+	router.getAsync('/meemId', MeemIdController.getMeemId)
+	router.getAsync('/me', MeemIdController.getMe)
+
 	router.getAsync('/access', MeemController.getAccessList)
 	router.getAsync('/config', ConfigController.getConfig)
 	router.getAsync('/whitelist', MeemController.getWhitelist)
-	router.postAsync('/meemid', MeemController.createOrUpdateMeemId)
-	router.postAsync('/meemids/search', MeemController.searchMeemIds)
 	router.getAsync(
 		'/meemid/twitter/request-url',
 		MeemController.getTwitterAuthUrl

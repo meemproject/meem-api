@@ -7,6 +7,7 @@ import Git from '../services/Git'
 import Ipfs from '../services/Ipfs'
 import Lint from '../services/Lint'
 import Meem from '../services/Meem'
+import MeemId from '../services/MeemId'
 import Storage from '../services/Storage'
 import Twitter from '../services/Twitter'
 import Types from '../services/Types'
@@ -21,6 +22,7 @@ declare global {
 		let ipfs: typeof Ipfs
 		let lint: typeof Lint
 		let meem: typeof Meem
+		let meemId: typeof MeemId
 		let storage: typeof Storage
 		let types: typeof Types
 		let twitter: typeof Twitter
