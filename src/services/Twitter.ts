@@ -210,7 +210,6 @@ export default class TwitterService {
 	): Promise<void> {
 		// TODO: check whitelist for twitter user ID
 		// TODO: if user is whitelisted, get their wallet address from their Meem ID
-		// TODO: mint tweet meem
 		// TODO: in meem webhook, update tweet in db with meem token id
 		// TODO: Cron to retry minting meems for tweets without an associated MEEM
 
