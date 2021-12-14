@@ -167,7 +167,7 @@ export default class MeemService {
 	}
 
 	/** Get a Meem contract instance */
-	public static meemContract() {
+	public static getMeemContract() {
 		const provider = new ethers.providers.JsonRpcProvider(
 			config.NETWORK === 'rinkeby'
 				? config.JSON_RPC_RINKEBY
@@ -392,7 +392,7 @@ export default class MeemService {
 			// }
 
 			const contract = isMeemToken
-				? this.meemContract()
+				? this.getMeemContract()
 				: this.erc721Contract({
 						networkName: MeemAPI.chainToNetworkName(data.chain),
 						address: data.tokenAddress
@@ -454,7 +454,7 @@ export default class MeemService {
 					: Promise.resolve(null)
 			])
 
-			const meemContract = this.meemContract()
+			const meemContract = this.getMeemContract()
 
 			let { recommendedGwei } = await services.web3.getGasEstimate({
 				chain: MeemAPI.networkNameToChain(config.NETWORK)
@@ -562,6 +562,8 @@ export default class MeemService {
 		}
 	}
 
+	// TODO: Add mintOriginalMeem method
+
 	public static async isValidMeemProject(options: {
 		chain: MeemAPI.Chain
 		contractAddress: string
@@ -657,7 +659,7 @@ export default class MeemService {
 		let rootContractMetadata = parentContractMetadata
 
 		if (isMeemToken) {
-			const meemContract = this.meemContract()
+			const meemContract = this.getMeemContract()
 			const meem = await meemContract.getMeem(tokenId)
 			rootTokenAddress = meem.root
 			rootTokenId = meem.rootTokenId

@@ -216,15 +216,16 @@ export namespace MeemAPI {
 		image: string
 		image_original: string
 		meem_properties: {
-			root_token_uri: string
-			root_token_address: string
+			root_token_uri: string | null
+			root_token_address: string | null
 			root_token_id: string | null
-			root_token_metadata: any
+			root_token_metadata: any | null
 			parent_token_uri: any | null
 			parent_token_address: string | null
 			parent_token_id: string | null
 			parent_token_metadata: any | null
 		}
+		extension_properties?: any
 	}
 
 	export interface IMeemPermission {
