@@ -16,7 +16,7 @@ import { MeemAPI } from '../types/meem.generated'
 
 export default class ContractEvent {
 	public static async meemSync() {
-		const meemContract = services.meem.meemContract()
+		const meemContract = services.meem.getMeemContract()
 		const events = await meemContract.queryFilter(
 			meemContract.filters.Transfer()
 		)
@@ -250,7 +250,7 @@ export default class ContractEvent {
 	}
 
 	private static async createNewMeem(tokenId: string) {
-		const meemContract = services.meem.meemContract()
+		const meemContract = services.meem.getMeemContract()
 		// Fetch the meem data and create it
 		const meemData = await meemContract.getMeem(tokenId)
 
