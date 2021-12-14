@@ -51,7 +51,7 @@ export default class ConfigController {
 		// 	gas
 		// })
 
-		const contract = services.meem.meemContract()
+		const contract = services.meem.getMeemContract()
 
 		const result = await contract.wrappedTokens([
 			{
