@@ -4,6 +4,7 @@
 
 import { ethers } from 'ethers'
 import moment from 'moment'
+import puppeteer from 'puppeteer'
 import { TwitterApi, TweetV2, TweetV2SingleStreamResult } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import Hashtag from '../models/Hashtag'
@@ -209,8 +210,6 @@ export default class TwitterService {
 
 		const isLocalMeem = /\\local/gi.test(event.data.text)
 
-		log.debug('IS LOCAL', isLocalMeem)
-
 		// Since stream rules are environment-independent
 		// Make sure we're not minting meems while testing locally
 
@@ -254,25 +253,14 @@ export default class TwitterService {
 			const meemContract = services.meem.getMeemContract()
 			const accountAddress = '0xE7EDF0FeAebaF19Ad799eA9246E7bd8a38002d89'
 
-			// TODO: Create Tweet Meem Image
-
-			// let base64Image: string | undefined
-
-			// if (data.s3ImagePath) {
-			// 	const imageData = await services.storage.getObject({
-			// 		path: data.s3ImagePath
-			// 	})
-
-			// 	base64Image = imageData.toString('base64')
-			// }
+			const tweetImage = await this.screenshotTweet(tweet)
 
 			const meemMetadata = await services.git.saveMeemMetadata({
 				name: `@${tweet.username} ${moment(
 					event.data.created_at || tweet.createdAt
-				)}`,
+				).format('MM-DD-YYYY HH:mm:ss')}`,
 				description: tweet.text,
-				imageBase64: '',
-				originalImage: '',
+				imageBase64: tweetImage || '',
 				meemId,
 				generation: 0,
 				extensionProperties: {
@@ -283,11 +271,12 @@ export default class TwitterService {
 						username: tweet.username,
 						userProfileImageUrl: tweet.userProfileImageUrl,
 						updatedAt: tweet.updatedAt,
-						createdAt: tweet.createdAt
+						createdAt: tweet.createdAt,
+						...(event.data.entities && { entities: event.data.entities }),
+						...(event.includes && { includes: event.includes })
 					}
 				}
 			})
-
 			let { recommendedGwei } = await services.web3.getGasEstimate({
 				chain: MeemAPI.networkNameToChain(config.NETWORK)
 			})
@@ -361,6 +350,7 @@ export default class TwitterService {
 					eventName: MeemAPI.MeemEvent.MeemMinted,
 					data: returnData
 				})
+				log.debug(returnData)
 				try {
 					const newMeem = await meemContract.getMeem(returnData.tokenId)
 					const branchName =
@@ -397,5 +387,35 @@ export default class TwitterService {
 
 		// log.debug(event)
 		// log.debug(tweet)
+	}
+
+	public static async screenshotTweet(tweet: any): Promise<string | undefined> {
+		const browser = await puppeteer.launch({
+			// headless: true, // debug only
+			args: ['--no-sandbox']
+		})
+
+		const page = await browser.newPage()
+
+		await page.goto(
+			`https://publish.twitter.com/?query=https%3A%2F%2Ftwitter.com%2F${tweet.username}%2Fstatus%2F${tweet.tweetId}&widget=Tweet`,
+			{
+				waitUntil: ['load', 'networkidle0', 'domcontentloaded']
+			}
+		)
+
+		await page.waitForSelector('.twitter-tweet-rendered')
+
+		const renderedTweet = await page.$('.twitter-tweet-rendered')
+
+		const buffer = await renderedTweet?.screenshot({
+			type: 'png'
+		})
+
+		await browser.close()
+
+		const base64 = buffer?.toString('base64')
+
+		return base64
 	}
 }

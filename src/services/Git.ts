@@ -11,7 +11,7 @@ export default class GitService {
 		name: string
 		description: string
 		imageBase64: string
-		originalImage: string
+		originalImage?: string
 		tokenURI?: string
 		tokenAddress?: string
 		tokenId?: ethers.BigNumberish
@@ -93,6 +93,8 @@ export default class GitService {
 			rootTokenId = services.web3.toBigNumber(data.tokenId).toHexString()
 		}
 
+		const image = `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/images/${id}.png`
+
 		const metadata: MeemAPI.IMeemMetadata = {
 			name: data.collectionName
 				? `${data.collectionName} – ${data.name || data.tokenId}`
@@ -115,8 +117,8 @@ export default class GitService {
 				parent_token_address: isOriginal ? null : data.tokenAddress!,
 				parent_token_metadata: isOriginal ? null : data.tokenMetadata
 			},
-			image: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/images/${id}.png`,
-			image_original: data.originalImage,
+			image,
+			image_original: data.originalImage || image,
 			...(data.extensionProperties && {
 				extension_properties: data.extensionProperties
 			})
