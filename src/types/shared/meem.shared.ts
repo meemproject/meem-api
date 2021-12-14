@@ -280,6 +280,7 @@ export interface IMeemId {
 
 	meemPass: {
 		twitter: {
+			hasApplied: boolean
 			isWhitelisted: boolean
 			tweetsPerDayQuota: number
 		}

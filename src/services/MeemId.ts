@@ -274,6 +274,7 @@ export default class MeemIdService {
 			twitters: meemIdentification?.Twitters?.map(t => t.twitterId) ?? [],
 			meemPass: {
 				twitter: {
+					hasApplied: meemIdentification.MeemPass?.hasApplied === true,
 					isWhitelisted: tweetsPerDayQuota > 0,
 					tweetsPerDayQuota
 				}
