@@ -321,6 +321,7 @@ export namespace MeemAPI {
 
 		meemPass: {
 			twitter: {
+				hasApplied: boolean
 				isWhitelisted: boolean
 				tweetsPerDayQuota: number
 			}
