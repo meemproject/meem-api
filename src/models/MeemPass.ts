@@ -20,12 +20,19 @@ export default class MeemPass extends BaseModel<MeemPass> {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 			defaultValue: 0
+		},
+		hasApplied: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: false
 		}
 	}
 
 	public id!: string
 
 	public tweetsPerDayQuota!: number
+
+	public hasApplied!: boolean
 
 	public MeemIdentification!: MeemIdentification | null
 
