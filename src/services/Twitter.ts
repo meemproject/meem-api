@@ -4,8 +4,6 @@
 
 import { ethers } from 'ethers'
 import moment from 'moment'
-// eslint-disable-next-line import/no-extraneous-dependencies
-import puppeteer from 'puppeteer'
 import { TwitterApi, TweetV2, TweetV2SingleStreamResult } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import Hashtag from '../models/Hashtag'
@@ -405,6 +403,8 @@ export default class TwitterService {
 	}
 
 	public static async screenshotTweet(tweet: any): Promise<string | undefined> {
+		// eslint-disable-next-line
+		const puppeteer = require('puppeteer')
 		const browser = await puppeteer.launch({
 			// headless: true, // debug only
 			args: ['--no-sandbox']
