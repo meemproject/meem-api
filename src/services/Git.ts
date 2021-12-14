@@ -102,10 +102,10 @@ export default class GitService {
 			description: metadataDescription,
 			external_url: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${id}.json`,
 			meem_properties: {
-				root_token_uri: isOriginal ? null : data.rootTokenURI || data.tokenURI!,
+				root_token_uri: isOriginal ? null : data.rootTokenURI || data.tokenURI,
 				root_token_address: isOriginal
 					? null
-					: data.rootTokenAddress || data.tokenAddress!,
+					: data.rootTokenAddress || data.tokenAddress,
 				root_token_id: isOriginal ? null : rootTokenId,
 				root_token_metadata: isOriginal
 					? null
@@ -114,7 +114,7 @@ export default class GitService {
 				parent_token_id: data.tokenId
 					? services.web3.toBigNumber(data.tokenId).toHexString()
 					: null,
-				parent_token_address: isOriginal ? null : data.tokenAddress!,
+				parent_token_address: isOriginal ? null : data.tokenAddress,
 				parent_token_metadata: isOriginal ? null : data.tokenMetadata
 			},
 			image,
