@@ -110,4 +110,25 @@ export default class AuthController {
 			meemId
 		})
 	}
+
+	public static async updateMeemPass(
+		req: IRequest<MeemAPI.v1.UpdateMeemPass.IDefinition>,
+		res: IResponse<MeemAPI.v1.UpdateMeemPass.IResponseBody>
+	): Promise<Response> {
+		if (!req.meemId) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		if (!req.meemId.MeemPass) {
+			throw new Error('MEEMPASS_NOT_FOUND')
+		}
+
+		req.meemId.MeemPass.hasApplied = req.body.hasAppliedTwitter === true
+
+		await req.meemId.MeemPass.save()
+
+		return res.json({
+			status: 'success'
+		})
+	}
 }

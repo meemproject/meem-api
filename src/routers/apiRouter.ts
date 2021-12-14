@@ -19,6 +19,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/login', MeemIdController.login)
 	router.postAsync('/meemId', MeemIdController.createOrUpdateMeemId)
 	router.getAsync('/meemId', MeemIdController.getMeemId)
+	router.patchAsync('/me/meemPass', MeemIdController.updateMeemPass)
 	router.getAsync('/me', MeemIdController.getMe)
 
 	router.getAsync('/access', MeemController.getAccessList)
