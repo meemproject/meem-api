@@ -211,6 +211,7 @@ export default class TwitterService {
 		// TODO: if user is whitelisted, get their wallet address from their Meem ID
 		// TODO: in meem webhook, update tweet in db with meem token id
 		// TODO: Cron to retry minting meems for tweets without an associated MEEM
+		// TODO: Send reply tweet from @0xmeem
 
 		const hashtags = event.data.entities?.hashtags || []
 
@@ -223,6 +224,21 @@ export default class TwitterService {
 
 		const isLocalMeem = /\\local/gi.test(event.data.text)
 
+		// const isMeemActionTweet = />meem/gi.test(event.data.text)
+
+		// if (!isMeemActionTweet) {
+		// 	return
+		// }
+
+		// const isTestMeem = />meemtest/gi.test(event.data.text)
+
+		// // Since stream rules are environment-independent
+		// // Make sure we're not minting meems while testing locally
+
+		// if (!config.TESTING && isTestMeem) {
+		// 	return
+		// }
+
 		// Since stream rules are environment-independent
 		// Make sure we're not minting meems while testing locally
 
@@ -231,6 +247,39 @@ export default class TwitterService {
 		}
 
 		const user = event.includes?.users?.find(u => u.id === event.data.author_id)
+
+		if (!user?.id) {
+			return
+		}
+
+		const item = await orm.models.Twitter.findOne({
+			where: {
+				twitterId: user.id
+			}
+		})
+
+		if (!item || !item.MeemIdentificationId) {
+			log.error(`No meemId found for twitter ID: ${user.id}`)
+			return
+		}
+
+		const meemId = await services.meemId.getMeemId({
+			meemIdentificationId: item.MeemIdentificationId
+		})
+
+		if (meemId.wallets.length === 0) {
+			log.error(`No wallet found for meemId: ${item.MeemIdentificationId}`)
+			return
+		}
+
+		const { isWhitelisted } = meemId.meemPass.twitter
+		const wallet = meemId.wallets[0]
+
+		if (!isWhitelisted) {
+			log.error(`meemId not whitelisted: ${item.MeemIdentificationId}`)
+			return
+		}
+
 		const tweet = await orm.models.Tweet.create({
 			tweetId: event.data.id,
 			text: event.data.text,
@@ -262,9 +311,9 @@ export default class TwitterService {
 		// Mint tweet MEEM
 
 		try {
-			const meemId = uuidv4()
+			const tweetMeemId = uuidv4()
 			const meemContract = services.meem.getMeemContract()
-			const accountAddress = '0xE7EDF0FeAebaF19Ad799eA9246E7bd8a38002d89'
+			const accountAddress = wallet
 
 			const tweetImage = await this.screenshotTweet(tweet)
 
@@ -274,7 +323,7 @@ export default class TwitterService {
 				).format('MM-DD-YYYY HH:mm:ss')}`,
 				description: tweet.text,
 				imageBase64: tweetImage || '',
-				meemId,
+				meemId: tweetMeemId,
 				generation: 0,
 				extensionProperties: {
 					meem_tweets_extension: {
@@ -374,7 +423,7 @@ export default class TwitterService {
 						tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${meemId}.json`,
 						generation: newMeem.generation.toNumber(),
 						tokenId: returnData.tokenId,
-						metadataId: meemId
+						metadataId: tweetMeemId
 					})
 				} catch (updateErr) {
 					log.warn('Error updating Meem metadata', updateErr)
