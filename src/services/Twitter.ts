@@ -275,8 +275,24 @@ export default class TwitterService {
 		const { isWhitelisted } = meemId.meemPass.twitter
 		const wallet = meemId.wallets[0]
 
+		const client = new TwitterApi({
+			appKey: config.TWITTER_CONSUMER_KEY,
+			appSecret: config.TWITTER_CONSUMER_SECRET,
+			accessToken: config.TWITTER_MEEM_ACCOUNT_TOKEN,
+			accessSecret: config.TWITTER_MEEM_ACCOUNT_SECRET
+		})
+
 		if (!isWhitelisted) {
 			log.error(`meemId not whitelisted: ${item.MeemIdentificationId}`)
+
+			await client.v2.tweet(
+				`Sorry @${user.username}, your Meem ID hasn't been approved yet!`,
+				{
+					reply: {
+						in_reply_to_tweet_id: event.data.id
+					}
+				}
+			)
 			return
 		}
 
