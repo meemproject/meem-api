@@ -276,8 +276,8 @@ export default class TwitterService {
 		const wallet = meemId.wallets[0]
 
 		const client = new TwitterApi({
-			appKey: config.TWITTER_CONSUMER_KEY,
-			appSecret: config.TWITTER_CONSUMER_SECRET,
+			appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
+			appSecret: config.TWITTER_MEEM_ACCOUNT_CONSUMER_SECRET,
 			accessToken: config.TWITTER_MEEM_ACCOUNT_TOKEN,
 			accessSecret: config.TWITTER_MEEM_ACCOUNT_SECRET
 		})
