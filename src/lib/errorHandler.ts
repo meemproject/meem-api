@@ -1,5 +1,13 @@
 import { Response } from 'express'
 
+export interface IErrorResponse {
+	status: string
+	code: string
+	reason: string
+	friendlyReason: string
+	debug?: string
+}
+
 function errorcodeToErrorString(contractErrorName: string) {
 	const allErrors: Record<string, any> = config.errors
 	const errorKeys = Object.keys(allErrors)
@@ -23,6 +31,7 @@ function genericError(res: Response) {
 }
 function handleStringErrorKey(res: Response, errorKey: string) {
 	let err = config.errors.SERVER_ERROR
+	let code = errorKey
 	// @ts-ignore
 	if (errorKey && config.errors[errorKey]) {
 		// @ts-ignore
@@ -31,14 +40,22 @@ function handleStringErrorKey(res: Response, errorKey: string) {
 		log.warn(
 			`errorResponder Middleware: Invalid error key specified: ${errorKey}`
 		)
+
+		code = 'SERVER_ERROR'
 	}
 
-	return res.status(err.httpCode).json({
+	const response: IErrorResponse = {
 		status: 'failure',
-		code: errorKey,
+		code,
 		reason: err.reason,
 		friendlyReason: err.friendlyReason
-	})
+	}
+
+	if (config.ENABLE_VERBOSE_ERRORS) {
+		response.debug = errorKey
+	}
+
+	return res.status(err.httpCode).json(response)
 }
 
 function errorHandler(res: Response, errorKey: any) {
