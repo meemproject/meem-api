@@ -76,6 +76,10 @@ export default class AuthController {
 		res: IResponse<MeemAPI.v1.GetMeemId.IResponseBody>
 	): Promise<Response> {
 		// Verify twitter and wallet, create MeemId and return JWT
+		if (!req.query.address && !req.query.twitterId) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
 		const item = await (req.query.address
 			? orm.models.Wallet.findByAddress(req.query.address)
 			: orm.models.Twitter.findOne({
