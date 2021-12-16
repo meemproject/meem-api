@@ -435,12 +435,20 @@ export default class TwitterService {
 					const newMeem = await meemContract.getMeem(returnData.tokenId)
 					const branchName =
 						config.NETWORK === MeemAPI.NetworkName.Rinkeby ? `test` : `master`
-					await services.git.updateMeemMetadata({
-						tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${meemId}.json`,
+					const updatedMetadata = await services.git.updateMeemMetadata({
+						tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${tweetMeemId}.json`,
 						generation: newMeem.generation.toNumber(),
 						tokenId: returnData.tokenId,
 						metadataId: tweetMeemId
 					})
+					await client.v2.tweet(
+						`Your tweet has been minted! View here: ${updatedMetadata.external_url}`,
+						{
+							reply: {
+								in_reply_to_tweet_id: event.data.id
+							}
+						}
+					)
 				} catch (updateErr) {
 					log.warn('Error updating Meem metadata', updateErr)
 				}
