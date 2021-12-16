@@ -54,28 +54,38 @@ export default class DbService {
 		subscriptionKey: string
 		walletAddress?: string
 	}) {
-		const { subscriptionKey } = options
+		const { subscriptionKey, walletAddress } = options
 		const db = new AWS.DynamoDB({
 			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
 			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
 		})
 
-		// TODO: Query/filter by walletAddress if set
-
-		const result = await db
-			.query({
-				TableName: config.DYNAMODB_SOCKETS_TABLE,
-				KeyConditionExpression: '#subscriptionKey = :subscriptionKey',
-				ExpressionAttributeNames: {
-					'#subscriptionKey': 'subscriptionKey'
-				},
-				ExpressionAttributeValues: {
-					':subscriptionKey': {
-						S: subscriptionKey
-					}
+		const query: AWS.DynamoDB.QueryInput = {
+			TableName: config.DYNAMODB_SOCKETS_TABLE,
+			KeyConditionExpression: '#subscriptionKey = :subscriptionKey',
+			ExpressionAttributeNames: {
+				'#subscriptionKey': 'subscriptionKey'
+			},
+			ExpressionAttributeValues: {
+				':subscriptionKey': {
+					S: subscriptionKey
 				}
-			})
-			.promise()
+			}
+		}
+
+		if (
+			walletAddress &&
+			query.ExpressionAttributeNames &&
+			query.ExpressionAttributeValues
+		) {
+			query.FilterExpression = '#walletAddress = :walletAddress'
+			query.ExpressionAttributeNames['#walletAddress'] = 'walletAddress'
+			query.ExpressionAttributeValues[':walletAddress'] = {
+				S: walletAddress
+			}
+		}
+
+		const result = await db.query(query).promise()
 
 		return result
 	}

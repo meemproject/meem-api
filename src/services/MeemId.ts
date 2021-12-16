@@ -240,20 +240,16 @@ export default class MeemIdService {
 
 			const meemId = await this.getMeemId({ meemIdentificationId })
 
-			await sockets?.emit({
-				subscription: MeemAPI.MeemEvent.MeemIdUpdated,
-				eventName: MeemAPI.MeemEvent.MeemIdUpdated,
-				data: { meemId }
+			const jwt = this.generateJWT({
+				meemId: meemIdentificationId
 			})
 
-			// const jwt = this.generateJWT({
-			// 	meemId: meemIdentificationId
-			// })
-
-			// return {
-			// 	meemId,
-			// 	jwt
-			// }
+			await sockets?.emit({
+				subscription: MeemAPI.MeemEvent.MeemIdUpdated,
+				walletAddress: address,
+				eventName: MeemAPI.MeemEvent.MeemIdUpdated,
+				data: { meemId, jwt }
+			})
 		} catch (e) {
 			log.crit(e)
 			await sockets?.emitError(config.errors.SERVER_ERROR, address)
