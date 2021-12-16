@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
 import { MeemAPI } from '../types/meem.generated'
+import { IMeemMetadata } from '../types/shared/meem.shared'
 
 // https://www.reddit.com/r/ipfs/comments/lvwn4o/ipfs_http_gateways_ranked_by_performance/
 
@@ -171,7 +172,7 @@ export default class GitService {
 		generation: number
 		tokenId: number
 		metadataId: string
-	}): Promise<{ metadata: any }> {
+	}): Promise<IMeemMetadata> {
 		const branchName =
 			config.NETWORK === MeemAPI.NetworkName.Rinkeby ? `test` : `master`
 		const result = await request.get(data.tokenURI)
@@ -219,8 +220,6 @@ export default class GitService {
 			sha
 		})
 
-		return {
-			metadata
-		}
+		return metadata
 	}
 }

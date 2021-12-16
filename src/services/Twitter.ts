@@ -275,8 +275,24 @@ export default class TwitterService {
 		const { isWhitelisted } = meemId.meemPass.twitter
 		const wallet = meemId.wallets[0]
 
+		const client = new TwitterApi({
+			appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
+			appSecret: config.TWITTER_MEEM_ACCOUNT_CONSUMER_SECRET,
+			accessToken: config.TWITTER_MEEM_ACCOUNT_TOKEN,
+			accessSecret: config.TWITTER_MEEM_ACCOUNT_SECRET
+		})
+
 		if (!isWhitelisted) {
 			log.error(`meemId not whitelisted: ${item.MeemIdentificationId}`)
+
+			await client.v2.tweet(
+				`Sorry @${user.username}, your Meem ID hasn't been approved yet!`,
+				{
+					reply: {
+						in_reply_to_tweet_id: event.data.id
+					}
+				}
+			)
 			return
 		}
 
@@ -419,12 +435,20 @@ export default class TwitterService {
 					const newMeem = await meemContract.getMeem(returnData.tokenId)
 					const branchName =
 						config.NETWORK === MeemAPI.NetworkName.Rinkeby ? `test` : `master`
-					await services.git.updateMeemMetadata({
-						tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${meemId}.json`,
+					const updatedMetadata = await services.git.updateMeemMetadata({
+						tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${tweetMeemId}.json`,
 						generation: newMeem.generation.toNumber(),
 						tokenId: returnData.tokenId,
 						metadataId: tweetMeemId
 					})
+					await client.v2.tweet(
+						`Your tweet has been minted! View here: ${updatedMetadata.external_url}`,
+						{
+							reply: {
+								in_reply_to_tweet_id: event.data.id
+							}
+						}
+					)
 				} catch (updateErr) {
 					log.warn('Error updating Meem metadata', updateErr)
 				}
