@@ -113,4 +113,44 @@ export default class ConfigController {
 			status: 'success'
 		})
 	}
+
+	public static async testSaveSubscription(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		const { connectionId, walletAddress, key } = req.query as Record<
+			string,
+			string
+		>
+
+		await services.db.saveSubscription({
+			connectionId,
+			walletAddress,
+			events: [
+				{
+					key
+				}
+			]
+		})
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
+	public static async testGetSubscriptions(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		const { walletAddress, key } = req.query as Record<string, string>
+
+		const subscriptions = await services.db.getSubscriptions({
+			subscriptionKey: key,
+			walletAddress
+		})
+
+		return res.json({
+			subscriptions
+		})
+	}
 }

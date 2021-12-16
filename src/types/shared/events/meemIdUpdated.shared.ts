@@ -8,5 +8,6 @@ export namespace MeemIdUpdated {
 
 	export interface IEventPayload {
 		meemId: IMeemId
+		jwt: string
 	}
 }

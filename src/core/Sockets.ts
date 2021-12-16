@@ -206,16 +206,19 @@ export default class Sockets {
 		/** The subscription key */
 		subscription: string
 
+		walletAddress?: string
+
 		/** The event name to emit */
 		eventName: string
 
 		/** The event data */
 		data: Record<string, any>
 	}) {
-		const { subscription, eventName, data } = options
+		const { subscription, eventName, walletAddress, data } = options
 
 		const subscriptions = await services.db.getSubscriptions({
-			subscriptionKey: subscription
+			subscriptionKey: subscription,
+			walletAddress
 		})
 
 		log.debug(subscriptions)
