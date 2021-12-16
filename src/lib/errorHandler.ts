@@ -8,7 +8,7 @@ export interface IErrorResponse {
 	debug?: string
 }
 
-function errorcodeToErrorString(contractErrorName: string) {
+export function errorcodeToErrorString(contractErrorName: string) {
 	const allErrors: Record<string, any> = config.errors
 	const errorKeys = Object.keys(allErrors)
 	const errIdx = errorKeys.findIndex(
@@ -20,7 +20,7 @@ function errorcodeToErrorString(contractErrorName: string) {
 	return 'UNKNOWN_CONTRACT_ERROR'
 }
 
-function genericError(res: Response) {
+export function genericError(res: Response) {
 	return res.status(500).json({
 		status: 'failure',
 		code: 'SERVER_ERROR',
@@ -29,7 +29,7 @@ function genericError(res: Response) {
 			'Sorry, something went wrong. Please try again in a few minutes.'
 	})
 }
-function handleStringErrorKey(res: Response, errorKey: string) {
+export function handleStringErrorKey(res: Response, errorKey: string) {
 	let err = config.errors.SERVER_ERROR
 	let code = errorKey
 	// @ts-ignore

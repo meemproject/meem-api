@@ -119,131 +119,144 @@ export default class MeemIdService {
 	}) {
 		const { address, signature, twitterAccessToken, twitterAccessSecret } =
 			options
-
-		const twitterUser = await services.twitter.getUser({
-			accessToken: twitterAccessToken,
-			accessSecret: twitterAccessSecret
-		})
-
-		await this.verifySignature({ address, signature })
-
-		let { recommendedGwei } = await services.web3.getGasEstimate({
-			chain: MeemAPI.networkNameToChain(config.NETWORK)
-		})
-
-		if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
-			// throw new Error('GAS_PRICE_TOO_HIGH')
-			log.warn(`Recommended fee over max: ${recommendedGwei}`)
-			recommendedGwei = config.MAX_GAS_PRICE_GWEI
-		}
-
-		const meemIdContract = this.meemIdContract()
-		const createTx = await meemIdContract.createOrAddMeemID(
-			address,
-			twitterUser.id_str,
-			{ gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber() }
-		)
-
-		await createTx.wait()
-
-		const meemIdData = await meemIdContract.getMeemIDByWalletAddress(address)
-
-		const [twitters, wallets] = await Promise.all([
-			orm.models.Twitter.findAll({
-				where: {
-					twitterId: {
-						[Op.in]: meemIdData.twitters
-					}
-				}
-			}),
-			orm.models.Wallet.findAllByAddresses(meemIdData.wallets)
-		])
-
-		const twittersCreateData: Record<string, any>[] = []
-		const walletsCreateData: Record<string, any>[] = []
-
-		let meemIdentificationId = this.findMeemIdentificationId({
-			twitters,
-			wallets
-		})
-
-		if (!meemIdentificationId) {
-			meemIdentificationId = uuidv4()
-			await orm.models.MeemIdentification.create({
-				id: meemIdentificationId
+		try {
+			const twitterUser = await services.twitter.getUser({
+				accessToken: twitterAccessToken,
+				accessSecret: twitterAccessSecret
 			})
-		}
 
-		// See if we have a MeemPass already and if not, create one
-		const meemPass = await orm.models.MeemPass.findOne({
-			where: {
-				MeemIdentificationId: meemIdentificationId
-			}
-		})
+			await this.verifySignature({ address, signature })
+			log.debug('Signature verified')
 
-		if (!meemPass) {
-			await orm.models.MeemPass.create({
-				tweetsPerDayQuota: config.MEEMPASS_DEFAULT_TWEETS_PER_DAY_QUOTA,
-				MeemIdentificationId: meemIdentificationId
+			let { recommendedGwei } = await services.web3.getGasEstimate({
+				chain: MeemAPI.networkNameToChain(config.NETWORK)
 			})
-		}
 
-		const promises: Promise<any>[] = []
-
-		meemIdData.twitters.forEach(meemIdTwitter => {
-			const existingTwitter = twitters.find(t => t.twitterId === meemIdTwitter)
-			if (!existingTwitter) {
-				twittersCreateData.push({
-					id: uuidv4(),
-					twitterId: meemIdTwitter,
-					MeemIdentificationId: meemIdentificationId
-				})
-			} else if (existingTwitter && !existingTwitter.MeemIdentificationId) {
-				existingTwitter.MeemIdentificationId = meemIdentificationId
-				promises.push(existingTwitter.save())
+			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
+				// throw new Error('GAS_PRICE_TOO_HIGH')
+				log.warn(`Recommended fee over max: ${recommendedGwei}`)
+				recommendedGwei = config.MAX_GAS_PRICE_GWEI
 			}
-		})
 
-		meemIdData.wallets.forEach(meemIdWallet => {
-			const existingWallet = wallets.find(
-				w => w.address.toLowerCase() === meemIdWallet.toLowerCase()
+			const meemIdContract = this.meemIdContract()
+
+			log.debug('Creating MeemID w/ params', {
+				address,
+				twitterId: twitterUser.id_str
+			})
+
+			const createTx = await meemIdContract.createOrAddMeemID(
+				address,
+				twitterUser.id_str,
+				{ gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber() }
 			)
-			if (!existingWallet) {
-				walletsCreateData.push({
-					id: uuidv4(),
-					address: meemIdWallet,
+
+			await createTx.wait()
+
+			const meemIdData = await meemIdContract.getMeemIDByWalletAddress(address)
+
+			const [twitters, wallets] = await Promise.all([
+				orm.models.Twitter.findAll({
+					where: {
+						twitterId: {
+							[Op.in]: meemIdData.twitters
+						}
+					}
+				}),
+				orm.models.Wallet.findAllByAddresses(meemIdData.wallets)
+			])
+
+			const twittersCreateData: Record<string, any>[] = []
+			const walletsCreateData: Record<string, any>[] = []
+
+			let meemIdentificationId = this.findMeemIdentificationId({
+				twitters,
+				wallets
+			})
+
+			if (!meemIdentificationId) {
+				meemIdentificationId = uuidv4()
+				await orm.models.MeemIdentification.create({
+					id: meemIdentificationId
+				})
+			}
+
+			// See if we have a MeemPass already and if not, create one
+			const meemPass = await orm.models.MeemPass.findOne({
+				where: {
+					MeemIdentificationId: meemIdentificationId
+				}
+			})
+
+			if (!meemPass) {
+				await orm.models.MeemPass.create({
+					tweetsPerDayQuota: config.MEEMPASS_DEFAULT_TWEETS_PER_DAY_QUOTA,
 					MeemIdentificationId: meemIdentificationId
 				})
-			} else if (existingWallet && !existingWallet.MeemIdentificationId) {
-				existingWallet.MeemIdentificationId = meemIdentificationId
-				promises.push(existingWallet.save())
 			}
-		})
 
-		if (twittersCreateData.length > 0) {
-			promises.push(orm.models.Twitter.bulkCreate(twittersCreateData))
-		}
-		if (walletsCreateData.length > 0) {
-			promises.push(orm.models.Wallet.bulkCreate(walletsCreateData))
-		}
+			const promises: Promise<any>[] = []
 
-		await Promise.all(promises)
+			meemIdData.twitters.forEach(meemIdTwitter => {
+				const existingTwitter = twitters.find(
+					t => t.twitterId === meemIdTwitter
+				)
+				if (!existingTwitter) {
+					twittersCreateData.push({
+						id: uuidv4(),
+						twitterId: meemIdTwitter,
+						MeemIdentificationId: meemIdentificationId
+					})
+				} else if (existingTwitter && !existingTwitter.MeemIdentificationId) {
+					existingTwitter.MeemIdentificationId = meemIdentificationId
+					promises.push(existingTwitter.save())
+				}
+			})
 
-		const meemId = await this.getMeemId({ meemIdentificationId })
+			meemIdData.wallets.forEach(meemIdWallet => {
+				const existingWallet = wallets.find(
+					w => w.address.toLowerCase() === meemIdWallet.toLowerCase()
+				)
+				if (!existingWallet) {
+					walletsCreateData.push({
+						id: uuidv4(),
+						address: meemIdWallet,
+						MeemIdentificationId: meemIdentificationId
+					})
+				} else if (existingWallet && !existingWallet.MeemIdentificationId) {
+					existingWallet.MeemIdentificationId = meemIdentificationId
+					promises.push(existingWallet.save())
+				}
+			})
 
-		await sockets?.emit({
-			subscription: MeemAPI.MeemEvent.MeemIdUpdated,
-			eventName: MeemAPI.MeemEvent.MeemIdUpdated,
-			data: { meemId }
-		})
+			if (twittersCreateData.length > 0) {
+				promises.push(orm.models.Twitter.bulkCreate(twittersCreateData))
+			}
+			if (walletsCreateData.length > 0) {
+				promises.push(orm.models.Wallet.bulkCreate(walletsCreateData))
+			}
 
-		const jwt = this.generateJWT({
-			meemId: meemIdentificationId
-		})
+			await Promise.all(promises)
 
-		return {
-			meemId,
-			jwt
+			const meemId = await this.getMeemId({ meemIdentificationId })
+
+			await sockets?.emit({
+				subscription: MeemAPI.MeemEvent.MeemIdUpdated,
+				eventName: MeemAPI.MeemEvent.MeemIdUpdated,
+				data: { meemId }
+			})
+
+			// const jwt = this.generateJWT({
+			// 	meemId: meemIdentificationId
+			// })
+
+			// return {
+			// 	meemId,
+			// 	jwt
+			// }
+		} catch (e) {
+			log.crit(e)
+			await sockets?.emitError(config.errors.SERVER_ERROR, address)
 		}
 	}
 
