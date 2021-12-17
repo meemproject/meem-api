@@ -283,6 +283,7 @@ export default class TwitterService {
 		const tweet = await orm.models.Tweet.create({
 			tweetId: event.data.id,
 			text: event.data.text,
+			userId: user?.id,
 			username: user?.username || '',
 			userProfileImageUrl: user?.profile_image_url || ''
 		})
@@ -332,12 +333,12 @@ export default class TwitterService {
 						tweet: {
 							tweetId: tweet.tweetId,
 							text: tweet.text,
+							authorId: tweet.userId,
 							username: tweet.username,
 							userProfileImageUrl: tweet.userProfileImageUrl,
 							updatedAt: tweet.updatedAt,
 							createdAt: tweet.createdAt,
-							...(event.data.entities && { entities: event.data.entities }),
-							...(event.includes && { includes: event.includes })
+							...(event.data.entities && { entities: event.data.entities })
 						}
 					}
 				}
