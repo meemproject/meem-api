@@ -214,34 +214,19 @@ export default class TwitterService {
 
 		const hashtags = event.data.entities?.hashtags || []
 
-		// TODO: If we need to remove the meem actions from the tweet text?
-		// const meemActions = new RegExp('\\\\meem', 'gi')
+		// Make sure tweet contains >meem action
+		const isMeemActionTweet = /&gt;meem/gi.test(event.data.text)
 
-		// let sanitizedText = event.data.text.replace(meemActions, '')
+		if (!isMeemActionTweet) {
+			return
+		}
 
-		// sanitizedText = sanitizedText.replace(/\s\s+/g, ' ').trim()
-
-		const isLocalMeem = /\\local/gi.test(event.data.text)
-
-		// const isMeemActionTweet = />meem/gi.test(event.data.text)
-
-		// if (!isMeemActionTweet) {
-		// 	return
-		// }
-
-		// const isTestMeem = />meemtest/gi.test(event.data.text)
-
-		// // Since stream rules are environment-independent
-		// // Make sure we're not minting meems while testing locally
-
-		// if (!config.TESTING && isTestMeem) {
-		// 	return
-		// }
+		const isTestMeem = /&gt;meemtest/gi.test(event.data.text)
 
 		// Since stream rules are environment-independent
 		// Make sure we're not minting meems while testing locally
 
-		if (!config.TESTING && isLocalMeem) {
+		if (!config.TESTING && isTestMeem) {
 			return
 		}
 
