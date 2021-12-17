@@ -333,7 +333,7 @@ export default class TwitterService {
 						tweet: {
 							tweetId: tweet.tweetId,
 							text: tweet.text,
-							authorId: tweet.userId,
+							userId: tweet.userId,
 							username: tweet.username,
 							userProfileImageUrl: tweet.userProfileImageUrl,
 							updatedAt: tweet.updatedAt,
