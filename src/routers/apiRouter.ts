@@ -48,6 +48,9 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	imageRouter.postAsync('/meems/create-image', MeemController.createMeemImage)
 
+	// Projects
+	router.postAsync('/projects', MeemController.createMeemProject)
+
 	if (config.ENABLE_TEST_ENDPOINTS) {
 		router.getAsync('/test/emit', TestController.testEmit)
 		router.getAsync('/test/wrapped', TestController.testWrapped)
@@ -59,5 +62,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 			'/test/getSubscriptions',
 			TestController.testGetSubscriptions
 		)
+		router.getAsync('/test/getUserJWT', TestController.testGetUserJWT)
 	}
 }

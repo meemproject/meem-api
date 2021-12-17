@@ -432,6 +432,25 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+    ],
+    name: "ownerTokens",
+    outputs: [
+      {
+        internalType: "uint256[]",
+        name: "",
+        type: "uint256[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "from",
         type: "address",
       },
@@ -1002,44 +1021,61 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        internalType: "string",
-        name: "mTokenURI",
-        type: "string",
-      },
-      {
-        internalType: "enum Chain",
-        name: "parentChain",
-        type: "uint8",
-      },
-      {
-        internalType: "address",
-        name: "parent",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "parentTokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "enum Chain",
-        name: "rootChain",
-        type: "uint8",
-      },
-      {
-        internalType: "address",
-        name: "root",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "rootTokenId",
-        type: "uint256",
+        components: [
+          {
+            internalType: "address",
+            name: "to",
+            type: "address",
+          },
+          {
+            internalType: "string",
+            name: "mTokenURI",
+            type: "string",
+          },
+          {
+            internalType: "enum Chain",
+            name: "parentChain",
+            type: "uint8",
+          },
+          {
+            internalType: "address",
+            name: "parent",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "parentTokenId",
+            type: "uint256",
+          },
+          {
+            internalType: "enum Chain",
+            name: "rootChain",
+            type: "uint8",
+          },
+          {
+            internalType: "address",
+            name: "root",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "rootTokenId",
+            type: "uint256",
+          },
+          {
+            internalType: "enum PermissionType",
+            name: "permissionType",
+            type: "uint8",
+          },
+          {
+            internalType: "string",
+            name: "data",
+            type: "string",
+          },
+        ],
+        internalType: "struct MeemMintParameters",
+        name: "params",
+        type: "tuple",
       },
       {
         components: [
@@ -1340,11 +1376,6 @@ const _abi = [
         internalType: "struct MeemProperties",
         name: "mChildProperties",
         type: "tuple",
-      },
-      {
-        internalType: "enum PermissionType",
-        name: "permissionType",
-        type: "uint8",
       },
     ],
     name: "mint",
@@ -2211,6 +2242,30 @@ const _abi = [
         internalType: "uint256[]",
         name: "",
         type: "uint256[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_owner",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "tokenIdOfOwnerIndex",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",

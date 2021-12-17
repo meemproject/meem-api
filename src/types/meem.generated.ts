@@ -361,6 +361,36 @@ export namespace MeemAPI {
 			export type Response = IResponseBody | IError
 		}
 
+		/** Create Meem Image */
+		export namespace CreateMeemProject {
+			export interface IPathParams {}
+
+			export const path = () => `/images/1.0/projects`
+
+			export const method = HttpMethod.Post
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {
+				name: string
+				description: string
+				minterAddresses: string[]
+			}
+
+			export interface IResponseBody extends IApiResponseBody {
+				status: 'success'
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
 		export namespace CreateOrUpdateMeemId {
 			export interface IPathParams {}
 
@@ -909,9 +939,6 @@ export namespace MeemAPI {
 				properties?: Partial<IMeemProperties>
 
 				childProperties?: Partial<IMeemProperties>
-
-				/** Set to true to disable whitelist checks. This option is only respected on testnet */
-				shouldIgnoreWhitelist?: boolean
 			}
 
 			export interface IResponseBody extends IApiResponseBody {

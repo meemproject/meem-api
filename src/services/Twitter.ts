@@ -10,7 +10,6 @@ import Hashtag from '../models/Hashtag'
 import Tweet from '../models/Tweet'
 import { Meem } from '../types'
 import { MeemAPI } from '../types/meem.generated'
-import { PermissionType } from '../types/shared/meem.shared'
 import DbService from './Db'
 
 function errorcodeToErrorString(contractErrorName: string) {
@@ -328,7 +327,9 @@ export default class TwitterService {
 
 		try {
 			const tweetMeemId = uuidv4()
-			const meemContract = services.meem.getMeemContract()
+			const meemContract = services.meem.getMeemContract({
+				walletPrivateKey: config.TWITTER_WALLET_PRIVATE_KEY
+			})
 			const accountAddress = wallet
 
 			const tweetImage = await this.screenshotTweet(tweet)
@@ -344,7 +345,6 @@ export default class TwitterService {
 				extensionProperties: {
 					meem_tweets_extension: {
 						tweet: {
-							id: tweet.id,
 							tweetId: tweet.tweetId,
 							text: tweet.text,
 							username: tweet.username,
@@ -371,7 +371,7 @@ export default class TwitterService {
 				totalChildren: '-1',
 				copyPermissions: [
 					{
-						permission: 1,
+						permission: MeemAPI.Permission.Owner,
 						addresses: [],
 						numTokens: '0',
 						lockedBy: MeemAPI.zeroAddress
@@ -387,19 +387,24 @@ export default class TwitterService {
 			})
 
 			const mintParams: Parameters<Meem['mint']> = [
-				accountAddress,
-				meemMetadata.tokenURI,
-				MeemAPI.Chain.Polygon,
-				MeemAPI.zeroAddress,
-				0,
-				// TODO: Set root chain based on parent if necessary
-				MeemAPI.Chain.Polygon,
-				MeemAPI.zeroAddress,
-				0,
+				{
+					to: accountAddress,
+					mTokenURI: meemMetadata.tokenURI,
+					parentChain: MeemAPI.Chain.Polygon,
+					parent: config.MEEM_PROXY_ADDRESS,
+					parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
+					rootChain: MeemAPI.Chain.Polygon,
+					root: config.MEEM_PROXY_ADDRESS,
+					rootTokenId: config.TWITTER_PROJECT_TOKEN_ID,
+					permissionType: MeemAPI.PermissionType.Remix,
+					data: JSON.stringify({
+						tweetId: tweet.tweetId,
+						text: tweet.text,
+						username: tweet.username
+					})
+				},
 				properties,
 				properties,
-				// TODO: Set permission type based on copy/remix
-				PermissionType.Copy,
 				{
 					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
 				}
@@ -407,7 +412,8 @@ export default class TwitterService {
 
 			log.debug('Minting Tweet MEEM w/ params', { mintParams })
 
-			await meemContract.setNonOwnerSplitAllocationAmount(0)
+			// !! DON'T CALL THIS FROM A CONTRACT - IT'S AN ADMIN FUNCTION THAT SETS THE SPLIT REQUIREMENTS FOR ALL MEEMS
+			// await meemContract.setNonOwnerSplitAllocationAmount(0)
 
 			const mintTx = await meemContract.mint(...mintParams)
 

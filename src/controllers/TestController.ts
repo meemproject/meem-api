@@ -153,4 +153,32 @@ export default class ConfigController {
 			subscriptions
 		})
 	}
+
+	public static async testGetUserJWT(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		const { walletAddress } = req.query as Record<string, string>
+
+		const meemId = await orm.models.MeemIdentification.findOne({
+			include: [
+				{
+					model: orm.models.Wallet,
+					where: {
+						address: walletAddress
+					}
+				}
+			]
+		})
+
+		if (!meemId) {
+			throw new Error('MEEM_ID_NOT_FOUND')
+		}
+
+		const jwt = await services.meemId.generateJWT({
+			meemId: meemId.id
+		})
+
+		return res.json({ jwt })
+	}
 }

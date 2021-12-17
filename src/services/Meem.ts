@@ -1,5 +1,6 @@
 import * as path from 'path'
 import { ethers } from 'ethers'
+import fs from 'fs-extra'
 import _ from 'lodash'
 import sharp from 'sharp'
 import request from 'superagent'
@@ -167,13 +168,16 @@ export default class MeemService {
 	}
 
 	/** Get a Meem contract instance */
-	public static getMeemContract() {
+	public static getMeemContract(options?: { walletPrivateKey: string }) {
+		const walletPrivateKey =
+			options?.walletPrivateKey ?? config.WALLET_PRIVATE_KEY
+
 		const provider = new ethers.providers.JsonRpcProvider(
 			config.NETWORK === 'rinkeby'
 				? config.JSON_RPC_RINKEBY
 				: config.JSON_RPC_POLYGON
 		)
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new ethers.Wallet(walletPrivateKey, provider)
 
 		const meemContract = new ethers.Contract(
 			config.MEEM_PROXY_ADDRESS,
@@ -290,11 +294,11 @@ export default class MeemService {
 		name?: string
 		description?: string
 		imageBase64: string
-		tokenAddress: string
+		tokenAddress?: string
 		tokenId?: ethers.BigNumberish
 		collectionName?: string
-		parentMetadata: MeemAPI.IERC721Metadata
-		tokenURI: string
+		parentMetadata?: MeemAPI.IERC721Metadata
+		tokenURI?: string
 		meemId?: string
 		rootTokenURI?: string
 		rootTokenAddress?: string
@@ -328,12 +332,12 @@ export default class MeemService {
 			tokenAddress,
 			tokenId,
 			collectionName,
-			name: name || parentMetadata.name || '',
+			name: name || parentMetadata?.name || '',
 			description:
-				description || parentMetadata.description || collectionName
+				description || parentMetadata?.description || collectionName
 					? `${collectionName} – #${tokenId}`
 					: '',
-			originalImage: parentMetadata.image || '',
+			originalImage: parentMetadata?.image || '',
 			tokenURI,
 			tokenMetadata: parentMetadata,
 			meemId: id
@@ -467,15 +471,18 @@ export default class MeemService {
 			}
 
 			const mintParams: Parameters<Meem['mint']> = [
-				data.accountAddress,
-				meemMetadata.tokenURI,
-				data.chain,
-				contractInfo.parentTokenAddress,
-				contractInfo.parentTokenId,
-				// TODO: Set root chain based on parent if necessary
-				data.chain,
-				contractInfo.rootTokenAddress,
-				contractInfo.rootTokenId,
+				{
+					to: data.accountAddress,
+					mTokenURI: meemMetadata.tokenURI,
+					parentChain: data.chain,
+					parent: contractInfo.parentTokenAddress,
+					parentTokenId: contractInfo.parentTokenId,
+					rootChain: data.chain,
+					root: contractInfo.rootTokenAddress,
+					rootTokenId: contractInfo.rootTokenId,
+					permissionType: MeemAPI.PermissionType.Copy,
+					data: ''
+				},
 				this.buildProperties(data.properties),
 				this.buildProperties({
 					...data.childProperties,
@@ -484,8 +491,6 @@ export default class MeemService {
 						.toHexString(),
 					splits: data.childProperties?.splits ?? data.properties?.splits
 				}),
-				// TODO: Set permission type based on copy/remix
-				MeemAPI.PermissionType.Copy,
 				{
 					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
 				}
@@ -560,6 +565,103 @@ export default class MeemService {
 			await sockets?.emitError(errors.SERVER_ERROR, data.accountAddress)
 			throw new Error('SERVER_ERROR')
 		}
+	}
+
+	public static async createMeemProject(options: {
+		name: string
+		description: string
+		minterAddresses: string[]
+	}) {
+		const { name, description, minterAddresses } = options
+
+		const projectImagePath = path.resolve(
+			process.cwd(),
+			'src/lib/meem-badge.png'
+		)
+
+		const projectImage = await fs.readFile(projectImagePath)
+
+		const meemMetadata = await this.saveMeemMetadataasync({
+			name,
+			description,
+			collectionName: 'Meem Projects',
+			imageBase64: projectImage.toString('base64'),
+			meemId: uuidv4()
+		})
+
+		const meemContract = this.getMeemContract()
+
+		let { recommendedGwei } = await services.web3.getGasEstimate({
+			chain: MeemAPI.networkNameToChain(config.NETWORK)
+		})
+
+		if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
+			// throw new Error('GAS_PRICE_TOO_HIGH')
+			log.warn(`Recommended fee over max: ${recommendedGwei}`)
+			recommendedGwei = config.MAX_GAS_PRICE_GWEI
+		}
+
+		const mintParams: Parameters<Meem['mint']> = [
+			{
+				to: config.MEEM_PROJECT_OWNER_ADDRESS,
+				mTokenURI: meemMetadata.tokenURI,
+				parentChain: MeemAPI.networkNameToChain(config.NETWORK),
+				parent: MeemAPI.zeroAddress,
+				parentTokenId: 0,
+				rootChain: MeemAPI.networkNameToChain(config.NETWORK),
+				root: MeemAPI.zeroAddress,
+				rootTokenId: 0,
+				permissionType: MeemAPI.PermissionType.Copy,
+				data: ''
+			},
+			this.buildProperties({
+				copyPermissions: [
+					{
+						permission: MeemAPI.Permission.Addresses,
+						addresses: minterAddresses,
+						numTokens: '0',
+						lockedBy: MeemAPI.zeroAddress
+					}
+				],
+				remixPermissions: [
+					{
+						permission: MeemAPI.Permission.Addresses,
+						addresses: minterAddresses,
+						numTokens: '0',
+						lockedBy: MeemAPI.zeroAddress
+					}
+				],
+				splits: [
+					{
+						toAddress: config.MEEM_PROJECT_OWNER_ADDRESS,
+						amount: 100,
+						lockedBy: MeemAPI.zeroAddress
+					}
+				]
+			}),
+			this.buildProperties({
+				splits: [
+					{
+						toAddress: config.MEEM_PROJECT_OWNER_ADDRESS,
+						amount: 100,
+						lockedBy: MeemAPI.zeroAddress
+					}
+				]
+			}),
+			{
+				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+			}
+		]
+
+		log.debug('Minting meem w/ params', { mintParams })
+
+		const mintTx = await meemContract.mint(...mintParams)
+
+		log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
+
+		const receipt = await mintTx.wait()
+
+		log.debug(`Finished minting: ${receipt.transactionHash}`)
 	}
 
 	// TODO: Add mintOriginalMeem method
