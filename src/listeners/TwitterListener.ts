@@ -35,7 +35,7 @@ export default class TwitterListener {
 				// Emitted when a Twitter payload (a tweet or not, given the endpoint).
 				ETwitterStreamEvent.Data,
 				async eventData => {
-					services.twitter.mintAndStoreTweet(eventData)
+					services.twitter.mintAndStoreTweet(eventData.data, eventData.includes)
 				}
 			)
 

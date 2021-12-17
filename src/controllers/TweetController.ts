@@ -10,9 +10,9 @@ export default class TweetController {
 		req: IRequest<MeemAPI.v1.GetTweets.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetTweets.IResponseBody>
 	): Promise<any> {
-		const tweets = await services.twitter.getTweets()
+		await services.twitter.checkForMissedTweets()
 		return res.json({
-			tweets
+			tweets: []
 		})
 	}
 }

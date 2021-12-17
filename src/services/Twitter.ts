@@ -4,7 +4,13 @@
 
 import { ethers } from 'ethers'
 import moment from 'moment'
-import { TwitterApi, TweetV2, TweetV2SingleStreamResult } from 'twitter-api-v2'
+import {
+	TwitterApi,
+	TweetV2,
+	TweetV2SingleStreamResult,
+	TweetSearchRecentV2Paginator,
+	ApiV2Includes
+} from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import Hashtag from '../models/Hashtag'
 import Tweet from '../models/Tweet'
@@ -203,25 +209,89 @@ export default class TwitterService {
 		return tweets
 	}
 
+	public static async checkForMissedTweets(): Promise<void> {
+		// TODO: Cron this
+		const latestTweet = await orm.models.Tweet.findOne({
+			order: [['createdAt', 'DESC']]
+		})
+
+		if (!latestTweet) {
+			return
+		}
+
+		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+		const endTime = moment()
+			.utc()
+			.subtract(5, 'minutes')
+			.format('YYYY-MM-DDTHH:mm:ssZ')
+
+		try {
+			const twitterResponse = await client.v2.search(
+				`(meem OR meemtest) -is:retweet -is:reply`,
+				{
+					end_time: endTime,
+					max_results: 10,
+					'tweet.fields': ['created_at', 'entities'],
+					'user.fields': ['profile_image_url'],
+					expansions: ['author_id']
+				}
+			)
+
+			// const tweets = (twitterResponse.data.data || []).filter(tweet => {
+			// 	return moment(tweet.created_at).isBefore(endTime)
+			// })
+
+			const tweets = twitterResponse.data.data || []
+
+			await Promise.all(
+				tweets.map(async tweet => {
+					const tweetExists = await orm.models.Tweet.findOne({
+						where: {
+							tweetId: tweet.id
+						}
+					})
+					if (!tweetExists) {
+						return TwitterService.mintAndStoreTweet(
+							tweet,
+							twitterResponse.data.includes
+						)
+					}
+					return null
+				})
+			)
+
+			return
+		} catch (e) {
+			log.crit(e)
+		}
+
+		// TODO: Get latest minted tweet from db
+		// TODO: Query twitter for any new meem tweets since last minted tweet
+		// TODO: Mint tweets that are in db but have not been minted?
+	}
+
 	public static async mintAndStoreTweet(
-		event: TweetV2SingleStreamResult
+		tweetData: TweetV2,
+		includes?: ApiV2Includes
 	): Promise<void> {
 		// TODO: check whitelist for twitter user ID
 		// TODO: if user is whitelisted, get their wallet address from their Meem ID
 		// TODO: in meem webhook, update tweet in db with meem token id
 		// TODO: Cron to retry minting meems for tweets without an associated MEEM
 		// TODO: Send reply tweet from @0xmeem
+		// TODO: Update tweet in database to mark it as minted
+		// TODO: Retry unsuccessful mints?
 
-		const hashtags = event.data.entities?.hashtags || []
+		const hashtags = tweetData.entities?.hashtags || []
 
 		// Make sure tweet contains >meem action
-		const isMeemActionTweet = /&gt;meem/gi.test(event.data.text)
+		const isMeemActionTweet = /&gt;meem/gi.test(tweetData.text)
 
 		if (!isMeemActionTweet) {
 			return
 		}
 
-		const isTestMeem = /&gt;meemtest/gi.test(event.data.text)
+		const isTestMeem = /&gt;meemtest/gi.test(tweetData.text)
 
 		// Since stream rules are environment-independent
 		// Make sure we're not minting meems while testing locally
@@ -230,7 +300,7 @@ export default class TwitterService {
 			return
 		}
 
-		const user = event.includes?.users?.find(u => u.id === event.data.author_id)
+		const user = includes?.users?.find(u => u.id === tweetData.author_id)
 
 		if (!user?.id) {
 			return
@@ -273,7 +343,7 @@ export default class TwitterService {
 				`Sorry @${user.username}, your Meem ID hasn't been approved yet!`,
 				{
 					reply: {
-						in_reply_to_tweet_id: event.data.id
+						in_reply_to_tweet_id: tweetData.id
 					}
 				}
 			)
@@ -281,8 +351,8 @@ export default class TwitterService {
 		}
 
 		const tweet = await orm.models.Tweet.create({
-			tweetId: event.data.id,
-			text: event.data.text,
+			tweetId: tweetData.id,
+			text: tweetData.text,
 			userId: user?.id,
 			username: user?.username || '',
 			userProfileImageUrl: user?.profile_image_url || ''
@@ -322,7 +392,7 @@ export default class TwitterService {
 
 			const meemMetadata = await services.git.saveMeemMetadata({
 				name: `@${tweet.username} ${moment(
-					event.data.created_at || tweet.createdAt
+					tweetData.created_at || tweet.createdAt
 				).format('MM-DD-YYYY HH:mm:ss')}`,
 				description: tweet.text,
 				imageBase64: tweetImage || '',
@@ -338,7 +408,7 @@ export default class TwitterService {
 							userProfileImageUrl: tweet.userProfileImageUrl,
 							updatedAt: tweet.updatedAt,
 							createdAt: tweet.createdAt,
-							...(event.data.entities && { entities: event.data.entities })
+							...(tweetData.entities && { entities: tweetData.entities })
 						}
 					}
 				}
@@ -437,7 +507,7 @@ export default class TwitterService {
 						`Your tweet has been minted! View here: ${updatedMetadata.external_url}`,
 						{
 							reply: {
-								in_reply_to_tweet_id: event.data.id
+								in_reply_to_tweet_id: tweetData.id
 							}
 						}
 					)
