@@ -660,6 +660,8 @@ export default class MeemService {
 		log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
 
 		const receipt = await mintTx.wait()
+
+		log.debug(`Finished minting: ${receipt.transactionHash}`)
 	}
 
 	// TODO: Add mintOriginalMeem method
