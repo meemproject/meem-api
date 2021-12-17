@@ -41,9 +41,6 @@ export namespace MintMeem {
 		properties?: Partial<IMeemProperties>
 
 		childProperties?: Partial<IMeemProperties>
-
-		/** Set to true to disable whitelist checks. This option is only respected on testnet */
-		shouldIgnoreWhitelist?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

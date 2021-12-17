@@ -25,6 +25,11 @@ export default class MeemPass extends BaseModel<MeemPass> {
 			type: DataTypes.BOOLEAN,
 			allowNull: false,
 			defaultValue: false
+		},
+		canCreateProjects: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: false
 		}
 	}
 
@@ -33,6 +38,8 @@ export default class MeemPass extends BaseModel<MeemPass> {
 	public tweetsPerDayQuota!: number
 
 	public hasApplied!: boolean
+
+	public canCreateProjects!: boolean
 
 	public MeemIdentification!: MeemIdentification | null
 

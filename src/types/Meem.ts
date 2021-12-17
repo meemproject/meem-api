@@ -99,6 +99,43 @@ export type MeemPropertiesStructOutput = [
   splitsLockedBy: string;
 };
 
+export type MeemMintParametersStruct = {
+  to: string;
+  mTokenURI: string;
+  parentChain: BigNumberish;
+  parent: string;
+  parentTokenId: BigNumberish;
+  rootChain: BigNumberish;
+  root: string;
+  rootTokenId: BigNumberish;
+  permissionType: BigNumberish;
+  data: string;
+};
+
+export type MeemMintParametersStructOutput = [
+  string,
+  string,
+  number,
+  string,
+  BigNumber,
+  number,
+  string,
+  BigNumber,
+  number,
+  string
+] & {
+  to: string;
+  mTokenURI: string;
+  parentChain: number;
+  parent: string;
+  parentTokenId: BigNumber;
+  rootChain: number;
+  root: string;
+  rootTokenId: BigNumber;
+  permissionType: number;
+  data: string;
+};
+
 export type MeemStruct = {
   owner: string;
   parentChain: BigNumberish;
@@ -194,6 +231,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     "isApprovedForAll(address,address)": FunctionFragment;
     "name()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
+    "ownerTokens(address)": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
     "symbol()": FunctionFragment;
@@ -206,7 +244,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     "setContractURI(string)": FunctionFragment;
     "setNonOwnerSplitAllocationAmount(uint256)": FunctionFragment;
     "setTokenCounter(uint256)": FunctionFragment;
-    "mint(address,string,uint8,address,uint256,uint8,address,uint256,(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),uint8)": FunctionFragment;
+    "mint((address,string,uint8,address,uint256,uint8,address,uint256,uint8,string),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address))": FunctionFragment;
     "addPermission(uint256,uint8,uint8,(uint8,address[],uint256,address))": FunctionFragment;
     "lockChildrenPerWallet(uint256)": FunctionFragment;
     "lockTotalChildren(uint256)": FunctionFragment;
@@ -220,6 +258,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     "isNFTWrapped(uint8,address,uint256)": FunctionFragment;
     "numChildrenOf(uint256)": FunctionFragment;
     "ownedChildrenOf(uint256,address)": FunctionFragment;
+    "tokenIdOfOwnerIndex(address,uint256)": FunctionFragment;
     "tokenIdsOfOwner(address)": FunctionFragment;
     "wrappedTokens((uint8,address,uint256)[])": FunctionFragment;
     "addSplit(uint256,uint8,(address,uint256,address))": FunctionFragment;
@@ -292,6 +331,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "ownerOf",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "ownerTokens", values: [string]): string;
   encodeFunctionData(
     functionFragment: "safeTransferFrom",
     values: [string, string, BigNumberish]
@@ -340,17 +380,9 @@ export interface MeemInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "mint",
     values: [
-      string,
-      string,
-      BigNumberish,
-      string,
-      BigNumberish,
-      BigNumberish,
-      string,
-      BigNumberish,
+      MeemMintParametersStruct,
       MeemPropertiesStruct,
-      MeemPropertiesStruct,
-      BigNumberish
+      MeemPropertiesStruct
     ]
   ): string;
   encodeFunctionData(
@@ -410,6 +442,10 @@ export interface MeemInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "ownedChildrenOf",
     values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "tokenIdOfOwnerIndex",
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "tokenIdsOfOwner",
@@ -516,6 +552,10 @@ export interface MeemInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "ownerTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "safeTransferFrom",
     data: BytesLike
   ): Result;
@@ -599,6 +639,10 @@ export interface MeemInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "ownedChildrenOf",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenIdOfOwnerIndex",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -891,6 +935,11 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    ownerTokens(
+      owner: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber[]]>;
+
     "safeTransferFrom(address,address,uint256)"(
       from: string,
       to: string,
@@ -962,17 +1011,9 @@ export interface Meem extends BaseContract {
     ): Promise<ContractTransaction>;
 
     mint(
-      to: string,
-      mTokenURI: string,
-      parentChain: BigNumberish,
-      parent: string,
-      parentTokenId: BigNumberish,
-      rootChain: BigNumberish,
-      root: string,
-      rootTokenId: BigNumberish,
+      params: MeemMintParametersStruct,
       mProperties: MeemPropertiesStruct,
       mChildProperties: MeemPropertiesStruct,
-      permissionType: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1052,6 +1093,12 @@ export interface Meem extends BaseContract {
       owner: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber[]]>;
+
+    tokenIdOfOwnerIndex(
+      _owner: string,
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     tokenIdsOfOwner(
       _owner: string,
@@ -1201,6 +1248,8 @@ export interface Meem extends BaseContract {
 
   ownerOf(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
+  ownerTokens(owner: string, overrides?: CallOverrides): Promise<BigNumber[]>;
+
   "safeTransferFrom(address,address,uint256)"(
     from: string,
     to: string,
@@ -1267,17 +1316,9 @@ export interface Meem extends BaseContract {
   ): Promise<ContractTransaction>;
 
   mint(
-    to: string,
-    mTokenURI: string,
-    parentChain: BigNumberish,
-    parent: string,
-    parentTokenId: BigNumberish,
-    rootChain: BigNumberish,
-    root: string,
-    rootTokenId: BigNumberish,
+    params: MeemMintParametersStruct,
     mProperties: MeemPropertiesStruct,
     mChildProperties: MeemPropertiesStruct,
-    permissionType: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1357,6 +1398,12 @@ export interface Meem extends BaseContract {
     owner: string,
     overrides?: CallOverrides
   ): Promise<BigNumber[]>;
+
+  tokenIdOfOwnerIndex(
+    _owner: string,
+    tokenId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   tokenIdsOfOwner(
     _owner: string,
@@ -1494,6 +1541,8 @@ export interface Meem extends BaseContract {
 
     ownerOf(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
+    ownerTokens(owner: string, overrides?: CallOverrides): Promise<BigNumber[]>;
+
     "safeTransferFrom(address,address,uint256)"(
       from: string,
       to: string,
@@ -1560,17 +1609,9 @@ export interface Meem extends BaseContract {
     ): Promise<void>;
 
     mint(
-      to: string,
-      mTokenURI: string,
-      parentChain: BigNumberish,
-      parent: string,
-      parentTokenId: BigNumberish,
-      rootChain: BigNumberish,
-      root: string,
-      rootTokenId: BigNumberish,
+      params: MeemMintParametersStruct,
       mProperties: MeemPropertiesStruct,
       mChildProperties: MeemPropertiesStruct,
-      permissionType: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1650,6 +1691,12 @@ export interface Meem extends BaseContract {
       owner: string,
       overrides?: CallOverrides
     ): Promise<BigNumber[]>;
+
+    tokenIdOfOwnerIndex(
+      _owner: string,
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     tokenIdsOfOwner(
       _owner: string,
@@ -1924,6 +1971,8 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    ownerTokens(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     "safeTransferFrom(address,address,uint256)"(
       from: string,
       to: string,
@@ -1993,17 +2042,9 @@ export interface Meem extends BaseContract {
     ): Promise<BigNumber>;
 
     mint(
-      to: string,
-      mTokenURI: string,
-      parentChain: BigNumberish,
-      parent: string,
-      parentTokenId: BigNumberish,
-      rootChain: BigNumberish,
-      root: string,
-      rootTokenId: BigNumberish,
+      params: MeemMintParametersStruct,
       mProperties: MeemPropertiesStruct,
       mChildProperties: MeemPropertiesStruct,
-      permissionType: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2081,6 +2122,12 @@ export interface Meem extends BaseContract {
     ownedChildrenOf(
       tokenId: BigNumberish,
       owner: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    tokenIdOfOwnerIndex(
+      _owner: string,
+      tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -2235,6 +2282,11 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    ownerTokens(
+      owner: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     "safeTransferFrom(address,address,uint256)"(
       from: string,
       to: string,
@@ -2304,17 +2356,9 @@ export interface Meem extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     mint(
-      to: string,
-      mTokenURI: string,
-      parentChain: BigNumberish,
-      parent: string,
-      parentTokenId: BigNumberish,
-      rootChain: BigNumberish,
-      root: string,
-      rootTokenId: BigNumberish,
+      params: MeemMintParametersStruct,
       mProperties: MeemPropertiesStruct,
       mChildProperties: MeemPropertiesStruct,
-      permissionType: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2392,6 +2436,12 @@ export interface Meem extends BaseContract {
     ownedChildrenOf(
       tokenId: BigNumberish,
       owner: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    tokenIdOfOwnerIndex(
+      _owner: string,
+      tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

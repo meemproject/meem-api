@@ -263,4 +263,31 @@ export default class MeemController {
 			wrappedTokens
 		})
 	}
+
+	public static async createMeemProject(
+		req: IRequest<MeemAPI.v1.CreateMeemProject.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateMeemProject.IResponseBody>
+	): Promise<any> {
+		if (!req.meemId?.MeemPass?.canCreateProjects) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		if (
+			!req.body.name ||
+			!req.body.description ||
+			!Array.isArray(req.body.minterAddresses)
+		) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		await services.meem.createMeemProject({
+			name: req.body.name,
+			description: req.body.description,
+			minterAddresses: req.body.minterAddresses
+		})
+
+		return res.json({
+			status: 'success'
+		})
+	}
 }
