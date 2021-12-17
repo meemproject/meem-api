@@ -2166,6 +2166,11 @@ const _abi = [
             name: "mintedAt",
             type: "uint256",
           },
+          {
+            internalType: "string",
+            name: "data",
+            type: "string",
+          },
         ],
         internalType: "struct Meem",
         name: "",

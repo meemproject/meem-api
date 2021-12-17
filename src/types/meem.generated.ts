@@ -270,6 +270,7 @@ export namespace MeemAPI {
 		childProperties: IMeemProperties
 		/** Unix timestamp of when the Meem was minted */
 		mintedAt: number
+		data: string
 	}
 
 	export interface IERC721Metadata {

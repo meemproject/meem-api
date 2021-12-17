@@ -148,6 +148,7 @@ export type MeemStruct = {
   properties: MeemPropertiesStruct;
   childProperties: MeemPropertiesStruct;
   mintedAt: BigNumberish;
+  data: string;
 };
 
 export type MeemStructOutput = [
@@ -161,7 +162,8 @@ export type MeemStructOutput = [
   BigNumber,
   MeemPropertiesStructOutput,
   MeemPropertiesStructOutput,
-  BigNumber
+  BigNumber,
+  string
 ] & {
   owner: string;
   parentChain: number;
@@ -174,6 +176,7 @@ export type MeemStructOutput = [
   properties: MeemPropertiesStructOutput;
   childProperties: MeemPropertiesStructOutput;
   mintedAt: BigNumber;
+  data: string;
 };
 
 export type WrappedItemStruct = {

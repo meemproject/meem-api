@@ -885,7 +885,8 @@ export default class MeemService {
 			generation: meem[7].toNumber(),
 			properties: this.meemPropertiesToInterface(meem[8]),
 			childProperties: this.meemPropertiesToInterface(meem[9]),
-			mintedAt: meem[10].toNumber()
+			mintedAt: meem[10].toNumber(),
+			data: meem[11]
 		}
 	}
 
