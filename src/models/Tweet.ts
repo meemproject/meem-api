@@ -28,6 +28,10 @@ export default class Tweet extends BaseModel<Tweet> {
 			type: DataTypes.STRING,
 			allowNull: false
 		},
+		userId: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
 		username: {
 			type: DataTypes.STRING,
 			allowNull: false
@@ -43,6 +47,9 @@ export default class Tweet extends BaseModel<Tweet> {
 	public tweetId!: string
 
 	public text!: string
+
+	/** The twitter user ID of author */
+	public userId!: string
 
 	/** The twitter username */
 	public username!: string
