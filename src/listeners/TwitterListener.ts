@@ -12,6 +12,7 @@ export default class TwitterListener {
 	private async setupListners() {
 		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 		try {
+			await services.twitter.checkForMissedTweets()
 			const stream = await client.v2.searchStream({
 				'tweet.fields': ['created_at', 'entities'],
 				'user.fields': ['profile_image_url'],

@@ -210,7 +210,7 @@ export default class TwitterService {
 	}
 
 	public static async checkForMissedTweets(): Promise<void> {
-		// TODO: Cron this
+		log.trace('Checking for missed tweets')
 		const latestTweet = await orm.models.Tweet.findOne({
 			order: [['createdAt', 'DESC']]
 		})
@@ -230,18 +230,16 @@ export default class TwitterService {
 				`(meem OR meemtest) -is:retweet -is:reply`,
 				{
 					end_time: endTime,
-					max_results: 10,
+					max_results: 100,
 					'tweet.fields': ['created_at', 'entities'],
 					'user.fields': ['profile_image_url'],
 					expansions: ['author_id']
 				}
 			)
 
-			// const tweets = (twitterResponse.data.data || []).filter(tweet => {
-			// 	return moment(tweet.created_at).isBefore(endTime)
-			// })
-
-			const tweets = twitterResponse.data.data || []
+			const tweets = (twitterResponse.data.data || []).filter(tweet => {
+				return /&gt;meem/gi.test(tweet.text)
+			})
 
 			await Promise.all(
 				tweets.map(async tweet => {
