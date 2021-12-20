@@ -18,6 +18,6 @@ export default class TwitterCron extends CronJob {
 	public async run() {
 		log.info('Running TwitterCron!')
 		log.info(new Date())
-		// TODO: Mint any tweets in the db that failed to mint
+		await services.twitter.checkForMissedTweets()
 	}
 }
