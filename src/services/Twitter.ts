@@ -4,13 +4,7 @@
 
 import { ethers } from 'ethers'
 import moment from 'moment'
-import {
-	TwitterApi,
-	TweetV2,
-	TweetV2SingleStreamResult,
-	TweetSearchRecentV2Paginator,
-	ApiV2Includes
-} from 'twitter-api-v2'
+import { TwitterApi, TweetV2, ApiV2Includes } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import Hashtag from '../models/Hashtag'
 import Tweet from '../models/Tweet'
