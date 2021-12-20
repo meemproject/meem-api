@@ -51,7 +51,6 @@ export default class TwitterService {
 		})
 
 		try {
-			// TODO: Swap out TWITTER_MEEM_ACCOUNT_ID for actual TWITTER_MEEM_ACCOUNT_ID and delete meem_mention checkpoint ind DB
 			const twitterResponse = await client.v2.userMentionTimeline(
 				config.TWITTER_MEEM_ACCOUNT_ID,
 				{
@@ -66,8 +65,6 @@ export default class TwitterService {
 			)
 
 			const tweets = twitterResponse.data.data || []
-
-			// TODO: Look for tweets with specific string to trigger minting
 
 			// If tweet checkpoint does not contain a next token but the response does, save newestId
 			// If tweets response does not contain a next token, change sinceId to newestId and remove next token on checkpoint
@@ -257,22 +254,13 @@ export default class TwitterService {
 		} catch (e) {
 			log.crit(e)
 		}
-
-		// TODO: Get latest minted tweet from db
-		// TODO: Query twitter for any new meem tweets since last minted tweet
-		// TODO: Mint tweets that are in db but have not been minted?
 	}
 
 	public static async mintAndStoreTweet(
 		tweetData: TweetV2,
 		includes?: ApiV2Includes
 	): Promise<void> {
-		// TODO: check whitelist for twitter user ID
-		// TODO: if user is whitelisted, get their wallet address from their Meem ID
-		// TODO: in meem webhook, update tweet in db with meem token id
-		// TODO: Cron to retry minting meems for tweets without an associated MEEM
 		// TODO: Send reply tweet from @0xmeem
-		// TODO: Update tweet in database to mark it as minted
 		// TODO: Retry unsuccessful mints?
 
 		const hashtags = tweetData.entities?.hashtags || []
