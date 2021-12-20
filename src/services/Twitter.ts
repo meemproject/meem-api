@@ -4,6 +4,7 @@
 
 import { ethers } from 'ethers'
 import moment from 'moment'
+import { Op } from 'sequelize'
 import { TwitterApi, TweetV2, ApiV2Includes } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import Hashtag from '../models/Hashtag'
@@ -333,6 +334,33 @@ export default class TwitterService {
 
 			await client.v2.tweet(
 				`Sorry @${user.username}, your Meem ID hasn't been approved yet!`,
+				{
+					reply: {
+						in_reply_to_tweet_id: tweetData.id
+					}
+				}
+			)
+			return
+		}
+
+		const { tweetsPerDayQuota } = meemId.meemPass.twitter
+
+		const startOfDay = moment().utc().startOf('day').toDate()
+
+		const userTweetsToday = await orm.models.Tweet.findAll({
+			where: {
+				userId: user.id,
+				createdAt: {
+					[Op.gt]: startOfDay
+				}
+			}
+		})
+
+		if (userTweetsToday.length >= tweetsPerDayQuota) {
+			log.error(`User reached tweet quota: ${item.MeemIdentificationId}`)
+
+			await client.v2.tweet(
+				`Sorry @${user.username}, you've reached your meem quota for the day!`,
 				{
 					reply: {
 						in_reply_to_tweet_id: tweetData.id
