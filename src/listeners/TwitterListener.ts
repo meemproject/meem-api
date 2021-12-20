@@ -12,6 +12,7 @@ export default class TwitterListener {
 	private async setupListners() {
 		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 		try {
+			await services.twitter.checkForMissedTweets()
 			const stream = await client.v2.searchStream({
 				'tweet.fields': ['created_at', 'entities'],
 				'user.fields': ['profile_image_url'],
@@ -35,7 +36,7 @@ export default class TwitterListener {
 				// Emitted when a Twitter payload (a tweet or not, given the endpoint).
 				ETwitterStreamEvent.Data,
 				async eventData => {
-					services.twitter.mintAndStoreTweet(eventData)
+					services.twitter.mintAndStoreTweet(eventData.data, eventData.includes)
 				}
 			)
 
