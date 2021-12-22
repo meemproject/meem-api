@@ -139,7 +139,7 @@ const _abi = [
       },
       {
         internalType: "string",
-        name: "twitterHandle",
+        name: "twitterId",
         type: "string",
       },
     ],
@@ -152,11 +152,11 @@ const _abi = [
     inputs: [
       {
         internalType: "string",
-        name: "twitterHandle",
+        name: "twitterId",
         type: "string",
       },
     ],
-    name: "getMeemIDByTwitterHandle",
+    name: "getMeemIDByTwitterId",
     outputs: [
       {
         components: [
@@ -169,6 +169,16 @@ const _abi = [
             internalType: "string[]",
             name: "twitters",
             type: "string[]",
+          },
+          {
+            internalType: "address",
+            name: "defaultWallet",
+            type: "address",
+          },
+          {
+            internalType: "string",
+            name: "defaultTwitter",
+            type: "string",
           },
         ],
         internalType: "struct MeemID",
@@ -201,6 +211,16 @@ const _abi = [
             name: "twitters",
             type: "string[]",
           },
+          {
+            internalType: "address",
+            name: "defaultWallet",
+            type: "address",
+          },
+          {
+            internalType: "string",
+            name: "defaultTwitter",
+            type: "string",
+          },
         ],
         internalType: "struct MeemID",
         name: "",
@@ -214,16 +234,16 @@ const _abi = [
     inputs: [
       {
         internalType: "string",
-        name: "lookupTwitterHandle",
+        name: "lookupTwitterId",
         type: "string",
       },
       {
         internalType: "string",
-        name: "twitterHandleToRemove",
+        name: "twitterIdToRemove",
         type: "string",
       },
     ],
-    name: "removeTwitterHandleByTwitterHandle",
+    name: "removeTwitterIdByTwitterId",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -237,11 +257,11 @@ const _abi = [
       },
       {
         internalType: "string",
-        name: "twitterHandleToRemove",
+        name: "twitterIdToRemove",
         type: "string",
       },
     ],
-    name: "removeTwitterHandleByWalletAddress",
+    name: "removeTwitterIdByWalletAddress",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -250,7 +270,7 @@ const _abi = [
     inputs: [
       {
         internalType: "string",
-        name: "lookupTwitterHandle",
+        name: "lookupTwitterId",
         type: "string",
       },
       {
@@ -259,7 +279,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "removeWalletAddressByTwitterHandle",
+    name: "removeWalletAddressByTwitterId",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

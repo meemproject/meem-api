@@ -24,11 +24,18 @@ import type {
   OnEvent,
 } from "./common";
 
-export type MeemIDStruct = { wallets: string[]; twitters: string[] };
-
-export type MeemIDStructOutput = [string[], string[]] & {
+export type MeemIDStruct = {
   wallets: string[];
   twitters: string[];
+  defaultWallet: string;
+  defaultTwitter: string;
+};
+
+export type MeemIDStructOutput = [string[], string[], string, string] & {
+  wallets: string[];
+  twitters: string[];
+  defaultWallet: string;
+  defaultTwitter: string;
 };
 
 export type FacetCutStruct = {
@@ -58,11 +65,11 @@ export interface MeemIDInterface extends ethers.utils.Interface {
     "hasRole(address,bytes32)": FunctionFragment;
     "revokeRole(address,bytes32)": FunctionFragment;
     "createOrAddMeemID(address,string)": FunctionFragment;
-    "getMeemIDByTwitterHandle(string)": FunctionFragment;
+    "getMeemIDByTwitterId(string)": FunctionFragment;
     "getMeemIDByWalletAddress(address)": FunctionFragment;
-    "removeTwitterHandleByTwitterHandle(string,string)": FunctionFragment;
-    "removeTwitterHandleByWalletAddress(address,string)": FunctionFragment;
-    "removeWalletAddressByTwitterHandle(string,address)": FunctionFragment;
+    "removeTwitterIdByTwitterId(string,string)": FunctionFragment;
+    "removeTwitterIdByWalletAddress(address,string)": FunctionFragment;
+    "removeWalletAddressByTwitterId(string,address)": FunctionFragment;
     "removeWalletAddressByWalletAddress(address,address)": FunctionFragment;
     "acceptOwnership()": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -103,7 +110,7 @@ export interface MeemIDInterface extends ethers.utils.Interface {
     values: [string, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "getMeemIDByTwitterHandle",
+    functionFragment: "getMeemIDByTwitterId",
     values: [string]
   ): string;
   encodeFunctionData(
@@ -111,15 +118,15 @@ export interface MeemIDInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeTwitterHandleByTwitterHandle",
+    functionFragment: "removeTwitterIdByTwitterId",
     values: [string, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeTwitterHandleByWalletAddress",
+    functionFragment: "removeTwitterIdByWalletAddress",
     values: [string, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeWalletAddressByTwitterHandle",
+    functionFragment: "removeWalletAddressByTwitterId",
     values: [string, string]
   ): string;
   encodeFunctionData(
@@ -182,7 +189,7 @@ export interface MeemIDInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getMeemIDByTwitterHandle",
+    functionFragment: "getMeemIDByTwitterId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -190,15 +197,15 @@ export interface MeemIDInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeTwitterHandleByTwitterHandle",
+    functionFragment: "removeTwitterIdByTwitterId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeTwitterHandleByWalletAddress",
+    functionFragment: "removeTwitterIdByWalletAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeWalletAddressByTwitterHandle",
+    functionFragment: "removeWalletAddressByTwitterId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -320,12 +327,12 @@ export interface MeemID extends BaseContract {
 
     createOrAddMeemID(
       addy: string,
-      twitterHandle: string,
+      twitterId: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    getMeemIDByTwitterHandle(
-      twitterHandle: string,
+    getMeemIDByTwitterId(
+      twitterId: string,
       overrides?: CallOverrides
     ): Promise<[MeemIDStructOutput]>;
 
@@ -334,20 +341,20 @@ export interface MeemID extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[MeemIDStructOutput]>;
 
-    removeTwitterHandleByTwitterHandle(
-      lookupTwitterHandle: string,
-      twitterHandleToRemove: string,
+    removeTwitterIdByTwitterId(
+      lookupTwitterId: string,
+      twitterIdToRemove: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    removeTwitterHandleByWalletAddress(
+    removeTwitterIdByWalletAddress(
       lookupWalletAddress: string,
-      twitterHandleToRemove: string,
+      twitterIdToRemove: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    removeWalletAddressByTwitterHandle(
-      lookupTwitterHandle: string,
+    removeWalletAddressByTwitterId(
+      lookupTwitterId: string,
       addressToRemove: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -433,12 +440,12 @@ export interface MeemID extends BaseContract {
 
   createOrAddMeemID(
     addy: string,
-    twitterHandle: string,
+    twitterId: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  getMeemIDByTwitterHandle(
-    twitterHandle: string,
+  getMeemIDByTwitterId(
+    twitterId: string,
     overrides?: CallOverrides
   ): Promise<MeemIDStructOutput>;
 
@@ -447,20 +454,20 @@ export interface MeemID extends BaseContract {
     overrides?: CallOverrides
   ): Promise<MeemIDStructOutput>;
 
-  removeTwitterHandleByTwitterHandle(
-    lookupTwitterHandle: string,
-    twitterHandleToRemove: string,
+  removeTwitterIdByTwitterId(
+    lookupTwitterId: string,
+    twitterIdToRemove: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  removeTwitterHandleByWalletAddress(
+  removeTwitterIdByWalletAddress(
     lookupWalletAddress: string,
-    twitterHandleToRemove: string,
+    twitterIdToRemove: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  removeWalletAddressByTwitterHandle(
-    lookupTwitterHandle: string,
+  removeWalletAddressByTwitterId(
+    lookupTwitterId: string,
     addressToRemove: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -539,12 +546,12 @@ export interface MeemID extends BaseContract {
 
     createOrAddMeemID(
       addy: string,
-      twitterHandle: string,
+      twitterId: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    getMeemIDByTwitterHandle(
-      twitterHandle: string,
+    getMeemIDByTwitterId(
+      twitterId: string,
       overrides?: CallOverrides
     ): Promise<MeemIDStructOutput>;
 
@@ -553,20 +560,20 @@ export interface MeemID extends BaseContract {
       overrides?: CallOverrides
     ): Promise<MeemIDStructOutput>;
 
-    removeTwitterHandleByTwitterHandle(
-      lookupTwitterHandle: string,
-      twitterHandleToRemove: string,
+    removeTwitterIdByTwitterId(
+      lookupTwitterId: string,
+      twitterIdToRemove: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    removeTwitterHandleByWalletAddress(
+    removeTwitterIdByWalletAddress(
       lookupWalletAddress: string,
-      twitterHandleToRemove: string,
+      twitterIdToRemove: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    removeWalletAddressByTwitterHandle(
-      lookupTwitterHandle: string,
+    removeWalletAddressByTwitterId(
+      lookupTwitterId: string,
       addressToRemove: string,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -669,12 +676,12 @@ export interface MeemID extends BaseContract {
 
     createOrAddMeemID(
       addy: string,
-      twitterHandle: string,
+      twitterId: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    getMeemIDByTwitterHandle(
-      twitterHandle: string,
+    getMeemIDByTwitterId(
+      twitterId: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -683,20 +690,20 @@ export interface MeemID extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    removeTwitterHandleByTwitterHandle(
-      lookupTwitterHandle: string,
-      twitterHandleToRemove: string,
+    removeTwitterIdByTwitterId(
+      lookupTwitterId: string,
+      twitterIdToRemove: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    removeTwitterHandleByWalletAddress(
+    removeTwitterIdByWalletAddress(
       lookupWalletAddress: string,
-      twitterHandleToRemove: string,
+      twitterIdToRemove: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    removeWalletAddressByTwitterHandle(
-      lookupTwitterHandle: string,
+    removeWalletAddressByTwitterId(
+      lookupTwitterId: string,
       addressToRemove: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -779,12 +786,12 @@ export interface MeemID extends BaseContract {
 
     createOrAddMeemID(
       addy: string,
-      twitterHandle: string,
+      twitterId: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    getMeemIDByTwitterHandle(
-      twitterHandle: string,
+    getMeemIDByTwitterId(
+      twitterId: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -793,20 +800,20 @@ export interface MeemID extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    removeTwitterHandleByTwitterHandle(
-      lookupTwitterHandle: string,
-      twitterHandleToRemove: string,
+    removeTwitterIdByTwitterId(
+      lookupTwitterId: string,
+      twitterIdToRemove: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    removeTwitterHandleByWalletAddress(
+    removeTwitterIdByWalletAddress(
       lookupWalletAddress: string,
-      twitterHandleToRemove: string,
+      twitterIdToRemove: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    removeWalletAddressByTwitterHandle(
-      lookupTwitterHandle: string,
+    removeWalletAddressByTwitterId(
+      lookupTwitterId: string,
       addressToRemove: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
