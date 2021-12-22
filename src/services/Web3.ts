@@ -90,12 +90,6 @@ export default class Web3 {
 		try {
 			const chain = options?.chain ?? MeemAPI.Chain.Polygon
 
-			if (chain === MeemAPI.Chain.Rinkeby) {
-				return {
-					recommendedGwei: 40
-				}
-			}
-
 			await this.startMoralis()
 
 			const blockInfo = await Moralis.Web3API.native.getDateToBlock({
