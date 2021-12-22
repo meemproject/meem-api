@@ -40,151 +40,6 @@ export default class TwitterService {
 		return user
 	}
 
-	public static async getMeemMentionTweetsFromTwitter(): Promise<{
-		tweets: TweetV2[]
-		meta: any
-	}> {
-		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
-
-		const tweetCheckpoint = await DbService.getTweetsCheckpoint({
-			type: 'mention_meem'
-		})
-
-		try {
-			const twitterResponse = await client.v2.userMentionTimeline(
-				config.TWITTER_MEEM_ACCOUNT_ID,
-				{
-					max_results: 10,
-					since_id: tweetCheckpoint ? tweetCheckpoint?.sinceId.S : undefined,
-					'tweet.fields': ['created_at'],
-					pagination_token:
-						tweetCheckpoint?.nextToken.S !== ''
-							? tweetCheckpoint?.nextToken.S
-							: undefined
-				}
-			)
-
-			const tweets = twitterResponse.data.data || []
-
-			// If tweet checkpoint does not contain a next token but the response does, save newestId
-			// If tweets response does not contain a next token, change sinceId to newestId and remove next token on checkpoint
-
-			const nextToken = twitterResponse.data.meta.next_token
-			const shouldUpdateNewestId =
-				!tweetCheckpoint ||
-				(!!nextToken && tweetCheckpoint.nextToken.S === '') ||
-				(!nextToken &&
-					tweetCheckpoint?.newestId.S === tweetCheckpoint?.sinceId.S)
-
-			if (tweetCheckpoint) {
-				const newestId = shouldUpdateNewestId
-					? twitterResponse.data.meta.newest_id ||
-					  tweetCheckpoint?.newestId.S ||
-					  ''
-					: tweetCheckpoint?.newestId.S || ''
-				const sinceId = !nextToken
-					? newestId || tweetCheckpoint.sinceId.S || ''
-					: tweetCheckpoint.sinceId.S || ''
-
-				DbService.saveTweetsCheckpoint({
-					type: 'mention_meem',
-					sinceId,
-					newestId,
-					nextToken: nextToken || ''
-				})
-			} else {
-				DbService.saveTweetsCheckpoint({
-					type: 'mention_meem',
-					sinceId: twitterResponse.data.meta.newest_id,
-					newestId: twitterResponse.data.meta.newest_id,
-					nextToken: nextToken || ''
-				})
-			}
-
-			return {
-				tweets,
-				meta: twitterResponse.data.meta
-			}
-		} catch (e) {
-			log.warn(e)
-			return {
-				tweets: [],
-				meta: {}
-			}
-		}
-	}
-
-	public static async getMeemActionTweetsFromTwitter(action: string): Promise<{
-		tweets: TweetV2[]
-		meta: any
-	}> {
-		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
-
-		const tweetCheckpoint = await DbService.getTweetsCheckpoint({
-			type: `action_${action}`
-		})
-
-		try {
-			// TODO: Swap out TWITTER_MEEM_ACTION for actual TWITTER_MEEM_ACTION and delete action_meem checkpoint ind DB
-			const twitterResponse = await client.v2.search(`\\${action}`, {
-				max_results: 10,
-				since_id: tweetCheckpoint ? tweetCheckpoint?.sinceId.S : undefined,
-				'tweet.fields': ['created_at'],
-				next_token:
-					tweetCheckpoint?.nextToken.S !== ''
-						? tweetCheckpoint?.nextToken.S
-						: undefined
-			})
-
-			const tweets = twitterResponse.data.data || []
-
-			// TODO: mint tweets
-
-			const nextToken = twitterResponse.data.meta.next_token
-			const shouldUpdateNewestId =
-				!tweetCheckpoint ||
-				(!!nextToken && tweetCheckpoint.nextToken.S === '') ||
-				(!nextToken &&
-					tweetCheckpoint?.newestId.S === tweetCheckpoint?.sinceId.S)
-
-			if (tweetCheckpoint) {
-				const newestId = shouldUpdateNewestId
-					? twitterResponse.data.meta.newest_id ||
-					  tweetCheckpoint?.newestId.S ||
-					  ''
-					: tweetCheckpoint?.newestId.S || ''
-				const sinceId = !nextToken
-					? newestId || tweetCheckpoint.sinceId.S || ''
-					: tweetCheckpoint.sinceId.S || ''
-
-				DbService.saveTweetsCheckpoint({
-					type: 'action_meem',
-					sinceId,
-					newestId,
-					nextToken: nextToken || ''
-				})
-			} else {
-				DbService.saveTweetsCheckpoint({
-					type: 'action_meem',
-					sinceId: twitterResponse.data.meta.newest_id,
-					newestId: twitterResponse.data.meta.newest_id,
-					nextToken: nextToken || ''
-				})
-			}
-
-			return {
-				tweets,
-				meta: twitterResponse.data.meta
-			}
-		} catch (e) {
-			log.warn(e)
-			return {
-				tweets: [],
-				meta: {}
-			}
-		}
-	}
-
 	public static async getTweets(): Promise<Tweet[]> {
 		const tweets = await orm.models.Tweet.findAll({
 			include: {
@@ -260,7 +115,6 @@ export default class TwitterService {
 		tweetData: TweetV2,
 		includes?: ApiV2Includes
 	): Promise<void> {
-		// TODO: Send reply tweet from @0xmeem
 		// TODO: Retry unsuccessful mints?
 
 		const hashtags = tweetData.entities?.hashtags || []
@@ -278,6 +132,9 @@ export default class TwitterService {
 		// Make sure we're not minting meems while testing locally
 
 		if (!config.TESTING && isTestMeem) {
+			return
+		}
+		if (config.TESTING && !isTestMeem) {
 			return
 		}
 
@@ -464,7 +321,8 @@ export default class TwitterService {
 					data: JSON.stringify({
 						tweetId: tweet.tweetId,
 						text: tweet.text,
-						username: tweet.username
+						username: tweet.username,
+						userId: tweet.userId
 					})
 				},
 				properties,
@@ -526,6 +384,14 @@ export default class TwitterService {
 		} catch (e) {
 			const err = e as any
 			log.warn(err)
+			await client.v2.tweet(
+				`Oops there was an error minting your tweet! Try deleting it and retrying.`,
+				{
+					reply: {
+						in_reply_to_tweet_id: tweetData.id
+					}
+				}
+			)
 			if (err.error?.error?.body) {
 				let errStr = 'UNKNOWN_CONTRACT_ERROR'
 				try {
