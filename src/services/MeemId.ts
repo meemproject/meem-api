@@ -389,7 +389,7 @@ export default class MeemIdService {
 					wallet.address
 				)
 			} else if (removeByTwitter) {
-				await contract.removeWalletAddressByTwitterHandle(
+				await contract.removeWalletAddressByTwitterId(
 					removeByTwitter.twitterId,
 					wallet.address
 				)
@@ -410,12 +410,12 @@ export default class MeemIdService {
 			}
 
 			if (removeByWallet) {
-				await contract.removeTwitterHandleByWalletAddress(
+				await contract.removeTwitterIdByWalletAddress(
 					removeByWallet.address,
 					twitter.twitterId
 				)
 			} else if (removeByTwitter) {
-				await contract.removeTwitterHandleByTwitterHandle(
+				await contract.removeTwitterIdByTwitterId(
 					removeByTwitter.twitterId,
 					twitter.twitterId
 				)
