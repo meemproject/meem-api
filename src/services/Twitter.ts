@@ -126,14 +126,19 @@ export default class TwitterService {
 		}
 
 		const isTestMeem = /&gt;meemtest/gi.test(tweetData.text)
+		const isDevMeem = /&gt;meemdev/gi.test(tweetData.text)
 
 		// Since stream rules are environment-independent
 		// Make sure we're not minting meems while testing locally
 
-		if (!config.TESTING && isTestMeem) {
+		if ((!config.TESTING && isTestMeem) || (config.TESTING && !isTestMeem)) {
 			return
 		}
-		if (config.TESTING && !isTestMeem) {
+
+		if (
+			(isDevMeem && config.NETWORK !== MeemAPI.NetworkName.Rinkeby) ||
+			(!isDevMeem && config.NETWORK === MeemAPI.NetworkName.Rinkeby)
+		) {
 			return
 		}
 
