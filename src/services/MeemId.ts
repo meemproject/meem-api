@@ -205,7 +205,10 @@ export default class MeemIdService {
 					twittersCreateData.push({
 						id: uuidv4(),
 						twitterId: meemIdTwitter,
-						MeemIdentificationId: meemIdentificationId
+						MeemIdentificationId: meemIdentificationId,
+						isDefault:
+							meemIdData.defaultTwitter.toLowerCase() ===
+							meemIdTwitter.toLowerCase()
 					})
 				} else if (existingTwitter && !existingTwitter.MeemIdentificationId) {
 					existingTwitter.MeemIdentificationId = meemIdentificationId
@@ -221,7 +224,10 @@ export default class MeemIdService {
 					walletsCreateData.push({
 						id: uuidv4(),
 						address: meemIdWallet,
-						MeemIdentificationId: meemIdentificationId
+						MeemIdentificationId: meemIdentificationId,
+						isDefault:
+							meemIdData.defaultWallet.toLowerCase() ===
+							meemIdWallet.toLowerCase()
 					})
 				} else if (existingWallet && !existingWallet.MeemIdentificationId) {
 					existingWallet.MeemIdentificationId = meemIdentificationId
@@ -278,9 +284,24 @@ export default class MeemIdService {
 		const tweetsPerDayQuota =
 			meemIdentification.MeemPass?.tweetsPerDayQuota ?? 0
 
+		let defaultWallet = MeemAPI.zeroAddress
+		let defaultTwitter = ''
+
+		const dw = meemIdentification.Wallets?.find(w => w.isDefault)
+		if (dw) {
+			defaultWallet = dw.address
+		}
+
+		const dt = meemIdentification.Twitters?.find(t => t.isDefault)
+		if (dt) {
+			defaultTwitter = dt.twitterId
+		}
+
 		return {
 			wallets: meemIdentification?.Wallets?.map(w => w.address) ?? [],
 			twitters: meemIdentification?.Twitters?.map(t => t.twitterId) ?? [],
+			defaultWallet,
+			defaultTwitter,
 			meemPass: {
 				twitter: {
 					hasApplied: meemIdentification.MeemPass?.hasApplied === true,

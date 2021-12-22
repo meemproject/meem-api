@@ -279,6 +279,12 @@ export interface IMeemId {
 	/** List of twitter IDs */
 	twitters: string[]
 
+	/** The default twitter id to use for this MeemId */
+	defaultTwitter: string
+
+	/** The default wallet to use for this MeemId */
+	defaultWallet: string
+
 	meemPass: {
 		twitter: {
 			hasApplied: boolean

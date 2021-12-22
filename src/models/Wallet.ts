@@ -22,6 +22,11 @@ export default class Wallet extends BaseModel<Wallet> {
 		},
 		nonce: {
 			type: DataTypes.STRING
+		},
+		isDefault: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: false
 		}
 	}
 
@@ -52,6 +57,8 @@ export default class Wallet extends BaseModel<Wallet> {
 	public address!: string
 
 	public nonce!: string | null
+
+	public isDefault!: boolean
 
 	public MeemIdentification!: MeemIdentification | null
 
