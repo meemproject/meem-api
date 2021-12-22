@@ -1,3 +1,26 @@
+# [1.3.0](https://github.com/meemproject/meem-api-aws/compare/v1.2.4...v1.3.0) (2021-12-22)
+
+
+### Bug Fixes
+
+* bignumber overflow ([ce8b6fe](https://github.com/meemproject/meem-api-aws/commit/ce8b6fe))
+* use big numbers for token id ([dde282f](https://github.com/meemproject/meem-api-aws/commit/dde282f))
+
+
+### Features
+
+* add "hasApplied" to MeemPass w/ endpoint to update ([3a99b68](https://github.com/meemproject/meem-api-aws/commit/3a99b68))
+* add postgres DB support ([f833448](https://github.com/meemproject/meem-api-aws/commit/f833448))
+* contract abis / types for Meem id and auctions; stubbed out tweet/hashtag model relationship ([23e09db](https://github.com/meemproject/meem-api-aws/commit/23e09db))
+* create child meems; M0 project creation ([4e9885e](https://github.com/meemproject/meem-api-aws/commit/4e9885e))
+* default twitter / wallet ([cc9d5a4](https://github.com/meemproject/meem-api-aws/commit/cc9d5a4))
+* emit to specific address and add JWT to meem updated event ([07e62f0](https://github.com/meemproject/meem-api-aws/commit/07e62f0))
+* get me endpoint ([e233b34](https://github.com/meemproject/meem-api-aws/commit/e233b34))
+* listen to Meem contract events ([48b499f](https://github.com/meemproject/meem-api-aws/commit/48b499f))
+* MeemId / MVP of meempass ([dc4a4b8](https://github.com/meemproject/meem-api-aws/commit/dc4a4b8))
+* remove from meem id ([0dfe28a](https://github.com/meemproject/meem-api-aws/commit/0dfe28a))
+* return Meem data attribute ([1051685](https://github.com/meemproject/meem-api-aws/commit/1051685))
+
 ## [1.2.4](https://github.com/meemproject/meem-api-aws/compare/v1.2.3...v1.2.4) (2021-12-02)
 
 ## [1.2.3](https://github.com/meemproject/meem-api-aws/compare/v1.2.2...v1.2.3) (2021-12-02)
