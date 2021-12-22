@@ -11,7 +11,6 @@ import Hashtag from '../models/Hashtag'
 import Tweet from '../models/Tweet'
 import { Meem } from '../types'
 import { MeemAPI } from '../types/meem.generated'
-import DbService from './Db'
 
 function errorcodeToErrorString(contractErrorName: string) {
 	const allErrors: Record<string, any> = config.errors
