@@ -324,6 +324,90 @@ export default class MeemIdService {
 		return data as Record<string, any>
 	}
 
+	public static async updateMeemId(options: {
+		meemId: MeemIdentification
+		addressToRemove?: string
+		twitterIdToRemove?: string
+	}) {
+		const { meemId, addressToRemove, twitterIdToRemove } = options
+
+		if (!meemId) {
+			throw new Error('MEEM_ID_NOT_FOUND')
+		}
+
+		const removeByWallet = meemId.Wallets?.find(
+			w => w.address.toLowerCase() !== addressToRemove?.toLowerCase()
+		)
+
+		let removeByTwitter
+
+		if (!removeByWallet) {
+			removeByTwitter = meemId.Twitters?.find(
+				t => t.twitterId.toLowerCase() !== twitterIdToRemove?.toLowerCase()
+			)
+		}
+
+		if (!removeByWallet && !removeByTwitter) {
+			throw new Error('MEEM_ID_CAN_NOT_REMOVE')
+		}
+
+		const contract = this.meemIdContract()
+
+		if (addressToRemove) {
+			const wallet = meemId.Wallets?.find(
+				w => w.address.toLowerCase() === addressToRemove.toLowerCase()
+			)
+
+			if (!wallet) {
+				throw new Error('ADDRESS_NOT_FOUND')
+			}
+
+			if (removeByWallet) {
+				await contract.removeWalletAddressByWalletAddress(
+					removeByWallet.address,
+					wallet.address
+				)
+			} else if (removeByTwitter) {
+				await contract.removeWalletAddressByTwitterHandle(
+					removeByTwitter.twitterId,
+					wallet.address
+				)
+			}
+
+			await orm.models.Wallet.destroy({
+				where: {
+					address: wallet.address
+				}
+			})
+		} else if (twitterIdToRemove) {
+			const twitter = meemId.Twitters?.find(
+				t => t.twitterId.toLowerCase() === twitterIdToRemove.toLowerCase()
+			)
+
+			if (!twitter) {
+				throw new Error('TWITTER_NOT_FOUND')
+			}
+
+			if (removeByWallet) {
+				await contract.removeTwitterHandleByWalletAddress(
+					removeByWallet.address,
+					twitter.twitterId
+				)
+			} else if (removeByTwitter) {
+				await contract.removeTwitterHandleByTwitterHandle(
+					removeByTwitter.twitterId,
+					twitter.twitterId
+				)
+			}
+
+			await orm.models.Twitter.destroy({
+				where: {
+					twitterId: twitter.twitterId
+				}
+			})
+		}
+	}
+
 	private static findMeemIdentificationId(options: {
 		twitters?: Twitter[]
 		wallets?: Wallet[]
