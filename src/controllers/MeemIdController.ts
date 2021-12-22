@@ -135,4 +135,25 @@ export default class AuthController {
 			status: 'success'
 		})
 	}
+
+	public static async updateMeemId(
+		req: IRequest<MeemAPI.v1.UpdateMeemId.IDefinition>,
+		res: IResponse<MeemAPI.v1.UpdateMeemId.IResponseBody>
+	): Promise<Response> {
+		if (!req.meemId) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const { addressToRemove, twitterIdToRemove } = req.body
+
+		await services.meemId.updateMeemId({
+			meemId: req.meemId,
+			addressToRemove,
+			twitterIdToRemove
+		})
+
+		return res.json({
+			status: 'success'
+		})
+	}
 }
