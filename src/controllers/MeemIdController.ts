@@ -115,6 +115,16 @@ export default class AuthController {
 		})
 	}
 
+	public static async getMeemPasses(
+		req: IRequest<MeemAPI.v1.GetMeemPasses.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetMeemPasses.IResponseBody>
+	): Promise<Response> {
+		const meemPasses = await services.meemId.getMeemPasses({})
+		return res.json({
+			meemPasses
+		})
+	}
+
 	public static async updateMeemPass(
 		req: IRequest<MeemAPI.v1.UpdateMeemPass.IDefinition>,
 		res: IResponse<MeemAPI.v1.UpdateMeemPass.IResponseBody>

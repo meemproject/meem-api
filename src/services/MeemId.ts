@@ -312,6 +312,47 @@ export default class MeemIdService {
 		}
 	}
 
+	public static async getMeemPasses(options: {
+		hasApplied?: boolean
+	}): Promise<any[]> {
+		const meemIds = await orm.models.MeemIdentification.findAll({
+			limit: 100,
+			order: [['createdAt', 'ASC']],
+			include: [orm.models.Twitter, orm.models.Wallet, orm.models.MeemPass]
+		})
+
+		// let defaultWallet = MeemAPI.zeroAddress
+		// let defaultTwitter = ''
+
+		// const dw = meemIdentification.Wallets?.find(w => w.isDefault)
+		// if (dw) {
+		// 	defaultWallet = dw.address
+		// }
+
+		// const dt = meemIdentification.Twitters?.find(t => t.isDefault)
+		// if (dt) {
+		// 	defaultTwitter = dt.twitterId
+		// }
+
+		const meemIdData = meemIds.map(mId => {
+			const tweetsPerDayQuota = mId.MeemPass?.tweetsPerDayQuota ?? 0
+			return {
+				id: mId.MeemPass?.id,
+				twitter: {
+					twitterId:
+						mId.Twitters && mId.Twitters.length > 0
+							? mId.Twitters[0].twitterId
+							: null,
+					hasApplied: mId.MeemPass?.hasApplied === true,
+					isWhitelisted: tweetsPerDayQuota > 0,
+					tweetsPerDayQuota
+				}
+			}
+		})
+
+		return meemIdData
+	}
+
 	public static generateJWT(options: {
 		meemId: string
 		/** Additional data to encode in the JWT. Do not store sensitive information here. */
