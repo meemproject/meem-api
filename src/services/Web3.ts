@@ -158,6 +158,13 @@ export default class Web3 {
 
 			const avg = total.div(gasPrices.length)
 
+			log.debug({
+				avgGwei: this.weiToGwei(avg).toNumber(),
+				distribution,
+				blockInfo,
+				recommendedGwei: this.weiToGwei(filteredEstimate).toNumber()
+			})
+
 			return {
 				avgGwei: this.weiToGwei(avg).toNumber(),
 				distribution,
