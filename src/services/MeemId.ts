@@ -148,12 +148,17 @@ export default class MeemIdService {
 			const createTx = await meemIdContract.createOrAddMeemID(
 				address,
 				twitterUser.id_str,
-				{ gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber() }
+				{ gasPrice: services.web3.gweiToWei(recommendedGwei) }
 			)
 
 			await createTx.wait()
 
-			const meemIdData = await meemIdContract.getMeemIDByWalletAddress(address)
+			log.debug(`Created MeemID w/ transaction hash: ${createTx.hash}`)
+
+			const meemIdData = await meemIdContract.getMeemIDByWalletAddress(
+				address,
+				{ gasLimit: 5000000 }
+			)
 
 			const [twitters, wallets] = await Promise.all([
 				orm.models.Twitter.findAll({
@@ -427,6 +432,54 @@ export default class MeemIdService {
 				}
 			})
 		}
+	}
+
+	/** Syncs all data from DB meem ids to the contract */
+	public static async syncDbToContract() {
+		const meemIds = await orm.models.MeemIdentification.findAll({
+			include: [orm.models.Wallet, orm.models.Twitter]
+		})
+
+		const meemIdContract = this.meemIdContract()
+
+		let { recommendedGwei } = await services.web3.getGasEstimate({
+			chain: MeemAPI.networkNameToChain(config.NETWORK)
+		})
+
+		if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
+			// throw new Error('GAS_PRICE_TOO_HIGH')
+			log.warn(`Recommended fee over max: ${recommendedGwei}`)
+			recommendedGwei = config.MAX_GAS_PRICE_GWEI
+		}
+
+		const transactions: ethers.ContractTransaction[] = []
+
+		for (let i = 0; i < meemIds.length; i += 1) {
+			const meemId = meemIds[i]
+			if (
+				meemId.Wallets &&
+				meemId.Wallets[0] &&
+				meemId.Twitters &&
+				meemId.Twitters[0]
+			) {
+				const { address } = meemId.Wallets[0]
+				const { twitterId } = meemId.Twitters[0]
+				log.debug(`Creating MeemId for ${address} | ${twitterId}`)
+				/* eslint-disable-next-line no-await-in-loop */
+				const tx = await meemIdContract.createOrAddMeemID(address, twitterId, {
+					gasPrice: services.web3.gweiToWei(recommendedGwei)
+				})
+
+				transactions.push(tx)
+
+				log.debug(`Created w/ TX: ${tx.hash}`)
+			}
+		}
+
+		await Promise.all(transactions.map(t => t.wait()))
+		log.debug('All transactions finished')
+
+		return meemIds
 	}
 
 	private static findMeemIdentificationId(options: {

@@ -151,6 +151,47 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "idx",
+        type: "uint256",
+      },
+    ],
+    name: "getMeemIDByIndex",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address[]",
+            name: "wallets",
+            type: "address[]",
+          },
+          {
+            internalType: "string[]",
+            name: "twitters",
+            type: "string[]",
+          },
+          {
+            internalType: "address",
+            name: "defaultWallet",
+            type: "address",
+          },
+          {
+            internalType: "string",
+            name: "defaultTwitter",
+            type: "string",
+          },
+        ],
+        internalType: "struct MeemID",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "string",
         name: "twitterId",
         type: "string",
@@ -225,6 +266,57 @@ const _abi = [
         internalType: "struct MeemID",
         name: "",
         type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "twitterId",
+        type: "string",
+      },
+    ],
+    name: "getMeemIDIndexByTwitterId",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "addy",
+        type: "address",
+      },
+    ],
+    name: "getMeemIDIndexByWalletAddress",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getNumberOfMeemIds",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
