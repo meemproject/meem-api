@@ -9,12 +9,17 @@ export namespace GetMeemPasses {
 
 	export const method = HttpMethod.Get
 
-	export interface IQueryParams {}
+	export interface IQueryParams {
+		offset?: number
+		hideWhitelisted?: boolean
+	}
 
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
 		meemPasses: any[]
+		totalItems: number
+		itemsPerPage: number
 	}
 
 	export interface IDefinition {
