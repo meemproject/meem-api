@@ -65,8 +65,12 @@ export interface MeemIDInterface extends ethers.utils.Interface {
     "hasRole(address,bytes32)": FunctionFragment;
     "revokeRole(address,bytes32)": FunctionFragment;
     "createOrAddMeemID(address,string)": FunctionFragment;
+    "getMeemIDByIndex(uint256)": FunctionFragment;
     "getMeemIDByTwitterId(string)": FunctionFragment;
     "getMeemIDByWalletAddress(address)": FunctionFragment;
+    "getMeemIDIndexByTwitterId(string)": FunctionFragment;
+    "getMeemIDIndexByWalletAddress(address)": FunctionFragment;
+    "getNumberOfMeemIds()": FunctionFragment;
     "removeTwitterIdByTwitterId(string,string)": FunctionFragment;
     "removeTwitterIdByWalletAddress(address,string)": FunctionFragment;
     "removeWalletAddressByTwitterId(string,address)": FunctionFragment;
@@ -110,12 +114,28 @@ export interface MeemIDInterface extends ethers.utils.Interface {
     values: [string, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "getMeemIDByIndex",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getMeemIDByTwitterId",
     values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "getMeemIDByWalletAddress",
     values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getMeemIDIndexByTwitterId",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getMeemIDIndexByWalletAddress",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getNumberOfMeemIds",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "removeTwitterIdByTwitterId",
@@ -189,11 +209,27 @@ export interface MeemIDInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getMeemIDByIndex",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getMeemIDByTwitterId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "getMeemIDByWalletAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getMeemIDIndexByTwitterId",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getMeemIDIndexByWalletAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getNumberOfMeemIds",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -331,6 +367,11 @@ export interface MeemID extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    getMeemIDByIndex(
+      idx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[MeemIDStructOutput]>;
+
     getMeemIDByTwitterId(
       twitterId: string,
       overrides?: CallOverrides
@@ -340,6 +381,18 @@ export interface MeemID extends BaseContract {
       addy: string,
       overrides?: CallOverrides
     ): Promise<[MeemIDStructOutput]>;
+
+    getMeemIDIndexByTwitterId(
+      twitterId: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    getMeemIDIndexByWalletAddress(
+      addy: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    getNumberOfMeemIds(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     removeTwitterIdByTwitterId(
       lookupTwitterId: string,
@@ -444,6 +497,11 @@ export interface MeemID extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  getMeemIDByIndex(
+    idx: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<MeemIDStructOutput>;
+
   getMeemIDByTwitterId(
     twitterId: string,
     overrides?: CallOverrides
@@ -453,6 +511,18 @@ export interface MeemID extends BaseContract {
     addy: string,
     overrides?: CallOverrides
   ): Promise<MeemIDStructOutput>;
+
+  getMeemIDIndexByTwitterId(
+    twitterId: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getMeemIDIndexByWalletAddress(
+    addy: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getNumberOfMeemIds(overrides?: CallOverrides): Promise<BigNumber>;
 
   removeTwitterIdByTwitterId(
     lookupTwitterId: string,
@@ -550,6 +620,11 @@ export interface MeemID extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    getMeemIDByIndex(
+      idx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<MeemIDStructOutput>;
+
     getMeemIDByTwitterId(
       twitterId: string,
       overrides?: CallOverrides
@@ -559,6 +634,18 @@ export interface MeemID extends BaseContract {
       addy: string,
       overrides?: CallOverrides
     ): Promise<MeemIDStructOutput>;
+
+    getMeemIDIndexByTwitterId(
+      twitterId: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getMeemIDIndexByWalletAddress(
+      addy: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getNumberOfMeemIds(overrides?: CallOverrides): Promise<BigNumber>;
 
     removeTwitterIdByTwitterId(
       lookupTwitterId: string,
@@ -680,6 +767,11 @@ export interface MeemID extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    getMeemIDByIndex(
+      idx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getMeemIDByTwitterId(
       twitterId: string,
       overrides?: CallOverrides
@@ -689,6 +781,18 @@ export interface MeemID extends BaseContract {
       addy: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getMeemIDIndexByTwitterId(
+      twitterId: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getMeemIDIndexByWalletAddress(
+      addy: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getNumberOfMeemIds(overrides?: CallOverrides): Promise<BigNumber>;
 
     removeTwitterIdByTwitterId(
       lookupTwitterId: string,
@@ -790,6 +894,11 @@ export interface MeemID extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    getMeemIDByIndex(
+      idx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getMeemIDByTwitterId(
       twitterId: string,
       overrides?: CallOverrides
@@ -797,6 +906,20 @@ export interface MeemID extends BaseContract {
 
     getMeemIDByWalletAddress(
       addy: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getMeemIDIndexByTwitterId(
+      twitterId: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getMeemIDIndexByWalletAddress(
+      addy: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getNumberOfMeemIds(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

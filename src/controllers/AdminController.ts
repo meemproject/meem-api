@@ -27,4 +27,15 @@ export default class ConfigController {
 			status: 'success'
 		})
 	}
+
+	public static async syncDbMeemIdsToContract(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		const meemIds = await services.meemId.syncDbToContract()
+
+		return res.json({
+			meemIds
+		})
+	}
 }
