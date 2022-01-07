@@ -1,6 +1,5 @@
 import AWS from 'aws-sdk'
 import { Response } from 'express'
-import { Op } from 'sequelize'
 import { TwitterApi, UserV2 } from 'twitter-api-v2'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
