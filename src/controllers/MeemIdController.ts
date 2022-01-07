@@ -140,12 +140,13 @@ export default class AuthController {
 
 		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 
-		const twitterUsers = await client.v2.users(twitterIds)
+		const twitterUsers =
+			twitterIds.length > 0 ? await client.v2.users(twitterIds) : null
 
 		const meemIdData = meemIds.rows.map(mId => {
 			const tweetsPerDayQuota = mId.MeemPass?.tweetsPerDayQuota ?? 0
 			const twitterUser: UserV2 | undefined =
-				mId.Twitters && mId.Twitters.length > 0
+				mId.Twitters && mId.Twitters.length > 0 && twitterUsers
 					? twitterUsers.data.find(u => u.id === mId.Twitters![0].twitterId)
 					: undefined
 			return {
@@ -216,6 +217,10 @@ export default class AuthController {
 
 		if (!meemPass) {
 			throw new Error('MEEMPASS_NOT_FOUND')
+		}
+
+		if (!meemPass.isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
 		}
 
 		let shouldSendWhitelistTweet = false

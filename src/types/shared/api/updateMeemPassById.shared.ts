@@ -9,7 +9,7 @@ export namespace UpdateMeemPassById {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/meemPass/${options.meemPassId}`
+		`/api/1.0/meemPass/${options.meemPassId}`
 
 	export const method = HttpMethod.Patch
 

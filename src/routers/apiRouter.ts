@@ -20,7 +20,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/meemId', MeemIdController.createOrUpdateMeemId)
 	router.getAsync('/meemId', MeemIdController.getMeemId)
 	router.patchAsync('/meemId', MeemIdController.updateMeemId)
-	router.patchAsync('/meemPass/:id', MeemIdController.updateMeemPassById)
+	router.patchAsync(
+		'/meemPass/:meemPassId',
+		MeemIdController.updateMeemPassById
+	)
 	router.getAsync('/meemPasses', MeemIdController.getMeemPasses)
 	router.patchAsync('/me/meemPass', MeemIdController.updateMeemPass)
 	router.getAsync('/me', MeemIdController.getMe)
