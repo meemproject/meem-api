@@ -26,6 +26,11 @@ export default class MeemPass extends BaseModel<MeemPass> {
 			allowNull: false,
 			defaultValue: false
 		},
+		isAdmin: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: false
+		},
 		canCreateProjects: {
 			type: DataTypes.BOOLEAN,
 			allowNull: false,
@@ -38,6 +43,8 @@ export default class MeemPass extends BaseModel<MeemPass> {
 	public tweetsPerDayQuota!: number
 
 	public hasApplied!: boolean
+
+	public isAdmin!: boolean
 
 	public canCreateProjects!: boolean
 

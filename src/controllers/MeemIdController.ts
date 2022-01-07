@@ -1,5 +1,6 @@
 import AWS from 'aws-sdk'
 import { Response } from 'express'
+import { TwitterApi, UserV2 } from 'twitter-api-v2'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -111,7 +112,63 @@ export default class AuthController {
 			meemIdentification: req.meemId
 		})
 		return res.json({
-			meemId
+			meemId,
+			isAdmin: meemId.meemPass?.isAdmin === true
+		})
+	}
+
+	public static async getMeemPasses(
+		req: IRequest<MeemAPI.v1.GetMeemPasses.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetMeemPasses.IResponseBody>
+	): Promise<Response> {
+		const itemsPerPage = 5
+		const { offset } = req.query
+		const meemIds = await orm.models.MeemIdentification.findAndCountAll({
+			limit: itemsPerPage,
+			order: [['createdAt', 'DESC']],
+			offset: offset || 1,
+			include: [orm.models.Twitter, orm.models.Wallet, orm.models.MeemPass]
+		})
+
+		const twitters = meemIds.rows.map(mId =>
+			mId.Twitters && mId.Twitters?.length > 0
+				? mId.Twitters[0].twitterId
+				: null
+		)
+
+		const twitterIds = twitters.filter(twitterId => !!twitterId) as string[]
+
+		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+
+		const twitterUsers =
+			twitterIds.length > 0 ? await client.v2.users(twitterIds) : null
+
+		const meemIdData = meemIds.rows.map(mId => {
+			const tweetsPerDayQuota = mId.MeemPass?.tweetsPerDayQuota ?? 0
+			const twitterUser: UserV2 | undefined =
+				mId.Twitters && mId.Twitters.length > 0 && twitterUsers
+					? twitterUsers.data.find(u => u.id === mId.Twitters![0].twitterId)
+					: undefined
+			return {
+				id: mId.MeemPass?.id,
+				createdAt: mId.MeemPass?.createdAt,
+				twitter: {
+					username: twitterUser?.username || '',
+					twitterId:
+						mId.Twitters && mId.Twitters.length > 0
+							? mId.Twitters[0].twitterId
+							: null,
+					hasApplied: mId.MeemPass?.hasApplied === true,
+					isWhitelisted: tweetsPerDayQuota > 0,
+					tweetsPerDayQuota
+				}
+			}
+		})
+
+		return res.json({
+			meemPasses: meemIdData,
+			itemsPerPage,
+			totalItems: meemIds.count
 		})
 	}
 
@@ -130,6 +187,81 @@ export default class AuthController {
 		req.meemId.MeemPass.hasApplied = req.body.hasAppliedTwitter === true
 
 		await req.meemId.MeemPass.save()
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
+	public static async updateMeemPassById(
+		req: IRequest<MeemAPI.v1.UpdateMeemPassById.IDefinition>,
+		res: IResponse<MeemAPI.v1.UpdateMeemPassById.IResponseBody>
+	): Promise<Response> {
+		if (!req.meemId) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		if (!req.meemId.MeemPass) {
+			throw new Error('MEEMPASS_NOT_FOUND')
+		}
+
+		if (!req.params.meemPassId) {
+			throw new Error('MEEMPASS_NOT_FOUND')
+		}
+
+		const meemPass = await orm.models.MeemPass.findOne({
+			where: {
+				id: req.params.meemPassId
+			},
+			include: [orm.models.MeemIdentification]
+		})
+
+		if (!meemPass) {
+			throw new Error('MEEMPASS_NOT_FOUND')
+		}
+
+		if (!req.meemId.MeemPass.isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		let shouldSendWhitelistTweet = true
+
+		if (req.body.isWhitelisted && meemPass.tweetsPerDayQuota < 1) {
+			meemPass.tweetsPerDayQuota = 99
+			shouldSendWhitelistTweet = true
+		}
+
+		await meemPass.save()
+
+		const meemId = await services.meemId.getMeemId({
+			meemIdentification: meemPass.MeemIdentification
+		})
+
+		if (
+			meemId &&
+			shouldSendWhitelistTweet &&
+			meemId.defaultTwitter &&
+			meemId.defaultTwitter !== ''
+		) {
+			const meemDomain =
+				config.NETWORK === MeemAPI.NetworkName.Rinkeby
+					? `https://dev.meem.wtf`
+					: `https://meem.wtf`
+			const userClient = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+			const tweetClient = new TwitterApi({
+				appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
+				appSecret: config.TWITTER_MEEM_ACCOUNT_CONSUMER_SECRET,
+				accessToken: config.TWITTER_MEEM_ACCOUNT_TOKEN,
+				accessSecret: config.TWITTER_MEEM_ACCOUNT_SECRET
+			})
+
+			const twitterUserResult = await userClient.v2.user(meemId.defaultTwitter)
+			if (twitterUserResult) {
+				tweetClient.v2.tweet(
+					`Hey ${twitterUserResult.data.username}, you're a meember now. Start here: ${meemDomain}/home`
+				)
+			}
+		}
 
 		return res.json({
 			status: 'success'

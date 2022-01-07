@@ -332,6 +332,7 @@ export namespace MeemAPI {
 				isWhitelisted: boolean
 				tweetsPerDayQuota: number
 			}
+			isAdmin: boolean
 		}
 	}
 
@@ -523,6 +524,7 @@ export namespace MeemAPI {
 			export interface IResponseBody extends IApiResponseBody {
 				/** The MeemId */
 				meemId: IMeemId
+				isAdmin: boolean
 			}
 
 			export interface IDefinition {
@@ -585,6 +587,37 @@ export namespace MeemAPI {
 			export interface IResponseBody extends IApiResponseBody {
 				/** The MeemId */
 				meemId: IMeemId
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		/** Get MeemPasses */
+		export namespace GetMeemPasses {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/meemPasses`
+
+			export const method = HttpMethod.Get
+
+			export interface IQueryParams {
+				offset?: number
+				hideWhitelisted?: boolean
+			}
+
+			export interface IRequestBody {}
+
+			export interface IResponseBody extends IApiResponseBody {
+				meemPasses: any[]
+				totalItems: number
+				itemsPerPage: number
 			}
 
 			export interface IDefinition {
@@ -1035,6 +1068,38 @@ export namespace MeemAPI {
 
 			export interface IRequestBody {
 				hasAppliedTwitter: boolean
+			}
+
+			export interface IResponseBody extends IApiResponseBody {
+				status: 'success'
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		/** Update user MeemPass */
+		export namespace UpdateMeemPassById {
+			export interface IPathParams {
+				/** The meem pass id to fetch */
+				meemPassId: string
+			}
+
+			export const path = (options: IPathParams) =>
+				`/api/1.0/meemPass/${options.meemPassId}`
+
+			export const method = HttpMethod.Patch
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {
+				isWhitelisted: boolean
 			}
 
 			export interface IResponseBody extends IApiResponseBody {
