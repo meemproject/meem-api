@@ -308,7 +308,8 @@ export default class MeemIdService {
 					hasApplied: meemIdentification.MeemPass?.hasApplied === true,
 					isWhitelisted: tweetsPerDayQuota > 0,
 					tweetsPerDayQuota
-				}
+				},
+				isAdmin: meemIdentification.MeemPass?.isAdmin === true
 			}
 		}
 	}

@@ -291,5 +291,6 @@ export interface IMeemId {
 			isWhitelisted: boolean
 			tweetsPerDayQuota: number
 		}
+		isAdmin: boolean
 	}
 }

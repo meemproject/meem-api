@@ -15,6 +15,7 @@ export namespace GetMe {
 	export interface IResponseBody extends IApiResponseBody {
 		/** The MeemId */
 		meemId: IMeemId
+		isAdmin: boolean
 	}
 
 	export interface IDefinition {
