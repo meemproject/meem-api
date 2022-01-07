@@ -220,46 +220,59 @@ export default class AuthController {
 			throw new Error('MEEMPASS_NOT_FOUND')
 		}
 
+		if (!meemPass.MeemIdentification) {
+			throw new Error('MEEMPASS_NOT_FOUND')
+		}
+
 		if (!req.meemId.MeemPass.isAdmin) {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		let shouldSendWhitelistTweet = true
+		let shouldSendWhitelistTweet = false
 
-		if (req.body.isWhitelisted && meemPass.tweetsPerDayQuota < 1) {
+		if (req.body.isWhitelisted === true && meemPass.tweetsPerDayQuota < 1) {
 			meemPass.tweetsPerDayQuota = 99
 			shouldSendWhitelistTweet = true
+		} else if (
+			req.body.isWhitelisted === false &&
+			meemPass.tweetsPerDayQuota > 1
+		) {
+			meemPass.tweetsPerDayQuota = 0
 		}
 
 		await meemPass.save()
 
-		const meemId = await services.meemId.getMeemId({
-			meemIdentification: meemPass.MeemIdentification
-		})
-
-		if (
-			meemId &&
-			shouldSendWhitelistTweet &&
-			meemId.defaultTwitter &&
-			meemId.defaultTwitter !== ''
-		) {
-			const meemDomain =
-				config.NETWORK === MeemAPI.NetworkName.Rinkeby
-					? `https://dev.meem.wtf`
-					: `https://meem.wtf`
-			const userClient = new TwitterApi(config.TWITTER_BEARER_TOKEN)
-			const tweetClient = new TwitterApi({
-				appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
-				appSecret: config.TWITTER_MEEM_ACCOUNT_CONSUMER_SECRET,
-				accessToken: config.TWITTER_MEEM_ACCOUNT_TOKEN,
-				accessSecret: config.TWITTER_MEEM_ACCOUNT_SECRET
+		if (shouldSendWhitelistTweet) {
+			const meemId = await services.meemId.getMeemId({
+				meemIdentificationId: meemPass.MeemIdentification.id
 			})
 
-			const twitterUserResult = await userClient.v2.user(meemId.defaultTwitter)
-			if (twitterUserResult) {
-				tweetClient.v2.tweet(
-					`Hey ${twitterUserResult.data.username}, you're a meember now. Start here: ${meemDomain}/home`
-				)
+			let { defaultTwitter } = meemId
+
+			if (!defaultTwitter && meemId.twitters.length > 0) {
+				// eslint-disable-next-line prefer-destructuring
+				defaultTwitter = meemId.twitters[0]
+			}
+
+			if (meemId && defaultTwitter) {
+				const meemDomain =
+					config.NETWORK === MeemAPI.NetworkName.Rinkeby
+						? `https://dev.meem.wtf`
+						: `https://meem.wtf`
+				const userClient = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+				const tweetClient = new TwitterApi({
+					appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
+					appSecret: config.TWITTER_MEEM_ACCOUNT_CONSUMER_SECRET,
+					accessToken: config.TWITTER_MEEM_ACCOUNT_TOKEN,
+					accessSecret: config.TWITTER_MEEM_ACCOUNT_SECRET
+				})
+
+				const twitterUserResult = await userClient.v2.user(defaultTwitter)
+				if (twitterUserResult) {
+					await tweetClient.v2.tweet(
+						`Hey @${twitterUserResult.data.username}, you're a meember now. Start here: ${meemDomain}/home`
+					)
+				}
 			}
 		}
 
