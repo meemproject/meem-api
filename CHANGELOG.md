@@ -1,3 +1,5 @@
+## [1.3.4](https://github.com/meemproject/meem-api-aws/compare/v1.3.3...v1.3.4) (2022-01-10)
+
 ## [1.3.3](https://github.com/meemproject/meem-api-aws/compare/v1.3.2...v1.3.3) (2022-01-08)
 
 
