@@ -271,9 +271,13 @@ export default class AuthController {
 
 				const twitterUserResult = await userClient.v2.user(defaultTwitter)
 				if (twitterUserResult) {
-					await tweetClient.v2.tweet(
-						`Hey @${twitterUserResult.data.username}, you're a meember now. Start here: ${meemDomain}/home`
-					)
+					try {
+						await tweetClient.v2.tweet(
+							`Hey @${twitterUserResult.data.username}, you're a meember now. Start here: ${meemDomain}/home`
+						)
+					} catch (e) {
+						log.error(e)
+					}
 				}
 			}
 		}
