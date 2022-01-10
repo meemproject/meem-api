@@ -147,7 +147,9 @@ export default class AuthController {
 			const tweetsPerDayQuota = mId.MeemPass?.tweetsPerDayQuota ?? 0
 			const twitterUser: UserV2 | undefined =
 				mId.Twitters && mId.Twitters.length > 0 && twitterUsers
-					? twitterUsers.data.find(u => u.id === mId.Twitters![0].twitterId)
+					? twitterUsers.data.find(
+							u => mId.Twitters && u.id === mId.Twitters[0].twitterId
+					  )
 					: undefined
 			return {
 				id: mId.MeemPass?.id,

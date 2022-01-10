@@ -471,13 +471,18 @@ export default class MeemIdService {
 					gasPrice: services.web3.gweiToWei(recommendedGwei)
 				})
 
+				log.debug(`Creating w/ tx: ${tx.hash} | nonce: ${tx.nonce}`)
+
+				/* eslint-disable-next-line no-await-in-loop */
+				await tx.wait()
+
 				transactions.push(tx)
 
 				log.debug(`Created w/ TX: ${tx.hash}`)
 			}
 		}
 
-		await Promise.all(transactions.map(t => t.wait()))
+		// await Promise.all(transactions.map(t => t.wait()))
 		log.debug('All transactions finished')
 
 		return meemIds
