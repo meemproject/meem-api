@@ -2,6 +2,13 @@ import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 import { IMeemId } from '../meem.shared'
 
 export namespace GetMeemId {
+	interface IMeemIdData extends IMeemId {
+		defaultTwitterUser?: {
+			username: string
+			profileImageUrl: string | null
+		}
+	}
+
 	export interface IPathParams {}
 
 	export const path = () => `/api/1.0/meemId`
@@ -19,7 +26,7 @@ export namespace GetMeemId {
 
 	export interface IResponseBody extends IApiResponseBody {
 		/** The MeemId */
-		meemId: IMeemId
+		meemId: IMeemIdData
 	}
 
 	export interface IDefinition {

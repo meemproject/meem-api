@@ -96,8 +96,22 @@ export default class AuthController {
 		const meemId = await services.meemId.getMeemId({
 			meemIdentificationId: item.MeemIdentificationId
 		})
+
+		let defaultTwitterUser
+		if (meemId.defaultTwitter && meemId.defaultTwitter !== '') {
+			const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+			const twitterUser = await client.v2.user(meemId.defaultTwitter)
+			defaultTwitterUser = {
+				username: twitterUser.data.username,
+				profileImageUrl: twitterUser.data.profile_image_url || null
+			}
+		}
+
 		return res.json({
-			meemId
+			meemId: {
+				...meemId,
+				defaultTwitterUser
+			}
 		})
 	}
 
