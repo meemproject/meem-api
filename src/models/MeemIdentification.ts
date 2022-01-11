@@ -17,10 +17,17 @@ export default class MeemIdentification extends BaseModel<MeemIdentification> {
 			type: DataTypes.UUID,
 			defaultValue: DataTypes.UUIDV4,
 			primaryKey: true
+		},
+		hasOnboarded: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: false
 		}
 	}
 
 	public id!: string
+
+	public hasOnboarded!: boolean
 
 	public Twitters!: Twitter[] | null
 

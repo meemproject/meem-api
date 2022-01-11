@@ -169,7 +169,7 @@ export default class TwitterService {
 		}
 
 		const { isWhitelisted } = meemId.meemPass.twitter
-		const wallet = meemId.wallets[0]
+		const wallet = meemId.defaultWallet
 
 		const client = new TwitterApi({
 			appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
@@ -346,6 +346,20 @@ export default class TwitterService {
 			log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
 
 			const receipt = await mintTx.wait()
+
+			// Minting a tweet counts as being onboarded
+			if (!meemId.hasOnboarded) {
+				await orm.models.MeemIdentification.update(
+					{
+						hasOnboarded: true
+					},
+					{
+						where: {
+							id: item.MeemIdentificationId
+						}
+					}
+				)
+			}
 
 			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
 
