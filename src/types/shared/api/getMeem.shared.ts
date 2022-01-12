@@ -1,5 +1,5 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeem } from '../meem.shared'
+import { IMetadataMeem } from '../meem.shared'
 
 /** Get Meem */
 export namespace GetMeem {
@@ -18,8 +18,7 @@ export namespace GetMeem {
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		meem: IMeem
-		metadata: any
+		meem: IMetadataMeem
 	}
 
 	export interface IDefinition {

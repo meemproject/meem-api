@@ -2,10 +2,12 @@ import AWS from 'aws-sdk'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import { Response } from 'express'
+import moment from 'moment'
 import TwitterApi from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
+import { IMeemMetadata, IMetadataMeem } from '../types/shared/meem.shared'
 
 export default class MeemController {
 	// TODO: Move to dedicated MeemID controller?
@@ -76,15 +78,17 @@ export default class MeemController {
 
 		const meem: any = await meemContract.getMeem(tokenId)
 		const tokenURI = await meemContract.tokenURI(tokenId)
-		const metadata = await services.meem.getErc721Metadata(tokenURI)
+		const metadata = (await services.meem.getErc721Metadata(
+			tokenURI
+		)) as IMeemMetadata
 
 		// TODO: Clean up this output so it matches IMeem
 		return res.json({
 			meem: {
 				...services.meem.meemToInterface(meem),
-				tokenURI
-			},
-			metadata
+				tokenURI,
+				metadata
+			}
 		})
 	}
 
@@ -92,35 +96,52 @@ export default class MeemController {
 		req: IRequest<MeemAPI.v1.GetMeems.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeems.IResponseBody>
 	): Promise<Response> {
-		const { parent, parentTokenId, parentChain } = req.query
-		const meemContract = services.meem.getMeemContract()
+		const { ownerId } = req.query
+		let meems: IMetadataMeem[] = []
 
-		if (parent && parentTokenId) {
-			const isMeem = await meemContract.isNFTWrapped(
-				parentChain || 0,
-				parent,
-				parentTokenId
-			)
-			if (isMeem) {
-				// TODO: Get the actual meem via contract address and tokenId
-				const meem = await meemContract.getMeem(0)
-				return res.json({
-					meems: [
-						{
-							...meem,
-							parent,
-							parentTokenId,
-							parentChain: parentChain || 0
-						}
-					]
-				})
-			}
-			return res.json({
-				meems: []
+		if (ownerId) {
+			const rawMeems = await orm.models.Meem.findAll({
+				where: {
+					owner: ownerId
+				},
+				order: [['createdAt', 'DESC']],
+				include: [
+					{
+						model: orm.models.MeemProperties,
+						as: 'Properties'
+					}
+				]
 			})
+
+			const meemContract = services.meem.getMeemContract()
+
+			meems = await Promise.all(
+				rawMeems.map(async m => {
+					const tokenURI = await meemContract.tokenURI(m.tokenId)
+					const metadata = (await services.meem.getErc721Metadata(
+						tokenURI
+					)) as IMeemMetadata
+					return {
+						owner: m.owner,
+						parentChain: m.parentChain,
+						parent: MeemAPI.zeroAddress,
+						parentTokenId: m.parentTokenId,
+						rootChain: m.rootChain,
+						root: MeemAPI.zeroAddress,
+						rootTokenId: m.rootTokenId,
+						generation: m.generation,
+						properties: m.Properties!,
+						childProperties: m.ChildProperties!,
+						mintedAt: moment(m.mintedAt).unix(),
+						data: '',
+						metadata
+					}
+				})
+			)
 		}
+
 		return res.json({
-			meems: []
+			meems
 		})
 	}
 

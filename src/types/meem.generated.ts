@@ -273,6 +273,10 @@ export namespace MeemAPI {
 		data: string
 	}
 
+	export interface IMetadataMeem extends IMeem {
+		metadata: IMeemMetadata
+	}
+
 	export interface IERC721Metadata {
 		name?: string
 		image?: string
@@ -557,8 +561,7 @@ export namespace MeemAPI {
 			export interface IRequestBody {}
 
 			export interface IResponseBody extends IApiResponseBody {
-				meem: IMeem
-				metadata: any
+				meem: IMetadataMeem
 			}
 
 			export interface IDefinition {
@@ -649,15 +652,13 @@ export namespace MeemAPI {
 			export const method = HttpMethod.Get
 
 			export interface IQueryParams {
-				parentTokenAddress?: string
-				parentTokenId?: number
-				parentChain?: number
+				meemId?: string
 			}
 
 			export interface IRequestBody {}
 
 			export interface IResponseBody extends IApiResponseBody {
-				meems: any[] // TODO: replace with IMeem type
+				meems: IMetadataMeem[]
 			}
 
 			export interface IDefinition {
