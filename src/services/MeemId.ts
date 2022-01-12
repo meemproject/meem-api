@@ -307,6 +307,7 @@ export default class MeemIdService {
 			twitters: meemIdentification?.Twitters?.map(t => t.twitterId) ?? [],
 			defaultWallet,
 			defaultTwitter,
+			hasOnboarded: meemIdentification.hasOnboarded,
 			meemPass: {
 				twitter: {
 					hasApplied: meemIdentification.MeemPass?.hasApplied === true,

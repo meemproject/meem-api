@@ -289,6 +289,9 @@ export interface IMeemId {
 	/** The default wallet to use for this MeemId */
 	defaultWallet: string
 
+	/** Whether the user has gone through the onboarding process */
+	hasOnboarded: boolean
+
 	meemPass: {
 		twitter: {
 			hasApplied: boolean
