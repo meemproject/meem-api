@@ -138,11 +138,11 @@ export default class AuthController {
 		res: IResponse<MeemAPI.v1.GetMeemPasses.IResponseBody>
 	): Promise<Response> {
 		const itemsPerPage = 5
-		const { offset } = req.query
+		const { page } = req.query
 		const meemIds = await orm.models.MeemIdentification.findAndCountAll({
 			limit: itemsPerPage,
 			order: [['createdAt', 'DESC']],
-			offset: offset || 1,
+			offset: page ? (page - 1) * itemsPerPage : 0,
 			include: [orm.models.Twitter, orm.models.Wallet, orm.models.MeemPass]
 		})
 

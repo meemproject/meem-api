@@ -10,7 +10,7 @@ export namespace GetMeemPasses {
 	export const method = HttpMethod.Get
 
 	export interface IQueryParams {
-		offset?: number
+		page?: number
 		hideWhitelisted?: boolean
 	}
 
