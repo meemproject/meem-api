@@ -78,7 +78,9 @@ export default class MeemController {
 
 		const meem: any = await meemContract.getMeem(tokenId)
 		const tokenURI = await meemContract.tokenURI(tokenId)
-		const metadata = await services.meem.getErc721Metadata(tokenURI)
+		const metadata = (await services.meem.getErc721Metadata(
+			tokenURI
+		)) as IMeemMetadata
 
 		// TODO: Clean up this output so it matches IMeem
 		return res.json({
