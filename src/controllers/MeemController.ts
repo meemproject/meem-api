@@ -96,13 +96,13 @@ export default class MeemController {
 		req: IRequest<MeemAPI.v1.GetMeems.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeems.IResponseBody>
 	): Promise<Response> {
-		const { ownerId } = req.query
+		const { owner } = req.query
 		let meems: IMetadataMeem[] = []
 
-		if (ownerId) {
+		if (owner) {
 			const rawMeems = await orm.models.Meem.findAll({
 				where: {
-					owner: ownerId
+					owner
 				},
 				order: [['createdAt', 'DESC']],
 				include: [
