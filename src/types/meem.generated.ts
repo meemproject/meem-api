@@ -653,12 +653,15 @@ export namespace MeemAPI {
 
 			export interface IQueryParams {
 				meemId?: string
+				page?: number
 			}
 
 			export interface IRequestBody {}
 
 			export interface IResponseBody extends IApiResponseBody {
 				meems: IMetadataMeem[]
+				totalItems: number
+				itemsPerPage: number
 			}
 
 			export interface IDefinition {
