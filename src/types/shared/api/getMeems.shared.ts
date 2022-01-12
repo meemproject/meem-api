@@ -1,5 +1,5 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeem } from '../meem.shared'
+import { IMetadataMeem } from '../meem.shared'
 
 /** Get Meem */
 export namespace GetMeems {
@@ -10,15 +10,13 @@ export namespace GetMeems {
 	export const method = HttpMethod.Get
 
 	export interface IQueryParams {
-		parentTokenAddress?: string
-		parentTokenId?: number
-		parentChain?: number
+		meemId?: string
 	}
 
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		meems: any[] // TODO: replace with IMeem type
+		meems: IMetadataMeem[]
 	}
 
 	export interface IDefinition {

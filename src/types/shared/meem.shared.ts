@@ -232,6 +232,10 @@ export interface IMeem {
 	data: string
 }
 
+export interface IMetadataMeem extends IMeem {
+	metadata: IMeemMetadata
+}
+
 export interface IERC721Metadata {
 	name?: string
 	image?: string
