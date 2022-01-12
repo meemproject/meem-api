@@ -608,7 +608,7 @@ export namespace MeemAPI {
 			export const method = HttpMethod.Get
 
 			export interface IQueryParams {
-				offset?: number
+				page?: number
 				hideWhitelisted?: boolean
 			}
 
