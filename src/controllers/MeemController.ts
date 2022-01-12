@@ -96,52 +96,62 @@ export default class MeemController {
 		req: IRequest<MeemAPI.v1.GetMeems.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeems.IResponseBody>
 	): Promise<Response> {
-		const { owner } = req.query
+		const { owner, page } = req.query
+		const itemsPerPage = 20
 		let meems: IMetadataMeem[] = []
-
+		let rawMeems
 		if (owner) {
-			const rawMeems = await orm.models.Meem.findAll({
-				where: {
-					owner
-				},
-				order: [['createdAt', 'DESC']],
-				include: [
-					{
-						model: orm.models.MeemProperties,
-						as: 'Properties'
-					}
-				]
-			})
+			try {
+				rawMeems = await orm.models.Meem.findAndCountAll({
+					where: {
+						owner
+					},
+					order: [['createdAt', 'DESC']],
+					offset: page ? (page - 1) * itemsPerPage : 0,
+					include: [
+						{
+							model: orm.models.MeemProperties,
+							as: 'Properties'
+						}
+					]
+				})
+			} catch (e) {
+				log.error(e)
+			}
 
 			const meemContract = services.meem.getMeemContract()
 
-			meems = await Promise.all(
-				rawMeems.map(async m => {
-					const tokenURI = await meemContract.tokenURI(m.tokenId)
-					const metadata = (await services.meem.getErc721Metadata(
-						tokenURI
-					)) as IMeemMetadata
-					return {
-						owner: m.owner,
-						parentChain: m.parentChain,
-						parent: MeemAPI.zeroAddress,
-						parentTokenId: m.parentTokenId,
-						rootChain: m.rootChain,
-						root: MeemAPI.zeroAddress,
-						rootTokenId: m.rootTokenId,
-						generation: m.generation,
-						properties: m.Properties!,
-						childProperties: m.ChildProperties!,
-						mintedAt: moment(m.mintedAt).unix(),
-						data: '',
-						metadata
-					}
-				})
-			)
+			meems = rawMeems
+				? await Promise.all(
+						rawMeems.rows.map(async m => {
+							const tokenURI = await meemContract.tokenURI(m.tokenId)
+							const metadata = (await services.meem.getErc721Metadata(
+								tokenURI
+							)) as IMeemMetadata
+							return {
+								owner: m.owner,
+								parentChain: m.parentChain,
+								parent: MeemAPI.zeroAddress,
+								parentTokenId: m.parentTokenId,
+								rootChain: m.rootChain,
+								root: MeemAPI.zeroAddress,
+								rootTokenId: m.rootTokenId,
+								generation: m.generation,
+								properties: m.Properties!,
+								childProperties: m.ChildProperties!,
+								mintedAt: moment(m.mintedAt).unix(),
+								data: '',
+								metadata
+							}
+						})
+				  )
+				: []
 		}
 
 		return res.json({
-			meems
+			meems,
+			itemsPerPage,
+			totalItems: rawMeems ? rawMeems.count : 0
 		})
 	}
 
