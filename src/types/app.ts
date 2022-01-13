@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import { MeemAPI } from './meem.generated'
 
 export interface IQueryParams {}
 
@@ -19,6 +20,13 @@ export interface IRequest<TDefinition extends IEndpoint = IEndpoint>
 	params: TDefinition['pathParams']
 	query: TDefinition['queryParams'] & { [key: string]: string }
 	body: TDefinition['requestBody']
+}
+
+export interface IAPIRequestPaginated<TDefinition extends IEndpoint = IEndpoint>
+	extends IRequest<TDefinition>,
+		MeemAPI.IRequestPaginated {
+	limit: number
+	page: number
 }
 
 export interface IResponse<TBodyParams> extends Omit<Response, 'body'> {

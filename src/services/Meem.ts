@@ -873,8 +873,14 @@ export default class MeemService {
 		}
 	}
 
-	public static meemToInterface(meem: MeemStructOutput): MeemAPI.IMeem {
+	public static meemToInterface(options: {
+		tokenId: string
+		meem: MeemStructOutput
+	}): MeemAPI.IMeem {
+		const { tokenId, meem } = options
+
 		return {
+			tokenId,
 			owner: meem[0],
 			parentChain: meem[1],
 			parent: meem[2],

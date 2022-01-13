@@ -213,6 +213,7 @@ export interface IMeemProperties {
 }
 
 export interface IMeem {
+	tokenId: string
 	/** Address of the token owner */
 	owner: string
 	tokenURI?: string

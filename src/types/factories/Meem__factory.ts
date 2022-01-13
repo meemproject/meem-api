@@ -1421,6 +1421,11 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "MissingRequiredPermissions",
+    type: "error",
+  },
+  {
     inputs: [
       {
         internalType: "uint256",
@@ -1464,6 +1469,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        indexed: false,
         internalType: "address",
         name: "lockedBy",
         type: "address",
@@ -1480,6 +1491,12 @@ const _abi = [
         internalType: "uint256",
         name: "tokenId",
         type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
       },
       {
         indexed: false,
@@ -1555,6 +1572,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        indexed: false,
         internalType: "address",
         name: "lockedBy",
         type: "address",
@@ -1571,6 +1594,12 @@ const _abi = [
         internalType: "uint256",
         name: "tokenId",
         type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
       },
       {
         indexed: false,
@@ -1639,6 +1668,11 @@ const _abi = [
         name: "tokenId",
         type: "uint256",
       },
+      {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
     ],
     name: "lockChildrenPerWallet",
     outputs: [],
@@ -1651,6 +1685,34 @@ const _abi = [
         internalType: "uint256",
         name: "tokenId",
         type: "uint256",
+      },
+      {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        internalType: "enum PermissionType",
+        name: "permissionType",
+        type: "uint8",
+      },
+    ],
+    name: "lockPermissions",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
       },
     ],
     name: "lockTotalChildren",
@@ -1694,6 +1756,11 @@ const _abi = [
         type: "uint256",
       },
       {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
         internalType: "int256",
         name: "newTotalChildren",
         type: "int256",
@@ -1710,6 +1777,61 @@ const _abi = [
         internalType: "uint256",
         name: "tokenId",
         type: "uint256",
+      },
+      {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        internalType: "enum PermissionType",
+        name: "permissionType",
+        type: "uint8",
+      },
+      {
+        components: [
+          {
+            internalType: "enum Permission",
+            name: "permission",
+            type: "uint8",
+          },
+          {
+            internalType: "address[]",
+            name: "addresses",
+            type: "address[]",
+          },
+          {
+            internalType: "uint256",
+            name: "numTokens",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "lockedBy",
+            type: "address",
+          },
+        ],
+        internalType: "struct MeemPermission[]",
+        name: "permissions",
+        type: "tuple[]",
+      },
+    ],
+    name: "setPermissions",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
       },
       {
         internalType: "int256",
@@ -2369,6 +2491,11 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "MissingRequiredSplits",
+    type: "error",
+  },
+  {
     inputs: [
       {
         internalType: "uint256",
@@ -2540,6 +2667,24 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+    ],
+    name: "lockSplits",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "nonOwnerSplitAllocationAmount",
     outputs: [
@@ -2571,6 +2716,46 @@ const _abi = [
       },
     ],
     name: "removeSplitAt",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "toAddress",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "lockedBy",
+            type: "address",
+          },
+        ],
+        internalType: "struct Split[]",
+        name: "splits",
+        type: "tuple[]",
+      },
+    ],
+    name: "setSplits",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

@@ -249,11 +249,13 @@ export interface MeemInterface extends ethers.utils.Interface {
     "setTokenCounter(uint256)": FunctionFragment;
     "mint((address,string,uint8,address,uint256,uint8,address,uint256,uint8,string),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address))": FunctionFragment;
     "addPermission(uint256,uint8,uint8,(uint8,address[],uint256,address))": FunctionFragment;
-    "lockChildrenPerWallet(uint256)": FunctionFragment;
-    "lockTotalChildren(uint256)": FunctionFragment;
+    "lockChildrenPerWallet(uint256,uint8)": FunctionFragment;
+    "lockPermissions(uint256,uint8,uint8)": FunctionFragment;
+    "lockTotalChildren(uint256,uint8)": FunctionFragment;
     "removePermissionAt(uint256,uint8,uint8,uint256)": FunctionFragment;
-    "setChildrenPerWallet(uint256,int256)": FunctionFragment;
-    "setTotalChildren(uint256,int256)": FunctionFragment;
+    "setChildrenPerWallet(uint256,uint8,int256)": FunctionFragment;
+    "setPermissions(uint256,uint8,uint8,(uint8,address[],uint256,address)[])": FunctionFragment;
+    "setTotalChildren(uint256,uint8,int256)": FunctionFragment;
     "updatePermissionAt(uint256,uint8,uint8,uint256,(uint8,address[],uint256,address))": FunctionFragment;
     "childDepth()": FunctionFragment;
     "childrenOf(uint256)": FunctionFragment;
@@ -266,8 +268,10 @@ export interface MeemInterface extends ethers.utils.Interface {
     "wrappedTokens((uint8,address,uint256)[])": FunctionFragment;
     "addSplit(uint256,uint8,(address,uint256,address))": FunctionFragment;
     "getRaribleV2Royalties(uint256)": FunctionFragment;
+    "lockSplits(uint256,uint8)": FunctionFragment;
     "nonOwnerSplitAllocationAmount()": FunctionFragment;
     "removeSplitAt(uint256,uint8,uint256)": FunctionFragment;
+    "setSplits(uint256,uint8,(address,uint256,address)[])": FunctionFragment;
     "updateSplitAt(uint256,uint8,uint256,(address,uint256,address))": FunctionFragment;
     "acceptOwnership()": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -394,11 +398,15 @@ export interface MeemInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "lockChildrenPerWallet",
-    values: [BigNumberish]
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lockPermissions",
+    values: [BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "lockTotalChildren",
-    values: [BigNumberish]
+    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "removePermissionAt",
@@ -406,11 +414,15 @@ export interface MeemInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setChildrenPerWallet",
-    values: [BigNumberish, BigNumberish]
+    values: [BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPermissions",
+    values: [BigNumberish, BigNumberish, BigNumberish, MeemPermissionStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "setTotalChildren",
-    values: [BigNumberish, BigNumberish]
+    values: [BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "updatePermissionAt",
@@ -467,12 +479,20 @@ export interface MeemInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "lockSplits",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "nonOwnerSplitAllocationAmount",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "removeSplitAt",
     values: [BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSplits",
+    values: [BigNumberish, BigNumberish, SplitStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "updateSplitAt",
@@ -610,6 +630,10 @@ export interface MeemInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "lockPermissions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "lockTotalChildren",
     data: BytesLike
   ): Result;
@@ -619,6 +643,10 @@ export interface MeemInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setChildrenPerWallet",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setPermissions",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -661,6 +689,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "getRaribleV2Royalties",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "lockSplits", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "nonOwnerSplitAllocationAmount",
     data: BytesLike
@@ -669,6 +698,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "removeSplitAt",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setSplits", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "updateSplitAt",
     data: BytesLike
@@ -718,11 +748,11 @@ export interface MeemInterface extends ethers.utils.Interface {
     "ApprovalForAll(address,address,bool)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
     "PropertiesSet(uint256,uint8,tuple)": EventFragment;
-    "ChildrenPerWalletLocked(uint256,address)": EventFragment;
-    "ChildrenPerWalletSet(uint256,int256)": EventFragment;
+    "ChildrenPerWalletLocked(uint256,uint8,address)": EventFragment;
+    "ChildrenPerWalletSet(uint256,uint8,int256)": EventFragment;
     "PermissionsSet(uint256,uint8,uint8,tuple[])": EventFragment;
-    "TotalChildrenLocked(uint256,address)": EventFragment;
-    "TotalChildrenSet(uint256,int256)": EventFragment;
+    "TotalChildrenLocked(uint256,uint8,address)": EventFragment;
+    "TotalChildrenSet(uint256,uint8,int256)": EventFragment;
     "RoyaltiesSet(uint256,tuple[])": EventFragment;
     "SplitsSet(uint256,tuple[])": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
@@ -777,16 +807,16 @@ export type PropertiesSetEvent = TypedEvent<
 export type PropertiesSetEventFilter = TypedEventFilter<PropertiesSetEvent>;
 
 export type ChildrenPerWalletLockedEvent = TypedEvent<
-  [BigNumber, string],
-  { tokenId: BigNumber; lockedBy: string }
+  [BigNumber, number, string],
+  { tokenId: BigNumber; propertyType: number; lockedBy: string }
 >;
 
 export type ChildrenPerWalletLockedEventFilter =
   TypedEventFilter<ChildrenPerWalletLockedEvent>;
 
 export type ChildrenPerWalletSetEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  { tokenId: BigNumber; newTotalChildren: BigNumber }
+  [BigNumber, number, BigNumber],
+  { tokenId: BigNumber; propertyType: number; newTotalChildren: BigNumber }
 >;
 
 export type ChildrenPerWalletSetEventFilter =
@@ -805,16 +835,16 @@ export type PermissionsSetEvent = TypedEvent<
 export type PermissionsSetEventFilter = TypedEventFilter<PermissionsSetEvent>;
 
 export type TotalChildrenLockedEvent = TypedEvent<
-  [BigNumber, string],
-  { tokenId: BigNumber; lockedBy: string }
+  [BigNumber, number, string],
+  { tokenId: BigNumber; propertyType: number; lockedBy: string }
 >;
 
 export type TotalChildrenLockedEventFilter =
   TypedEventFilter<TotalChildrenLockedEvent>;
 
 export type TotalChildrenSetEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  { tokenId: BigNumber; newTotalChildren: BigNumber }
+  [BigNumber, number, BigNumber],
+  { tokenId: BigNumber; propertyType: number; newTotalChildren: BigNumber }
 >;
 
 export type TotalChildrenSetEventFilter =
@@ -1030,11 +1060,20 @@ export interface Meem extends BaseContract {
 
     lockChildrenPerWallet(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    lockPermissions(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      permissionType: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     lockTotalChildren(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1048,12 +1087,22 @@ export interface Meem extends BaseContract {
 
     setChildrenPerWallet(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
       newTotalChildren: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setPermissions(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      permissionType: BigNumberish,
+      permissions: MeemPermissionStruct[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     setTotalChildren(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
       newTotalChildren: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -1125,6 +1174,12 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[PartStructOutput[]]>;
 
+    lockSplits(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     nonOwnerSplitAllocationAmount(
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -1133,6 +1188,13 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       idx: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setSplits(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      splits: SplitStruct[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1335,11 +1397,20 @@ export interface Meem extends BaseContract {
 
   lockChildrenPerWallet(
     tokenId: BigNumberish,
+    propertyType: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  lockPermissions(
+    tokenId: BigNumberish,
+    propertyType: BigNumberish,
+    permissionType: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   lockTotalChildren(
     tokenId: BigNumberish,
+    propertyType: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1353,12 +1424,22 @@ export interface Meem extends BaseContract {
 
   setChildrenPerWallet(
     tokenId: BigNumberish,
+    propertyType: BigNumberish,
     newTotalChildren: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setPermissions(
+    tokenId: BigNumberish,
+    propertyType: BigNumberish,
+    permissionType: BigNumberish,
+    permissions: MeemPermissionStruct[],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   setTotalChildren(
     tokenId: BigNumberish,
+    propertyType: BigNumberish,
     newTotalChildren: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -1430,12 +1511,25 @@ export interface Meem extends BaseContract {
     overrides?: CallOverrides
   ): Promise<PartStructOutput[]>;
 
+  lockSplits(
+    tokenId: BigNumberish,
+    propertyType: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   nonOwnerSplitAllocationAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
   removeSplitAt(
     tokenId: BigNumberish,
     propertyType: BigNumberish,
     idx: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setSplits(
+    tokenId: BigNumberish,
+    propertyType: BigNumberish,
+    splits: SplitStruct[],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1628,11 +1722,20 @@ export interface Meem extends BaseContract {
 
     lockChildrenPerWallet(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    lockPermissions(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      permissionType: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
     lockTotalChildren(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1646,12 +1749,22 @@ export interface Meem extends BaseContract {
 
     setChildrenPerWallet(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
       newTotalChildren: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setPermissions(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      permissionType: BigNumberish,
+      permissions: MeemPermissionStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
     setTotalChildren(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
       newTotalChildren: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1723,6 +1836,12 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PartStructOutput[]>;
 
+    lockSplits(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     nonOwnerSplitAllocationAmount(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1731,6 +1850,13 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       idx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setSplits(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      splits: SplitStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1832,21 +1958,25 @@ export interface Meem extends BaseContract {
       props?: null
     ): PropertiesSetEventFilter;
 
-    "ChildrenPerWalletLocked(uint256,address)"(
+    "ChildrenPerWalletLocked(uint256,uint8,address)"(
       tokenId?: null,
+      propertyType?: null,
       lockedBy?: null
     ): ChildrenPerWalletLockedEventFilter;
     ChildrenPerWalletLocked(
       tokenId?: null,
+      propertyType?: null,
       lockedBy?: null
     ): ChildrenPerWalletLockedEventFilter;
 
-    "ChildrenPerWalletSet(uint256,int256)"(
+    "ChildrenPerWalletSet(uint256,uint8,int256)"(
       tokenId?: null,
+      propertyType?: null,
       newTotalChildren?: null
     ): ChildrenPerWalletSetEventFilter;
     ChildrenPerWalletSet(
       tokenId?: null,
+      propertyType?: null,
       newTotalChildren?: null
     ): ChildrenPerWalletSetEventFilter;
 
@@ -1863,21 +1993,25 @@ export interface Meem extends BaseContract {
       permission?: null
     ): PermissionsSetEventFilter;
 
-    "TotalChildrenLocked(uint256,address)"(
+    "TotalChildrenLocked(uint256,uint8,address)"(
       tokenId?: null,
+      propertyType?: null,
       lockedBy?: null
     ): TotalChildrenLockedEventFilter;
     TotalChildrenLocked(
       tokenId?: null,
+      propertyType?: null,
       lockedBy?: null
     ): TotalChildrenLockedEventFilter;
 
-    "TotalChildrenSet(uint256,int256)"(
+    "TotalChildrenSet(uint256,uint8,int256)"(
       tokenId?: null,
+      propertyType?: null,
       newTotalChildren?: null
     ): TotalChildrenSetEventFilter;
     TotalChildrenSet(
       tokenId?: null,
+      propertyType?: null,
       newTotalChildren?: null
     ): TotalChildrenSetEventFilter;
 
@@ -2061,11 +2195,20 @@ export interface Meem extends BaseContract {
 
     lockChildrenPerWallet(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    lockPermissions(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      permissionType: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     lockTotalChildren(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2079,12 +2222,22 @@ export interface Meem extends BaseContract {
 
     setChildrenPerWallet(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
       newTotalChildren: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setPermissions(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      permissionType: BigNumberish,
+      permissions: MeemPermissionStruct[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     setTotalChildren(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
       newTotalChildren: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -2156,6 +2309,12 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    lockSplits(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     nonOwnerSplitAllocationAmount(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -2164,6 +2323,13 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       idx: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setSplits(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      splits: SplitStruct[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2375,11 +2541,20 @@ export interface Meem extends BaseContract {
 
     lockChildrenPerWallet(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    lockPermissions(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      permissionType: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     lockTotalChildren(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2393,12 +2568,22 @@ export interface Meem extends BaseContract {
 
     setChildrenPerWallet(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
       newTotalChildren: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setPermissions(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      permissionType: BigNumberish,
+      permissions: MeemPermissionStruct[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setTotalChildren(
       tokenId: BigNumberish,
+      propertyType: BigNumberish,
       newTotalChildren: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -2470,6 +2655,12 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    lockSplits(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     nonOwnerSplitAllocationAmount(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -2478,6 +2669,13 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       idx: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setSplits(
+      tokenId: BigNumberish,
+      propertyType: BigNumberish,
+      splits: SplitStruct[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
