@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
+import Meem from '../models/Meem'
 import {
 	ChildrenPerWalletSetEvent,
 	MeemPermissionStructOutput,
@@ -195,6 +196,9 @@ export default class ContractEvent {
 		} else {
 			meem.owner = evt.args.to
 			await meem.save()
+			if (!meem.data || !meem.metadata) {
+				await this.updateMeem({ meem })
+			}
 		}
 	}
 
@@ -252,7 +256,14 @@ export default class ContractEvent {
 	private static async createNewMeem(tokenId: string) {
 		const meemContract = services.meem.getMeemContract()
 		// Fetch the meem data and create it
-		const meemData = await meemContract.getMeem(tokenId)
+		const [meemData, tokenURI] = await Promise.all([
+			meemContract.getMeem(tokenId),
+			meemContract.tokenURI(tokenId)
+		])
+
+		const metadata = (await services.meem.getErc721Metadata(
+			tokenURI
+		)) as MeemAPI.IMeemMetadata
 
 		const properties = orm.models.MeemProperties.build({
 			id: uuidv4(),
@@ -271,12 +282,33 @@ export default class ContractEvent {
 			rootTokenId: meemData.rootTokenId.toHexString(),
 			generation: meemData.generation,
 			mintedAt: DateTime.fromSeconds(meemData.mintedAt.toNumber()).toJSDate(),
+			metadata,
+			data: meemData.data,
 			PropertiesId: properties.id,
 			ChildPropertiesId: childProperties.id
 		})
 
 		await Promise.all([properties.save(), childProperties.save()])
 
+		await meem.save()
+	}
+
+	private static async updateMeem(options: { meem: Meem }) {
+		const { meem } = options
+		log.debug(`Syncing meem tokenId: ${meem.tokenId}`)
+		const meemContract = services.meem.getMeemContract()
+		// Fetch the meem data and create it
+		const [meemData, tokenURI] = await Promise.all([
+			meemContract.getMeem(meem.tokenId),
+			meemContract.tokenURI(meem.tokenId)
+		])
+
+		const metadata = (await services.meem.getErc721Metadata(
+			tokenURI
+		)) as MeemAPI.IMeemMetadata
+
+		meem.data = meemData.data
+		meem.metadata = metadata
 		await meem.save()
 	}
 

@@ -39,6 +39,14 @@ export namespace MeemAPI {
 	export type AsyncReturnType<T extends (...args: any) => Promise<any>> =
 		T extends (...args: any) => Promise<infer R> ? R : any
 
+	export interface IRequestPaginated {
+		/** The current page to fetch. Page starts at 0 index */
+		page?: number
+
+		/** The number of records to fetch */
+		limit?: number
+	}
+
 	export enum License {
 		Cc0 = 'cc0',
 		Unknown = 'unknown'
@@ -254,6 +262,7 @@ export namespace MeemAPI {
 	}
 
 	export interface IMeem {
+		tokenId: string
 		/** Address of the token owner */
 		owner: string
 		tokenURI?: string
@@ -647,13 +656,13 @@ export namespace MeemAPI {
 		export namespace GetMeems {
 			export interface IPathParams {}
 
-			export const path = (options: IPathParams) => `/api/1.0/meems`
+			export const path = (options?: IPathParams) => `/api/1.0/meems`
 
 			export const method = HttpMethod.Get
 
-			export interface IQueryParams {
-				meemId?: string
-				page?: number
+			export interface IQueryParams extends IRequestPaginated {
+				/** Filter by owner address */
+				owner?: string
 			}
 
 			export interface IRequestBody {}

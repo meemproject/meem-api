@@ -66,6 +66,16 @@ export default class Meem extends BaseModel<Meem> {
 		mintedAt: {
 			type: DataTypes.DATE,
 			allowNull: false
+		},
+		data: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: {}
+		},
+		metadata: {
+			type: DataTypes.JSONB,
+			allowNull: false,
+			defaultValue: {}
 		}
 	}
 
@@ -86,6 +96,10 @@ export default class Meem extends BaseModel<Meem> {
 	public generation!: number
 
 	public mintedAt!: string
+
+	public data!: string
+
+	public metadata!: MeemAPI.IMeemMetadata
 
 	public PropertiesId!: string | null
 

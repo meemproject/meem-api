@@ -38,6 +38,8 @@ declare global {
 	namespace Express {
 		interface IMeemRequest {
 			meemId?: MeemIdentification
+			limit?: number
+			page?: number
 		}
 
 		export interface Response {

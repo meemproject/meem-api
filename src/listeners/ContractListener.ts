@@ -31,21 +31,22 @@ export default class ContractListener {
 		)
 		this.meemContract.on(
 			this.meemContract.filters.TotalChildrenSet(),
-			(_a, _b, evt) => services.contractEvents.meemHandleTotalChildrenSet(evt)
+			(_a, _b, _c, evt) =>
+				services.contractEvents.meemHandleTotalChildrenSet(evt)
 		)
 		this.meemContract.on(
 			this.meemContract.filters.TotalChildrenLocked(),
-			(_a, _b, evt) =>
+			(_a, _b, _c, evt) =>
 				services.contractEvents.meemHandleTotalChildrenLocked(evt)
 		)
 		this.meemContract.on(
 			this.meemContract.filters.ChildrenPerWalletSet(),
-			(_a, _b, evt) =>
+			(_a, _b, _c, evt) =>
 				services.contractEvents.meemHandleChildrenPerWalletSet(evt)
 		)
 		this.meemContract.on(
 			this.meemContract.filters.ChildrenPerWalletLocked(),
-			(_a, _b, evt) =>
+			(_a, _b, _c, evt) =>
 				services.contractEvents.meemHandleChildrenPerWalletLocked(evt)
 		)
 		this.meemContract.on(

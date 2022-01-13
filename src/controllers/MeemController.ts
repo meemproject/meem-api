@@ -5,9 +5,8 @@ import { Response } from 'express'
 import moment from 'moment'
 import TwitterApi from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
-import { IRequest, IResponse } from '../types/app'
+import { IAPIRequestPaginated, IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
-import { IMeemMetadata, IMetadataMeem } from '../types/shared/meem.shared'
 
 export default class MeemController {
 	// TODO: Move to dedicated MeemID controller?
@@ -80,12 +79,12 @@ export default class MeemController {
 		const tokenURI = await meemContract.tokenURI(tokenId)
 		const metadata = (await services.meem.getErc721Metadata(
 			tokenURI
-		)) as IMeemMetadata
+		)) as MeemAPI.IMeemMetadata
 
 		// TODO: Clean up this output so it matches IMeem
 		return res.json({
 			meem: {
-				...services.meem.meemToInterface(meem),
+				...services.meem.meemToInterface({ tokenId, meem }),
 				tokenURI,
 				metadata
 			}
@@ -93,65 +92,64 @@ export default class MeemController {
 	}
 
 	public static async getMeems(
-		req: IRequest<MeemAPI.v1.GetMeems.IDefinition>,
+		req: IAPIRequestPaginated<MeemAPI.v1.GetMeems.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeems.IResponseBody>
 	): Promise<Response> {
-		const { owner, page } = req.query
+		const { owner } = req.query
+		const { page, limit } = req
 		const itemsPerPage = 20
-		let meems: IMetadataMeem[] = []
-		let rawMeems
+		const meems: MeemAPI.IMetadataMeem[] = []
+		const where: Record<string, any> = {}
 		if (owner) {
-			try {
-				rawMeems = await orm.models.Meem.findAndCountAll({
-					where: {
-						owner
-					},
-					order: [['createdAt', 'DESC']],
-					offset: page ? (page - 1) * itemsPerPage : 0,
-					include: [
-						{
-							model: orm.models.MeemProperties,
-							as: 'Properties'
-						}
-					]
-				})
-			} catch (e) {
-				log.error(e)
-			}
-
-			const meemContract = services.meem.getMeemContract()
-
-			meems = rawMeems
-				? await Promise.all(
-						rawMeems.rows.map(async m => {
-							const tokenURI = await meemContract.tokenURI(m.tokenId)
-							const metadata = (await services.meem.getErc721Metadata(
-								tokenURI
-							)) as IMeemMetadata
-							return {
-								owner: m.owner,
-								parentChain: m.parentChain,
-								parent: MeemAPI.zeroAddress,
-								parentTokenId: m.parentTokenId,
-								rootChain: m.rootChain,
-								root: MeemAPI.zeroAddress,
-								rootTokenId: m.rootTokenId,
-								generation: m.generation,
-								properties: m.Properties!,
-								childProperties: m.ChildProperties!,
-								mintedAt: moment(m.mintedAt).unix(),
-								data: '',
-								metadata
-							}
-						})
-				  )
-				: []
+			where.owner = owner
 		}
+		const { rows: rawMeems, count } = await orm.models.Meem.findAndCountAll({
+			where,
+			order: [['createdAt', 'DESC']],
+			offset: page * limit,
+			limit,
+			include: [
+				{
+					model: orm.models.MeemProperties,
+					as: 'Properties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'ChildProperties'
+				}
+			]
+		})
+
+		let finalCount = count
+
+		rawMeems.forEach(rawMeem => {
+			if (rawMeem.Properties && rawMeem.ChildProperties) {
+				meems.push({
+					tokenId: rawMeem.tokenId,
+					owner: rawMeem.owner,
+					parentChain: rawMeem.parentChain,
+					parent: MeemAPI.zeroAddress,
+					parentTokenId: rawMeem.parentTokenId,
+					rootChain: rawMeem.rootChain,
+					root: MeemAPI.zeroAddress,
+					rootTokenId: rawMeem.rootTokenId,
+					generation: rawMeem.generation,
+					properties: rawMeem.Properties,
+					childProperties: rawMeem.ChildProperties,
+					mintedAt: moment(rawMeem.mintedAt).unix(),
+					data: rawMeem.data,
+					metadata: rawMeem.metadata
+				})
+			} else {
+				finalCount -= 1
+				log.crit(`Missing properties for Meem w/ tokenId: ${rawMeem.tokenId}`)
+			}
+		})
 
 		return res.json({
 			meems,
 			itemsPerPage,
-			totalItems: rawMeems ? rawMeems.count : 0
+			totalItems: finalCount
 		})
 	}
 

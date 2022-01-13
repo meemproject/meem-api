@@ -31,3 +31,11 @@ export interface IEvent {
 
 export type AsyncReturnType<T extends (...args: any) => Promise<any>> =
 	T extends (...args: any) => Promise<infer R> ? R : any
+
+export interface IRequestPaginated {
+	/** The current page to fetch. Page starts at 0 index */
+	page?: number
+
+	/** The number of records to fetch */
+	limit?: number
+}
