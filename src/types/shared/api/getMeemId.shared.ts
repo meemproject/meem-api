@@ -4,7 +4,9 @@ import { IMeemId } from '../meem.shared'
 export namespace GetMeemId {
 	interface IMeemIdData extends IMeemId {
 		defaultTwitterUser?: {
+			id: string
 			username: string
+			displayName: string
 			profileImageUrl: string | null
 		}
 	}

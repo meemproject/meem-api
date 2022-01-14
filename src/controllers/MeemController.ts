@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import { Response } from 'express'
 import moment from 'moment'
-import TwitterApi from 'twitter-api-v2'
+import TwitterApi, { UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import { IAPIRequestPaginated, IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
@@ -96,9 +96,10 @@ export default class MeemController {
 		res: IResponse<MeemAPI.v1.GetMeems.IResponseBody>
 	): Promise<Response> {
 		const { owner } = req.query
-		const { page, limit } = req
-		const itemsPerPage = 20
-		const meems: MeemAPI.IMetadataMeem[] = []
+		const { page, limit: requestedLimit } = req
+		const limit = requestedLimit > 100 ? 100 : requestedLimit
+		const itemsPerPage = limit
+		let meems: MeemAPI.IMetadataMeem[] = []
 		let where: Record<string, any> = {}
 		if (owner) {
 			where = orm.sequelize.where(
@@ -148,6 +149,53 @@ export default class MeemController {
 				log.crit(`Missing properties for Meem w/ tokenId: ${rawMeem.tokenId}`)
 			}
 		})
+
+		/* Twitter-specific Code */
+		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+		const twitterIds: string[] = []
+
+		meems.forEach(m => {
+			const twitterUserId =
+				m.metadata.extension_properties?.meem_tweets_extension?.tweet?.userId
+			if (twitterUserId) {
+				twitterIds.push(twitterUserId)
+			}
+		})
+
+		if (twitterIds.length > 0) {
+			const twitterUsers =
+				twitterIds.length > 0
+					? await client.v2.users(twitterIds, {
+							'user.fields': ['profile_image_url']
+					  })
+					: null
+
+			if (twitterUsers) {
+				meems = await Promise.all(
+					meems.map(async m => {
+						const twitterUserId: string | undefined =
+							m.metadata.extension_properties?.meem_tweets_extension?.tweet
+								?.userId
+						const twitterUser: UserV2 | undefined = twitterUserId
+							? twitterUsers.data.find(u => u.id === twitterUserId)
+							: undefined
+						return {
+							...m,
+							...(twitterUserId &&
+								twitterUser && {
+									defaultTwitterUser: {
+										id: twitterUserId,
+										username: twitterUser?.username,
+										displayName: twitterUser?.name,
+										profileImageUrl: twitterUser?.profile_image_url || null
+									}
+								})
+						}
+					})
+				)
+			}
+		}
+		/* End Twitter-specific Code */
 
 		return res.json({
 			meems,

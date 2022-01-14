@@ -104,7 +104,9 @@ export default class AuthController {
 				'user.fields': ['profile_image_url']
 			})
 			defaultTwitterUser = {
+				id: twitterUser.data.id,
 				username: twitterUser.data.username,
+				displayName: twitterUser.data.name,
 				profileImageUrl: twitterUser.data.profile_image_url || null
 			}
 		}
