@@ -99,9 +99,12 @@ export default class MeemController {
 		const { page, limit } = req
 		const itemsPerPage = 20
 		const meems: MeemAPI.IMetadataMeem[] = []
-		const where: Record<string, any> = {}
+		let where: Record<string, any> = {}
 		if (owner) {
-			where.owner = owner
+			where = orm.sequelize.where(
+				orm.sequelize.fn('lower', orm.sequelize.col('owner')),
+				owner.toLowerCase()
+			)
 		}
 		const { rows: rawMeems, count } = await orm.models.Meem.findAndCountAll({
 			where,
