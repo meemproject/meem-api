@@ -184,7 +184,22 @@ export interface IMeemMetadata {
 		parent_token_id: string | null
 		parent_token_metadata: any | null
 	}
-	extension_properties?: any
+	extension_properties?: IMeemTweetsExtensionProperties | any
+}
+
+export interface IMeemTweetsExtensionProperties {
+	meem_tweets_extension: {
+		tweet: {
+			text: string
+			userId: string
+			tweetId: string
+			entities?: any
+			username: string
+			createdAt: string
+			updatedAt: string
+			userProfileImageUrl: string
+		}
+	}
 }
 
 export interface IMeemPermission {
@@ -235,6 +250,12 @@ export interface IMeem {
 
 export interface IMetadataMeem extends IMeem {
 	metadata: IMeemMetadata
+	defaultTwitterUser?: {
+		id: string
+		username: string
+		displayName: string
+		profileImageUrl: string | null
+	}
 }
 
 export interface IERC721Metadata {
