@@ -163,16 +163,16 @@ export default class TwitterService {
 			return
 		}
 
-		const meemId = await services.meemId.getMeemId({
+		const tweetUserMeemId = await services.meemId.getMeemId({
 			meemIdentificationId: item.MeemIdentificationId
 		})
 
-		if (meemId.wallets.length === 0) {
+		if (tweetUserMeemId.wallets.length === 0) {
 			log.error(`No wallet found for meemId: ${item.MeemIdentificationId}`)
 			return
 		}
 
-		const { isWhitelisted } = meemId.meemPass.twitter
+		const { isWhitelisted } = tweetUserMeemId.meemPass.twitter
 
 		const tweetClient = new TwitterApi({
 			appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
@@ -195,7 +195,7 @@ export default class TwitterService {
 			return
 		}
 
-		const { tweetsPerDayQuota } = meemId.meemPass.twitter
+		const { tweetsPerDayQuota } = tweetUserMeemId.meemPass.twitter
 
 		const startOfDay = moment().utc().startOf('day').toDate()
 
@@ -242,7 +242,7 @@ export default class TwitterService {
 				originalTweet.data.referenced_tweets &&
 				originalTweet.data.referenced_tweets.length > 0
 			) {
-				// TODO: How do we handle a huge nest of retweets back to the original M0?
+				// TODO: Do we want to handle nested retweets back to the original M0?
 				// This will currently only allow retweets/replies to original tweets to mint an M0
 				log.error('The referenced tweet is not an original tweet')
 			} else if (originalTweet) {
@@ -292,24 +292,23 @@ export default class TwitterService {
 
 				// TODO: Mint child MEEM on behalf of the user who retweeted/replied?
 			}
-
-			// TODO: If retweet or reply, Mint a child of the original M0 Meem Tweet on behalf of the meember
-			// who retweeted or replied
 		} else {
 			// Mint tweet on behalf of user
-			await this.mintTweet(meemId, tweetData, tweetUser)
-			if (!meemId.hasOnboarded) {
-				await orm.models.MeemIdentification.update(
-					{
-						hasOnboarded: true
-					},
-					{
-						where: {
-							id: item.MeemIdentificationId
-						}
+			await this.mintTweet(tweetUserMeemId, tweetData, tweetUser)
+		}
+
+		// Minting a tweet counts as being onboarded
+		if (!tweetUserMeemId.hasOnboarded) {
+			await orm.models.MeemIdentification.update(
+				{
+					hasOnboarded: true
+				},
+				{
+					where: {
+						id: item.MeemIdentificationId
 					}
-				)
-			}
+				}
+			)
 		}
 
 		// log.debug(event)
