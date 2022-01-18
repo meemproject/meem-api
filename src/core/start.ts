@@ -59,8 +59,14 @@ async function loadServices() {
 
 		// eslint-disable-next-line @typescript-eslint/naming-convention
 		const Service = (await import(servicePath)).default
-		// @ts-ignore
-		global.services[serviceName] = Service
+
+		if (Service.shouldInitialize) {
+			// @ts-ignore
+			global.services[serviceName] = new Service()
+		} else {
+			// @ts-ignore
+			global.services[serviceName] = Service
+		}
 	})
 
 	await Promise.all(promises)
