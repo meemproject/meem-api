@@ -432,8 +432,7 @@ export default class TwitterService {
 	}
 
 	public static async screenshotTweet(tweet: any): Promise<string | undefined> {
-		// eslint-disable-next-line
-		const puppeteer = require('puppeteer')
+		const puppeteer = services.puppeteer.getInstance()
 		const browser = await puppeteer.launch({
 			// headless: true, // debug only
 			args: ['--no-sandbox']

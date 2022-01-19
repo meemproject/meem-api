@@ -304,6 +304,8 @@ export default class Sockets {
 	) {
 		return new Promise(resolve => {
 			const gateway = new AWS.ApiGatewayManagementApi({
+				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
 				apiVersion: '2018-11-29',
 				endpoint: this.endpoint
 			})
