@@ -582,19 +582,6 @@ export default class MeemService {
 					eventName: MeemAPI.MeemEvent.MeemMinted,
 					data: returnData
 				})
-				try {
-					const newMeem = await meemContract.getMeem(returnData.tokenId)
-					const branchName =
-						config.NETWORK === MeemAPI.NetworkName.Rinkeby ? `test` : `master`
-					await services.git.updateMeemMetadata({
-						tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${meemId}.json`,
-						generation: newMeem.generation.toNumber(),
-						tokenId: returnData.tokenId,
-						metadataId: meemId
-					})
-				} catch (updateErr) {
-					log.warn('Error updating Meem metadata', updateErr)
-				}
 
 				return returnData
 			}
