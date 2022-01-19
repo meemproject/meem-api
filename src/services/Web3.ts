@@ -237,6 +237,12 @@ export default class Web3 {
 	}
 
 	private static async startMoralis() {
+		await Moralis.initialize(
+			config.MORALIS_APP_ID,
+			'',
+			config.MORALIS_MASTER_KEY
+		)
+		Moralis.serverURL = config.MORALIS_SERVER_URL
 		await Moralis.Web3API.initialize({
 			apiKey: config.MORALIS_API_KEY
 		})
@@ -275,5 +281,54 @@ export default class Web3 {
 				symbol: n.symbol
 			})) ?? []
 		)
+	}
+
+	public static async saveMeemMetadata(data: {
+		meemId: string
+		imageBase64: string
+		metadata: MeemAPI.IMeemMetadata
+	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
+		await this.startMoralis()
+
+		const imageFile = new Moralis.File(
+			`${data.meemId}.png`,
+			{
+				base64: data.imageBase64
+			},
+			'image/png'
+		)
+
+		const savedFile = await imageFile.saveIPFS({ useMasterKey: true })
+
+		const image = savedFile.url()
+
+		const storedMetadata: MeemAPI.IMeemMetadata = {
+			...data.metadata,
+			image,
+			image_original:
+				data.metadata.image && data.metadata.image !== ''
+					? data.metadata.image
+					: image
+		}
+
+		const jsonString = JSON.stringify(storedMetadata)
+		const jsonBase64 = Buffer.from(jsonString).toString('base64')
+
+		const metadataFile = new Moralis.File(
+			`${data.meemId}.json`,
+			{
+				base64: jsonBase64
+			},
+			'application/json'
+		)
+
+		const savedMetadataFile = await metadataFile.saveIPFS({
+			useMasterKey: true
+		})
+
+		return {
+			metadata: storedMetadata,
+			tokenURI: savedMetadataFile.url()
+		}
 	}
 }

@@ -1,7 +1,5 @@
 import { Octokit } from '@octokit/rest'
-import { ethers } from 'ethers'
 import request from 'superagent'
-import { v4 as uuidv4 } from 'uuid'
 import { MeemAPI } from '../types/meem.generated'
 import { IMeemMetadata } from '../types/shared/meem.shared'
 
@@ -9,31 +7,10 @@ import { IMeemMetadata } from '../types/shared/meem.shared'
 
 export default class GitService {
 	public static async saveMeemMetadata(data: {
-		name: string
-		description: string
+		meemId: string
 		imageBase64: string
-		originalImage?: string
-		tokenURI?: string
-		tokenAddress?: string
-		tokenId?: ethers.BigNumberish
-		tokenMetadata?: any
-		rootTokenURI?: string
-		rootTokenAddress?: string
-		rootTokenId?: ethers.BigNumberish
-		rootTokenMetadata?: any
-		collectionName?: string
-		meemId?: string
-		generation?: number
-		extensionProperties?: any
+		metadata: MeemAPI.IMeemMetadata
 	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
-		// TODO: Get/Normalize collection name
-		// TODO: Get/Normalize content description
-		// TODO: Get generation?
-		// TODO: Extend for different dApps
-
-		const isOriginal = data.generation === 0
-
-		const id = data.meemId || uuidv4()
 		const branchName =
 			config.NETWORK === MeemAPI.NetworkName.Rinkeby ? `test` : `master`
 
@@ -62,78 +39,32 @@ export default class GitService {
 		})
 
 		treeItems.push({
-			path: `meem/images/${id}.png`,
+			path: `meem/images/${data.meemId}.png`,
 			sha: imageGit.data.sha,
 			mode: '100644',
 			type: 'blob'
 		})
 
-		let metadataDescription = isOriginal
-			? data.description
-			: `Meem Content Description\n\n${data.description}`
+		const image = `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/images/${data.meemId}.png`
 
-		if (!isOriginal) {
-			const etherscanUrl = `https://etherscan.io/token/${data.tokenAddress}?a=${data.tokenId}`
-
-			metadataDescription += '\n\nMeem Content Details'
-
-			metadataDescription += `\n\nContract Address: ${data.tokenAddress}`
-
-			if (data.tokenId) {
-				metadataDescription += `\n\nToken ID: ${data.tokenId}`
-			}
-
-			metadataDescription += `\n\nView on Etherscan: ${etherscanUrl}`
-		}
-
-		let rootTokenId = null
-
-		if (data.rootTokenId) {
-			rootTokenId = services.web3.toBigNumber(data.rootTokenId).toHexString()
-		} else if (data.tokenId) {
-			rootTokenId = services.web3.toBigNumber(data.tokenId).toHexString()
-		}
-
-		const image = `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/images/${id}.png`
-
-		const metadata: MeemAPI.IMeemMetadata = {
-			name: data.collectionName
-				? `${data.collectionName} – ${data.name || data.tokenId}`
-				: `${data.name || data.tokenId}`,
-			description: metadataDescription,
-			external_url: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${id}.json`,
-			meem_properties: {
-				root_token_uri: isOriginal ? null : data.rootTokenURI || data.tokenURI,
-				root_token_address: isOriginal
-					? null
-					: data.rootTokenAddress || data.tokenAddress,
-				root_token_id: isOriginal ? null : rootTokenId,
-				root_token_metadata: isOriginal
-					? null
-					: data.rootTokenMetadata || data.tokenMetadata,
-				parent_token_uri: isOriginal ? null : data.tokenURI,
-				parent_token_id: data.tokenId
-					? services.web3.toBigNumber(data.tokenId).toHexString()
-					: null,
-				parent_token_address: isOriginal ? null : data.tokenAddress,
-				parent_token_metadata: isOriginal ? null : data.tokenMetadata
-			},
+		const storedMetadata: MeemAPI.IMeemMetadata = {
+			...data.metadata,
 			image,
-			image_original: data.originalImage || image,
-			...(data.extensionProperties && {
-				extension_properties: data.extensionProperties
-			})
+			image_original:
+				data.metadata.image && data.metadata.image !== ''
+					? data.metadata.image
+					: image
 		}
 
 		const metadataGit = await octokit.git.createBlob({
 			owner: 'meemproject',
 			repo: 'metadata',
-			content: JSON.stringify(metadata),
+			content: JSON.stringify(storedMetadata),
 			encoding: 'utf-8'
 		})
 
 		treeItems.push({
-			path: `meem/${id}.json`,
+			path: `meem/${data.meemId}.json`,
 			sha: metadataGit.data.sha,
 			mode: '100644',
 			type: 'blob'
@@ -149,7 +80,7 @@ export default class GitService {
 		const commit = await octokit.git.createCommit({
 			owner: 'meemproject',
 			repo: 'metadata',
-			message: `New Meem Created: ${id}`,
+			message: `New Meem Created: ${data.meemId}`,
 			tree: tree.data.sha,
 			parents: [master.data.object.sha]
 		})
@@ -162,8 +93,8 @@ export default class GitService {
 		})
 
 		return {
-			metadata,
-			tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${id}.json`
+			metadata: storedMetadata,
+			tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${data.meemId}.json`
 		}
 	}
 

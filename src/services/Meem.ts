@@ -18,6 +18,7 @@ import {
 	SplitStructOutput
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
+import { MeemMetadataStorageProvider } from '../types/shared/meem.shared'
 
 function errorcodeToErrorString(contractErrorName: string) {
 	const allErrors: Record<string, any> = config.errors
@@ -290,21 +291,26 @@ export default class MeemService {
 		}
 	}
 
-	public static async saveMeemMetadataasync(options: {
-		name?: string
-		description?: string
-		imageBase64: string
-		tokenAddress?: string
-		tokenId?: ethers.BigNumberish
-		collectionName?: string
-		parentMetadata?: MeemAPI.IERC721Metadata
-		tokenURI?: string
-		meemId?: string
-		rootTokenURI?: string
-		rootTokenAddress?: string
-		rootTokenId?: ethers.BigNumberish
-		rootTokenMetadata?: MeemAPI.IERC721Metadata
-	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
+	public static async saveMeemMetadataasync(
+		options: {
+			name?: string
+			description: string
+			imageBase64: string
+			tokenAddress?: string
+			tokenId?: ethers.BigNumberish
+			collectionName?: string
+			parentMetadata?: MeemAPI.IERC721Metadata
+			tokenURI?: string
+			meemId?: string
+			rootTokenURI?: string
+			rootTokenAddress?: string
+			rootTokenId?: ethers.BigNumberish
+			rootTokenMetadata?: MeemAPI.IERC721Metadata
+			generation?: number
+			extensionProperties?: MeemAPI.IMeemMetadata['extension_properties']
+		},
+		storageProvider?: MeemMetadataStorageProvider
+	): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
 		const {
 			name,
 			description,
@@ -318,32 +324,88 @@ export default class MeemService {
 			rootTokenURI,
 			rootTokenAddress,
 			rootTokenId,
-			rootTokenMetadata
+			rootTokenMetadata,
+			generation,
+			extensionProperties
 		} = options
 
 		const id = meemId || uuidv4()
+		const isOriginal = generation === 0
 
-		const result = await services.git.saveMeemMetadata({
-			rootTokenURI,
-			rootTokenAddress,
-			rootTokenId,
-			rootTokenMetadata,
-			imageBase64,
-			tokenAddress,
-			tokenId,
-			collectionName,
-			name: name || parentMetadata?.name || '',
-			description:
-				description || parentMetadata?.description || collectionName
-					? `${collectionName} – #${tokenId}`
-					: '',
-			originalImage: parentMetadata?.image || '',
-			tokenURI,
-			tokenMetadata: parentMetadata,
-			meemId: id
-		})
+		const meemDomain =
+			config.NETWORK === MeemAPI.NetworkName.Rinkeby
+				? `https://dev.meem.wtf`
+				: `https://meem.wtf`
 
-		return result
+		let metadataDescription = isOriginal
+			? description
+			: `Meem Content Description\n\n${description}`
+
+		if (!isOriginal) {
+			const etherscanUrl = `https://etherscan.io/token/${tokenAddress}?a=${tokenId}`
+
+			metadataDescription += '\n\nMeem Content Details'
+
+			metadataDescription += `\n\nContract Address: ${tokenAddress}`
+
+			if (tokenId) {
+				metadataDescription += `\n\nToken ID: ${tokenId}`
+			}
+
+			metadataDescription += `\n\nView on Etherscan: ${etherscanUrl}`
+		}
+
+		let rootTokenIdString = ''
+
+		if (rootTokenId) {
+			rootTokenIdString = services.web3.toBigNumber(rootTokenId).toHexString()
+		} else if (tokenId) {
+			rootTokenIdString = services.web3.toBigNumber(tokenId).toHexString()
+		}
+
+		const metadata: MeemAPI.IMeemMetadata = {
+			name: collectionName
+				? `${collectionName} – ${name || tokenId}`
+				: `${name || tokenId}`,
+			description: metadataDescription,
+			external_url: `${meemDomain}/meems/${id}`,
+			meem_properties: {
+				root_token_uri: isOriginal ? null : rootTokenURI || tokenURI,
+				root_token_address: isOriginal
+					? null
+					: rootTokenAddress || tokenAddress,
+				root_token_id: isOriginal ? null : rootTokenIdString,
+				root_token_metadata: isOriginal
+					? null
+					: rootTokenMetadata || parentMetadata,
+				parent_token_uri: isOriginal ? null : tokenURI,
+				parent_token_id: tokenId
+					? services.web3.toBigNumber(tokenId).toHexString()
+					: null,
+				parent_token_address: isOriginal ? null : tokenAddress,
+				parent_token_metadata: isOriginal ? null : parentMetadata
+			},
+			image: '',
+			image_original: '',
+			...(extensionProperties && {
+				extension_properties: extensionProperties
+			})
+		}
+
+		switch (storageProvider) {
+			case MeemMetadataStorageProvider.Ipfs:
+				return services.web3.saveMeemMetadata({
+					imageBase64,
+					metadata,
+					meemId: id
+				})
+			default:
+				return services.git.saveMeemMetadata({
+					imageBase64,
+					metadata,
+					meemId: id
+				})
+		}
 	}
 
 	/** Mint a Meem */
@@ -440,7 +502,7 @@ export default class MeemService {
 			const [meemMetadata] = await Promise.all([
 				this.saveMeemMetadataasync({
 					name: data.name,
-					description: data.description,
+					description: data.description || '',
 					collectionName: contractInfo.parentContractMetadata?.name,
 					imageBase64: base64MeemImage,
 					tokenAddress: data.tokenAddress,

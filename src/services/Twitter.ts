@@ -11,6 +11,7 @@ import Hashtag from '../models/Hashtag'
 import Tweet from '../models/Tweet'
 import { Meem } from '../types'
 import { MeemAPI } from '../types/meem.generated'
+import { MeemMetadataStorageProvider } from '../types/shared/meem.shared'
 
 function errorcodeToErrorString(contractErrorName: string) {
 	const allErrors: Record<string, any> = config.errors
@@ -371,29 +372,32 @@ export default class TwitterService {
 
 			const tweetImage = await this.screenshotTweet(tweet)
 
-			const meemMetadata = await services.git.saveMeemMetadata({
-				name: `@${tweet.username} ${moment(
-					tweetData.created_at || tweet.createdAt
-				).format('MM-DD-YYYY HH:mm:ss')}`,
-				description: tweet.text,
-				imageBase64: tweetImage || '',
-				meemId: tweetMeemId,
-				generation: 0,
-				extensionProperties: {
-					meem_tweets_extension: {
-						tweet: {
-							tweetId: tweet.tweetId,
-							text: tweet.text,
-							userId: tweet.userId,
-							username: tweet.username,
-							userProfileImageUrl: tweet.userProfileImageUrl,
-							updatedAt: tweet.updatedAt,
-							createdAt: tweet.createdAt,
-							...(tweetData.entities && { entities: tweetData.entities })
+			const meemMetadata = await services.meem.saveMeemMetadataasync(
+				{
+					name: `@${tweet.username} ${moment(
+						tweetData.created_at || tweet.createdAt
+					).format('MM-DD-YYYY HH:mm:ss')}`,
+					description: tweet.text,
+					imageBase64: tweetImage || '',
+					meemId: tweetMeemId,
+					generation: 0,
+					extensionProperties: {
+						meem_tweets_extension: {
+							tweet: {
+								tweetId: tweet.tweetId,
+								text: tweet.text,
+								userId: tweet.userId,
+								username: tweet.username,
+								userProfileImageUrl: tweet.userProfileImageUrl,
+								updatedAt: tweet.updatedAt,
+								createdAt: tweet.createdAt,
+								...(tweetData.entities && { entities: tweetData.entities })
+							}
 						}
 					}
-				}
-			})
+				},
+				MeemMetadataStorageProvider.Ipfs
+			)
 			let { recommendedGwei } = await services.web3.getGasEstimate({
 				chain: MeemAPI.networkNameToChain(config.NETWORK)
 			})

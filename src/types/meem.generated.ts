@@ -52,6 +52,11 @@ export namespace MeemAPI {
 		Unknown = 'unknown'
 	}
 
+	export enum MeemMetadataStorageProvider {
+		Git = 'git',
+		Ipfs = 'ipfs'
+	}
+
 	export interface IWhitelist {
 		[contractAddress: string]: IWhitelistItem
 	}
