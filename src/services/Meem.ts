@@ -369,6 +369,7 @@ export default class MeemService {
 				: `${name || tokenId}`,
 			description: metadataDescription,
 			external_url: `${meemDomain}/meems/${id}`,
+			meem_id: meemId,
 			meem_properties: {
 				root_token_uri: isOriginal ? null : rootTokenURI || tokenURI,
 				root_token_address: isOriginal
