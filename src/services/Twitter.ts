@@ -9,7 +9,7 @@ import { TwitterApi, TweetV2, ApiV2Includes, UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import Hashtag from '../models/Hashtag'
 import Tweet from '../models/Tweet'
-import { Meem, MeemID } from '../types'
+import { Meem } from '../types'
 import { MeemAPI } from '../types/meem.generated'
 
 function errorcodeToErrorString(contractErrorName: string) {
