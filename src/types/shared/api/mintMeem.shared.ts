@@ -6,7 +6,7 @@ import {
 	IMeemProperties
 } from '../meem.shared'
 
-/** Mint a new Meem */
+/** Mint a new (wrapped) Meem */
 export namespace MintMeem {
 	export interface IPathParams {}
 

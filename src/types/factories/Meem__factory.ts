@@ -132,6 +132,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "MeemNotVerified",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "NoApproveSelf",
     type: "error",
   },
@@ -683,6 +688,19 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "meemID",
+        type: "address",
+      },
+    ],
+    name: "setMeemIDAddress",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "amount",
         type: "uint256",
@@ -722,6 +740,11 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "InvalidMeemType",
+    type: "error",
+  },
+  {
     inputs: [
       {
         internalType: "uint256",
@@ -739,17 +762,17 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "InvalidParent",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "InvalidPermissionType",
     type: "error",
   },
   {
     inputs: [],
     name: "InvalidPropertyType",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidURI",
     type: "error",
   },
   {
@@ -791,7 +814,17 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "NoChildOfCopy",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "NoPermission",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NoRemixUnverified",
     type: "error",
   },
   {
@@ -1048,29 +1081,24 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "enum Chain",
-            name: "rootChain",
-            type: "uint8",
-          },
-          {
-            internalType: "address",
-            name: "root",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "rootTokenId",
-            type: "uint256",
-          },
-          {
-            internalType: "enum PermissionType",
-            name: "permissionType",
+            internalType: "enum MeemType",
+            name: "meemType",
             type: "uint8",
           },
           {
             internalType: "string",
             name: "data",
             type: "string",
+          },
+          {
+            internalType: "bool",
+            name: "isVerified",
+            type: "bool",
+          },
+          {
+            internalType: "address",
+            name: "mintedBy",
+            type: "address",
           },
         ],
         internalType: "struct MeemMintParameters",
@@ -2292,6 +2320,11 @@ const _abi = [
             internalType: "string",
             name: "data",
             type: "string",
+          },
+          {
+            internalType: "address",
+            name: "verifiedBy",
+            type: "address",
           },
         ],
         internalType: "struct Meem",

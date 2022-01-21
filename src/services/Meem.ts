@@ -423,7 +423,7 @@ export default class MeemService {
 	}
 
 	/** Mint a Meem */
-	public static async mintMeem(
+	public static async mintWrappedMeem(
 		data: Omit<MeemAPI.v1.MintMeem.IRequestBody, 'base64Image'> & {
 			s3ImagePath?: string
 		}
@@ -553,11 +553,10 @@ export default class MeemService {
 					parentChain: data.chain,
 					parent: contractInfo.parentTokenAddress,
 					parentTokenId: contractInfo.parentTokenId,
-					rootChain: data.chain,
-					root: contractInfo.rootTokenAddress,
-					rootTokenId: contractInfo.rootTokenId,
-					permissionType: MeemAPI.PermissionType.Copy,
-					data: ''
+					meemType: MeemAPI.MeemType.Wrapped,
+					data: '',
+					isVerified: true,
+					mintedBy: data.accountAddress
 				},
 				this.buildProperties(data.properties),
 				this.buildProperties({
@@ -671,11 +670,10 @@ export default class MeemService {
 				parentChain: MeemAPI.networkNameToChain(config.NETWORK),
 				parent: MeemAPI.zeroAddress,
 				parentTokenId: 0,
-				rootChain: MeemAPI.networkNameToChain(config.NETWORK),
-				root: MeemAPI.zeroAddress,
-				rootTokenId: 0,
-				permissionType: MeemAPI.PermissionType.Copy,
-				data: ''
+				meemType: MeemAPI.MeemType.Original,
+				data: '',
+				isVerified: true,
+				mintedBy: config.MEEM_PROJECT_OWNER_ADDRESS
 			},
 			this.buildProperties({
 				copyPermissions: [
@@ -955,7 +953,8 @@ export default class MeemService {
 			properties: this.meemPropertiesToInterface(meem[8]),
 			childProperties: this.meemPropertiesToInterface(meem[9]),
 			mintedAt: meem[10].toNumber(),
-			data: meem[11]
+			data: meem[11],
+			verifiedBy: meem[12]
 		}
 	}
 

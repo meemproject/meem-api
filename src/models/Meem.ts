@@ -72,6 +72,11 @@ export default class Meem extends BaseModel<Meem> {
 			allowNull: false,
 			defaultValue: ''
 		},
+		verifiedBy: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: MeemAPI.zeroAddress
+		},
 		metadata: {
 			type: DataTypes.JSONB,
 			allowNull: false,
@@ -98,6 +103,8 @@ export default class Meem extends BaseModel<Meem> {
 	public mintedAt!: string
 
 	public data!: string
+
+	public verifiedBy!: string
 
 	public metadata!: MeemAPI.IMeemMetadata
 

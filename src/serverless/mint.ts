@@ -42,7 +42,7 @@ export const handle = async (
 		log.crit('AWS_WEBSOCKET_GATEWAY_URL is not set')
 	}
 
-	const meem = await services.meem.mintMeem(body)
+	const meem = await services.meem.mintWrappedMeem(body)
 
 	return meem
 }
