@@ -225,6 +225,11 @@ export default class MeemController {
 		req: IRequest<MeemAPI.v1.SaveMeemMetadata.IDefinition>,
 		res: IResponse<MeemAPI.v1.SaveMeemMetadata.IResponseBody>
 	): Promise<Response> {
+		// TODO: New meempass property to allow saving metadata?
+		if (!req.meemId?.MeemPass) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
 		if (!req.body.name || !req.body.description || !req.body.base64Image) {
 			throw new Error('MISSING_PARAMETERS')
 		}
