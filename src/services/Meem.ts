@@ -293,7 +293,7 @@ export default class MeemService {
 
 	public static async saveMeemMetadataasync(
 		options: {
-			name?: string
+			name: string
 			description: string
 			imageBase64: string
 			tokenAddress?: string
@@ -407,14 +407,14 @@ export default class MeemService {
 		}
 
 		switch (storageProvider) {
-			case MeemMetadataStorageProvider.Ipfs:
-				return services.web3.saveMeemMetadata({
+			case MeemMetadataStorageProvider.Git:
+				return services.git.saveMeemMetadata({
 					imageBase64,
 					metadata,
 					meemId: id
 				})
 			default:
-				return services.git.saveMeemMetadata({
+				return services.web3.saveMeemMetadata({
 					imageBase64,
 					metadata,
 					meemId: id
@@ -515,7 +515,7 @@ export default class MeemService {
 
 			const [meemMetadata] = await Promise.all([
 				this.saveMeemMetadataasync({
-					name: data.name,
+					name: data.name || '',
 					description: data.description || '',
 					collectionName: contractInfo.parentContractMetadata?.name,
 					imageBase64: base64MeemImage,

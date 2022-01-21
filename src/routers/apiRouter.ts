@@ -44,6 +44,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/meems/mint', MeemController.mintMeem)
 	router.postAsync('/meems/create-image', MeemController.createMeemImage)
 	router.postAsync('/meems/getWrappedTokens', MeemController.getWrappedTokens)
+	router.postAsync('/meems/saveMetadata', MeemController.saveMeemMetadata)
 	router.getAsync('/tokenOwner', MeemController.getTokenInfo)
 	router.getAsync('/ipfs', MeemController.getIPFSFile)
 	router.getAsync('/nfts', NFTController.getNFTs)

@@ -221,6 +221,27 @@ export default class MeemController {
 		})
 	}
 
+	public static async saveMeemMetadata(
+		req: IRequest<MeemAPI.v1.SaveMeemMetadata.IDefinition>,
+		res: IResponse<MeemAPI.v1.SaveMeemMetadata.IResponseBody>
+	): Promise<Response> {
+		if (!req.body.name || !req.body.description || !req.body.base64Image) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		const { name, description, base64Image } = req.body
+
+		const metadata = await services.meem.saveMeemMetadataasync({
+			name,
+			description,
+			imageBase64: base64Image
+		})
+
+		return res.json({
+			url: metadata.tokenURI
+		})
+	}
+
 	public static async mintMeem(
 		req: IRequest<MeemAPI.v1.MintMeem.IDefinition>,
 		res: IResponse<MeemAPI.v1.MintMeem.IResponseBody>

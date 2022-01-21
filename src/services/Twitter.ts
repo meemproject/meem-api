@@ -372,33 +372,30 @@ export default class TwitterService {
 
 			const tweetImage = await this.screenshotTweet(tweet)
 
-			const meemMetadata = await services.meem.saveMeemMetadataasync(
-				{
-					tokenAddress: config.MEEM_PROXY_ADDRESS,
-					tokenId: config.TWITTER_PROJECT_TOKEN_ID,
-					name: `@${tweet.username} ${moment(
-						tweetData.created_at || tweet.createdAt
-					).format('MM-DD-YYYY HH:mm:ss')}`,
-					description: tweet.text,
-					imageBase64: tweetImage || '',
-					meemId: tweetMeemId,
-					extensionProperties: {
-						meem_tweets_extension: {
-							tweet: {
-								tweetId: tweet.tweetId,
-								text: tweet.text,
-								userId: tweet.userId,
-								username: tweet.username,
-								userProfileImageUrl: tweet.userProfileImageUrl,
-								updatedAt: tweet.updatedAt,
-								createdAt: tweet.createdAt,
-								...(tweetData.entities && { entities: tweetData.entities })
-							}
+			const meemMetadata = await services.meem.saveMeemMetadataasync({
+				tokenAddress: config.MEEM_PROXY_ADDRESS,
+				tokenId: config.TWITTER_PROJECT_TOKEN_ID,
+				name: `@${tweet.username} ${moment(
+					tweetData.created_at || tweet.createdAt
+				).format('MM-DD-YYYY HH:mm:ss')}`,
+				description: tweet.text,
+				imageBase64: tweetImage || '',
+				meemId: tweetMeemId,
+				extensionProperties: {
+					meem_tweets_extension: {
+						tweet: {
+							tweetId: tweet.tweetId,
+							text: tweet.text,
+							userId: tweet.userId,
+							username: tweet.username,
+							userProfileImageUrl: tweet.userProfileImageUrl,
+							updatedAt: tweet.updatedAt,
+							createdAt: tweet.createdAt,
+							...(tweetData.entities && { entities: tweetData.entities })
 						}
 					}
-				},
-				MeemMetadataStorageProvider.Ipfs
-			)
+				}
+			})
 			let { recommendedGwei } = await services.web3.getGasEstimate({
 				chain: MeemAPI.networkNameToChain(config.NETWORK)
 			})
