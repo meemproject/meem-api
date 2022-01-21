@@ -514,21 +514,24 @@ export default class MeemService {
 				  })
 
 			const [meemMetadata] = await Promise.all([
-				this.saveMeemMetadataasync({
-					name: data.name,
-					description: data.description || '',
-					collectionName: contractInfo.parentContractMetadata?.name,
-					imageBase64: base64MeemImage,
-					tokenAddress: data.tokenAddress,
-					tokenId: data.tokenId,
-					parentMetadata: contractInfo.parentTokenMetadata,
-					tokenURI: contractInfo.parentTokenURI,
-					rootTokenAddress: contractInfo.rootTokenAddress,
-					rootTokenId: contractInfo.rootTokenId,
-					rootTokenURI: contractInfo.rootTokenURI,
-					rootTokenMetadata: contractInfo.rootTokenMetadata,
-					meemId
-				}),
+				this.saveMeemMetadataasync(
+					{
+						name: data.name,
+						description: data.description || '',
+						collectionName: contractInfo.parentContractMetadata?.name,
+						imageBase64: base64MeemImage,
+						tokenAddress: data.tokenAddress,
+						tokenId: data.tokenId,
+						parentMetadata: contractInfo.parentTokenMetadata,
+						tokenURI: contractInfo.parentTokenURI,
+						rootTokenAddress: contractInfo.rootTokenAddress,
+						rootTokenId: contractInfo.rootTokenId,
+						rootTokenURI: contractInfo.rootTokenURI,
+						rootTokenMetadata: contractInfo.rootTokenMetadata,
+						meemId
+					},
+					MeemAPI.MeemMetadataStorageProvider.Ipfs
+				),
 				data.s3ImagePath
 					? services.storage.deleteObject({ path: data.s3ImagePath })
 					: Promise.resolve(null)
@@ -567,6 +570,7 @@ export default class MeemService {
 					splits: data.childProperties?.splits ?? data.properties?.splits
 				}),
 				{
+					gasLimit: config.MINT_GAS_LIMIT,
 					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
 				}
 			]
@@ -643,13 +647,16 @@ export default class MeemService {
 
 		const projectImage = await fs.readFile(projectImagePath)
 
-		const meemMetadata = await this.saveMeemMetadataasync({
-			name,
-			description,
-			collectionName: 'Meem Projects',
-			imageBase64: projectImage.toString('base64'),
-			meemId: uuidv4()
-		})
+		const meemMetadata = await this.saveMeemMetadataasync(
+			{
+				name,
+				description,
+				collectionName: 'Meem Projects',
+				imageBase64: projectImage.toString('base64'),
+				meemId: uuidv4()
+			},
+			MeemAPI.MeemMetadataStorageProvider.Ipfs
+		)
 
 		const meemContract = this.getMeemContract()
 
@@ -794,7 +801,6 @@ export default class MeemService {
 		networkName: MeemAPI.NetworkName
 	}) {
 		const { contractAddress, tokenId, networkName } = options
-		log.debug(networkName, contractAddress)
 		const isMeemToken =
 			contractAddress.toLowerCase() === config.MEEM_PROXY_ADDRESS.toLowerCase()
 
