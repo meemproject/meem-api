@@ -72,7 +72,24 @@ export default class MeemController {
 		req: IRequest<MeemAPI.v1.GetMeem.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeem.IResponseBody>
 	): Promise<Response> {
-		const { tokenId } = req.params
+		let { tokenId } = req.params
+
+		const isTokenId = /^\d+$/.test(tokenId)
+
+		if (!isTokenId) {
+			const meemInstance = await orm.models.Meem.findOne({
+				where: {
+					id: tokenId
+				}
+			})
+
+			if (!meemInstance?.tokenId) {
+				throw new Error('TOKEN_NOT_FOUND')
+			}
+
+			tokenId = `${services.web3.toBigNumber(meemInstance.tokenId).toNumber()}`
+		}
+
 		const meemContract = services.meem.getMeemContract()
 
 		const meem: any = await meemContract.getMeem(tokenId)

@@ -223,11 +223,7 @@ export default class TwitterService {
 			return
 		}
 
-		if (
-			isRetweetOrReply &&
-			tweetData.referenced_tweets &&
-			tweetData.referenced_tweets[0]
-		) {
+		if (isRetweetOrReply && tweetData.referenced_tweets) {
 			// Get the original tweet referenced
 			const originalTweet = await client.v2.singleTweet(
 				tweetData.referenced_tweets[0].id,
