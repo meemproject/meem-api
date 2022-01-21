@@ -41,7 +41,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	)
 	router.getAsync('/meems', MeemController.getMeems)
 	router.getAsync('/meems/:tokenId', MeemController.getMeem)
-	router.postAsync('/meems/mint', MeemController.mintMeem)
+	router.postAsync('/meems/mint', MeemController.mintWrappedMeem)
 	router.postAsync('/meems/create-image', MeemController.createMeemImage)
 	router.postAsync('/meems/getWrappedTokens', MeemController.getWrappedTokens)
 	router.getAsync('/tokenOwner', MeemController.getTokenInfo)
