@@ -306,7 +306,6 @@ export default class MeemService {
 			rootTokenAddress?: string
 			rootTokenId?: ethers.BigNumberish
 			rootTokenMetadata?: MeemAPI.IERC721Metadata
-			generation?: number
 			extensionProperties?: MeemAPI.IMeemMetadata['extension_properties']
 		},
 		storageProvider?: MeemMetadataStorageProvider
@@ -325,12 +324,25 @@ export default class MeemService {
 			rootTokenAddress,
 			rootTokenId,
 			rootTokenMetadata,
-			generation,
 			extensionProperties
 		} = options
 
+		const meemContract = services.meem.getMeemContract()
 		const id = meemId || uuidv4()
-		const isOriginal = generation === 0
+
+		let isOriginal = true
+		let generation = 0
+
+		if (tokenAddress && tokenId && meemContract.address === tokenAddress) {
+			isOriginal = false
+			try {
+				const parentMeem = await meemContract.getMeem(tokenId)
+
+				generation = parentMeem.generation.toNumber() + 1
+			} catch (e) {
+				throw new Error('PARENT_MEEM_NOT_FOUND')
+			}
+		}
 
 		const meemDomain =
 			config.NETWORK === MeemAPI.NetworkName.Rinkeby
@@ -386,6 +398,7 @@ export default class MeemService {
 				parent_token_address: isOriginal ? null : tokenAddress,
 				parent_token_metadata: isOriginal ? null : parentMetadata
 			},
+			generation,
 			image: '',
 			image_original: '',
 			...(extensionProperties && {
