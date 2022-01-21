@@ -7,6 +7,4 @@ export default (app: Express) => {
 	app.use(bodyParser.urlencoded({ extended: false }))
 	app.use(bodyParser.json())
 	app.use(cookieParser())
-
-	log.info('Initialized session, bodyParser, cookieParser')
 }

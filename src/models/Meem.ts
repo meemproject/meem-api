@@ -70,7 +70,7 @@ export default class Meem extends BaseModel<Meem> {
 		data: {
 			type: DataTypes.STRING,
 			allowNull: false,
-			defaultValue: {}
+			defaultValue: ''
 		},
 		metadata: {
 			type: DataTypes.JSONB,

@@ -43,6 +43,8 @@ export default {
 	ORM_FORCE_SYNC: process.env.ORM_FORCE_SYNC === 'true',
 	ORM_DISABLE_SSL: process.env.ORM_DISABLE_SSL === 'true',
 	ORM_ALLOW_UNAUTHORIZED: process.env.ORM_ALLOW_UNAUTHORIZED === 'true',
+	ORM_LOGGING: process.env.ORM_LOGGING === 'true',
+	DOTENV_DEBUG: process.env.DOTENV_DEBUG === 'true',
 
 	CORS_ALLOW_ALL: process.env.CORS_ALLOW_ALL === 'true',
 	CORS_DEFAULT_ORIGIN: process.env.CORS_DEFAULT_ORIGIN ?? '',
