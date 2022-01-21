@@ -114,6 +114,13 @@ const errors = {
 		reason: 'There was an error creating the image',
 		friendlyReason: 'There was an error creating the image'
 	},
+	GAS_PRICE_TOO_HIGH: {
+		httpCode: 503,
+		status: 'failure',
+		reason: 'The current gas price is too high. Please wait and try again.',
+		friendlyReason:
+			'The current gas price is too high. Please wait and try again.'
+	},
 	// Contract errors
 	UNKNOWN_CONTRACT_ERROR: {
 		httpCode: 500,
@@ -267,12 +274,56 @@ const errors = {
 		reason: 'Child Meem depth exceeded. Choose a different Meem.',
 		friendlyReason: 'Child Meem depth exceeded. Choose a different Meem.'
 	},
-	GAS_PRICE_TOO_HIGH: {
-		httpCode: 503,
+	MISSING_REQUIRED_PERMISSIONS: {
+		contractErrorCode: 'MissingRequiredPermissions',
+		httpCode: 400,
 		status: 'failure',
-		reason: 'The current gas price is too high. Please wait and try again.',
+		reason: 'Required permissions have not been set.',
+		friendlyReason: 'Required permissions have not been set.'
+	},
+	MISSING_REQUIRED_SPLITS: {
+		contractErrorCode: 'MissingRequiredSplits',
+		httpCode: 400,
+		status: 'failure',
+		reason: 'Required splits have not been set.',
+		friendlyReason: 'Required splits have not been set.'
+	},
+	NO_CHILD_OF_COPY: {
+		contractErrorCode: 'NoChildOfCopy',
+		httpCode: 400,
+		status: 'failure',
+		reason:
+			'Creating a child of a copy is not permitted. Create a copy of the original instead.',
 		friendlyReason:
-			'The current gas price is too high. Please wait and try again.'
+			'Creating a child of a copy is not permitted. Create a copy of the original instead.'
+	},
+	NO_REMIX_UNVERIFIED: {
+		contractErrorCode: 'NoRemixUnverified',
+		httpCode: 400,
+		status: 'failure',
+		reason: 'Unverified Meems can not be remixed.',
+		friendlyReason: 'Unverified Meems can not be remixed.'
+	},
+	MEEM_NOT_VERIFIED: {
+		contractErrorCode: 'MeemNotVerified',
+		httpCode: 400,
+		status: 'failure',
+		reason: 'The Meem has not been verified.',
+		friendlyReason: 'The Meem has not been verified.'
+	},
+	INVALID_URI: {
+		contractErrorCode: 'InvalidURI',
+		httpCode: 400,
+		status: 'failure',
+		reason: 'tokenURI must point to immutable storage. Use IPFS.',
+		friendlyReason: 'tokenURI must point to immutable storage. Use IPFS.'
+	},
+	INVALID_MEEM_TYPE: {
+		contractErrorCode: 'InvalidMeemType',
+		httpCode: 400,
+		status: 'failure',
+		reason: 'An incorrect Meem type was set.',
+		friendlyReason: 'An incorrect Meem type was set.'
 	}
 }
 

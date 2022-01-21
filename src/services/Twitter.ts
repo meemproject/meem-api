@@ -11,7 +11,6 @@ import Hashtag from '../models/Hashtag'
 import Tweet from '../models/Tweet'
 import { Meem } from '../types'
 import { MeemAPI } from '../types/meem.generated'
-import { MeemMetadataStorageProvider } from '../types/shared/meem.shared'
 
 function errorcodeToErrorString(contractErrorName: string) {
 	const allErrors: Record<string, any> = config.errors
@@ -224,10 +223,14 @@ export default class TwitterService {
 			return
 		}
 
-		if (isRetweetOrReply) {
+		if (
+			isRetweetOrReply &&
+			tweetData.referenced_tweets &&
+			tweetData.referenced_tweets[0]
+		) {
 			// Get the original tweet referenced
 			const originalTweet = await client.v2.singleTweet(
-				tweetData.referenced_tweets![0].id,
+				tweetData.referenced_tweets[0].id,
 				{
 					'tweet.fields': ['created_at', 'entities'],
 					'user.fields': ['profile_image_url'],
@@ -397,7 +400,7 @@ export default class TwitterService {
 						}
 					}
 				},
-				MeemMetadataStorageProvider.Ipfs
+				MeemAPI.MeemMetadataStorageProvider.Ipfs
 			)
 			let { recommendedGwei } = await services.web3.getGasEstimate({
 				chain: MeemAPI.networkNameToChain(config.NETWORK)
@@ -412,6 +415,14 @@ export default class TwitterService {
 			const properties = services.meem.buildProperties({
 				totalChildren: '-1',
 				copyPermissions: [
+					{
+						permission: MeemAPI.Permission.Anyone,
+						addresses: [],
+						numTokens: '0',
+						lockedBy: MeemAPI.zeroAddress
+					}
+				],
+				remixPermissions: [
 					{
 						permission: MeemAPI.Permission.Owner,
 						addresses: [],
@@ -435,16 +446,15 @@ export default class TwitterService {
 					parentChain: MeemAPI.Chain.Polygon,
 					parent: config.MEEM_PROXY_ADDRESS,
 					parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
-					rootChain: MeemAPI.Chain.Polygon,
-					root: config.MEEM_PROXY_ADDRESS,
-					rootTokenId: config.TWITTER_PROJECT_TOKEN_ID,
-					permissionType: MeemAPI.PermissionType.Remix,
+					meemType: MeemAPI.MeemType.Remix,
 					data: JSON.stringify({
 						tweetId: tweet.tweetId,
 						text: tweet.text,
 						username: tweet.username,
 						userId: tweet.userId
-					})
+					}),
+					isVerified: true,
+					mintedBy: accountAddress
 				},
 				properties,
 				properties,
@@ -454,9 +464,6 @@ export default class TwitterService {
 			]
 
 			log.debug('Minting Tweet MEEM w/ params', { mintParams })
-
-			// !! DON'T CALL THIS FROM A CONTRACT - IT'S AN ADMIN FUNCTION THAT SETS THE SPLIT REQUIREMENTS FOR ALL MEEMS
-			// await meemContract.setNonOwnerSplitAllocationAmount(0)
 
 			const mintTx = await meemContract.mint(...mintParams)
 

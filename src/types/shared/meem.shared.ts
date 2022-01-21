@@ -85,6 +85,14 @@ export enum PermissionType {
 	Read
 }
 
+/** The Meem type */
+export enum MeemType {
+	Original,
+	Copy,
+	Remix,
+	Wrapped
+}
+
 /** The permission corresponding to the smart contract */
 export enum Permission {
 	Owner,
@@ -252,6 +260,8 @@ export interface IMeem {
 	/** Unix timestamp of when the Meem was minted */
 	mintedAt: number
 	data: string
+	/** Will be a non-zero address if the Meem has been verified */
+	verifiedBy: string
 }
 
 export interface IMetadataMeem extends IMeem {

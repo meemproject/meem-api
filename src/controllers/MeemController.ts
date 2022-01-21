@@ -142,6 +142,7 @@ export default class MeemController {
 					childProperties: rawMeem.ChildProperties,
 					mintedAt: moment(rawMeem.mintedAt).unix(),
 					data: rawMeem.data,
+					verifiedBy: rawMeem.verifiedBy,
 					metadata: rawMeem.metadata
 				})
 			} else {
@@ -204,7 +205,7 @@ export default class MeemController {
 		})
 	}
 
-	public static async mintMeem(
+	public static async mintWrappedMeem(
 		req: IRequest<MeemAPI.v1.MintMeem.IDefinition>,
 		res: IResponse<MeemAPI.v1.MintMeem.IResponseBody>
 	): Promise<Response> {
@@ -238,7 +239,7 @@ export default class MeemController {
 		}
 
 		if (config.DISABLE_ASYNC_MINTING) {
-			await services.meem.mintMeem(mintData)
+			await services.meem.mintWrappedMeem(mintData)
 		} else {
 			const lambda = new AWS.Lambda({
 				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
