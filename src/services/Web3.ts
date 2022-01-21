@@ -297,7 +297,7 @@ export default class Web3 {
 
 		const image: string =
 			_.isArray(imageResponse.body) && imageResponse.body.length > 0
-				? imageResponse.body[0].path
+				? this.moralisPathToIPFSPath(imageResponse.body[0].path)
 				: ''
 
 		const storedMetadata: MeemAPI.IMeemMetadata = {
@@ -324,12 +324,17 @@ export default class Web3 {
 
 		const metadataPath: string =
 			_.isArray(metadataResponse.body) && metadataResponse.body.length > 0
-				? metadataResponse.body[0].path
+				? this.moralisPathToIPFSPath(metadataResponse.body[0].path)
 				: ''
 
 		return {
 			metadata: storedMetadata,
 			tokenURI: metadataPath
 		}
+	}
+
+	private static moralisPathToIPFSPath(path: string): string {
+		const ipfsPath = path.replace(/.*\/ipfs\//, '')
+		return `ipfs://${ipfsPath}`
 	}
 }

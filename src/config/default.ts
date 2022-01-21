@@ -131,5 +131,8 @@ export default {
 		? +process.env.DEFAULT_PAGINATION_LIMIT
 		: 20,
 	ENABLE_PUPPETEER: process.env.ENABLE_PUPPETEER === 'true',
-	ENABLE_URL_SCRAPER: process.env.ENABLE_URL_SCRAPER === 'true'
+	ENABLE_URL_SCRAPER: process.env.ENABLE_URL_SCRAPER === 'true',
+	MINT_GAS_LIMIT: process.env.MINT_GAS_LIMIT
+		? process.env.MINT_GAS_LIMIT
+		: '1600000'
 }
