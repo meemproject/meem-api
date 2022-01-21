@@ -84,9 +84,6 @@ export default {
 	DISABLE_ASYNC_MINTING: process.env.DISABLE_ASYNC_MINTING === 'true',
 	S3_BUCKET: process.env.S3_BUCKET ?? '',
 	MORALIS_API_KEY: process.env.MORALIS_API_KEY ?? '',
-	MORALIS_APP_ID: process.env.MORALIS_APP_ID ?? '',
-	MORALIS_SERVER_URL: process.env.MORALIS_SERVER_URL ?? '',
-	MORALIS_MASTER_KEY: process.env.MORALIS_MASTER_KEY ?? '',
 	JSON_RPC_MAINNET:
 		process.env.JSON_RPC_MAINNET ??
 		'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/eth/mainnet',

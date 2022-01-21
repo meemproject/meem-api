@@ -374,13 +374,14 @@ export default class TwitterService {
 
 			const meemMetadata = await services.meem.saveMeemMetadataasync(
 				{
+					tokenAddress: config.MEEM_PROXY_ADDRESS,
+					tokenId: config.TWITTER_PROJECT_TOKEN_ID,
 					name: `@${tweet.username} ${moment(
 						tweetData.created_at || tweet.createdAt
 					).format('MM-DD-YYYY HH:mm:ss')}`,
 					description: tweet.text,
 					imageBase64: tweetImage || '',
 					meemId: tweetMeemId,
-					generation: 0,
 					extensionProperties: {
 						meem_tweets_extension: {
 							tweet: {

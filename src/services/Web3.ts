@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
+import _ from 'lodash'
 import { DateTime } from 'luxon'
 import Moralis from 'moralis/node'
 import request from 'superagent'
@@ -237,12 +238,6 @@ export default class Web3 {
 	}
 
 	private static async startMoralis() {
-		await Moralis.initialize(
-			config.MORALIS_APP_ID,
-			'',
-			config.MORALIS_MASTER_KEY
-		)
-		Moralis.serverURL = config.MORALIS_SERVER_URL
 		await Moralis.Web3API.initialize({
 			apiKey: config.MORALIS_API_KEY
 		})
@@ -290,17 +285,20 @@ export default class Web3 {
 	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
 		await this.startMoralis()
 
-		const imageFile = new Moralis.File(
-			`${data.meemId}.png`,
-			{
-				base64: data.imageBase64
-			},
-			'image/png'
-		)
+		const imageResponse = await request
+			.post('https://deep-index.moralis.io/api/v2/ipfs/uploadFolder')
+			.set('X-API-KEY', config.MORALIS_API_KEY)
+			.send([
+				{
+					path: `${data.meemId}/image.png`,
+					content: data.imageBase64
+				}
+			])
 
-		const savedFile = await imageFile.saveIPFS({ useMasterKey: true })
-
-		const image = savedFile.url()
+		const image: string =
+			_.isArray(imageResponse.body) && imageResponse.body.length > 0
+				? imageResponse.body[0].path
+				: ''
 
 		const storedMetadata: MeemAPI.IMeemMetadata = {
 			...data.metadata,
@@ -314,21 +312,24 @@ export default class Web3 {
 		const jsonString = JSON.stringify(storedMetadata)
 		const jsonBase64 = Buffer.from(jsonString).toString('base64')
 
-		const metadataFile = new Moralis.File(
-			`${data.meemId}.json`,
-			{
-				base64: jsonBase64
-			},
-			'application/json'
-		)
+		const metadataResponse = await request
+			.post('https://deep-index.moralis.io/api/v2/ipfs/uploadFolder')
+			.set('X-API-KEY', config.MORALIS_API_KEY)
+			.send([
+				{
+					path: `${data.meemId}/metadata.json`,
+					content: jsonBase64
+				}
+			])
 
-		const savedMetadataFile = await metadataFile.saveIPFS({
-			useMasterKey: true
-		})
+		const metadataPath: string =
+			_.isArray(metadataResponse.body) && metadataResponse.body.length > 0
+				? metadataResponse.body[0].path
+				: ''
 
 		return {
 			metadata: storedMetadata,
-			tokenURI: savedMetadataFile.url()
+			tokenURI: metadataPath
 		}
 	}
 }
