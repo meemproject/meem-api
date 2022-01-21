@@ -42,6 +42,7 @@ async function loadMiddleware(options: { globPattern: string; app: Express }) {
 }
 
 async function loadServices() {
+	const timer = log.timerStart()
 	// @ts-ignore
 	global.services = {}
 	const servicesPath = path.join(
@@ -59,11 +60,18 @@ async function loadServices() {
 
 		// eslint-disable-next-line @typescript-eslint/naming-convention
 		const Service = (await import(servicePath)).default
-		// @ts-ignore
-		global.services[serviceName] = Service
+
+		if (Service.shouldInitialize) {
+			// @ts-ignore
+			global.services[serviceName] = new Service()
+		} else {
+			// @ts-ignore
+			global.services[serviceName] = Service
+		}
 	})
 
 	await Promise.all(promises)
+	log.info(`Load Services: ${(log.timerEnd(timer) / 1000).toFixed(4)} seconds`)
 }
 
 async function loadAllMiddleware(app: Express) {
@@ -79,9 +87,17 @@ async function loadAllMiddleware(app: Express) {
 		configuration.currentPath,
 		'/afterware/**/!(*.map).(js|ts)'
 	)
+	let timer = log.timerStart()
 	await loadMiddleware({ globPattern: middlewarePath, app })
+	log.info(
+		`Load Middleware: ${(log.timerEnd(timer) / 1000).toFixed(4)} seconds`
+	)
+	timer = log.timerStart()
 	await loadMiddleware({ globPattern: routesPath, app })
+	log.info(`Load Routes: ${(log.timerEnd(timer) / 1000).toFixed(4)} seconds`)
+	timer = log.timerStart()
 	await loadMiddleware({ globPattern: afterwarePath, app })
+	log.info(`Load Afterware: ${(log.timerEnd(timer) / 1000).toFixed(4)} seconds`)
 }
 
 export default async function start() {
@@ -97,6 +113,7 @@ export default async function start() {
 	log.info(`Set log level to: ${level}`)
 
 	g.log = log
+	const bootTimer = log.timerStart()
 	const app = express()
 	g.orm = new Orm()
 	const promises = [loadServices(), loadAllMiddleware(app)]
@@ -159,6 +176,10 @@ export default async function start() {
 
 		g.listeners.twitter.start()
 	}
+
+	log.info(
+		`Server boot: ${(log.timerEnd(bootTimer) / 1000).toFixed(4)} seconds`
+	)
 
 	return {
 		server,

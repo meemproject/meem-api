@@ -49,6 +49,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/nfts', NFTController.getNFTs)
 	router.postAsync('/webhook/moralis', WebhookController.handleMoralisWebhook)
 
+	if (config.ENABLE_URL_SCRAPER) {
+		router.getAsync('/screenshot', MeemController.getScreenshot)
+	}
+
 	// Twitter
 	router.getAsync('/tweets', TweetController.getTweets)
 

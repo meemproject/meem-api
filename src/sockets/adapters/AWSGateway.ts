@@ -50,6 +50,8 @@ export default class AWSGatewayAdapter extends SocketAdapter {
 	) {
 		return new Promise((resolve, reject) => {
 			const gateway = new AWS.ApiGatewayManagementApi({
+				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
 				apiVersion: '2018-11-29',
 				endpoint: config.AWS_WEBSOCKET_GATEWAY_URL
 			})

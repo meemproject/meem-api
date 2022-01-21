@@ -370,4 +370,14 @@ export default class MeemController {
 			status: 'success'
 		})
 	}
+
+	public static async getScreenshot(
+		req: IRequest<MeemAPI.v1.GetUrlScreenshot.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetUrlScreenshot.IResponseBody>
+	): Promise<any> {
+		const buffer = await services.scraper.screenshotUrl(req.query.url)
+
+		res.contentType('image/jpeg')
+		res.send(buffer)
+	}
 }
