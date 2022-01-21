@@ -52,6 +52,11 @@ export namespace MeemAPI {
 		Unknown = 'unknown'
 	}
 
+	export enum MeemMetadataStorageProvider {
+		Git = 'git',
+		Ipfs = 'ipfs'
+	}
+
 	export interface IWhitelist {
 		[contractAddress: string]: IWhitelistItem
 	}
@@ -223,6 +228,7 @@ export namespace MeemAPI {
 		external_url: string
 		image: string
 		image_original: string
+		meem_id: string
 		meem_properties: {
 			root_token_uri: string | null
 			root_token_address: string | null

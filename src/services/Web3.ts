@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
+import _ from 'lodash'
 import { DateTime } from 'luxon'
 import Moralis from 'moralis/node'
 import request from 'superagent'
@@ -275,5 +276,60 @@ export default class Web3 {
 				symbol: n.symbol
 			})) ?? []
 		)
+	}
+
+	public static async saveMeemMetadata(data: {
+		meemId: string
+		imageBase64: string
+		metadata: MeemAPI.IMeemMetadata
+	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
+		await this.startMoralis()
+
+		const imageResponse = await request
+			.post('https://deep-index.moralis.io/api/v2/ipfs/uploadFolder')
+			.set('X-API-KEY', config.MORALIS_API_KEY)
+			.send([
+				{
+					path: `${data.meemId}/image.png`,
+					content: data.imageBase64
+				}
+			])
+
+		const image: string =
+			_.isArray(imageResponse.body) && imageResponse.body.length > 0
+				? imageResponse.body[0].path
+				: ''
+
+		const storedMetadata: MeemAPI.IMeemMetadata = {
+			...data.metadata,
+			image,
+			image_original:
+				data.metadata.image && data.metadata.image !== ''
+					? data.metadata.image
+					: image
+		}
+
+		const jsonString = JSON.stringify(storedMetadata)
+		const jsonBase64 = Buffer.from(jsonString).toString('base64')
+
+		const metadataResponse = await request
+			.post('https://deep-index.moralis.io/api/v2/ipfs/uploadFolder')
+			.set('X-API-KEY', config.MORALIS_API_KEY)
+			.send([
+				{
+					path: `${data.meemId}/metadata.json`,
+					content: jsonBase64
+				}
+			])
+
+		const metadataPath: string =
+			_.isArray(metadataResponse.body) && metadataResponse.body.length > 0
+				? metadataResponse.body[0].path
+				: ''
+
+		return {
+			metadata: storedMetadata,
+			tokenURI: metadataPath
+		}
 	}
 }

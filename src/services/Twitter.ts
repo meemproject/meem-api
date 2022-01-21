@@ -5,12 +5,13 @@
 import { ethers } from 'ethers'
 import moment from 'moment'
 import { Op } from 'sequelize'
-import { TwitterApi, TweetV2, ApiV2Includes } from 'twitter-api-v2'
+import { TwitterApi, TweetV2, ApiV2Includes, UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import Hashtag from '../models/Hashtag'
 import Tweet from '../models/Tweet'
 import { Meem } from '../types'
 import { MeemAPI } from '../types/meem.generated'
+import { MeemMetadataStorageProvider } from '../types/shared/meem.shared'
 
 function errorcodeToErrorString(contractErrorName: string) {
 	const allErrors: Record<string, any> = config.errors
@@ -116,8 +117,6 @@ export default class TwitterService {
 	): Promise<void> {
 		// TODO: Retry unsuccessful mints?
 
-		const hashtags = tweetData.entities?.hashtags || []
-
 		// Make sure tweet contains >meem action
 		const isMeemActionTweet = /&gt;meem/gi.test(tweetData.text)
 
@@ -137,41 +136,46 @@ export default class TwitterService {
 
 		if (
 			(isDevMeem && config.NETWORK !== MeemAPI.NetworkName.Rinkeby) ||
-			(!isDevMeem && config.NETWORK === MeemAPI.NetworkName.Rinkeby)
+			(!isDevMeem &&
+				!isTestMeem &&
+				config.NETWORK === MeemAPI.NetworkName.Rinkeby)
 		) {
 			return
 		}
 
-		const user = includes?.users?.find(u => u.id === tweetData.author_id)
+		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+		const isRetweetOrReply =
+			!!tweetData.referenced_tweets && tweetData.referenced_tweets?.length > 0
 
-		if (!user?.id) {
+		const tweetUser = includes?.users?.find(u => u.id === tweetData.author_id)
+
+		if (!tweetUser?.id) {
 			return
 		}
 
 		const item = await orm.models.Twitter.findOne({
 			where: {
-				twitterId: user.id
+				twitterId: tweetUser.id
 			}
 		})
 
 		if (!item || !item.MeemIdentificationId) {
-			log.error(`No meemId found for twitter ID: ${user.id}`)
+			log.error(`No meemId found for twitter ID: ${tweetUser.id}`)
 			return
 		}
 
-		const meemId = await services.meemId.getMeemId({
+		const tweetUserMeemId = await services.meemId.getMeemId({
 			meemIdentificationId: item.MeemIdentificationId
 		})
 
-		if (meemId.wallets.length === 0) {
+		if (tweetUserMeemId.wallets.length === 0) {
 			log.error(`No wallet found for meemId: ${item.MeemIdentificationId}`)
 			return
 		}
 
-		const { isWhitelisted } = meemId.meemPass.twitter
-		const wallet = meemId.defaultWallet
+		const { isWhitelisted } = tweetUserMeemId.meemPass.twitter
 
-		const client = new TwitterApi({
+		const tweetClient = new TwitterApi({
 			appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
 			appSecret: config.TWITTER_MEEM_ACCOUNT_CONSUMER_SECRET,
 			accessToken: config.TWITTER_MEEM_ACCOUNT_TOKEN,
@@ -181,8 +185,8 @@ export default class TwitterService {
 		if (!isWhitelisted) {
 			log.error(`meemId not whitelisted: ${item.MeemIdentificationId}`)
 
-			await client.v2.tweet(
-				`Sorry @${user.username}, your Meem ID hasn't been approved yet!`,
+			await tweetClient.v2.tweet(
+				`Sorry @${tweetUser.username}, your Meem ID hasn't been approved yet!`,
 				{
 					reply: {
 						in_reply_to_tweet_id: tweetData.id
@@ -192,13 +196,14 @@ export default class TwitterService {
 			return
 		}
 
-		const { tweetsPerDayQuota } = meemId.meemPass.twitter
+		const { tweetsPerDayQuota } = tweetUserMeemId.meemPass.twitter
 
 		const startOfDay = moment().utc().startOf('day').toDate()
 
+		// TODO: If user is retweeting how do we handle quota?
 		const userTweetsToday = await orm.models.Tweet.findAll({
 			where: {
-				userId: user.id,
+				userId: tweetUser.id,
 				createdAt: {
 					[Op.gt]: startOfDay
 				}
@@ -208,8 +213,8 @@ export default class TwitterService {
 		if (userTweetsToday.length >= tweetsPerDayQuota) {
 			log.error(`User reached tweet quota: ${item.MeemIdentificationId}`)
 
-			await client.v2.tweet(
-				`Sorry @${user.username}, you've reached your meem quota for the day!`,
+			await tweetClient.v2.tweet(
+				`Sorry @${tweetUser.username}, you've reached your meem quota for the day!`,
 				{
 					reply: {
 						in_reply_to_tweet_id: tweetData.id
@@ -219,6 +224,104 @@ export default class TwitterService {
 			return
 		}
 
+		if (isRetweetOrReply) {
+			// Get the original tweet referenced
+			const originalTweet = await client.v2.singleTweet(
+				tweetData.referenced_tweets![0].id,
+				{
+					'tweet.fields': ['created_at', 'entities'],
+					'user.fields': ['profile_image_url'],
+					expansions: [
+						'author_id',
+						'in_reply_to_user_id',
+						'referenced_tweets.id'
+					]
+				}
+			)
+			if (
+				originalTweet &&
+				originalTweet.data.referenced_tweets &&
+				originalTweet.data.referenced_tweets.length > 0
+			) {
+				// TODO: Do we want to handle nested retweets back to the original M0?
+				// This will currently only allow retweets/replies to original tweets to mint an M0
+				log.error('The referenced tweet is not an original tweet')
+			} else if (originalTweet) {
+				// TODO: Mint original tweet if it does not exist
+				//	- Mint on behalf of meember if exists or zero address if not?
+				const originalTweetUser = originalTweet.includes?.users?.find(
+					u => u.id === originalTweet.data.author_id
+				)
+
+				if (!originalTweetUser?.id) {
+					return
+				}
+
+				const originalTweeterTwitter = await orm.models.Twitter.findOne({
+					where: {
+						twitterId: originalTweetUser.id
+					}
+				})
+
+				if (
+					!originalTweeterTwitter ||
+					!originalTweeterTwitter.MeemIdentificationId
+				) {
+					log.error(
+						`No meemId found for original tweet twitter ID: ${originalTweetUser.id}`
+					)
+					return
+				}
+
+				const originalTweeterMeemId = await services.meemId.getMeemId({
+					meemIdentificationId: originalTweeterTwitter.MeemIdentificationId
+				})
+
+				if (originalTweeterMeemId.wallets.length === 0) {
+					log.error(
+						`No wallet found for original tweeter meemId: ${originalTweeterTwitter.MeemIdentificationId}`
+					)
+					return
+				}
+
+				log.debug('TODO: Mint original tweet and child MEEM')
+				await this.mintTweet(
+					originalTweeterMeemId,
+					originalTweet.data,
+					originalTweetUser
+				)
+
+				// TODO: Mint child MEEM on behalf of the user who retweeted/replied?
+			}
+		} else {
+			// Mint tweet on behalf of user
+			await this.mintTweet(tweetUserMeemId, tweetData, tweetUser)
+		}
+
+		// Minting a tweet counts as being onboarded
+		if (!tweetUserMeemId.hasOnboarded) {
+			await orm.models.MeemIdentification.update(
+				{
+					hasOnboarded: true
+				},
+				{
+					where: {
+						id: item.MeemIdentificationId
+					}
+				}
+			)
+		}
+
+		// log.debug(event)
+		// log.debug(tweet)
+	}
+
+	public static async mintTweet(
+		meemId: MeemAPI.IMeemId,
+		tweetData: TweetV2,
+		user: UserV2
+	): Promise<ethers.ContractReceipt> {
+		const wallet = meemId.defaultWallet
 		const tweet = await orm.models.Tweet.create({
 			tweetId: tweetData.id,
 			text: tweetData.text,
@@ -226,6 +329,8 @@ export default class TwitterService {
 			username: user?.username || '',
 			userProfileImageUrl: user?.profile_image_url || ''
 		})
+
+		const hashtags = tweetData.entities?.hashtags || []
 
 		await Promise.all(
 			hashtags.map(async hashtag => {
@@ -250,6 +355,14 @@ export default class TwitterService {
 
 		// Mint tweet MEEM
 
+		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+		const tweetClient = new TwitterApi({
+			appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
+			appSecret: config.TWITTER_MEEM_ACCOUNT_CONSUMER_SECRET,
+			accessToken: config.TWITTER_MEEM_ACCOUNT_TOKEN,
+			accessSecret: config.TWITTER_MEEM_ACCOUNT_SECRET
+		})
+
 		try {
 			const tweetMeemId = uuidv4()
 			const meemContract = services.meem.getMeemContract({
@@ -259,29 +372,33 @@ export default class TwitterService {
 
 			const tweetImage = await this.screenshotTweet(tweet)
 
-			const meemMetadata = await services.git.saveMeemMetadata({
-				name: `@${tweet.username} ${moment(
-					tweetData.created_at || tweet.createdAt
-				).format('MM-DD-YYYY HH:mm:ss')}`,
-				description: tweet.text,
-				imageBase64: tweetImage || '',
-				meemId: tweetMeemId,
-				generation: 0,
-				extensionProperties: {
-					meem_tweets_extension: {
-						tweet: {
-							tweetId: tweet.tweetId,
-							text: tweet.text,
-							userId: tweet.userId,
-							username: tweet.username,
-							userProfileImageUrl: tweet.userProfileImageUrl,
-							updatedAt: tweet.updatedAt,
-							createdAt: tweet.createdAt,
-							...(tweetData.entities && { entities: tweetData.entities })
+			const meemMetadata = await services.meem.saveMeemMetadataasync(
+				{
+					tokenAddress: config.MEEM_PROXY_ADDRESS,
+					tokenId: config.TWITTER_PROJECT_TOKEN_ID,
+					name: `@${tweet.username} ${moment(
+						tweetData.created_at || tweet.createdAt
+					).format('MM-DD-YYYY HH:mm:ss')}`,
+					description: tweet.text,
+					imageBase64: tweetImage || '',
+					meemId: tweetMeemId,
+					extensionProperties: {
+						meem_tweets_extension: {
+							tweet: {
+								tweetId: tweet.tweetId,
+								text: tweet.text,
+								userId: tweet.userId,
+								username: tweet.username,
+								userProfileImageUrl: tweet.userProfileImageUrl,
+								updatedAt: tweet.updatedAt,
+								createdAt: tweet.createdAt,
+								...(tweetData.entities && { entities: tweetData.entities })
+							}
 						}
 					}
-				}
-			})
+				},
+				MeemMetadataStorageProvider.Ipfs
+			)
 			let { recommendedGwei } = await services.web3.getGasEstimate({
 				chain: MeemAPI.networkNameToChain(config.NETWORK)
 			})
@@ -347,20 +464,6 @@ export default class TwitterService {
 
 			const receipt = await mintTx.wait()
 
-			// Minting a tweet counts as being onboarded
-			if (!meemId.hasOnboarded) {
-				await orm.models.MeemIdentification.update(
-					{
-						hasOnboarded: true
-					},
-					{
-						where: {
-							id: item.MeemIdentificationId
-						}
-					}
-				)
-			}
-
 			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
 
 			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
@@ -376,29 +479,18 @@ export default class TwitterService {
 					eventName: MeemAPI.MeemEvent.MeemMinted,
 					data: returnData
 				})
-				log.debug(returnData)
-				try {
-					const newMeem = await meemContract.getMeem(returnData.tokenId)
-					const branchName =
-						config.NETWORK === MeemAPI.NetworkName.Rinkeby ? `test` : `master`
-					const updatedMetadata = await services.git.updateMeemMetadata({
-						tokenURI: `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/${tweetMeemId}.json`,
-						generation: newMeem.generation.toNumber(),
-						tokenId: returnData.tokenId,
-						metadataId: tweetMeemId
-					})
-					await client.v2.tweet(
-						`Your tweet has been minted! View here: ${updatedMetadata.external_url}`,
-						{
-							reply: {
-								in_reply_to_tweet_id: tweetData.id
-							}
-						}
-					)
-				} catch (updateErr) {
-					log.warn('Error updating Meem metadata', updateErr)
-				}
+				// log.debug(returnData)
 			}
+			await tweetClient.v2.tweet(
+				`Your tweet has been minted! View here: ${meemMetadata.metadata.external_url}`,
+				{
+					reply: {
+						in_reply_to_tweet_id: tweetData.id
+					}
+				}
+			)
+
+			return receipt
 		} catch (e) {
 			const err = e as any
 			log.warn(err)
@@ -426,9 +518,6 @@ export default class TwitterService {
 			}
 			throw new Error('SERVER_ERROR')
 		}
-
-		// log.debug(event)
-		// log.debug(tweet)
 	}
 
 	public static async screenshotTweet(tweet: any): Promise<string | undefined> {

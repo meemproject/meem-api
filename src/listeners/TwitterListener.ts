@@ -16,7 +16,7 @@ export default class TwitterListener {
 			const stream = await client.v2.searchStream({
 				'tweet.fields': ['created_at', 'entities'],
 				'user.fields': ['profile_image_url'],
-				expansions: ['author_id']
+				expansions: ['author_id', 'in_reply_to_user_id', 'referenced_tweets.id']
 			})
 
 			// Awaits for a tweet
