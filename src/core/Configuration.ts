@@ -42,7 +42,7 @@ export default class Configuration {
 		const hasDotfile = await fs.pathExists(dotPath)
 		if (hasDotfile) {
 			dotenv.config({
-				debug: true,
+				debug: process.env.DOTENV_DEBUG === 'true' ? true : undefined,
 				path: dotPath
 			})
 		}

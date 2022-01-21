@@ -43,6 +43,8 @@ export default {
 	ORM_FORCE_SYNC: process.env.ORM_FORCE_SYNC === 'true',
 	ORM_DISABLE_SSL: process.env.ORM_DISABLE_SSL === 'true',
 	ORM_ALLOW_UNAUTHORIZED: process.env.ORM_ALLOW_UNAUTHORIZED === 'true',
+	ORM_LOGGING: process.env.ORM_LOGGING === 'true',
+	DOTENV_DEBUG: process.env.DOTENV_DEBUG === 'true',
 
 	CORS_ALLOW_ALL: process.env.CORS_ALLOW_ALL === 'true',
 	CORS_DEFAULT_ORIGIN: process.env.CORS_DEFAULT_ORIGIN ?? '',
@@ -127,5 +129,7 @@ export default {
 	MEEM_PROJECT_OWNER_ADDRESS: process.env.MEEM_PROJECT_OWNER_ADDRESS ?? '',
 	DEFAULT_PAGINATION_LIMIT: process.env.DEFAULT_PAGINATION_LIMIT
 		? +process.env.DEFAULT_PAGINATION_LIMIT
-		: 20
+		: 20,
+	ENABLE_PUPPETEER: process.env.ENABLE_PUPPETEER === 'true',
+	ENABLE_URL_SCRAPER: process.env.ENABLE_URL_SCRAPER === 'true'
 }

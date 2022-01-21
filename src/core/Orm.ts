@@ -30,6 +30,8 @@ export default class ORM {
 		// }
 
 		this.sequelize = new Sequelize(config.DATABASE_URL, {
+			// eslint-disable-next-line no-console
+			logging: config.ORM_LOGGING ? console.log : undefined,
 			ssl: config.ORM_DISABLE_SSL ? undefined : true,
 			dialectOptions: config.ORM_DISABLE_SSL
 				? {
@@ -109,10 +111,11 @@ export default class ORM {
 
 		try {
 			if (!config.DISABLE_ORM_SYNC) {
-				log.info('Start Sync ORM')
+				const timer = log.timerStart()
 				await this.sequelize.sync({
 					force: config.ORM_FORCE_SYNC
 				})
+				log.info(`ORM sync: ${(log.timerEnd(timer) / 1000).toFixed(4)} seconds`)
 			} else {
 				log.info('ORM sync disabled')
 			}
