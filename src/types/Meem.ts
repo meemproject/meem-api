@@ -147,6 +147,8 @@ export type MeemStruct = {
   mintedAt: BigNumberish;
   data: string;
   verifiedBy: string;
+  meemType: BigNumberish;
+  mintedBy: string;
 };
 
 export type MeemStructOutput = [
@@ -162,6 +164,8 @@ export type MeemStructOutput = [
   MeemPropertiesStructOutput,
   BigNumber,
   string,
+  string,
+  number,
   string
 ] & {
   owner: string;
@@ -177,6 +181,8 @@ export type MeemStructOutput = [
   mintedAt: BigNumber;
   data: string;
   verifiedBy: string;
+  meemType: number;
+  mintedBy: string;
 };
 
 export type WrappedItemStruct = {
@@ -248,7 +254,9 @@ export interface MeemInterface extends ethers.utils.Interface {
     "setMeemIDAddress(address)": FunctionFragment;
     "setNonOwnerSplitAllocationAmount(uint256)": FunctionFragment;
     "setTokenCounter(uint256)": FunctionFragment;
+    "verifyToken(uint256)": FunctionFragment;
     "mint((address,string,uint8,address,uint256,uint8,string,bool,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address))": FunctionFragment;
+    "mintAndCopy((address,string,uint8,address,uint256,uint8,string,bool,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),address)": FunctionFragment;
     "addPermission(uint256,uint8,uint8,(uint8,address[],uint256,address))": FunctionFragment;
     "lockChildrenPerWallet(uint256,uint8)": FunctionFragment;
     "lockPermissions(uint256,uint8,uint8)": FunctionFragment;
@@ -390,11 +398,24 @@ export interface MeemInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "verifyToken",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "mint",
     values: [
       MeemMintParametersStruct,
       MeemPropertiesStruct,
       MeemPropertiesStruct
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "mintAndCopy",
+    values: [
+      MeemMintParametersStruct,
+      MeemPropertiesStruct,
+      MeemPropertiesStruct,
+      string
     ]
   ): string;
   encodeFunctionData(
@@ -629,7 +650,15 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "setTokenCounter",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "verifyToken",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "mintAndCopy",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "addPermission",
     data: BytesLike
@@ -1057,10 +1086,23 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    verifyToken(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     mint(
       params: MeemMintParametersStruct,
       mProperties: MeemPropertiesStruct,
       mChildProperties: MeemPropertiesStruct,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    mintAndCopy(
+      params: MeemMintParametersStruct,
+      mProperties: MeemPropertiesStruct,
+      mChildProperties: MeemPropertiesStruct,
+      toCopyAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1399,10 +1441,23 @@ export interface Meem extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  verifyToken(
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   mint(
     params: MeemMintParametersStruct,
     mProperties: MeemPropertiesStruct,
     mChildProperties: MeemPropertiesStruct,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  mintAndCopy(
+    params: MeemMintParametersStruct,
+    mProperties: MeemPropertiesStruct,
+    mChildProperties: MeemPropertiesStruct,
+    toCopyAddress: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1726,10 +1781,23 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    verifyToken(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     mint(
       params: MeemMintParametersStruct,
       mProperties: MeemPropertiesStruct,
       mChildProperties: MeemPropertiesStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    mintAndCopy(
+      params: MeemMintParametersStruct,
+      mProperties: MeemPropertiesStruct,
+      mChildProperties: MeemPropertiesStruct,
+      toCopyAddress: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -2204,10 +2272,23 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    verifyToken(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     mint(
       params: MeemMintParametersStruct,
       mProperties: MeemPropertiesStruct,
       mChildProperties: MeemPropertiesStruct,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    mintAndCopy(
+      params: MeemMintParametersStruct,
+      mProperties: MeemPropertiesStruct,
+      mChildProperties: MeemPropertiesStruct,
+      toCopyAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2555,10 +2636,23 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    verifyToken(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     mint(
       params: MeemMintParametersStruct,
       mProperties: MeemPropertiesStruct,
       mChildProperties: MeemPropertiesStruct,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    mintAndCopy(
+      params: MeemMintParametersStruct,
+      mProperties: MeemPropertiesStruct,
+      mChildProperties: MeemPropertiesStruct,
+      toCopyAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
