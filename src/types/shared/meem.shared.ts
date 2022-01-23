@@ -181,6 +181,17 @@ export interface IMeemSplit {
 	lockedBy: string
 }
 
+export interface IMeemMetadataProperties {
+	root_token_uri?: string | null
+	root_token_address?: string | null
+	root_token_id?: string | null
+	root_token_metadata?: Record<string, any> | null
+	parent_token_uri?: string | null
+	parent_token_address?: string | null
+	parent_token_id?: string | null
+	parent_token_metadata?: Record<string, any> | null
+}
+
 export interface IMeemMetadata {
 	name: string
 	description: string
@@ -188,17 +199,97 @@ export interface IMeemMetadata {
 	image: string
 	image_original: string
 	meem_id: string
-	meem_properties: {
-		root_token_uri: string | null
-		root_token_address: string | null
-		root_token_id: string | null
-		root_token_metadata: any | null
-		parent_token_uri: any | null
-		parent_token_address: string | null
-		parent_token_id: string | null
-		parent_token_metadata: any | null
-	}
-	extension_properties?: IMeemTweetsExtensionProperties | any
+	meem_properties?: IMeemMetadataProperties
+	extension_properties?: IMeemTweetsExtensionProperties | Record<string, any>
+}
+
+export enum OpenSeaDisplayType {
+	Number = 'number',
+	BoostNumber = 'boost_number',
+	BoostPercentage = 'boost_percentage'
+}
+
+export interface IOpenseaStringTrait {
+	trait_type?: string
+	value: string
+}
+
+/**
+ * For numeric traits, OpenSea currently supports three different options, number (lower right in the image below), boost_percentage (lower left in the image above), and boost_number (similar to boost_percentage but doesn't show a percent sign). If you pass in a value that's a number and you don't set a display_type, the trait will appear in the Rankings section (top right in the image above).
+ *
+ * Adding an optional max_value sets a ceiling for a numerical trait's possible values. It defaults to the maximum that OpenSea has seen so far on the assets on your contract. If you set a max_value, make sure not to pass in a higher value.
+ * */
+export interface IOpenseaNumericTrait {
+	display_type?: OpenSeaDisplayType
+	trait_type?: string
+	value: number
+	max_value?: number
+}
+
+/** OpenSea also supports a date display_type. Traits of this type will appear in the right column near "Rankings" and "Stats." Pass in a unix timestamp as the value. */
+export interface IOpenseaDateTrait {
+	display_type: 'date'
+	trait_type: string
+	value: number
+}
+
+export interface IEnjinProperties {
+	[propertyName: string]:
+		| string
+		| {
+				name: string
+				value: string | number | string[] | number[]
+				[additionalProperties: string]:
+					| string
+					| number
+					| string[]
+					| number[]
+					| Record<string, any>
+		  }
+}
+
+/** Based on Opensea metadata standards: https://docs.opensea.io/docs/metadata-standards */
+export interface ICreateMeemMetadata {
+	/** Name of the item. */
+	name: string
+
+	/** A human readable description of the item. Markdown is supported. */
+	description: string
+
+	/** Background color of the item. Must be a six-character hexadecimal without a pre-pended #. */
+	background_color?: string
+
+	/** An external URL */
+	external_url?: string
+
+	/**
+	 * A URL to a multi-media attachment for the item. The file extensions GLTF, GLB, WEBM, MP4, M4V, OGV, and OGG are supported, along with the audio-only extensions MP3, WAV, and OGA.
+	 *
+	 * Animation_url also supports HTML pages, allowing you to build rich experiences and interactive NFTs using JavaScript canvas, WebGL, and more. Scripts and relative paths within the HTML page are now supported. However, access to browser extensions is not supported. */
+	animation_url?: string
+
+	/** A URL to a YouTube video. */
+	youtube_url?: string
+
+	/** Opensea metadata standard attributes */
+	attributes?: (
+		| IOpenseaStringTrait
+		| IOpenseaNumericTrait
+		| IOpenseaDateTrait
+	)[]
+
+	properties?: IEnjinProperties
+
+	generation?: number
+
+	/** UUID to associate w/ this Meem */
+	meem_id?: string
+
+	/** Additional meem properties. For trusted minters only. */
+	meem_properties?: IMeemMetadataProperties
+
+	/** Extension properties. For trusted minters only. */
+	extension_properties?: IMeemTweetsExtensionProperties | Record<string, any>
 }
 
 export interface IMeemTweetsExtensionProperties {

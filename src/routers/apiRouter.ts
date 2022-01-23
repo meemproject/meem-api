@@ -1,4 +1,5 @@
 import coreExpress, { Express } from 'express'
+import multer from 'multer'
 import ConfigController from '../controllers/ConfigController'
 import MeemController from '../controllers/MeemController'
 import MeemIdController from '../controllers/MeemIdController'
@@ -7,10 +8,14 @@ import TestController from '../controllers/TestController'
 import TweetController from '../controllers/TweetController'
 import WebhookController from '../controllers/WebhookController'
 import extendedRouter from '../core/router'
+import userLoggedInPolicy from '../policies/UserLoggedInPolicy'
 
 export default (app: Express, _express: typeof coreExpress) => {
 	const router = extendedRouter()
 	const imageRouter = extendedRouter()
+
+	const storage = multer.memoryStorage()
+	const upload = multer({ storage })
 
 	app.use('/api/1.0/', router)
 	app.use('/images/1.0/', imageRouter)
@@ -57,6 +62,13 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/tweets', TweetController.getTweets)
 
 	imageRouter.postAsync('/meems/create-image', MeemController.createMeemImage)
+
+	imageRouter.postAsync(
+		'/metadata',
+		userLoggedInPolicy,
+		upload.any(),
+		MeemController.saveMetadata
+	)
 
 	// Projects
 	router.postAsync('/projects', MeemController.createMeemProject)

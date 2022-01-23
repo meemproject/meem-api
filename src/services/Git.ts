@@ -9,7 +9,7 @@ export default class GitService {
 	public static async saveMeemMetadata(data: {
 		meemId: string
 		imageBase64: string
-		metadata: MeemAPI.IMeemMetadata
+		metadata: MeemAPI.ICreateMeemMetadata
 	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
 		const branchName =
 			config.NETWORK === MeemAPI.NetworkName.Rinkeby ? `test` : `master`
@@ -49,11 +49,10 @@ export default class GitService {
 
 		const storedMetadata: MeemAPI.IMeemMetadata = {
 			...data.metadata,
+			meem_id: data.metadata.meem_id ?? '',
+			external_url: data.metadata.external_url ?? '',
 			image,
-			image_original:
-				data.metadata.image && data.metadata.image !== ''
-					? data.metadata.image
-					: image
+			image_original: image
 		}
 
 		const metadataGit = await octokit.git.createBlob({

@@ -3,9 +3,15 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import { Response } from 'express'
 import moment from 'moment'
+import sharp from 'sharp'
 import TwitterApi, { UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
-import { IAPIRequestPaginated, IRequest, IResponse } from '../types/app'
+import {
+	IAPIRequestPaginated,
+	IAuthenticatedRequest,
+	IRequest,
+	IResponse
+} from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class MeemController {
@@ -397,5 +403,64 @@ export default class MeemController {
 
 		res.contentType('image/jpeg')
 		res.send(buffer)
+	}
+
+	public static async saveMetadata(
+		req: IAuthenticatedRequest<MeemAPI.v1.SaveMetadata.IDefinition>,
+		res: IResponse<MeemAPI.v1.SaveMetadata.IResponseBody>
+	): Promise<any> {
+		let createMetadata: MeemAPI.ICreateMeemMetadata
+
+		try {
+			createMetadata = JSON.parse(req.body.metadata)
+		} catch (e) {
+			throw new Error('INVALID_METADATA')
+		}
+
+		/** Ensure that trusted properties are not set */
+		createMetadata.meem_properties = undefined
+		createMetadata.extension_properties = undefined
+
+		let file: Buffer | undefined
+
+		if (Array.isArray(req.files)) {
+			file = req.files[0].buffer
+		} else if (typeof req.files === 'object') {
+			const fields = Object.values(req.files)
+			if (fields.length > 0) {
+				const field = fields[0]
+				if (field.length > 0) {
+					// eslint-disable-next-line prefer-destructuring
+					file = field[0].buffer
+				}
+			}
+		}
+
+		if (!file) {
+			throw new Error('INVALID_FILE')
+		}
+
+		let img = sharp(file)
+		const imageMetadata = await img.metadata()
+		let imageWidth = imageMetadata.width || 400
+
+		// Set max image size to 1024
+		if (imageWidth > 1024) {
+			imageWidth = imageWidth > 1024 ? 1024 : imageWidth
+			img = img.resize(imageWidth)
+		}
+
+		const buff = await img.toBuffer()
+
+		const { tokenURI, metadata } = await services.web3.saveMeemMetadata({
+			meemId: req.meemId.id,
+			image: buff,
+			metadata: createMetadata
+		})
+
+		return res.json({
+			tokenURI,
+			metadata
+		})
 	}
 }

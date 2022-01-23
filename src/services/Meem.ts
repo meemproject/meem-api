@@ -375,7 +375,7 @@ export default class MeemService {
 			rootTokenIdString = services.web3.toBigNumber(tokenId).toHexString()
 		}
 
-		const metadata: MeemAPI.IMeemMetadata = {
+		const metadata: MeemAPI.ICreateMeemMetadata = {
 			name: collectionName
 				? `${collectionName} – ${name || tokenId}`
 				: `${name || tokenId}`,
@@ -399,8 +399,6 @@ export default class MeemService {
 				parent_token_metadata: isOriginal ? null : parentMetadata
 			},
 			generation,
-			image: '',
-			image_original: '',
 			...(extensionProperties && {
 				extension_properties: extensionProperties
 			})

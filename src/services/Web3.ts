@@ -4,6 +4,7 @@ import _ from 'lodash'
 import { DateTime } from 'luxon'
 import Moralis from 'moralis/node'
 import request from 'superagent'
+import { v4 as uuidv4, validate as validateUUID } from 'uuid'
 import { MeemAPI } from '../types/meem.generated'
 import { AsyncReturnType } from '../types/shared/api.shared'
 
@@ -279,11 +280,20 @@ export default class Web3 {
 	}
 
 	public static async saveMeemMetadata(data: {
-		meemId: string
-		imageBase64: string
-		metadata: MeemAPI.IMeemMetadata
+		meemId?: string
+		imageBase64?: string
+		image?: Buffer
+		metadata: MeemAPI.IMeemMetadata | MeemAPI.ICreateMeemMetadata
 	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
 		await this.startMoralis()
+
+		this.validateCreateMeemMetadata(data.metadata)
+
+		const imgData = data.imageBase64 ?? data.image?.toString('base64')
+
+		if (!imgData) {
+			throw new Error('INVALID_IMAGE_TYPE')
+		}
 
 		const imageResponse = await request
 			.post('https://deep-index.moralis.io/api/v2/ipfs/uploadFolder')
@@ -291,7 +301,7 @@ export default class Web3 {
 			.send([
 				{
 					path: `${data.meemId}/image.png`,
-					content: data.imageBase64
+					content: imgData
 				}
 			])
 
@@ -300,12 +310,31 @@ export default class Web3 {
 				? this.moralisPathToIPFSPath(imageResponse.body[0].path)
 				: ''
 
+		const meemMetadata = data.metadata as MeemAPI.IMeemMetadata
+
+		const meemId = data.meemId ?? uuidv4()
+		const isValid = validateUUID(meemId)
+
+		if (!isValid) {
+			throw new Error('INVALID_METADATA')
+		}
+
+		const meemDomain =
+			config.NETWORK === MeemAPI.NetworkName.Rinkeby
+				? `https://dev.meem.wtf`
+				: `https://meem.wtf`
+
+		const externalUrl =
+			meemMetadata.external_url ?? `${meemDomain}/meems/${meemId}`
+
 		const storedMetadata: MeemAPI.IMeemMetadata = {
 			...data.metadata,
+			external_url: externalUrl,
+			meem_id: meemId,
 			image,
 			image_original:
-				data.metadata.image && data.metadata.image !== ''
-					? data.metadata.image
+				meemMetadata.image && meemMetadata.image !== ''
+					? meemMetadata.image
 					: image
 		}
 
@@ -330,6 +359,12 @@ export default class Web3 {
 		return {
 			metadata: storedMetadata,
 			tokenURI: metadataPath
+		}
+	}
+
+	public static validateCreateMeemMetadata(metadata: Record<string, any>) {
+		if (!metadata.name || !metadata.description) {
+			throw new Error('INVALID_METADATA')
 		}
 	}
 

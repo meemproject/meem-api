@@ -1,6 +1,6 @@
 import type Puppeteer from 'puppeteer-extra'
 
-export default class ScraperService {
+export default class PuppeteerService {
 	public static shouldInitialize = true
 
 	public puppeteer!: typeof Puppeteer

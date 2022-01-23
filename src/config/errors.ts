@@ -121,6 +121,12 @@ const errors = {
 		friendlyReason:
 			'The current gas price is too high. Please wait and try again.'
 	},
+	INVALID_METADATA: {
+		httpCode: 400,
+		status: 'failure',
+		reason: 'Invalid metadata. Ensure that the object is properly formed.',
+		friendlyReason: 'Invalid metadata.'
+	},
 	// Contract errors
 	UNKNOWN_CONTRACT_ERROR: {
 		httpCode: 500,
