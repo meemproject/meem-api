@@ -109,7 +109,7 @@ export default class MeemController {
 		} else {
 			meem = await orm.models.Meem.findOne({
 				where: {
-					tokenId
+					tokenId: services.web3.toBigNumber(tokenId).toHexString()
 				},
 				include: [
 					{
