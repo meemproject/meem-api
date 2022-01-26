@@ -2,10 +2,12 @@ import AWS from 'aws-sdk'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import { Response } from 'express'
+import _ from 'lodash'
 import moment from 'moment'
 import sharp from 'sharp'
 import TwitterApi, { UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
+import Meem from '../models/Meem'
 import {
 	IAPIRequestPaginated,
 	IAuthenticatedRequest,
@@ -79,36 +81,88 @@ export default class MeemController {
 		res: IResponse<MeemAPI.v1.GetMeem.IResponseBody>
 	): Promise<Response> {
 		let { tokenId } = req.params
-
+		let meem: Meem | null = null
 		const isTokenId = /^\d+$/.test(tokenId)
 
 		if (!isTokenId) {
-			const meemInstance = await orm.models.Meem.findOne({
+			meem = await orm.models.Meem.findOne({
 				where: {
 					id: tokenId
-				}
+				},
+				include: [
+					{
+						model: orm.models.MeemProperties,
+						as: 'Properties'
+					},
+					{
+						model: orm.models.MeemProperties,
+						as: 'ChildProperties'
+					}
+				]
 			})
 
-			if (!meemInstance?.tokenId) {
+			if (!meem) {
 				throw new Error('TOKEN_NOT_FOUND')
 			}
 
-			tokenId = `${services.web3.toBigNumber(meemInstance.tokenId).toNumber()}`
+			tokenId = `${services.web3.toBigNumber(meem.tokenId).toNumber()}`
+		} else {
+			meem = await orm.models.Meem.findOne({
+				where: {
+					tokenId
+				},
+				include: [
+					{
+						model: orm.models.MeemProperties,
+						as: 'Properties'
+					},
+					{
+						model: orm.models.MeemProperties,
+						as: 'ChildProperties'
+					}
+				]
+			})
+
+			if (!meem) {
+				throw new Error('TOKEN_NOT_FOUND')
+			}
 		}
 
-		const meemContract = services.meem.getMeemContract()
+		let { metadata } = meem
 
-		const meem: any = await meemContract.getMeem(tokenId)
-		const tokenURI = await meemContract.tokenURI(tokenId)
-		const metadata = (await services.meem.getErc721Metadata(
-			tokenURI
-		)) as MeemAPI.IMeemMetadata
+		if (_.keys(metadata).length === 0) {
+			const meemContract = services.meem.getMeemContract()
+			const tokenURI = await meemContract.tokenURI(tokenId)
+			metadata = (await services.meem.getErc721Metadata(
+				tokenURI
+			)) as MeemAPI.IMeemMetadata
+		}
+
+		if (
+			_.keys(metadata).length === 0 ||
+			!meem.ChildProperties ||
+			!meem.Properties
+		) {
+			throw new Error('TOKEN_NOT_FOUND')
+		}
 
 		// TODO: Clean up this output so it matches IMeem
 		return res.json({
 			meem: {
-				...services.meem.meemToInterface({ tokenId, meem }),
-				tokenURI,
+				tokenId,
+				owner: meem.owner,
+				parentChain: meem.parentChain,
+				parent: MeemAPI.zeroAddress,
+				parentTokenId: meem.parentTokenId,
+				rootChain: meem.rootChain,
+				root: MeemAPI.zeroAddress,
+				rootTokenId: meem.rootTokenId,
+				generation: meem.generation,
+				properties: meem.Properties,
+				childProperties: meem.ChildProperties,
+				mintedAt: moment(meem.mintedAt).unix(),
+				data: meem.data,
+				verifiedBy: meem.verifiedBy,
 				metadata
 			}
 		})
