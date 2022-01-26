@@ -276,6 +276,7 @@ export default class ContractEvent {
 		const meem = orm.models.Meem.build({
 			id: metadata.meem_id || uuidv4(),
 			tokenId,
+			tokenURI,
 			owner: meemData.owner,
 			parentChain: meemData.parentChain,
 			parentTokenId: meemData.parentTokenId.toHexString(),

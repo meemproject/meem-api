@@ -128,11 +128,15 @@ export default class MeemController {
 			}
 		}
 
-		let { metadata } = meem
+		const meemContract = services.meem.getMeemContract()
+
+		let { metadata, tokenURI } = meem
+
+		if (!tokenURI || tokenURI === '') {
+			tokenURI = await meemContract.tokenURI(tokenId)
+		}
 
 		if (_.keys(metadata).length === 0) {
-			const meemContract = services.meem.getMeemContract()
-			const tokenURI = await meemContract.tokenURI(tokenId)
 			metadata = (await services.meem.getErc721Metadata(
 				tokenURI
 			)) as MeemAPI.IMeemMetadata
@@ -150,6 +154,7 @@ export default class MeemController {
 		return res.json({
 			meem: {
 				tokenId,
+				tokenURI,
 				owner: meem.owner,
 				parentChain: meem.parentChain,
 				parent: MeemAPI.zeroAddress,
