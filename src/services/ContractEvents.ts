@@ -334,13 +334,11 @@ export default class ContractEvent {
 
 		const d = this.toPureObject({
 			...data,
-			mintedAt: meemData.mintedAt.toNumber(),
-			properties: properties.get({ plain: true }),
-			childProperties: childProperties.get({ plain: true }),
-			metadata
+			mintedAt: meemData.mintedAt.toNumber()
 		})
 
 		const token = gun
+			.user()
 			.get('meems')
 			.get(tokenId)
 			.put(d, ack => {
@@ -351,6 +349,10 @@ export default class ContractEvent {
 					log.warn(ack.err)
 				}
 			})
+
+		token.get('properties').put(properties.get({ plain: true }))
+		token.get('childProperties').put(childProperties.get({ plain: true }))
+		token.get('metadata').put(metadata)
 
 		let parent: IGunChainReference<any, string | number | symbol, false>
 		let root: IGunChainReference<any, string | number | symbol, false>

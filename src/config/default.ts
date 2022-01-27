@@ -136,7 +136,7 @@ export default {
 		? process.env.MINT_GAS_LIMIT
 		: '1600000',
 	ENABLE_GUNDB: process.env.ENABLE_GUNDB === 'true',
-	GUNDB_S3_BUCKET: process.env.GUNDB_S3_BUCKET === 'true',
+	GUNDB_S3_BUCKET: process.env.GUNDB_S3_BUCKET ?? '',
 	GUNDB_PASSWORD: process.env.GUNDB_PASSWORD ?? '',
 	GUNDB_USER: process.env.GUNDB_USER ?? ''
 }

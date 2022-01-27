@@ -183,14 +183,14 @@ export default async function start() {
 	)
 
 	if (config.ENABLE_GUNDB) {
-		g.gun = Gun({
-			web: server
-			// peers: [`http://localhost:${config.PORT}/gun`],
-			// s3: {
-			// 	key: config.APP_AWS_ACCESS_KEY_ID,
-			// 	secret: config.APP_AWS_SECRET_ACCESS_KEY,
-			// 	bucket: config.GUNDB_S3_BUCKET
-			// }
+		g.gun = new Gun({
+			web: server,
+			peers: [`http://localhost:${config.PORT}/gun`],
+			s3: {
+				key: config.APP_AWS_ACCESS_KEY_ID,
+				secret: config.APP_AWS_SECRET_ACCESS_KEY,
+				bucket: config.GUNDB_S3_BUCKET
+			}
 		})
 
 		// gun.user().create(config.GUNDB_USER, config.GUNDB_PASSWORD, data => {
