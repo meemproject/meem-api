@@ -20,6 +20,8 @@ import {
 import { MeemAPI } from '../types/meem.generated'
 import { MeemMetadataStorageProvider } from '../types/shared/meem.shared'
 
+ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.ERROR)
+
 function errorcodeToErrorString(contractErrorName: string) {
 	const allErrors: Record<string, any> = config.errors
 	const errorKeys = Object.keys(allErrors)

@@ -6,6 +6,7 @@
 
 import { default as logger } from '@kengoldfarb/log'
 import { RouterOptions } from 'express'
+import { IGunChainReference } from 'gun/types/chain'
 import defaultConfig from '../config/default'
 import Configuration from '../core/Configuration'
 import Orm from '../core/Orm'
@@ -18,12 +19,14 @@ declare const sockets: Sockets | undefined
 declare const config: typeof defaultConfig
 declare const log: typeof logger
 declare const orm: Orm
+
 declare global {
 	const configuration: Configuration
 	const sockets: Sockets | undefined
 	const config: typeof defaultConfig
 	const log: typeof logger
 	const orm: Orm
+	const gun: IGunChainReference
 
 	namespace NodeJS {
 		interface Global {
