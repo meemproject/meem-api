@@ -272,7 +272,12 @@ export default class TwitterService {
 
 					await this.mintTweet({
 						tweetData: originalTweet.data,
-						twitterUser: originalTweetUser
+						twitterUser: originalTweetUser,
+						remix: {
+							meemId: tweetUserMeemId,
+							tweetData,
+							twitterUser: tweetUser
+						}
 					})
 				} else {
 					const originalTweeterMeemId = await services.meemId.getMeemId({
@@ -286,11 +291,15 @@ export default class TwitterService {
 						return
 					}
 
-					log.debug('TODO: Mint child/remix/copy MEEM?')
 					await this.mintTweet({
 						meemId: originalTweeterMeemId,
 						tweetData: originalTweet.data,
-						twitterUser: originalTweetUser
+						twitterUser: originalTweetUser,
+						remix: {
+							meemId: tweetUserMeemId,
+							tweetData,
+							twitterUser: tweetUser
+						}
 					})
 				}
 
@@ -323,24 +332,11 @@ export default class TwitterService {
 		// log.debug(tweet)
 	}
 
-	public static async mintTweet(options: {
-		meemId?: MeemAPI.IMeemId
+	public static async storeTweet(options: {
 		tweetData: TweetV2
 		twitterUser: UserV2
-	}): Promise<ethers.ContractReceipt> {
-		const { meemId, tweetData, twitterUser } = options
-		const wallet = meemId?.defaultWallet || config.MEEM_PROXY_ADDRESS
-
-		const existingTweet = await orm.models.Tweet.findOne({
-			where: {
-				tweetId: tweetData.id
-			}
-		})
-
-		if (existingTweet) {
-			throw new Error('TOKEN_ALREADY_EXISTS')
-		}
-
+	}): Promise<Tweet> {
+		const { tweetData, twitterUser } = options
 		const tweet = await orm.models.Tweet.create({
 			tweetId: tweetData.id,
 			text: tweetData.text,
@@ -372,9 +368,37 @@ export default class TwitterService {
 			})
 		)
 
+		return tweet
+	}
+
+	public static async mintTweet(options: {
+		meemId?: MeemAPI.IMeemId
+		tweetData: TweetV2
+		twitterUser: UserV2
+		remix?: {
+			meemId: MeemAPI.IMeemId
+			tweetData: TweetV2
+			twitterUser: UserV2
+		}
+	}): Promise<ethers.ContractReceipt> {
+		const { meemId, tweetData, twitterUser, remix } = options
+		const toAddress = meemId?.defaultWallet || config.MEEM_PROXY_ADDRESS
+		const isRemixVerified = !!meemId?.defaultWallet
+
+		const existingTweet = await orm.models.Tweet.findOne({
+			where: {
+				tweetId: tweetData.id
+			}
+		})
+
+		if (existingTweet) {
+			throw new Error('TOKEN_ALREADY_EXISTS')
+		}
+
+		const tweet = await this.storeTweet({ tweetData, twitterUser })
+
 		// Mint tweet MEEM
 
-		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 		const tweetClient = new TwitterApi({
 			appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
 			appSecret: config.TWITTER_MEEM_ACCOUNT_CONSUMER_SECRET,
@@ -387,14 +411,11 @@ export default class TwitterService {
 			const meemContract = services.meem.getMeemContract({
 				walletPrivateKey: config.TWITTER_WALLET_PRIVATE_KEY
 			})
-			const accountAddress = wallet
 
 			const tweetImage = await this.screenshotTweet(tweet)
 
 			const meemMetadata = await services.meem.saveMeemMetadataasync(
 				{
-					tokenAddress: config.MEEM_PROXY_ADDRESS,
-					tokenId: config.TWITTER_PROJECT_TOKEN_ID,
 					name: `@${tweet.username} ${moment(
 						tweetData.created_at || tweet.createdAt
 					).format('MM-DD-YYYY HH:mm:ss')}`,
@@ -455,36 +476,125 @@ export default class TwitterService {
 				]
 			})
 
-			const mintParams: Parameters<Meem['mint']> = [
-				{
-					to: accountAddress,
-					mTokenURI: meemMetadata.tokenURI,
-					parentChain: MeemAPI.Chain.Polygon,
-					parent: config.MEEM_PROXY_ADDRESS,
-					parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
-					meemType: MeemAPI.MeemType.Remix,
-					data: JSON.stringify({
-						tweetId: tweet.tweetId,
-						text: tweet.text,
-						username: tweet.username,
-						userId: tweet.userId
-					}),
-					isVerified: true,
-					mintedBy: accountAddress
-				},
-				properties,
-				properties,
-				{
-					gasLimit: config.MINT_GAS_LIMIT,
-					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
-				}
-			]
+			let mintTx: ethers.ContractTransaction
 
-			log.debug('Minting Tweet MEEM w/ params', { mintParams })
+			if (remix) {
+				const remixMeemId = uuidv4()
+				const remixTweet = await this.storeTweet({
+					tweetData: remix.tweetData,
+					twitterUser: remix.twitterUser
+				})
+				const remixTweetImage = await this.screenshotTweet(remixTweet)
+				const remixerAccountAddress = remix.meemId?.defaultWallet
+				const remixMetadata = await services.meem.saveMeemMetadataasync(
+					{
+						name: `@${remixTweet.username} ${moment(
+							remix.tweetData.created_at || remixTweet.createdAt
+						).format('MM-DD-YYYY HH:mm:ss')}`,
+						description: remixTweet.text,
+						imageBase64: remixTweetImage || '',
+						meemId: remixMeemId,
+						extensionProperties: {
+							meem_tweets_extension: {
+								tweet: {
+									tweetId: remixTweet.tweetId,
+									text: remixTweet.text,
+									userId: remixTweet.userId,
+									username: remixTweet.username,
+									userProfileImageUrl: remixTweet.userProfileImageUrl,
+									updatedAt: remixTweet.updatedAt,
+									createdAt: remixTweet.createdAt,
+									...(remix.tweetData.entities && {
+										entities: remix.tweetData.entities
+									})
+								}
+							}
+						}
+					},
+					MeemAPI.MeemMetadataStorageProvider.Ipfs
+				)
+				const mintParams: Parameters<Meem['mintAndRemix']> = [
+					{
+						to: toAddress,
+						mTokenURI: meemMetadata.tokenURI,
+						parentChain: MeemAPI.Chain.Polygon,
+						parent: config.MEEM_PROXY_ADDRESS,
+						parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
+						meemType: MeemAPI.MeemType.Remix,
+						data: JSON.stringify({
+							tweetId: tweet.tweetId,
+							text: tweet.text,
+							username: tweet.username,
+							userId: tweet.userId
+						}),
+						// TODO: Is original always verified even if owner is not meember?
+						isVerified: true,
+						// TODO: Is mintedBy the remixer here?
+						mintedBy: remixerAccountAddress
+					},
+					properties,
+					properties,
+					{
+						to: remix.meemId?.defaultWallet,
+						mTokenURI: remixMetadata.tokenURI,
+						parentChain: MeemAPI.Chain.Polygon,
+						parent: config.MEEM_PROXY_ADDRESS,
+						parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
+						meemType: MeemAPI.MeemType.Remix,
+						data: JSON.stringify({
+							tweetId: remixTweet.tweetId,
+							text: remixTweet.text,
+							username: remixTweet.username,
+							userId: remixTweet.userId
+						}),
+						isVerified: isRemixVerified,
+						mintedBy: remix.meemId?.defaultWallet
+					},
+					properties,
+					properties,
+					{
+						gasLimit: config.MINT_GAS_LIMIT,
+						gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+					}
+				]
 
-			const mintTx = await meemContract.mint(...mintParams)
+				log.debug('Minting Tweet MEEM and Remix w/ params', { mintParams })
 
-			log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
+				mintTx = await meemContract.mintAndRemix(...mintParams)
+
+				log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
+			} else {
+				const mintParams: Parameters<Meem['mint']> = [
+					{
+						to: accountAddress,
+						mTokenURI: meemMetadata.tokenURI,
+						parentChain: MeemAPI.Chain.Polygon,
+						parent: config.MEEM_PROXY_ADDRESS,
+						parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
+						meemType: MeemAPI.MeemType.Remix,
+						data: JSON.stringify({
+							tweetId: tweet.tweetId,
+							text: tweet.text,
+							username: tweet.username,
+							userId: tweet.userId
+						}),
+						isVerified: true,
+						mintedBy: accountAddress
+					},
+					properties,
+					properties,
+					{
+						gasLimit: config.MINT_GAS_LIMIT,
+						gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+					}
+				]
+
+				log.debug('Minting Tweet MEEM w/ params', { mintParams })
+
+				mintTx = await meemContract.mint(...mintParams)
+
+				log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
+			}
 
 			const receipt = await mintTx.wait()
 
@@ -524,7 +634,7 @@ export default class TwitterService {
 					`Oops there was an error minting your tweet! Try deleting it and retrying.`,
 					{
 						reply: {
-							in_reply_to_tweet_id: tweetData.id
+							in_reply_to_tweet_id: remix?.tweetData.id || tweetData.id
 						}
 					}
 				)
@@ -541,21 +651,6 @@ export default class TwitterService {
 					errStr = errorcodeToErrorString(errInfo.name)
 				} catch (parseError) {
 					// Unable to parse
-					throw new Error('SERVER_ERROR')
-				}
-				throw new Error(errStr)
-			}
-			if (err.message) {
-				let errStr = 'UNKNOWN_CONTRACT_ERROR'
-				try {
-					const body = JSON.parse(err.message)
-					log.warn(body)
-					const inter = services.meem.meemInterface()
-					const errInfo = inter.parseError(body.data)
-					errStr = errorcodeToErrorString(errInfo.name)
-				} catch (parseError) {
-					// Unable to parse
-					log.warn(parseError)
 					throw new Error('SERVER_ERROR')
 				}
 				throw new Error(errStr)

@@ -296,16 +296,8 @@ export default class MeemService {
 			name?: string
 			description: string
 			imageBase64: string
-			tokenAddress?: string
-			tokenId?: ethers.BigNumberish
 			collectionName?: string
-			parentMetadata?: MeemAPI.IERC721Metadata
-			tokenURI?: string
 			meemId?: string
-			rootTokenURI?: string
-			rootTokenAddress?: string
-			rootTokenId?: ethers.BigNumberish
-			rootTokenMetadata?: MeemAPI.IERC721Metadata
 			extensionProperties?: MeemAPI.IMeemMetadata['extension_properties']
 		},
 		storageProvider?: MeemMetadataStorageProvider
@@ -314,91 +306,23 @@ export default class MeemService {
 			name,
 			description,
 			imageBase64,
-			tokenAddress,
-			tokenId,
 			collectionName,
-			parentMetadata,
-			tokenURI,
 			meemId,
-			rootTokenURI,
-			rootTokenAddress,
-			rootTokenId,
-			rootTokenMetadata,
 			extensionProperties
 		} = options
 
-		const meemContract = services.meem.getMeemContract()
 		const id = meemId || uuidv4()
-
-		let isOriginal = true
-		let generation = 0
-
-		if (tokenAddress && tokenId && meemContract.address === tokenAddress) {
-			isOriginal = false
-			try {
-				const parentMeem = await meemContract.getMeem(tokenId)
-
-				generation = parentMeem.generation.toNumber() + 1
-			} catch (e) {
-				throw new Error('PARENT_MEEM_NOT_FOUND')
-			}
-		}
 
 		const meemDomain =
 			config.NETWORK === MeemAPI.NetworkName.Rinkeby
 				? `https://dev.meem.wtf`
 				: `https://meem.wtf`
 
-		let metadataDescription = isOriginal
-			? description
-			: `Meem Content Description\n\n${description}`
-
-		if (!isOriginal) {
-			const etherscanUrl = `https://etherscan.io/token/${tokenAddress}?a=${tokenId}`
-
-			metadataDescription += '\n\nMeem Content Details'
-
-			metadataDescription += `\n\nContract Address: ${tokenAddress}`
-
-			if (tokenId) {
-				metadataDescription += `\n\nToken ID: ${tokenId}`
-			}
-
-			metadataDescription += `\n\nView on Etherscan: ${etherscanUrl}`
-		}
-
-		let rootTokenIdString = ''
-
-		if (rootTokenId) {
-			rootTokenIdString = services.web3.toBigNumber(rootTokenId).toHexString()
-		} else if (tokenId) {
-			rootTokenIdString = services.web3.toBigNumber(tokenId).toHexString()
-		}
-
 		const metadata: MeemAPI.ICreateMeemMetadata = {
-			name: collectionName
-				? `${collectionName} – ${name || tokenId}`
-				: `${name || tokenId}`,
-			description: metadataDescription,
+			name: collectionName ? `${collectionName} – ${name}` : `${name}`,
+			description,
 			external_url: `${meemDomain}/meems/${id}`,
 			meem_id: meemId,
-			meem_properties: {
-				root_token_uri: isOriginal ? null : rootTokenURI || tokenURI,
-				root_token_address: isOriginal
-					? null
-					: rootTokenAddress || tokenAddress,
-				root_token_id: isOriginal ? null : rootTokenIdString,
-				root_token_metadata: isOriginal
-					? null
-					: rootTokenMetadata || parentMetadata,
-				parent_token_uri: isOriginal ? null : tokenURI,
-				parent_token_id: tokenId
-					? services.web3.toBigNumber(tokenId).toHexString()
-					: null,
-				parent_token_address: isOriginal ? null : tokenAddress,
-				parent_token_metadata: isOriginal ? null : parentMetadata
-			},
-			generation,
 			...(extensionProperties && {
 				extension_properties: extensionProperties
 			})
