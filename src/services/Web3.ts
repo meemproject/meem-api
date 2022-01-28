@@ -280,7 +280,6 @@ export default class Web3 {
 	}
 
 	public static async saveMeemMetadata(data: {
-		meemId?: string
 		imageBase64?: string
 		image?: Buffer
 		metadata: MeemAPI.IMeemMetadata | MeemAPI.ICreateMeemMetadata
@@ -295,12 +294,21 @@ export default class Web3 {
 			throw new Error('INVALID_IMAGE_TYPE')
 		}
 
+		const meemMetadata = data.metadata as MeemAPI.IMeemMetadata
+
+		const meemId = data.metadata.meem_id ?? uuidv4()
+		const isValid = validateUUID(meemId)
+
+		if (!isValid) {
+			throw new Error('INVALID_METADATA')
+		}
+
 		const imageResponse = await request
 			.post('https://deep-index.moralis.io/api/v2/ipfs/uploadFolder')
 			.set('X-API-KEY', config.MORALIS_API_KEY)
 			.send([
 				{
-					path: `${data.meemId}/image.png`,
+					path: `${meemId}/image.png`,
 					content: imgData
 				}
 			])
@@ -309,15 +317,6 @@ export default class Web3 {
 			_.isArray(imageResponse.body) && imageResponse.body.length > 0
 				? this.moralisPathToIPFSPath(imageResponse.body[0].path)
 				: ''
-
-		const meemMetadata = data.metadata as MeemAPI.IMeemMetadata
-
-		const meemId = data.meemId ?? uuidv4()
-		const isValid = validateUUID(meemId)
-
-		if (!isValid) {
-			throw new Error('INVALID_METADATA')
-		}
 
 		const meemDomain =
 			config.NETWORK === MeemAPI.NetworkName.Rinkeby
@@ -346,7 +345,7 @@ export default class Web3 {
 			.set('X-API-KEY', config.MORALIS_API_KEY)
 			.send([
 				{
-					path: `${data.meemId}/metadata.json`,
+					path: `${meemId}/metadata.json`,
 					content: jsonBase64
 				}
 			])

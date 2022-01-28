@@ -223,16 +223,18 @@ export default class ContractEvent {
 
 		const block = await evt.getBlock()
 
-		gun.get('meems').get(tokenId).get('transfers').get(block.timestamp).put({
-			event: evt.event,
-			from: evt.args.from,
-			to: evt.args.to,
-			tokenId: evt.args.tokenId,
-			blockHash: evt.blockHash,
-			blockNumber: evt.blockNumber,
-			data: evt.data,
-			transactionHash: evt.transactionHash
-		})
+		if (config.ENABLE_GUNDB) {
+			gun.get('meems').get(tokenId).get('transfers').get(block.timestamp).put({
+				event: evt.event,
+				from: evt.args.from,
+				to: evt.args.to,
+				tokenId: evt.args.tokenId,
+				blockHash: evt.blockHash,
+				blockNumber: evt.blockNumber,
+				data: evt.data,
+				transactionHash: evt.transactionHash
+			})
+		}
 	}
 
 	public static async meemHandlePermissionsSet(evt: PermissionsSetEvent) {
@@ -333,73 +335,33 @@ export default class ContractEvent {
 
 		await meem.save()
 
-		const d = {
-			...data,
-			properties: properties.get({ plain: true }),
-			childProperties: childProperties.get({ plain: true }),
-			mintedAt: meemData.mintedAt.toNumber(),
-			metadata
-		}
+		if (config.ENABLE_GUNDB) {
+			const d = {
+				...data,
+				properties: properties.get({ plain: true }),
+				childProperties: childProperties.get({ plain: true }),
+				mintedAt: meemData.mintedAt.toNumber(),
+				metadata
+			}
 
-		const token = this.saveToGun({ path: `meems/${tokenId}`, data: d })
+			const token = this.saveToGun({ path: `meems/${tokenId}`, data: d })
 
-		// const token = gun
-		// 	// .user()
-		// 	.get('meems')
-		// 	.get(tokenId)
-		// 	.put(d, ack => {
-		// 		if (ack.ok) {
-		// 			log.debug(`Put data to gun for ${tokenId}`)
-		// 		}
-		// 		if (ack.err) {
-		// 			log.warn(ack.err)
-		// 		}
-		// 	})
+			let parent: IGunChainReference<any, string | number | symbol, false>
+			let root: IGunChainReference<any, string | number | symbol, false>
 
-		// token
-		// 	.get('properties')
-		// 	.put(this.toPureObject(properties.get({ plain: true })), ack => {
-		// 		if (ack.ok) {
-		// 			log.debug(`Put properties to gun for ${tokenId}`)
-		// 		}
-		// 		if (ack.err) {
-		// 			log.warn(ack.err)
-		// 		}
-		// 	})
-		// token
-		// 	.get('childProperties')
-		// 	.put(this.toPureObject(childProperties.get({ plain: true })), ack => {
-		// 		if (ack.ok) {
-		// 			log.debug(`Put childProperties to gun for ${tokenId}`)
-		// 		}
-		// 		if (ack.err) {
-		// 			log.warn(ack.err)
-		// 		}
-		// 	})
-		// token.get('metadata').put(this.toPureObject(metadata), ack => {
-		// 	if (ack.ok) {
-		// 		log.debug(`Put metadata to gun for ${tokenId}`)
-		// 	}
-		// 	if (ack.err) {
-		// 		log.warn(ack.err)
-		// 	}
-		// })
+			if (meemData.parent === config.MEEM_PROXY_ADDRESS) {
+				// Parent is a meem
+				parent = gun.get('meems').get(meemData.parentTokenId.toHexString())
+				token.get('parentMeem').put(parent)
+				parent.get('childMeems').put(token)
+			}
 
-		let parent: IGunChainReference<any, string | number | symbol, false>
-		let root: IGunChainReference<any, string | number | symbol, false>
-
-		if (meemData.parent === config.MEEM_PROXY_ADDRESS) {
-			// Parent is a meem
-			parent = gun.get('meems').get(meemData.parentTokenId.toHexString())
-			token.get('parentMeem').put(parent)
-			parent.get('childMeems').put(token)
-		}
-
-		if (meemData.root === config.MEEM_PROXY_ADDRESS) {
-			// Parent is a meem
-			root = gun.get('meems').get(meemData.parentTokenId.toHexString())
-			token.get('rootMeem').put(root)
-			root.get('descendantMeems').put(token)
+			if (meemData.root === config.MEEM_PROXY_ADDRESS) {
+				// Parent is a meem
+				root = gun.get('meems').get(meemData.parentTokenId.toHexString())
+				token.get('rootMeem').put(root)
+				root.get('descendantMeems').put(token)
+			}
 		}
 	}
 
@@ -416,13 +378,6 @@ export default class ContractEvent {
 		log.debug(`Saving path w/ length ${path.length} | ${path}`)
 
 		const dataObject = this.toPureObject(data)
-		// item.put(dataObject, ack => {
-		// 	if (ack.ok) {
-		// 		log.debug(`!! Sync to gun complete: ${path}`)
-		// 	} else if (ack.err) {
-		// 		log.crit(ack.err)
-		// 	}
-		// })
 
 		Object.keys(dataObject).forEach(key => {
 			const val = dataObject[key]
@@ -448,7 +403,6 @@ export default class ContractEvent {
 		})
 
 		return item
-		// })
 	}
 
 	private static async updateMeem(options: { meem: Meem }) {
