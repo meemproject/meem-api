@@ -311,6 +311,7 @@ export default class ContractEvent {
 			id: uuidv4(),
 			meemId: metadata.meem_id ?? null,
 			tokenId,
+			tokenURI,
 			owner: meemData.owner,
 			parentChain: meemData.parentChain,
 			parent: meemData.parent,

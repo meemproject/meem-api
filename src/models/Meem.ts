@@ -30,6 +30,10 @@ export default class Meem extends BaseModel<Meem> {
 				)
 			}
 		},
+		tokenURI: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
 		owner: {
 			type: DataTypes.STRING,
 			allowNull: false
@@ -102,6 +106,8 @@ export default class Meem extends BaseModel<Meem> {
 	public meemId!: string
 
 	public tokenId!: string
+
+	public tokenURI!: string
 
 	public owner!: string
 

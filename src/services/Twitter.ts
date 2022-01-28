@@ -247,7 +247,7 @@ export default class TwitterService {
 				log.error('The referenced tweet is not an original tweet')
 			} else if (originalTweet) {
 				// TODO: Mint original tweet if it does not exist
-				//	- Mint on behalf of meember if exists or zero address if not?
+				//	- Mint on behalf of meember if exists or contract address if not?
 				const originalTweetUser = originalTweet.includes?.users?.find(
 					u => u.id === originalTweet.data.author_id
 				)
@@ -269,32 +269,40 @@ export default class TwitterService {
 					log.error(
 						`No meemId found for original tweet twitter ID: ${originalTweetUser.id}`
 					)
-					return
+
+					await this.mintTweet({
+						tweetData: originalTweet.data,
+						twitterUser: originalTweetUser
+					})
+				} else {
+					const originalTweeterMeemId = await services.meemId.getMeemId({
+						meemIdentificationId: originalTweeterTwitter.MeemIdentificationId
+					})
+
+					if (originalTweeterMeemId.wallets.length === 0) {
+						log.error(
+							`No wallet found for original tweeter meemId: ${originalTweeterTwitter.MeemIdentificationId}`
+						)
+						return
+					}
+
+					log.debug('TODO: Mint child/remix/copy MEEM?')
+					await this.mintTweet({
+						meemId: originalTweeterMeemId,
+						tweetData: originalTweet.data,
+						twitterUser: originalTweetUser
+					})
 				}
-
-				const originalTweeterMeemId = await services.meemId.getMeemId({
-					meemIdentificationId: originalTweeterTwitter.MeemIdentificationId
-				})
-
-				if (originalTweeterMeemId.wallets.length === 0) {
-					log.error(
-						`No wallet found for original tweeter meemId: ${originalTweeterTwitter.MeemIdentificationId}`
-					)
-					return
-				}
-
-				log.debug('TODO: Mint original tweet and child MEEM')
-				await this.mintTweet(
-					originalTweeterMeemId,
-					originalTweet.data,
-					originalTweetUser
-				)
 
 				// TODO: Mint child MEEM on behalf of the user who retweeted/replied?
 			}
 		} else {
 			// Mint tweet on behalf of user
-			await this.mintTweet(tweetUserMeemId, tweetData, tweetUser)
+			await this.mintTweet({
+				meemId: tweetUserMeemId,
+				tweetData,
+				twitterUser: tweetUser
+			})
 		}
 
 		// Minting a tweet counts as being onboarded
@@ -315,18 +323,30 @@ export default class TwitterService {
 		// log.debug(tweet)
 	}
 
-	public static async mintTweet(
-		meemId: MeemAPI.IMeemId,
-		tweetData: TweetV2,
-		user: UserV2
-	): Promise<ethers.ContractReceipt> {
-		const wallet = meemId.defaultWallet
+	public static async mintTweet(options: {
+		meemId?: MeemAPI.IMeemId
+		tweetData: TweetV2
+		twitterUser: UserV2
+	}): Promise<ethers.ContractReceipt> {
+		const { meemId, tweetData, twitterUser } = options
+		const wallet = meemId?.defaultWallet || config.MEEM_PROXY_ADDRESS
+
+		const existingTweet = await orm.models.Tweet.findOne({
+			where: {
+				tweetId: tweetData.id
+			}
+		})
+
+		if (existingTweet) {
+			throw new Error('TOKEN_ALREADY_EXISTS')
+		}
+
 		const tweet = await orm.models.Tweet.create({
 			tweetId: tweetData.id,
 			text: tweetData.text,
-			userId: user?.id,
-			username: user?.username || '',
-			userProfileImageUrl: user?.profile_image_url || ''
+			userId: twitterUser?.id,
+			username: twitterUser?.username || '',
+			userProfileImageUrl: twitterUser?.profile_image_url || ''
 		})
 
 		const hashtags = tweetData.entities?.hashtags || []
