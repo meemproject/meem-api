@@ -17,6 +17,9 @@ export default class Meem extends BaseModel<Meem> {
 			defaultValue: DataTypes.UUIDV4,
 			primaryKey: true
 		},
+		meemId: {
+			type: DataTypes.UUID
+		},
 		tokenId: {
 			type: DataTypes.STRING,
 			allowNull: false,
@@ -39,6 +42,11 @@ export default class Meem extends BaseModel<Meem> {
 			type: DataTypes.INTEGER,
 			allowNull: false
 		},
+		parent: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaulValue: ''
+		},
 		parentTokenId: {
 			type: DataTypes.STRING,
 			allowNull: false,
@@ -52,6 +60,11 @@ export default class Meem extends BaseModel<Meem> {
 		rootChain: {
 			type: DataTypes.INTEGER,
 			allowNull: false
+		},
+		root: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaulValue: ''
 		},
 		rootTokenId: {
 			type: DataTypes.STRING,
@@ -90,15 +103,21 @@ export default class Meem extends BaseModel<Meem> {
 
 	public id!: string
 
+	public meemId!: string
+
 	public tokenId!: string
 
 	public tokenURI!: string
 
 	public owner!: string
 
+	public parent!: string
+
 	public parentChain!: MeemAPI.Chain
 
 	public parentTokenId!: string
+
+	public root!: string
 
 	public rootChain!: MeemAPI.Chain
 

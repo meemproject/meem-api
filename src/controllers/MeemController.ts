@@ -512,7 +512,6 @@ export default class MeemController {
 		const buff = await img.toBuffer()
 
 		const { tokenURI, metadata } = await services.web3.saveMeemMetadata({
-			meemId: req.meemId.id,
 			image: buff,
 			metadata: createMetadata
 		})
