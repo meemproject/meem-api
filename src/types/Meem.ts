@@ -257,6 +257,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     "verifyToken(uint256)": FunctionFragment;
     "mint((address,string,uint8,address,uint256,uint8,string,bool,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address))": FunctionFragment;
     "mintAndCopy((address,string,uint8,address,uint256,uint8,string,bool,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),address)": FunctionFragment;
+    "mintAndRemix((address,string,uint8,address,uint256,uint8,string,bool,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),(address,string,uint8,address,uint256,uint8,string,bool,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address))": FunctionFragment;
     "addPermission(uint256,uint8,uint8,(uint8,address[],uint256,address))": FunctionFragment;
     "lockChildrenPerWallet(uint256,uint8)": FunctionFragment;
     "lockPermissions(uint256,uint8,uint8)": FunctionFragment;
@@ -416,6 +417,17 @@ export interface MeemInterface extends ethers.utils.Interface {
       MeemPropertiesStruct,
       MeemPropertiesStruct,
       string
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "mintAndRemix",
+    values: [
+      MeemMintParametersStruct,
+      MeemPropertiesStruct,
+      MeemPropertiesStruct,
+      MeemMintParametersStruct,
+      MeemPropertiesStruct,
+      MeemPropertiesStruct
     ]
   ): string;
   encodeFunctionData(
@@ -657,6 +669,10 @@ export interface MeemInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "mintAndCopy",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "mintAndRemix",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1093,16 +1109,26 @@ export interface Meem extends BaseContract {
 
     mint(
       params: MeemMintParametersStruct,
-      mProperties: MeemPropertiesStruct,
-      mChildProperties: MeemPropertiesStruct,
+      properties: MeemPropertiesStruct,
+      childProperties: MeemPropertiesStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     mintAndCopy(
       params: MeemMintParametersStruct,
-      mProperties: MeemPropertiesStruct,
-      mChildProperties: MeemPropertiesStruct,
+      properties: MeemPropertiesStruct,
+      childProperties: MeemPropertiesStruct,
       toCopyAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    mintAndRemix(
+      params: MeemMintParametersStruct,
+      properties: MeemPropertiesStruct,
+      childProperties: MeemPropertiesStruct,
+      remixParams: MeemMintParametersStruct,
+      remixProperties: MeemPropertiesStruct,
+      remixChildProperties: MeemPropertiesStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1448,16 +1474,26 @@ export interface Meem extends BaseContract {
 
   mint(
     params: MeemMintParametersStruct,
-    mProperties: MeemPropertiesStruct,
-    mChildProperties: MeemPropertiesStruct,
+    properties: MeemPropertiesStruct,
+    childProperties: MeemPropertiesStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   mintAndCopy(
     params: MeemMintParametersStruct,
-    mProperties: MeemPropertiesStruct,
-    mChildProperties: MeemPropertiesStruct,
+    properties: MeemPropertiesStruct,
+    childProperties: MeemPropertiesStruct,
     toCopyAddress: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  mintAndRemix(
+    params: MeemMintParametersStruct,
+    properties: MeemPropertiesStruct,
+    childProperties: MeemPropertiesStruct,
+    remixParams: MeemMintParametersStruct,
+    remixProperties: MeemPropertiesStruct,
+    remixChildProperties: MeemPropertiesStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1788,16 +1824,26 @@ export interface Meem extends BaseContract {
 
     mint(
       params: MeemMintParametersStruct,
-      mProperties: MeemPropertiesStruct,
-      mChildProperties: MeemPropertiesStruct,
+      properties: MeemPropertiesStruct,
+      childProperties: MeemPropertiesStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
     mintAndCopy(
       params: MeemMintParametersStruct,
-      mProperties: MeemPropertiesStruct,
-      mChildProperties: MeemPropertiesStruct,
+      properties: MeemPropertiesStruct,
+      childProperties: MeemPropertiesStruct,
       toCopyAddress: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    mintAndRemix(
+      params: MeemMintParametersStruct,
+      properties: MeemPropertiesStruct,
+      childProperties: MeemPropertiesStruct,
+      remixParams: MeemMintParametersStruct,
+      remixProperties: MeemPropertiesStruct,
+      remixChildProperties: MeemPropertiesStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -2279,16 +2325,26 @@ export interface Meem extends BaseContract {
 
     mint(
       params: MeemMintParametersStruct,
-      mProperties: MeemPropertiesStruct,
-      mChildProperties: MeemPropertiesStruct,
+      properties: MeemPropertiesStruct,
+      childProperties: MeemPropertiesStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     mintAndCopy(
       params: MeemMintParametersStruct,
-      mProperties: MeemPropertiesStruct,
-      mChildProperties: MeemPropertiesStruct,
+      properties: MeemPropertiesStruct,
+      childProperties: MeemPropertiesStruct,
       toCopyAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    mintAndRemix(
+      params: MeemMintParametersStruct,
+      properties: MeemPropertiesStruct,
+      childProperties: MeemPropertiesStruct,
+      remixParams: MeemMintParametersStruct,
+      remixProperties: MeemPropertiesStruct,
+      remixChildProperties: MeemPropertiesStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2643,16 +2699,26 @@ export interface Meem extends BaseContract {
 
     mint(
       params: MeemMintParametersStruct,
-      mProperties: MeemPropertiesStruct,
-      mChildProperties: MeemPropertiesStruct,
+      properties: MeemPropertiesStruct,
+      childProperties: MeemPropertiesStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     mintAndCopy(
       params: MeemMintParametersStruct,
-      mProperties: MeemPropertiesStruct,
-      mChildProperties: MeemPropertiesStruct,
+      properties: MeemPropertiesStruct,
+      childProperties: MeemPropertiesStruct,
       toCopyAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    mintAndRemix(
+      params: MeemMintParametersStruct,
+      properties: MeemPropertiesStruct,
+      childProperties: MeemPropertiesStruct,
+      remixParams: MeemMintParametersStruct,
+      remixProperties: MeemPropertiesStruct,
+      remixChildProperties: MeemPropertiesStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
