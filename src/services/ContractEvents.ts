@@ -365,7 +365,7 @@ export default class ContractEvent {
 		}
 	}
 
-	private static saveToGun(options: {
+	public static saveToGun(options: {
 		path: string
 		from?: IGunChainReference<any, string, false>
 		data: any

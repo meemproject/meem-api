@@ -196,11 +196,11 @@ export default async function start() {
 			localStorage: false
 		})
 
-		gun.user().create(config.GUNDB_USER, config.GUNDB_PASSWORD, data => {
+		gun.user().create(config.GUNDB_USER, config.GUNDB_PASSWORD, _data => {
 			log.debug('GunDB user created')
 			// console.log(data)
 		})
-		gun.user().auth(config.GUNDB_USER, config.GUNDB_PASSWORD, data => {
+		gun.user().auth(config.GUNDB_USER, config.GUNDB_PASSWORD, _data => {
 			log.debug('GunDB user authenticated')
 			// console.log(data)
 		})

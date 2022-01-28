@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ethers } from 'ethers'
 import { Request, Response } from 'express'
@@ -27,6 +28,10 @@ export default class ConfigController {
 				}
 			]
 		})
+
+		if (!meem) {
+			return res.json({})
+		}
 
 		const meemData = {
 			...meem.get({ plain: true })

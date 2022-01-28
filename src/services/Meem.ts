@@ -410,8 +410,7 @@ export default class MeemService {
 			case MeemMetadataStorageProvider.Ipfs:
 				return services.web3.saveMeemMetadata({
 					imageBase64,
-					metadata,
-					meemId: id
+					metadata
 				})
 			default:
 				return services.git.saveMeemMetadata({
