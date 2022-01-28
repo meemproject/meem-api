@@ -518,14 +518,19 @@ export default class TwitterService {
 		} catch (e) {
 			const err = e as any
 			log.warn(err)
-			await client.v2.tweet(
-				`Oops there was an error minting your tweet! Try deleting it and retrying.`,
-				{
-					reply: {
-						in_reply_to_tweet_id: tweetData.id
+			try {
+				log.debug('Sending error tweet')
+				await tweetClient.v2.tweet(
+					`Oops there was an error minting your tweet! Try deleting it and retrying.`,
+					{
+						reply: {
+							in_reply_to_tweet_id: tweetData.id
+						}
 					}
-				}
-			)
+				)
+			} catch (tweetErr) {
+				log.warn(tweetErr)
+			}
 			if (err.error?.error?.body) {
 				let errStr = 'UNKNOWN_CONTRACT_ERROR'
 				try {
@@ -536,6 +541,21 @@ export default class TwitterService {
 					errStr = errorcodeToErrorString(errInfo.name)
 				} catch (parseError) {
 					// Unable to parse
+					throw new Error('SERVER_ERROR')
+				}
+				throw new Error(errStr)
+			}
+			if (err.message) {
+				let errStr = 'UNKNOWN_CONTRACT_ERROR'
+				try {
+					const body = JSON.parse(err.message)
+					log.warn(body)
+					const inter = services.meem.meemInterface()
+					const errInfo = inter.parseError(body.data)
+					errStr = errorcodeToErrorString(errInfo.name)
+				} catch (parseError) {
+					// Unable to parse
+					log.warn(parseError)
 					throw new Error('SERVER_ERROR')
 				}
 				throw new Error(errStr)
