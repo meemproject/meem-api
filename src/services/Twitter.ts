@@ -566,7 +566,7 @@ export default class TwitterService {
 			} else {
 				const mintParams: Parameters<Meem['mint']> = [
 					{
-						to: accountAddress,
+						to: toAddress,
 						mTokenURI: meemMetadata.tokenURI,
 						parentChain: MeemAPI.Chain.Polygon,
 						parent: config.MEEM_PROXY_ADDRESS,
@@ -579,7 +579,7 @@ export default class TwitterService {
 							userId: tweet.userId
 						}),
 						isVerified: true,
-						mintedBy: accountAddress
+						mintedBy: toAddress
 					},
 					properties,
 					properties,
@@ -600,10 +600,11 @@ export default class TwitterService {
 
 			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
 
+			// TODO: Figure out what mintAndRemix returns for transferEvent args
 			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
 				const tokenId = (transferEvent.args[2] as ethers.BigNumber).toNumber()
 				const returnData = {
-					toAddress: accountAddress,
+					toAddress,
 					tokenURI: meemMetadata.tokenURI,
 					tokenId,
 					transactionHash: receipt.transactionHash
