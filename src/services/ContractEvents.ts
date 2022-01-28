@@ -332,27 +332,57 @@ export default class ContractEvent {
 
 		await meem.save()
 
-		const d = this.toPureObject({
+		const d = {
 			...data,
-			mintedAt: meemData.mintedAt.toNumber()
-		})
+			properties: properties.get({ plain: true }),
+			childProperties: childProperties.get({ plain: true }),
+			mintedAt: meemData.mintedAt.toNumber(),
+			metadata
+		}
 
-		const token = gun
-			.user()
-			.get('meems')
-			.get(tokenId)
-			.put(d, ack => {
-				if (ack.ok) {
-					log.debug(`Put data to gun for ${tokenId}`)
-				}
-				if (ack.err) {
-					log.warn(ack.err)
-				}
-			})
+		const token = this.saveToGun({ path: `meems/${tokenId}`, data: d })
 
-		token.get('properties').put(properties.get({ plain: true }))
-		token.get('childProperties').put(childProperties.get({ plain: true }))
-		token.get('metadata').put(metadata)
+		// const token = gun
+		// 	// .user()
+		// 	.get('meems')
+		// 	.get(tokenId)
+		// 	.put(d, ack => {
+		// 		if (ack.ok) {
+		// 			log.debug(`Put data to gun for ${tokenId}`)
+		// 		}
+		// 		if (ack.err) {
+		// 			log.warn(ack.err)
+		// 		}
+		// 	})
+
+		// token
+		// 	.get('properties')
+		// 	.put(this.toPureObject(properties.get({ plain: true })), ack => {
+		// 		if (ack.ok) {
+		// 			log.debug(`Put properties to gun for ${tokenId}`)
+		// 		}
+		// 		if (ack.err) {
+		// 			log.warn(ack.err)
+		// 		}
+		// 	})
+		// token
+		// 	.get('childProperties')
+		// 	.put(this.toPureObject(childProperties.get({ plain: true })), ack => {
+		// 		if (ack.ok) {
+		// 			log.debug(`Put childProperties to gun for ${tokenId}`)
+		// 		}
+		// 		if (ack.err) {
+		// 			log.warn(ack.err)
+		// 		}
+		// 	})
+		// token.get('metadata').put(this.toPureObject(metadata), ack => {
+		// 	if (ack.ok) {
+		// 		log.debug(`Put metadata to gun for ${tokenId}`)
+		// 	}
+		// 	if (ack.err) {
+		// 		log.warn(ack.err)
+		// 	}
+		// })
 
 		let parent: IGunChainReference<any, string | number | symbol, false>
 		let root: IGunChainReference<any, string | number | symbol, false>
@@ -370,6 +400,54 @@ export default class ContractEvent {
 			token.get('rootMeem').put(root)
 			root.get('descendantMeems').put(token)
 		}
+	}
+
+	private static saveToGun(options: {
+		path: string
+		from?: IGunChainReference<any, string, false>
+		data: any
+	}): IGunChainReference<any, string, false> {
+		// return new Promise((resolve, reject) => {
+		const { path, data, from } = options
+
+		const item = from ? from.get(path) : gun.get(path)
+
+		log.debug(`Saving path w/ length ${path.length} | ${path}`)
+
+		const dataObject = this.toPureObject(data)
+		// item.put(dataObject, ack => {
+		// 	if (ack.ok) {
+		// 		log.debug(`!! Sync to gun complete: ${path}`)
+		// 	} else if (ack.err) {
+		// 		log.crit(ack.err)
+		// 	}
+		// })
+
+		Object.keys(dataObject).forEach(key => {
+			const val = dataObject[key]
+			if (typeof val === 'object') {
+				this.saveToGun({ path: `${key}`, from: item, data: val })
+			} else if (Object.prototype.toString.call(val) === '[object Date]') {
+				item.get(key).put(((val as Date).getTime() / 1000) as any, ack => {
+					if (ack.ok) {
+						log.debug(`Gun sync: ${path}/${key}`)
+					} else if (ack.err) {
+						log.crit(ack.err)
+					}
+				})
+			} else {
+				item.get(key).put(val, ack => {
+					if (ack.ok) {
+						log.debug(`Gun sync: ${path}/${key}`)
+					} else if (ack.err) {
+						log.crit(ack.err)
+					}
+				})
+			}
+		})
+
+		return item
+		// })
 	}
 
 	private static async updateMeem(options: { meem: Meem }) {
@@ -435,7 +513,17 @@ export default class ContractEvent {
 		}))
 	}
 
-	public static toPureObject(d: Record<string, any>) {
+	public static toPureObject(d: any) {
+		// let data: Record<string, any> = {}
+
+		// if (Array.isArray(d)) {
+		// 	d.forEach((val, i) => {
+		// 		data[`a${i}`] = val
+		// 	})
+		// } else {
+		// 	data = { ...d }
+		// }
+
 		const data = { ...d }
 
 		Object.keys(data).forEach(key => {
