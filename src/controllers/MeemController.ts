@@ -6,7 +6,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import sharp from 'sharp'
 import TwitterApi, { UserV2 } from 'twitter-api-v2'
-import { v4 as uuidv4 } from 'uuid'
+import { v4 as uuidv4, validate as uuidValidate } from 'uuid'
 import Meem from '../models/Meem'
 import {
 	IAPIRequestPaginated,
@@ -82,12 +82,12 @@ export default class MeemController {
 	): Promise<Response> {
 		let { tokenId } = req.params
 		let meem: Meem | null = null
-		const isTokenId = /^\d+$/.test(tokenId)
+		const isUuid = uuidValidate(tokenId)
 
-		if (!isTokenId) {
+		if (isUuid) {
 			meem = await orm.models.Meem.findOne({
 				where: {
-					id: tokenId
+					meemId: tokenId
 				},
 				include: [
 					{
@@ -107,9 +107,10 @@ export default class MeemController {
 
 			tokenId = `${services.web3.toBigNumber(meem.tokenId).toNumber()}`
 		} else {
+			const tokenIdNumber = services.web3.toBigNumber(tokenId)
 			meem = await orm.models.Meem.findOne({
 				where: {
-					tokenId: services.web3.toBigNumber(tokenId).toHexString()
+					tokenId: tokenIdNumber.toHexString()
 				},
 				include: [
 					{
@@ -126,6 +127,8 @@ export default class MeemController {
 			if (!meem) {
 				throw new Error('TOKEN_NOT_FOUND')
 			}
+
+			tokenId = `${tokenIdNumber.toNumber()}`
 		}
 
 		const meemContract = services.meem.getMeemContract()
