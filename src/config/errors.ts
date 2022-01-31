@@ -330,6 +330,28 @@ const errors = {
 		status: 'failure',
 		reason: 'An incorrect Meem type was set.',
 		friendlyReason: 'An incorrect Meem type was set.'
+	},
+	NO_PERMISSION: {
+		contractErrorCode: 'NoPermission',
+		httpCode: 400,
+		status: 'failure',
+		reason: 'The action is not allowed. Check permissions on the parent Meem.',
+		friendlyReason:
+			'The action is not allowed. Check permissions on the parent Meem.'
+	},
+	INVALID_PARENT: {
+		contractErrorCode: 'InvalidParent',
+		httpCode: 400,
+		status: 'failure',
+		reason: 'An invalid parent was specified.',
+		friendlyReason: 'An invalid parent was specified.'
+	},
+	NO_COPY_UNVERIFIED: {
+		contractErrorCode: 'NoCopyUnverified',
+		httpCode: 400,
+		status: 'failure',
+		reason: 'Unverified Meems can not be copied',
+		friendlyReason: 'Unverified Meems can not be copied'
 	}
 }
 
