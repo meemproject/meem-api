@@ -451,17 +451,10 @@ export default class TwitterService {
 
 			const properties = services.meem.buildProperties({
 				totalChildren: '-1',
-				copyPermissions: [
-					{
-						permission: MeemAPI.Permission.Anyone,
-						addresses: [],
-						numTokens: '0',
-						lockedBy: MeemAPI.zeroAddress
-					}
-				],
+				copyPermissions: [],
 				remixPermissions: [
 					{
-						permission: MeemAPI.Permission.Owner,
+						permission: MeemAPI.Permission.Anyone,
 						addresses: [],
 						numTokens: '0',
 						lockedBy: MeemAPI.zeroAddress
