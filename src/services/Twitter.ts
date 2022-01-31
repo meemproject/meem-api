@@ -470,6 +470,10 @@ export default class TwitterService {
 			})
 
 			let mintTx: ethers.ContractTransaction
+			let remixMetadata: {
+				metadata: MeemAPI.IMeemMetadata
+				tokenURI: string
+			} | null = null
 
 			if (remix) {
 				const remixMeemId = uuidv4()
@@ -479,7 +483,7 @@ export default class TwitterService {
 				})
 				const remixTweetImage = await this.screenshotTweet(remixTweet)
 				const remixerAccountAddress = remix.meemId?.defaultWallet
-				const remixMetadata = await services.meem.saveMeemMetadataasync(
+				remixMetadata = await services.meem.saveMeemMetadataasync(
 					{
 						name: `@${remixTweet.username} ${moment(
 							remix.tweetData.created_at || remixTweet.createdAt
@@ -609,14 +613,31 @@ export default class TwitterService {
 				})
 				// log.debug(returnData)
 			}
-			await tweetClient.v2.tweet(
-				`Your tweet has been minted! View here: ${meemMetadata.metadata.external_url}`,
-				{
-					reply: {
-						in_reply_to_tweet_id: tweetData.id
+			const tweetPromises = [
+				tweetClient.v2.tweet(
+					`Your tweet has been minted! View here: ${meemMetadata.metadata.external_url}`,
+					{
+						reply: {
+							in_reply_to_tweet_id: tweetData.id
+						}
 					}
-				}
-			)
+				)
+			]
+
+			if (remix && remixMetadata) {
+				tweetPromises.push(
+					tweetClient.v2.tweet(
+						`Your tweet has been minted! View here: ${remixMetadata.metadata.external_url}`,
+						{
+							reply: {
+								in_reply_to_tweet_id: remix?.tweetData.id
+							}
+						}
+					)
+				)
+			}
+
+			await Promise.all(tweetPromises)
 
 			return receipt
 		} catch (e) {
