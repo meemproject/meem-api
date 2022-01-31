@@ -1,3 +1,4 @@
+import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import Meem from '../models/Meem'
@@ -16,15 +17,32 @@ import {
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ContractEvent {
-	public static async meemSync() {
+	public static async meemSync(specificEvents?: TransferEvent[]) {
+		log.debug('Syncing meems...')
 		const meemContract = services.meem.getMeemContract()
-		const events = await meemContract.queryFilter(
-			meemContract.filters.Transfer()
-		)
+		const events =
+			specificEvents ??
+			(await meemContract.queryFilter(meemContract.filters.Transfer()))
+
+		log.debug(`Syncing ${events.length} transfer events`)
+
+		const failedEvents: TransferEvent[] = []
 
 		for (let i = 0; i < events.length; i += 1) {
-			// eslint-disable-next-line no-await-in-loop
-			await this.meemHandleTransfer(events[i])
+			try {
+				log.debug(`Syncing ${i + 1} / ${events.length} events`)
+				// eslint-disable-next-line no-await-in-loop
+				await this.meemHandleTransfer(events[i])
+			} catch (e) {
+				failedEvents.push(events[i])
+				log.crit(e)
+				log.debug(events[i])
+			}
+		}
+
+		if (failedEvents.length > 0) {
+			log.debug(`Retrying ${failedEvents.length} events`)
+			await this.meemSync(failedEvents)
 		}
 	}
 
@@ -192,13 +210,30 @@ export default class ContractEvent {
 		})
 
 		if (!meem) {
+			log.debug(`Creating new meem: ${tokenId}`)
 			await this.createNewMeem(tokenId)
 		} else {
+			log.debug(`Updating meem: ${tokenId}`)
 			meem.owner = evt.args.to
 			await meem.save()
 			if (!meem.data || !meem.metadata) {
 				await this.updateMeem({ meem })
 			}
+		}
+
+		const block = await evt.getBlock()
+
+		if (config.ENABLE_GUNDB) {
+			gun.get('meems').get(tokenId).get('transfers').get(block.timestamp).put({
+				event: evt.event,
+				from: evt.args.from,
+				to: evt.args.to,
+				tokenId: evt.args.tokenId,
+				blockHash: evt.blockHash,
+				blockNumber: evt.blockNumber,
+				data: evt.data,
+				transactionHash: evt.transactionHash
+			})
 		}
 	}
 
@@ -253,7 +288,7 @@ export default class ContractEvent {
 		}
 	}
 
-	private static async createNewMeem(tokenId: string) {
+	public static async createNewMeem(tokenId: string) {
 		const meemContract = services.meem.getMeemContract()
 		// Fetch the meem data and create it
 		const [meemData, tokenURI] = await Promise.all([
@@ -273,14 +308,18 @@ export default class ContractEvent {
 			id: uuidv4(),
 			...this.meemPropertiesDataToModelData(meemData.childProperties)
 		})
-		const meem = orm.models.Meem.build({
-			id: metadata.meem_id || uuidv4(),
+
+		const data = {
+			id: uuidv4(),
+			meemId: metadata.meem_id ?? null,
 			tokenId,
 			tokenURI,
 			owner: meemData.owner,
 			parentChain: meemData.parentChain,
+			parent: meemData.parent,
 			parentTokenId: meemData.parentTokenId.toHexString(),
 			rootChain: meemData.rootChain,
+			root: meemData.root,
 			rootTokenId: meemData.rootTokenId.toHexString(),
 			generation: meemData.generation,
 			mintedAt: DateTime.fromSeconds(meemData.mintedAt.toNumber()).toJSDate(),
@@ -288,11 +327,82 @@ export default class ContractEvent {
 			data: meemData.data,
 			PropertiesId: properties.id,
 			ChildPropertiesId: childProperties.id
-		})
+		}
+
+		const meem = orm.models.Meem.build(data)
 
 		await Promise.all([properties.save(), childProperties.save()])
 
 		await meem.save()
+
+		if (config.ENABLE_GUNDB) {
+			const d = {
+				...data,
+				properties: properties.get({ plain: true }),
+				childProperties: childProperties.get({ plain: true }),
+				mintedAt: meemData.mintedAt.toNumber(),
+				metadata
+			}
+
+			const token = this.saveToGun({ path: `meems/${tokenId}`, data: d })
+
+			let parent: IGunChainReference<any, string | number | symbol, false>
+			let root: IGunChainReference<any, string | number | symbol, false>
+
+			if (meemData.parent === config.MEEM_PROXY_ADDRESS) {
+				// Parent is a meem
+				parent = gun.get('meems').get(meemData.parentTokenId.toHexString())
+				token.get('parentMeem').put(parent)
+				parent.get('childMeems').put(token)
+			}
+
+			if (meemData.root === config.MEEM_PROXY_ADDRESS) {
+				// Parent is a meem
+				root = gun.get('meems').get(meemData.parentTokenId.toHexString())
+				token.get('rootMeem').put(root)
+				root.get('descendantMeems').put(token)
+			}
+		}
+	}
+
+	public static saveToGun(options: {
+		path: string
+		from?: IGunChainReference<any, string, false>
+		data: any
+	}): IGunChainReference<any, string, false> {
+		// return new Promise((resolve, reject) => {
+		const { path, data, from } = options
+
+		const item = from ? from.get(path) : gun.get(path)
+
+		log.debug(`Saving path w/ length ${path.length} | ${path}`)
+
+		const dataObject = this.toPureObject(data)
+
+		Object.keys(dataObject).forEach(key => {
+			const val = dataObject[key]
+			if (typeof val === 'object') {
+				this.saveToGun({ path: `${key}`, from: item, data: val })
+			} else if (Object.prototype.toString.call(val) === '[object Date]') {
+				item.get(key).put(((val as Date).getTime() / 1000) as any, ack => {
+					if (ack.ok) {
+						log.debug(`Gun sync: ${path}/${key}`)
+					} else if (ack.err) {
+						log.crit(ack.err)
+					}
+				})
+			} else {
+				item.get(key).put(val, ack => {
+					if (ack.ok) {
+						log.debug(`Gun sync: ${path}/${key}`)
+					} else if (ack.err) {
+						log.crit(ack.err)
+					}
+				})
+			}
+		})
+
+		return item
 	}
 
 	private static async updateMeem(options: { meem: Meem }) {
@@ -356,5 +466,30 @@ export default class ContractEvent {
 			numTokens: p.numTokens.toHexString(),
 			lockedBy: p.lockedBy
 		}))
+	}
+
+	public static toPureObject(d: any) {
+		// let data: Record<string, any> = {}
+
+		// if (Array.isArray(d)) {
+		// 	d.forEach((val, i) => {
+		// 		data[`a${i}`] = val
+		// 	})
+		// } else {
+		// 	data = { ...d }
+		// }
+
+		const data = { ...d }
+
+		Object.keys(data).forEach(key => {
+			const val = data[key]
+			if (Array.isArray(val) || typeof val === 'object') {
+				data[key] = this.toPureObject(val)
+			} else if (Object.prototype.toString.call(val) === '[object Date]') {
+				data[key] = (val as Date).toString()
+			}
+		})
+
+		return data
 	}
 }

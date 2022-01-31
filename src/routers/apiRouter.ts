@@ -85,5 +85,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 			TestController.testGetSubscriptions
 		)
 		router.getAsync('/test/getUserJWT', TestController.testGetUserJWT)
+		router.getAsync('/test/getUserJWT', TestController.testGetUserJWT)
+		router.getAsync('/test/testData', TestController.testData)
 	}
 }

@@ -151,6 +151,8 @@ export default class MeemIdService {
 				{ gasPrice: services.web3.gweiToWei(recommendedGwei) }
 			)
 
+			log.debug(`Creating MeemID w/ transaction hash: ${createTx.hash}`)
+
 			await createTx.wait()
 
 			log.debug(`Created MeemID w/ transaction hash: ${createTx.hash}`)
