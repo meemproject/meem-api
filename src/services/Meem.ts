@@ -443,14 +443,6 @@ export default class MeemService {
 						description: data.description || '',
 						collectionName: contractInfo.parentContractMetadata?.name,
 						imageBase64: base64MeemImage,
-						tokenAddress: data.tokenAddress,
-						tokenId: data.tokenId,
-						parentMetadata: contractInfo.parentTokenMetadata,
-						tokenURI: contractInfo.parentTokenURI,
-						rootTokenAddress: contractInfo.rootTokenAddress,
-						rootTokenId: contractInfo.rootTokenId,
-						rootTokenURI: contractInfo.rootTokenURI,
-						rootTokenMetadata: contractInfo.rootTokenMetadata,
 						meemId
 					},
 					MeemAPI.MeemMetadataStorageProvider.Ipfs
