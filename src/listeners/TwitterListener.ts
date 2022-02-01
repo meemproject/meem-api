@@ -55,6 +55,7 @@ export default class TwitterListener {
 
 			// Enable reconnect feature
 			stream.autoReconnect = true
+			stream.autoReconnectRetries = Infinity
 
 			log.info('Twitter listeners set up')
 		} catch (e) {

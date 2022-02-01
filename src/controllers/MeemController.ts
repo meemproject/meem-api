@@ -290,6 +290,160 @@ export default class MeemController {
 		})
 	}
 
+	public static async claimMeem(
+		req: IRequest<MeemAPI.v1.ClaimMeem.IDefinition>,
+		res: IResponse<MeemAPI.v1.ClaimMeem.IResponseBody>
+	): Promise<Response> {
+		if (!req.meemId) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		if (!req.meemId.MeemPass) {
+			throw new Error('MEEMPASS_NOT_FOUND')
+		}
+
+		const { tokenId } = req.params
+		let meem: Meem | null = null
+
+		const tokenIdNumber = services.web3.toBigNumber(tokenId)
+		meem = await orm.models.Meem.findOne({
+			where: {
+				tokenId: tokenIdNumber.toHexString()
+			},
+			include: [
+				{
+					model: orm.models.MeemProperties,
+					as: 'Properties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'ChildProperties'
+				}
+			]
+		})
+
+		if (!meem) {
+			throw new Error('TOKEN_NOT_FOUND')
+		}
+
+		const meemId = await services.meemId.getMeemId({
+			meemIdentification: req.meemId
+		})
+
+		const meemberAlreadyOwns = meemId.wallets.find(w => {
+			return w.toLowerCase() === meem?.owner.toLowerCase()
+		})
+
+		if (meemberAlreadyOwns) {
+			return res.json({
+				status: 'success'
+			})
+		}
+
+		const meemContract = services.meem.getMeemContract()
+		const parentTokenIdString = services.web3
+			.toBigNumber(meem.parentTokenId)
+			.toString()
+
+		// TODO: Verify this is how M0s will be detected
+		if (
+			meem.generation === 0 &&
+			meem.root !== MeemAPI.zeroAddress &&
+			meem.root.toLowerCase() !== config.MEEM_PROXY_ADDRESS.toLowerCase()
+		) {
+			const contract = services.meem.erc721Contract({
+				networkName: MeemAPI.chainToNetworkName(meem.rootChain),
+				address: meem.root
+			})
+
+			const owner = await contract.ownerOf(
+				services.web3.toBigNumber(meem.rootTokenId)
+			)
+
+			const meemberOwnedWallet = meemId.wallets.find(
+				w => w.toLowerCase() === owner.toLowerCase()
+			)
+
+			if (!meemberOwnedWallet) {
+				throw new Error('NOT_AUTHORIZED')
+			}
+
+			const claimTx = await meemContract[
+				'safeTransferFrom(address,address,uint256)'
+			](config.MEEM_PROXY_ADDRESS, meemberOwnedWallet, tokenIdNumber.toNumber())
+
+			const receipt = await claimTx.wait()
+
+			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
+
+			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
+				const returnData = {
+					tokenId,
+					transactionHash: receipt.transactionHash
+				}
+
+				log.debug('MEEM TRANSFERRED', returnData)
+				// await sockets?.emit({
+				// 	subscription: MeemAPI.MeemEvent.MeemTransferred,
+				// 	eventName: MeemAPI.MeemEvent.MeemTransferred,
+				// 	data: returnData
+				// })
+				// log.debug(returnData)
+			}
+		} else if (
+			meem.owner === config.MEEM_PROXY_ADDRESS.toLowerCase() &&
+			meem.parent === config.MEEM_PROXY_ADDRESS.toLowerCase() &&
+			parentTokenIdString === config.TWITTER_PROJECT_TOKEN_ID
+		) {
+			const meemData = JSON.parse(meem.data)
+
+			if (!meemData.userId) {
+				throw new Error('SERVER_ERROR')
+			}
+
+			const ownerTwitterId = req.meemId?.Twitters?.find(
+				t => t.twitterId === meemData.userId
+			)
+
+			if (!ownerTwitterId) {
+				throw new Error('NOT_AUTHORIZED')
+			}
+
+			const claimTx = await meemContract[
+				'safeTransferFrom(address,address,uint256)'
+			](
+				config.MEEM_PROXY_ADDRESS,
+				meemId.defaultWallet,
+				tokenIdNumber.toNumber()
+			)
+
+			const receipt = await claimTx.wait()
+
+			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
+
+			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
+				const returnData = {
+					tokenId,
+					transactionHash: receipt.transactionHash
+				}
+
+				log.debug('MEEM TRANSFERRED', returnData)
+				// await sockets?.emit({
+				// 	subscription: MeemAPI.MeemEvent.MeemTransferred,
+				// 	eventName: MeemAPI.MeemEvent.MeemTransferred,
+				// 	data: returnData
+				// })
+				// log.debug(returnData)
+			}
+		}
+
+		log.debug('FOUND MEEM TO CLAIM')
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
 	public static async mintWrappedMeem(
 		req: IRequest<MeemAPI.v1.MintMeem.IDefinition>,
 		res: IResponse<MeemAPI.v1.MintMeem.IResponseBody>
