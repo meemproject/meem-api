@@ -108,14 +108,9 @@ export default class GitService {
 		const result = await request.get(data.tokenURI)
 		const metadata = JSON.parse(result.text)
 
-		const meemDomain =
-			config.NETWORK === MeemAPI.NetworkName.Rinkeby
-				? `https://dev.meem.wtf`
-				: `https://meem.wtf`
-
 		metadata.meem_properties.generation = data.generation
 		metadata.meem_properties.token_id = data.tokenId
-		metadata.external_url = `${meemDomain}/meems/${data.tokenId}`
+		metadata.external_url = `${config.MEEM_DOMAIN}/meems/${data.tokenId}`
 		metadata.attributes = [
 			{
 				display_type: 'number',

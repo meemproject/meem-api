@@ -288,15 +288,10 @@ export default class MeemService {
 
 		const id = meemId || uuidv4()
 
-		const meemDomain =
-			config.NETWORK === MeemAPI.NetworkName.Rinkeby
-				? `https://dev.meem.wtf`
-				: `https://meem.wtf`
-
 		const metadata: MeemAPI.ICreateMeemMetadata = {
 			name: collectionName ? `${collectionName} – ${name}` : `${name}`,
 			description,
-			external_url: `${meemDomain}/meems/${id}`,
+			external_url: `${config.MEEM_DOMAIN}/meems/${id}`,
 			meem_id: meemId,
 			...(extensionProperties && {
 				extension_properties: extensionProperties

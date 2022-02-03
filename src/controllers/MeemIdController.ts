@@ -289,10 +289,6 @@ export default class AuthController {
 			}
 
 			if (meemId && defaultTwitter) {
-				const meemDomain =
-					config.NETWORK === MeemAPI.NetworkName.Rinkeby
-						? `https://dev.meem.wtf`
-						: `https://meem.wtf`
 				const userClient = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 				const tweetClient = new TwitterApi({
 					appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
@@ -305,7 +301,7 @@ export default class AuthController {
 				if (twitterUserResult) {
 					try {
 						await tweetClient.v2.tweet(
-							`Hey @${twitterUserResult.data.username}, you're a meember now. Start here: ${meemDomain}/home`
+							`Hey @${twitterUserResult.data.username}, you're a meember now. Start here: ${config.MEEM_DOMAIN}/home`
 						)
 					} catch (e) {
 						log.error(e)
