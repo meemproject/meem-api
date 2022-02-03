@@ -19,14 +19,13 @@ class MintTweetsTests extends BaseTest {
 
 	protected async beforeEach() {
 		this.signers = await ethers.getSigners()
+		this.setSigner(this.signers[0])
 		const { DiamondProxy: contractAddress } = await deployDiamond({
 			ethers
 		})
 		this.contractAddress = contractAddress
 		config.MEEM_PROXY_ADDRESS = contractAddress
 		config.TWITTER_WALLET_PRIVATE_KEY = config.HARDHAT_MEEM_CONTRACT_WALLET
-
-		this.setSigner(this.signers[0])
 	}
 
 	protected async setup() {
