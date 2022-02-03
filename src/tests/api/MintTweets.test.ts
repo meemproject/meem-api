@@ -91,6 +91,47 @@ class MintTweetsTests extends BaseTest {
 			})
 		)
 	}
+
+	// private async mintAndRemixTweet() {
+	// 	const meemContract = await services.meem.getMeemContract()
+
+	// 	await services.meem.createMeemProject({
+	// 		name: 'Twitter project',
+	// 		description: 'blah blah',
+	// 		minterAddresses: [this.signers[0].address]
+	// 	})
+
+	// 	config.TWITTER_PROJECT_TOKEN_ID = '100000'
+
+	// 	await services.twitter.mintTweet({
+	// 		tweetData: {
+	// 			id: uuidv4(),
+	// 			text: faker.lorem.words()
+	// 		},
+	// 		twitterUser: {
+	// 			id: uuidv4(),
+	// 			name: faker.name.firstName(),
+	// 			username: faker.lorem.word()
+	// 		},
+	// 		remix: {
+	// 			tweetData: {
+	// 				id: uuidv4(),
+	// 				text: faker.lorem.words()
+	// 			},
+	// 			twitterUser: {
+	// 				id: uuidv4(),
+	// 				name: faker.name.firstName(),
+	// 				username: faker.lorem.word()
+	// 			}
+	// 		}
+	// 	})
+
+	// 	const meem = await meemContract.connect(this.signers[0]).getMeem(100001)
+	// 	assert.equal(meem.meemType, MeemAPI.MeemType.Remix)
+	// 	assert.equal(meem.parent, this.contractAddress)
+	// 	assert.equal(meem.parentTokenId.toNumber(), 100000)
+	// 	assert.equal(meem.generation.toNumber(), 1)
+	// }
 }
 
 describe('MintTweetsTests', function tests() {

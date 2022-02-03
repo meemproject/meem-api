@@ -36,6 +36,9 @@ export default class TwitterService {
 		accessToken: string
 		accessSecret: string
 	}) {
+		if (config.TESTING) {
+			return services.testing.getTwitterUserV1()
+		}
 		const { accessToken, accessSecret } = options
 		const api = new TwitterApi({
 			appKey: config.TWITTER_CONSUMER_KEY,

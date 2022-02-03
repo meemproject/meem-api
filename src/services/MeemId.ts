@@ -105,9 +105,11 @@ export default class MeemIdService {
 			throw new Error('WALLET_NOT_FOUND')
 		}
 
-		const signingAddress = ethers.utils.verifyMessage(wallet.nonce, signature)
-		if (signingAddress.toLowerCase() !== address.toLowerCase()) {
-			throw new Error('SIGNATURE_FAILED')
+		if (!config.TESTING) {
+			const signingAddress = ethers.utils.verifyMessage(wallet.nonce, signature)
+			if (signingAddress.toLowerCase() !== address.toLowerCase()) {
+				throw new Error('SIGNATURE_FAILED')
+			}
 		}
 
 		return wallet

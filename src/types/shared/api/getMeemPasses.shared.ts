@@ -1,4 +1,9 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import {
+	IError,
+	HttpMethod,
+	IApiResponseBody,
+	IRequestPaginated
+} from '../api.shared'
 import { IMeemId } from '../meem.shared'
 
 /** Get MeemPasses */
@@ -9,8 +14,7 @@ export namespace GetMeemPasses {
 
 	export const method = HttpMethod.Get
 
-	export interface IQueryParams {
-		page?: number
+	export interface IQueryParams extends IRequestPaginated {
 		hideWhitelisted?: boolean
 	}
 

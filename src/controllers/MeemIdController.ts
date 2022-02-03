@@ -1,7 +1,7 @@
 import AWS from 'aws-sdk'
 import { Response } from 'express'
 import { TwitterApi, UserV2 } from 'twitter-api-v2'
-import { IRequest, IResponse } from '../types/app'
+import { IAPIRequestPaginated, IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class AuthController {
@@ -136,16 +136,30 @@ export default class AuthController {
 	}
 
 	public static async getMeemPasses(
-		req: IRequest<MeemAPI.v1.GetMeemPasses.IDefinition>,
+		req: IAPIRequestPaginated<MeemAPI.v1.GetMeemPasses.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeemPasses.IResponseBody>
 	): Promise<Response> {
-		const itemsPerPage = 5
-		const { page } = req.query
+		const { page, limit } = req
+
 		const meemIds = await orm.models.MeemIdentification.findAndCountAll({
-			limit: itemsPerPage,
+			limit,
 			order: [['createdAt', 'DESC']],
-			offset: page ? (page - 1) * itemsPerPage : 0,
-			include: [orm.models.Twitter, orm.models.Wallet, orm.models.MeemPass]
+			offset: page * limit,
+			distinct: true,
+			include: [
+				{
+					model: orm.models.Twitter,
+					required: true
+				},
+				{
+					model: orm.models.Wallet,
+					required: true
+				},
+				{
+					model: orm.models.MeemPass,
+					required: true
+				}
+			]
 		})
 
 		const twitters = meemIds.rows.map(mId =>
@@ -187,7 +201,7 @@ export default class AuthController {
 
 		return res.json({
 			meemPasses: meemIdData,
-			itemsPerPage,
+			itemsPerPage: limit,
 			totalItems: meemIds.count
 		})
 	}

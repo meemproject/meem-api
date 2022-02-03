@@ -796,8 +796,7 @@ export namespace MeemAPI {
 
 			export const method = HttpMethod.Get
 
-			export interface IQueryParams {
-				page?: number
+			export interface IQueryParams extends IRequestPaginated {
 				hideWhitelisted?: boolean
 			}
 
