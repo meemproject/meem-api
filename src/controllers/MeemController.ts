@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk'
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
+import type { ethers as Ethers } from 'ethers'
 import { Response } from 'express'
 import _ from 'lodash'
 import moment from 'moment'
@@ -131,7 +131,7 @@ export default class MeemController {
 			tokenId = `${tokenIdNumber.toNumber()}`
 		}
 
-		const meemContract = services.meem.getMeemContract()
+		const meemContract = await services.meem.getMeemContract()
 
 		let { metadata, tokenURI } = meem
 
@@ -340,7 +340,7 @@ export default class MeemController {
 			})
 		}
 
-		const meemContract = services.meem.getMeemContract()
+		const meemContract = await services.meem.getMeemContract()
 		const parentTokenIdString = services.web3
 			.toBigNumber(meem.parentTokenId)
 			.toString()
@@ -351,7 +351,7 @@ export default class MeemController {
 			meem.root !== MeemAPI.zeroAddress &&
 			meem.root.toLowerCase() !== config.MEEM_PROXY_ADDRESS.toLowerCase()
 		) {
-			const contract = services.meem.erc721Contract({
+			const contract = await services.meem.erc721Contract({
 				networkName: MeemAPI.chainToNetworkName(meem.rootChain),
 				address: meem.root
 			})
@@ -450,7 +450,7 @@ export default class MeemController {
 	): Promise<Response> {
 		const data = req.body
 
-		const meemContract = services.meem.getMeemContract()
+		const meemContract = await services.meem.getMeemContract()
 
 		const isAlreadyWrapped = await meemContract.isNFTWrapped(
 			data.chain,
@@ -519,7 +519,7 @@ export default class MeemController {
 		res: IResponse<MeemAPI.v1.GetTokenInfo.IResponseBody>
 	): Promise<Response> {
 		const { tokenId, networkName, address } = req.query
-		const contract = services.meem.erc721Contract({
+		const contract = await services.meem.erc721Contract({
 			networkName,
 			address
 		})
@@ -549,8 +549,8 @@ export default class MeemController {
 		req: IRequest<MeemAPI.v1.GetWrappedTokens.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetWrappedTokens.IResponseBody>
 	): Promise<any> {
-		const contract = services.meem.getMeemContract()
-		let tokenIds: ethers.BigNumber[] = []
+		const contract = await services.meem.getMeemContract()
+		let tokenIds: Ethers.BigNumber[] = []
 
 		const nfts = req.body.nfts.map(n => ({
 			...n,

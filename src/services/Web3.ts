@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
+import type { ethers as Ethers } from 'ethers'
 import _ from 'lodash'
 import { DateTime } from 'luxon'
 import Moralis from 'moralis/node'
@@ -33,11 +33,13 @@ type MoralisChainList =
 	| '0xfa'
 
 export default class Web3 {
-	public static gweiToWei(gwei: number | ethers.BigNumber): ethers.BigNumber {
+	public static gweiToWei(gwei: number | Ethers.BigNumber): Ethers.BigNumber {
+		const ethers = services.ethers.getInstance()
 		return ethers.BigNumber.from(gwei).mul(1000000000)
 	}
 
-	public static weiToGwei(gwei: number | ethers.BigNumber): ethers.BigNumber {
+	public static weiToGwei(gwei: number | Ethers.BigNumber): Ethers.BigNumber {
+		const ethers = services.ethers.getInstance()
 		return ethers.BigNumber.from(gwei).div(1000000000)
 	}
 
@@ -90,6 +92,12 @@ export default class Web3 {
 		recommendedGwei: number
 	}> {
 		try {
+			if (config.TESTING) {
+				return {
+					recommendedGwei: 1
+				}
+			}
+			const ethers = services.ethers.getInstance()
 			const chain = options?.chain ?? MeemAPI.Chain.Polygon
 
 			await this.startMoralis()
@@ -99,13 +107,13 @@ export default class Web3 {
 				date: DateTime.now().toString()
 			})
 
-			const provider = services.meem.getProvider({
+			const provider = await services.ethers.getProvider({
 				networkName: MeemAPI.chainToNetworkName(chain)
 			})
 
 			const lastBlock = await provider.getBlockWithTransactions(blockInfo.block)
 
-			let gasPrices: ethers.BigNumber[] = []
+			let gasPrices: Ethers.BigNumber[] = []
 
 			lastBlock.transactions.forEach(t => {
 				if (t.gasPrice) {
@@ -123,7 +131,7 @@ export default class Web3 {
 				total = total.add(p)
 			})
 
-			const filteredGasPrices: ethers.BigNumber[] = []
+			const filteredGasPrices: Ethers.BigNumber[] = []
 			const minimumWei = this.gweiToWei(config.MIN_GASE_PRICE_GWEI).toNumber()
 			let filteredEstimate = ethers.BigNumber.from(minimumWei)
 			const thresholdWei = this.gweiToWei(
@@ -188,6 +196,9 @@ export default class Web3 {
 		offset?: number
 		limit?: number
 	}): Promise<MeemAPI.IChainNFTsResult[]> {
+		if (config.TESTING) {
+			return services.testing.getNFTs()
+		}
 		const { address, offset, limit } = options
 
 		const chains = options.chains ?? [
@@ -224,8 +235,9 @@ export default class Web3 {
 	}
 
 	public static toBigNumber(
-		val: BigNumber.Value | ethers.BigNumberish
-	): ethers.BigNumber {
+		val: BigNumber.Value | Ethers.BigNumberish
+	): Ethers.BigNumber {
+		const ethers = services.ethers.getInstance()
 		const bn = new BigNumber(val.toString() as BigNumber.Value)
 		let bigStr = bn.toString(16)
 		let isNegative = false
@@ -284,6 +296,17 @@ export default class Web3 {
 		image?: Buffer
 		metadata: MeemAPI.IMeemMetadata | MeemAPI.ICreateMeemMetadata
 	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
+		if (config.TESTING) {
+			const imageURI = services.testing.getIpfsUrl()
+			return {
+				metadata: services.testing.getMeemMetadata({
+					image: imageURI,
+					image_original: imageURI
+				}),
+				tokenURI: services.testing.getIpfsUrl()
+			}
+		}
+
 		await this.startMoralis()
 
 		this.validateCreateMeemMetadata(data.metadata)

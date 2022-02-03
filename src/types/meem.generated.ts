@@ -169,7 +169,8 @@ export namespace MeemAPI {
 		Mainnet = 'homestead',
 		Rinkeby = 'rinkeby',
 		Polygon = 'matic',
-		Mumbai = 'mumbai'
+		Mumbai = 'mumbai',
+		Hardhat = 'hardhat'
 	}
 
 	/** Convert Chain to NetworkName */
@@ -183,6 +184,9 @@ export namespace MeemAPI {
 
 			case Chain.Polygon:
 				return NetworkName.Polygon
+
+			case 99:
+				return NetworkName.Hardhat
 
 			default:
 				throw new Error('INVALID_CHAIN')
@@ -199,6 +203,9 @@ export namespace MeemAPI {
 				return Chain.Rinkeby
 
 			case NetworkName.Polygon:
+				return Chain.Polygon
+
+			case NetworkName.Hardhat:
 				return Chain.Polygon
 
 			default:

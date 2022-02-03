@@ -1,4 +1,5 @@
 import { Server } from 'http'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Suite } from 'mocha'
 import supertest, { SuperTest, Test, Response } from 'supertest'
 import start from '../core/start'
@@ -94,5 +95,11 @@ export default class BaseTest {
 			default:
 				return this.request.get
 		}
+	}
+
+	protected setSigner(signer: SignerWithAddress) {
+		// @ts-ignore
+		// eslint-disable-next-line prefer-destructuring
+		global.signer = signer
 	}
 }

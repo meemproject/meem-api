@@ -31,12 +31,19 @@
 			"name": "Mocha (Test single file)",
 			"type": "node",
 			"request": "launch",
+			// "runtimeArgs": [
+			// 	"${workspaceRoot}/node_modules/.bin/mocha",
+			// 	"-r",
+			// 	"ts-node/register/transpile-only",
+			// 	"--exit",
+			// 	"--inspect-brk",
+			// 	"${relativeFile}"
+			// ],
 			"runtimeArgs": [
-				"${workspaceRoot}/node_modules/.bin/mocha",
-				"-r",
-				"ts-node/register/transpile-only",
-				"--exit",
-				"--inspect-brk",
+				"${workspaceRoot}/node_modules/.bin/hardhat",
+				"test",
+				"--network",
+				"hardhat",
 				"${relativeFile}"
 			],
 			"runtimeExecutable": "${env:NVM_BIN}/node",
@@ -45,12 +52,17 @@
 			"port": 9229,
 			"cwd": "${workspaceRoot}",
 			"env": {
+				"DATABASE_URL": "sqlite:${workspaceRoot}/tmp/testing.db",
 				"NODE_ENV": "local",
 				"PORT": "4004",
 				"BLUEBIRD_W_FORGOTTEN_RETURN": "0",
 				"TESTING": "true",
+				"GENERATE_SHARED_TYPES": "false",
 				"DISABLE_MIGRATIONS": "true",
-				"ENABLE_SWAGGER_DOCS": "true"
+				"ENABLE_SWAGGER_DOCS": "true",
+				"ENABLE_GUNDB": "false",
+				"NETWORK": "hardhat",
+				"ENABLE_CONTRACT_LISTENERS": "false"
 			}
 		}
 	]
