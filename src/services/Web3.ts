@@ -341,13 +341,8 @@ export default class Web3 {
 				? this.moralisPathToIPFSPath(imageResponse.body[0].path)
 				: ''
 
-		const meemDomain =
-			config.NETWORK === MeemAPI.NetworkName.Rinkeby
-				? `https://dev.meem.wtf`
-				: `https://meem.wtf`
-
 		const externalUrl =
-			meemMetadata.external_url ?? `${meemDomain}/meems/${meemId}`
+			meemMetadata.external_url ?? `${config.MEEM_DOMAIN}/meems/${meemId}`
 
 		const storedMetadata: MeemAPI.IMeemMetadata = {
 			...data.metadata,

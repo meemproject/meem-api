@@ -252,6 +252,7 @@ export default class TwitterService {
 				)
 			}
 			if (
+				config.ENABLE_TWEET_CURATION &&
 				originalTweet &&
 				originalTweet.data.referenced_tweets &&
 				originalTweet.data.referenced_tweets.length > 0
@@ -259,7 +260,7 @@ export default class TwitterService {
 				// TODO: Do we want to handle nested retweets back to the original M0?
 				// This will currently only allow retweets/replies to original tweets to mint an M0
 				log.error('The referenced tweet is not an original tweet')
-			} else if (originalTweet) {
+			} else if (config.ENABLE_TWEET_CURATION && originalTweet) {
 				// TODO: Mint original tweet if it does not exist
 				//	- Mint on behalf of meember if exists or contract address if not?
 				const originalTweetUser = originalTweet.includes?.users?.find(
@@ -602,27 +603,41 @@ export default class TwitterService {
 
 			const receipt = await mintTx.wait()
 
-			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
+			const transferEvents = receipt.events?.filter(e => e.event === 'Transfer')
 
-			// TODO: Figure out what mintAndRemix returns for transferEvent args
-			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
-				const tokenId = (transferEvent.args[2] as Ethers.BigNumber).toNumber()
-				const returnData = {
-					toAddress,
-					tokenURI: meemMetadata.tokenURI,
-					tokenId,
-					transactionHash: receipt.transactionHash
+			let tokenId: number | undefined
+			let remixTokenId: number | undefined
+			const emitPromises: Promise<any>[] = []
+
+			transferEvents?.forEach(transferEvent => {
+				if (transferEvent.args && transferEvent.args[2]) {
+					const t = (transferEvent.args[2] as Ethers.BigNumber).toNumber()
+					const returnData = {
+						toAddress,
+						tokenURI: meemMetadata.tokenURI,
+						tokenId: t,
+						transactionHash: receipt.transactionHash
+					}
+					emitPromises.push(
+						sockets?.emit({
+							subscription: MeemAPI.MeemEvent.MeemMinted,
+							eventName: MeemAPI.MeemEvent.MeemMinted,
+							data: returnData
+						}) ?? Promise.resolve()
+					)
+					if (!tokenId) {
+						tokenId = t
+					} else {
+						remixTokenId = t
+					}
 				}
-				await sockets?.emit({
-					subscription: MeemAPI.MeemEvent.MeemMinted,
-					eventName: MeemAPI.MeemEvent.MeemMinted,
-					data: returnData
-				})
-				// log.debug(returnData)
-			}
+			})
+
 			const tweetPromises = [
 				this.tweet(
-					`Your tweet has been minted! View here: ${meemMetadata.metadata.external_url}`,
+					`Your tweet has been minted! View here: ${config.MEEM_DOMAIN}/meems/${
+						tokenId ?? meemMetadata.metadata.meem_id
+					}`,
 					{
 						reply: {
 							in_reply_to_tweet_id: tweetData.id
@@ -634,7 +649,9 @@ export default class TwitterService {
 			if (remix && remixMetadata) {
 				tweetPromises.push(
 					this.tweet(
-						`Your tweet has been minted! View here: ${remixMetadata.metadata.external_url}`,
+						`Your tweet has been minted! View here: ${
+							config.MEEM_DOMAIN
+						}/meems/${remixTokenId ?? remixMetadata.metadata.meem_id}`,
 						{
 							reply: {
 								in_reply_to_tweet_id: remix?.tweetData.id

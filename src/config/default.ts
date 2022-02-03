@@ -9,6 +9,10 @@ export default {
 	version: packageJSON.version as string,
 	errors,
 	PORT: process.env.PORT ?? 1313,
+	MEEM_DOMAIN:
+		process.env.MEEM_DOMAIN ?? process.env.NETWORK === 'rinkeby'
+			? 'https://dev.meem.wtf'
+			: 'https://meem.wtf',
 	SERVER_LISTENING: process.env.SERVER_LISTENING !== 'false',
 	SERVER_ADMIN_KEY: process.env.SERVER_ADMIN_KEY ?? 'xGugNAB2PEX4uY4sPF',
 	HARDHAT_MEEM_CONTRACT_WALLET:
@@ -139,6 +143,7 @@ export default {
 	MINT_GAS_LIMIT: process.env.MINT_GAS_LIMIT
 		? process.env.MINT_GAS_LIMIT
 		: '1600000',
+	ENABLE_TWEET_CURATION: process.env.ENABLE_TWEET_CURATION === 'true',
 	ENABLE_GUNDB: process.env.ENABLE_GUNDB === 'true',
 	GUNDB_S3_BUCKET: process.env.GUNDB_S3_BUCKET ?? '',
 	GUNDB_PASSWORD: process.env.GUNDB_PASSWORD ?? '',
