@@ -37,16 +37,15 @@ export default class BaseTest {
 	}
 
 	protected async setupMocks() {
-		const promises = wallets.map(w => {
-			return services.meemId.createOrUpdateMeemId({
-				address: w.address,
-				signature: '',
-				twitterAccessToken: '',
-				twitterAccessSecret: ''
-			})
-		})
-
-		await Promise.all(promises)
+		// const promises = wallets.map(w => {
+		// 	return services.meemId.createOrUpdateMeemId({
+		// 		address: w.address,
+		// 		signature: '',
+		// 		twitterAccessToken: '',
+		// 		twitterAccessSecret: ''
+		// 	})
+		// })
+		// await Promise.all(promises)
 	}
 
 	protected async after() {}
