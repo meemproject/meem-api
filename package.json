@@ -12,7 +12,7 @@
 		"build": "npm run clean ; tsc ; echo \"Finished Building\"",
 		"release": "semantic-release",
 		"########## Run ##########": "",
-		"start": "RUN_PRODUCTION=true node ./build/src/server.js",
+		"start": "NODE_ENV=local RUN_PRODUCTION=true ENABLE_GUNDB=false GENERATE_SHARED_TYPES=false node ./build/src/server.js",
 		"start-cron": "RUN_PRODUCTION=true node build/cron/cron.js",
 		"cron": "npm run kill-inspect && NODE_ENV=local PORT=3005 tsnd --inspect=4006 --respawn --transpile-only --ignore-watch=src/types/meem.generated.ts src/cron/cron.ts",
 		"local": "npm run kill-inspect && NODE_ENV=local PORT=3005 tsnd --exit-child --inspect=4005 --respawn --transpile-only --ignore-watch=src/types/meem.generated.ts src/server.ts",
