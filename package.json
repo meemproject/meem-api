@@ -11,6 +11,7 @@
 		"clean": "rm -rf build/*",
 		"build": "npm run clean ; tsc ; echo \"Finished Building\"",
 		"release": "semantic-release",
+		"heroku-cleanup": "cp .yarnclean.ci .yarnclean && yarn autoclean --force",
 		"########## Run ##########": "",
 		"start": "NODE_ENV=local RUN_PRODUCTION=true ENABLE_GUNDB=false GENERATE_SHARED_TYPES=false node ./build/src/server.js",
 		"start-cron": "RUN_PRODUCTION=true node build/cron/cron.js",
