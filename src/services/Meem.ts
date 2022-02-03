@@ -1,5 +1,6 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import * as path from 'path'
-import { ethers } from 'ethers'
+import type { ethers as Ethers } from 'ethers'
 import fs from 'fs-extra'
 import _ from 'lodash'
 import sharp from 'sharp'
@@ -19,8 +20,6 @@ import {
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 import { MeemMetadataStorageProvider } from '../types/shared/meem.shared'
-
-ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.ERROR)
 
 function errorcodeToErrorString(contractErrorName: string) {
 	const allErrors: Record<string, any> = config.errors
@@ -66,52 +65,14 @@ function handleStringErrorKey(errorKey: string) {
 }
 
 export default class MeemService {
-	public static getProvider(options: { networkName: MeemAPI.NetworkName }) {
-		const { networkName } = options
-		let provider: ethers.providers.Provider
-		switch (networkName) {
-			case MeemAPI.NetworkName.Mainnet:
-				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_MAINNET)
-				break
-
-			case MeemAPI.NetworkName.Rinkeby:
-				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_RINKEBY)
-				break
-
-			case MeemAPI.NetworkName.Polygon:
-				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_POLYGON)
-				break
-
-			default:
-				throw new Error('INVALID_NETWORK')
-		}
-
-		return provider
-	}
-
 	/** Get generic ERC721 contract instance */
-	public static erc721Contract(options: {
+	public static async erc721Contract(options: {
 		networkName: MeemAPI.NetworkName
 		address: string
 	}) {
+		const ethers = services.ethers.getInstance()
 		const { networkName, address } = options
-		let provider: ethers.providers.Provider
-		switch (networkName) {
-			case MeemAPI.NetworkName.Mainnet:
-				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_MAINNET)
-				break
-
-			case MeemAPI.NetworkName.Rinkeby:
-				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_RINKEBY)
-				break
-
-			case MeemAPI.NetworkName.Polygon:
-				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_POLYGON)
-				break
-
-			default:
-				throw new Error('INVALID_NETWORK')
-		}
+		const provider = await services.ethers.getProvider({ networkName })
 
 		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 
@@ -171,15 +132,26 @@ export default class MeemService {
 	}
 
 	/** Get a Meem contract instance */
-	public static getMeemContract(options?: { walletPrivateKey: string }) {
-		const walletPrivateKey =
+	public static async getMeemContract(options?: { walletPrivateKey: string }) {
+		const ethers = services.ethers.getInstance()
+		if (config.TESTING) {
+			// @ts-ignore
+			const c = (await ethers.getContractAt(MeemABI, config.MEEM_PROXY_ADDRESS))
+				// @ts-ignore
+				.connect(global.signer)
+			// const c = await ethers.getContractAt(MeemABI, config.MEEM_PROXY_ADDRESS)
+			return c as Meem
+		}
+
+		let walletPrivateKey =
 			options?.walletPrivateKey ?? config.WALLET_PRIVATE_KEY
 
-		const provider = new ethers.providers.JsonRpcProvider(
-			config.NETWORK === 'rinkeby'
-				? config.JSON_RPC_RINKEBY
-				: config.JSON_RPC_POLYGON
-		)
+		if (config.TESTING) {
+			walletPrivateKey = config.HARDHAT_MEEM_CONTRACT_WALLET
+		}
+
+		const provider = await services.ethers.getProvider()
+
 		const wallet = new ethers.Wallet(walletPrivateKey, provider)
 
 		const meemContract = new ethers.Contract(
@@ -192,6 +164,7 @@ export default class MeemService {
 	}
 
 	public static meemInterface() {
+		const ethers = services.ethers.getInstance()
 		const inter = new ethers.utils.Interface(MeemABI)
 		return inter
 	}
@@ -229,7 +202,7 @@ export default class MeemService {
 				throw new Error('MISSING_TOKEN_ID')
 			}
 
-			const contract = this.erc721Contract({
+			const contract = await this.erc721Contract({
 				networkName: MeemAPI.chainToNetworkName(data.chain),
 				address: data.tokenAddress
 			})
@@ -394,12 +367,12 @@ export default class MeemService {
 			// 	throw new Error('INVALID_MEEM_PROJECT')
 			// }
 
-			const contract = isMeemToken
+			const contract = await (isMeemToken
 				? this.getMeemContract()
 				: this.erc721Contract({
 						networkName: MeemAPI.chainToNetworkName(data.chain),
 						address: data.tokenAddress
-				  })
+				  }))
 
 			const owner = await contract.ownerOf(data.tokenId)
 			const isNFTOwner =
@@ -452,7 +425,7 @@ export default class MeemService {
 					: Promise.resolve(null)
 			])
 
-			const meemContract = this.getMeemContract()
+			const meemContract = await this.getMeemContract()
 
 			let { recommendedGwei } = await services.web3.getGasEstimate({
 				chain: MeemAPI.networkNameToChain(config.NETWORK)
@@ -501,7 +474,7 @@ export default class MeemService {
 			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
 
 			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
-				const tokenId = (transferEvent.args[2] as ethers.BigNumber).toNumber()
+				const tokenId = (transferEvent.args[2] as Ethers.BigNumber).toNumber()
 				const returnData = {
 					toAddress: data.accountAddress,
 					tokenURI: meemMetadata.tokenURI,
@@ -573,7 +546,7 @@ export default class MeemService {
 			MeemAPI.MeemMetadataStorageProvider.Ipfs
 		)
 
-		const meemContract = this.getMeemContract()
+		const meemContract = await this.getMeemContract()
 
 		let { recommendedGwei } = await services.web3.getGasEstimate({
 			chain: MeemAPI.networkNameToChain(config.NETWORK)
@@ -632,6 +605,7 @@ export default class MeemService {
 				]
 			}),
 			{
+				gasLimit: config.MINT_GAS_LIMIT,
 				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
 			}
 		]
@@ -712,14 +686,14 @@ export default class MeemService {
 
 	public static async getContractInfo(options: {
 		contractAddress: string
-		tokenId: ethers.BigNumberish
+		tokenId: Ethers.BigNumberish
 		networkName: MeemAPI.NetworkName
 	}) {
 		const { contractAddress, tokenId, networkName } = options
 		const isMeemToken =
 			contractAddress.toLowerCase() === config.MEEM_PROXY_ADDRESS.toLowerCase()
 
-		const contract = this.erc721Contract({
+		const contract = await this.erc721Contract({
 			networkName,
 			address: contractAddress
 		})
@@ -743,7 +717,7 @@ export default class MeemService {
 		let rootContractMetadata = parentContractMetadata
 
 		if (isMeemToken) {
-			const meemContract = this.getMeemContract()
+			const meemContract = await this.getMeemContract()
 			const meem = await meemContract.getMeem(tokenId)
 			rootTokenAddress = meem.root
 			rootTokenId = meem.rootTokenId
@@ -777,7 +751,7 @@ export default class MeemService {
 
 	public static async getMetadata(options: {
 		contract: ERC721 | Meem
-		tokenId: ethers.BigNumberish
+		tokenId: Ethers.BigNumberish
 	}) {
 		const { contract, tokenId } = options
 		const tokenURI = await contract.tokenURI(tokenId)

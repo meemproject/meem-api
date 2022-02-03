@@ -19,9 +19,15 @@ process.on('uncaughtException', err => {
 
 function listen(app: Express): Promise<Server> {
 	return new Promise(resolve => {
-		const server = app.listen(config.PORT, async () => {
-			resolve(server)
-		})
+		if (config.PORT) {
+			const server = app.listen(config.PORT, async () => {
+				resolve(server)
+			})
+		} else {
+			const server = app.listen(async () => {
+				resolve(server)
+			})
+		}
 	})
 }
 

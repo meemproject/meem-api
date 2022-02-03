@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ethers } from 'ethers'
+import type { ethers as Ethers } from 'ethers'
 import { Request, Response } from 'express'
 import { DateTime, Duration } from 'luxon'
 import { Op } from 'sequelize'
@@ -100,7 +100,7 @@ export default class ConfigController {
 		// 	gas
 		// })
 
-		const contract = services.meem.getMeemContract()
+		const contract = await services.meem.getMeemContract()
 
 		const result = await contract.wrappedTokens([
 			{

@@ -4,7 +4,7 @@ export default class ContractListener {
 	private meemContract?: Meem
 
 	public async start() {
-		this.meemContract = services.meem.getMeemContract()
+		this.meemContract = await services.meem.getMeemContract()
 		this.setupListners()
 			.then(() => {})
 			.catch(e => {

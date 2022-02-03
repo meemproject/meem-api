@@ -169,7 +169,8 @@ export namespace MeemAPI {
 		Mainnet = 'homestead',
 		Rinkeby = 'rinkeby',
 		Polygon = 'matic',
-		Mumbai = 'mumbai'
+		Mumbai = 'mumbai',
+		Hardhat = 'hardhat'
 	}
 
 	/** Convert Chain to NetworkName */
@@ -183,6 +184,9 @@ export namespace MeemAPI {
 
 			case Chain.Polygon:
 				return NetworkName.Polygon
+
+			case 99:
+				return NetworkName.Hardhat
 
 			default:
 				throw new Error('INVALID_CHAIN')
@@ -199,6 +203,9 @@ export namespace MeemAPI {
 				return Chain.Rinkeby
 
 			case NetworkName.Polygon:
+				return Chain.Polygon
+
+			case NetworkName.Hardhat:
 				return Chain.Polygon
 
 			default:
@@ -481,6 +488,36 @@ export namespace MeemAPI {
 	}
 
 	export namespace v1 {
+		/** Claim an existing Meem */
+		export namespace ClaimMeem {
+			export interface IPathParams {
+				/** The meem pass id to fetch */
+				tokenId: string
+			}
+
+			export const path = (options: IPathParams) =>
+				`/api/1.0/meems/claim/${options.tokenId}`
+
+			export const method = HttpMethod.Post
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {}
+
+			export interface IResponseBody extends IApiResponseBody {
+				status: 'success'
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
 		/** Create Meem Image */
 		export namespace CreateMeemImage {
 			export interface IPathParams {}
@@ -759,8 +796,7 @@ export namespace MeemAPI {
 
 			export const method = HttpMethod.Get
 
-			export interface IQueryParams {
-				page?: number
+			export interface IQueryParams extends IRequestPaginated {
 				hideWhitelisted?: boolean
 			}
 

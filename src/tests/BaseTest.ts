@@ -1,8 +1,10 @@
 import { Server } from 'http'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Suite } from 'mocha'
 import supertest, { SuperTest, Test, Response } from 'supertest'
 import start from '../core/start'
 import { MeemAPI } from '../types/meem.generated'
+import { wallets } from './mocks'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
@@ -34,7 +36,18 @@ export default class BaseTest {
 		await this.setupMocks()
 	}
 
-	protected async setupMocks() {}
+	protected async setupMocks() {
+		const promises = wallets.map(w => {
+			return services.meemId.createOrUpdateMeemId({
+				address: w.address,
+				signature: '',
+				twitterAccessToken: '',
+				twitterAccessSecret: ''
+			})
+		})
+
+		await Promise.all(promises)
+	}
 
 	protected async after() {}
 
@@ -94,5 +107,11 @@ export default class BaseTest {
 			default:
 				return this.request.get
 		}
+	}
+
+	protected setSigner(signer: SignerWithAddress) {
+		// @ts-ignore
+		// eslint-disable-next-line prefer-destructuring
+		global.signer = signer
 	}
 }

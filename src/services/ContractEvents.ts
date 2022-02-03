@@ -19,7 +19,7 @@ import { MeemAPI } from '../types/meem.generated'
 export default class ContractEvent {
 	public static async meemSync(specificEvents?: TransferEvent[]) {
 		log.debug('Syncing meems...')
-		const meemContract = services.meem.getMeemContract()
+		const meemContract = await services.meem.getMeemContract()
 		const events =
 			specificEvents ??
 			(await meemContract.queryFilter(meemContract.filters.Transfer()))
@@ -289,7 +289,7 @@ export default class ContractEvent {
 	}
 
 	public static async createNewMeem(tokenId: string) {
-		const meemContract = services.meem.getMeemContract()
+		const meemContract = await services.meem.getMeemContract()
 		// Fetch the meem data and create it
 		const [meemData, tokenURI] = await Promise.all([
 			meemContract.getMeem(tokenId),
@@ -408,7 +408,7 @@ export default class ContractEvent {
 	private static async updateMeem(options: { meem: Meem }) {
 		const { meem } = options
 		log.debug(`Syncing meem tokenId: ${meem.tokenId}`)
-		const meemContract = services.meem.getMeemContract()
+		const meemContract = await services.meem.getMeemContract()
 		// Fetch the meem data and create it
 		const [meemData, tokenURI] = await Promise.all([
 			meemContract.getMeem(meem.tokenId),

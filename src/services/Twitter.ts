@@ -2,10 +2,18 @@
 // import request from 'superagent'
 // import { MeemAPI } from '../types/meem.generated'
 
-import { ethers } from 'ethers'
+import type { ethers as Ethers } from 'ethers'
 import moment from 'moment'
 import { Op } from 'sequelize'
-import { TwitterApi, TweetV2, ApiV2Includes, UserV2 } from 'twitter-api-v2'
+import {
+	TwitterApi,
+	TweetV2,
+	ApiV2Includes,
+	UserV2,
+	SendTweetV2Params,
+	TweetV2PostTweetResult,
+	TweetV2SingleResult
+} from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import Hashtag from '../models/Hashtag'
 import Tweet from '../models/Tweet'
@@ -28,6 +36,9 @@ export default class TwitterService {
 		accessToken: string
 		accessSecret: string
 	}) {
+		if (config.TESTING) {
+			return services.testing.getTwitterUserV1()
+		}
 		const { accessToken, accessSecret } = options
 		const api = new TwitterApi({
 			appKey: config.TWITTER_CONSUMER_KEY,
@@ -142,7 +153,6 @@ export default class TwitterService {
 			return
 		}
 
-		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 		const isRetweetOrReply =
 			!!tweetData.referenced_tweets && tweetData.referenced_tweets?.length > 0
 
@@ -174,17 +184,10 @@ export default class TwitterService {
 
 		const { isWhitelisted } = tweetUserMeemId.meemPass.twitter
 
-		const tweetClient = new TwitterApi({
-			appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
-			appSecret: config.TWITTER_MEEM_ACCOUNT_CONSUMER_SECRET,
-			accessToken: config.TWITTER_MEEM_ACCOUNT_TOKEN,
-			accessSecret: config.TWITTER_MEEM_ACCOUNT_SECRET
-		})
-
 		if (!isWhitelisted) {
 			log.error(`meemId not whitelisted: ${item.MeemIdentificationId}`)
 
-			await tweetClient.v2.tweet(
+			await this.tweet(
 				`Sorry @${tweetUser.username}, your Meem ID hasn't been approved yet!`,
 				{
 					reply: {
@@ -212,7 +215,7 @@ export default class TwitterService {
 		if (userTweetsToday.length >= tweetsPerDayQuota) {
 			log.error(`User reached tweet quota: ${item.MeemIdentificationId}`)
 
-			await tweetClient.v2.tweet(
+			await this.tweet(
 				`Sorry @${tweetUser.username}, you've reached your meem quota for the day!`,
 				{
 					reply: {
@@ -225,18 +228,29 @@ export default class TwitterService {
 
 		if (isRetweetOrReply && tweetData.referenced_tweets) {
 			// Get the original tweet referenced
-			const originalTweet = await client.v2.singleTweet(
-				tweetData.referenced_tweets[0].id,
-				{
-					'tweet.fields': ['created_at', 'entities'],
-					'user.fields': ['profile_image_url'],
-					expansions: [
-						'author_id',
-						'in_reply_to_user_id',
-						'referenced_tweets.id'
-					]
+			let originalTweet: TweetV2SingleResult
+			if (config.TESTING) {
+				originalTweet = {
+					data: {
+						id: uuidv4(),
+						text: 'blah blah'
+					}
 				}
-			)
+			} else {
+				const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+				originalTweet = await client.v2.singleTweet(
+					tweetData.referenced_tweets[0].id,
+					{
+						'tweet.fields': ['created_at', 'entities'],
+						'user.fields': ['profile_image_url'],
+						expansions: [
+							'author_id',
+							'in_reply_to_user_id',
+							'referenced_tweets.id'
+						]
+					}
+				)
+			}
 			if (
 				originalTweet &&
 				originalTweet.data.referenced_tweets &&
@@ -380,7 +394,7 @@ export default class TwitterService {
 			tweetData: TweetV2
 			twitterUser: UserV2
 		}
-	}): Promise<ethers.ContractReceipt> {
+	}): Promise<Ethers.ContractReceipt> {
 		const { meemId, tweetData, twitterUser, remix } = options
 		const toAddress = meemId?.defaultWallet || config.MEEM_PROXY_ADDRESS
 		const isRemixVerified = !!meemId?.defaultWallet
@@ -399,16 +413,9 @@ export default class TwitterService {
 
 		// Mint tweet MEEM
 
-		const tweetClient = new TwitterApi({
-			appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
-			appSecret: config.TWITTER_MEEM_ACCOUNT_CONSUMER_SECRET,
-			accessToken: config.TWITTER_MEEM_ACCOUNT_TOKEN,
-			accessSecret: config.TWITTER_MEEM_ACCOUNT_SECRET
-		})
-
 		try {
 			const tweetMeemId = uuidv4()
-			const meemContract = services.meem.getMeemContract({
+			const meemContract = await services.meem.getMeemContract({
 				walletPrivateKey: config.TWITTER_WALLET_PRIVATE_KEY
 			})
 
@@ -469,7 +476,11 @@ export default class TwitterService {
 				]
 			})
 
-			let mintTx: ethers.ContractTransaction
+			let mintTx: Ethers.ContractTransaction
+			let remixMetadata: {
+				metadata: MeemAPI.IMeemMetadata
+				tokenURI: string
+			} | null = null
 
 			if (remix) {
 				const remixMeemId = uuidv4()
@@ -479,7 +490,7 @@ export default class TwitterService {
 				})
 				const remixTweetImage = await this.screenshotTweet(remixTweet)
 				const remixerAccountAddress = remix.meemId?.defaultWallet
-				const remixMetadata = await services.meem.saveMeemMetadataasync(
+				remixMetadata = await services.meem.saveMeemMetadataasync(
 					{
 						name: `@${remixTweet.username} ${moment(
 							remix.tweetData.created_at || remixTweet.createdAt
@@ -595,7 +606,7 @@ export default class TwitterService {
 
 			// TODO: Figure out what mintAndRemix returns for transferEvent args
 			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
-				const tokenId = (transferEvent.args[2] as ethers.BigNumber).toNumber()
+				const tokenId = (transferEvent.args[2] as Ethers.BigNumber).toNumber()
 				const returnData = {
 					toAddress,
 					tokenURI: meemMetadata.tokenURI,
@@ -609,14 +620,31 @@ export default class TwitterService {
 				})
 				// log.debug(returnData)
 			}
-			await tweetClient.v2.tweet(
-				`Your tweet has been minted! View here: ${meemMetadata.metadata.external_url}`,
-				{
-					reply: {
-						in_reply_to_tweet_id: tweetData.id
+			const tweetPromises = [
+				this.tweet(
+					`Your tweet has been minted! View here: ${meemMetadata.metadata.external_url}`,
+					{
+						reply: {
+							in_reply_to_tweet_id: tweetData.id
+						}
 					}
-				}
-			)
+				)
+			]
+
+			if (remix && remixMetadata) {
+				tweetPromises.push(
+					this.tweet(
+						`Your tweet has been minted! View here: ${remixMetadata.metadata.external_url}`,
+						{
+							reply: {
+								in_reply_to_tweet_id: remix?.tweetData.id
+							}
+						}
+					)
+				)
+			}
+
+			await Promise.all(tweetPromises)
 
 			return receipt
 		} catch (e) {
@@ -624,7 +652,7 @@ export default class TwitterService {
 			log.warn(err)
 			try {
 				log.debug('Sending error tweet')
-				await tweetClient.v2.tweet(
+				await this.tweet(
 					`Oops there was an error minting your tweet! Try deleting it and retrying.`,
 					{
 						reply: {
@@ -654,6 +682,9 @@ export default class TwitterService {
 	}
 
 	public static async screenshotTweet(tweet: any): Promise<string | undefined> {
+		if (config.TESTING) {
+			return ''
+		}
 		const puppeteer = services.puppeteer.getInstance()
 		const browser = await puppeteer.launch({
 			// headless: true, // debug only
@@ -682,5 +713,26 @@ export default class TwitterService {
 		const base64 = buffer?.toString('base64')
 
 		return base64
+	}
+
+	public static async tweet(
+		status: string,
+		payload?: Partial<SendTweetV2Params> | undefined
+	): Promise<TweetV2PostTweetResult> {
+		if (config.TESTING) {
+			return {
+				data: {
+					id: uuidv4(),
+					text: ''
+				}
+			}
+		}
+		const tweetClient = new TwitterApi({
+			appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
+			appSecret: config.TWITTER_MEEM_ACCOUNT_CONSUMER_SECRET,
+			accessToken: config.TWITTER_MEEM_ACCOUNT_TOKEN,
+			accessSecret: config.TWITTER_MEEM_ACCOUNT_SECRET
+		})
+		return tweetClient.v2.tweet(status, payload)
 	}
 }

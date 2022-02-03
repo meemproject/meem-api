@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { ethers } from 'ethers'
+import type { ethers as Ethers } from 'ethers'
 import jsonwebtoken from 'jsonwebtoken'
 import { Op } from 'sequelize'
 import { v4 as uuidv4 } from 'uuid'
@@ -12,6 +12,7 @@ import { MeemAPI } from '../types/meem.generated'
 
 export default class MeemIdService {
 	public static meemIdContract() {
+		const ethers = services.ethers.getInstance()
 		const provider = new ethers.providers.JsonRpcProvider(
 			config.NETWORK === 'rinkeby'
 				? config.JSON_RPC_RINKEBY
@@ -95,6 +96,7 @@ export default class MeemIdService {
 		address: string
 		signature: string
 	}) {
+		const ethers = services.ethers.getInstance()
 		const { address, signature } = options
 
 		const wallet = await orm.models.Wallet.findByAddress(address)
@@ -103,9 +105,11 @@ export default class MeemIdService {
 			throw new Error('WALLET_NOT_FOUND')
 		}
 
-		const signingAddress = ethers.utils.verifyMessage(wallet.nonce, signature)
-		if (signingAddress.toLowerCase() !== address.toLowerCase()) {
-			throw new Error('SIGNATURE_FAILED')
+		if (!config.TESTING) {
+			const signingAddress = ethers.utils.verifyMessage(wallet.nonce, signature)
+			if (signingAddress.toLowerCase() !== address.toLowerCase()) {
+				throw new Error('SIGNATURE_FAILED')
+			}
 		}
 
 		return wallet
@@ -456,7 +460,7 @@ export default class MeemIdService {
 			recommendedGwei = config.MAX_GAS_PRICE_GWEI
 		}
 
-		const transactions: ethers.ContractTransaction[] = []
+		const transactions: Ethers.ContractTransaction[] = []
 
 		for (let i = 0; i < meemIds.length; i += 1) {
 			const meemId = meemIds[i]

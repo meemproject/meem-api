@@ -36,7 +36,14 @@ export default class TwitterListener {
 				// Emitted when a Twitter payload (a tweet or not, given the endpoint).
 				ETwitterStreamEvent.Data,
 				async eventData => {
-					services.twitter.mintAndStoreTweet(eventData.data, eventData.includes)
+					try {
+						services.twitter.mintAndStoreTweet(
+							eventData.data,
+							eventData.includes
+						)
+					} catch (err) {
+						log.crit('Error minting tweet.', err)
+					}
 				}
 			)
 
@@ -48,6 +55,7 @@ export default class TwitterListener {
 
 			// Enable reconnect feature
 			stream.autoReconnect = true
+			stream.autoReconnectRetries = Infinity
 
 			log.info('Twitter listeners set up')
 		} catch (e) {

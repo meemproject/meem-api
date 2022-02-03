@@ -127,6 +127,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "InvalidToken",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "InvalidZeroAddressQuery",
     type: "error",
   },
@@ -141,24 +146,19 @@ const _abi = [
     type: "error",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "parentAddress",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "parentTokenId",
-        type: "uint256",
-      },
-    ],
-    name: "NoTransferWrappedNFT",
+    inputs: [],
+    name: "NotApproved",
     type: "error",
   },
   {
-    inputs: [],
-    name: "NotApproved",
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "NotTokenAdmin",
     type: "error",
   },
   {
@@ -409,6 +409,40 @@ const _abi = [
         internalType: "string",
         name: "",
         type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes",
+        name: "",
+        type: "bytes",
+      },
+    ],
+    name: "onERC721Received",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
       },
     ],
     stateMutability: "view",
@@ -838,22 +872,6 @@ const _abi = [
   {
     inputs: [],
     name: "NoPermission",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "parentAddress",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "parentTokenId",
-        type: "uint256",
-      },
-    ],
-    name: "NoTransferWrappedNFT",
     type: "error",
   },
   {
