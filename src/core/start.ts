@@ -189,26 +189,38 @@ export default async function start() {
 	)
 
 	if (config.ENABLE_GUNDB) {
-		g.gun = Gun({
+		// require('gun/sea')
+		g.gunServer = Gun({
 			web: server,
-			// peers: [`http://localhost:${config.PORT}/gun`],
+			axe: false,
 			s3: {
 				key: config.APP_AWS_ACCESS_KEY_ID,
 				secret: config.APP_AWS_SECRET_ACCESS_KEY,
 				bucket: config.GUNDB_S3_BUCKET
 			},
-			// file: '/tmp/gun.json',
+			// file: path.join(process.cwd(), 'tmp/gun.json'),
 			radisk: false,
 			localStorage: false
 		})
 
-		gun.user().create(config.GUNDB_USER, config.GUNDB_PASSWORD, _data => {
-			log.debug('GunDB user created')
-			// console.log(data)
+		g.gunServer.on('opt', msg => {
+			console.log({ msg })
 		})
+
+		// gun.on
+
+		g.gun = Gun({
+			peers: [`http://localhost:${config.PORT}/gun`]
+		})
+
+		// gun.user().create(config.GUNDB_USER, config.GUNDB_PASSWORD, _data => {
+		// 	log.debug('GunDB user created')
+		// 	console.log(_data)
+		// })
+		// gun.get('~@meems', d => console.log(d)).once(m => console.log(m))
 		gun.user().auth(config.GUNDB_USER, config.GUNDB_PASSWORD, _data => {
 			log.debug('GunDB user authenticated')
-			// console.log(data)
+			console.log(_data)
 		})
 	}
 
