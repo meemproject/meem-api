@@ -1,17 +1,21 @@
 import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
+import { wait } from '../lib/utils'
 import Meem from '../models/Meem'
 import {
-	ChildrenPerWalletSetEvent,
+	RemixesPerWalletSetEvent,
+	CopiesPerWalletSetEvent,
 	MeemPermissionStructOutput,
 	MeemPropertiesStructOutput,
 	PermissionsSetEvent,
 	PropertiesSetEvent,
 	SplitsSetEvent,
 	SplitStructOutput,
-	TotalChildrenLockedEvent,
-	TotalChildrenSetEvent,
+	TotalRemixesLockedEvent,
+	TotalRemixesSetEvent,
+	TotalCopiesLockedEvent,
+	TotalCopiesSetEvent,
 	TransferEvent
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
@@ -33,6 +37,8 @@ export default class ContractEvent {
 				log.debug(`Syncing ${i + 1} / ${events.length} events`)
 				// eslint-disable-next-line no-await-in-loop
 				await this.meemHandleTransfer(events[i])
+				// eslint-disable-next-line no-await-in-loop
+				await wait(2000)
 			} catch (e) {
 				failedEvents.push(events[i])
 				log.crit(e)
@@ -46,9 +52,9 @@ export default class ContractEvent {
 		}
 	}
 
-	public static async meemHandleTotalChildrenSet(evt: TotalChildrenSetEvent) {
+	public static async meemHandleTotalCopiesSet(evt: TotalCopiesSetEvent) {
 		const tokenId = evt.args.tokenId.toHexString()
-		const { newTotalChildren } = evt.args
+		const { newTotalCopies } = evt.args
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -65,13 +71,61 @@ export default class ContractEvent {
 		if (!meem) {
 			await this.createNewMeem(tokenId)
 		} else if (meem.Properties) {
-			meem.Properties.totalChildren = newTotalChildren.toHexString()
+			meem.Properties.totalCopies = newTotalCopies.toHexString()
 			await meem.save()
 		}
 	}
 
-	public static async meemHandleTotalChildrenLocked(
-		evt: TotalChildrenLockedEvent
+	public static async meemHandleTotalRemixesSet(evt: TotalRemixesSetEvent) {
+		const tokenId = evt.args.tokenId.toHexString()
+		const { newTotalRemixes } = evt.args
+
+		const meem = await orm.models.Meem.findOne({
+			where: {
+				tokenId
+			},
+			include: [
+				{
+					model: orm.models.MeemProperties,
+					as: 'Properties'
+				}
+			]
+		})
+
+		if (!meem) {
+			await this.createNewMeem(tokenId)
+		} else if (meem.Properties) {
+			meem.Properties.totalRemixes = newTotalRemixes.toHexString()
+			await meem.save()
+		}
+	}
+
+	public static async meemHandleTotalCopiesLocked(evt: TotalCopiesLockedEvent) {
+		const tokenId = evt.args.tokenId.toHexString()
+		const { lockedBy } = evt.args
+
+		const meem = await orm.models.Meem.findOne({
+			where: {
+				tokenId
+			},
+			include: [
+				{
+					model: orm.models.MeemProperties,
+					as: 'Properties'
+				}
+			]
+		})
+
+		if (!meem) {
+			await this.createNewMeem(tokenId)
+		} else if (meem.Properties) {
+			meem.Properties.totalCopiesLockedBy = lockedBy
+			await meem.save()
+		}
+	}
+
+	public static async meemHandleTotalRemixesLocked(
+		evt: TotalRemixesLockedEvent
 	) {
 		const tokenId = evt.args.tokenId.toHexString()
 		const { lockedBy } = evt.args
@@ -91,16 +145,16 @@ export default class ContractEvent {
 		if (!meem) {
 			await this.createNewMeem(tokenId)
 		} else if (meem.Properties) {
-			meem.Properties.totalChildrenLockedBy = lockedBy
+			meem.Properties.totalRemixesLockedBy = lockedBy
 			await meem.save()
 		}
 	}
 
-	public static async meemHandleChildrenPerWalletSet(
-		evt: ChildrenPerWalletSetEvent
+	public static async meemHandleCopiesPerWalletSet(
+		evt: CopiesPerWalletSetEvent
 	) {
 		const tokenId = evt.args.tokenId.toHexString()
-		const { newTotalChildren } = evt.args
+		const { newTotalCopies } = evt.args
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -117,13 +171,39 @@ export default class ContractEvent {
 		if (!meem) {
 			await this.createNewMeem(tokenId)
 		} else if (meem.Properties) {
-			meem.Properties.childrenPerWallet = newTotalChildren.toHexString()
+			meem.Properties.copiesPerWallet = newTotalCopies.toHexString()
 			await meem.save()
 		}
 	}
 
-	public static async meemHandleChildrenPerWalletLocked(
-		evt: TotalChildrenLockedEvent
+	public static async meemHandleRemixesPerWalletSet(
+		evt: RemixesPerWalletSetEvent
+	) {
+		const tokenId = evt.args.tokenId.toHexString()
+		const { newTotalRemixes } = evt.args
+
+		const meem = await orm.models.Meem.findOne({
+			where: {
+				tokenId
+			},
+			include: [
+				{
+					model: orm.models.MeemProperties,
+					as: 'Properties'
+				}
+			]
+		})
+
+		if (!meem) {
+			await this.createNewMeem(tokenId)
+		} else if (meem.Properties) {
+			meem.Properties.remixesPerWallet = newTotalRemixes.toHexString()
+			await meem.save()
+		}
+	}
+
+	public static async meemHandleCopiesPerWalletLocked(
+		evt: TotalCopiesLockedEvent
 	) {
 		const tokenId = evt.args.tokenId.toHexString()
 		const { lockedBy } = evt.args
@@ -143,7 +223,33 @@ export default class ContractEvent {
 		if (!meem) {
 			await this.createNewMeem(tokenId)
 		} else if (meem.Properties) {
-			meem.Properties.childrenPerWalletLockedBy = lockedBy
+			meem.Properties.copiesPerWalletLockedBy = lockedBy
+			await meem.save()
+		}
+	}
+
+	public static async meemHandleRemixesPerWalletLocked(
+		evt: TotalRemixesLockedEvent
+	) {
+		const tokenId = evt.args.tokenId.toHexString()
+		const { lockedBy } = evt.args
+
+		const meem = await orm.models.Meem.findOne({
+			where: {
+				tokenId
+			},
+			include: [
+				{
+					model: orm.models.MeemProperties,
+					as: 'Properties'
+				}
+			]
+		})
+
+		if (!meem) {
+			await this.createNewMeem(tokenId)
+		} else if (meem.Properties) {
+			meem.Properties.remixesPerWalletLockedBy = lockedBy
 			await meem.save()
 		}
 	}
@@ -221,19 +327,27 @@ export default class ContractEvent {
 			}
 		}
 
-		const block = await evt.getBlock()
+		// const block = await evt.getBlock()
 
 		if (config.ENABLE_GUNDB) {
-			gun.get('meems').get(tokenId).get('transfers').get(block.timestamp).put({
-				event: evt.event,
-				from: evt.args.from,
-				to: evt.args.to,
-				tokenId: evt.args.tokenId,
-				blockHash: evt.blockHash,
-				blockNumber: evt.blockNumber,
-				data: evt.data,
-				transactionHash: evt.transactionHash
-			})
+			const transfer = gun
+				.user()
+				.get('transfers')
+				.get(evt.transactionHash)
+				.put({
+					event: evt.event,
+					from: evt.args.from,
+					to: evt.args.to,
+					tokenId: evt.args.tokenId,
+					blockHash: evt.blockHash,
+					blockNumber: evt.blockNumber,
+					data: evt.data,
+					transactionHash: evt.transactionHash
+				})
+
+			const token = gun.user().get('meems').get(tokenId)
+			token.get('transfers').put(transfer)
+			transfer.get('token').put(token)
 		}
 	}
 
@@ -338,27 +452,49 @@ export default class ContractEvent {
 		if (config.ENABLE_GUNDB) {
 			const d = {
 				...data,
-				properties: properties.get({ plain: true }),
-				childProperties: childProperties.get({ plain: true }),
-				mintedAt: meemData.mintedAt.toNumber(),
-				metadata
+				mintedAt: meemData.mintedAt.toNumber()
+				// properties: properties.get({ plain: true }),
+				// childProperties: childProperties.get({ plain: true }),
+				// metadata
 			}
 
-			const token = this.saveToGun({ path: `meems/${tokenId}`, data: d })
+			const token = this.saveToGun({ paths: ['meems', tokenId], data: d })
+			const tokenProperties = this.saveToGun({
+				paths: ['properties', tokenId],
+				data: properties.get({ plain: true })
+			})
+			const tokenChildProperties = this.saveToGun({
+				paths: ['childProperties', tokenId],
+				data: childProperties.get({ plain: true })
+			})
+			const tokenMetadata = this.saveToGun({
+				paths: ['metadata', tokenId],
+				data: metadata
+			})
+
+			token.get('properties').put(tokenProperties)
+			token.get('childProperties').put(tokenChildProperties)
+			token.get('metadata').put(tokenMetadata)
+			tokenProperties.get('token').put(token)
+			tokenChildProperties.get('token').put(token)
+			tokenMetadata.get('token').put(token)
 
 			let parent: IGunChainReference<any, string | number | symbol, false>
 			let root: IGunChainReference<any, string | number | symbol, false>
 
 			if (meemData.parent === config.MEEM_PROXY_ADDRESS) {
 				// Parent is a meem
-				parent = gun.get('meems').get(meemData.parentTokenId.toHexString())
+				parent = gun
+					.user()
+					.get('meems')
+					.get(meemData.parentTokenId.toHexString())
 				token.get('parentMeem').put(parent)
 				parent.get('childMeems').put(token)
 			}
 
 			if (meemData.root === config.MEEM_PROXY_ADDRESS) {
 				// Parent is a meem
-				root = gun.get('meems').get(meemData.parentTokenId.toHexString())
+				root = gun.user().get('meems').get(meemData.parentTokenId.toHexString())
 				token.get('rootMeem').put(root)
 				root.get('descendantMeems').put(token)
 			}
@@ -366,27 +502,38 @@ export default class ContractEvent {
 	}
 
 	public static saveToGun(options: {
-		path: string
+		paths: string[]
 		from?: IGunChainReference<any, string, false>
 		data: any
 	}): IGunChainReference<any, string, false> {
 		// return new Promise((resolve, reject) => {
-		const { path, data, from } = options
+		const { paths, data, from } = options
+		let item: IGunChainReference<any, string, false> = gun.user()
 
-		const item = from ? from.get(path) : gun.get(path)
+		if (paths.length === 0) {
+			throw new Error('Paths must be set')
+		}
 
-		log.debug(`Saving path w/ length ${path.length} | ${path}`)
+		paths.forEach(path => {
+			if (from && !item) {
+				item = from.get(path)
+			} else if (item) {
+				item = item.get(path)
+			} else {
+				item = gun.user().get(path)
+			}
+		})
 
 		const dataObject = this.toPureObject(data)
 
 		Object.keys(dataObject).forEach(key => {
 			const val = dataObject[key]
 			if (typeof val === 'object') {
-				this.saveToGun({ path: `${key}`, from: item, data: val })
+				this.saveToGun({ paths: [key], from: item, data: val })
 			} else if (Object.prototype.toString.call(val) === '[object Date]') {
 				item.get(key).put(((val as Date).getTime() / 1000) as any, ack => {
 					if (ack.ok) {
-						log.debug(`Gun sync: ${path}/${key}`)
+						log.debug(`Gun sync: ${paths.join('/')}/${key}`)
 					} else if (ack.err) {
 						log.crit(ack.err)
 					}
@@ -394,8 +541,9 @@ export default class ContractEvent {
 			} else {
 				item.get(key).put(val, ack => {
 					if (ack.ok) {
-						log.debug(`Gun sync: ${path}/${key}`)
+						log.debug(`Gun sync: ${paths.join('/')}/${key}`)
 					} else if (ack.err) {
+						log.crit(`Error saving: ${key}`, val)
 						log.crit(ack.err)
 					}
 				})
@@ -428,10 +576,14 @@ export default class ContractEvent {
 		props: MeemPropertiesStructOutput
 	) {
 		return {
-			totalChildren: props.totalChildren.toHexString(),
-			totalChildrenLockedBy: props.totalChildrenLockedBy,
-			childrenPerWallet: props.childrenPerWallet.toHexString(),
-			childrenPerWalletLockedBy: props.childrenPerWalletLockedBy,
+			totalCopies: props.totalCopies.toHexString(),
+			totalCopiesLockedBy: props.totalCopiesLockedBy,
+			copiesPerWallet: props.copiesPerWallet.toHexString(),
+			copiesPerWalletLockedBy: props.copiesPerWalletLockedBy,
+			totalRemixes: props.totalRemixes.toHexString(),
+			totalRemixesLockedBy: props.totalRemixesLockedBy,
+			remixesPerWallet: props.remixesPerWallet.toHexString(),
+			remixesPerWalletLockedBy: props.remixesPerWalletLockedBy,
 			copyPermissions: this.meemPermissionsDataToModelData(
 				props.copyPermissions
 			),
@@ -487,6 +639,8 @@ export default class ContractEvent {
 				data[key] = this.toPureObject(val)
 			} else if (Object.prototype.toString.call(val) === '[object Date]') {
 				data[key] = (val as Date).toString()
+			} else if (typeof val === 'string') {
+				data[key] = val.replace(/\n/g, '/n')
 			}
 		})
 

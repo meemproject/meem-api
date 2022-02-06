@@ -13,6 +13,8 @@ export default {
 		process.env.MEEM_DOMAIN ?? process.env.NETWORK === 'rinkeby'
 			? 'https://dev.meem.wtf'
 			: 'https://meem.wtf',
+	DAO_WALLET:
+		process.env.DAO_WALLET ?? '0x9C5ceC7a99D19a9f1754C202aBA01BBFEDECC561',
 	SERVER_LISTENING: process.env.SERVER_LISTENING !== 'false',
 	SERVER_ADMIN_KEY: process.env.SERVER_ADMIN_KEY ?? 'xGugNAB2PEX4uY4sPF',
 	HARDHAT_MEEM_CONTRACT_WALLET:

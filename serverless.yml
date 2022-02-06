@@ -69,6 +69,7 @@ provider:
     TWITTER_WALLET_PRIVATE_KEY: ${env:TWITTER_WALLET_PRIVATE_KEY, ''}
     TWITTER_PROJECT_TOKEN_ID: ${env:TWITTER_PROJECT_TOKEN_ID, ''}
     MEEM_PROJECT_OWNER_ADDRESS: ${env:MEEM_PROJECT_OWNER_ADDRESS, ''}
+    DAO_WALLET: ${env:DAO_WALLET, ''}
 
 package:
   excludeDevDependencies: true

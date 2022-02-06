@@ -696,9 +696,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
+        internalType: "int256",
         name: "newChildDepth",
-        type: "uint256",
+        type: "int256",
       },
     ],
     name: "setChildDepth",
@@ -778,7 +778,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ChildrenPerWalletExceeded",
+    name: "CopiesPerWalletExceeded",
     type: "error",
   },
   {
@@ -875,6 +875,11 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "RemixesPerWalletExceeded",
+    type: "error",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -909,7 +914,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "TotalChildrenExceeded",
+    name: "TotalCopiesExceeded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TotalRemixesExceeded",
     type: "error",
   },
   {
@@ -931,22 +941,22 @@ const _abi = [
         components: [
           {
             internalType: "int256",
-            name: "totalChildren",
+            name: "totalRemixes",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "totalChildrenLockedBy",
+            name: "totalRemixesLockedBy",
             type: "address",
           },
           {
             internalType: "int256",
-            name: "childrenPerWallet",
+            name: "remixesPerWallet",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "childrenPerWalletLockedBy",
+            name: "remixesPerWalletLockedBy",
             type: "address",
           },
           {
@@ -1070,6 +1080,26 @@ const _abi = [
           {
             internalType: "address",
             name: "splitsLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "totalCopies",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "totalCopiesLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "copiesPerWallet",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "copiesPerWalletLockedBy",
             type: "address",
           },
         ],
@@ -1140,22 +1170,22 @@ const _abi = [
         components: [
           {
             internalType: "int256",
-            name: "totalChildren",
+            name: "totalRemixes",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "totalChildrenLockedBy",
+            name: "totalRemixesLockedBy",
             type: "address",
           },
           {
             internalType: "int256",
-            name: "childrenPerWallet",
+            name: "remixesPerWallet",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "childrenPerWalletLockedBy",
+            name: "remixesPerWalletLockedBy",
             type: "address",
           },
           {
@@ -1279,6 +1309,26 @@ const _abi = [
           {
             internalType: "address",
             name: "splitsLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "totalCopies",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "totalCopiesLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "copiesPerWallet",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "copiesPerWalletLockedBy",
             type: "address",
           },
         ],
@@ -1290,22 +1340,22 @@ const _abi = [
         components: [
           {
             internalType: "int256",
-            name: "totalChildren",
+            name: "totalRemixes",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "totalChildrenLockedBy",
+            name: "totalRemixesLockedBy",
             type: "address",
           },
           {
             internalType: "int256",
-            name: "childrenPerWallet",
+            name: "remixesPerWallet",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "childrenPerWalletLockedBy",
+            name: "remixesPerWalletLockedBy",
             type: "address",
           },
           {
@@ -1429,6 +1479,26 @@ const _abi = [
           {
             internalType: "address",
             name: "splitsLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "totalCopies",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "totalCopiesLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "copiesPerWallet",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "copiesPerWalletLockedBy",
             type: "address",
           },
         ],
@@ -1500,22 +1570,22 @@ const _abi = [
         components: [
           {
             internalType: "int256",
-            name: "totalChildren",
+            name: "totalRemixes",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "totalChildrenLockedBy",
+            name: "totalRemixesLockedBy",
             type: "address",
           },
           {
             internalType: "int256",
-            name: "childrenPerWallet",
+            name: "remixesPerWallet",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "childrenPerWalletLockedBy",
+            name: "remixesPerWalletLockedBy",
             type: "address",
           },
           {
@@ -1639,6 +1709,26 @@ const _abi = [
           {
             internalType: "address",
             name: "splitsLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "totalCopies",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "totalCopiesLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "copiesPerWallet",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "copiesPerWalletLockedBy",
             type: "address",
           },
         ],
@@ -1650,22 +1740,22 @@ const _abi = [
         components: [
           {
             internalType: "int256",
-            name: "totalChildren",
+            name: "totalRemixes",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "totalChildrenLockedBy",
+            name: "totalRemixesLockedBy",
             type: "address",
           },
           {
             internalType: "int256",
-            name: "childrenPerWallet",
+            name: "remixesPerWallet",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "childrenPerWalletLockedBy",
+            name: "remixesPerWalletLockedBy",
             type: "address",
           },
           {
@@ -1789,6 +1879,26 @@ const _abi = [
           {
             internalType: "address",
             name: "splitsLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "totalCopies",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "totalCopiesLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "copiesPerWallet",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "copiesPerWalletLockedBy",
             type: "address",
           },
         ],
@@ -1865,22 +1975,22 @@ const _abi = [
         components: [
           {
             internalType: "int256",
-            name: "totalChildren",
+            name: "totalRemixes",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "totalChildrenLockedBy",
+            name: "totalRemixesLockedBy",
             type: "address",
           },
           {
             internalType: "int256",
-            name: "childrenPerWallet",
+            name: "remixesPerWallet",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "childrenPerWalletLockedBy",
+            name: "remixesPerWalletLockedBy",
             type: "address",
           },
           {
@@ -2004,6 +2114,26 @@ const _abi = [
           {
             internalType: "address",
             name: "splitsLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "totalCopies",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "totalCopiesLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "copiesPerWallet",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "copiesPerWalletLockedBy",
             type: "address",
           },
         ],
@@ -2015,22 +2145,22 @@ const _abi = [
         components: [
           {
             internalType: "int256",
-            name: "totalChildren",
+            name: "totalRemixes",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "totalChildrenLockedBy",
+            name: "totalRemixesLockedBy",
             type: "address",
           },
           {
             internalType: "int256",
-            name: "childrenPerWallet",
+            name: "remixesPerWallet",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "childrenPerWalletLockedBy",
+            name: "remixesPerWalletLockedBy",
             type: "address",
           },
           {
@@ -2154,6 +2284,26 @@ const _abi = [
           {
             internalType: "address",
             name: "splitsLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "totalCopies",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "totalCopiesLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "copiesPerWallet",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "copiesPerWalletLockedBy",
             type: "address",
           },
         ],
@@ -2217,22 +2367,22 @@ const _abi = [
         components: [
           {
             internalType: "int256",
-            name: "totalChildren",
+            name: "totalRemixes",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "totalChildrenLockedBy",
+            name: "totalRemixesLockedBy",
             type: "address",
           },
           {
             internalType: "int256",
-            name: "childrenPerWallet",
+            name: "remixesPerWallet",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "childrenPerWalletLockedBy",
+            name: "remixesPerWalletLockedBy",
             type: "address",
           },
           {
@@ -2356,6 +2506,26 @@ const _abi = [
           {
             internalType: "address",
             name: "splitsLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "totalCopies",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "totalCopiesLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "copiesPerWallet",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "copiesPerWalletLockedBy",
             type: "address",
           },
         ],
@@ -2367,22 +2537,22 @@ const _abi = [
         components: [
           {
             internalType: "int256",
-            name: "totalChildren",
+            name: "totalRemixes",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "totalChildrenLockedBy",
+            name: "totalRemixesLockedBy",
             type: "address",
           },
           {
             internalType: "int256",
-            name: "childrenPerWallet",
+            name: "remixesPerWallet",
             type: "int256",
           },
           {
             internalType: "address",
-            name: "childrenPerWalletLockedBy",
+            name: "remixesPerWalletLockedBy",
             type: "address",
           },
           {
@@ -2506,6 +2676,26 @@ const _abi = [
           {
             internalType: "address",
             name: "splitsLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "totalCopies",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "totalCopiesLockedBy",
+            type: "address",
+          },
+          {
+            internalType: "int256",
+            name: "copiesPerWallet",
+            type: "int256",
+          },
+          {
+            internalType: "address",
+            name: "copiesPerWalletLockedBy",
             type: "address",
           },
         ],
@@ -2549,11 +2739,22 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "currentTotalChildren",
+        name: "currentTotalCopies",
         type: "uint256",
       },
     ],
-    name: "InvalidTotalChildren",
+    name: "InvalidTotalCopies",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "currentTotalRemixes",
+        type: "uint256",
+      },
+    ],
+    name: "InvalidTotalRemixes",
     type: "error",
   },
   {
@@ -2616,7 +2817,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "ChildrenPerWalletLocked",
+    name: "CopiesPerWalletLocked",
     type: "event",
   },
   {
@@ -2637,11 +2838,11 @@ const _abi = [
       {
         indexed: false,
         internalType: "int256",
-        name: "newTotalChildren",
+        name: "newTotalCopies",
         type: "int256",
       },
     ],
-    name: "ChildrenPerWalletSet",
+    name: "CopiesPerWalletSet",
     type: "event",
   },
   {
@@ -2719,7 +2920,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "TotalChildrenLocked",
+    name: "RemixesPerWalletLocked",
     type: "event",
   },
   {
@@ -2740,11 +2941,111 @@ const _abi = [
       {
         indexed: false,
         internalType: "int256",
-        name: "newTotalChildren",
+        name: "newTotalRemixes",
         type: "int256",
       },
     ],
-    name: "TotalChildrenSet",
+    name: "RemixesPerWalletSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "lockedBy",
+        type: "address",
+      },
+    ],
+    name: "TotalCopiesLocked",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "int256",
+        name: "newTotalCopies",
+        type: "int256",
+      },
+    ],
+    name: "TotalCopiesSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "lockedBy",
+        type: "address",
+      },
+    ],
+    name: "TotalRemixesLocked",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "int256",
+        name: "newTotalRemixes",
+        type: "int256",
+      },
+    ],
+    name: "TotalRemixesSet",
     type: "event",
   },
   {
@@ -2810,7 +3111,7 @@ const _abi = [
         type: "uint8",
       },
     ],
-    name: "lockChildrenPerWallet",
+    name: "lockCopiesPerWallet",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2851,7 +3152,43 @@ const _abi = [
         type: "uint8",
       },
     ],
-    name: "lockTotalChildren",
+    name: "lockRemixesPerWallet",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+    ],
+    name: "lockTotalCopies",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+    ],
+    name: "lockTotalRemixes",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2898,11 +3235,11 @@ const _abi = [
       },
       {
         internalType: "int256",
-        name: "newTotalChildren",
+        name: "newTotalCopies",
         type: "int256",
       },
     ],
-    name: "setChildrenPerWallet",
+    name: "setCopiesPerWallet",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2971,11 +3308,57 @@ const _abi = [
       },
       {
         internalType: "int256",
-        name: "newTotalChildren",
+        name: "newTotalRemixes",
         type: "int256",
       },
     ],
-    name: "setTotalChildren",
+    name: "setRemixesPerWallet",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        internalType: "int256",
+        name: "newTotalCopies",
+        type: "int256",
+      },
+    ],
+    name: "setTotalCopies",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
+        internalType: "int256",
+        name: "newTotalRemixes",
+        type: "int256",
+      },
+    ],
+    name: "setTotalRemixes",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -3040,9 +3423,9 @@ const _abi = [
     name: "childDepth",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "int256",
         name: "",
-        type: "uint256",
+        type: "int256",
       },
     ],
     stateMutability: "view",
@@ -3056,7 +3439,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "childrenOf",
+    name: "copiesOf",
     outputs: [
       {
         internalType: "uint256[]",
@@ -3123,22 +3506,22 @@ const _abi = [
             components: [
               {
                 internalType: "int256",
-                name: "totalChildren",
+                name: "totalRemixes",
                 type: "int256",
               },
               {
                 internalType: "address",
-                name: "totalChildrenLockedBy",
+                name: "totalRemixesLockedBy",
                 type: "address",
               },
               {
                 internalType: "int256",
-                name: "childrenPerWallet",
+                name: "remixesPerWallet",
                 type: "int256",
               },
               {
                 internalType: "address",
-                name: "childrenPerWalletLockedBy",
+                name: "remixesPerWalletLockedBy",
                 type: "address",
               },
               {
@@ -3262,6 +3645,26 @@ const _abi = [
               {
                 internalType: "address",
                 name: "splitsLockedBy",
+                type: "address",
+              },
+              {
+                internalType: "int256",
+                name: "totalCopies",
+                type: "int256",
+              },
+              {
+                internalType: "address",
+                name: "totalCopiesLockedBy",
+                type: "address",
+              },
+              {
+                internalType: "int256",
+                name: "copiesPerWallet",
+                type: "int256",
+              },
+              {
+                internalType: "address",
+                name: "copiesPerWalletLockedBy",
                 type: "address",
               },
             ],
@@ -3273,22 +3676,22 @@ const _abi = [
             components: [
               {
                 internalType: "int256",
-                name: "totalChildren",
+                name: "totalRemixes",
                 type: "int256",
               },
               {
                 internalType: "address",
-                name: "totalChildrenLockedBy",
+                name: "totalRemixesLockedBy",
                 type: "address",
               },
               {
                 internalType: "int256",
-                name: "childrenPerWallet",
+                name: "remixesPerWallet",
                 type: "int256",
               },
               {
                 internalType: "address",
-                name: "childrenPerWalletLockedBy",
+                name: "remixesPerWalletLockedBy",
                 type: "address",
               },
               {
@@ -3412,6 +3815,26 @@ const _abi = [
               {
                 internalType: "address",
                 name: "splitsLockedBy",
+                type: "address",
+              },
+              {
+                internalType: "int256",
+                name: "totalCopies",
+                type: "int256",
+              },
+              {
+                internalType: "address",
+                name: "totalCopiesLockedBy",
+                type: "address",
+              },
+              {
+                internalType: "int256",
+                name: "copiesPerWallet",
+                type: "int256",
+              },
+              {
+                internalType: "address",
+                name: "copiesPerWalletLockedBy",
                 type: "address",
               },
             ],
@@ -3490,7 +3913,26 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "numChildrenOf",
+    name: "numCopiesOf",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "numRemixesOf",
     outputs: [
       {
         internalType: "uint256",
@@ -3514,7 +3956,50 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "ownedChildrenOf",
+    name: "ownedCopiesOf",
+    outputs: [
+      {
+        internalType: "uint256[]",
+        name: "",
+        type: "uint256[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+    ],
+    name: "ownedRemixesOf",
+    outputs: [
+      {
+        internalType: "uint256[]",
+        name: "",
+        type: "uint256[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "remixesOf",
     outputs: [
       {
         internalType: "uint256[]",

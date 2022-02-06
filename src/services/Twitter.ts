@@ -458,7 +458,6 @@ export default class TwitterService {
 			}
 
 			const properties = services.meem.buildProperties({
-				totalChildren: '-1',
 				copyPermissions: [],
 				remixPermissions: [
 					{
@@ -470,7 +469,7 @@ export default class TwitterService {
 				],
 				splits: [
 					{
-						toAddress: '0x40c6BeE45d94063c5B05144489cd8A9879899592',
+						toAddress: config.DAO_WALLET,
 						amount: 100,
 						lockedBy: MeemAPI.zeroAddress
 					}
