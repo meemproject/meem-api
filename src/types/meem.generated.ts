@@ -413,6 +413,8 @@ export namespace MeemAPI {
 		data: string
 		/** Will be a non-zero address if the Meem has been verified */
 		verifiedBy: string
+		meemType: MeemType
+		mintedBy: string
 	}
 
 	export interface IMetadataMeem extends IMeem {
@@ -489,6 +491,13 @@ export namespace MeemAPI {
 			}
 			isAdmin: boolean
 		}
+	}
+
+	export interface ITransfer {
+		from: string
+		to: string
+		transactionHash: string
+		timestamp: number
 	}
 
 	export namespace v1 {
@@ -740,6 +749,7 @@ export namespace MeemAPI {
 
 			export interface IResponseBody extends IApiResponseBody {
 				meem: IMetadataMeem
+				transfers: ITransfer[]
 			}
 
 			export interface IDefinition {

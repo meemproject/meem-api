@@ -3,6 +3,7 @@ import Meem from '../models/Meem'
 import MeemIdentification from '../models/MeemIdentification'
 import MeemPass from '../models/MeemPass'
 import MeemProperties from '../models/MeemProperties'
+import Transfer from '../models/Transfer'
 import Tweet from '../models/Tweet'
 import TweetHashtag from '../models/TweetHashtag'
 import Twitter from '../models/Twitter'
@@ -14,6 +15,7 @@ export interface IModels {
 	MeemPass: typeof MeemPass
 	MeemProperties: typeof MeemProperties
 	MeemIdentification: typeof MeemIdentification
+	Transfer: typeof Transfer
 	Tweet: typeof Tweet
 	TweetHashtag: typeof TweetHashtag
 	Twitter: typeof Twitter

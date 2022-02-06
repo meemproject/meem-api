@@ -3,6 +3,7 @@ import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import MeemProperties from './MeemProperties'
+import Transfer from './Transfer'
 
 export default class Meem extends BaseModel<Meem> {
 	public static readonly modelName = 'Meem'
@@ -98,6 +99,16 @@ export default class Meem extends BaseModel<Meem> {
 			type: DataTypes.JSONB,
 			allowNull: false,
 			defaultValue: {}
+		},
+		meemType: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 0
+		},
+		mintedBy: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: MeemAPI.zeroAddress
 		}
 	}
 
@@ -133,6 +144,10 @@ export default class Meem extends BaseModel<Meem> {
 
 	public metadata!: MeemAPI.IMeemMetadata
 
+	public meemType!: MeemAPI.MeemType
+
+	public mintedBy!: string
+
 	public PropertiesId!: string | null
 
 	public ChildPropertiesId!: string | null
@@ -140,6 +155,8 @@ export default class Meem extends BaseModel<Meem> {
 	public Properties!: MeemProperties | null
 
 	public ChildProperties!: MeemProperties | null
+
+	public Transfers!: Transfer[] | null
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.MeemProperties, {
@@ -149,5 +166,7 @@ export default class Meem extends BaseModel<Meem> {
 		this.belongsTo(models.MeemProperties, {
 			as: 'ChildProperties'
 		})
+
+		this.hasMany(models.Transfer)
 	}
 }

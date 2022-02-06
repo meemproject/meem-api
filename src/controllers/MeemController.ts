@@ -97,6 +97,9 @@ export default class MeemController {
 					{
 						model: orm.models.MeemProperties,
 						as: 'ChildProperties'
+					},
+					{
+						model: orm.models.Transfer
 					}
 				]
 			})
@@ -120,6 +123,9 @@ export default class MeemController {
 					{
 						model: orm.models.MeemProperties,
 						as: 'ChildProperties'
+					},
+					{
+						model: orm.models.Transfer
 					}
 				]
 			})
@@ -153,7 +159,13 @@ export default class MeemController {
 			throw new Error('TOKEN_NOT_FOUND')
 		}
 
-		// TODO: Clean up this output so it matches IMeem
+		const transfers = meem.Transfers?.map(t => ({
+			from: t.from,
+			to: t.to,
+			transactionHash: t.transactionHash,
+			timestamp: moment(t.transferredAt).unix()
+		}))
+
 		return res.json({
 			meem: {
 				tokenId,
@@ -171,8 +183,11 @@ export default class MeemController {
 				mintedAt: moment(meem.mintedAt).unix(),
 				data: meem.data,
 				verifiedBy: meem.verifiedBy,
-				metadata
-			}
+				metadata,
+				meemType: meem.meemType,
+				mintedBy: meem.mintedBy
+			},
+			transfers: transfers ?? []
 		})
 	}
 
@@ -228,7 +243,9 @@ export default class MeemController {
 					mintedAt: moment(rawMeem.mintedAt).unix(),
 					data: rawMeem.data,
 					verifiedBy: rawMeem.verifiedBy,
-					metadata: rawMeem.metadata
+					metadata: rawMeem.metadata,
+					mintedBy: rawMeem.mintedBy,
+					meemType: rawMeem.meemType
 				})
 			} else {
 				finalCount -= 1
