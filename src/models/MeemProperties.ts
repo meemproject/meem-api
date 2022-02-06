@@ -16,31 +16,59 @@ export default class MeemProperties extends BaseModel<MeemProperties> {
 			defaultValue: DataTypes.UUIDV4,
 			primaryKey: true
 		},
-		totalChildren: {
+		totalRemixes: {
 			type: DataTypes.STRING,
 			allowNull: false,
 			set(this: MeemProperties, val: any) {
 				this.setDataValue(
-					'totalChildren',
+					'totalRemixes',
 					services.web3.toBigNumber(val).toHexString()
 				)
 			}
 		},
-		totalChildrenLockedBy: {
+		totalRemixesLockedBy: {
 			type: DataTypes.STRING,
 			allowNull: false
 		},
-		childrenPerWallet: {
+		remixesPerWallet: {
 			type: DataTypes.STRING,
 			allowNull: false,
 			set(this: MeemProperties, val: any) {
 				this.setDataValue(
-					'childrenPerWallet',
+					'remixesPerWallet',
 					services.web3.toBigNumber(val).toHexString()
 				)
 			}
 		},
-		childrenPerWalletLockedBy: {
+		remixesPerWalletLockedBy: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		totalCopies: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			set(this: MeemProperties, val: any) {
+				this.setDataValue(
+					'totalCopies',
+					services.web3.toBigNumber(val).toHexString()
+				)
+			}
+		},
+		totalCopiesLockedBy: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		copiesPerWallet: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			set(this: MeemProperties, val: any) {
+				this.setDataValue(
+					'copiesPerWallet',
+					services.web3.toBigNumber(val).toHexString()
+				)
+			}
+		},
+		copiesPerWalletLockedBy: {
 			type: DataTypes.STRING,
 			allowNull: false
 		},
@@ -80,13 +108,21 @@ export default class MeemProperties extends BaseModel<MeemProperties> {
 
 	public id!: string
 
-	public totalChildren!: string
+	public totalRemixes!: string
 
-	public totalChildrenLockedBy!: string
+	public totalRemixesLockedBy!: string
 
-	public childrenPerWallet!: string
+	public remixesPerWallet!: string
 
-	public childrenPerWalletLockedBy!: string
+	public remixesPerWalletLockedBy!: string
+
+	public totalCopies!: string
+
+	public totalCopiesLockedBy!: string
+
+	public copiesPerWallet!: string
+
+	public copiesPerWalletLockedBy!: string
 
 	public copyPermissions!: MeemAPI.IMeemPermission[]
 

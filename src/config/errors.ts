@@ -264,14 +264,14 @@ const errors = {
 		reason: 'An invalid permission type was sent to the contract.',
 		friendlyReason: 'An invalid permission type was sent to the contract.'
 	},
-	INVALID_TOTAL_CHILDREN: {
-		contractErrorCode: 'InvalidTotalChildren',
+	INVALID_TOTAL_COPIES: {
+		contractErrorCode: 'InvalidTotalCopies',
 		httpCode: 400,
 		status: 'failure',
 		reason:
-			'An invalid number for totalChildren was sent. It can not be less than the existing number of children.',
+			'An invalid number for totalCopies was sent. It can not be less than the existing number of children.',
 		friendlyReason:
-			'An invalid number for totalChildren was sent. It can not be less than the existing number of children.'
+			'An invalid number for totalCopies was sent. It can not be less than the existing number of children.'
 	},
 	CHILD_DEPTH_EXCEEDED: {
 		contractErrorCode: 'ChildDepthExceeded',

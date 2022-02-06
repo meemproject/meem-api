@@ -324,11 +324,15 @@ export interface IMeemPermission {
 
 export interface IMeemProperties {
 	/** BigNumber hex string */
-	totalChildren: string
-	totalChildrenLockedBy: string
+	totalCopies: string
+	totalCopiesLockedBy: string
+	totalRemixes: string
+	totalRemixesLockedBy: string
 	/** BigNumber hex string */
-	childrenPerWallet: string
-	childrenPerWalletLockedBy: string
+	copiesPerWallet: string
+	copiesPerWalletLockedBy: string
+	remixesPerWallet: string
+	remixesPerWalletLockedBy: string
 	copyPermissions: IMeemPermission[]
 	remixPermissions: IMeemPermission[]
 	readPermissions: IMeemPermission[]

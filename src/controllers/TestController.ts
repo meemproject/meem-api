@@ -77,15 +77,19 @@ export default class ConfigController {
 		// 	'0x0186c3'
 		// )
 
+		// gun
+		// 	.user()
+		// 	.get('testing')
+		// 	.put(
+		// 		{
+		// 			description: `something something\nother thing`
+		// 		},
+		// 		ack => console.log(ack)
+		// 	)
 		gun
 			.user()
 			.get('testing')
-			.put(
-				{
-					description: `something something\nother thing`
-				},
-				ack => console.log(ack.err)
-			)
+			.once(d => console.log(d))
 		// gun
 		// 	.user()
 		// 	.get('testing')

@@ -30,24 +30,43 @@ export default class ContractListener {
 			services.contractEvents.meemHandleSplitsSet(evt)
 		)
 		this.meemContract.on(
-			this.meemContract.filters.TotalChildrenSet(),
-			(_a, _b, _c, evt) =>
-				services.contractEvents.meemHandleTotalChildrenSet(evt)
+			this.meemContract.filters.TotalCopiesSet(),
+			(_a, _b, _c, evt) => services.contractEvents.meemHandleTotalCopiesSet(evt)
 		)
 		this.meemContract.on(
-			this.meemContract.filters.TotalChildrenLocked(),
+			this.meemContract.filters.TotalCopiesLocked(),
 			(_a, _b, _c, evt) =>
-				services.contractEvents.meemHandleTotalChildrenLocked(evt)
+				services.contractEvents.meemHandleTotalCopiesLocked(evt)
 		)
 		this.meemContract.on(
-			this.meemContract.filters.ChildrenPerWalletSet(),
+			this.meemContract.filters.CopiesPerWalletSet(),
 			(_a, _b, _c, evt) =>
-				services.contractEvents.meemHandleChildrenPerWalletSet(evt)
+				services.contractEvents.meemHandleCopiesPerWalletSet(evt)
 		)
 		this.meemContract.on(
-			this.meemContract.filters.ChildrenPerWalletLocked(),
+			this.meemContract.filters.CopiesPerWalletLocked(),
 			(_a, _b, _c, evt) =>
-				services.contractEvents.meemHandleChildrenPerWalletLocked(evt)
+				services.contractEvents.meemHandleCopiesPerWalletLocked(evt)
+		)
+		this.meemContract.on(
+			this.meemContract.filters.TotalRemixesSet(),
+			(_a, _b, _c, evt) =>
+				services.contractEvents.meemHandleTotalRemixesSet(evt)
+		)
+		this.meemContract.on(
+			this.meemContract.filters.TotalRemixesLocked(),
+			(_a, _b, _c, evt) =>
+				services.contractEvents.meemHandleTotalRemixesLocked(evt)
+		)
+		this.meemContract.on(
+			this.meemContract.filters.RemixesPerWalletSet(),
+			(_a, _b, _c, evt) =>
+				services.contractEvents.meemHandleRemixesPerWalletSet(evt)
+		)
+		this.meemContract.on(
+			this.meemContract.filters.RemixesPerWalletLocked(),
+			(_a, _b, _c, evt) =>
+				services.contractEvents.meemHandleRemixesPerWalletLocked(evt)
 		)
 		this.meemContract.on(
 			this.meemContract.filters.PermissionsSet(),

@@ -4,15 +4,18 @@ import { v4 as uuidv4 } from 'uuid'
 import { wait } from '../lib/utils'
 import Meem from '../models/Meem'
 import {
-	ChildrenPerWalletSetEvent,
+	RemixesPerWalletSetEvent,
+	CopiesPerWalletSetEvent,
 	MeemPermissionStructOutput,
 	MeemPropertiesStructOutput,
 	PermissionsSetEvent,
 	PropertiesSetEvent,
 	SplitsSetEvent,
 	SplitStructOutput,
-	TotalChildrenLockedEvent,
-	TotalChildrenSetEvent,
+	TotalRemixesLockedEvent,
+	TotalRemixesSetEvent,
+	TotalCopiesLockedEvent,
+	TotalCopiesSetEvent,
 	TransferEvent
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
@@ -49,9 +52,9 @@ export default class ContractEvent {
 		}
 	}
 
-	public static async meemHandleTotalChildrenSet(evt: TotalChildrenSetEvent) {
+	public static async meemHandleTotalCopiesSet(evt: TotalCopiesSetEvent) {
 		const tokenId = evt.args.tokenId.toHexString()
-		const { newTotalChildren } = evt.args
+		const { newTotalCopies } = evt.args
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -68,13 +71,61 @@ export default class ContractEvent {
 		if (!meem) {
 			await this.createNewMeem(tokenId)
 		} else if (meem.Properties) {
-			meem.Properties.totalChildren = newTotalChildren.toHexString()
+			meem.Properties.totalCopies = newTotalCopies.toHexString()
 			await meem.save()
 		}
 	}
 
-	public static async meemHandleTotalChildrenLocked(
-		evt: TotalChildrenLockedEvent
+	public static async meemHandleTotalRemixesSet(evt: TotalRemixesSetEvent) {
+		const tokenId = evt.args.tokenId.toHexString()
+		const { newTotalRemixes } = evt.args
+
+		const meem = await orm.models.Meem.findOne({
+			where: {
+				tokenId
+			},
+			include: [
+				{
+					model: orm.models.MeemProperties,
+					as: 'Properties'
+				}
+			]
+		})
+
+		if (!meem) {
+			await this.createNewMeem(tokenId)
+		} else if (meem.Properties) {
+			meem.Properties.totalRemixes = newTotalRemixes.toHexString()
+			await meem.save()
+		}
+	}
+
+	public static async meemHandleTotalCopiesLocked(evt: TotalCopiesLockedEvent) {
+		const tokenId = evt.args.tokenId.toHexString()
+		const { lockedBy } = evt.args
+
+		const meem = await orm.models.Meem.findOne({
+			where: {
+				tokenId
+			},
+			include: [
+				{
+					model: orm.models.MeemProperties,
+					as: 'Properties'
+				}
+			]
+		})
+
+		if (!meem) {
+			await this.createNewMeem(tokenId)
+		} else if (meem.Properties) {
+			meem.Properties.totalCopiesLockedBy = lockedBy
+			await meem.save()
+		}
+	}
+
+	public static async meemHandleTotalRemixesLocked(
+		evt: TotalRemixesLockedEvent
 	) {
 		const tokenId = evt.args.tokenId.toHexString()
 		const { lockedBy } = evt.args
@@ -94,16 +145,16 @@ export default class ContractEvent {
 		if (!meem) {
 			await this.createNewMeem(tokenId)
 		} else if (meem.Properties) {
-			meem.Properties.totalChildrenLockedBy = lockedBy
+			meem.Properties.totalRemixesLockedBy = lockedBy
 			await meem.save()
 		}
 	}
 
-	public static async meemHandleChildrenPerWalletSet(
-		evt: ChildrenPerWalletSetEvent
+	public static async meemHandleCopiesPerWalletSet(
+		evt: CopiesPerWalletSetEvent
 	) {
 		const tokenId = evt.args.tokenId.toHexString()
-		const { newTotalChildren } = evt.args
+		const { newTotalCopies } = evt.args
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -120,13 +171,39 @@ export default class ContractEvent {
 		if (!meem) {
 			await this.createNewMeem(tokenId)
 		} else if (meem.Properties) {
-			meem.Properties.childrenPerWallet = newTotalChildren.toHexString()
+			meem.Properties.copiesPerWallet = newTotalCopies.toHexString()
 			await meem.save()
 		}
 	}
 
-	public static async meemHandleChildrenPerWalletLocked(
-		evt: TotalChildrenLockedEvent
+	public static async meemHandleRemixesPerWalletSet(
+		evt: RemixesPerWalletSetEvent
+	) {
+		const tokenId = evt.args.tokenId.toHexString()
+		const { newTotalRemixes } = evt.args
+
+		const meem = await orm.models.Meem.findOne({
+			where: {
+				tokenId
+			},
+			include: [
+				{
+					model: orm.models.MeemProperties,
+					as: 'Properties'
+				}
+			]
+		})
+
+		if (!meem) {
+			await this.createNewMeem(tokenId)
+		} else if (meem.Properties) {
+			meem.Properties.remixesPerWallet = newTotalRemixes.toHexString()
+			await meem.save()
+		}
+	}
+
+	public static async meemHandleCopiesPerWalletLocked(
+		evt: TotalCopiesLockedEvent
 	) {
 		const tokenId = evt.args.tokenId.toHexString()
 		const { lockedBy } = evt.args
@@ -146,7 +223,33 @@ export default class ContractEvent {
 		if (!meem) {
 			await this.createNewMeem(tokenId)
 		} else if (meem.Properties) {
-			meem.Properties.childrenPerWalletLockedBy = lockedBy
+			meem.Properties.copiesPerWalletLockedBy = lockedBy
+			await meem.save()
+		}
+	}
+
+	public static async meemHandleRemixesPerWalletLocked(
+		evt: TotalRemixesLockedEvent
+	) {
+		const tokenId = evt.args.tokenId.toHexString()
+		const { lockedBy } = evt.args
+
+		const meem = await orm.models.Meem.findOne({
+			where: {
+				tokenId
+			},
+			include: [
+				{
+					model: orm.models.MeemProperties,
+					as: 'Properties'
+				}
+			]
+		})
+
+		if (!meem) {
+			await this.createNewMeem(tokenId)
+		} else if (meem.Properties) {
+			meem.Properties.remixesPerWalletLockedBy = lockedBy
 			await meem.save()
 		}
 	}
@@ -473,10 +576,14 @@ export default class ContractEvent {
 		props: MeemPropertiesStructOutput
 	) {
 		return {
-			totalChildren: props.totalChildren.toHexString(),
-			totalChildrenLockedBy: props.totalChildrenLockedBy,
-			childrenPerWallet: props.childrenPerWallet.toHexString(),
-			childrenPerWalletLockedBy: props.childrenPerWalletLockedBy,
+			totalCopies: props.totalCopies.toHexString(),
+			totalCopiesLockedBy: props.totalCopiesLockedBy,
+			copiesPerWallet: props.copiesPerWallet.toHexString(),
+			copiesPerWalletLockedBy: props.copiesPerWalletLockedBy,
+			totalRemixes: props.totalRemixes.toHexString(),
+			totalRemixesLockedBy: props.totalRemixesLockedBy,
+			remixesPerWallet: props.remixesPerWallet.toHexString(),
+			remixesPerWalletLockedBy: props.remixesPerWalletLockedBy,
 			copyPermissions: this.meemPermissionsDataToModelData(
 				props.copyPermissions
 			),

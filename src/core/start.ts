@@ -199,13 +199,14 @@ export default async function start() {
 				bucket: config.GUNDB_S3_BUCKET
 			},
 			// file: path.join(process.cwd(), 'tmp/gun.json'),
-			radisk: false,
+			// file: false,
+			// radisk: false,
 			localStorage: false
 		})
 
-		g.gunServer.on('opt', msg => {
-			console.log({ msg })
-		})
+		// g.gunServer.on('opt', msg => {
+		// 	console.log({ msg })
+		// })
 
 		// gun.on
 
@@ -218,10 +219,10 @@ export default async function start() {
 		// 	console.log(_data)
 		// })
 		// gun.get('~@meems', d => console.log(d)).once(m => console.log(m))
-		gun.user().auth(config.GUNDB_USER, config.GUNDB_PASSWORD, _data => {
-			log.debug('GunDB user authenticated')
-			console.log(_data)
-		})
+		// gun.user().auth(config.GUNDB_USER, config.GUNDB_PASSWORD, _data => {
+		// 	log.debug('GunDB user authenticated')
+		// 	console.log(_data)
+		// })
 	}
 
 	return {
