@@ -16,6 +16,7 @@ import {
 	IResponse
 } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
+import { MeemType } from '../types/shared/meem.shared'
 
 export default class MeemController {
 	// TODO: Move to dedicated MeemID controller?
@@ -324,6 +325,10 @@ export default class MeemController {
 			throw new Error('TOKEN_NOT_FOUND')
 		}
 
+		if (meem.owner.toLowerCase() !== config.MEEM_PROXY_ADDRESS.toLowerCase()) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
 		const meemId = await services.meemId.getMeemId({
 			meemIdentification: req.meemId
 		})
@@ -343,12 +348,7 @@ export default class MeemController {
 			.toBigNumber(meem.parentTokenId)
 			.toString()
 
-		// TODO: Verify this is how M0s will be detected
-		if (
-			meem.generation === 0 &&
-			meem.root !== MeemAPI.zeroAddress &&
-			meem.root.toLowerCase() !== config.MEEM_PROXY_ADDRESS.toLowerCase()
-		) {
+		if (meem.meemType === MeemAPI.MeemType.Wrapped) {
 			const contract = await services.meem.erc721Contract({
 				networkName: MeemAPI.chainToNetworkName(meem.rootChain),
 				address: meem.root
@@ -389,8 +389,7 @@ export default class MeemController {
 				// log.debug(returnData)
 			}
 		} else if (
-			meem.owner === config.MEEM_PROXY_ADDRESS.toLowerCase() &&
-			meem.parent === config.MEEM_PROXY_ADDRESS.toLowerCase() &&
+			meem.meemType === MeemType.Remix &&
 			parentTokenIdString === config.TWITTER_PROJECT_TOKEN_ID
 		) {
 			const meemData = JSON.parse(meem.data)
@@ -406,6 +405,12 @@ export default class MeemController {
 			if (!ownerTwitterId) {
 				throw new Error('NOT_AUTHORIZED')
 			}
+
+			log.debug(
+				`Transferring meem ${tokenIdNumber.toNumber()} from ${
+					config.MEEM_PROXY_ADDRESS
+				} to ${meemId.defaultWallet}`
+			)
 
 			const claimTx = await meemContract[
 				'safeTransferFrom(address,address,uint256)'
