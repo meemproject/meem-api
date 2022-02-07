@@ -15,6 +15,10 @@ export default class Meem extends BaseModel<Meem> {
 				fields: ['createdAt']
 			},
 			{
+				name: 'Meem_tokenId',
+				fields: ['tokenId']
+			},
+			{
 				name: 'Meem_parent',
 				fields: ['parent']
 			},

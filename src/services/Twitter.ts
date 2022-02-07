@@ -475,7 +475,7 @@ export default class TwitterService {
 					{
 						toAddress: config.DAO_WALLET,
 						amount: 100,
-						lockedBy: MeemAPI.zeroAddress
+						lockedBy: config.MEEM_WALLET_ADDRESS
 					}
 				]
 			})

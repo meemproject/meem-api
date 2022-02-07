@@ -62,6 +62,9 @@ class MintTweetsTests extends BaseTest {
 		assert.equal(meem.parent, this.contractAddress)
 		assert.equal(meem.parentTokenId.toNumber(), 100000)
 		assert.equal(meem.generation.toNumber(), 1)
+		assert.notEqual(meem.properties.splits[0].lockedBy, MeemAPI.zeroAddress)
+		assert.equal(meem.properties.splits[0].amount.toNumber(), 100)
+		assert.equal(meem.properties.splits[0].toAddress, config.DAO_WALLET)
 	}
 
 	private async nonMinterTweet() {

@@ -9,6 +9,9 @@ export default {
 	version: packageJSON.version as string,
 	errors,
 	PORT: process.env.PORT ?? 1313,
+	MEEM_WALLET_ADDRESS:
+		process.env.MEEM_WALLET_ADDRESS ??
+		'0xde19C037a85A609ec33Fc747bE9Db8809175C3a5',
 	MEEM_DOMAIN:
 		process.env.MEEM_DOMAIN ?? process.env.NETWORK === 'rinkeby'
 			? 'https://dev.meem.wtf'
