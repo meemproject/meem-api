@@ -11,10 +11,6 @@ export default class MeemProperties extends BaseModel<MeemProperties> {
 			{
 				name: 'MeemProperties_createdAt',
 				fields: ['createdAt']
-			},
-			{
-				name: 'MeemProperties_MeemId',
-				fields: ['MeemId']
 			}
 		]
 	}

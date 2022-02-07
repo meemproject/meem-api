@@ -33,6 +33,14 @@ export default class Meem extends BaseModel<Meem> {
 			{
 				name: 'Meem_mintedBy',
 				fields: ['mintedBy']
+			},
+			{
+				name: 'Meem_PropertiesId',
+				fields: ['PropertiesId']
+			},
+			{
+				name: 'Meem_ChildPropertiesId',
+				fields: ['ChildPropertiesId']
 			}
 		]
 	}
