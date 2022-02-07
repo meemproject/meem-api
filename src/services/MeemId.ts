@@ -11,8 +11,19 @@ import { MeemID } from '../types'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class MeemIdService {
-	public static meemIdContract() {
+	public static async meemIdContract() {
 		const ethers = services.ethers.getInstance()
+
+		if (config.TESTING) {
+			const c =
+				// eslint-disable-next-line
+				// @ts-ignore
+				(await ethers.getContractAt(MeemABI, config.MEEM_ID_PROXY_ADDRESS))
+					// @ts-ignore
+					.connect(global.signer)
+			return c as MeemID
+		}
+
 		const provider = new ethers.providers.JsonRpcProvider(
 			config.NETWORK === 'rinkeby'
 				? config.JSON_RPC_RINKEBY
@@ -142,7 +153,7 @@ export default class MeemIdService {
 				recommendedGwei = config.MAX_GAS_PRICE_GWEI
 			}
 
-			const meemIdContract = this.meemIdContract()
+			const meemIdContract = await this.meemIdContract()
 
 			log.debug('Creating MeemID w/ params', {
 				address,
@@ -385,7 +396,7 @@ export default class MeemIdService {
 			throw new Error('MEEM_ID_CAN_NOT_REMOVE')
 		}
 
-		const contract = this.meemIdContract()
+		const contract = await this.meemIdContract()
 
 		if (addressToRemove) {
 			const wallet = meemId.Wallets?.find(
@@ -448,7 +459,7 @@ export default class MeemIdService {
 			include: [orm.models.Wallet, orm.models.Twitter]
 		})
 
-		const meemIdContract = this.meemIdContract()
+		const meemIdContract = await this.meemIdContract()
 
 		let { recommendedGwei } = await services.web3.getGasEstimate({
 			chain: MeemAPI.networkNameToChain(config.NETWORK)

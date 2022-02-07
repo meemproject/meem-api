@@ -12,7 +12,7 @@ import MeemABI from '../abis/Meem.json'
 import errors from '../config/errors'
 import meemAccessListTesting from '../lib/meem-access-testing.json'
 import meemAccessList from '../lib/meem-access.json'
-import type { Meem as MeemModel } from '../models/Meem'
+import type MeemModel from '../models/Meem'
 import { Meem, ERC721 } from '../types'
 import {
 	MeemPermissionStructOutput,
@@ -912,6 +912,10 @@ export default class MeemService {
 	}
 
 	public static meemToIMeem(meem: MeemModel): MeemAPI.IMetadataMeem {
+		if (!meem.Properties || !meem.ChildProperties) {
+			log.crit('Meem must include Properties and ChildProperties')
+			throw new Error('SERVER_ERROR')
+		}
 		return {
 			tokenId: meem.tokenId,
 			owner: meem.owner,
