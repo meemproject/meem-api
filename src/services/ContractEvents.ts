@@ -1,5 +1,6 @@
 import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
+import moment from 'moment'
 import { v4 as uuidv4 } from 'uuid'
 import { wait } from '../lib/utils'
 import Meem from '../models/Meem'
@@ -309,7 +310,7 @@ export default class ContractEvent {
 
 	public static async meemHandleTransfer(evt: TransferEvent) {
 		const tokenId = evt.args.tokenId.toHexString()
-		const meem = await orm.models.Meem.findOne({
+		let meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
 			}
@@ -317,7 +318,7 @@ export default class ContractEvent {
 
 		if (!meem) {
 			log.debug(`Creating new meem: ${tokenId}`)
-			await this.createNewMeem(tokenId)
+			meem = await this.createNewMeem(tokenId)
 		} else {
 			log.debug(`Updating meem: ${tokenId}`)
 			meem.owner = evt.args.to
@@ -327,7 +328,17 @@ export default class ContractEvent {
 			}
 		}
 
-		// const block = await evt.getBlock()
+		const block = await evt.getBlock()
+
+		const transferredAt = moment.unix(block.timestamp).toDate()
+
+		await orm.models.Transfer.create({
+			from: evt.args.from,
+			to: evt.args.to,
+			transactionHash: evt.transactionHash,
+			transferredAt,
+			MeemId: meem.id
+		})
 
 		if (config.ENABLE_GUNDB) {
 			const transfer = gun
@@ -440,7 +451,9 @@ export default class ContractEvent {
 			metadata,
 			data: meemData.data,
 			PropertiesId: properties.id,
-			ChildPropertiesId: childProperties.id
+			ChildPropertiesId: childProperties.id,
+			meemType: meemData.meemType,
+			mintedBy: meemData.mintedBy
 		}
 
 		const meem = orm.models.Meem.build(data)
@@ -499,6 +512,8 @@ export default class ContractEvent {
 				root.get('descendantMeems').put(token)
 			}
 		}
+
+		return meem
 	}
 
 	public static saveToGun(options: {

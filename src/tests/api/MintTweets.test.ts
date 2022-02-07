@@ -4,7 +4,7 @@ import chaiAsPromised from 'chai-as-promised'
 import faker from 'faker'
 import { ethers } from 'hardhat'
 import { v4 as uuidv4 } from 'uuid'
-import { deployDiamond } from '../../../tasks'
+import { deployMeemDiamond } from '../../../tasks'
 import { MeemAPI } from '../../types/meem.generated'
 import BaseTest from '../BaseTest'
 
@@ -15,12 +15,10 @@ class MintTweetsTests extends BaseTest {
 
 	private contractAddress!: string
 
-	// private meemContract!: Meem
-
 	protected async beforeEach() {
 		this.signers = await ethers.getSigners()
 		this.setSigner(this.signers[0])
-		const { DiamondProxy: contractAddress } = await deployDiamond({
+		const { DiamondProxy: contractAddress } = await deployMeemDiamond({
 			ethers
 		})
 		this.contractAddress = contractAddress

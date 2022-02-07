@@ -7,7 +7,12 @@ export default class MeemProperties extends BaseModel<MeemProperties> {
 	public static readonly modelName = 'MeemProperties'
 
 	public static get indexes() {
-		return []
+		return [
+			{
+				name: 'MeemProperties_createdAt',
+				fields: ['createdAt']
+			}
+		]
 	}
 
 	public static readonly attributes = {
