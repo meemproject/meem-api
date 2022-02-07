@@ -9,7 +9,32 @@ export default class Meem extends BaseModel<Meem> {
 	public static readonly modelName = 'Meem'
 
 	public static get indexes() {
-		return []
+		return [
+			{
+				name: 'Meem_createdAt',
+				fields: ['createdAt']
+			},
+			{
+				name: 'Meem_parent',
+				fields: ['parent']
+			},
+			{
+				name: 'Meem_parentTokenId',
+				fields: ['parentTokenId']
+			},
+			{
+				name: 'Meem_owner',
+				fields: ['owner']
+			},
+			{
+				name: 'Meem_meemType',
+				fields: ['meemType']
+			},
+			{
+				name: 'Meem_mintedBy',
+				fields: ['mintedBy']
+			}
+		]
 	}
 
 	public static readonly attributes = {

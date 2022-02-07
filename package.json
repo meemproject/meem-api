@@ -54,6 +54,8 @@
 		"fetchMeemIdABI": "tsnd --transpile-only src/scripts/fetchMeemIdABI.ts",
 		"fetchMeemMarketABI": "tsnd --transpile-only src/scripts/fetchMeemMarketABI.ts",
 		"fetchMeemContracts": "tsnd --transpile-only src/scripts/fetchMeemContracts.ts",
+		"fetchMeemIdContracts": "tsnd --transpile-only src/scripts/fetchMeemIdContracts.ts",
+		"fetchContracts": "yarn fetchMeemContracts && yarn fetchMeemIdContracts",
 		"build:sol": "hardhat compile"
 	},
 	"dependencies": {

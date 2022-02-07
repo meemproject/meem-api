@@ -3,6 +3,7 @@ import * as path from 'path'
 import type { ethers as Ethers } from 'ethers'
 import fs from 'fs-extra'
 import _ from 'lodash'
+import moment from 'moment'
 import sharp from 'sharp'
 import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
@@ -11,6 +12,7 @@ import MeemABI from '../abis/Meem.json'
 import errors from '../config/errors'
 import meemAccessListTesting from '../lib/meem-access-testing.json'
 import meemAccessList from '../lib/meem-access.json'
+import type { Meem as MeemModel } from '../models/Meem'
 import { Meem, ERC721 } from '../types'
 import {
 	MeemPermissionStructOutput,
@@ -853,7 +855,9 @@ export default class MeemService {
 			childProperties: this.meemPropertiesToInterface(meem.childProperties),
 			mintedAt: meem.mintedAt.toNumber(),
 			data: meem.data,
-			verifiedBy: meem.verifiedBy
+			verifiedBy: meem.verifiedBy,
+			meemType: meem.meemType,
+			mintedBy: meem.mintedBy
 		}
 	}
 
@@ -904,6 +908,28 @@ export default class MeemService {
 			toAddress: split.toAddress,
 			amount: split.amount.toNumber(),
 			lockedBy: split.lockedBy
+		}
+	}
+
+	public static meemToIMeem(meem: MeemModel): MeemAPI.IMetadataMeem {
+		return {
+			tokenId: meem.tokenId,
+			owner: meem.owner,
+			parentChain: meem.parentChain,
+			parent: MeemAPI.zeroAddress,
+			parentTokenId: meem.parentTokenId,
+			rootChain: meem.rootChain,
+			root: MeemAPI.zeroAddress,
+			rootTokenId: meem.rootTokenId,
+			generation: meem.generation,
+			properties: meem.Properties,
+			childProperties: meem.ChildProperties,
+			mintedAt: moment(meem.mintedAt).unix(),
+			data: meem.data,
+			verifiedBy: meem.verifiedBy,
+			metadata: meem.metadata,
+			mintedBy: meem.mintedBy,
+			meemType: meem.meemType
 		}
 	}
 }

@@ -4,6 +4,7 @@ import type { ethers as Ethers } from 'ethers'
 import { Response } from 'express'
 import _ from 'lodash'
 import moment from 'moment'
+import { Op } from 'sequelize'
 import sharp from 'sharp'
 import TwitterApi, { UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4, validate as uuidValidate } from 'uuid'
@@ -167,26 +168,7 @@ export default class MeemController {
 		}))
 
 		return res.json({
-			meem: {
-				tokenId,
-				tokenURI,
-				owner: meem.owner,
-				parentChain: meem.parentChain,
-				parent: MeemAPI.zeroAddress,
-				parentTokenId: meem.parentTokenId,
-				rootChain: meem.rootChain,
-				root: MeemAPI.zeroAddress,
-				rootTokenId: meem.rootTokenId,
-				generation: meem.generation,
-				properties: meem.Properties,
-				childProperties: meem.ChildProperties,
-				mintedAt: moment(meem.mintedAt).unix(),
-				data: meem.data,
-				verifiedBy: meem.verifiedBy,
-				metadata,
-				meemType: meem.meemType,
-				mintedBy: meem.mintedBy
-			},
+			meem: services.meem.meemToIMeem(meem),
 			transfers: transfers ?? []
 		})
 	}
@@ -195,20 +177,37 @@ export default class MeemController {
 		req: IAPIRequestPaginated<MeemAPI.v1.GetMeems.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeems.IResponseBody>
 	): Promise<Response> {
-		const { owner } = req.query
+		const { owner, meemType, mintedBy } = req.query
 		const { page, limit: requestedLimit } = req
 		const limit = requestedLimit > 100 ? 100 : requestedLimit
 		const itemsPerPage = limit
 		let meems: MeemAPI.IMetadataMeem[] = []
-		let where: Record<string, any> = {}
+		const and: Record<string, any>[] = []
 		if (owner) {
-			where = orm.sequelize.where(
-				orm.sequelize.fn('lower', orm.sequelize.col('owner')),
-				owner.toLowerCase()
+			and.push(
+				orm.sequelize.where(
+					orm.sequelize.fn('lower', orm.sequelize.col('owner')),
+					owner.toLowerCase()
+				)
+			)
+		}
+		if (meemType) {
+			and.push({
+				meemType
+			})
+		}
+		if (mintedBy) {
+			and.push(
+				orm.sequelize.where(
+					orm.sequelize.fn('lower', orm.sequelize.col('mintedBy')),
+					mintedBy.toLowerCase()
+				)
 			)
 		}
 		const { rows: rawMeems, count } = await orm.models.Meem.findAndCountAll({
-			where,
+			where: {
+				[Op.and]: and
+			},
 			order: [['createdAt', 'DESC']],
 			offset: page * limit,
 			limit,
@@ -228,25 +227,7 @@ export default class MeemController {
 
 		rawMeems.forEach(rawMeem => {
 			if (rawMeem.Properties && rawMeem.ChildProperties) {
-				meems.push({
-					tokenId: rawMeem.tokenId,
-					owner: rawMeem.owner,
-					parentChain: rawMeem.parentChain,
-					parent: MeemAPI.zeroAddress,
-					parentTokenId: rawMeem.parentTokenId,
-					rootChain: rawMeem.rootChain,
-					root: MeemAPI.zeroAddress,
-					rootTokenId: rawMeem.rootTokenId,
-					generation: rawMeem.generation,
-					properties: rawMeem.Properties,
-					childProperties: rawMeem.ChildProperties,
-					mintedAt: moment(rawMeem.mintedAt).unix(),
-					data: rawMeem.data,
-					verifiedBy: rawMeem.verifiedBy,
-					metadata: rawMeem.metadata,
-					mintedBy: rawMeem.mintedBy,
-					meemType: rawMeem.meemType
-				})
+				meems.push(services.meem.meemToIMeem(rawMeem))
 			} else {
 				finalCount -= 1
 				log.crit(`Missing properties for Meem w/ tokenId: ${rawMeem.tokenId}`)
@@ -693,6 +674,74 @@ export default class MeemController {
 		return res.json({
 			tokenURI,
 			metadata
+		})
+	}
+
+	public static async getChildMeems(
+		req: IAPIRequestPaginated<MeemAPI.v1.GetChildMeems.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetChildMeems.IResponseBody>
+	): Promise<any> {
+		const { tokenId } = req.params
+		const { owner, meemType, mintedBy } = req.query
+		const { page, limit: requestedLimit } = req
+		const limit = requestedLimit > 100 ? 100 : requestedLimit
+
+		if (!tokenId) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		const and: Record<string, any>[] = [
+			{
+				parent: config.MEEM_PROXY_ADDRESS
+			},
+			{
+				parentTokenId: tokenId
+			}
+		]
+		if (owner) {
+			and.push(
+				orm.sequelize.where(
+					orm.sequelize.fn('lower', orm.sequelize.col('owner')),
+					owner.toLowerCase()
+				)
+			)
+		}
+		if (meemType) {
+			and.push({
+				meemType
+			})
+		}
+		if (mintedBy) {
+			and.push(
+				orm.sequelize.where(
+					orm.sequelize.fn('lower', orm.sequelize.col('mintedBy')),
+					mintedBy.toLowerCase()
+				)
+			)
+		}
+
+		const result = await orm.models.Meem.findAndCountAll({
+			where: {
+				[Op.and]: and
+			},
+			order: [['createdAt', 'DESC']],
+			include: [
+				{
+					model: orm.models.MeemProperties,
+					as: 'Properties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'ChildProperties'
+				}
+			],
+			limit,
+			offset: page * limit
+		})
+
+		return res.json({
+			meems: result.rows.map(m => services.meem.meemToIMeem(m)),
+			totalItems: result.count
 		})
 	}
 }

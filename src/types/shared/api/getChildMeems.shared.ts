@@ -4,13 +4,16 @@ import {
 	IApiResponseBody,
 	IRequestPaginated
 } from '../api.shared'
-import { IMetadataMeem, MeemType } from '../meem.shared'
+import { IMetadataMeem, ITransfer, MeemType } from '../meem.shared'
 
-/** Get Meem */
-export namespace GetMeems {
-	export interface IPathParams {}
+export namespace GetChildMeems {
+	export interface IPathParams {
+		/** The token id to fetch children of */
+		tokenId: string
+	}
 
-	export const path = (options?: IPathParams) => `/api/1.0/meems`
+	export const path = (options: IPathParams) =>
+		`/api/1.0/meems/${options.tokenId}/children`
 
 	export const method = HttpMethod.Get
 
@@ -30,7 +33,6 @@ export namespace GetMeems {
 	export interface IResponseBody extends IApiResponseBody {
 		meems: IMetadataMeem[]
 		totalItems: number
-		itemsPerPage: number
 	}
 
 	export interface IDefinition {

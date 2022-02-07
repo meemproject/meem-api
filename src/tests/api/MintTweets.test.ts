@@ -15,8 +15,6 @@ class MintTweetsTests extends BaseTest {
 
 	private contractAddress!: string
 
-	// private meemContract!: Meem
-
 	protected async beforeEach() {
 		this.signers = await ethers.getSigners()
 		this.setSigner(this.signers[0])

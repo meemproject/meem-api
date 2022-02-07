@@ -6,7 +6,16 @@ export default class Transfer extends BaseModel<Transfer> {
 	public static readonly modelName = 'Transfer'
 
 	public static get indexes() {
-		return []
+		return [
+			{
+				name: 'Transfer_createdAt',
+				fields: ['createdAt']
+			},
+			{
+				name: 'Transfer_MeemId',
+				fields: ['MeemId']
+			}
+		]
 	}
 
 	public static readonly attributes = {
