@@ -265,7 +265,7 @@ export default class AuthController {
 		let shouldSendWhitelistTweet = false
 
 		if (req.body.isWhitelisted === true && meemPass.tweetsPerDayQuota < 1) {
-			meemPass.tweetsPerDayQuota = 99
+			meemPass.tweetsPerDayQuota = config.MEEMPASS_DEFAULT_TWEETS_PER_DAY_QUOTA
 			shouldSendWhitelistTweet = true
 		} else if (
 			req.body.isWhitelisted === false &&

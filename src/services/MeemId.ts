@@ -209,7 +209,7 @@ export default class MeemIdService {
 
 			if (!meemPass) {
 				await orm.models.MeemPass.create({
-					tweetsPerDayQuota: config.MEEMPASS_DEFAULT_TWEETS_PER_DAY_QUOTA,
+					tweetsPerDayQuota: 0,
 					MeemIdentificationId: meemIdentificationId
 				})
 			}
