@@ -253,6 +253,9 @@ export default class MeemIdService {
 					})
 				} else if (existingWallet && !existingWallet.MeemIdentificationId) {
 					existingWallet.MeemIdentificationId = meemIdentificationId
+					existingWallet.isDefault =
+						meemIdData.defaultWallet.toLowerCase() ===
+						meemIdWallet.toLowerCase()
 					promises.push(existingWallet.save())
 				}
 			})
