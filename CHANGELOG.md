@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/meemproject/meem-api-aws/compare/v1.4.0...v1.4.1) (2022-02-08)
+
+
+### Bug Fixes
+
+* set isDefault on wallet ([b377ce0](https://github.com/meemproject/meem-api-aws/commit/b377ce0))
+
 # [1.4.0](https://github.com/meemproject/meem-api-aws/compare/v1.3.5...v1.4.0) (2022-02-07)
 
 
