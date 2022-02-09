@@ -6,6 +6,10 @@ import {
 } from 'twitter-api-v2'
 
 export default class TwitterListener {
+	private connectAttempts = 0
+
+	private maxConnectAttempts = 10
+
 	private stream!: TweetStream<TweetV2SingleStreamResult>
 
 	public async start() {
@@ -17,6 +21,8 @@ export default class TwitterListener {
 	}
 
 	private async setupListners() {
+		this.connectAttempts += 1
+		log.debug(`Setting up Twitter listeners. Attempt ${this.connectAttempts}`)
 		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 		try {
 			await services.twitter.checkForMissedTweets()
@@ -67,7 +73,12 @@ export default class TwitterListener {
 			log.info('Twitter listeners set up')
 		} catch (e) {
 			log.crit('Error connecting to Twitter stream', e)
-			throw new Error('Error connecting to Twitter stream')
+			if (this.connectAttempts < this.maxConnectAttempts) {
+				await new Promise(resolve => setTimeout(resolve, 1000))
+				this.setupListners()
+			} else {
+				throw new Error('Error connecting to Twitter stream')
+			}
 		}
 	}
 }
