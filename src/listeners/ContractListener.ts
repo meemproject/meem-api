@@ -19,59 +19,119 @@ export default class ContractListener {
 		}
 		this.meemContract.on(
 			this.meemContract.filters.Transfer(),
-			(_a, _b, _c, evt) => services.contractEvents.meemHandleTransfer(evt)
+			async (_a, _b, _c, evt) => {
+				try {
+					await services.contractEvents.meemHandleTransfer(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
 		)
 		// TODO: Prevent duplicate records / race condition since PropertiesSet and Transfer fires on minting
 		// this.meemContract.on(
 		// 	this.meemContract.filters.PropertiesSet(),
-		// 	(_a, _b, _c, evt) => services.contractEvents.meemHandlePropertiesSet(evt)
+		// 	async (_a, _b, _c, evt) => {try {
+		// services.contractEvents.meemHandlePropertiesSet(evt)} catch (e) {log.crit(e)}}
 		// )
-		this.meemContract.on(this.meemContract.filters.SplitsSet(), (_a, _b, evt) =>
-			services.contractEvents.meemHandleSplitsSet(evt)
+		this.meemContract.on(
+			this.meemContract.filters.SplitsSet(),
+			async (_a, _b, evt) => {
+				try {
+					await services.contractEvents.meemHandleSplitsSet(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
 		)
 		this.meemContract.on(
 			this.meemContract.filters.TotalCopiesSet(),
-			(_a, _b, _c, evt) => services.contractEvents.meemHandleTotalCopiesSet(evt)
+			async (_a, _b, _c, evt) => {
+				try {
+					await services.contractEvents.meemHandleTotalCopiesSet(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
 		)
 		this.meemContract.on(
 			this.meemContract.filters.TotalCopiesLocked(),
-			(_a, _b, _c, evt) =>
-				services.contractEvents.meemHandleTotalCopiesLocked(evt)
+			async (_a, _b, _c, evt) => {
+				try {
+					await services.contractEvents.meemHandleTotalCopiesLocked(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
 		)
 		this.meemContract.on(
 			this.meemContract.filters.CopiesPerWalletSet(),
-			(_a, _b, _c, evt) =>
-				services.contractEvents.meemHandleCopiesPerWalletSet(evt)
+			async (_a, _b, _c, evt) => {
+				try {
+					await services.contractEvents.meemHandleCopiesPerWalletSet(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
 		)
 		this.meemContract.on(
 			this.meemContract.filters.CopiesPerWalletLocked(),
-			(_a, _b, _c, evt) =>
-				services.contractEvents.meemHandleCopiesPerWalletLocked(evt)
+			async (_a, _b, _c, evt) => {
+				try {
+					await services.contractEvents.meemHandleCopiesPerWalletLocked(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
 		)
 		this.meemContract.on(
 			this.meemContract.filters.TotalRemixesSet(),
-			(_a, _b, _c, evt) =>
-				services.contractEvents.meemHandleTotalRemixesSet(evt)
+			async (_a, _b, _c, evt) => {
+				try {
+					await services.contractEvents.meemHandleTotalRemixesSet(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
 		)
 		this.meemContract.on(
 			this.meemContract.filters.TotalRemixesLocked(),
-			(_a, _b, _c, evt) =>
-				services.contractEvents.meemHandleTotalRemixesLocked(evt)
+			async (_a, _b, _c, evt) => {
+				try {
+					await services.contractEvents.meemHandleTotalRemixesLocked(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
 		)
 		this.meemContract.on(
 			this.meemContract.filters.RemixesPerWalletSet(),
-			(_a, _b, _c, evt) =>
-				services.contractEvents.meemHandleRemixesPerWalletSet(evt)
+			async (_a, _b, _c, evt) => {
+				try {
+					await services.contractEvents.meemHandleRemixesPerWalletSet(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
 		)
 		this.meemContract.on(
 			this.meemContract.filters.RemixesPerWalletLocked(),
-			(_a, _b, _c, evt) =>
-				services.contractEvents.meemHandleRemixesPerWalletLocked(evt)
+			async (_a, _b, _c, evt) => {
+				try {
+					await services.contractEvents.meemHandleRemixesPerWalletLocked(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
 		)
 		this.meemContract.on(
 			this.meemContract.filters.PermissionsSet(),
-			(_a, _b, _c, _d, evt) =>
-				services.contractEvents.meemHandlePermissionsSet(evt)
+			async (_a, _b, _c, _d, evt) => {
+				try {
+					await services.contractEvents.meemHandlePermissionsSet(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
 		)
 
 		log.info('Contract listeners set up')

@@ -60,7 +60,7 @@ export default class ConfigController {
 		// 	more: 'data'
 		// })
 
-		const ethers = services.ethers.getInstance()
+		// const ethers = services.ethers.getInstance()
 
 		// gun
 		// 	.user(
@@ -86,10 +86,10 @@ export default class ConfigController {
 		// 		},
 		// 		ack => console.log(ack)
 		// 	)
-		gun
-			.user()
-			.get('testing')
-			.once(d => console.log(d))
+		// gun
+		// 	.user()
+		// 	.get('testing')
+		// 	.once(d => console.log(d))
 		// gun
 		// 	.user()
 		// 	.get('testing')
@@ -99,6 +99,118 @@ export default class ConfigController {
 		// 		},
 		// 		ack => console.log(ack)
 		// 	)
+
+		const meemContract = await services.meem.getMeemContract({
+			walletPrivateKey: config.TWITTER_WALLET_PRIVATE_KEY
+		})
+
+		const inter = services.meem.meemInterface()
+		try {
+			const tx = await meemContract.mint(
+				{
+					to: '0x62ce12ac21d213f1ecae84d2c31ad308da92102a',
+					mTokenURI:
+						'ipfs://QmWvNhj3UdF5G9oAmTaNpRyDyaRMEUTEdhLdMQr3pKYj1h/c0542660-24fb-4de5-9352-8baf19889e86/metadata.json',
+					parentChain: 1,
+					parent: '0x82aC441F3276ede5db366704866d2E0fD9c2cFA8',
+					parentTokenId: '100000',
+					meemType: 2,
+					data: '{"tweetId":"1491070904016973824","text":"good &gt;meem","username":"notnotrealreal","userId":"1442900159008964610"}',
+					isVerified: true,
+					mintedBy: '0x62ce12ac21d213f1ecae84d2c31ad308da92102a'
+				},
+				{
+					copyPermissions: [],
+					remixPermissions: [
+						{
+							permission: 1,
+							addresses: [],
+							numTokens: '0',
+							lockedBy: '0x0000000000000000000000000000000000000000'
+						}
+					],
+					readPermissions: [
+						{
+							permission: 1,
+							addresses: [],
+							numTokens: '0x00',
+							lockedBy: '0x0000000000000000000000000000000000000000'
+						}
+					],
+					copyPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
+					remixPermissionsLockedBy:
+						'0x0000000000000000000000000000000000000000',
+					readPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
+					splits: [
+						{
+							toAddress: '0x9C5ceC7a99D19a9f1754C202aBA01BBFEDECC561',
+							amount: 100,
+							lockedBy: '0xde19C037a85A609ec33Fc747bE9Db8809175C3a5'
+						}
+					],
+					splitsLockedBy: '0x0000000000000000000000000000000000000000',
+					copiesPerWallet: '-0x01',
+					copiesPerWalletLockedBy: '0x0000000000000000000000000000000000000000',
+					totalCopies: '0x00',
+					totalCopiesLockedBy: '0x0000000000000000000000000000000000000000',
+					totalRemixes: '-0x01',
+					remixesPerWallet: '-0x01',
+					remixesPerWalletLockedBy:
+						'0x0000000000000000000000000000000000000000',
+					totalRemixesLockedBy: '0x0000000000000000000000000000000000000000'
+				},
+				{
+					copyPermissions: [],
+					remixPermissions: [
+						{
+							permission: 1,
+							addresses: [],
+							numTokens: '0',
+							lockedBy: '0x0000000000000000000000000000000000000000'
+						}
+					],
+					readPermissions: [
+						{
+							permission: 1,
+							addresses: [],
+							numTokens: '0x00',
+							lockedBy: '0x0000000000000000000000000000000000000000'
+						}
+					],
+					copyPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
+					remixPermissionsLockedBy:
+						'0x0000000000000000000000000000000000000000',
+					readPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
+					splits: [
+						{
+							toAddress: '0x9C5ceC7a99D19a9f1754C202aBA01BBFEDECC561',
+							amount: 100,
+							lockedBy: '0xde19C037a85A609ec33Fc747bE9Db8809175C3a5'
+						}
+					],
+					splitsLockedBy: '0x0000000000000000000000000000000000000000',
+					copiesPerWallet: '-0x01',
+					copiesPerWalletLockedBy: '0x0000000000000000000000000000000000000000',
+					totalCopies: '0x00',
+					totalCopiesLockedBy: '0x0000000000000000000000000000000000000000',
+					totalRemixes: '-0x01',
+					remixesPerWallet: '-0x01',
+					remixesPerWalletLockedBy:
+						'0x0000000000000000000000000000000000000000',
+					totalRemixesLockedBy: '0x0000000000000000000000000000000000000000'
+				},
+				{
+					gasLimit: '1600000',
+					gasPrice: 32000000000
+				}
+			)
+
+			console.log(`TX: ${tx.hash}`)
+			console.log(`Nonce: ${tx.nonce}`)
+			await tx.wait()
+		} catch (e) {
+			console.log(e)
+		}
 
 		return res.json({
 			status: 'success'

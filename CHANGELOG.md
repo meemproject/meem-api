@@ -1,3 +1,41 @@
+## [1.4.4](https://github.com/meemproject/meem-api-aws/compare/v1.4.3...v1.4.4) (2022-02-08)
+
+## [1.4.3](https://github.com/meemproject/meem-api-aws/compare/v1.4.2...v1.4.3) (2022-02-08)
+
+## [1.4.2](https://github.com/meemproject/meem-api-aws/compare/v1.4.1...v1.4.2) (2022-02-08)
+
+## [1.4.1](https://github.com/meemproject/meem-api-aws/compare/v1.4.0...v1.4.1) (2022-02-08)
+
+
+### Bug Fixes
+
+* set isDefault on wallet ([b377ce0](https://github.com/meemproject/meem-api-aws/commit/b377ce0))
+
+# [1.4.0](https://github.com/meemproject/meem-api-aws/compare/v1.3.5...v1.4.0) (2022-02-07)
+
+
+### Bug Fixes
+
+* orm sync error ([01a076b](https://github.com/meemproject/meem-api-aws/commit/01a076b))
+* pagination and counting issues w/ GetMeemPasses ([c7cb090](https://github.com/meemproject/meem-api-aws/commit/c7cb090))
+* set aws keys in sockets file ([4047db9](https://github.com/meemproject/meem-api-aws/commit/4047db9))
+* set aws keys in sockets file ([bb96fdb](https://github.com/meemproject/meem-api-aws/commit/bb96fdb))
+* twitter minting permission; missing error codes ([c263d25](https://github.com/meemproject/meem-api-aws/commit/c263d25))
+* use generic IPFS urls ([a05fad9](https://github.com/meemproject/meem-api-aws/commit/a05fad9))
+
+
+### Features
+
+* add hasOnboarded flag to MeemIdentification model ([416c5b6](https://github.com/meemproject/meem-api-aws/commit/416c5b6))
+* getChildMeems and filter by minter, meemType ([b5b1c71](https://github.com/meemproject/meem-api-aws/commit/b5b1c71))
+* integrate meemId contracts for testing ([c7c341f](https://github.com/meemproject/meem-api-aws/commit/c7c341f))
+* keep track of transfers ([7d88d0d](https://github.com/meemproject/meem-api-aws/commit/7d88d0d))
+* optimize getMeems, track metadata and data in DB, return tokenId w/ IMeem ([5789533](https://github.com/meemproject/meem-api-aws/commit/5789533))
+* save event uuid fixes; experimental gundb support ([155bad5](https://github.com/meemproject/meem-api-aws/commit/155bad5))
+* save metadata ([8bec88d](https://github.com/meemproject/meem-api-aws/commit/8bec88d))
+* support for separate remixes/copies totals ([f9df412](https://github.com/meemproject/meem-api-aws/commit/f9df412))
+* unit-testing with hardhat / meem contract support ([23942cb](https://github.com/meemproject/meem-api-aws/commit/23942cb))
+
 ## [1.3.5](https://github.com/meemproject/meem-api-aws/compare/v1.3.4...v1.3.5) (2022-01-10)
 
 ## [1.3.4](https://github.com/meemproject/meem-api-aws/compare/v1.3.3...v1.3.4) (2022-01-10)

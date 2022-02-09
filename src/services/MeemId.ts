@@ -163,7 +163,7 @@ export default class MeemIdService {
 			const createTx = await meemIdContract.createOrAddMeemID(
 				address,
 				twitterUser.id_str,
-				{ gasPrice: services.web3.gweiToWei(recommendedGwei) }
+				{ gasPrice: services.web3.gweiToWei(recommendedGwei), gasLimit: 300000 }
 			)
 
 			log.debug(`Creating MeemID w/ transaction hash: ${createTx.hash}`)
@@ -172,10 +172,7 @@ export default class MeemIdService {
 
 			log.debug(`Created MeemID w/ transaction hash: ${createTx.hash}`)
 
-			const meemIdData = await meemIdContract.getMeemIDByWalletAddress(
-				address,
-				{ gasLimit: 5000000 }
-			)
+			const meemIdData = await meemIdContract.getMeemIDByWalletAddress(address)
 
 			const [twitters, wallets] = await Promise.all([
 				orm.models.Twitter.findAll({
@@ -212,7 +209,7 @@ export default class MeemIdService {
 
 			if (!meemPass) {
 				await orm.models.MeemPass.create({
-					tweetsPerDayQuota: config.MEEMPASS_DEFAULT_TWEETS_PER_DAY_QUOTA,
+					tweetsPerDayQuota: 0,
 					MeemIdentificationId: meemIdentificationId
 				})
 			}
@@ -253,6 +250,9 @@ export default class MeemIdService {
 					})
 				} else if (existingWallet && !existingWallet.MeemIdentificationId) {
 					existingWallet.MeemIdentificationId = meemIdentificationId
+					existingWallet.isDefault =
+						meemIdData.defaultWallet.toLowerCase() ===
+						meemIdWallet.toLowerCase()
 					promises.push(existingWallet.save())
 				}
 			})

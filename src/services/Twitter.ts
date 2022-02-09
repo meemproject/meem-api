@@ -398,7 +398,15 @@ export default class TwitterService {
 		}
 	}): Promise<Ethers.ContractReceipt> {
 		const { meemId, tweetData, twitterUser, remix } = options
-		const toAddress = meemId?.defaultWallet || config.MEEM_PROXY_ADDRESS
+		let toAddress = config.MEEM_PROXY_ADDRESS
+		if (meemId) {
+			if (meemId.defaultWallet !== MeemAPI.zeroAddress) {
+				toAddress = meemId.defaultWallet
+			} else if (meemId.wallets.length > 0) {
+				// eslint-disable-next-line prefer-destructuring
+				toAddress = meemId.wallets[0]
+			}
+		}
 		const isRemixVerified = !!meemId?.defaultWallet
 
 		const existingTweet = await orm.models.Tweet.findOne({
