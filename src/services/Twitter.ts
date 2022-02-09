@@ -139,8 +139,9 @@ export default class TwitterService {
 
 		// Since stream rules are environment-independent
 		// Make sure we're not minting meems while testing locally
-
-		if ((!config.TESTING && isTestMeem) || (config.TESTING && !isTestMeem)) {
+		const isTestEnv =
+			process.env.NODE_ENV === 'local' || config.TESTING === true
+		if ((!isTestEnv && isTestMeem) || (isTestEnv && !isTestMeem)) {
 			return
 		}
 
@@ -330,7 +331,7 @@ export default class TwitterService {
 		}
 
 		// Minting a tweet counts as being onboarded
-		if (!tweetUserMeemId.hasOnboarded) {
+		if (!config.TESTING && !tweetUserMeemId.hasOnboarded) {
 			await orm.models.MeemIdentification.update(
 				{
 					hasOnboarded: true
@@ -419,6 +420,7 @@ export default class TwitterService {
 		}
 
 		const tweet = await this.storeTweet({ tweetData, twitterUser })
+		let remixTweet: Tweet | null = null
 
 		// Mint tweet MEEM
 
@@ -492,7 +494,7 @@ export default class TwitterService {
 
 			if (remix) {
 				const remixMeemId = uuidv4()
-				const remixTweet = await this.storeTweet({
+				remixTweet = await this.storeTweet({
 					tweetData: remix.tweetData,
 					twitterUser: remix.twitterUser
 				})
@@ -672,6 +674,7 @@ export default class TwitterService {
 
 			return receipt
 		} catch (e) {
+			await Promise.all([tweet.destroy(), remixTweet?.destroy()])
 			const err = e as any
 			log.warn(err)
 			try {
