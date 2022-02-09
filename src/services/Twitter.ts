@@ -331,7 +331,7 @@ export default class TwitterService {
 		}
 
 		// Minting a tweet counts as being onboarded
-		if (!tweetUserMeemId.hasOnboarded) {
+		if (!config.TESTING && !tweetUserMeemId.hasOnboarded) {
 			await orm.models.MeemIdentification.update(
 				{
 					hasOnboarded: true

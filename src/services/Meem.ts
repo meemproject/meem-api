@@ -13,6 +13,7 @@ import errors from '../config/errors'
 import meemAccessListTesting from '../lib/meem-access-testing.json'
 import meemAccessList from '../lib/meem-access.json'
 import type MeemModel from '../models/Meem'
+import MeemIdentification from '../models/MeemIdentification'
 import { Meem, ERC721 } from '../types'
 import {
 	MeemPermissionStructOutput,
@@ -21,7 +22,10 @@ import {
 	SplitStructOutput
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
-import { MeemMetadataStorageProvider } from '../types/shared/meem.shared'
+import {
+	MeemMetadataStorageProvider,
+	MeemType
+} from '../types/shared/meem.shared'
 
 function errorcodeToErrorString(contractErrorName: string) {
 	const allErrors: Record<string, any> = config.errors
@@ -301,16 +305,16 @@ export default class MeemService {
 		}
 
 		switch (storageProvider) {
-			case MeemMetadataStorageProvider.Ipfs:
-				return services.web3.saveMeemMetadata({
-					imageBase64,
-					metadata
-				})
-			default:
+			case MeemMetadataStorageProvider.Git:
 				return services.git.saveMeemMetadata({
 					imageBase64,
 					metadata,
 					meemId: id
+				})
+			default:
+				return services.web3.saveMeemMetadata({
+					imageBase64,
+					metadata
 				})
 		}
 	}
@@ -350,7 +354,7 @@ export default class MeemService {
 				contractAddress: data.tokenAddress
 			})
 
-			if (!isAccessAllowed) {
+			if (!isAccessAllowed && !config.TESTING) {
 				throw new Error('MINTING_ACCESS_DENIED')
 			}
 
@@ -374,7 +378,11 @@ export default class MeemService {
 			const owner = await contract.ownerOf(data.tokenId)
 			const isNFTOwner =
 				owner.toLowerCase() === data.accountAddress.toLowerCase()
-			if (!isNFTOwner) {
+			if (
+				!isNFTOwner &&
+				data.accountAddress.toLowerCase() !==
+					config.MEEM_PROXY_ADDRESS.toLowerCase()
+			) {
 				throw new Error('TOKEN_NOT_OWNED')
 			}
 
@@ -392,6 +400,10 @@ export default class MeemService {
 				})
 
 				base64Image = imageData.toString('base64')
+			}
+
+			if (config.TESTING) {
+				base64Image = ''
 			}
 
 			const image =
@@ -934,6 +946,163 @@ export default class MeemService {
 			metadata: meem.metadata,
 			mintedBy: meem.mintedBy,
 			meemType: meem.meemType
+		}
+	}
+
+	public static async claimMeem(
+		tokenId: string,
+		meemIdentification: MeemIdentification
+	): Promise<void> {
+		let meem: MeemModel | null = null
+
+		const tokenIdNumber = services.web3.toBigNumber(tokenId)
+		meem = await orm.models.Meem.findOne({
+			where: {
+				tokenId: tokenIdNumber.toHexString()
+			},
+			include: [
+				{
+					model: orm.models.MeemProperties,
+					as: 'Properties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'ChildProperties'
+				}
+			]
+		})
+
+		const meemContract = await services.meem.getMeemContract()
+
+		if (config.TESTING) {
+			const [testMeemData, testMeemTokenUri] = await Promise.all([
+				meemContract.getMeem(tokenIdNumber),
+				meemContract.tokenURI(tokenIdNumber)
+			])
+			const meemInterface = services.meem.meemToInterface({
+				tokenId: `${tokenIdNumber.toNumber()}`,
+				meem: testMeemData
+			})
+			meem = await orm.models.Meem.create({
+				...meemInterface,
+				tokenURI: testMeemTokenUri
+			})
+		}
+
+		if (!meem) {
+			throw new Error('TOKEN_NOT_FOUND')
+		}
+
+		if (meem.owner.toLowerCase() !== config.MEEM_PROXY_ADDRESS.toLowerCase()) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const meemId = await services.meemId.getMeemId({
+			meemIdentification
+		})
+
+		const meemberAlreadyOwns = meemId.wallets.find(w => {
+			return w.toLowerCase() === meem?.owner.toLowerCase()
+		})
+
+		if (meemberAlreadyOwns) {
+			return
+		}
+
+		const parentTokenIdString = services.web3
+			.toBigNumber(meem.parentTokenId)
+			.toString()
+
+		if (meem.meemType === MeemAPI.MeemType.Wrapped) {
+			const contract = await services.meem.erc721Contract({
+				networkName: MeemAPI.chainToNetworkName(meem.rootChain),
+				address: meem.root
+			})
+
+			const owner = await contract.ownerOf(
+				services.web3.toBigNumber(meem.rootTokenId)
+			)
+
+			const meemberOwnedWallet = meemId.wallets.find(
+				w => w.toLowerCase() === owner.toLowerCase()
+			)
+
+			if (!meemberOwnedWallet) {
+				throw new Error('NOT_AUTHORIZED')
+			}
+
+			const claimTx = await meemContract[
+				'safeTransferFrom(address,address,uint256)'
+			](config.MEEM_PROXY_ADDRESS, meemberOwnedWallet, tokenIdNumber.toNumber())
+
+			const receipt = await claimTx.wait()
+
+			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
+
+			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
+				const returnData = {
+					tokenId,
+					transactionHash: receipt.transactionHash
+				}
+
+				log.debug('MEEM TRANSFERRED', returnData)
+				// await sockets?.emit({
+				// 	subscription: MeemAPI.MeemEvent.MeemTransferred,
+				// 	eventName: MeemAPI.MeemEvent.MeemTransferred,
+				// 	data: returnData
+				// })
+				// log.debug(returnData)
+			}
+		} else if (
+			meem.meemType === MeemType.Remix &&
+			parentTokenIdString === config.TWITTER_PROJECT_TOKEN_ID
+		) {
+			const meemData = JSON.parse(meem.data)
+
+			if (!meemData.userId) {
+				throw new Error('SERVER_ERROR')
+			}
+
+			const ownerTwitterId = meemIdentification?.Twitters?.find(
+				t => t.twitterId === meemData.userId
+			)
+
+			if (!ownerTwitterId) {
+				throw new Error('NOT_AUTHORIZED')
+			}
+
+			log.debug(
+				`Transferring meem ${tokenIdNumber.toNumber()} from ${
+					config.MEEM_PROXY_ADDRESS
+				} to ${meemId.defaultWallet}`
+			)
+
+			const claimTx = await meemContract[
+				'safeTransferFrom(address,address,uint256)'
+			](
+				config.MEEM_PROXY_ADDRESS,
+				meemId.defaultWallet,
+				tokenIdNumber.toNumber()
+			)
+
+			const receipt = await claimTx.wait()
+
+			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
+
+			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
+				const returnData = {
+					tokenId,
+					transactionHash: receipt.transactionHash
+				}
+
+				log.debug('MEEM TRANSFERRED', returnData)
+				// await sockets?.emit({
+				// 	subscription: MeemAPI.MeemEvent.MeemTransferred,
+				// 	eventName: MeemAPI.MeemEvent.MeemTransferred,
+				// 	data: returnData
+				// })
+				// log.debug(returnData)
+			}
 		}
 	}
 }
