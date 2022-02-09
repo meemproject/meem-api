@@ -415,8 +415,6 @@ export default class TwitterService {
 			}
 		})
 
-		console.log('minting tweet', tweetData)
-
 		if (existingTweet) {
 			throw new Error('TOKEN_ALREADY_EXISTS')
 		}

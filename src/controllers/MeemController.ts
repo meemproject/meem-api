@@ -16,7 +16,6 @@ import {
 	IResponse
 } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
-import { MeemType } from '../types/shared/meem.shared'
 
 export default class MeemController {
 	// TODO: Move to dedicated MeemID controller?
