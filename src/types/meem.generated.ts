@@ -25,6 +25,11 @@ export namespace MeemAPI {
 		apiVersion: string
 	}
 
+	export interface IApiPaginatedResponseBody extends IApiResponseBody {
+		totalItems: number
+		itemsPerPage: number
+	}
+
 	/** The source of the event. Who emits the event. */
 	export enum EventSource {
 		Server = 'server',
@@ -500,6 +505,17 @@ export namespace MeemAPI {
 		timestamp: number
 	}
 
+	export interface ICollectorResult {
+		owner: string
+		edition: number
+		twitter?: {
+			id: string
+			username: string
+			displayName: string
+			profileImageUrl: string | null
+		}
+	}
+
 	export namespace v1 {
 		/** Claim an existing Meem */
 		export namespace ClaimMeem {
@@ -678,9 +694,38 @@ export namespace MeemAPI {
 
 			export interface IRequestBody {}
 
-			export interface IResponseBody extends IApiResponseBody {
+			export interface IResponseBody extends IApiPaginatedResponseBody {
 				meems: IMetadataMeem[]
-				totalItems: number
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		/** Get Collectors */
+		export namespace GetCollectors {
+			export interface IPathParams {
+				/** The token id to fetch */
+				tokenId: string
+			}
+
+			export const path = (options: IPathParams) =>
+				`/api/1.0/meems/${options.tokenId}/collectors`
+
+			export const method = HttpMethod.Get
+
+			export interface IQueryParams extends IRequestPaginated {}
+
+			export interface IRequestBody {}
+
+			export interface IResponseBody extends IApiPaginatedResponseBody {
+				collectors: ICollectorResult[]
 			}
 
 			export interface IDefinition {
@@ -855,10 +900,8 @@ export namespace MeemAPI {
 
 			export interface IRequestBody {}
 
-			export interface IResponseBody extends IApiResponseBody {
+			export interface IResponseBody extends IApiPaginatedResponseBody {
 				meemPasses: any[]
-				totalItems: number
-				itemsPerPage: number
 			}
 
 			export interface IDefinition {
@@ -892,10 +935,8 @@ export namespace MeemAPI {
 
 			export interface IRequestBody {}
 
-			export interface IResponseBody extends IApiResponseBody {
+			export interface IResponseBody extends IApiPaginatedResponseBody {
 				meems: IMetadataMeem[]
-				totalItems: number
-				itemsPerPage: number
 			}
 
 			export interface IDefinition {

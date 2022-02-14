@@ -5,24 +5,26 @@ import {
 	IRequestPaginated,
 	IApiPaginatedResponseBody
 } from '../api.shared'
-import { IMeemId } from '../meem.shared'
+import { ICollectorResult, IMetadataMeem, ITransfer } from '../meem.shared'
 
-/** Get MeemPasses */
-export namespace GetMeemPasses {
-	export interface IPathParams {}
+/** Get Collectors */
+export namespace GetCollectors {
+	export interface IPathParams {
+		/** The token id to fetch */
+		tokenId: string
+	}
 
-	export const path = () => `/api/1.0/meemPasses`
+	export const path = (options: IPathParams) =>
+		`/api/1.0/meems/${options.tokenId}/collectors`
 
 	export const method = HttpMethod.Get
 
-	export interface IQueryParams extends IRequestPaginated {
-		hideWhitelisted?: boolean
-	}
+	export interface IQueryParams extends IRequestPaginated {}
 
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiPaginatedResponseBody {
-		meemPasses: any[]
+		collectors: ICollectorResult[]
 	}
 
 	export interface IDefinition {

@@ -608,7 +608,110 @@ export default class MeemController {
 
 		return res.json({
 			meems: result.rows.map(m => services.meem.meemToIMeem(m)),
-			totalItems: result.count
+			totalItems: result.count,
+			itemsPerPage: limit
+		})
+	}
+
+	public static async getCollectors(
+		req: IAPIRequestPaginated<MeemAPI.v1.GetCollectors.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetCollectors.IResponseBody>
+	): Promise<any> {
+		const { tokenId } = req.params
+		const { page, limit: requestedLimit } = req
+		const limit = requestedLimit > 100 ? 100 : requestedLimit
+
+		if (!tokenId) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		const and: Record<string, any>[] = [
+			{
+				tokenId
+			},
+			{
+				meemType: MeemAPI.MeemType.Copy
+			}
+		]
+
+		const result = await orm.models.Meem.findAndCountAll({
+			where: {
+				[Op.and]: and
+			},
+			order: [['mintedAt', 'ASC']],
+			include: [
+				{
+					model: orm.models.MeemProperties,
+					as: 'Properties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'ChildProperties'
+				}
+			],
+			limit,
+			offset: page * limit
+		})
+
+		const copies = result.rows.map(m => services.meem.meemToIMeem(m))
+
+		let collectors = await Promise.all(
+			copies.map(async (copy, i) => {
+				const meemId = await services.meemId.getMeemId({
+					walletAddress: copy.owner
+				})
+				return {
+					...copy,
+					edition: page + i + 1,
+					meemId
+				}
+			})
+		)
+
+		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+
+		const twitterIds = collectors.map(
+			collector => collector.meemId.defaultTwitter
+		)
+
+		let twitterUsers: UserV2[] = []
+
+		if (twitterIds.length > 0) {
+			const twitterUsersResult = await client.v2.users(twitterIds, {
+				'user.fields': ['profile_image_url']
+			})
+			twitterUsers = twitterUsersResult.data
+		}
+
+		collectors = collectors.map(collector => {
+			const twitterUser: UserV2 | undefined = twitterUsers.find(
+				u => u.id === collector.meemId.defaultTwitter
+			)
+			return {
+				...collector,
+				...(twitterUser && {
+					defaultTwitterUser: {
+						id: collector.meemId.defaultTwitter,
+						username: twitterUser?.username,
+						displayName: twitterUser?.name,
+						profileImageUrl: twitterUser?.profile_image_url || null
+					}
+				})
+			}
+		})
+
+		const collectorResults: MeemAPI.ICollectorResult[] = collectors.map(c => {
+			return {
+				owner: c.owner,
+				edition: c.edition,
+				twitterUser: c.defaultTwitterUser
+			}
+		})
+
+		return res.json({
+			collectors: collectorResults,
+			totalItems: result.count,
+			itemsPerPage: limit
 		})
 	}
 }

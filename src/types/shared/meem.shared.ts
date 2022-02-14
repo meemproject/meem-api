@@ -450,3 +450,14 @@ export interface ITransfer {
 	transactionHash: string
 	timestamp: number
 }
+
+export interface ICollectorResult {
+	owner: string
+	edition: number
+	twitter?: {
+		id: string
+		username: string
+		displayName: string
+		profileImageUrl: string | null
+	}
+}
