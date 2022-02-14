@@ -287,10 +287,25 @@ export default class MeemIdService {
 	public static async getMeemId(options: {
 		meemIdentificationId?: string
 		meemIdentification?: MeemIdentification | null
+		walletAddress?: string | null
 	}): Promise<MeemAPI.IMeemId> {
-		const { meemIdentificationId } = options
+		const { meemIdentificationId, walletAddress } = options
 		let { meemIdentification } = options
-		if (!meemIdentification) {
+		if (walletAddress) {
+			meemIdentification = await orm.models.MeemIdentification.findOne({
+				include: [
+					orm.models.Twitter,
+					{
+						model: orm.models.Wallet,
+						where: {
+							address: walletAddress.toLowerCase()
+						}
+					},
+					orm.models.MeemPass
+				]
+			})
+		}
+		if (!meemIdentification && meemIdentificationId) {
 			meemIdentification = await orm.models.MeemIdentification.findOne({
 				where: {
 					id: meemIdentificationId

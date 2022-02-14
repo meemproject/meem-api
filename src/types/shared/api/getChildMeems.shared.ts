@@ -2,7 +2,8 @@ import {
 	IError,
 	HttpMethod,
 	IApiResponseBody,
-	IRequestPaginated
+	IRequestPaginated,
+	IApiPaginatedResponseBody
 } from '../api.shared'
 import { IMetadataMeem, ITransfer, MeemType } from '../meem.shared'
 
@@ -30,9 +31,8 @@ export namespace GetChildMeems {
 
 	export interface IRequestBody {}
 
-	export interface IResponseBody extends IApiResponseBody {
+	export interface IResponseBody extends IApiPaginatedResponseBody {
 		meems: IMetadataMeem[]
-		totalItems: number
 	}
 
 	export interface IDefinition {

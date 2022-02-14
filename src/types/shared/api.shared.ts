@@ -18,6 +18,11 @@ export interface IApiResponseBody {
 	apiVersion: string
 }
 
+export interface IApiPaginatedResponseBody extends IApiResponseBody {
+	totalItems: number
+	itemsPerPage: number
+}
+
 /** The source of the event. Who emits the event. */
 export enum EventSource {
 	Server = 'server',
