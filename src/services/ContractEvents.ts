@@ -415,11 +415,15 @@ export default class ContractEvent {
 
 	public static async createNewMeem(tokenId: string) {
 		const meemContract = await services.meem.getMeemContract()
+
+		log.debug(`Fetching meem from contract: ${tokenId}`)
 		// Fetch the meem data and create it
 		const [meemData, tokenURI] = await Promise.all([
 			meemContract.getMeem(tokenId),
 			meemContract.tokenURI(tokenId)
 		])
+
+		log.debug(`Meem found`, tokenURI, meemData)
 
 		const metadata = (await services.meem.getErc721Metadata(
 			tokenURI
@@ -460,6 +464,7 @@ export default class ContractEvent {
 
 		await Promise.all([properties.save(), childProperties.save()])
 
+		log.debug(`Saving meem to db: ${tokenId}`)
 		await meem.save()
 
 		if (config.ENABLE_GUNDB) {
