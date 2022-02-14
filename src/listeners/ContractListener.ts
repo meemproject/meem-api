@@ -28,11 +28,16 @@ export default class ContractListener {
 			}
 		)
 		// TODO: Prevent duplicate records / race condition since PropertiesSet and Transfer fires on minting
-		// this.meemContract.on(
-		// 	this.meemContract.filters.PropertiesSet(),
-		// 	async (_a, _b, _c, evt) => {try {
-		// services.contractEvents.meemHandlePropertiesSet(evt)} catch (e) {log.crit(e)}}
-		// )
+		this.meemContract.on(
+			this.meemContract.filters.PropertiesSet(),
+			async (_a, _b, _c, evt) => {
+				try {
+					services.contractEvents.meemHandlePropertiesSet(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
+		)
 		this.meemContract.on(
 			this.meemContract.filters.SplitsSet(),
 			async (_a, _b, evt) => {

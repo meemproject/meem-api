@@ -468,15 +468,6 @@ export default class TwitterService {
 			}
 
 			const properties = services.meem.buildProperties({
-				copyPermissions: [],
-				remixPermissions: [
-					{
-						permission: MeemAPI.Permission.Anyone,
-						addresses: [],
-						numTokens: '0',
-						lockedBy: MeemAPI.zeroAddress
-					}
-				],
 				splits: [
 					{
 						toAddress: config.DAO_WALLET,
