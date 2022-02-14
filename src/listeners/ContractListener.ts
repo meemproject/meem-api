@@ -40,7 +40,7 @@ export default class ContractListener {
 		)
 		this.meemContract.on(
 			this.meemContract.filters.SplitsSet(),
-			async (_a, _b, evt) => {
+			async (_a, _b, _c, evt) => {
 				try {
 					await services.contractEvents.meemHandleSplitsSet(evt)
 				} catch (e) {

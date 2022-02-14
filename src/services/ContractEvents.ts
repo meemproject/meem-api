@@ -55,7 +55,7 @@ export default class ContractEvent {
 
 	public static async meemHandleTotalCopiesSet(evt: TotalCopiesSetEvent) {
 		const tokenId = evt.args.tokenId.toHexString()
-		const { newTotalCopies } = evt.args
+		const { newTotalCopies, propertyType } = evt.args
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -65,21 +65,33 @@ export default class ContractEvent {
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'ChildProperties'
 				}
 			]
 		})
 
 		if (!meem) {
-			await this.createNewMeem(tokenId)
-		} else if (meem.Properties) {
-			meem.Properties.totalCopies = newTotalCopies.toHexString()
-			await meem.save()
+			// await this.createNewMeem(tokenId)
+		} else {
+			const prop =
+				propertyType === MeemAPI.PropertyType.Meem
+					? meem.Properties
+					: meem.ChildProperties
+			if (!prop) {
+				log.crit('Invalid propertyType')
+				return
+			}
+			prop.totalCopies = newTotalCopies.toHexString()
+			await prop.save()
 		}
 	}
 
 	public static async meemHandleTotalRemixesSet(evt: TotalRemixesSetEvent) {
 		const tokenId = evt.args.tokenId.toHexString()
-		const { newTotalRemixes } = evt.args
+		const { newTotalRemixes, propertyType } = evt.args
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -89,21 +101,33 @@ export default class ContractEvent {
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'ChildProperties'
 				}
 			]
 		})
 
 		if (!meem) {
-			await this.createNewMeem(tokenId)
-		} else if (meem.Properties) {
-			meem.Properties.totalRemixes = newTotalRemixes.toHexString()
-			await meem.save()
+			// await this.createNewMeem(tokenId)
+		} else {
+			const prop =
+				propertyType === MeemAPI.PropertyType.Meem
+					? meem.Properties
+					: meem.ChildProperties
+			if (!prop) {
+				log.crit('Invalid propertyType')
+				return
+			}
+			prop.totalRemixes = newTotalRemixes.toHexString()
+			await prop.save()
 		}
 	}
 
 	public static async meemHandleTotalCopiesLocked(evt: TotalCopiesLockedEvent) {
 		const tokenId = evt.args.tokenId.toHexString()
-		const { lockedBy } = evt.args
+		const { lockedBy, propertyType } = evt.args
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -113,15 +137,27 @@ export default class ContractEvent {
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'ChildProperties'
 				}
 			]
 		})
 
 		if (!meem) {
-			await this.createNewMeem(tokenId)
-		} else if (meem.Properties) {
-			meem.Properties.totalCopiesLockedBy = lockedBy
-			await meem.save()
+			// await this.createNewMeem(tokenId)
+		} else {
+			const prop =
+				propertyType === MeemAPI.PropertyType.Meem
+					? meem.Properties
+					: meem.ChildProperties
+			if (!prop) {
+				log.crit('Invalid propertyType')
+				return
+			}
+			prop.totalCopiesLockedBy = lockedBy
+			await prop.save()
 		}
 	}
 
@@ -129,7 +165,7 @@ export default class ContractEvent {
 		evt: TotalRemixesLockedEvent
 	) {
 		const tokenId = evt.args.tokenId.toHexString()
-		const { lockedBy } = evt.args
+		const { lockedBy, propertyType } = evt.args
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -139,15 +175,27 @@ export default class ContractEvent {
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'ChildProperties'
 				}
 			]
 		})
 
 		if (!meem) {
-			await this.createNewMeem(tokenId)
-		} else if (meem.Properties) {
-			meem.Properties.totalRemixesLockedBy = lockedBy
-			await meem.save()
+			// await this.createNewMeem(tokenId)
+		} else {
+			const prop =
+				propertyType === MeemAPI.PropertyType.Meem
+					? meem.Properties
+					: meem.ChildProperties
+			if (!prop) {
+				log.crit('Invalid propertyType')
+				return
+			}
+			prop.totalRemixesLockedBy = lockedBy
+			await prop.save()
 		}
 	}
 
@@ -155,7 +203,7 @@ export default class ContractEvent {
 		evt: CopiesPerWalletSetEvent
 	) {
 		const tokenId = evt.args.tokenId.toHexString()
-		const { newTotalCopies } = evt.args
+		const { newTotalCopies, propertyType } = evt.args
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -165,15 +213,27 @@ export default class ContractEvent {
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'ChildProperties'
 				}
 			]
 		})
 
 		if (!meem) {
-			await this.createNewMeem(tokenId)
-		} else if (meem.Properties) {
-			meem.Properties.copiesPerWallet = newTotalCopies.toHexString()
-			await meem.save()
+			// await this.createNewMeem(tokenId)
+		} else {
+			const prop =
+				propertyType === MeemAPI.PropertyType.Meem
+					? meem.Properties
+					: meem.ChildProperties
+			if (!prop) {
+				log.crit('Invalid propertyType')
+				return
+			}
+			prop.copiesPerWallet = newTotalCopies.toHexString()
+			await prop.save()
 		}
 	}
 
@@ -181,7 +241,7 @@ export default class ContractEvent {
 		evt: RemixesPerWalletSetEvent
 	) {
 		const tokenId = evt.args.tokenId.toHexString()
-		const { newTotalRemixes } = evt.args
+		const { newTotalRemixes, propertyType } = evt.args
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -191,15 +251,27 @@ export default class ContractEvent {
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'ChildProperties'
 				}
 			]
 		})
 
 		if (!meem) {
-			await this.createNewMeem(tokenId)
+			// await this.createNewMeem(tokenId)
 		} else if (meem.Properties) {
-			meem.Properties.remixesPerWallet = newTotalRemixes.toHexString()
-			await meem.save()
+			const prop =
+				propertyType === MeemAPI.PropertyType.Meem
+					? meem.Properties
+					: meem.ChildProperties
+			if (!prop) {
+				log.crit('Invalid propertyType')
+				return
+			}
+			prop.remixesPerWallet = newTotalRemixes.toHexString()
+			await prop.save()
 		}
 	}
 
@@ -207,7 +279,7 @@ export default class ContractEvent {
 		evt: TotalCopiesLockedEvent
 	) {
 		const tokenId = evt.args.tokenId.toHexString()
-		const { lockedBy } = evt.args
+		const { lockedBy, propertyType } = evt.args
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -217,15 +289,27 @@ export default class ContractEvent {
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'ChildProperties'
 				}
 			]
 		})
 
 		if (!meem) {
-			await this.createNewMeem(tokenId)
-		} else if (meem.Properties) {
-			meem.Properties.copiesPerWalletLockedBy = lockedBy
-			await meem.save()
+			// await this.createNewMeem(tokenId)
+		} else {
+			const prop =
+				propertyType === MeemAPI.PropertyType.Meem
+					? meem.Properties
+					: meem.ChildProperties
+			if (!prop) {
+				log.crit('Invalid propertyType')
+				return
+			}
+			prop.copiesPerWalletLockedBy = lockedBy
+			await prop.save()
 		}
 	}
 
@@ -233,7 +317,7 @@ export default class ContractEvent {
 		evt: TotalRemixesLockedEvent
 	) {
 		const tokenId = evt.args.tokenId.toHexString()
-		const { lockedBy } = evt.args
+		const { lockedBy, propertyType } = evt.args
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -243,21 +327,33 @@ export default class ContractEvent {
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'ChildProperties'
 				}
 			]
 		})
 
 		if (!meem) {
-			await this.createNewMeem(tokenId)
-		} else if (meem.Properties) {
-			meem.Properties.remixesPerWalletLockedBy = lockedBy
-			await meem.save()
+			// await this.createNewMeem(tokenId)
+		} else {
+			const prop =
+				propertyType === MeemAPI.PropertyType.Meem
+					? meem.Properties
+					: meem.ChildProperties
+			if (!prop) {
+				log.crit('Invalid propertyType')
+				return
+			}
+			prop.remixesPerWalletLockedBy = lockedBy
+			await prop.save()
 		}
 	}
 
 	public static async meemHandleSplitsSet(evt: SplitsSetEvent) {
 		const tokenId = evt.args.tokenId.toHexString()
-		const { splits } = evt.args
+		const { splits, propertyType } = evt.args
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -267,14 +363,27 @@ export default class ContractEvent {
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'ChildProperties'
 				}
 			]
 		})
 
 		if (!meem) {
-			await this.createNewMeem(tokenId)
-		} else if (meem.Properties) {
-			meem.Properties.splits = this.meemSplitsDataToModelData(splits)
+			// await this.createNewMeem(tokenId)
+		} else {
+			const prop =
+				propertyType === MeemAPI.PropertyType.Meem
+					? meem.Properties
+					: meem.ChildProperties
+			if (!prop) {
+				log.crit('Invalid propertyType')
+				return
+			}
+			prop.splits = this.meemSplitsDataToModelData(splits)
+			await prop.save()
 		}
 	}
 
@@ -298,7 +407,7 @@ export default class ContractEvent {
 		})
 
 		if (!meem) {
-			// await this.createNewMeem(tokenId)
+			await this.createNewMeem(tokenId)
 		} else if (propertyType === MeemAPI.PropertyType.Meem) {
 			await meem.Properties?.update(this.meemPropertiesDataToModelData(props))
 		} else if (propertyType === MeemAPI.PropertyType.Child) {
@@ -382,7 +491,7 @@ export default class ContractEvent {
 		})
 
 		if (!meem) {
-			await this.createNewMeem(tokenId)
+			// await this.createNewMeem(tokenId)
 		} else {
 			const prop =
 				propertyType === MeemAPI.PropertyType.Meem
@@ -409,7 +518,7 @@ export default class ContractEvent {
 				default:
 					break
 			}
-			await meem.save()
+			await prop.save()
 		}
 	}
 
