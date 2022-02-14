@@ -6,7 +6,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import { Op } from 'sequelize'
 import sharp from 'sharp'
-import TwitterApi, { UsersV2Result, UserV2 } from 'twitter-api-v2'
+import TwitterApi, { UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4, validate as uuidValidate } from 'uuid'
 import Meem from '../models/Meem'
 import {
