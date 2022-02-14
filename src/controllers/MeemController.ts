@@ -638,7 +638,7 @@ export default class MeemController {
 			where: {
 				[Op.and]: and
 			},
-			order: [['createdAt', 'ASC']],
+			order: [['mintedAt', 'ASC']],
 			include: [
 				{
 					model: orm.models.MeemProperties,
@@ -662,7 +662,7 @@ export default class MeemController {
 				})
 				return {
 					...copy,
-					edition: page + i,
+					edition: page + i + 1,
 					meemId
 				}
 			})
@@ -700,15 +700,16 @@ export default class MeemController {
 			}
 		})
 
-		const collectorsResponse = collectors.map(c => {
+		const collectorResults: MeemAPI.ICollectorResult[] = collectors.map(c => {
 			return {
 				owner: c.owner,
+				edition: c.edition,
 				twitterUser: c.defaultTwitterUser
 			}
 		})
 
 		return res.json({
-			collectors: collectorsResponse,
+			collectors: collectorResults,
 			totalItems: result.count,
 			itemsPerPage: limit
 		})
