@@ -4205,6 +4205,12 @@ const _abi = [
         type: "uint256",
       },
       {
+        indexed: false,
+        internalType: "enum PropertyType",
+        name: "propertyType",
+        type: "uint8",
+      },
+      {
         components: [
           {
             internalType: "address",

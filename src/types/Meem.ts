@@ -893,7 +893,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     "TotalRemixesLocked(uint256,uint8,address)": EventFragment;
     "TotalRemixesSet(uint256,uint8,int256)": EventFragment;
     "RoyaltiesSet(uint256,tuple[])": EventFragment;
-    "SplitsSet(uint256,tuple[])": EventFragment;
+    "SplitsSet(uint256,uint8,tuple[])": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
@@ -1031,8 +1031,8 @@ export type RoyaltiesSetEvent = TypedEvent<
 export type RoyaltiesSetEventFilter = TypedEventFilter<RoyaltiesSetEvent>;
 
 export type SplitsSetEvent = TypedEvent<
-  [BigNumber, SplitStructOutput[]],
-  { tokenId: BigNumber; splits: SplitStructOutput[] }
+  [BigNumber, number, SplitStructOutput[]],
+  { tokenId: BigNumber; propertyType: number; splits: SplitStructOutput[] }
 >;
 
 export type SplitsSetEventFilter = TypedEventFilter<SplitsSetEvent>;
@@ -2469,11 +2469,16 @@ export interface Meem extends BaseContract {
     ): RoyaltiesSetEventFilter;
     RoyaltiesSet(tokenId?: null, royalties?: null): RoyaltiesSetEventFilter;
 
-    "SplitsSet(uint256,tuple[])"(
+    "SplitsSet(uint256,uint8,tuple[])"(
       tokenId?: null,
+      propertyType?: null,
       splits?: null
     ): SplitsSetEventFilter;
-    SplitsSet(tokenId?: null, splits?: null): SplitsSetEventFilter;
+    SplitsSet(
+      tokenId?: null,
+      propertyType?: null,
+      splits?: null
+    ): SplitsSetEventFilter;
 
     "DiamondCut(tuple[],address,bytes)"(
       facetCuts?: null,
