@@ -548,7 +548,7 @@ export default class MeemController {
 		req: IAPIRequestPaginated<MeemAPI.v1.GetChildMeems.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetChildMeems.IResponseBody>
 	): Promise<any> {
-		const { tokenId } = req.params
+		let { tokenId } = req.params
 		const { owner, meemType, mintedBy } = req.query
 		const { page, limit: requestedLimit } = req
 		const limit = requestedLimit > 100 ? 100 : requestedLimit
@@ -556,6 +556,9 @@ export default class MeemController {
 		if (!tokenId) {
 			throw new Error('MISSING_PARAMETERS')
 		}
+
+		// Make sure numeric token IDs are converted to hex
+		tokenId = services.web3.toBigNumber(tokenId).toHexString()
 
 		const and: Record<string, any>[] = [
 			{
