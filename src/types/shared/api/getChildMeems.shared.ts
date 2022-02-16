@@ -23,7 +23,7 @@ export namespace GetChildMeems {
 		owner?: string
 
 		/** Filter by MeemType */
-		meemType?: MeemType
+		meemTypes?: MeemType[]
 
 		/** Filter by minter */
 		mintedBy?: string

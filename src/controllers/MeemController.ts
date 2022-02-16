@@ -177,7 +177,7 @@ export default class MeemController {
 		req: IAPIRequestPaginated<MeemAPI.v1.GetMeems.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeems.IResponseBody>
 	): Promise<Response> {
-		const { owner, meemType, mintedBy } = req.query
+		const { owner, meemTypes, mintedBy } = req.query
 		const { page, limit: requestedLimit } = req
 		const limit = requestedLimit > 100 ? 100 : requestedLimit
 		const itemsPerPage = limit
@@ -191,9 +191,14 @@ export default class MeemController {
 				)
 			)
 		}
-		if (meemType) {
+		if (meemTypes) {
+			const meemTypesArray = _.isArray(meemTypes)
+				? meemTypes
+				: (meemTypes as string).split(',')
 			and.push({
-				meemType
+				meemType: {
+					[Op.in]: meemTypesArray
+				}
 			})
 		}
 		if (mintedBy) {
@@ -549,7 +554,7 @@ export default class MeemController {
 		res: IResponse<MeemAPI.v1.GetChildMeems.IResponseBody>
 	): Promise<any> {
 		let { tokenId } = req.params
-		const { owner, meemType, mintedBy } = req.query
+		const { owner, meemTypes, mintedBy } = req.query
 		const { page, limit: requestedLimit } = req
 		const limit = requestedLimit > 100 ? 100 : requestedLimit
 
@@ -576,9 +581,14 @@ export default class MeemController {
 				)
 			)
 		}
-		if (meemType) {
+		if (meemTypes) {
+			const meemTypesArray = _.isArray(meemTypes)
+				? meemTypes
+				: (meemTypes as string).split(',')
 			and.push({
-				meemType
+				meemType: {
+					[Op.in]: meemTypesArray
+				}
 			})
 		}
 		if (mintedBy) {
