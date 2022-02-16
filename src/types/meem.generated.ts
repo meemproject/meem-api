@@ -685,8 +685,8 @@ export namespace MeemAPI {
 				/** Filter by owner address */
 				owner?: string
 
-				/** Filter by MeemTypes */
-				meemTypes?: string
+				/** Filter by MeemType */
+				meemType?: MeemType[]
 
 				/** Filter by minter */
 				mintedBy?: string
@@ -927,7 +927,7 @@ export namespace MeemAPI {
 				owner?: string
 
 				/** Filter by MeemTypes */
-				meemTypes?: string
+				meemTypes?: MeemType[]
 
 				/** Filter by minter */
 				mintedBy?: string

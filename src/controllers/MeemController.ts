@@ -192,7 +192,9 @@ export default class MeemController {
 			)
 		}
 		if (meemTypes) {
-			const meemTypesArray = meemTypes.split(',')
+			const meemTypesArray = _.isArray(meemTypes)
+				? meemTypes
+				: (meemTypes as string).split(',')
 			and.push({
 				meemType: {
 					[Op.in]: meemTypesArray
@@ -580,7 +582,9 @@ export default class MeemController {
 			)
 		}
 		if (meemTypes) {
-			const meemTypesArray = meemTypes.split(',')
+			const meemTypesArray = _.isArray(meemTypes)
+				? meemTypes
+				: (meemTypes as string).split(',')
 			and.push({
 				meemType: {
 					[Op.in]: meemTypesArray

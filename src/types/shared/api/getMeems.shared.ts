@@ -19,8 +19,8 @@ export namespace GetMeems {
 		/** Filter by owner address */
 		owner?: string
 
-		/** Filter by MeemTypes */
-		meemTypes?: string
+		/** Filter by MeemType */
+		meemTypes?: MeemType[]
 
 		/** Filter by minter */
 		mintedBy?: string
