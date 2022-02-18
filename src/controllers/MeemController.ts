@@ -632,7 +632,7 @@ export default class MeemController {
 		res: IResponse<MeemAPI.v1.GetCollectors.IResponseBody>
 	): Promise<any> {
 		let { tokenId } = req.params
-		const { csv } = req.query
+		const { csv: isCsv } = req.query
 		const { page, limit: requestedLimit } = req
 		const limit = requestedLimit > 100 ? 100 : requestedLimit
 
@@ -728,7 +728,7 @@ export default class MeemController {
 			}
 		})
 
-		if (csv) {
+		if (isCsv) {
 			const fields = [
 				'tokenId',
 				'owner',
