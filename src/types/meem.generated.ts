@@ -508,6 +508,7 @@ export namespace MeemAPI {
 	export interface ICollectorResult {
 		owner: string
 		edition: number
+		tokenId: string
 		twitter?: {
 			id: string
 			username: string
@@ -720,7 +721,9 @@ export namespace MeemAPI {
 
 			export const method = HttpMethod.Get
 
-			export interface IQueryParams extends IRequestPaginated {}
+			export interface IQueryParams extends IRequestPaginated {
+				csv: boolean
+			}
 
 			export interface IRequestBody {}
 

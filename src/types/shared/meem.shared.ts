@@ -454,6 +454,7 @@ export interface ITransfer {
 export interface ICollectorResult {
 	owner: string
 	edition: number
+	tokenId: string
 	twitter?: {
 		id: string
 		username: string

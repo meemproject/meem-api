@@ -2,6 +2,7 @@ import AWS from 'aws-sdk'
 import BigNumber from 'bignumber.js'
 import type { ethers as Ethers } from 'ethers'
 import { Response } from 'express'
+import { parse } from 'json2csv'
 import _ from 'lodash'
 import moment from 'moment'
 import { Op } from 'sequelize'
@@ -631,6 +632,7 @@ export default class MeemController {
 		res: IResponse<MeemAPI.v1.GetCollectors.IResponseBody>
 	): Promise<any> {
 		let { tokenId } = req.params
+		const { csv: isCsv } = req.query
 		const { page, limit: requestedLimit } = req
 		const limit = requestedLimit > 100 ? 100 : requestedLimit
 
@@ -717,12 +719,41 @@ export default class MeemController {
 		})
 
 		const collectorResults: MeemAPI.ICollectorResult[] = collectors.map(c => {
+			const copyTokenId = services.web3.toBigNumber(c.tokenId).toNumber()
 			return {
+				tokenId: `${copyTokenId}`,
 				owner: c.owner,
 				edition: c.edition,
-				twitterUser: c.defaultTwitterUser
+				twitter: c.defaultTwitterUser
 			}
 		})
+
+		if (isCsv) {
+			const fields = [
+				'tokenId',
+				'owner',
+				'edition',
+				'twitterId',
+				'twitterUsername',
+				'twitterDisplayName',
+				'twitterProfileImageUrl'
+			]
+			const csvCollectorResults = collectorResults.map(c => {
+				const csvResult = {
+					...c,
+					twitterId: c.twitter?.id || '',
+					twitterUsername: c.twitter?.username || '',
+					twitterDisplayName: c.twitter?.displayName || '',
+					twitterProfileImageUrl: c.twitter?.profileImageUrl || ''
+				}
+				delete csvResult.twitter
+				return csvResult
+			})
+			const opts = { fields }
+			const csvData = parse(csvCollectorResults, opts)
+			res.type('csv')
+			return res.send(csvData)
+		}
 
 		return res.json({
 			collectors: collectorResults,

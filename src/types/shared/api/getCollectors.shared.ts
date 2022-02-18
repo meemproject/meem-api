@@ -19,7 +19,9 @@ export namespace GetCollectors {
 
 	export const method = HttpMethod.Get
 
-	export interface IQueryParams extends IRequestPaginated {}
+	export interface IQueryParams extends IRequestPaginated {
+		csv: boolean
+	}
 
 	export interface IRequestBody {}
 
