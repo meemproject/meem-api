@@ -137,8 +137,6 @@ export default class TwitterService {
 		const isTestMeem = /&gt;meemtest/gi.test(tweetData.text)
 		const isDevMeem = /&gt;meemdev/gi.test(tweetData.text)
 
-		log.debug('IS DEV MEEM', isDevMeem)
-
 		// Since stream rules are environment-independent
 		// Make sure we're not minting meems while testing locally
 		const isTestEnv =
@@ -146,8 +144,6 @@ export default class TwitterService {
 		if ((!isTestEnv && isTestMeem) || (isTestEnv && !isTestMeem)) {
 			return
 		}
-
-		log.debug('IS DEV NETWORK', config.NETWORK === MeemAPI.NetworkName.Rinkeby)
 
 		if (
 			(isDevMeem && config.NETWORK !== MeemAPI.NetworkName.Rinkeby) ||
@@ -162,8 +158,6 @@ export default class TwitterService {
 			!!tweetData.referenced_tweets && tweetData.referenced_tweets?.length > 0
 
 		const tweetUser = includes?.users?.find(u => u.id === tweetData.author_id)
-
-		log.debug('TWEET USER', tweetUser?.id)
 
 		if (!tweetUser?.id) {
 			return
