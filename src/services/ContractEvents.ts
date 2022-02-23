@@ -407,7 +407,7 @@ export default class ContractEvent {
 		})
 
 		if (!meem) {
-			await this.createNewMeem(tokenId)
+			// await this.createNewMeem(tokenId)
 		} else if (propertyType === MeemAPI.PropertyType.Meem) {
 			await meem.Properties?.update(this.meemPropertiesDataToModelData(props))
 		} else if (propertyType === MeemAPI.PropertyType.Child) {
