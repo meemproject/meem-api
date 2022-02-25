@@ -1,3 +1,11 @@
+## [1.4.8](https://github.com/meemproject/meem-api-aws/compare/v1.4.7...v1.4.8) (2022-02-25)
+
+
+### Bug Fixes
+
+* parent/root not set on meemToIMeem ([676c42a](https://github.com/meemproject/meem-api-aws/commit/676c42a))
+* prevent dupe meem creation ([5833279](https://github.com/meemproject/meem-api-aws/commit/5833279))
+
 ## [1.4.7](https://github.com/meemproject/meem-api-aws/compare/v1.4.6...v1.4.7) (2022-02-11)
 
 ## [1.4.6](https://github.com/meemproject/meem-api-aws/compare/v1.4.5...v1.4.6) (2022-02-11)
