@@ -353,9 +353,12 @@ export default class TwitterService {
 		twitterUser: UserV2
 	}): Promise<Tweet> {
 		const { tweetData, twitterUser } = options
+
+		const tweetText = TwitterService.decodeEntities(tweetData.text)
+
 		const tweet = await orm.models.Tweet.create({
 			tweetId: tweetData.id,
-			text: tweetData.text,
+			text: tweetText,
 			userId: twitterUser?.id,
 			username: twitterUser?.username || '',
 			userProfileImageUrl: twitterUser?.profile_image_url || ''
@@ -752,5 +755,24 @@ export default class TwitterService {
 			accessSecret: config.TWITTER_MEEM_ACCOUNT_SECRET
 		})
 		return tweetClient.v2.tweet(status, payload)
+	}
+
+	private static decodeEntities(encodedString: string) {
+		const symbols = /&(nbsp|amp|quot|lt|gt);/g
+		const translate: { [key: string]: string } = {
+			nbsp: ' ',
+			amp: '&',
+			quot: '"',
+			lt: '<',
+			gt: '>'
+		}
+		return encodedString
+			.replace(symbols, (match, entity) => {
+				return translate[entity]
+			})
+			.replace(/&#(\d+);/gi, (match, numStr) => {
+				const num = parseInt(numStr, 10)
+				return String.fromCharCode(num)
+			})
 	}
 }
