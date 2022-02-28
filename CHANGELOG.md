@@ -1,3 +1,10 @@
+## [1.4.9](https://github.com/meemproject/meem-api-aws/compare/v1.4.8...v1.4.9) (2022-02-28)
+
+
+### Bug Fixes
+
+* await minting to catch errors; use double gas limit for mint&remix ([20eeddc](https://github.com/meemproject/meem-api-aws/commit/20eeddc))
+
 ## [1.4.8](https://github.com/meemproject/meem-api-aws/compare/v1.4.7...v1.4.8) (2022-02-25)
 
 
