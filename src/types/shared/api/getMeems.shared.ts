@@ -22,6 +22,9 @@ export namespace GetMeems {
 		/** Filter by MeemType */
 		meemTypes?: MeemType[]
 
+		/** Filter by Root Token ID */
+		rootTokenIds?: string[]
+
 		/** Filter by minter */
 		mintedBy?: string
 	}

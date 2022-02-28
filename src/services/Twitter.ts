@@ -410,7 +410,6 @@ export default class TwitterService {
 				toAddress = meemId.wallets[0]
 			}
 		}
-		const isRemixVerified = !!meemId?.defaultWallet
 
 		const existingTweet = await orm.models.Tweet.findOne({
 			where: {
@@ -535,7 +534,6 @@ export default class TwitterService {
 							username: tweet.username,
 							userId: tweet.userId
 						}),
-						// TODO: Is original always verified even if owner is not meember?
 						isVerified: true,
 						// TODO: Is mintedBy the remixer here?
 						mintedBy: remixerAccountAddress
@@ -555,7 +553,7 @@ export default class TwitterService {
 							username: remixTweet.username,
 							userId: remixTweet.userId
 						}),
-						isVerified: isRemixVerified,
+						isVerified: true,
 						mintedBy: remix.meemId?.defaultWallet
 					},
 					properties,

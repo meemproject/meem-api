@@ -178,7 +178,7 @@ export default class MeemController {
 		req: IAPIRequestPaginated<MeemAPI.v1.GetMeems.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeems.IResponseBody>
 	): Promise<Response> {
-		const { owner, meemTypes, mintedBy } = req.query
+		const { owner, meemTypes, mintedBy, rootTokenIds } = req.query
 		const { page, limit: requestedLimit } = req
 		const limit = requestedLimit > 100 ? 100 : requestedLimit
 		const itemsPerPage = limit
@@ -199,6 +199,19 @@ export default class MeemController {
 			and.push({
 				meemType: {
 					[Op.in]: meemTypesArray
+				}
+			})
+		}
+		if (rootTokenIds) {
+			let rootTokenIdsArray = _.isArray(rootTokenIds)
+				? rootTokenIds
+				: (rootTokenIds as string).split(',')
+			rootTokenIdsArray = rootTokenIdsArray.map(tokenId => {
+				return services.web3.toBigNumber(tokenId).toHexString()
+			})
+			and.push({
+				rootTokenId: {
+					[Op.in]: rootTokenIdsArray
 				}
 			})
 		}
