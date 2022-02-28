@@ -147,7 +147,7 @@ export default {
 	ENABLE_URL_SCRAPER: process.env.ENABLE_URL_SCRAPER === 'true',
 	MINT_GAS_LIMIT: process.env.MINT_GAS_LIMIT
 		? process.env.MINT_GAS_LIMIT
-		: '1600000',
+		: '2000000',
 	ENABLE_TWEET_CURATION: process.env.ENABLE_TWEET_CURATION === 'true',
 	ENABLE_GUNDB: process.env.ENABLE_GUNDB === 'true',
 	GUNDB_S3_BUCKET: process.env.GUNDB_S3_BUCKET ?? '',

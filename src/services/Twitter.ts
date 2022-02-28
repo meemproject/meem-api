@@ -561,7 +561,7 @@ export default class TwitterService {
 					properties,
 					properties,
 					{
-						gasLimit: config.MINT_GAS_LIMIT,
+						gasLimit: (+config.MINT_GAS_LIMIT * 2).toString(),
 						gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
 					}
 				]

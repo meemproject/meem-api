@@ -50,7 +50,7 @@ export default class TwitterListener {
 				ETwitterStreamEvent.Data,
 				async eventData => {
 					try {
-						services.twitter.mintAndStoreTweet(
+						await services.twitter.mintAndStoreTweet(
 							eventData.data,
 							eventData.includes
 						)
