@@ -107,6 +107,12 @@ export default {
 	JSON_RPC_POLYGON:
 		process.env.JSON_RPC_POLYGON ??
 		'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/polygon/mainnet',
+	WS_RPC_RINKEBY:
+		process.env.WS_RPC_RINKEBY ??
+		'wss://eth-rinkeby.alchemyapi.io/v2/lcOdvJ5FJvsjTT3ZzyeWSMfpy6ILx-1s',
+	WS_RPC_POLYGON:
+		process.env.WS_RPC_POLYGON ??
+		'wss://polygon-mainnet.g.alchemy.com/v2/xLwwfjFEFLvv_mRhnv7ZW3qM8f3K8MHE',
 	JSON_RPC_HARDHAT: process.env.JSON_RPC_HARDHAT ?? 'http://127.0.0.1:8545',
 	ENABLE_WHITELIST_TEST_DATA: process.env.ENABLE_WHITELIST_TEST_DATA === 'true',
 	MAX_GAS_PRICE_GWEI: process.env.MAX_GAS_PRICE_GWEI

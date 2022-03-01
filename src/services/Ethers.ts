@@ -34,11 +34,19 @@ export default class EthersService {
 				break
 
 			case MeemAPI.NetworkName.Rinkeby:
-				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_RINKEBY)
+				// provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_RINKEBY)
+				provider = new ethers.providers.WebSocketProvider(
+					config.WS_RPC_RINKEBY,
+					'rinkeby'
+				)
 				break
 
 			case MeemAPI.NetworkName.Polygon:
-				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_POLYGON)
+				// provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_POLYGON)
+				provider = new ethers.providers.WebSocketProvider(
+					config.WS_RPC_POLYGON,
+					137
+				)
 				break
 
 			case MeemAPI.NetworkName.Hardhat:
