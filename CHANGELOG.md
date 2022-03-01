@@ -1,3 +1,10 @@
+## [1.4.11](https://github.com/meemproject/meem-api-aws/compare/v1.4.10...v1.4.11) (2022-03-01)
+
+
+### Bug Fixes
+
+* use websocket RPC ([cfaf282](https://github.com/meemproject/meem-api-aws/commit/cfaf282))
+
 ## [1.4.10](https://github.com/meemproject/meem-api-aws/compare/v1.4.9...v1.4.10) (2022-03-01)
 
 ## [1.4.9](https://github.com/meemproject/meem-api-aws/compare/v1.4.8...v1.4.9) (2022-02-28)
