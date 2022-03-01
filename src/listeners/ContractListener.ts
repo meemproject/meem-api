@@ -32,7 +32,7 @@ export default class ContractListener {
 			this.meemContract.filters.PropertiesSet(),
 			async (_a, _b, _c, evt) => {
 				try {
-					services.contractEvents.meemHandlePropertiesSet(evt)
+					await services.contractEvents.meemHandlePropertiesSet(evt)
 				} catch (e) {
 					log.crit(e)
 				}
