@@ -123,7 +123,7 @@ export default class Meem extends BaseModel<Meem> {
 			allowNull: false
 		},
 		data: {
-			type: DataTypes.STRING,
+			type: DataTypes.TEXT,
 			allowNull: false,
 			defaultValue: ''
 		},
