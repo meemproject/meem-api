@@ -719,7 +719,9 @@ export default class TwitterService {
 			}
 		)
 
-		await page.waitForSelector('.twitter-tweet-rendered')
+		await page.waitForSelector('.twitter-tweet-rendered', {
+			visible: true
+		})
 
 		const renderedTweet = await page.$('.twitter-tweet-rendered')
 
