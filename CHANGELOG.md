@@ -1,3 +1,18 @@
+## [1.4.12](https://github.com/meemproject/meem-api-aws/compare/v1.4.11...v1.4.12) (2022-03-02)
+
+
+### Bug Fixes
+
+* data overflowing varchar column ([ff37f9c](https://github.com/meemproject/meem-api-aws/commit/ff37f9c))
+* save verifiedBy, update gateway ([3ae413a](https://github.com/meemproject/meem-api-aws/commit/3ae413a))
+
+## [1.4.11](https://github.com/meemproject/meem-api-aws/compare/v1.4.10...v1.4.11) (2022-03-01)
+
+
+### Bug Fixes
+
+* use websocket RPC ([cfaf282](https://github.com/meemproject/meem-api-aws/commit/cfaf282))
+
 ## [1.4.10](https://github.com/meemproject/meem-api-aws/compare/v1.4.9...v1.4.10) (2022-03-01)
 
 ## [1.4.9](https://github.com/meemproject/meem-api-aws/compare/v1.4.8...v1.4.9) (2022-02-28)
