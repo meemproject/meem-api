@@ -566,7 +566,8 @@ export default class ContractEvent {
 			PropertiesId: properties.id,
 			ChildPropertiesId: childProperties.id,
 			meemType: meemData.meemType,
-			mintedBy: meemData.mintedBy
+			mintedBy: meemData.mintedBy,
+			verifiedBy: meemData.verifiedBy
 		}
 
 		const meem = orm.models.Meem.build(data)
@@ -698,6 +699,7 @@ export default class ContractEvent {
 
 		meem.data = meemData.data
 		meem.metadata = metadata
+		meem.verifiedBy = meemData.verifiedBy
 		await meem.save()
 	}
 

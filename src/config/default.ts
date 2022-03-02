@@ -84,7 +84,7 @@ export default {
 	TWITTER_PROJECT_TOKEN_ID: process.env.TWITTER_PROJECT_TOKEN_ID ?? '',
 	INFURA_ID: process.env.INFURA_ID ?? '',
 	IPFS_CONTENT_GATEWAY_URL:
-		process.env.IPFS_CONTENT_GATEWAY_URL ?? 'https://gateway.ipfs.io',
+		process.env.IPFS_CONTENT_GATEWAY_URL ?? 'https://ipfs.moralis.io:2053',
 	GITHUB_KEY: process.env.GITHUB_KEY ?? '',
 	ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY ?? '',
 	DYNAMODB_SOCKETS_TABLE: process.env.DYNAMODB_SOCKETS_TABLE ?? '',
@@ -107,6 +107,12 @@ export default {
 	JSON_RPC_POLYGON:
 		process.env.JSON_RPC_POLYGON ??
 		'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/polygon/mainnet',
+	WS_RPC_RINKEBY:
+		process.env.WS_RPC_RINKEBY ??
+		'wss://eth-rinkeby.alchemyapi.io/v2/lcOdvJ5FJvsjTT3ZzyeWSMfpy6ILx-1s',
+	WS_RPC_POLYGON:
+		process.env.WS_RPC_POLYGON ??
+		'wss://polygon-mainnet.g.alchemy.com/v2/xLwwfjFEFLvv_mRhnv7ZW3qM8f3K8MHE',
 	JSON_RPC_HARDHAT: process.env.JSON_RPC_HARDHAT ?? 'http://127.0.0.1:8545',
 	ENABLE_WHITELIST_TEST_DATA: process.env.ENABLE_WHITELIST_TEST_DATA === 'true',
 	MAX_GAS_PRICE_GWEI: process.env.MAX_GAS_PRICE_GWEI
