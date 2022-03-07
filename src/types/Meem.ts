@@ -242,6 +242,11 @@ export interface MeemInterface extends ethers.utils.Interface {
     "grantRole(address,bytes32)": FunctionFragment;
     "hasRole(address,bytes32)": FunctionFragment;
     "revokeRole(address,bytes32)": FunctionFragment;
+    "addressClippings(address)": FunctionFragment;
+    "clip(uint256)": FunctionFragment;
+    "clippings(uint256)": FunctionFragment;
+    "hasAddressClipped(uint256,address)": FunctionFragment;
+    "numClippings(uint256)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "baseTokenURI()": FunctionFragment;
@@ -267,6 +272,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     "setMeemIDAddress(address)": FunctionFragment;
     "setNonOwnerSplitAllocationAmount(uint256)": FunctionFragment;
     "setTokenCounter(uint256)": FunctionFragment;
+    "setTokenRoot(uint256,uint8,address,uint256)": FunctionFragment;
     "verifyToken(uint256)": FunctionFragment;
     "mint((address,string,uint8,address,uint256,uint8,string,bool,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address))": FunctionFragment;
     "mintAndCopy((address,string,uint8,address,uint256,uint8,string,bool,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),address)": FunctionFragment;
@@ -336,6 +342,23 @@ export interface MeemInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "revokeRole",
     values: [string, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addressClippings",
+    values: [string]
+  ): string;
+  encodeFunctionData(functionFragment: "clip", values: [BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: "clippings",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasAddressClipped",
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "numClippings",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "approve",
@@ -421,6 +444,10 @@ export interface MeemInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "setTokenCounter",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setTokenRoot",
+    values: [BigNumberish, BigNumberish, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "verifyToken",
@@ -639,6 +666,20 @@ export interface MeemInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "addressClippings",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "clip", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "clippings", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "hasAddressClipped",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "numClippings",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
@@ -716,6 +757,10 @@ export interface MeemInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setTokenCounter",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setTokenRoot",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -879,6 +924,7 @@ export interface MeemInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
+    "TokenClipped(uint256,address)": EventFragment;
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
@@ -898,6 +944,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "TokenClipped"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
@@ -916,6 +963,13 @@ export interface MeemInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "DiamondCut"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
+
+export type TokenClippedEvent = TypedEvent<
+  [BigNumber, string],
+  { tokenId: BigNumber; addy: string }
+>;
+
+export type TokenClippedEventFilter = TypedEventFilter<TokenClippedEvent>;
 
 export type ApprovalEvent = TypedEvent<
   [string, string, BigNumber],
@@ -1101,6 +1155,32 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    addressClippings(
+      addy: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber[]]>;
+
+    clip(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    clippings(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string[]]>;
+
+    hasAddressClipped(
+      tokenId: BigNumberish,
+      addy: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    numClippings(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     approve(
       operator: string,
       tokenId: BigNumberish,
@@ -1226,6 +1306,14 @@ export interface Meem extends BaseContract {
 
     setTokenCounter(
       tokenCounter: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setTokenRoot(
+      tokenId: BigNumberish,
+      rootChain: BigNumberish,
+      root: string,
+      rootTokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1530,6 +1618,32 @@ export interface Meem extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  addressClippings(
+    addy: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber[]>;
+
+  clip(
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  clippings(
+    tokenId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string[]>;
+
+  hasAddressClipped(
+    tokenId: BigNumberish,
+    addy: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  numClippings(
+    tokenId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   approve(
     operator: string,
     tokenId: BigNumberish,
@@ -1641,6 +1755,14 @@ export interface Meem extends BaseContract {
 
   setTokenCounter(
     tokenCounter: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setTokenRoot(
+    tokenId: BigNumberish,
+    rootChain: BigNumberish,
+    root: string,
+    rootTokenId: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1936,6 +2058,29 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    addressClippings(
+      addy: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber[]>;
+
+    clip(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    clippings(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string[]>;
+
+    hasAddressClipped(
+      tokenId: BigNumberish,
+      addy: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    numClippings(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     approve(
       operator: string,
       tokenId: BigNumberish,
@@ -2041,6 +2186,14 @@ export interface Meem extends BaseContract {
 
     setTokenCounter(
       tokenCounter: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setTokenRoot(
+      tokenId: BigNumberish,
+      rootChain: BigNumberish,
+      root: string,
+      rootTokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -2318,6 +2471,12 @@ export interface Meem extends BaseContract {
   };
 
   filters: {
+    "TokenClipped(uint256,address)"(
+      tokenId?: null,
+      addy?: null
+    ): TokenClippedEventFilter;
+    TokenClipped(tokenId?: null, addy?: null): TokenClippedEventFilter;
+
     "Approval(address,address,uint256)"(
       owner?: string | null,
       operator?: string | null,
@@ -2524,6 +2683,32 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    addressClippings(
+      addy: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    clip(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    clippings(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    hasAddressClipped(
+      tokenId: BigNumberish,
+      addy: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    numClippings(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     approve(
       operator: string,
       tokenId: BigNumberish,
@@ -2641,6 +2826,14 @@ export interface Meem extends BaseContract {
 
     setTokenCounter(
       tokenCounter: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setTokenRoot(
+      tokenId: BigNumberish,
+      rootChain: BigNumberish,
+      root: string,
+      rootTokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2942,6 +3135,32 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    addressClippings(
+      addy: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    clip(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    clippings(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    hasAddressClipped(
+      tokenId: BigNumberish,
+      addy: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    numClippings(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     approve(
       operator: string,
       tokenId: BigNumberish,
@@ -3065,6 +3284,14 @@ export interface Meem extends BaseContract {
 
     setTokenCounter(
       tokenCounter: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setTokenRoot(
+      tokenId: BigNumberish,
+      rootChain: BigNumberish,
+      root: string,
+      rootTokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

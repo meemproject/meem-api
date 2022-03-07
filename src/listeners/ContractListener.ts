@@ -139,6 +139,17 @@ export default class ContractListener {
 			}
 		)
 
+		this.meemContract.on(
+			this.meemContract.filters.TokenClipped(),
+			async (_a, _b, evt) => {
+				try {
+					await services.contractEvents.meemHandleTokenClipped(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
+		)
+
 		log.info('Contract listeners set up')
 	}
 }

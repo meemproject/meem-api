@@ -462,3 +462,12 @@ export interface ICollectorResult {
 		profileImageUrl: string | null
 	}
 }
+
+export interface IClipping {
+	/** The wallet address that clipped */
+	address: string
+	/** Whether the clipper has a MeemId */
+	hasMeemId: boolean
+	/** Timestamp of when the item was clipped */
+	clippedAt: number
+}

@@ -173,7 +173,7 @@ export default class Meem extends BaseModel<Meem> {
 
 	public generation!: number
 
-	public mintedAt!: string
+	public mintedAt!: Date
 
 	public data!: string
 

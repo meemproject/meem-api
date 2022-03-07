@@ -50,7 +50,7 @@ export default class Transfer extends BaseModel<Transfer> {
 
 	public transactionHash!: string
 
-	public transferredAt!: string
+	public transferredAt!: Date
 
 	public MeemId!: string
 
