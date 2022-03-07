@@ -806,12 +806,20 @@ export default class MeemController {
 			order: [['clippedAt', 'DESC']]
 		})
 
-		const cleanClippings = result.rows.map(c => ({
-			address: c.address,
-			clippedAt: DateTime.fromJSDate(c.clippedAt).toSeconds(),
-			hasMeemId: !!c.MeemIdentificationId,
-			tokenId: c.Meem?.tokenId
-		}))
+		const cleanClippings: MeemAPI.IClipping[] = []
+
+		result.rows.forEach(c => {
+			if (c.Meem?.tokenId) {
+				cleanClippings.push({
+					address: c.address,
+					clippedAt: DateTime.fromJSDate(c.clippedAt).toSeconds(),
+					hasMeemId: !!c.MeemIdentificationId,
+					tokenId: c.Meem.tokenId
+				})
+			} else {
+				log.warn(`Invalid clipping: ${c.id}`)
+			}
+		})
 
 		return res.json({
 			clippings: cleanClippings,

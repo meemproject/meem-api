@@ -470,4 +470,6 @@ export interface IClipping {
 	hasMeemId: boolean
 	/** Timestamp of when the item was clipped */
 	clippedAt: number
+	/** The Meem tokenId that was clipped */
+	tokenId: string
 }

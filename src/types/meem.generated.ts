@@ -524,6 +524,8 @@ export namespace MeemAPI {
 		hasMeemId: boolean
 		/** Timestamp of when the item was clipped */
 		clippedAt: number
+		/** The Meem tokenId that was clipped */
+		tokenId: string
 	}
 
 	export namespace v1 {
