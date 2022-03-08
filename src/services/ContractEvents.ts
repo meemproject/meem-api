@@ -1,6 +1,5 @@
 import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
-import moment from 'moment'
 import { v4 as uuidv4 } from 'uuid'
 import { wait } from '../lib/utils'
 import Meem from '../models/Meem'
@@ -17,7 +16,8 @@ import {
 	TotalRemixesSetEvent,
 	TotalCopiesLockedEvent,
 	TotalCopiesSetEvent,
-	TransferEvent
+	TransferEvent,
+	TokenClippedEvent
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -439,7 +439,7 @@ export default class ContractEvent {
 
 		const block = await evt.getBlock()
 
-		const transferredAt = moment.unix(block.timestamp).toDate()
+		const transferredAt = DateTime.fromSeconds(block.timestamp).toJSDate()
 
 		await orm.models.Transfer.create({
 			from: evt.args.from,
@@ -520,6 +520,28 @@ export default class ContractEvent {
 			}
 			await prop.save()
 		}
+	}
+
+	public static async meemHandleTokenClipped(evt: TokenClippedEvent) {
+		const tokenId = evt.args.tokenId.toHexString()
+		const { addy } = evt.args
+
+		const [wallet, meem, block] = await Promise.all([
+			orm.models.Wallet.findByAddress(addy),
+			orm.models.Meem.findOne({
+				where: {
+					tokenId
+				}
+			}),
+			evt.getBlock()
+		])
+
+		await orm.models.Clipping.create({
+			address: addy,
+			MeemIdentificationId: wallet?.MeemIdentificationId ?? null,
+			MeemId: meem?.id ?? null,
+			clippedAt: DateTime.fromSeconds(block.timestamp).toJSDate()
+		})
 	}
 
 	public static async createNewMeem(tokenId: string) {

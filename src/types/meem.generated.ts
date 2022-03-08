@@ -517,6 +517,17 @@ export namespace MeemAPI {
 		}
 	}
 
+	export interface IClipping {
+		/** The wallet address that clipped */
+		address: string
+		/** Whether the clipper has a MeemId */
+		hasMeemId: boolean
+		/** Timestamp of when the item was clipped */
+		clippedAt: number
+		/** The Meem tokenId that was clipped */
+		tokenId: string
+	}
+
 	export namespace v1 {
 		/** Claim an existing Meem */
 		export namespace ClaimMeem {
@@ -837,6 +848,38 @@ export namespace MeemAPI {
 			export interface IResponseBody extends IApiResponseBody {
 				meem: IMetadataMeem
 				transfers: ITransfer[]
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		export namespace GetMeemClippings {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/clippings`
+
+			export const method = HttpMethod.Get
+
+			export interface IQueryParams extends IRequestPaginated {
+				/** Filter by address that clipped */
+				address?: string
+				/** Filter by tokenId */
+				tokenId?: string
+			}
+
+			export interface IRequestBody {}
+
+			export interface IResponseBody extends IApiResponseBody {
+				clippings: IClipping[]
+
+				totalItems: number
 			}
 
 			export interface IDefinition {

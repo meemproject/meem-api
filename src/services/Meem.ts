@@ -3,7 +3,7 @@ import * as path from 'path'
 import type { ethers as Ethers } from 'ethers'
 import fs from 'fs-extra'
 import _ from 'lodash'
-import moment from 'moment'
+import { DateTime } from 'luxon'
 import sharp from 'sharp'
 import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
@@ -940,7 +940,7 @@ export default class MeemService {
 			generation: meem.generation,
 			properties: meem.Properties,
 			childProperties: meem.ChildProperties,
-			mintedAt: moment(meem.mintedAt).unix(),
+			mintedAt: DateTime.fromJSDate(meem.mintedAt).toSeconds(),
 			data: meem.data,
 			verifiedBy: meem.verifiedBy,
 			metadata: meem.metadata,

@@ -4,7 +4,7 @@ import type { ethers as Ethers } from 'ethers'
 import { Response } from 'express'
 import { parse } from 'json2csv'
 import _ from 'lodash'
-import moment from 'moment'
+import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
 import sharp from 'sharp'
 import TwitterApi, { UserV2 } from 'twitter-api-v2'
@@ -165,7 +165,7 @@ export default class MeemController {
 			from: t.from,
 			to: t.to,
 			transactionHash: t.transactionHash,
-			timestamp: moment(t.transferredAt).unix()
+			timestamp: DateTime.fromJSDate(t.transferredAt).toSeconds()
 		}))
 
 		return res.json({
@@ -775,6 +775,55 @@ export default class MeemController {
 			collectors: collectorResults,
 			totalItems: result.count,
 			itemsPerPage: limit
+		})
+	}
+
+	public static async getClippings(
+		req: IAPIRequestPaginated<MeemAPI.v1.GetMeemClippings.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetMeemClippings.IResponseBody>
+	): Promise<Response> {
+		const { page, limit } = req
+
+		const { address } = req.query
+		const tokenId = req.query.tokenId
+			? services.web3.toBigNumber(req.query.tokenId).toHexString()
+			: undefined
+
+		const where: Record<string, any> = address ? { address } : {}
+		const meemWhere: Record<string, any> = tokenId ? { tokenId } : {}
+
+		const result = await orm.models.Clipping.findAndCountAll({
+			where,
+			limit,
+			offset: page * limit,
+			include: [
+				{
+					model: orm.models.Meem,
+					where: meemWhere,
+					required: true
+				}
+			],
+			order: [['clippedAt', 'DESC']]
+		})
+
+		const cleanClippings: MeemAPI.IClipping[] = []
+
+		result.rows.forEach(c => {
+			if (c.Meem?.tokenId) {
+				cleanClippings.push({
+					address: c.address,
+					clippedAt: DateTime.fromJSDate(c.clippedAt).toSeconds(),
+					hasMeemId: !!c.MeemIdentificationId,
+					tokenId: c.Meem.tokenId
+				})
+			} else {
+				log.warn(`Invalid clipping: ${c.id}`)
+			}
+		})
+
+		return res.json({
+			clippings: cleanClippings,
+			totalItems: result.count
 		})
 	}
 }
