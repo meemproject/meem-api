@@ -77,7 +77,7 @@ export default class TwitterService {
 		const endTime = DateTime.now()
 			.toUTC()
 			.minus({ minutes: 5 })
-			.toFormat('YYYY-MM-DDTHH:mm:ssZ')
+			.toFormat('yyyy-MM-DDTHH:mm:ssZ')
 
 		try {
 			const twitterResponse = await client.v2.search(
@@ -438,7 +438,7 @@ export default class TwitterService {
 			const meemMetadata = await services.meem.saveMeemMetadataasync(
 				{
 					name: `@${tweet.username} ${tweetedAt.toFormat(
-						'MM-DD-YYYY HH:mm:ss'
+						'MM-DD-yyyy HH:mm:ss'
 					)}`,
 					description: tweet.text,
 					imageBase64: tweetImage || '',
@@ -501,7 +501,7 @@ export default class TwitterService {
 				remixMetadata = await services.meem.saveMeemMetadataasync(
 					{
 						name: `@${remixTweet.username} ${remixTweetedAt.toFormat(
-							'MM-DD-YYYY HH:mm:ss'
+							'MM-DD-yyyy HH:mm:ss'
 						)}`,
 						description: remixTweet.text,
 						imageBase64: remixTweetImage || '',
