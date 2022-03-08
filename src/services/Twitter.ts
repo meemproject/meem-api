@@ -1,9 +1,5 @@
-// import { Octokit } from '@octokit/rest'
-// import request from 'superagent'
-// import { MeemAPI } from '../types/meem.generated'
-
 import type { ethers as Ethers } from 'ethers'
-import moment from 'moment'
+import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
 import {
 	TwitterApi,
@@ -77,10 +73,11 @@ export default class TwitterService {
 		}
 
 		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
-		const endTime = moment()
-			.utc()
-			.subtract(5, 'minutes')
-			.format('YYYY-MM-DDTHH:mm:ssZ')
+
+		const endTime = DateTime.now()
+			.toUTC()
+			.minus({ minutes: 5 })
+			.toFormat('YYYY-MM-DDTHH:mm:ssZ')
 
 		try {
 			const twitterResponse = await client.v2.search(
@@ -201,7 +198,7 @@ export default class TwitterService {
 
 		const { tweetsPerDayQuota } = tweetUserMeemId.meemPass.twitter
 
-		const startOfDay = moment().utc().startOf('day').toDate()
+		const startOfDay = DateTime.now().startOf('day').toJSDate()
 
 		// TODO: If user is retweeting how do we handle quota?
 		const userTweetsToday = await orm.models.Tweet.findAll({
@@ -434,11 +431,15 @@ export default class TwitterService {
 
 			const tweetImage = await this.screenshotTweet(tweet)
 
+			const tweetedAt = tweetData.created_at
+				? DateTime.fromISO(tweetData.created_at)
+				: DateTime.fromJSDate(tweet.createdAt)
+
 			const meemMetadata = await services.meem.saveMeemMetadataasync(
 				{
-					name: `@${tweet.username} ${moment(
-						tweetData.created_at || tweet.createdAt
-					).format('MM-DD-YYYY HH:mm:ss')}`,
+					name: `@${tweet.username} ${tweetedAt.toFormat(
+						'MM-DD-YYYY HH:mm:ss'
+					)}`,
 					description: tweet.text,
 					imageBase64: tweetImage || '',
 					meemId: tweetMeemId,
@@ -493,11 +494,15 @@ export default class TwitterService {
 				})
 				const remixTweetImage = await this.screenshotTweet(remixTweet)
 				const remixerAccountAddress = remix.meemId?.defaultWallet
+				const tweetedAt = tweetData.created_at
+					? DateTime.fromISO(tweetData.created_at)
+					: DateTime.fromJSDate(tweet.createdAt)
+
 				remixMetadata = await services.meem.saveMeemMetadataasync(
 					{
-						name: `@${remixTweet.username} ${moment(
-							remix.tweetData.created_at || remixTweet.createdAt
-						).format('MM-DD-YYYY HH:mm:ss')}`,
+						name: `@${remixTweet.username} ${tweetedAt.toFormat(
+							'MM-DD-YYYY HH:mm:ss'
+						)}`,
 						description: remixTweet.text,
 						imageBase64: remixTweetImage || '',
 						meemId: remixMeemId,
