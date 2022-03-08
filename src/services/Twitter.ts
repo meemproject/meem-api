@@ -494,13 +494,13 @@ export default class TwitterService {
 				})
 				const remixTweetImage = await this.screenshotTweet(remixTweet)
 				const remixerAccountAddress = remix.meemId?.defaultWallet
-				const tweetedAt = tweetData.created_at
+				const remixTweetedAt = tweetData.created_at
 					? DateTime.fromISO(tweetData.created_at)
 					: DateTime.fromJSDate(tweet.createdAt)
 
 				remixMetadata = await services.meem.saveMeemMetadataasync(
 					{
-						name: `@${remixTweet.username} ${tweetedAt.toFormat(
+						name: `@${remixTweet.username} ${remixTweetedAt.toFormat(
 							'MM-DD-YYYY HH:mm:ss'
 						)}`,
 						description: remixTweet.text,
