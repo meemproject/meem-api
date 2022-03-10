@@ -767,7 +767,7 @@ export default class MeemController {
 			})
 			const opts = { fields }
 			const csvData = parse(csvCollectorResults, opts)
-			res.type('csv')
+			res.type('text/csv')
 			return res.send(csvData)
 		}
 
