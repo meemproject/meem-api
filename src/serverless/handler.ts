@@ -193,6 +193,8 @@ export const handle: APIGatewayProxyHandlerV2 = async (event, context) => {
 		}
 	})
 
+	log.debug({ headers: result.headers, multiValueHeaders })
+
 	const response = {
 		statusCode: result.status,
 		headers: result.headers,
