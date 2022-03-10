@@ -544,6 +544,28 @@ export default class ContractEvent {
 		})
 	}
 
+	public static async meemHandleTokenUnClipped(evt: TokenClippedEvent) {
+		const tokenId = evt.args.tokenId.toHexString()
+		const { addy } = evt.args
+
+		const meem = await orm.models.Meem.findOne({
+			where: {
+				tokenId
+			}
+		})
+
+		if (!meem) {
+			throw new Error('MEEM_NOT_FOUND')
+		}
+
+		await orm.models.Clipping.destroy({
+			where: {
+				MeemId: meem.id,
+				address: addy
+			}
+		})
+	}
+
 	public static async createNewMeem(tokenId: string) {
 		const meemContract = await services.meem.getMeemContract()
 
