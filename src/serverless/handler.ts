@@ -185,6 +185,11 @@ export const handle: APIGatewayProxyHandlerV2 = async (event, context) => {
 	const responseBody =
 		result.text.length > 0 ? result.text : JSON.stringify(result.body)
 
+	log.debug({
+		resultText: result.text,
+		resultBody: result.body
+	})
+
 	const multiValueHeaders: Record<string, any[]> = {}
 
 	Object.keys(result.headers).forEach(key => {
@@ -192,13 +197,6 @@ export const handle: APIGatewayProxyHandlerV2 = async (event, context) => {
 			multiValueHeaders[key] = result.headers[key]
 			delete result.headers[key]
 		}
-	})
-
-	log.debug({
-		headers: result.headers,
-		multiValueHeaders,
-		resultBody: result.body,
-		responseBody
 	})
 
 	const response = {
