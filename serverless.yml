@@ -158,3 +158,11 @@ functions:
           input:
             job: TwitterCron
 
+
+plugins:
+  - serverless-prune-plugin
+
+custom:
+  prune:
+    automatic: true
+    number: 3
