@@ -110,6 +110,11 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "NotClipped",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -126,6 +131,25 @@ const _abi = [
       },
     ],
     name: "TokenClipped",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "addy",
+        type: "address",
+      },
+    ],
+    name: "TokenUnClipped",
     type: "event",
   },
   {
@@ -220,6 +244,19 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "unClip",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

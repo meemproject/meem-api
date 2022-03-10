@@ -247,6 +247,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     "clippings(uint256)": FunctionFragment;
     "hasAddressClipped(uint256,address)": FunctionFragment;
     "numClippings(uint256)": FunctionFragment;
+    "unClip(uint256)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "baseTokenURI()": FunctionFragment;
@@ -358,6 +359,10 @@ export interface MeemInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "numClippings",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "unClip",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -680,6 +685,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "numClippings",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "unClip", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
@@ -925,6 +931,7 @@ export interface MeemInterface extends ethers.utils.Interface {
 
   events: {
     "TokenClipped(uint256,address)": EventFragment;
+    "TokenUnClipped(uint256,address)": EventFragment;
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
@@ -945,6 +952,7 @@ export interface MeemInterface extends ethers.utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "TokenClipped"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenUnClipped"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
@@ -970,6 +978,13 @@ export type TokenClippedEvent = TypedEvent<
 >;
 
 export type TokenClippedEventFilter = TypedEventFilter<TokenClippedEvent>;
+
+export type TokenUnClippedEvent = TypedEvent<
+  [BigNumber, string],
+  { tokenId: BigNumber; addy: string }
+>;
+
+export type TokenUnClippedEventFilter = TypedEventFilter<TokenUnClippedEvent>;
 
 export type ApprovalEvent = TypedEvent<
   [string, string, BigNumber],
@@ -1180,6 +1195,11 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    unClip(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     approve(
       operator: string,
@@ -1644,6 +1664,11 @@ export interface Meem extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  unClip(
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   approve(
     operator: string,
     tokenId: BigNumberish,
@@ -2081,6 +2106,8 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    unClip(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
     approve(
       operator: string,
       tokenId: BigNumberish,
@@ -2477,6 +2504,12 @@ export interface Meem extends BaseContract {
     ): TokenClippedEventFilter;
     TokenClipped(tokenId?: null, addy?: null): TokenClippedEventFilter;
 
+    "TokenUnClipped(uint256,address)"(
+      tokenId?: null,
+      addy?: null
+    ): TokenUnClippedEventFilter;
+    TokenUnClipped(tokenId?: null, addy?: null): TokenUnClippedEventFilter;
+
     "Approval(address,address,uint256)"(
       owner?: string | null,
       operator?: string | null,
@@ -2707,6 +2740,11 @@ export interface Meem extends BaseContract {
     numClippings(
       tokenId: BigNumberish,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    unClip(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     approve(
@@ -3159,6 +3197,11 @@ export interface Meem extends BaseContract {
     numClippings(
       tokenId: BigNumberish,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    unClip(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     approve(
