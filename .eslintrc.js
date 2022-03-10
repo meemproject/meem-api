@@ -1,7 +1,6 @@
 module.exports = {
 	extends: 'kengoldfarb',
 	globals: {
-		lthr: true,
 		log: true,
 		describe: true,
 		before: true,

@@ -36,7 +36,6 @@ export default (app: Express) => {
 			'GET,POST,PUT,PATCH,DELETE,OPTIONS'
 		)
 		res.setHeader('Access-Control-Allow-Credentials', 'true')
-		res.setHeader('Access-Control-Expose-Headers', 'lthr-jwt')
 
 		next()
 	})

@@ -59,7 +59,7 @@ export default {
 	DOTENV_DEBUG: process.env.DOTENV_DEBUG === 'true',
 
 	CORS_ALLOW_ALL: process.env.CORS_ALLOW_ALL === 'true',
-	CORS_DEFAULT_ORIGIN: process.env.CORS_DEFAULT_ORIGIN ?? '',
+	CORS_DEFAULT_ORIGIN: process.env.CORS_DEFAULT_ORIGIN ?? 'meem.wtf',
 	CORS_ALLOWED_ORIGINS: process.env.CORS_ALLOWED_ORIGINS
 		? process.env.CORS_ALLOWED_ORIGINS.split(',').map(o => o.trim())
 		: [],
