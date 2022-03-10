@@ -183,7 +183,7 @@ export const handle: APIGatewayProxyHandlerV2 = async (event, context) => {
 	const result = await req
 
 	const responseBody =
-		typeof result.body === 'object' ? JSON.stringify(result.body) : result.text
+		result.text.length > 0 ? result.text : JSON.stringify(result.body)
 
 	const multiValueHeaders: Record<string, any[]> = {}
 
