@@ -35,8 +35,6 @@ export default class TwitterListener {
 					'height',
 					'width',
 					'url',
-					'public_metrics',
-					'non_public_metrics',
 					'preview_image_url'
 				],
 				expansions: [
