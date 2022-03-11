@@ -181,11 +181,11 @@ export const handle: APIGatewayProxyHandlerV2 = async (event, context) => {
 	}
 
 	const result = await req
+	log.debug('Result...')
+	log.debug(result)
 
 	const responseBody =
 		result.text.length > 0 ? result.text : JSON.stringify(result.body)
-
-	log.debug(result)
 
 	const multiValueHeaders: Record<string, any[]> = {}
 
