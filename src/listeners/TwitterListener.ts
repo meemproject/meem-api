@@ -27,9 +27,24 @@ export default class TwitterListener {
 		try {
 			await services.twitter.checkForMissedTweets()
 			this.stream = await client.v2.searchStream({
-				'tweet.fields': ['created_at', 'entities'],
+				'tweet.fields': ['created_at', 'entities', 'attachments'],
 				'user.fields': ['profile_image_url'],
-				expansions: ['author_id', 'in_reply_to_user_id', 'referenced_tweets.id']
+				'media.fields': [
+					'media_key',
+					'type',
+					'height',
+					'width',
+					'url',
+					'public_metrics',
+					'non_public_metrics',
+					'preview_image_url'
+				],
+				expansions: [
+					'author_id',
+					'in_reply_to_user_id',
+					'referenced_tweets.id',
+					'attachments.media_keys'
+				]
 			})
 
 			// Awaits for a tweet

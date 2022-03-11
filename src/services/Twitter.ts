@@ -122,8 +122,6 @@ export default class TwitterService {
 		tweetData: TweetV2,
 		includes?: ApiV2Includes
 	): Promise<void> {
-		// TODO: Retry unsuccessful mints?
-
 		// Make sure tweet contains >meem action
 		const isMeemActionTweet = /&gt;meem/gi.test(tweetData.text)
 
@@ -239,12 +237,21 @@ export default class TwitterService {
 				originalTweet = await client.v2.singleTweet(
 					tweetData.referenced_tweets[0].id,
 					{
-						'tweet.fields': ['created_at', 'entities'],
+						'tweet.fields': ['created_at', 'entities', 'attachments'],
 						'user.fields': ['profile_image_url'],
+						'media.fields': [
+							'media_key',
+							'type',
+							'height',
+							'width',
+							'url',
+							'preview_image_url'
+						],
 						expansions: [
 							'author_id',
 							'in_reply_to_user_id',
-							'referenced_tweets.id'
+							'referenced_tweets.id',
+							'attachments.media_keys'
 						]
 					}
 				)
@@ -285,6 +292,7 @@ export default class TwitterService {
 
 					await this.mintTweet({
 						tweetData: originalTweet.data,
+						tweetIncludes: originalTweet.includes,
 						twitterUser: originalTweetUser,
 						remix: {
 							meemId: tweetUserMeemId,
@@ -307,6 +315,7 @@ export default class TwitterService {
 					await this.mintTweet({
 						meemId: originalTweeterMeemId,
 						tweetData: originalTweet.data,
+						tweetIncludes: originalTweet.includes,
 						twitterUser: originalTweetUser,
 						remix: {
 							meemId: tweetUserMeemId,
@@ -323,6 +332,7 @@ export default class TwitterService {
 			await this.mintTweet({
 				meemId: tweetUserMeemId,
 				tweetData,
+				tweetIncludes: includes,
 				twitterUser: tweetUser
 			})
 		}
@@ -390,6 +400,7 @@ export default class TwitterService {
 	public static async mintTweet(options: {
 		meemId?: MeemAPI.IMeemId
 		tweetData: TweetV2
+		tweetIncludes?: ApiV2Includes
 		twitterUser: UserV2
 		remix?: {
 			meemId: MeemAPI.IMeemId
@@ -397,7 +408,7 @@ export default class TwitterService {
 			twitterUser: UserV2
 		}
 	}): Promise<Ethers.ContractReceipt> {
-		const { meemId, tweetData, twitterUser, remix } = options
+		const { meemId, tweetData, tweetIncludes, twitterUser, remix } = options
 		let toAddress = config.MEEM_PROXY_ADDRESS
 		if (meemId) {
 			if (meemId.defaultWallet !== MeemAPI.zeroAddress) {
@@ -435,6 +446,18 @@ export default class TwitterService {
 				? DateTime.fromISO(tweetData.created_at)
 				: DateTime.fromJSDate(tweet.createdAt)
 
+			const mediaKeys =
+				tweetData.attachments?.media_keys && tweetIncludes
+					? tweetData.attachments.media_keys
+					: []
+			let mediaAttachments: any[] | undefined
+
+			if (mediaKeys.length > 0 && tweetIncludes?.media) {
+				mediaAttachments = mediaKeys?.map(k => {
+					return tweetIncludes.media?.find(m => m.media_key === k) || {}
+				})
+			}
+
 			const meemMetadata = await services.meem.saveMeemMetadataasync(
 				{
 					name: `@${tweet.username} ${tweetedAt.toFormat(
@@ -453,7 +476,12 @@ export default class TwitterService {
 								userProfileImageUrl: tweet.userProfileImageUrl,
 								updatedAt: tweet.updatedAt,
 								createdAt: tweet.createdAt,
-								...(tweetData.entities && { entities: tweetData.entities })
+								...(tweetData.entities && { entities: tweetData.entities }),
+								...(mediaAttachments && {
+									attachements: {
+										media: mediaAttachments
+									}
+								})
 							}
 						}
 					}
