@@ -1,5 +1,7 @@
 import type { ethers as Ethers } from 'ethers'
+import _ from 'lodash'
 import { DateTime } from 'luxon'
+import moment from 'moment-timezone'
 import { Op } from 'sequelize'
 import {
 	TwitterApi,
@@ -60,6 +62,113 @@ export default class TwitterService {
 		})
 
 		return tweets
+	}
+
+	public static async process0xMeemTweets(): Promise<void> {
+		// START: Prompt Tweet Logic
+
+		// 1. Get the latests prompt tweet
+		// - TODO: Decipher which tweets are prompt tweets vs. other 0xMeem tweets?
+
+		// 2. Search for replies to tweet and mint them on behalf of user.
+		// - TODO: Can any user reply/mint response or do they have to be a Meember?
+
+		// 3. Search for likes on answers at X hour and quote tweet to mint the winner
+		// - TODO: Instead of quote tweet, should we mint a special Meem for the winner?
+		// - TODO: Tie breaker?
+
+		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+
+		// const endTime = moment().tz('America/Los_Angeles').startOf('day')
+
+		try {
+			const promptTweetResponse = await client.v2.search(
+				`from:${config.TWITTER_MEEM_ACCOUNT_ID} #0xMeemPrompt -is:retweet -is:reply`,
+				{
+					max_results: 10,
+					'tweet.fields': ['created_at', 'public_metrics', 'conversation_id'],
+					expansions: ['author_id']
+				}
+			)
+
+			const tweets = promptTweetResponse.data.data
+
+			if (tweets.length < 1) {
+				return
+			}
+
+			const promptTweet = tweets[0]
+
+			const tweetExists = await orm.models.Tweet.findOne({
+				where: {
+					tweetId: promptTweet.id
+				}
+			})
+
+			if (!tweetExists) {
+				// TODO: This should never happen!
+				return
+			}
+
+			// TODO: Loop through paginated results of replies
+			const responseTweets = await client.v2.search(
+				`conversation_id:${promptTweet.conversation_id} -from:${config.TWITTER_MEEM_ACCOUNT_ID} is:reply`,
+				{
+					'tweet.fields': ['created_at', 'public_metrics'],
+					expansions: ['author_id']
+				}
+			)
+
+			if (!responseTweets.data?.data || responseTweets.data?.data.length < 1) {
+				return
+			}
+
+			const sortedResponses = _.orderBy(
+				responseTweets.data.data,
+				t => {
+					return t.public_metrics?.like_count || 0
+				},
+				'desc'
+			)
+
+			// TODO: Sort by earliest reply in case of a tie
+
+			const winner = sortedResponses[0]
+			const winningUser = responseTweets.includes?.users?.find(
+				u => u.id === winner.author_id
+			)
+
+			if (!winningUser) {
+				return
+			}
+
+			log.debug(`${winner.text} - ${winner.public_metrics?.like_count} Likes`)
+
+			const tweetClient = new TwitterApi({
+				appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
+				appSecret: config.TWITTER_MEEM_ACCOUNT_CONSUMER_SECRET,
+				accessToken: config.TWITTER_MEEM_ACCOUNT_TOKEN,
+				accessSecret: config.TWITTER_MEEM_ACCOUNT_SECRET
+			})
+
+			try {
+				// TODO: This doesn't work since quoted tweet is not an original tweet. How should we handle this?
+				const meemAction =
+					config.NETWORK === MeemAPI.NetworkName.Rinkeby ? '>meemdev' : '>meem'
+				await tweetClient.v2.tweet(
+					`Winner winner chicken dinner! @${winningUser.username}, your response to today's #0xMeemPrompt received the most likes. ${meemAction}`,
+					{
+						quote_tweet_id: winner.id
+					}
+				)
+			} catch (e) {
+				log.error(e)
+			}
+
+			return
+		} catch (e) {
+			log.crit(e)
+		}
 	}
 
 	public static async checkForMissedTweets(): Promise<void> {
@@ -256,6 +365,7 @@ export default class TwitterService {
 					}
 				)
 			}
+
 			if (
 				config.ENABLE_TWEET_CURATION &&
 				originalTweet &&
