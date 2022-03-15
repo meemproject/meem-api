@@ -786,12 +786,25 @@ export default class MeemController {
 		const { page, limit } = req
 
 		const { address } = req.query
+		const shouldIncludeMetadata = req.query.shouldIncludeMetadata === 'true'
 		const tokenId = req.query.tokenId
 			? services.web3.toBigNumber(req.query.tokenId).toHexString()
 			: undefined
 
 		const where: Record<string, any> = address ? { address } : {}
 		const meemWhere: Record<string, any> = tokenId ? { tokenId } : {}
+		const meemInclude = shouldIncludeMetadata
+			? [
+					{
+						model: orm.models.MeemProperties,
+						as: 'Properties'
+					},
+					{
+						model: orm.models.MeemProperties,
+						as: 'ChildProperties'
+					}
+			  ]
+			: []
 
 		const result = await orm.models.Clipping.findAndCountAll({
 			where,
@@ -801,22 +814,27 @@ export default class MeemController {
 				{
 					model: orm.models.Meem,
 					where: meemWhere,
-					required: true
+					required: true,
+					include: meemInclude
 				}
 			],
 			order: [['clippedAt', 'DESC']]
 		})
 
-		const cleanClippings: MeemAPI.IClipping[] = []
+		const cleanClippings: MeemAPI.IClippingExtended[] = []
 
 		result.rows.forEach(c => {
 			if (c.Meem?.tokenId) {
-				cleanClippings.push({
+				const clip: MeemAPI.IClippingExtended = {
 					address: c.address,
 					clippedAt: DateTime.fromJSDate(c.clippedAt).toSeconds(),
 					hasMeemId: !!c.MeemIdentificationId,
 					tokenId: c.Meem.tokenId
-				})
+				}
+				if (shouldIncludeMetadata) {
+					clip.meem = services.meem.meemToIMeem(c.Meem)
+				}
+				cleanClippings.push(clip)
 			} else {
 				log.warn(`Invalid clipping: ${c.id}`)
 			}
@@ -825,6 +843,42 @@ export default class MeemController {
 		return res.json({
 			clippings: cleanClippings,
 			totalItems: result.count
+		})
+	}
+
+	public static async checkClippingStatus(
+		req: IAPIRequestPaginated<MeemAPI.v1.CheckClippingStatus.IDefinition>,
+		res: IResponse<MeemAPI.v1.CheckClippingStatus.IResponseBody>
+	): Promise<Response> {
+		const { address, tokenIds } = req.body
+
+		if (!Array.isArray(tokenIds) || !address) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		const result = await orm.models.Clipping.findAll({
+			include: [
+				{
+					model: orm.models.Meem,
+					where: {
+						tokenId: {
+							[Op.in]: tokenIds.slice(0, 200)
+						}
+					},
+					required: true
+				}
+			]
+		})
+
+		const status: { [tokenId: string]: boolean } = {}
+
+		tokenIds.forEach(t => {
+			const clipping = result.find(c => c.Meem?.tokenId === t)
+			status[t] = !!clipping
+		})
+
+		return res.json({
+			status
 		})
 	}
 }
