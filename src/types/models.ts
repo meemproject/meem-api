@@ -4,6 +4,7 @@ import Meem from '../models/Meem'
 import MeemIdentification from '../models/MeemIdentification'
 import MeemPass from '../models/MeemPass'
 import MeemProperties from '../models/MeemProperties'
+import Prompt from '../models/Prompt'
 import Transfer from '../models/Transfer'
 import Tweet from '../models/Tweet'
 import TweetHashtag from '../models/TweetHashtag'
@@ -22,6 +23,7 @@ export interface IModels {
 	TweetHashtag: typeof TweetHashtag
 	Twitter: typeof Twitter
 	Wallet: typeof Wallet
+	Prompt: typeof Prompt
 }
 
 export type AppModel = IModels[keyof IModels]

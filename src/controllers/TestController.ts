@@ -392,11 +392,12 @@ export default class ConfigController {
 		return res.json({ jwt })
 	}
 
-	public static async testTwitterCron(
+	public static async testPromptsCron(
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		await services.twitter.process0xMeemTweets()
+		await services.prompts.sendNextPrompt()
+		// await services.twitter.process0xMeemTweets()
 
 		return res.json({
 			status: 'success'
