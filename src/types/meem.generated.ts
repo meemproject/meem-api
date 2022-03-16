@@ -528,7 +528,45 @@ export namespace MeemAPI {
 		tokenId: string
 	}
 
+	/** Includes full Meem metadata */
+	export interface IClippingExtended extends IClipping {
+		meem?: IMetadataMeem
+	}
+
 	export namespace v1 {
+		export namespace CheckClippingStatus {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/clippings/status`
+
+			export const method = HttpMethod.Post
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {
+				/** Filter by address that clipped */
+				address: string
+				/** The tokenIds to check. Maximum 200 */
+				tokenIds: string[]
+			}
+
+			export interface IResponseBody extends IApiResponseBody {
+				/** Whether the token has been clipped */
+				status: {
+					[tokenId: string]: boolean
+				}
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
 		/** Claim an existing Meem */
 		export namespace ClaimMeem {
 			export interface IPathParams {
@@ -872,12 +910,15 @@ export namespace MeemAPI {
 				address?: string
 				/** Filter by tokenId */
 				tokenId?: string
+
+				/** Whether to include Meem metadata in the response */
+				shouldIncludeMetadata?: 'true' | 'false'
 			}
 
 			export interface IRequestBody {}
 
 			export interface IResponseBody extends IApiResponseBody {
-				clippings: IClipping[]
+				clippings: IClippingExtended[]
 
 				totalItems: number
 			}

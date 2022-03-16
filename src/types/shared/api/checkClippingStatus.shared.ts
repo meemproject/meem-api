@@ -6,29 +6,27 @@ import {
 } from '../api.shared'
 import { IClippingExtended } from '../meem.shared'
 
-export namespace GetMeemClippings {
+export namespace CheckClippingStatus {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/clippings`
+	export const path = () => `/api/1.0/clippings/status`
 
-	export const method = HttpMethod.Get
+	export const method = HttpMethod.Post
 
-	export interface IQueryParams extends IRequestPaginated {
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
 		/** Filter by address that clipped */
-		address?: string
-		/** Filter by tokenId */
-		tokenId?: string
-
-		/** Whether to include Meem metadata in the response */
-		shouldIncludeMetadata?: 'true' | 'false'
+		address: string
+		/** The tokenIds to check. Maximum 200 */
+		tokenIds: string[]
 	}
 
-	export interface IRequestBody {}
-
 	export interface IResponseBody extends IApiResponseBody {
-		clippings: IClippingExtended[]
-
-		totalItems: number
+		/** Whether the token has been clipped */
+		status: {
+			[tokenId: string]: boolean
+		}
 	}
 
 	export interface IDefinition {

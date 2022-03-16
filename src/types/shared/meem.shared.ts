@@ -473,3 +473,8 @@ export interface IClipping {
 	/** The Meem tokenId that was clipped */
 	tokenId: string
 }
+
+/** Includes full Meem metadata */
+export interface IClippingExtended extends IClipping {
+	meem?: IMetadataMeem
+}
