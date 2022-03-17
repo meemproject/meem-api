@@ -1032,7 +1032,7 @@ export namespace MeemAPI {
 				owner?: string
 
 				/** Filter by MeemType */
-				meemTypes?: MT[]
+				meemTypes?: MeemType[]
 
 				/** Filter by Root Token ID */
 				rootTokenIds?: string[]

@@ -33,7 +33,7 @@ export namespace GetMeems {
 		owner?: string
 
 		/** Filter by MeemType */
-		meemTypes?: MT[]
+		meemTypes?: MeemType[]
 
 		/** Filter by Root Token ID */
 		rootTokenIds?: string[]
