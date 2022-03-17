@@ -5,7 +5,7 @@ import {
 	IRequestPaginated,
 	IApiPaginatedResponseBody
 } from '../api.shared'
-import { IMetadataMeem, MeemType as MT, SortOrder } from '../meem.shared'
+import { IMetadataMeem, MeemType, SortOrder } from '../meem.shared'
 
 /** Get Meem */
 export namespace GetMeems {
@@ -19,7 +19,7 @@ export namespace GetMeems {
 		MintedAt = 'mintedAt',
 		TokenId = 'tokenId',
 		Name = 'name',
-		MeemType = 'meemType',
+		Meemtype = 'meemType',
 		Owner = 'owner',
 		Generation = 'generation',
 		Parent = 'parent',

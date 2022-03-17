@@ -1018,7 +1018,7 @@ export namespace MeemAPI {
 				MintedAt = 'mintedAt',
 				TokenId = 'tokenId',
 				Name = 'name',
-				MeemType = 'meemType',
+				Meemtype = 'meemType',
 				Owner = 'owner',
 				Generation = 'generation',
 				Parent = 'parent',
