@@ -813,8 +813,17 @@ export default class MeemController {
 			? services.web3.toBigNumber(req.query.tokenId).toHexString()
 			: undefined
 
-		const where: Record<string, any> = address ? { address } : {}
-		const meemWhere: Record<string, any> = tokenId ? { tokenId } : {}
+		let where: Record<string, any> = {}
+
+		if (address) {
+			where = orm.sequelize.where(
+				orm.sequelize.fn('lower', orm.sequelize.col('address')),
+				address.toLowerCase()
+			)
+		}
+		const meemWhere: Record<string, any> = tokenId
+			? { tokenId: tokenId.toLowerCase() }
+			: {}
 		const meemInclude = shouldIncludeMetadata
 			? [
 					{
