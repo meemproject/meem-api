@@ -249,11 +249,28 @@ export default class MeemController {
 			})
 		}
 
+		let sortBy = 'mintedAt'
+		let sortOrder = 'desc'
+
+		if (
+			req.query.sortBy &&
+			Object.values(MeemAPI.v1.GetMeems.SortBy).includes(req.query.sortBy)
+		) {
+			sortBy = req.query.sortBy
+		}
+
+		if (
+			req.query.sortOrder &&
+			Object.values(MeemAPI.SortOrder).includes(req.query.sortOrder)
+		) {
+			sortOrder = req.query.sortOrder
+		}
+
 		const { rows: rawMeems, count } = await orm.models.Meem.findAndCountAll({
 			where: {
 				[Op.and]: and
 			},
-			order: [['createdAt', 'DESC']],
+			order: [[sortBy, sortOrder]],
 			offset: page * limit,
 			limit,
 			include: [

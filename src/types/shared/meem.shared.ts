@@ -478,3 +478,8 @@ export interface IClipping {
 export interface IClippingExtended extends IClipping {
 	meem?: IMetadataMeem
 }
+
+export enum SortOrder {
+	Asc = 'asc',
+	Desc = 'desc'
+}
