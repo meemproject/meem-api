@@ -120,6 +120,101 @@ export default class TwitterService {
 		}
 	}
 
+	public static async getTwitterUserMeemId(
+		twitterUserId: string
+	): Promise<MeemAPI.IMeemId | null> {
+		const item = await orm.models.Twitter.findOne({
+			where: {
+				twitterId: twitterUserId
+			}
+		})
+
+		if (!item || !item.MeemIdentificationId) {
+			log.error(`No meemId found for twitter ID: ${twitterUserId}`)
+			return null
+		}
+
+		const tweetUserMeemId = await services.meemId.getMeemId({
+			meemIdentificationId: item.MeemIdentificationId
+		})
+
+		if (tweetUserMeemId.wallets.length === 0) {
+			log.error(`No wallet found for meemId: ${item.MeemIdentificationId}`)
+			return null
+		}
+
+		return tweetUserMeemId
+	}
+
+	public static async handleMeemReplyTweet(
+		tweetData: TweetV2,
+		includes?: ApiV2Includes
+	): Promise<void> {
+		const tweetUser = includes?.users?.find(u => u.id === tweetData.author_id)
+		const meemTweetRepliedToId = tweetData.referenced_tweets?.find(
+			t => t.type === 'replied_to'
+		)?.id
+
+		if (!tweetUser?.id || !meemTweetRepliedToId) {
+			return
+		}
+
+		const meemTweetRepliedTo = await orm.models.Tweet.findOne({
+			where: {
+				tweetId: meemTweetRepliedToId
+			},
+			include: [
+				{
+					model: orm.models.Meem
+				}
+			]
+		})
+
+		if (!meemTweetRepliedTo || !meemTweetRepliedTo) {
+			return
+		}
+
+		const tweetUserMeemId = await this.getTwitterUserMeemId(tweetUser.id)
+
+		const prompt = await orm.models.Prompt.findOne({
+			where: {
+				tweetId: meemTweetRepliedToId
+			}
+		})
+
+		if (prompt) {
+			log.debug(
+				`Meember (${!!tweetUserMeemId}) replied to prompt: (${prompt.id})`
+			)
+
+			const promptTweet = await orm.models.Tweet.findOne({
+				where: {
+					tweetId: meemTweetRepliedToId
+				},
+				include: [
+					{
+						model: orm.models.Meem
+					}
+				]
+			})
+
+			const promptTweetMeemTokenId = promptTweet?.Meem?.tokenId
+
+			if (promptTweetMeemTokenId) {
+				log.debug(`Mint reply tweet to prompt meem ${promptTweetMeemTokenId}`)
+				// TODO: Make sure this user has not minted a reply to this prompt already
+				// Mint the tweet
+				await this.mintTweet({
+					meemId: tweetUserMeemId || undefined,
+					tweetData,
+					tweetIncludes: includes,
+					twitterUser: tweetUser,
+					parentMeemTokenId: promptTweetMeemTokenId
+				})
+			}
+		}
+	}
+
 	public static async mintAndStoreTweet(
 		tweetData: TweetV2,
 		includes?: ApiV2Includes
@@ -405,13 +500,21 @@ export default class TwitterService {
 		tweetData: TweetV2
 		tweetIncludes?: ApiV2Includes
 		twitterUser: UserV2
+		parentMeemTokenId?: string
 		remix?: {
 			meemId: MeemAPI.IMeemId
 			tweetData: TweetV2
 			twitterUser: UserV2
 		}
 	}): Promise<Ethers.ContractReceipt> {
-		const { meemId, tweetData, tweetIncludes, twitterUser, remix } = options
+		const {
+			meemId,
+			parentMeemTokenId,
+			tweetData,
+			tweetIncludes,
+			twitterUser,
+			remix
+		} = options
 		let toAddress = config.MEEM_PROXY_ADDRESS
 		if (meemId) {
 			if (meemId.defaultWallet !== MeemAPI.zeroAddress) {
@@ -562,7 +665,7 @@ export default class TwitterService {
 						mTokenURI: meemMetadata.tokenURI,
 						parentChain: MeemAPI.Chain.Polygon,
 						parent: config.MEEM_PROXY_ADDRESS,
-						parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
+						parentTokenId: parentMeemTokenId || config.TWITTER_PROJECT_TOKEN_ID,
 						meemType: MeemAPI.MeemType.Remix,
 						data: JSON.stringify({
 							tweetId: tweet.tweetId,

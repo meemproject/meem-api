@@ -62,11 +62,21 @@ export default class TwitterListener {
 				// Emitted when a Twitter payload (a tweet or not, given the endpoint).
 				ETwitterStreamEvent.Data,
 				async eventData => {
+					const isMeemReplyTweet =
+						eventData.data.in_reply_to_user_id ===
+						config.TWITTER_MEEM_ACCOUNT_ID
 					try {
-						await services.twitter.mintAndStoreTweet(
-							eventData.data,
-							eventData.includes
-						)
+						if (isMeemReplyTweet) {
+							await services.twitter.handleMeemReplyTweet(
+								eventData.data,
+								eventData.includes
+							)
+						} else {
+							await services.twitter.mintAndStoreTweet(
+								eventData.data,
+								eventData.includes
+							)
+						}
 					} catch (err) {
 						log.crit('Error minting tweet.', err)
 					}

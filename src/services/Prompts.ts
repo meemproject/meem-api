@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import moment from 'moment'
 import { Op } from 'sequelize'
-import { TwitterApi } from 'twitter-api-v2'
+import { TweetV2, TwitterApi } from 'twitter-api-v2'
 import { MeemAPI } from '../types/meem.generated'
 
 const prompts = [
@@ -87,8 +87,16 @@ export default class PromptsService {
 		}
 	}
 
+	public static async mintResponseTweet(tweet: TweetV2) {
+		log.debug(`Minting tweet: ${tweet.text}`)
+
+		// Check if user is a meember
+		// Only mint if this is the first reply to this tweet from this user
+		// If not a meember, let them know they can join/claim their meem
+	}
+
 	public static async endCurrentPrompt() {
-		// START: Prompt Tweet Logic
+		// END: Prompt Tweet Logic
 
 		// 1. Get the latests prompt tweet
 		// - TODO: Decipher which tweets are prompt tweets vs. other 0xMeem tweets?
