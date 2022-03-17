@@ -533,6 +533,11 @@ export namespace MeemAPI {
 		meem?: IMetadataMeem
 	}
 
+	export enum SortOrder {
+		Asc = 'asc',
+		Desc = 'desc'
+	}
+
 	export namespace v1 {
 		export namespace CheckClippingStatus {
 			export interface IPathParams {}
@@ -1009,6 +1014,19 @@ export namespace MeemAPI {
 
 			export const method = HttpMethod.Get
 
+			export enum SortBy {
+				MintedAt = 'mintedAt',
+				TokenId = 'tokenId',
+				Name = 'name',
+				Meemtype = 'meemType',
+				Owner = 'owner',
+				Generation = 'generation',
+				Parent = 'parent',
+				Root = 'root',
+				MintedBy = 'mintedBy',
+				VerifiedBy = 'verifiedBy'
+			}
+
 			export interface IQueryParams extends IRequestPaginated {
 				/** Filter by owner address */
 				owner?: string
@@ -1019,8 +1037,18 @@ export namespace MeemAPI {
 				/** Filter by Root Token ID */
 				rootTokenIds?: string[]
 
+				/** Filter by Parent Token ID */
+				parentTokenIds?: string[]
+
 				/** Filter by minter */
 				mintedBy?: string
+
+				/** Search metadata by query string */
+				q?: string
+
+				sortBy?: SortBy
+
+				sortOrder?: SortOrder
 			}
 
 			export interface IRequestBody {}

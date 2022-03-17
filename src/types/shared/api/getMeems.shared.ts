@@ -5,7 +5,7 @@ import {
 	IRequestPaginated,
 	IApiPaginatedResponseBody
 } from '../api.shared'
-import { IMetadataMeem, MeemType } from '../meem.shared'
+import { IMetadataMeem, MeemType, SortOrder } from '../meem.shared'
 
 /** Get Meem */
 export namespace GetMeems {
@@ -14,6 +14,19 @@ export namespace GetMeems {
 	export const path = (options?: IPathParams) => `/api/1.0/meems`
 
 	export const method = HttpMethod.Get
+
+	export enum SortBy {
+		MintedAt = 'mintedAt',
+		TokenId = 'tokenId',
+		Name = 'name',
+		Meemtype = 'meemType',
+		Owner = 'owner',
+		Generation = 'generation',
+		Parent = 'parent',
+		Root = 'root',
+		MintedBy = 'mintedBy',
+		VerifiedBy = 'verifiedBy'
+	}
 
 	export interface IQueryParams extends IRequestPaginated {
 		/** Filter by owner address */
@@ -25,8 +38,18 @@ export namespace GetMeems {
 		/** Filter by Root Token ID */
 		rootTokenIds?: string[]
 
+		/** Filter by Parent Token ID */
+		parentTokenIds?: string[]
+
 		/** Filter by minter */
 		mintedBy?: string
+
+		/** Search metadata by query string */
+		q?: string
+
+		sortBy?: SortBy
+
+		sortOrder?: SortOrder
 	}
 
 	export interface IRequestBody {}
