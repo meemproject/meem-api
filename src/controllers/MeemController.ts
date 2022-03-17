@@ -178,7 +178,7 @@ export default class MeemController {
 		req: IAPIRequestPaginated<MeemAPI.v1.GetMeems.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeems.IResponseBody>
 	): Promise<Response> {
-		const { owner, meemTypes, mintedBy, rootTokenIds } = req.query
+		const { owner, meemTypes, mintedBy, rootTokenIds, q } = req.query
 		const { page, limit: requestedLimit } = req
 		const limit = requestedLimit > 100 ? 100 : requestedLimit
 		const itemsPerPage = limit
@@ -226,6 +226,29 @@ export default class MeemController {
 				)
 			)
 		}
+
+		if (q) {
+			and.push({
+				[Op.or]: [
+					{
+						data: {
+							[Op.iLike]: `%${q}%`
+						}
+					},
+					{
+						'metadata.name': {
+							[Op.iLike]: `%${q}%`
+						}
+					},
+					{
+						'metadata.description': {
+							[Op.iLike]: `%${q}%`
+						}
+					}
+				]
+			})
+		}
+
 		const { rows: rawMeems, count } = await orm.models.Meem.findAndCountAll({
 			where: {
 				[Op.and]: and

@@ -1021,6 +1021,9 @@ export namespace MeemAPI {
 
 				/** Filter by minter */
 				mintedBy?: string
+
+				/** Search metadata by query string */
+				q?: string
 			}
 
 			export interface IRequestBody {}
