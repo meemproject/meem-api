@@ -127,6 +127,12 @@ const errors = {
 		reason: 'Invalid metadata. Ensure that the object is properly formed.',
 		friendlyReason: 'Invalid metadata.'
 	},
+	ALREADY_CLIPPED: {
+		httpCode: 400,
+		status: 'failure',
+		reason: 'The item has already been clipped.',
+		friendlyReason: 'The item has already been clipped.'
+	},
 	// Contract errors
 	UNKNOWN_CONTRACT_ERROR: {
 		httpCode: 500,
