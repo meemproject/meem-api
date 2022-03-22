@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { Op } from 'sequelize'
 import { ApiV2Includes, TweetV2, TwitterApi, UserV2 } from 'twitter-api-v2'
 import Prompt from '../models/Prompt'
