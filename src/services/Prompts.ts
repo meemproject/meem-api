@@ -127,17 +127,17 @@ export default class PromptsService {
 				}
 			})
 
-			// if (conversationTweet) {
-			// 	await services.twitter.tweet(
-			// 		`@${tweetUser.username} It looks like you've already submitted a response to this prompt. We look forward to your response tomorrow!`,
-			// 		{
-			// 			reply: {
-			// 				in_reply_to_tweet_id: promptResponseTweetData.id
-			// 			}
-			// 		}
-			// 	)
-			// 	return
-			// }
+			if (conversationTweet) {
+				await services.twitter.tweet(
+					`@${tweetUser.username} It looks like you've already submitted a response to this prompt. We look forward to your response tomorrow!`,
+					{
+						reply: {
+							in_reply_to_tweet_id: promptResponseTweetData.id
+						}
+					}
+				)
+				return
+			}
 
 			// Mint the tweet
 			log.debug(`Mint reply tweet to prompt meem ${promptTweetMeemTokenId}`)

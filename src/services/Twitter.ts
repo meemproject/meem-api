@@ -1,7 +1,5 @@
 import type { ethers as Ethers } from 'ethers'
-import _ from 'lodash'
 import { DateTime } from 'luxon'
-import moment from 'moment-timezone'
 import { Op } from 'sequelize'
 import {
 	TwitterApi,
