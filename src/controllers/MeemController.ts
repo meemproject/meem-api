@@ -200,7 +200,7 @@ export default class MeemController {
 		req: IAPIRequestPaginated<MeemAPI.v1.GetMeems.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeems.IResponseBody>
 	): Promise<Response> {
-		const { owner, meemTypes, mintedBy, rootTokenIds } = req.query
+		const { owner, meemTypes, mintedBy, rootTokenIds, q } = req.query
 		const { page, limit: requestedLimit } = req
 		const limit = requestedLimit > 100 ? 100 : requestedLimit
 		const itemsPerPage = limit
@@ -248,11 +248,51 @@ export default class MeemController {
 				)
 			)
 		}
+
+		if (q) {
+			and.push({
+				[Op.or]: [
+					{
+						data: {
+							[Op.iLike]: `%${q}%`
+						}
+					},
+					{
+						'metadata.name': {
+							[Op.iLike]: `%${q}%`
+						}
+					},
+					{
+						'metadata.description': {
+							[Op.iLike]: `%${q}%`
+						}
+					}
+				]
+			})
+		}
+
+		let sortBy = 'mintedAt'
+		let sortOrder = 'desc'
+
+		if (
+			req.query.sortBy &&
+			Object.values(MeemAPI.v1.GetMeems.SortBy).includes(req.query.sortBy)
+		) {
+			sortBy = req.query.sortBy
+		}
+
+		if (
+			req.query.sortOrder &&
+			Object.values(MeemAPI.SortOrder).includes(req.query.sortOrder)
+		) {
+			sortOrder = req.query.sortOrder
+		}
+
 		const { rows: rawMeems, count } = await orm.models.Meem.findAndCountAll({
 			where: {
 				[Op.and]: and
 			},
-			order: [['createdAt', 'DESC']],
+			order: [[sortBy, sortOrder]],
 			offset: page * limit,
 			limit,
 			include: [
@@ -813,8 +853,17 @@ export default class MeemController {
 			? services.web3.toBigNumber(req.query.tokenId).toHexString()
 			: undefined
 
-		const where: Record<string, any> = address ? { address } : {}
-		const meemWhere: Record<string, any> = tokenId ? { tokenId } : {}
+		let where: Record<string, any> = {}
+
+		if (address) {
+			where = orm.sequelize.where(
+				orm.sequelize.fn('lower', orm.sequelize.col('address')),
+				address.toLowerCase()
+			)
+		}
+		const meemWhere: Record<string, any> = tokenId
+			? { tokenId: tokenId.toLowerCase() }
+			: {}
 		const meemInclude = shouldIncludeMetadata
 			? [
 					{

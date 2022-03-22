@@ -536,6 +536,18 @@ export default class ContractEvent {
 			evt.getBlock()
 		])
 
+		const clipping = await orm.models.Clipping.findOne({
+			where: {
+				address: addy,
+				MeemIdentificationId: wallet?.MeemIdentificationId ?? null,
+				MeemId: meem?.id ?? null
+			}
+		})
+
+		if (clipping) {
+			throw new Error('ALREADY_CLIPPED')
+		}
+
 		await orm.models.Clipping.create({
 			address: addy,
 			MeemIdentificationId: wallet?.MeemIdentificationId ?? null,
