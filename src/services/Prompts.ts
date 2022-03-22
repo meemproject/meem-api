@@ -170,7 +170,7 @@ export default class PromptsService {
 				startAt: {
 					[Op.lte]: moment()
 						.tz('America/Los_Angeles')
-						.subtract(24, 'hours')
+						.subtract(12, 'hours')
 						.toDate()
 				}
 			}
