@@ -42,7 +42,7 @@ export default class PromptsService {
 	}
 
 	public static async sendNextPrompt() {
-		if (!config.ENABLE_SEND_PROMPTS) {
+		if (!config.ENABLE_PROMPTS) {
 			return
 		}
 
@@ -153,6 +153,9 @@ export default class PromptsService {
 	}
 
 	public static async endCurrentPrompt() {
+		if (!config.ENABLE_PROMPTS) {
+			return
+		}
 		// END: Prompt Tweet Logic
 
 		// 3. Search for likes on answers at X hour and quote tweet to mint the winner

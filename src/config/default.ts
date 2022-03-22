@@ -159,5 +159,5 @@ export default {
 	GUNDB_S3_BUCKET: process.env.GUNDB_S3_BUCKET ?? '',
 	GUNDB_PASSWORD: process.env.GUNDB_PASSWORD ?? '',
 	GUNDB_USER: process.env.GUNDB_USER ?? '',
-	ENABLE_SEND_PROMPTS: process.env.ENABLE_SEND_PROMPTS === 'true'
+	ENABLE_PROMPTS: process.env.ENABLE_PROMPTS === 'true'
 }
