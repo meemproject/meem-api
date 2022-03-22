@@ -118,6 +118,80 @@ export default class TwitterService {
 		}
 	}
 
+	public static async getTwitterUserMeemId(
+		twitterUserId: string
+	): Promise<MeemAPI.IMeemId | null> {
+		const item = await orm.models.Twitter.findOne({
+			where: {
+				twitterId: twitterUserId
+			}
+		})
+
+		if (!item || !item.MeemIdentificationId) {
+			log.error(`No meemId found for twitter ID: ${twitterUserId}`)
+			return null
+		}
+
+		const tweetUserMeemId = await services.meemId.getMeemId({
+			meemIdentificationId: item.MeemIdentificationId
+		})
+
+		if (tweetUserMeemId.wallets.length === 0) {
+			log.error(`No wallet found for meemId: ${item.MeemIdentificationId}`)
+			return null
+		}
+
+		return tweetUserMeemId
+	}
+
+	public static async handleMeemReplyTweet(
+		tweetData: TweetV2,
+		includes?: ApiV2Includes
+	): Promise<void> {
+		const tweetUser = includes?.users?.find(u => u.id === tweetData.author_id)
+		const meemTweetRepliedToId = tweetData.referenced_tweets?.find(
+			t => t.type === 'replied_to'
+		)?.id
+
+		if (!tweetUser?.id || !meemTweetRepliedToId) {
+			return
+		}
+
+		const meemTweetRepliedTo = await orm.models.Tweet.findOne({
+			where: {
+				tweetId: meemTweetRepliedToId
+			},
+			include: [
+				{
+					model: orm.models.Meem
+				}
+			]
+		})
+
+		if (!meemTweetRepliedTo) {
+			return
+		}
+
+		const tweetUserMeemId = await this.getTwitterUserMeemId(tweetUser.id)
+
+		const prompt = await orm.models.Prompt.findOne({
+			where: {
+				tweetId: meemTweetRepliedToId
+			}
+		})
+
+		if (prompt) {
+			services.prompts.mintPromptReplyTweet({
+				tweetUser,
+				tweetUserMeemId,
+				meemTweetRepliedToId,
+				prompt,
+				promptResponseTweetData: tweetData,
+				promptResponseTweetIncludes: includes
+			})
+		}
+	}
+
 	public static async mintAndStoreTweet(
 		tweetData: TweetV2,
 		includes?: ApiV2Includes
@@ -256,6 +330,7 @@ export default class TwitterService {
 					}
 				)
 			}
+
 			if (
 				config.ENABLE_TWEET_CURATION &&
 				originalTweet &&
@@ -368,7 +443,8 @@ export default class TwitterService {
 			text: tweetText,
 			userId: twitterUser?.id,
 			username: twitterUser?.username || '',
-			userProfileImageUrl: twitterUser?.profile_image_url || ''
+			userProfileImageUrl: twitterUser?.profile_image_url || '',
+			conversationId: tweetData.conversation_id || ''
 		})
 
 		const hashtags = tweetData.entities?.hashtags || []
@@ -402,13 +478,21 @@ export default class TwitterService {
 		tweetData: TweetV2
 		tweetIncludes?: ApiV2Includes
 		twitterUser: UserV2
+		parentMeemTokenId?: string
 		remix?: {
 			meemId: MeemAPI.IMeemId
 			tweetData: TweetV2
 			twitterUser: UserV2
 		}
 	}): Promise<Ethers.ContractReceipt> {
-		const { meemId, tweetData, tweetIncludes, twitterUser, remix } = options
+		const {
+			meemId,
+			parentMeemTokenId,
+			tweetData,
+			tweetIncludes,
+			twitterUser,
+			remix
+		} = options
 		let toAddress = config.MEEM_PROXY_ADDRESS
 		if (meemId) {
 			if (meemId.defaultWallet !== MeemAPI.zeroAddress) {
@@ -559,7 +643,7 @@ export default class TwitterService {
 						mTokenURI: meemMetadata.tokenURI,
 						parentChain: MeemAPI.Chain.Polygon,
 						parent: config.MEEM_PROXY_ADDRESS,
-						parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
+						parentTokenId: parentMeemTokenId || config.TWITTER_PROJECT_TOKEN_ID,
 						meemType: MeemAPI.MeemType.Remix,
 						data: JSON.stringify({
 							tweetId: tweet.tweetId,
@@ -667,11 +751,13 @@ export default class TwitterService {
 				}
 			})
 
+			const actionText = meemId ? `View here` : `Join Meem and claim it here`
+
 			const tweetPromises = [
 				this.tweet(
-					`Your tweet has been minted! View here: ${config.MEEM_DOMAIN}/meems/${
-						tokenId ?? meemMetadata.metadata.meem_id
-					}`,
+					`Your tweet has been minted! ${actionText}: ${
+						config.MEEM_DOMAIN
+					}/meems/${tokenId ?? meemMetadata.metadata.meem_id}`,
 					{
 						reply: {
 							in_reply_to_tweet_id: tweetData.id
@@ -681,9 +767,12 @@ export default class TwitterService {
 			]
 
 			if (remix && remixMetadata) {
+				const remixActionText = remix.meemId
+					? `View here`
+					: `Join Meem and claim it here`
 				tweetPromises.push(
 					this.tweet(
-						`Your tweet has been minted! View here: ${
+						`Your tweet has been minted! ${remixActionText}: ${
 							config.MEEM_DOMAIN
 						}/meems/${remixTokenId ?? remixMetadata.metadata.meem_id}`,
 						{

@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
+import Meem from './Meem'
 
 export default class Tweet extends BaseModel<Tweet> {
 	public static readonly modelName = 'Tweet'
@@ -8,8 +9,12 @@ export default class Tweet extends BaseModel<Tweet> {
 	public static get indexes() {
 		return [
 			{
-				name: 'tweets_tweetId',
+				name: 'Tweet_tweetId',
 				fields: ['tweetId']
+			},
+			{
+				name: 'Tweet_MeemId',
+				fields: ['MeemId']
 			}
 		]
 	}
@@ -39,6 +44,10 @@ export default class Tweet extends BaseModel<Tweet> {
 		userProfileImageUrl: {
 			type: DataTypes.STRING,
 			allowNull: false
+		},
+		conversationId: {
+			type: DataTypes.STRING,
+			allowNull: false
 		}
 	}
 
@@ -56,6 +65,13 @@ export default class Tweet extends BaseModel<Tweet> {
 
 	/** URL for the twitter user's profile picture */
 	public userProfileImageUrl!: string
+
+	/** The twitter conversation ID of the tweet */
+	public conversationId!: string
+
+	public MeemId!: string | null
+
+	public Meem!: Meem | null
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.Meem)

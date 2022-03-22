@@ -391,4 +391,16 @@ export default class ConfigController {
 
 		return res.json({ jwt })
 	}
+
+	public static async testPromptsCron(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		await services.prompts.endCurrentPrompt()
+		await services.prompts.sendNextPrompt()
+
+		return res.json({
+			status: 'success'
+		})
+	}
 }

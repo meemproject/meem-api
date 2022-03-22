@@ -38,4 +38,15 @@ export default class ConfigController {
 			meemIds
 		})
 	}
+
+	public static async seedPrompts(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		await services.prompts.seedPrompts()
+
+		return res.json({
+			status: 'success'
+		})
+	}
 }
