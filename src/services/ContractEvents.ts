@@ -623,7 +623,7 @@ export default class ContractEvent {
 			ChildPropertiesId: childProperties.id,
 			meemType: meemData.meemType,
 			mintedBy: meemData.mintedBy,
-			verifiedBy: meemData.verifiedBy
+			uriLockedBy: meemData.uriLockedBy
 		}
 
 		const meem = orm.models.Meem.build(data)
@@ -755,7 +755,7 @@ export default class ContractEvent {
 
 		meem.data = meemData.data
 		meem.metadata = metadata
-		meem.verifiedBy = meemData.verifiedBy
+		meem.uriLockedBy = meemData.uriLockedBy
 		await meem.save()
 	}
 
@@ -803,7 +803,8 @@ export default class ContractEvent {
 			permission: p.permission,
 			addresses: p.addresses,
 			numTokens: p.numTokens.toHexString(),
-			lockedBy: p.lockedBy
+			lockedBy: p.lockedBy,
+			costWei: p.costWei.toHexString()
 		}))
 	}
 

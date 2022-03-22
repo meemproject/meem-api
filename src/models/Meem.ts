@@ -127,7 +127,7 @@ export default class Meem extends BaseModel<Meem> {
 			allowNull: false,
 			defaultValue: ''
 		},
-		verifiedBy: {
+		uriLockedBy: {
 			type: DataTypes.STRING,
 			allowNull: false,
 			defaultValue: MeemAPI.zeroAddress
@@ -146,6 +146,16 @@ export default class Meem extends BaseModel<Meem> {
 			type: DataTypes.STRING,
 			allowNull: false,
 			defaultValue: MeemAPI.zeroAddress
+		},
+		reactionTypes: {
+			type: DataTypes.JSONB,
+			allowNull: false,
+			defaultValue: []
+		},
+		uriSource: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 0
 		}
 	}
 
@@ -177,13 +187,17 @@ export default class Meem extends BaseModel<Meem> {
 
 	public data!: string
 
-	public verifiedBy!: string
+	public uriLockedBy!: string
 
 	public metadata!: MeemAPI.IMeemMetadata
 
 	public meemType!: MeemAPI.MeemType
 
 	public mintedBy!: string
+
+	public reactionTypes!: string[]
+
+	public uriSource!: MeemAPI.UriSource
 
 	public PropertiesId!: string | null
 

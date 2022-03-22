@@ -124,6 +124,11 @@ export enum NetworkName {
 	Hardhat = 'hardhat'
 }
 
+export enum UriSource {
+	TokenUri,
+	Data
+}
+
 /** Convert Chain to NetworkName */
 export const chainToNetworkName = (chain: Chain): NetworkName => {
 	switch (+chain) {
@@ -320,6 +325,7 @@ export interface IMeemPermission {
 	/** BigNumber hex string */
 	numTokens: string
 	lockedBy: string
+	costWei: string
 }
 
 export interface IMeemProperties {
@@ -362,10 +368,12 @@ export interface IMeem {
 	/** Unix timestamp of when the Meem was minted */
 	mintedAt: number
 	data: string
-	/** Will be a non-zero address if the Meem has been verified */
-	verifiedBy: string
+	/** Will be a non-zero address if locked */
+	uriLockedBy: string
+	uriSource: UriSource
 	meemType: MeemType
 	mintedBy: string
+	reactionTypes: string[]
 }
 
 export interface IMetadataMeem extends IMeem {
@@ -483,3 +491,5 @@ export enum SortOrder {
 	Asc = 'asc',
 	Desc = 'desc'
 }
+
+export const defaultReactionTypes: string[] = ['upvote', 'downvote']

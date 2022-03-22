@@ -528,7 +528,7 @@ export default class TwitterService {
 				const mintParams: Parameters<Meem['mintAndRemix']> = [
 					{
 						to: toAddress,
-						mTokenURI: meemMetadata.tokenURI,
+						tokenURI: meemMetadata.tokenURI,
 						parentChain: MeemAPI.Chain.Polygon,
 						parent: config.MEEM_PROXY_ADDRESS,
 						parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
@@ -539,7 +539,9 @@ export default class TwitterService {
 							username: tweet.username,
 							userId: tweet.userId
 						}),
-						isVerified: true,
+						isURILocked: true,
+						reactionTypes: MeemAPI.defaultReactionTypes,
+						uriSource: MeemAPI.UriSource.TokenUri,
 						// TODO: Is mintedBy the remixer here?
 						mintedBy: remixerAccountAddress
 					},
@@ -547,7 +549,7 @@ export default class TwitterService {
 					properties,
 					{
 						to: remix.meemId?.defaultWallet,
-						mTokenURI: remixMetadata.tokenURI,
+						tokenURI: remixMetadata.tokenURI,
 						parentChain: MeemAPI.Chain.Polygon,
 						parent: config.MEEM_PROXY_ADDRESS,
 						parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
@@ -558,7 +560,9 @@ export default class TwitterService {
 							username: remixTweet.username,
 							userId: remixTweet.userId
 						}),
-						isVerified: true,
+						isURILocked: true,
+						reactionTypes: MeemAPI.defaultReactionTypes,
+						uriSource: MeemAPI.UriSource.TokenUri,
 						mintedBy: remix.meemId?.defaultWallet
 					},
 					properties,
@@ -578,7 +582,7 @@ export default class TwitterService {
 				const mintParams: Parameters<Meem['mint']> = [
 					{
 						to: toAddress,
-						mTokenURI: meemMetadata.tokenURI,
+						tokenURI: meemMetadata.tokenURI,
 						parentChain: MeemAPI.Chain.Polygon,
 						parent: config.MEEM_PROXY_ADDRESS,
 						parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
@@ -589,7 +593,9 @@ export default class TwitterService {
 							username: tweet.username,
 							userId: tweet.userId
 						}),
-						isVerified: true,
+						isURILocked: true,
+						reactionTypes: MeemAPI.defaultReactionTypes,
+						uriSource: MeemAPI.UriSource.TokenUri,
 						mintedBy: toAddress
 					},
 					properties,
