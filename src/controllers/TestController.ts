@@ -396,8 +396,8 @@ export default class ConfigController {
 		req: Request,
 		res: Response
 	): Promise<Response> {
+		await services.prompts.endCurrentPrompt()
 		await services.prompts.sendNextPrompt()
-		// await services.twitter.process0xMeemTweets()
 
 		return res.json({
 			status: 'success'

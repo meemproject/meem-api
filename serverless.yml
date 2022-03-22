@@ -157,6 +157,12 @@ functions:
           enabled: true
           input:
             job: TwitterCron
+      - schedule:
+          rate: rate(5 minutes)
+          # CHANGE THIS TO "true" TO RUN CRONS
+          enabled: true
+          input:
+            job: PromptsCron
 
 
 plugins:

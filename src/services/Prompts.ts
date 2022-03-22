@@ -1,38 +1,31 @@
 import _ from 'lodash'
 import moment from 'moment'
 import { Op } from 'sequelize'
-import { TweetV2, TwitterApi } from 'twitter-api-v2'
+import { ApiV2Includes, TweetV2, TwitterApi, UserV2 } from 'twitter-api-v2'
+import Prompt from '../models/Prompt'
 import { MeemAPI } from '../types/meem.generated'
 
-const prompts = [
-	{
-		body: `What is the username you use online when you don't want to be found?`,
-		startAt: moment()
-			.tz('America/Los_Angeles')
-			.startOf('day')
-			.add(6, 'hours')
-			.toDate()
-	},
-	{
-		body: `What are you glad wasn’t around when you were growing up?`,
-		startAt: moment()
-			.tz('America/Los_Angeles')
-			.startOf('day')
-			.add(7, 'hours')
-			.toDate()
-	},
-	{
-		body: `What do you wish people talked about more?`,
-		startAt: moment()
-			.tz('America/Los_Angeles')
-			.startOf('day')
-			.add(8, 'hours')
-			.toDate()
-	}
+const promptsText = [
+	`What's the best part of getting older?`,
+	`What are you glad wasn’t around when you were growing up?`,
+	`What do you wish people talked about more?`,
+	`You're suddenly invisible. Where do you go?`,
+	`What’s your most treasured possession that anyone could buy for $25 or less?`
 ]
 
 export default class PromptsService {
 	public static async seedPrompts() {
+		const prompts = promptsText.map((p, i) => {
+			return {
+				body: p,
+				startAt: moment()
+					.tz('America/Los_Angeles')
+					.startOf('day')
+					.add(i, 'days')
+					.add(7, 'hours')
+					.toDate()
+			}
+		})
 		await orm.models.Prompt.sync({ force: true })
 		const failedPrompts: any[] = []
 		for (let i = 0; i < prompts.length; i += 1) {
@@ -87,114 +80,188 @@ export default class PromptsService {
 		}
 	}
 
-	public static async mintResponseTweet(tweet: TweetV2) {
-		log.debug(`Minting tweet: ${tweet.text}`)
+	public static async mintPromptReplyTweet(options: {
+		tweetUser: UserV2
+		tweetUserMeemId: MeemAPI.IMeemId | null
+		prompt: Prompt
+		meemTweetRepliedToId: string
+		promptResponseTweetData: TweetV2
+		promptResponseTweetIncludes: ApiV2Includes | undefined
+	}) {
+		const {
+			tweetUser,
+			tweetUserMeemId,
+			prompt,
+			meemTweetRepliedToId,
+			promptResponseTweetData,
+			promptResponseTweetIncludes
+		} = options
 
-		// Check if user is a meember
-		// Only mint if this is the first reply to this tweet from this user
-		// If not a meember, let them know they can join/claim their meem
+		log.debug(
+			`Meember (${!!tweetUserMeemId}) replied to prompt: (${prompt.id})`
+		)
+
+		const promptTweet = await orm.models.Tweet.findOne({
+			where: {
+				tweetId: meemTweetRepliedToId
+			},
+			include: [
+				{
+					model: orm.models.Meem
+				}
+			]
+		})
+
+		const promptTweetMeemTokenId = promptTweet?.Meem?.tokenId
+
+		if (
+			promptResponseTweetData.conversation_id &&
+			promptTweetMeemTokenId &&
+			tweetUser.id !== config.TWITTER_MEEM_ACCOUNT_ID
+		) {
+			// Make sure this user has not minted a reply to this prompt already
+			const conversationTweet = await orm.models.Tweet.findOne({
+				where: {
+					userId: tweetUser.id,
+					conversationId: promptResponseTweetData.conversation_id
+				}
+			})
+
+			// if (conversationTweet) {
+			// 	await services.twitter.tweet(
+			// 		`@${tweetUser.username} It looks like you've already submitted a response to this prompt. We look forward to your response tomorrow!`,
+			// 		{
+			// 			reply: {
+			// 				in_reply_to_tweet_id: promptResponseTweetData.id
+			// 			}
+			// 		}
+			// 	)
+			// 	return
+			// }
+
+			// Mint the tweet
+			log.debug(`Mint reply tweet to prompt meem ${promptTweetMeemTokenId}`)
+
+			await services.twitter.mintTweet({
+				meemId: tweetUserMeemId || undefined,
+				tweetData: promptResponseTweetData,
+				tweetIncludes: promptResponseTweetIncludes,
+				twitterUser: tweetUser,
+				parentMeemTokenId: promptTweetMeemTokenId
+			})
+		}
 	}
 
 	public static async endCurrentPrompt() {
 		// END: Prompt Tweet Logic
 
-		// 1. Get the latests prompt tweet
-		// - TODO: Decipher which tweets are prompt tweets vs. other 0xMeem tweets?
-
-		// 2. Search for replies to tweet and mint them on behalf of user.
-		// - TODO: Can any user reply/mint response or do they have to be a Meember?
-
 		// 3. Search for likes on answers at X hour and quote tweet to mint the winner
 		// - TODO: Instead of quote tweet, should we mint a special Meem for the winner?
 		// - TODO: Tie breaker?
+
+		const promptToEnd = await orm.models.Prompt.findOne({
+			order: [['startAt', 'ASC']],
+			where: {
+				hasStarted: true,
+				hasEnded: false,
+				startAt: {
+					[Op.lte]: moment()
+						.tz('America/Los_Angeles')
+						.subtract(24, 'hours')
+						.toDate()
+				}
+			}
+		})
+
+		if (!promptToEnd) {
+			return
+		}
+
+		// Get all tweets with same conversation ID
+		// Get the tweet data from twitter API
+		// Sort by votes
+		// Retweet the winner
+
+		log.debug(`Ending prompt: ${promptToEnd.id}`)
 
 		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 
 		// const endTime = moment().tz('America/Los_Angeles').startOf('day')
 
+		const getTweets = async (tweetIds: string[]) => {
+			const promptTweetResponse = await client.v2.tweets(tweetIds, {
+				'tweet.fields': ['created_at', 'public_metrics', 'conversation_id'],
+				expansions: ['author_id']
+			})
+			return promptTweetResponse
+		}
+
 		try {
-			const promptTweetResponse = await client.v2.search(
-				`from:${config.TWITTER_MEEM_ACCOUNT_ID} #0xMeemPrompt -is:retweet -is:reply`,
-				{
-					max_results: 10,
-					'tweet.fields': ['created_at', 'public_metrics', 'conversation_id'],
-					expansions: ['author_id']
-				}
-			)
-
-			const tweets = promptTweetResponse.data.data
-
-			if (tweets.length < 1) {
-				return
-			}
-
-			const promptTweet = tweets[0]
-
-			const tweetExists = await orm.models.Tweet.findOne({
+			const promptReplyTweets = await orm.models.Tweet.findAll({
 				where: {
-					tweetId: promptTweet.id
+					userId: {
+						[Op.not]: config.TWITTER_MEEM_ACCOUNT_ID
+					},
+					conversationId: promptToEnd.tweetId
 				}
 			})
 
-			if (!tweetExists) {
-				// TODO: This should never happen!
-				return
-			}
+			const promptReplyTweetGroups = _.chunk(promptReplyTweets)
+			const promptReplyUsers: UserV2[] = []
 
-			// TODO: Loop through paginated results of replies
-			const responseTweets = await client.v2.search(
-				`conversation_id:${promptTweet.conversation_id} -from:${config.TWITTER_MEEM_ACCOUNT_ID} is:reply`,
-				{
-					'tweet.fields': ['created_at', 'public_metrics'],
-					expansions: ['author_id']
-				}
+			const promptReplyTweetGroupsData = await Promise.all(
+				promptReplyTweetGroups.map(async g => {
+					const tweetIds = g.map(t => t.tweetId)
+					const tweetResponse = await getTweets(tweetIds)
+
+					if (tweetResponse.includes?.users) {
+						promptReplyUsers.push(...tweetResponse.includes.users)
+					}
+
+					return tweetResponse.data
+				})
 			)
 
-			if (!responseTweets.data?.data || responseTweets.data?.data.length < 1) {
+			const promptReplyTweetsData = _.flatten(promptReplyTweetGroupsData)
+
+			if (promptReplyTweetsData.length < 1) {
 				return
 			}
 
 			const sortedResponses = _.orderBy(
-				responseTweets.data.data,
+				promptReplyTweetsData,
 				t => {
 					return t.public_metrics?.like_count || 0
 				},
 				'desc'
 			)
 
-			// TODO: Sort by earliest reply in case of a tie
-
 			const winner = sortedResponses[0]
-			const winningUser = responseTweets.includes?.users?.find(
-				u => u.id === winner.author_id
-			)
+			const winningUser = promptReplyUsers.find(u => u.id === winner.author_id)
 
-			if (!winningUser) {
-				return
+			if (winningUser) {
+				const tweetClient = new TwitterApi({
+					appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
+					appSecret: config.TWITTER_MEEM_ACCOUNT_CONSUMER_SECRET,
+					accessToken: config.TWITTER_MEEM_ACCOUNT_TOKEN,
+					accessSecret: config.TWITTER_MEEM_ACCOUNT_SECRET
+				})
+
+				try {
+					await tweetClient.v2.tweet(
+						`Winner winner vegan-friendly chicken substitute dinner! @${winningUser.username} received the most likes in today's #0xMeemPrompt.`,
+						{
+							quote_tweet_id: winner.id
+						}
+					)
+				} catch (e) {
+					log.error(e)
+				}
 			}
 
-			log.debug(`${winner.text} - ${winner.public_metrics?.like_count} Likes`)
+			promptToEnd.hasEnded = true
 
-			const tweetClient = new TwitterApi({
-				appKey: config.TWITTER_MEEM_ACCOUNT_CONSUMER_KEY,
-				appSecret: config.TWITTER_MEEM_ACCOUNT_CONSUMER_SECRET,
-				accessToken: config.TWITTER_MEEM_ACCOUNT_TOKEN,
-				accessSecret: config.TWITTER_MEEM_ACCOUNT_SECRET
-			})
-
-			try {
-				// TODO: This doesn't work since quoted tweet is not an original tweet. How should we handle this?
-				const meemAction =
-					config.NETWORK === MeemAPI.NetworkName.Rinkeby ? '>meemdev' : '>meem'
-				await tweetClient.v2.tweet(
-					`Winner winner chicken dinner! @${winningUser.username}, your response to today's #0xMeemPrompt received the most likes. ${meemAction}`,
-					{
-						quote_tweet_id: winner.id
-					}
-				)
-			} catch (e) {
-				log.error(e)
-			}
+			await promptToEnd.save()
 
 			return
 		} catch (e) {

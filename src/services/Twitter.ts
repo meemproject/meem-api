@@ -170,7 +170,7 @@ export default class TwitterService {
 			]
 		})
 
-		if (!meemTweetRepliedTo || !meemTweetRepliedTo) {
+		if (!meemTweetRepliedTo) {
 			return
 		}
 
@@ -183,35 +183,14 @@ export default class TwitterService {
 		})
 
 		if (prompt) {
-			log.debug(
-				`Meember (${!!tweetUserMeemId}) replied to prompt: (${prompt.id})`
-			)
-
-			const promptTweet = await orm.models.Tweet.findOne({
-				where: {
-					tweetId: meemTweetRepliedToId
-				},
-				include: [
-					{
-						model: orm.models.Meem
-					}
-				]
+			services.prompts.mintPromptReplyTweet({
+				tweetUser,
+				tweetUserMeemId,
+				meemTweetRepliedToId,
+				prompt,
+				promptResponseTweetData: tweetData,
+				promptResponseTweetIncludes: includes
 			})
-
-			const promptTweetMeemTokenId = promptTweet?.Meem?.tokenId
-
-			if (promptTweetMeemTokenId) {
-				log.debug(`Mint reply tweet to prompt meem ${promptTweetMeemTokenId}`)
-				// TODO: Make sure this user has not minted a reply to this prompt already
-				// Mint the tweet
-				await this.mintTweet({
-					meemId: tweetUserMeemId || undefined,
-					tweetData,
-					tweetIncludes: includes,
-					twitterUser: tweetUser,
-					parentMeemTokenId: promptTweetMeemTokenId
-				})
-			}
 		}
 	}
 
@@ -466,7 +445,8 @@ export default class TwitterService {
 			text: tweetText,
 			userId: twitterUser?.id,
 			username: twitterUser?.username || '',
-			userProfileImageUrl: twitterUser?.profile_image_url || ''
+			userProfileImageUrl: twitterUser?.profile_image_url || '',
+			conversationId: tweetData.conversation_id || ''
 		})
 
 		const hashtags = tweetData.entities?.hashtags || []
@@ -773,11 +753,13 @@ export default class TwitterService {
 				}
 			})
 
+			const actionText = meemId ? `View here` : `Join Meem and claim it here`
+
 			const tweetPromises = [
 				this.tweet(
-					`Your tweet has been minted! View here: ${config.MEEM_DOMAIN}/meems/${
-						tokenId ?? meemMetadata.metadata.meem_id
-					}`,
+					`Your tweet has been minted! ${actionText}: ${
+						config.MEEM_DOMAIN
+					}/meems/${tokenId ?? meemMetadata.metadata.meem_id}`,
 					{
 						reply: {
 							in_reply_to_tweet_id: tweetData.id
@@ -787,9 +769,12 @@ export default class TwitterService {
 			]
 
 			if (remix && remixMetadata) {
+				const remixActionText = remix.meemId
+					? `View here`
+					: `Join Meem and claim it here`
 				tweetPromises.push(
 					this.tweet(
-						`Your tweet has been minted! View here: ${
+						`Your tweet has been minted! ${remixActionText}: ${
 							config.MEEM_DOMAIN
 						}/meems/${remixTokenId ?? remixMetadata.metadata.meem_id}`,
 						{

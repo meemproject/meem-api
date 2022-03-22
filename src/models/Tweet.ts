@@ -44,6 +44,10 @@ export default class Tweet extends BaseModel<Tweet> {
 		userProfileImageUrl: {
 			type: DataTypes.STRING,
 			allowNull: false
+		},
+		conversationId: {
+			type: DataTypes.STRING,
+			allowNull: false
 		}
 	}
 
@@ -61,6 +65,9 @@ export default class Tweet extends BaseModel<Tweet> {
 
 	/** URL for the twitter user's profile picture */
 	public userProfileImageUrl!: string
+
+	/** The twitter conversation ID of the tweet */
+	public conversationId!: string
 
 	public MeemId!: string | null
 
