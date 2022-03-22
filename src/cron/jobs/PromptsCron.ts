@@ -2,7 +2,7 @@
 import Cron from 'cron'
 import CronJob from '../CronJob'
 
-export default class TwitterCron extends CronJob {
+export default class PromptsCron extends CronJob {
 	private job?: Cron.CronJob
 
 	public start() {
