@@ -250,6 +250,13 @@ export type FacetStructOutput = [string, string[]] & {
   selectors: string[];
 };
 
+export type ReactionStruct = { reaction: string; count: BigNumberish };
+
+export type ReactionStructOutput = [string, BigNumber] & {
+  reaction: string;
+  count: BigNumber;
+};
+
 export interface MeemInterface extends ethers.utils.Interface {
   functions: {
     "ADMIN_ROLE()": FunctionFragment;
@@ -340,6 +347,11 @@ export interface MeemInterface extends ethers.utils.Interface {
     "setFallbackAddress(address)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
+    "addReaction(uint256,string)": FunctionFragment;
+    "getReactedAt(uint256,address,string)": FunctionFragment;
+    "getReactions(uint256)": FunctionFragment;
+    "removeReaction(uint256,string)": FunctionFragment;
+    "setReactionTypes(uint256,string[])": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -692,6 +704,26 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "transferOwnership",
     values: [string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "addReaction",
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getReactedAt",
+    values: [BigNumberish, string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getReactions",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeReaction",
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setReactionTypes",
+    values: [BigNumberish, string[]]
+  ): string;
 
   decodeFunctionResult(functionFragment: "ADMIN_ROLE", data: BytesLike): Result;
   decodeFunctionResult(
@@ -964,6 +996,26 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "addReaction",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getReactedAt",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getReactions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeReaction",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setReactionTypes",
+    data: BytesLike
+  ): Result;
 
   events: {
     "TokenClipped(uint256,address)": EventFragment;
@@ -989,6 +1041,9 @@ export interface MeemInterface extends ethers.utils.Interface {
     "SplitsSet(uint256,uint8,tuple[])": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "TokenReactionAdded(uint256,address,string,uint256)": EventFragment;
+    "TokenReactionRemoved(uint256,address,string,uint256)": EventFragment;
+    "TokenReactionTypesSet(uint256,string[])": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "TokenClipped"): EventFragment;
@@ -1014,6 +1069,9 @@ export interface MeemInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "SplitsSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DiamondCut"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenReactionAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenReactionRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenReactionTypesSet"): EventFragment;
 }
 
 export type TokenClippedEvent = TypedEvent<
@@ -1192,6 +1250,40 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export type TokenReactionAddedEvent = TypedEvent<
+  [BigNumber, string, string, BigNumber],
+  {
+    tokenId: BigNumber;
+    addy: string;
+    reaction: string;
+    newTotalReactions: BigNumber;
+  }
+>;
+
+export type TokenReactionAddedEventFilter =
+  TypedEventFilter<TokenReactionAddedEvent>;
+
+export type TokenReactionRemovedEvent = TypedEvent<
+  [BigNumber, string, string, BigNumber],
+  {
+    tokenId: BigNumber;
+    addy: string;
+    reaction: string;
+    newTotalReactions: BigNumber;
+  }
+>;
+
+export type TokenReactionRemovedEventFilter =
+  TypedEventFilter<TokenReactionRemovedEvent>;
+
+export type TokenReactionTypesSetEvent = TypedEvent<
+  [BigNumber, string[]],
+  { tokenId: BigNumber; reactionTypes: string[] }
+>;
+
+export type TokenReactionTypesSetEventFilter =
+  TypedEventFilter<TokenReactionTypesSetEvent>;
 
 export interface Meem extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -1704,6 +1796,36 @@ export interface Meem extends BaseContract {
       account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    addReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    getReactedAt(
+      tokenId: BigNumberish,
+      addy: string,
+      reaction: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    getReactions(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[ReactionStructOutput[]]>;
+
+    removeReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setReactionTypes(
+      tokenId: BigNumberish,
+      reactionTypes: string[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
@@ -2168,6 +2290,36 @@ export interface Meem extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  addReaction(
+    tokenId: BigNumberish,
+    reaction: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  getReactedAt(
+    tokenId: BigNumberish,
+    addy: string,
+    reaction: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getReactions(
+    tokenId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<ReactionStructOutput[]>;
+
+  removeReaction(
+    tokenId: BigNumberish,
+    reaction: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setReactionTypes(
+    tokenId: BigNumberish,
+    reactionTypes: string[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
@@ -2618,6 +2770,36 @@ export interface Meem extends BaseContract {
       account: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    addReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    getReactedAt(
+      tokenId: BigNumberish,
+      addy: string,
+      reaction: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getReactions(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<ReactionStructOutput[]>;
+
+    removeReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setReactionTypes(
+      tokenId: BigNumberish,
+      reactionTypes: string[],
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -2832,6 +3014,41 @@ export interface Meem extends BaseContract {
       previousOwner?: string | null,
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
+
+    "TokenReactionAdded(uint256,address,string,uint256)"(
+      tokenId?: null,
+      addy?: null,
+      reaction?: null,
+      newTotalReactions?: null
+    ): TokenReactionAddedEventFilter;
+    TokenReactionAdded(
+      tokenId?: null,
+      addy?: null,
+      reaction?: null,
+      newTotalReactions?: null
+    ): TokenReactionAddedEventFilter;
+
+    "TokenReactionRemoved(uint256,address,string,uint256)"(
+      tokenId?: null,
+      addy?: null,
+      reaction?: null,
+      newTotalReactions?: null
+    ): TokenReactionRemovedEventFilter;
+    TokenReactionRemoved(
+      tokenId?: null,
+      addy?: null,
+      reaction?: null,
+      newTotalReactions?: null
+    ): TokenReactionRemovedEventFilter;
+
+    "TokenReactionTypesSet(uint256,string[])"(
+      tokenId?: null,
+      reactionTypes?: null
+    ): TokenReactionTypesSetEventFilter;
+    TokenReactionTypesSet(
+      tokenId?: null,
+      reactionTypes?: null
+    ): TokenReactionTypesSetEventFilter;
   };
 
   estimateGas: {
@@ -3305,6 +3522,36 @@ export interface Meem extends BaseContract {
 
     transferOwnership(
       account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    addReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    getReactedAt(
+      tokenId: BigNumberish,
+      addy: string,
+      reaction: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getReactions(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    removeReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setReactionTypes(
+      tokenId: BigNumberish,
+      reactionTypes: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -3788,6 +4035,36 @@ export interface Meem extends BaseContract {
 
     transferOwnership(
       account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getReactedAt(
+      tokenId: BigNumberish,
+      addy: string,
+      reaction: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getReactions(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    removeReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setReactionTypes(
+      tokenId: BigNumberish,
+      reactionTypes: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

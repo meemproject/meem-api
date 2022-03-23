@@ -17,7 +17,10 @@ import {
 	TotalCopiesLockedEvent,
 	TotalCopiesSetEvent,
 	TransferEvent,
-	TokenClippedEvent
+	TokenClippedEvent,
+	TokenReactionAddedEvent,
+	TokenReactionTypesSetEvent,
+	TokenReactionRemovedEvent
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -578,6 +581,104 @@ export default class ContractEvent {
 		})
 	}
 
+	public static async meemHandleTokenReactionAdded(
+		evt: TokenReactionAddedEvent
+	) {
+		const tokenId = evt.args.tokenId.toHexString()
+		const { addy, reaction, newTotalReactions } = evt.args
+
+		const [meem, wallet, block] = await Promise.all([
+			orm.models.Meem.findOne({
+				where: {
+					tokenId
+				}
+			}),
+			orm.models.Wallet.findByAddress(addy),
+			evt.getBlock()
+		])
+
+		if (!meem) {
+			throw new Error('MEEM_NOT_FOUND')
+		}
+
+		meem.reactionCounts[reaction] = newTotalReactions.toNumber()
+		meem.changed('reactionCounts', true)
+
+		await meem.save()
+
+		const existingReaction = await orm.models.Reaction.findOne({
+			where: {
+				address: addy,
+				reaction,
+				MeemId: meem.id
+			}
+		})
+
+		if (existingReaction) {
+			log.warn(`Address ${addy} Already reacted to meem: ${tokenId}`)
+			return
+		}
+
+		await orm.models.Reaction.create({
+			reaction,
+			address: addy,
+			MeemId: meem.id,
+			MeemIdentification: wallet?.MeemIdentificationId ?? null,
+			reactedAt: DateTime.fromSeconds(block.timestamp).toJSDate()
+		})
+	}
+
+	public static async meemHandleTokenReactionRemoved(
+		evt: TokenReactionRemovedEvent
+	) {
+		const tokenId = evt.args.tokenId.toHexString()
+		const { addy, reaction, newTotalReactions } = evt.args
+
+		const meem = await orm.models.Meem.findOne({
+			where: {
+				tokenId
+			}
+		})
+
+		if (!meem) {
+			throw new Error('MEEM_NOT_FOUND')
+		}
+
+		meem.reactionCounts[reaction] = newTotalReactions.toNumber()
+		meem.changed('reactionCounts', true)
+
+		await Promise.all([
+			orm.models.Reaction.destroy({
+				where: {
+					address: addy,
+					reaction,
+					MeemId: meem.id
+				}
+			}),
+			meem.save()
+		])
+	}
+
+	public static async meemHandleTokenReactionTypesSet(
+		evt: TokenReactionTypesSetEvent
+	) {
+		const tokenId = evt.args.tokenId.toHexString()
+		const { reactionTypes } = evt.args
+
+		const meem = await orm.models.Meem.findOne({
+			where: {
+				tokenId
+			}
+		})
+
+		if (!meem) {
+			throw new Error('MEEM_NOT_FOUND')
+		}
+
+		meem.reactionTypes = reactionTypes
+		await meem.save()
+	}
+
 	public static async createNewMeem(tokenId: string) {
 		const meemContract = await services.meem.getMeemContract()
 
@@ -623,7 +724,9 @@ export default class ContractEvent {
 			ChildPropertiesId: childProperties.id,
 			meemType: meemData.meemType,
 			mintedBy: meemData.mintedBy,
-			uriLockedBy: meemData.uriLockedBy
+			uriLockedBy: meemData.uriLockedBy,
+			uriSource: meemData.uriSource,
+			reactionTypes: meemData.reactionTypes
 		}
 
 		const meem = orm.models.Meem.build(data)

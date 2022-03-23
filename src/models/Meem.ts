@@ -3,7 +3,8 @@ import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import MeemProperties from './MeemProperties'
-import Transfer from './Transfer'
+import type Reaction from './Reaction'
+import type Transfer from './Transfer'
 
 export default class Meem extends BaseModel<Meem> {
 	public static readonly modelName = 'Meem'
@@ -156,6 +157,11 @@ export default class Meem extends BaseModel<Meem> {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 			defaultValue: 0
+		},
+		reactionCounts: {
+			type: DataTypes.JSONB,
+			allowNull: false,
+			defaultValue: {}
 		}
 	}
 
@@ -199,6 +205,8 @@ export default class Meem extends BaseModel<Meem> {
 
 	public uriSource!: MeemAPI.UriSource
 
+	public reactionCounts!: { [reaction: string]: number }
+
 	public PropertiesId!: string | null
 
 	public ChildPropertiesId!: string | null
@@ -208,6 +216,8 @@ export default class Meem extends BaseModel<Meem> {
 	public ChildProperties!: MeemProperties | null
 
 	public Transfers!: Transfer[] | null
+
+	public Reactions!: Reaction[] | null
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.MeemProperties, {
@@ -219,5 +229,7 @@ export default class Meem extends BaseModel<Meem> {
 		})
 
 		this.hasMany(models.Transfer)
+
+		this.hasMany(models.Reaction)
 	}
 }

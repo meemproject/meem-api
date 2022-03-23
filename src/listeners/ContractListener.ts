@@ -161,6 +161,39 @@ export default class ContractListener {
 			}
 		)
 
+		this.meemContract.on(
+			this.meemContract.filters.TokenReactionAdded(),
+			async (_a, _b, _c, _d, evt) => {
+				try {
+					await services.contractEvents.meemHandleTokenReactionAdded(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
+		)
+
+		this.meemContract.on(
+			this.meemContract.filters.TokenReactionRemoved(),
+			async (_a, _b, _c, _d, evt) => {
+				try {
+					await services.contractEvents.meemHandleTokenReactionRemoved(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
+		)
+
+		this.meemContract.on(
+			this.meemContract.filters.TokenReactionTypesSet(),
+			async (_a, _b, evt) => {
+				try {
+					await services.contractEvents.meemHandleTokenReactionTypesSet(evt)
+				} catch (e) {
+					log.crit(e)
+				}
+			}
+		)
+
 		log.info('Contract listeners set up')
 	}
 }

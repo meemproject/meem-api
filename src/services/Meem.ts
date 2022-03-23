@@ -959,7 +959,14 @@ export default class MeemService {
 			reactionTypes: meem.reactionTypes,
 			metadata: meem.metadata,
 			mintedBy: meem.mintedBy,
-			meemType: meem.meemType
+			meemType: meem.meemType,
+			reactionCounts: meem.reactionCounts,
+			addressReactions: meem.Reactions?.map(r => ({
+				reaction: r.reaction,
+				reactedAt: DateTime.fromJSDate(r.reactedAt).toSeconds(),
+				address: r.address,
+				MeemIdentificationId: r.MeemIdentificationId
+			}))
 		}
 	}
 

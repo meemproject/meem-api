@@ -430,7 +430,23 @@ export namespace MeemAPI {
 		reactionTypes: string[]
 	}
 
+	export interface IReaction {
+		/** Address that reacted */
+		address: string
+
+		/** Type of reaction */
+		reaction: string
+
+		/** Unix timestamp of when the reaction occurred */
+		reactedAt: number
+
+		/** The associated MeemIdentification if the user has a MeemID */
+		MeemIdentificationId: string | null
+	}
+
 	export interface IMetadataMeem extends IMeem {
+		reactionCounts: { [reaction: string]: number }
+		addressReactions?: IReaction[]
 		metadata: IMeemMetadata
 		defaultTwitterUser?: {
 			id: string
@@ -1059,6 +1075,9 @@ export namespace MeemAPI {
 				sortBy?: SortBy
 
 				sortOrder?: SortOrder
+
+				/** Include individual reactions from these wallets */
+				withAddressReactions?: string[]
 			}
 
 			export interface IRequestBody {}

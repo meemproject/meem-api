@@ -178,7 +178,8 @@ export default class MeemController {
 		req: IAPIRequestPaginated<MeemAPI.v1.GetMeems.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeems.IResponseBody>
 	): Promise<Response> {
-		const { owner, meemTypes, mintedBy, rootTokenIds, q } = req.query
+		const { owner, meemTypes, mintedBy, rootTokenIds, q, withWalletReactions } =
+			req.query
 		const { page, limit: requestedLimit } = req
 		const limit = requestedLimit > 100 ? 100 : requestedLimit
 		const itemsPerPage = limit
@@ -266,6 +267,37 @@ export default class MeemController {
 			sortOrder = req.query.sortOrder
 		}
 
+		const include: Record<string, any>[] = [
+			{
+				model: orm.models.MeemProperties,
+				as: 'Properties'
+			},
+			{
+				model: orm.models.MeemProperties,
+				as: 'ChildProperties'
+			}
+		]
+
+		if (withWalletReactions) {
+			const withWalletReactionsArr = Array.isArray(withWalletReactions)
+				? withWalletReactions
+				: [withWalletReactions]
+			const or: Record<string, any>[] = withWalletReactionsArr.map(w =>
+				orm.sequelize.where(
+					orm.sequelize.fn('lower', orm.sequelize.col('address')),
+					w.toLowerCase()
+				)
+			)
+
+			include.push({
+				model: orm.models.Reaction,
+				required: false,
+				where: {
+					[Op.or]: or
+				}
+			})
+		}
+
 		const { rows: rawMeems, count } = await orm.models.Meem.findAndCountAll({
 			where: {
 				[Op.and]: and
@@ -273,16 +305,7 @@ export default class MeemController {
 			order: [[sortBy, sortOrder]],
 			offset: page * limit,
 			limit,
-			include: [
-				{
-					model: orm.models.MeemProperties,
-					as: 'Properties'
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'ChildProperties'
-				}
-			]
+			include
 		})
 
 		let finalCount = count
