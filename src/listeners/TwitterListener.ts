@@ -27,9 +27,27 @@ export default class TwitterListener {
 		try {
 			await services.twitter.checkForMissedTweets()
 			this.stream = await client.v2.searchStream({
-				'tweet.fields': ['created_at', 'entities'],
+				'tweet.fields': [
+					'created_at',
+					'entities',
+					'attachments',
+					'conversation_id'
+				],
 				'user.fields': ['profile_image_url'],
-				expansions: ['author_id', 'in_reply_to_user_id', 'referenced_tweets.id']
+				'media.fields': [
+					'media_key',
+					'type',
+					'height',
+					'width',
+					'url',
+					'preview_image_url'
+				],
+				expansions: [
+					'author_id',
+					'in_reply_to_user_id',
+					'referenced_tweets.id',
+					'attachments.media_keys'
+				]
 			})
 
 			// Awaits for a tweet
@@ -49,11 +67,21 @@ export default class TwitterListener {
 				// Emitted when a Twitter payload (a tweet or not, given the endpoint).
 				ETwitterStreamEvent.Data,
 				async eventData => {
+					const isMeemReplyTweet =
+						eventData.data.in_reply_to_user_id ===
+						config.TWITTER_MEEM_ACCOUNT_ID
 					try {
-						await services.twitter.mintAndStoreTweet(
-							eventData.data,
-							eventData.includes
-						)
+						if (isMeemReplyTweet) {
+							await services.twitter.handleMeemReplyTweet(
+								eventData.data,
+								eventData.includes
+							)
+						} else {
+							await services.twitter.mintAndStoreTweet(
+								eventData.data,
+								eventData.includes
+							)
+						}
 					} catch (err) {
 						log.crit('Error minting tweet.', err)
 					}

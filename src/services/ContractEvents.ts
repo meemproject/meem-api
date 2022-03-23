@@ -736,6 +736,24 @@ export default class ContractEvent {
 		log.debug(`Saving meem to db: ${tokenId}`)
 		await meem.save()
 
+		const meemDataJson = JSON.parse(meem.data)
+
+		if (meemDataJson.tweetId) {
+			log.debug(
+				`Tweet Meem. Saving MeemId (${meem.id}) to tweet: (${meemDataJson.twitterId})`
+			)
+			const tweetMeem = await orm.models.Tweet.findOne({
+				where: {
+					tweetId: meemDataJson.tweetId
+				}
+			})
+
+			if (tweetMeem) {
+				tweetMeem.MeemId = meem.id
+				await tweetMeem.save()
+			}
+		}
+
 		if (config.ENABLE_GUNDB) {
 			const d = {
 				...data,

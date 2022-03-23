@@ -168,8 +168,30 @@ export default class MeemController {
 			timestamp: DateTime.fromJSDate(t.transferredAt).toSeconds()
 		}))
 
+		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+		const metadataMeem = services.meem.meemToIMeem(meem)
+
+		const twitterUserId =
+			metadataMeem.metadata.extension_properties?.meem_tweets_extension?.tweet
+				?.userId
+
+		if (twitterUserId) {
+			const twitterUser = await client.v2.user(twitterUserId, {
+				'user.fields': ['profile_image_url']
+			})
+
+			if (twitterUser) {
+				metadataMeem.defaultTwitterUser = {
+					id: twitterUserId,
+					username: twitterUser.data.username,
+					displayName: twitterUser.data.name,
+					profileImageUrl: twitterUser.data.profile_image_url || null
+				}
+			}
+		}
+
 		return res.json({
-			meem: services.meem.meemToIMeem(meem),
+			meem: metadataMeem,
 			transfers: transfers ?? []
 		})
 	}

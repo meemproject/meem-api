@@ -118,12 +118,84 @@ export default class TwitterService {
 		}
 	}
 
+	public static async getTwitterUserMeemId(
+		twitterUserId: string
+	): Promise<MeemAPI.IMeemId | null> {
+		const item = await orm.models.Twitter.findOne({
+			where: {
+				twitterId: twitterUserId
+			}
+		})
+
+		if (!item || !item.MeemIdentificationId) {
+			log.error(`No meemId found for twitter ID: ${twitterUserId}`)
+			return null
+		}
+
+		const tweetUserMeemId = await services.meemId.getMeemId({
+			meemIdentificationId: item.MeemIdentificationId
+		})
+
+		if (tweetUserMeemId.wallets.length === 0) {
+			log.error(`No wallet found for meemId: ${item.MeemIdentificationId}`)
+			return null
+		}
+
+		return tweetUserMeemId
+	}
+
+	public static async handleMeemReplyTweet(
+		tweetData: TweetV2,
+		includes?: ApiV2Includes
+	): Promise<void> {
+		const tweetUser = includes?.users?.find(u => u.id === tweetData.author_id)
+		const meemTweetRepliedToId = tweetData.referenced_tweets?.find(
+			t => t.type === 'replied_to'
+		)?.id
+
+		if (!tweetUser?.id || !meemTweetRepliedToId) {
+			return
+		}
+
+		const meemTweetRepliedTo = await orm.models.Tweet.findOne({
+			where: {
+				tweetId: meemTweetRepliedToId
+			},
+			include: [
+				{
+					model: orm.models.Meem
+				}
+			]
+		})
+
+		if (!meemTweetRepliedTo) {
+			return
+		}
+
+		const tweetUserMeemId = await this.getTwitterUserMeemId(tweetUser.id)
+
+		const prompt = await orm.models.Prompt.findOne({
+			where: {
+				tweetId: meemTweetRepliedToId
+			}
+		})
+
+		if (prompt) {
+			services.prompts.mintPromptReplyTweet({
+				tweetUser,
+				tweetUserMeemId,
+				meemTweetRepliedToId,
+				prompt,
+				promptResponseTweetData: tweetData,
+				promptResponseTweetIncludes: includes
+			})
+		}
+	}
+
 	public static async mintAndStoreTweet(
 		tweetData: TweetV2,
 		includes?: ApiV2Includes
 	): Promise<void> {
-		// TODO: Retry unsuccessful mints?
-
 		// Make sure tweet contains >meem action
 		const isMeemActionTweet = /&gt;meem/gi.test(tweetData.text)
 
@@ -239,16 +311,26 @@ export default class TwitterService {
 				originalTweet = await client.v2.singleTweet(
 					tweetData.referenced_tweets[0].id,
 					{
-						'tweet.fields': ['created_at', 'entities'],
+						'tweet.fields': ['created_at', 'entities', 'attachments'],
 						'user.fields': ['profile_image_url'],
+						'media.fields': [
+							'media_key',
+							'type',
+							'height',
+							'width',
+							'url',
+							'preview_image_url'
+						],
 						expansions: [
 							'author_id',
 							'in_reply_to_user_id',
-							'referenced_tweets.id'
+							'referenced_tweets.id',
+							'attachments.media_keys'
 						]
 					}
 				)
 			}
+
 			if (
 				config.ENABLE_TWEET_CURATION &&
 				originalTweet &&
@@ -285,6 +367,7 @@ export default class TwitterService {
 
 					await this.mintTweet({
 						tweetData: originalTweet.data,
+						tweetIncludes: originalTweet.includes,
 						twitterUser: originalTweetUser,
 						remix: {
 							meemId: tweetUserMeemId,
@@ -307,6 +390,7 @@ export default class TwitterService {
 					await this.mintTweet({
 						meemId: originalTweeterMeemId,
 						tweetData: originalTweet.data,
+						tweetIncludes: originalTweet.includes,
 						twitterUser: originalTweetUser,
 						remix: {
 							meemId: tweetUserMeemId,
@@ -323,6 +407,7 @@ export default class TwitterService {
 			await this.mintTweet({
 				meemId: tweetUserMeemId,
 				tweetData,
+				tweetIncludes: includes,
 				twitterUser: tweetUser
 			})
 		}
@@ -358,7 +443,8 @@ export default class TwitterService {
 			text: tweetText,
 			userId: twitterUser?.id,
 			username: twitterUser?.username || '',
-			userProfileImageUrl: twitterUser?.profile_image_url || ''
+			userProfileImageUrl: twitterUser?.profile_image_url || '',
+			conversationId: tweetData.conversation_id || ''
 		})
 
 		const hashtags = tweetData.entities?.hashtags || []
@@ -390,14 +476,23 @@ export default class TwitterService {
 	public static async mintTweet(options: {
 		meemId?: MeemAPI.IMeemId
 		tweetData: TweetV2
+		tweetIncludes?: ApiV2Includes
 		twitterUser: UserV2
+		parentMeemTokenId?: string
 		remix?: {
 			meemId: MeemAPI.IMeemId
 			tweetData: TweetV2
 			twitterUser: UserV2
 		}
 	}): Promise<Ethers.ContractReceipt> {
-		const { meemId, tweetData, twitterUser, remix } = options
+		const {
+			meemId,
+			parentMeemTokenId,
+			tweetData,
+			tweetIncludes,
+			twitterUser,
+			remix
+		} = options
 		let toAddress = config.MEEM_PROXY_ADDRESS
 		if (meemId) {
 			if (meemId.defaultWallet !== MeemAPI.zeroAddress) {
@@ -435,6 +530,18 @@ export default class TwitterService {
 				? DateTime.fromISO(tweetData.created_at)
 				: DateTime.fromJSDate(tweet.createdAt)
 
+			const mediaKeys =
+				tweetData.attachments?.media_keys && tweetIncludes
+					? tweetData.attachments.media_keys
+					: []
+			let mediaAttachments: any[] | undefined
+
+			if (mediaKeys.length > 0 && tweetIncludes?.media) {
+				mediaAttachments = mediaKeys?.map(k => {
+					return tweetIncludes.media?.find(m => m.media_key === k) || {}
+				})
+			}
+
 			const meemMetadata = await services.meem.saveMeemMetadataasync(
 				{
 					name: `@${tweet.username} ${tweetedAt.toFormat(
@@ -453,7 +560,12 @@ export default class TwitterService {
 								userProfileImageUrl: tweet.userProfileImageUrl,
 								updatedAt: tweet.updatedAt,
 								createdAt: tweet.createdAt,
-								...(tweetData.entities && { entities: tweetData.entities })
+								...(tweetData.entities && { entities: tweetData.entities }),
+								...(mediaAttachments && {
+									attachements: {
+										media: mediaAttachments
+									}
+								})
 							}
 						}
 					}
@@ -531,7 +643,7 @@ export default class TwitterService {
 						tokenURI: meemMetadata.tokenURI,
 						parentChain: MeemAPI.Chain.Polygon,
 						parent: config.MEEM_PROXY_ADDRESS,
-						parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
+						parentTokenId: parentMeemTokenId || config.TWITTER_PROJECT_TOKEN_ID,
 						meemType: MeemAPI.MeemType.Remix,
 						data: JSON.stringify({
 							tweetId: tweet.tweetId,
@@ -645,11 +757,13 @@ export default class TwitterService {
 				}
 			})
 
+			const actionText = meemId ? `View here` : `Join Meem and claim it here`
+
 			const tweetPromises = [
 				this.tweet(
-					`Your tweet has been minted! View here: ${config.MEEM_DOMAIN}/meems/${
-						tokenId ?? meemMetadata.metadata.meem_id
-					}`,
+					`Your tweet has been minted! ${actionText}: ${
+						config.MEEM_DOMAIN
+					}/meems/${tokenId ?? meemMetadata.metadata.meem_id}`,
 					{
 						reply: {
 							in_reply_to_tweet_id: tweetData.id
@@ -659,9 +773,12 @@ export default class TwitterService {
 			]
 
 			if (remix && remixMetadata) {
+				const remixActionText = remix.meemId
+					? `View here`
+					: `Join Meem and claim it here`
 				tweetPromises.push(
 					this.tweet(
-						`Your tweet has been minted! View here: ${
+						`Your tweet has been minted! ${remixActionText}: ${
 							config.MEEM_DOMAIN
 						}/meems/${remixTokenId ?? remixMetadata.metadata.meem_id}`,
 						{
