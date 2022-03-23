@@ -182,7 +182,8 @@ class MintTweetsTests extends BaseTest {
 						permission: 1,
 						addresses: [],
 						numTokens: '0',
-						lockedBy: MeemAPI.zeroAddress
+						lockedBy: MeemAPI.zeroAddress,
+						costWei: '0'
 					}
 				],
 				splits: [
@@ -203,7 +204,8 @@ class MintTweetsTests extends BaseTest {
 						permission: 1,
 						addresses: [],
 						numTokens: '0',
-						lockedBy: MeemAPI.zeroAddress
+						lockedBy: MeemAPI.zeroAddress,
+						costWei: '0'
 					}
 				],
 				splits: [
