@@ -3,6 +3,8 @@ import { Meem } from '../types'
 export default class ContractListener {
 	private meemContract?: Meem
 
+	private hasSetupListners = false
+
 	public async start() {
 		this.meemContract = await services.meem.getMeemContract()
 		this.setupListners()
@@ -16,6 +18,9 @@ export default class ContractListener {
 		if (!this.meemContract) {
 			log.crit("ContractListener can't listen. Meem contract not defined")
 			return
+		}
+		if (this.hasSetupListners) {
+			log.warn('ContractListener has already setup listners')
 		}
 		this.meemContract.on(
 			this.meemContract.filters.Transfer(),
@@ -194,6 +199,7 @@ export default class ContractListener {
 			}
 		)
 
+		this.hasSetupListners = true
 		log.info('Contract listeners set up')
 	}
 }
