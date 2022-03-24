@@ -283,22 +283,23 @@ export default class MeemController {
 		let sortOrder = 'desc'
 
 		if (
+			req.query.sortOrder &&
+			Object.values(MeemAPI.SortOrder).includes(req.query.sortOrder)
+		) {
+			sortOrder = req.query.sortOrder
+		}
+
+		if (
 			sortReaction &&
 			req.query.sortBy === MeemAPI.v1.GetMeems.SortBy.Reaction
 		) {
 			sortBy = `reactionCounts.${sortReaction}`
+			sortOrder = `${sortOrder} nulls last`
 		} else if (
 			req.query.sortBy &&
 			Object.values(MeemAPI.v1.GetMeems.SortBy).includes(req.query.sortBy)
 		) {
 			sortBy = req.query.sortBy
-		}
-
-		if (
-			req.query.sortOrder &&
-			Object.values(MeemAPI.SortOrder).includes(req.query.sortOrder)
-		) {
-			sortOrder = req.query.sortOrder
 		}
 
 		const include: Record<string, any>[] = [
