@@ -21,6 +21,7 @@ export default class ContractListener {
 		}
 		if (this.hasSetupListners) {
 			log.warn('ContractListener has already setup listners')
+			return
 		}
 		this.meemContract.on(
 			this.meemContract.filters.Transfer(),
