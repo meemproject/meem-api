@@ -365,6 +365,12 @@ export namespace MeemAPI {
 				updatedAt: string
 				userProfileImageUrl: string
 			}
+			prompt?: {
+				body: string
+				tokenId: string
+				startAt: string
+				tweetId: string
+			}
 		}
 	}
 

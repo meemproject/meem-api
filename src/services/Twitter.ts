@@ -12,6 +12,7 @@ import {
 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import Hashtag from '../models/Hashtag'
+import Prompt from '../models/Prompt'
 import Tweet from '../models/Tweet'
 import { Meem } from '../types'
 import { MeemAPI } from '../types/meem.generated'
@@ -502,6 +503,7 @@ export default class TwitterService {
 			tweetData: TweetV2
 			twitterUser: UserV2
 		}
+		prompt?: Prompt
 	}): Promise<Ethers.ContractReceipt> {
 		const {
 			meemId,
@@ -509,7 +511,8 @@ export default class TwitterService {
 			tweetData,
 			tweetIncludes,
 			twitterUser,
-			remix
+			remix,
+			prompt
 		} = options
 		let toAddress = config.MEEM_PROXY_ADDRESS
 		if (meemId) {
@@ -584,7 +587,15 @@ export default class TwitterService {
 										media: mediaAttachments
 									}
 								})
-							}
+							},
+							...(prompt && {
+								prompt: {
+									body: prompt.body,
+									tokenId: parentMeemTokenId,
+									startAt: prompt.startAt.toString(),
+									tweetId: prompt.tweetId
+								}
+							})
 						}
 					}
 				},
