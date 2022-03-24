@@ -75,3 +75,15 @@ error InvalidURI();
 error InvalidMeemType();
 
 error InvalidToken();
+
+error AlreadyClipped();
+
+error NotClipped();
+
+error URILocked();
+
+error AlreadyReacted();
+
+error ReactionNotFound();
+
+error IncorrectMsgValue();
