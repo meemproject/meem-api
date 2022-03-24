@@ -85,9 +85,27 @@ export default class TwitterService {
 				{
 					end_time: endTime,
 					max_results: 100,
-					'tweet.fields': ['created_at', 'entities'],
+					'tweet.fields': [
+						'created_at',
+						'entities',
+						'attachments',
+						'conversation_id'
+					],
 					'user.fields': ['profile_image_url'],
-					expansions: ['author_id']
+					'media.fields': [
+						'media_key',
+						'type',
+						'height',
+						'width',
+						'url',
+						'preview_image_url'
+					],
+					expansions: [
+						'author_id',
+						'in_reply_to_user_id',
+						'referenced_tweets.id',
+						'attachments.media_keys'
+					]
 				}
 			)
 
@@ -693,7 +711,7 @@ export default class TwitterService {
 						mTokenURI: meemMetadata.tokenURI,
 						parentChain: MeemAPI.Chain.Polygon,
 						parent: config.MEEM_PROXY_ADDRESS,
-						parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
+						parentTokenId: parentMeemTokenId || config.TWITTER_PROJECT_TOKEN_ID,
 						meemType: MeemAPI.MeemType.Remix,
 						data: JSON.stringify({
 							tweetId: tweet.tweetId,
