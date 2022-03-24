@@ -159,5 +159,7 @@ export default {
 	GUNDB_S3_BUCKET: process.env.GUNDB_S3_BUCKET ?? '',
 	GUNDB_PASSWORD: process.env.GUNDB_PASSWORD ?? '',
 	GUNDB_USER: process.env.GUNDB_USER ?? '',
-	ENABLE_PROMPTS: process.env.ENABLE_PROMPTS === 'true'
+	ENABLE_PROMPTS: process.env.ENABLE_PROMPTS === 'true',
+	PINATA_API_KEY: process.env.PINATA_API_KEY ?? '',
+	PINATA_API_SECRET: process.env.PINATA_API_SECRET ?? ''
 }
