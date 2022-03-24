@@ -147,7 +147,8 @@ export default class PromptsService {
 				tweetData: promptResponseTweetData,
 				tweetIncludes: promptResponseTweetIncludes,
 				twitterUser: tweetUser,
-				parentMeemTokenId: promptTweetMeemTokenId
+				parentMeemTokenId: promptTweetMeemTokenId,
+				prompt
 			})
 		}
 	}
