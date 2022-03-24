@@ -423,11 +423,25 @@ export default class TwitterService {
 			}
 		} else {
 			// Mint tweet on behalf of user
+			// Check if this is a prompt tweet
+			let prompt: Prompt | null = null
+			if (tweetUser.id === config.TWITTER_MEEM_ACCOUNT_ID) {
+				prompt = await orm.models.Prompt.findOne({
+					where: {
+						tweetId: tweetData.id
+					}
+				})
+			}
+
 			await this.mintTweet({
 				meemId: tweetUserMeemId,
 				tweetData,
 				tweetIncludes: includes,
-				twitterUser: tweetUser
+				twitterUser: tweetUser,
+				...(prompt && {
+					prompt,
+					parentMeemTokenId: config.TWITTER_PROMPTS_PROJECT_TOKEN_ID
+				})
 			})
 		}
 
@@ -591,7 +605,6 @@ export default class TwitterService {
 							...(prompt && {
 								prompt: {
 									body: prompt.body,
-									tokenId: parentMeemTokenId,
 									startAt: prompt.startAt.toString(),
 									tweetId: prompt.tweetId
 								}

@@ -318,7 +318,6 @@ export interface IMeemTweetsExtensionProperties {
 		}
 		prompt?: {
 			body: string
-			tokenId: string
 			startAt: string
 			tweetId: string
 		}

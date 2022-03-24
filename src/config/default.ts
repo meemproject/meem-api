@@ -160,6 +160,8 @@ export default {
 	GUNDB_PASSWORD: process.env.GUNDB_PASSWORD ?? '',
 	GUNDB_USER: process.env.GUNDB_USER ?? '',
 	ENABLE_PROMPTS: process.env.ENABLE_PROMPTS === 'true',
+	TWITTER_PROMPTS_PROJECT_TOKEN_ID:
+		process.env.TWITTER_PROMPTS_PROJECT_TOKEN_ID ?? '',
 	PINATA_API_KEY: process.env.PINATA_API_KEY ?? '',
 	PINATA_API_SECRET: process.env.PINATA_API_SECRET ?? ''
 }

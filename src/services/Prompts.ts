@@ -63,8 +63,6 @@ export default class PromptsService {
 			}
 		})
 		if (nextPrompt) {
-			log.debug(`NEXT PROMPT`, nextPrompt?.body)
-
 			try {
 				const meemAction =
 					config.NETWORK === MeemAPI.NetworkName.Rinkeby ? '>meemdev' : '>meem'
