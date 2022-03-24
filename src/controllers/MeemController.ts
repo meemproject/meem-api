@@ -200,8 +200,15 @@ export default class MeemController {
 		req: IAPIRequestPaginated<MeemAPI.v1.GetMeems.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeems.IResponseBody>
 	): Promise<Response> {
-		const { owner, meemTypes, mintedBy, rootTokenIds, q, withWalletReactions } =
-			req.query
+		const {
+			owner,
+			meemTypes,
+			mintedBy,
+			rootTokenIds,
+			q,
+			withWalletReactions,
+			sortReaction
+		} = req.query
 		const { page, limit: requestedLimit } = req
 		const limit = requestedLimit > 100 ? 100 : requestedLimit
 		const itemsPerPage = limit
@@ -276,6 +283,11 @@ export default class MeemController {
 		let sortOrder = 'desc'
 
 		if (
+			sortReaction &&
+			req.query.sortBy === MeemAPI.v1.GetMeems.SortBy.Reaction
+		) {
+			sortBy = `reactionCounts.${sortReaction}`
+		} else if (
 			req.query.sortBy &&
 			Object.values(MeemAPI.v1.GetMeems.SortBy).includes(req.query.sortBy)
 		) {
