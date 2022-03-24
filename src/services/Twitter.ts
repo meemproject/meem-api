@@ -679,11 +679,12 @@ export default class TwitterService {
 					},
 					MeemAPI.MeemMetadataStorageProvider.Ipfs
 				)
+
 				const mintParams: Parameters<Meem['mintAndRemix']> = [
 					{
 						to: toAddress,
 						tokenURI: meemMetadata.tokenURI,
-						parentChain: MeemAPI.Chain.Polygon,
+						parentChain: MeemAPI.networkNameToChain(config.NETWORK),
 						parent: config.MEEM_PROXY_ADDRESS,
 						parentTokenId: parentMeemTokenId || config.TWITTER_PROJECT_TOKEN_ID,
 						meemType: MeemAPI.MeemType.Remix,
@@ -704,7 +705,7 @@ export default class TwitterService {
 					{
 						to: remix.meemId?.defaultWallet,
 						tokenURI: remixMetadata.tokenURI,
-						parentChain: MeemAPI.Chain.Polygon,
+						parentChain: MeemAPI.networkNameToChain(config.NETWORK),
 						parent: config.MEEM_PROXY_ADDRESS,
 						parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
 						meemType: MeemAPI.MeemType.Remix,
@@ -737,7 +738,7 @@ export default class TwitterService {
 					{
 						to: toAddress,
 						tokenURI: meemMetadata.tokenURI,
-						parentChain: MeemAPI.Chain.Polygon,
+						parentChain: MeemAPI.networkNameToChain(config.NETWORK),
 						parent: config.MEEM_PROXY_ADDRESS,
 						parentTokenId: parentMeemTokenId || config.TWITTER_PROJECT_TOKEN_ID,
 						meemType: MeemAPI.MeemType.Remix,
