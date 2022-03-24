@@ -178,6 +178,11 @@ export namespace MeemAPI {
 		Hardhat = 'hardhat'
 	}
 
+	export enum UriSource {
+		TokenUri,
+		Data
+	}
+
 	/** Convert Chain to NetworkName */
 	export const chainToNetworkName = (chain: Chain): NetworkName => {
 		switch (+chain) {
@@ -380,6 +385,7 @@ export namespace MeemAPI {
 		/** BigNumber hex string */
 		numTokens: string
 		lockedBy: string
+		costWei: string
 	}
 
 	export interface IMeemProperties {
@@ -422,13 +428,31 @@ export namespace MeemAPI {
 		/** Unix timestamp of when the Meem was minted */
 		mintedAt: number
 		data: string
-		/** Will be a non-zero address if the Meem has been verified */
-		verifiedBy: string
+		/** Will be a non-zero address if locked */
+		uriLockedBy: string
+		uriSource: UriSource
 		meemType: MeemType
 		mintedBy: string
+		reactionTypes: string[]
+	}
+
+	export interface IReaction {
+		/** Address that reacted */
+		address: string
+
+		/** Type of reaction */
+		reaction: string
+
+		/** Unix timestamp of when the reaction occurred */
+		reactedAt: number
+
+		/** The associated MeemIdentification if the user has a MeemID */
+		MeemIdentificationId: string | null
 	}
 
 	export interface IMetadataMeem extends IMeem {
+		reactionCounts: { [reaction: string]: number }
+		addressReactions?: IReaction[]
 		metadata: IMeemMetadata
 		defaultTwitterUser?: {
 			id: string
@@ -543,6 +567,8 @@ export namespace MeemAPI {
 		Asc = 'asc',
 		Desc = 'desc'
 	}
+
+	export const defaultReactionTypes: string[] = ['upvote', 'downvote']
 
 	export namespace v1 {
 		export namespace CheckClippingStatus {
@@ -1055,6 +1081,9 @@ export namespace MeemAPI {
 				sortBy?: SortBy
 
 				sortOrder?: SortOrder
+
+				/** Include individual reactions from these wallets */
+				withAddressReactions?: string[]
 			}
 
 			export interface IRequestBody {}

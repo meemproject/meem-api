@@ -292,11 +292,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "MeemNotVerified",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "NoApproveSelf",
     type: "error",
   },
@@ -942,19 +937,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "verifyToken",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "ChildDepthExceeded",
     type: "error",
@@ -967,6 +949,11 @@ const _abi = [
   {
     inputs: [],
     name: "ERC721ReceiverNotImplemented",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "IncorrectMsgValue",
     type: "error",
   },
   {
@@ -1045,11 +1032,6 @@ const _abi = [
   {
     inputs: [],
     name: "NoChildOfCopy",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "NoCopyUnverified",
     type: "error",
   },
   {
@@ -1164,6 +1146,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "copyPermissions",
@@ -1191,6 +1178,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "remixPermissions",
@@ -1217,6 +1209,11 @@ const _abi = [
                 internalType: "address",
                 name: "lockedBy",
                 type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
               },
             ],
             internalType: "struct MeemPermission[]",
@@ -1306,7 +1303,7 @@ const _abi = [
           },
           {
             internalType: "string",
-            name: "mTokenURI",
+            name: "tokenURI",
             type: "string",
           },
           {
@@ -1336,13 +1333,23 @@ const _abi = [
           },
           {
             internalType: "bool",
-            name: "isVerified",
+            name: "isURILocked",
             type: "bool",
           },
           {
             internalType: "address",
             name: "mintedBy",
             type: "address",
+          },
+          {
+            internalType: "enum URISource",
+            name: "uriSource",
+            type: "uint8",
+          },
+          {
+            internalType: "string[]",
+            name: "reactionTypes",
+            type: "string[]",
           },
         ],
         internalType: "struct MeemMintParameters",
@@ -1393,6 +1400,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "copyPermissions",
@@ -1420,6 +1432,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "remixPermissions",
@@ -1446,6 +1463,11 @@ const _abi = [
                 internalType: "address",
                 name: "lockedBy",
                 type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
               },
             ],
             internalType: "struct MeemPermission[]",
@@ -1563,6 +1585,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "copyPermissions",
@@ -1590,6 +1617,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "remixPermissions",
@@ -1616,6 +1648,11 @@ const _abi = [
                 internalType: "address",
                 name: "lockedBy",
                 type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
               },
             ],
             internalType: "struct MeemPermission[]",
@@ -1692,7 +1729,7 @@ const _abi = [
     ],
     name: "mint",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -1706,7 +1743,7 @@ const _abi = [
           },
           {
             internalType: "string",
-            name: "mTokenURI",
+            name: "tokenURI",
             type: "string",
           },
           {
@@ -1736,13 +1773,23 @@ const _abi = [
           },
           {
             internalType: "bool",
-            name: "isVerified",
+            name: "isURILocked",
             type: "bool",
           },
           {
             internalType: "address",
             name: "mintedBy",
             type: "address",
+          },
+          {
+            internalType: "enum URISource",
+            name: "uriSource",
+            type: "uint8",
+          },
+          {
+            internalType: "string[]",
+            name: "reactionTypes",
+            type: "string[]",
           },
         ],
         internalType: "struct MeemMintParameters",
@@ -1793,6 +1840,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "copyPermissions",
@@ -1820,6 +1872,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "remixPermissions",
@@ -1846,6 +1903,11 @@ const _abi = [
                 internalType: "address",
                 name: "lockedBy",
                 type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
               },
             ],
             internalType: "struct MeemPermission[]",
@@ -1963,6 +2025,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "copyPermissions",
@@ -1990,6 +2057,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "remixPermissions",
@@ -2016,6 +2088,11 @@ const _abi = [
                 internalType: "address",
                 name: "lockedBy",
                 type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
               },
             ],
             internalType: "struct MeemPermission[]",
@@ -2097,7 +2174,7 @@ const _abi = [
     ],
     name: "mintAndCopy",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -2111,7 +2188,7 @@ const _abi = [
           },
           {
             internalType: "string",
-            name: "mTokenURI",
+            name: "tokenURI",
             type: "string",
           },
           {
@@ -2141,13 +2218,23 @@ const _abi = [
           },
           {
             internalType: "bool",
-            name: "isVerified",
+            name: "isURILocked",
             type: "bool",
           },
           {
             internalType: "address",
             name: "mintedBy",
             type: "address",
+          },
+          {
+            internalType: "enum URISource",
+            name: "uriSource",
+            type: "uint8",
+          },
+          {
+            internalType: "string[]",
+            name: "reactionTypes",
+            type: "string[]",
           },
         ],
         internalType: "struct MeemMintParameters",
@@ -2198,6 +2285,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "copyPermissions",
@@ -2225,6 +2317,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "remixPermissions",
@@ -2251,6 +2348,11 @@ const _abi = [
                 internalType: "address",
                 name: "lockedBy",
                 type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
               },
             ],
             internalType: "struct MeemPermission[]",
@@ -2368,6 +2470,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "copyPermissions",
@@ -2395,6 +2502,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "remixPermissions",
@@ -2421,6 +2533,11 @@ const _abi = [
                 internalType: "address",
                 name: "lockedBy",
                 type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
               },
             ],
             internalType: "struct MeemPermission[]",
@@ -2503,7 +2620,7 @@ const _abi = [
           },
           {
             internalType: "string",
-            name: "mTokenURI",
+            name: "tokenURI",
             type: "string",
           },
           {
@@ -2533,13 +2650,23 @@ const _abi = [
           },
           {
             internalType: "bool",
-            name: "isVerified",
+            name: "isURILocked",
             type: "bool",
           },
           {
             internalType: "address",
             name: "mintedBy",
             type: "address",
+          },
+          {
+            internalType: "enum URISource",
+            name: "uriSource",
+            type: "uint8",
+          },
+          {
+            internalType: "string[]",
+            name: "reactionTypes",
+            type: "string[]",
           },
         ],
         internalType: "struct MeemMintParameters",
@@ -2590,6 +2717,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "copyPermissions",
@@ -2617,6 +2749,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "remixPermissions",
@@ -2643,6 +2780,11 @@ const _abi = [
                 internalType: "address",
                 name: "lockedBy",
                 type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
               },
             ],
             internalType: "struct MeemPermission[]",
@@ -2760,6 +2902,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "copyPermissions",
@@ -2787,6 +2934,11 @@ const _abi = [
                 name: "lockedBy",
                 type: "address",
               },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
+              },
             ],
             internalType: "struct MeemPermission[]",
             name: "remixPermissions",
@@ -2813,6 +2965,11 @@ const _abi = [
                 internalType: "address",
                 name: "lockedBy",
                 type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "costWei",
+                type: "uint256",
               },
             ],
             internalType: "struct MeemPermission[]",
@@ -2889,7 +3046,7 @@ const _abi = [
     ],
     name: "mintAndRemix",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -2942,6 +3099,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "InvalidURI",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "MissingRequiredPermissions",
     type: "error",
   },
@@ -2976,6 +3138,11 @@ const _abi = [
       },
     ],
     name: "TokenNotFound",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "URILocked",
     type: "error",
   },
   {
@@ -3039,6 +3206,25 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "string",
+        name: "data",
+        type: "string",
+      },
+    ],
+    name: "DataSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
         internalType: "enum PropertyType",
         name: "propertyType",
         type: "uint8",
@@ -3070,6 +3256,11 @@ const _abi = [
             internalType: "address",
             name: "lockedBy",
             type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "costWei",
+            type: "uint256",
           },
         ],
         indexed: false,
@@ -3232,6 +3423,63 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "lockedBy",
+        type: "address",
+      },
+    ],
+    name: "URILockedBySet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "uri",
+        type: "string",
+      },
+    ],
+    name: "URISet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "enum URISource",
+        name: "uriSource",
+        type: "uint8",
+      },
+    ],
+    name: "URISourceSet",
+    type: "event",
+  },
+  {
     inputs: [
       {
         internalType: "uint256",
@@ -3269,6 +3517,11 @@ const _abi = [
             internalType: "address",
             name: "lockedBy",
             type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "costWei",
+            type: "uint256",
           },
         ],
         internalType: "struct MeemPermission",
@@ -3383,6 +3636,19 @@ const _abi = [
         name: "tokenId",
         type: "uint256",
       },
+    ],
+    name: "lockUri",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
       {
         internalType: "enum PropertyType",
         name: "propertyType",
@@ -3435,6 +3701,24 @@ const _abi = [
         type: "uint256",
       },
       {
+        internalType: "string",
+        name: "data",
+        type: "string",
+      },
+    ],
+    name: "setData",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
         internalType: "enum PropertyType",
         name: "propertyType",
         type: "uint8",
@@ -3466,6 +3750,11 @@ const _abi = [
             name: "lockedBy",
             type: "address",
           },
+          {
+            internalType: "uint256",
+            name: "costWei",
+            type: "uint256",
+          },
         ],
         internalType: "struct MeemPermission[]",
         name: "permissions",
@@ -3496,6 +3785,24 @@ const _abi = [
       },
     ],
     name: "setRemixesPerWallet",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "uri",
+        type: "string",
+      },
+    ],
+    name: "setTokenUri",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -3554,6 +3861,24 @@ const _abi = [
         type: "uint256",
       },
       {
+        internalType: "enum URISource",
+        name: "uriSource",
+        type: "uint8",
+      },
+    ],
+    name: "setURISource",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
         internalType: "enum PropertyType",
         name: "propertyType",
         type: "uint8",
@@ -3589,6 +3914,11 @@ const _abi = [
             internalType: "address",
             name: "lockedBy",
             type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "costWei",
+            type: "uint256",
           },
         ],
         internalType: "struct MeemPermission",
@@ -3729,6 +4059,11 @@ const _abi = [
                     name: "lockedBy",
                     type: "address",
                   },
+                  {
+                    internalType: "uint256",
+                    name: "costWei",
+                    type: "uint256",
+                  },
                 ],
                 internalType: "struct MeemPermission[]",
                 name: "copyPermissions",
@@ -3756,6 +4091,11 @@ const _abi = [
                     name: "lockedBy",
                     type: "address",
                   },
+                  {
+                    internalType: "uint256",
+                    name: "costWei",
+                    type: "uint256",
+                  },
                 ],
                 internalType: "struct MeemPermission[]",
                 name: "remixPermissions",
@@ -3782,6 +4122,11 @@ const _abi = [
                     internalType: "address",
                     name: "lockedBy",
                     type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "costWei",
+                    type: "uint256",
                   },
                 ],
                 internalType: "struct MeemPermission[]",
@@ -3899,6 +4244,11 @@ const _abi = [
                     name: "lockedBy",
                     type: "address",
                   },
+                  {
+                    internalType: "uint256",
+                    name: "costWei",
+                    type: "uint256",
+                  },
                 ],
                 internalType: "struct MeemPermission[]",
                 name: "copyPermissions",
@@ -3926,6 +4276,11 @@ const _abi = [
                     name: "lockedBy",
                     type: "address",
                   },
+                  {
+                    internalType: "uint256",
+                    name: "costWei",
+                    type: "uint256",
+                  },
                 ],
                 internalType: "struct MeemPermission[]",
                 name: "remixPermissions",
@@ -3952,6 +4307,11 @@ const _abi = [
                     internalType: "address",
                     name: "lockedBy",
                     type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "costWei",
+                    type: "uint256",
                   },
                 ],
                 internalType: "struct MeemPermission[]",
@@ -4037,7 +4397,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "verifiedBy",
+            name: "uriLockedBy",
             type: "address",
           },
           {
@@ -4049,6 +4409,16 @@ const _abi = [
             internalType: "address",
             name: "mintedBy",
             type: "address",
+          },
+          {
+            internalType: "enum URISource",
+            name: "uriSource",
+            type: "uint8",
+          },
+          {
+            internalType: "string[]",
+            name: "reactionTypes",
+            type: "string[]",
           },
         ],
         internalType: "struct Meem",
@@ -4910,6 +5280,233 @@ const _abi = [
   {
     stateMutability: "payable",
     type: "receive",
+  },
+  {
+    inputs: [],
+    name: "AlreadyReacted",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "NotTokenOwner",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ReactionNotFound",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "TokenNotFound",
+    type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "addy",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "reaction",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "newTotalReactions",
+        type: "uint256",
+      },
+    ],
+    name: "TokenReactionAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "addy",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "reaction",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "newTotalReactions",
+        type: "uint256",
+      },
+    ],
+    name: "TokenReactionRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "string[]",
+        name: "reactionTypes",
+        type: "string[]",
+      },
+    ],
+    name: "TokenReactionTypesSet",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "reaction",
+        type: "string",
+      },
+    ],
+    name: "addReaction",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "addy",
+        type: "address",
+      },
+      {
+        internalType: "string",
+        name: "reaction",
+        type: "string",
+      },
+    ],
+    name: "getReactedAt",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "getReactions",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "string",
+            name: "reaction",
+            type: "string",
+          },
+          {
+            internalType: "uint256",
+            name: "count",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct Reaction[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "reaction",
+        type: "string",
+      },
+    ],
+    name: "removeReaction",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "string[]",
+        name: "reactionTypes",
+        type: "string[]",
+      },
+    ],
+    name: "setReactionTypes",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
 ];
 

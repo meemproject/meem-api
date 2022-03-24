@@ -66,6 +66,8 @@ class MintTweetsTests extends BaseTest {
 		assert.equal(meem.meemType, MeemAPI.MeemType.Remix)
 		assert.equal(meem.parent, this.contractAddress)
 		assert.equal(meem.parentTokenId.toNumber(), 100000)
+		assert.equal(meem.root, this.contractAddress)
+		assert.equal(meem.rootTokenId.toNumber(), 100000)
 		assert.equal(meem.generation.toNumber(), 1)
 		assert.notEqual(meem.properties.splits[0].lockedBy, MeemAPI.zeroAddress)
 		assert.equal(meem.properties.splits[0].amount.toNumber(), 100)
@@ -182,7 +184,8 @@ class MintTweetsTests extends BaseTest {
 						permission: 1,
 						addresses: [],
 						numTokens: '0',
-						lockedBy: MeemAPI.zeroAddress
+						lockedBy: MeemAPI.zeroAddress,
+						costWei: '0'
 					}
 				],
 				splits: [
@@ -203,7 +206,8 @@ class MintTweetsTests extends BaseTest {
 						permission: 1,
 						addresses: [],
 						numTokens: '0',
-						lockedBy: MeemAPI.zeroAddress
+						lockedBy: MeemAPI.zeroAddress,
+						costWei: '0'
 					}
 				],
 				splits: [

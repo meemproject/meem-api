@@ -449,13 +449,15 @@ export default class MeemService {
 			const mintParams: Parameters<Meem['mint']> = [
 				{
 					to: data.accountAddress,
-					mTokenURI: meemMetadata.tokenURI,
+					tokenURI: meemMetadata.tokenURI,
 					parentChain: data.chain,
 					parent: contractInfo.parentTokenAddress,
 					parentTokenId: contractInfo.parentTokenId,
 					meemType: MeemAPI.MeemType.Wrapped,
 					data: '',
-					isVerified: true,
+					isURILocked: true,
+					uriSource: MeemAPI.UriSource.TokenUri,
+					reactionTypes: ['upvote', 'downvote'],
 					mintedBy: data.accountAddress
 				},
 				this.buildProperties(data.properties),
@@ -570,13 +572,15 @@ export default class MeemService {
 		const mintParams: Parameters<Meem['mint']> = [
 			{
 				to: config.MEEM_PROJECT_OWNER_ADDRESS,
-				mTokenURI: meemMetadata.tokenURI,
+				tokenURI: meemMetadata.tokenURI,
 				parentChain: MeemAPI.networkNameToChain(config.NETWORK),
 				parent: MeemAPI.zeroAddress,
 				parentTokenId: 0,
 				meemType: MeemAPI.MeemType.Original,
 				data: '',
-				isVerified: true,
+				isURILocked: true,
+				uriSource: MeemAPI.UriSource.TokenUri,
+				reactionTypes: MeemAPI.defaultReactionTypes,
 				mintedBy: config.MEEM_PROJECT_OWNER_ADDRESS
 			},
 			this.buildProperties({
@@ -585,7 +589,8 @@ export default class MeemService {
 						permission: MeemAPI.Permission.Addresses,
 						addresses: minterAddresses,
 						numTokens: '0',
-						lockedBy: MeemAPI.zeroAddress
+						lockedBy: MeemAPI.zeroAddress,
+						costWei: services.web3.toBigNumber(0).toHexString()
 					}
 				],
 				remixPermissions: [
@@ -593,7 +598,8 @@ export default class MeemService {
 						permission: MeemAPI.Permission.Addresses,
 						addresses: minterAddresses,
 						numTokens: '0',
-						lockedBy: MeemAPI.zeroAddress
+						lockedBy: MeemAPI.zeroAddress,
+						costWei: services.web3.toBigNumber(0).toHexString()
 					}
 				],
 				splits: [
@@ -799,7 +805,8 @@ export default class MeemService {
 					permission: MeemAPI.Permission.Anyone,
 					addresses: [],
 					numTokens: services.web3.toBigNumber(0).toHexString(),
-					lockedBy: MeemAPI.zeroAddress
+					lockedBy: MeemAPI.zeroAddress,
+					costWei: services.web3.toBigNumber(0).toHexString()
 				}
 			],
 			remixPermissions: props?.remixPermissions ?? [
@@ -807,7 +814,8 @@ export default class MeemService {
 					permission: MeemAPI.Permission.Anyone,
 					addresses: [],
 					numTokens: services.web3.toBigNumber(0).toHexString(),
-					lockedBy: MeemAPI.zeroAddress
+					lockedBy: MeemAPI.zeroAddress,
+					costWei: services.web3.toBigNumber(0).toHexString()
 				}
 			],
 			readPermissions: props?.readPermissions ?? [
@@ -815,7 +823,8 @@ export default class MeemService {
 					permission: MeemAPI.Permission.Anyone,
 					addresses: [],
 					numTokens: services.web3.toBigNumber(0).toHexString(),
-					lockedBy: MeemAPI.zeroAddress
+					lockedBy: MeemAPI.zeroAddress,
+					costWei: services.web3.toBigNumber(0).toHexString()
 				}
 			],
 			copyPermissionsLockedBy:
@@ -867,7 +876,9 @@ export default class MeemService {
 			childProperties: this.meemPropertiesToInterface(meem.childProperties),
 			mintedAt: meem.mintedAt.toNumber(),
 			data: meem.data,
-			verifiedBy: meem.verifiedBy,
+			uriLockedBy: meem.uriLockedBy,
+			uriSource: meem.uriSource,
+			reactionTypes: meem.reactionTypes,
 			meemType: meem.meemType,
 			mintedBy: meem.mintedBy
 		}
@@ -909,7 +920,8 @@ export default class MeemService {
 			permission: meemPermission.permission,
 			addresses: meemPermission.addresses,
 			numTokens: meemPermission.numTokens.toHexString(),
-			lockedBy: meemPermission.lockedBy
+			lockedBy: meemPermission.lockedBy,
+			costWei: services.web3.toBigNumber(0).toHexString()
 		}
 	}
 
@@ -942,10 +954,19 @@ export default class MeemService {
 			childProperties: meem.ChildProperties,
 			mintedAt: DateTime.fromJSDate(meem.mintedAt).toSeconds(),
 			data: meem.data,
-			verifiedBy: meem.verifiedBy,
+			uriLockedBy: meem.uriLockedBy,
+			uriSource: meem.uriSource,
+			reactionTypes: meem.reactionTypes,
 			metadata: meem.metadata,
 			mintedBy: meem.mintedBy,
-			meemType: meem.meemType
+			meemType: meem.meemType,
+			reactionCounts: meem.reactionCounts,
+			addressReactions: meem.Reactions?.map(r => ({
+				reaction: r.reaction,
+				reactedAt: DateTime.fromJSDate(r.reactedAt).toSeconds(),
+				address: r.address,
+				MeemIdentificationId: r.MeemIdentificationId
+			}))
 		}
 	}
 

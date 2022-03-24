@@ -30,18 +30,21 @@ export type MeemPermissionStruct = {
   addresses: string[];
   numTokens: BigNumberish;
   lockedBy: string;
+  costWei: BigNumberish;
 };
 
 export type MeemPermissionStructOutput = [
   number,
   string[],
   BigNumber,
-  string
+  string,
+  BigNumber
 ] & {
   permission: number;
   addresses: string[];
   numTokens: BigNumber;
   lockedBy: string;
+  costWei: BigNumber;
 };
 
 export type SplitStruct = {
@@ -113,14 +116,16 @@ export type MeemPropertiesStructOutput = [
 
 export type MeemMintParametersStruct = {
   to: string;
-  mTokenURI: string;
+  tokenURI: string;
   parentChain: BigNumberish;
   parent: string;
   parentTokenId: BigNumberish;
   meemType: BigNumberish;
   data: string;
-  isVerified: boolean;
+  isURILocked: boolean;
   mintedBy: string;
+  uriSource: BigNumberish;
+  reactionTypes: string[];
 };
 
 export type MeemMintParametersStructOutput = [
@@ -132,17 +137,21 @@ export type MeemMintParametersStructOutput = [
   number,
   string,
   boolean,
-  string
+  string,
+  number,
+  string[]
 ] & {
   to: string;
-  mTokenURI: string;
+  tokenURI: string;
   parentChain: number;
   parent: string;
   parentTokenId: BigNumber;
   meemType: number;
   data: string;
-  isVerified: boolean;
+  isURILocked: boolean;
   mintedBy: string;
+  uriSource: number;
+  reactionTypes: string[];
 };
 
 export type MeemStruct = {
@@ -158,9 +167,11 @@ export type MeemStruct = {
   childProperties: MeemPropertiesStruct;
   mintedAt: BigNumberish;
   data: string;
-  verifiedBy: string;
+  uriLockedBy: string;
   meemType: BigNumberish;
   mintedBy: string;
+  uriSource: BigNumberish;
+  reactionTypes: string[];
 };
 
 export type MeemStructOutput = [
@@ -178,7 +189,9 @@ export type MeemStructOutput = [
   string,
   string,
   number,
-  string
+  string,
+  number,
+  string[]
 ] & {
   owner: string;
   parentChain: number;
@@ -192,9 +205,11 @@ export type MeemStructOutput = [
   childProperties: MeemPropertiesStructOutput;
   mintedAt: BigNumber;
   data: string;
-  verifiedBy: string;
+  uriLockedBy: string;
   meemType: number;
   mintedBy: string;
+  uriSource: number;
+  reactionTypes: string[];
 };
 
 export type WrappedItemStruct = {
@@ -233,6 +248,13 @@ export type FacetStruct = { target: string; selectors: BytesLike[] };
 export type FacetStructOutput = [string, string[]] & {
   target: string;
   selectors: string[];
+};
+
+export type ReactionStruct = { reaction: string; count: BigNumberish };
+
+export type ReactionStructOutput = [string, BigNumber] & {
+  reaction: string;
+  count: BigNumber;
 };
 
 export interface MeemInterface extends ethers.utils.Interface {
@@ -274,23 +296,26 @@ export interface MeemInterface extends ethers.utils.Interface {
     "setNonOwnerSplitAllocationAmount(uint256)": FunctionFragment;
     "setTokenCounter(uint256)": FunctionFragment;
     "setTokenRoot(uint256,uint8,address,uint256)": FunctionFragment;
-    "verifyToken(uint256)": FunctionFragment;
-    "mint((address,string,uint8,address,uint256,uint8,string,bool,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address))": FunctionFragment;
-    "mintAndCopy((address,string,uint8,address,uint256,uint8,string,bool,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),address)": FunctionFragment;
-    "mintAndRemix((address,string,uint8,address,uint256,uint8,string,bool,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),(address,string,uint8,address,uint256,uint8,string,bool,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),(int256,address,int256,address,(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],(uint8,address[],uint256,address)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address))": FunctionFragment;
-    "addPermission(uint256,uint8,uint8,(uint8,address[],uint256,address))": FunctionFragment;
+    "mint((address,string,uint8,address,uint256,uint8,string,bool,address,uint8,string[]),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address))": FunctionFragment;
+    "mintAndCopy((address,string,uint8,address,uint256,uint8,string,bool,address,uint8,string[]),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),address)": FunctionFragment;
+    "mintAndRemix((address,string,uint8,address,uint256,uint8,string,bool,address,uint8,string[]),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),(address,string,uint8,address,uint256,uint8,string,bool,address,uint8,string[]),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address))": FunctionFragment;
+    "addPermission(uint256,uint8,uint8,(uint8,address[],uint256,address,uint256))": FunctionFragment;
     "lockCopiesPerWallet(uint256,uint8)": FunctionFragment;
     "lockPermissions(uint256,uint8,uint8)": FunctionFragment;
     "lockRemixesPerWallet(uint256,uint8)": FunctionFragment;
     "lockTotalCopies(uint256,uint8)": FunctionFragment;
     "lockTotalRemixes(uint256,uint8)": FunctionFragment;
+    "lockUri(uint256)": FunctionFragment;
     "removePermissionAt(uint256,uint8,uint8,uint256)": FunctionFragment;
     "setCopiesPerWallet(uint256,uint8,int256)": FunctionFragment;
-    "setPermissions(uint256,uint8,uint8,(uint8,address[],uint256,address)[])": FunctionFragment;
+    "setData(uint256,string)": FunctionFragment;
+    "setPermissions(uint256,uint8,uint8,(uint8,address[],uint256,address,uint256)[])": FunctionFragment;
     "setRemixesPerWallet(uint256,uint8,int256)": FunctionFragment;
+    "setTokenUri(uint256,string)": FunctionFragment;
     "setTotalCopies(uint256,uint8,int256)": FunctionFragment;
     "setTotalRemixes(uint256,uint8,int256)": FunctionFragment;
-    "updatePermissionAt(uint256,uint8,uint8,uint256,(uint8,address[],uint256,address))": FunctionFragment;
+    "setURISource(uint256,uint8)": FunctionFragment;
+    "updatePermissionAt(uint256,uint8,uint8,uint256,(uint8,address[],uint256,address,uint256))": FunctionFragment;
     "childDepth()": FunctionFragment;
     "copiesOf(uint256)": FunctionFragment;
     "getMeem(uint256)": FunctionFragment;
@@ -322,6 +347,11 @@ export interface MeemInterface extends ethers.utils.Interface {
     "setFallbackAddress(address)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
+    "addReaction(uint256,string)": FunctionFragment;
+    "getReactedAt(uint256,address,string)": FunctionFragment;
+    "getReactions(uint256)": FunctionFragment;
+    "removeReaction(uint256,string)": FunctionFragment;
+    "setReactionTypes(uint256,string[])": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -455,10 +485,6 @@ export interface MeemInterface extends ethers.utils.Interface {
     values: [BigNumberish, BigNumberish, string, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "verifyToken",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "mint",
     values: [
       MeemMintParametersStruct,
@@ -511,12 +537,20 @@ export interface MeemInterface extends ethers.utils.Interface {
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "lockUri",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "removePermissionAt",
     values: [BigNumberish, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setCopiesPerWallet",
     values: [BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setData",
+    values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "setPermissions",
@@ -527,12 +561,20 @@ export interface MeemInterface extends ethers.utils.Interface {
     values: [BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "setTokenUri",
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setTotalCopies",
     values: [BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setTotalRemixes",
     values: [BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setURISource",
+    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "updatePermissionAt",
@@ -662,6 +704,26 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "transferOwnership",
     values: [string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "addReaction",
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getReactedAt",
+    values: [BigNumberish, string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getReactions",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeReaction",
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setReactionTypes",
+    values: [BigNumberish, string[]]
+  ): string;
 
   decodeFunctionResult(functionFragment: "ADMIN_ROLE", data: BytesLike): Result;
   decodeFunctionResult(
@@ -769,10 +831,6 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "setTokenRoot",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "verifyToken",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "mintAndCopy",
@@ -806,6 +864,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "lockTotalRemixes",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "lockUri", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removePermissionAt",
     data: BytesLike
@@ -814,6 +873,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "setCopiesPerWallet",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setData", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setPermissions",
     data: BytesLike
@@ -823,11 +883,19 @@ export interface MeemInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setTokenUri",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setTotalCopies",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "setTotalRemixes",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setURISource",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -928,6 +996,26 @@ export interface MeemInterface extends ethers.utils.Interface {
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "addReaction",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getReactedAt",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getReactions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeReaction",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setReactionTypes",
+    data: BytesLike
+  ): Result;
 
   events: {
     "TokenClipped(uint256,address)": EventFragment;
@@ -938,6 +1026,7 @@ export interface MeemInterface extends ethers.utils.Interface {
     "PropertiesSet(uint256,uint8,tuple)": EventFragment;
     "CopiesPerWalletLocked(uint256,uint8,address)": EventFragment;
     "CopiesPerWalletSet(uint256,uint8,int256)": EventFragment;
+    "DataSet(uint256,string)": EventFragment;
     "PermissionsSet(uint256,uint8,uint8,tuple[])": EventFragment;
     "RemixesPerWalletLocked(uint256,uint8,address)": EventFragment;
     "RemixesPerWalletSet(uint256,uint8,int256)": EventFragment;
@@ -945,10 +1034,16 @@ export interface MeemInterface extends ethers.utils.Interface {
     "TotalCopiesSet(uint256,uint8,int256)": EventFragment;
     "TotalRemixesLocked(uint256,uint8,address)": EventFragment;
     "TotalRemixesSet(uint256,uint8,int256)": EventFragment;
+    "URILockedBySet(uint256,address)": EventFragment;
+    "URISet(uint256,string)": EventFragment;
+    "URISourceSet(uint256,uint8)": EventFragment;
     "RoyaltiesSet(uint256,tuple[])": EventFragment;
     "SplitsSet(uint256,uint8,tuple[])": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "TokenReactionAdded(uint256,address,string,uint256)": EventFragment;
+    "TokenReactionRemoved(uint256,address,string,uint256)": EventFragment;
+    "TokenReactionTypesSet(uint256,string[])": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "TokenClipped"): EventFragment;
@@ -959,6 +1054,7 @@ export interface MeemInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "PropertiesSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "CopiesPerWalletLocked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "CopiesPerWalletSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DataSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PermissionsSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RemixesPerWalletLocked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RemixesPerWalletSet"): EventFragment;
@@ -966,10 +1062,16 @@ export interface MeemInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "TotalCopiesSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TotalRemixesLocked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TotalRemixesSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "URILockedBySet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "URISet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "URISourceSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoyaltiesSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SplitsSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DiamondCut"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenReactionAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenReactionRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenReactionTypesSet"): EventFragment;
 }
 
 export type TokenClippedEvent = TypedEvent<
@@ -1034,6 +1136,13 @@ export type CopiesPerWalletSetEvent = TypedEvent<
 export type CopiesPerWalletSetEventFilter =
   TypedEventFilter<CopiesPerWalletSetEvent>;
 
+export type DataSetEvent = TypedEvent<
+  [BigNumber, string],
+  { tokenId: BigNumber; data: string }
+>;
+
+export type DataSetEventFilter = TypedEventFilter<DataSetEvent>;
+
 export type PermissionsSetEvent = TypedEvent<
   [BigNumber, number, number, MeemPermissionStructOutput[]],
   {
@@ -1092,6 +1201,27 @@ export type TotalRemixesSetEvent = TypedEvent<
 
 export type TotalRemixesSetEventFilter = TypedEventFilter<TotalRemixesSetEvent>;
 
+export type URILockedBySetEvent = TypedEvent<
+  [BigNumber, string],
+  { tokenId: BigNumber; lockedBy: string }
+>;
+
+export type URILockedBySetEventFilter = TypedEventFilter<URILockedBySetEvent>;
+
+export type URISetEvent = TypedEvent<
+  [BigNumber, string],
+  { tokenId: BigNumber; uri: string }
+>;
+
+export type URISetEventFilter = TypedEventFilter<URISetEvent>;
+
+export type URISourceSetEvent = TypedEvent<
+  [BigNumber, number],
+  { tokenId: BigNumber; uriSource: number }
+>;
+
+export type URISourceSetEventFilter = TypedEventFilter<URISourceSetEvent>;
+
 export type RoyaltiesSetEvent = TypedEvent<
   [BigNumber, PartStructOutput[]],
   { tokenId: BigNumber; royalties: PartStructOutput[] }
@@ -1120,6 +1250,40 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export type TokenReactionAddedEvent = TypedEvent<
+  [BigNumber, string, string, BigNumber],
+  {
+    tokenId: BigNumber;
+    addy: string;
+    reaction: string;
+    newTotalReactions: BigNumber;
+  }
+>;
+
+export type TokenReactionAddedEventFilter =
+  TypedEventFilter<TokenReactionAddedEvent>;
+
+export type TokenReactionRemovedEvent = TypedEvent<
+  [BigNumber, string, string, BigNumber],
+  {
+    tokenId: BigNumber;
+    addy: string;
+    reaction: string;
+    newTotalReactions: BigNumber;
+  }
+>;
+
+export type TokenReactionRemovedEventFilter =
+  TypedEventFilter<TokenReactionRemovedEvent>;
+
+export type TokenReactionTypesSetEvent = TypedEvent<
+  [BigNumber, string[]],
+  { tokenId: BigNumber; reactionTypes: string[] }
+>;
+
+export type TokenReactionTypesSetEventFilter =
+  TypedEventFilter<TokenReactionTypesSetEvent>;
 
 export interface Meem extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -1337,16 +1501,11 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    verifyToken(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     mint(
       params: MeemMintParametersStruct,
       properties: MeemPropertiesStruct,
       childProperties: MeemPropertiesStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     mintAndCopy(
@@ -1354,7 +1513,7 @@ export interface Meem extends BaseContract {
       properties: MeemPropertiesStruct,
       childProperties: MeemPropertiesStruct,
       toCopyAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     mintAndRemix(
@@ -1364,7 +1523,7 @@ export interface Meem extends BaseContract {
       remixParams: MeemMintParametersStruct,
       remixProperties: MeemPropertiesStruct,
       remixChildProperties: MeemPropertiesStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     addPermission(
@@ -1406,6 +1565,11 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    lockUri(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     removePermissionAt(
       tokenId: BigNumberish,
       propertyType: BigNumberish,
@@ -1418,6 +1582,12 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       newTotalCopies: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setData(
+      tokenId: BigNumberish,
+      data: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1436,6 +1606,12 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setTokenUri(
+      tokenId: BigNumberish,
+      uri: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setTotalCopies(
       tokenId: BigNumberish,
       propertyType: BigNumberish,
@@ -1447,6 +1623,12 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       newTotalRemixes: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setURISource(
+      tokenId: BigNumberish,
+      uriSource: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1612,6 +1794,36 @@ export interface Meem extends BaseContract {
 
     transferOwnership(
       account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    addReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    getReactedAt(
+      tokenId: BigNumberish,
+      addy: string,
+      reaction: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    getReactions(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[ReactionStructOutput[]]>;
+
+    removeReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setReactionTypes(
+      tokenId: BigNumberish,
+      reactionTypes: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -1791,16 +2003,11 @@ export interface Meem extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  verifyToken(
-    tokenId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   mint(
     params: MeemMintParametersStruct,
     properties: MeemPropertiesStruct,
     childProperties: MeemPropertiesStruct,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   mintAndCopy(
@@ -1808,7 +2015,7 @@ export interface Meem extends BaseContract {
     properties: MeemPropertiesStruct,
     childProperties: MeemPropertiesStruct,
     toCopyAddress: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   mintAndRemix(
@@ -1818,7 +2025,7 @@ export interface Meem extends BaseContract {
     remixParams: MeemMintParametersStruct,
     remixProperties: MeemPropertiesStruct,
     remixChildProperties: MeemPropertiesStruct,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   addPermission(
@@ -1860,6 +2067,11 @@ export interface Meem extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  lockUri(
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   removePermissionAt(
     tokenId: BigNumberish,
     propertyType: BigNumberish,
@@ -1872,6 +2084,12 @@ export interface Meem extends BaseContract {
     tokenId: BigNumberish,
     propertyType: BigNumberish,
     newTotalCopies: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setData(
+    tokenId: BigNumberish,
+    data: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1890,6 +2108,12 @@ export interface Meem extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setTokenUri(
+    tokenId: BigNumberish,
+    uri: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setTotalCopies(
     tokenId: BigNumberish,
     propertyType: BigNumberish,
@@ -1901,6 +2125,12 @@ export interface Meem extends BaseContract {
     tokenId: BigNumberish,
     propertyType: BigNumberish,
     newTotalRemixes: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setURISource(
+    tokenId: BigNumberish,
+    uriSource: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -2057,6 +2287,36 @@ export interface Meem extends BaseContract {
 
   transferOwnership(
     account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  addReaction(
+    tokenId: BigNumberish,
+    reaction: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  getReactedAt(
+    tokenId: BigNumberish,
+    addy: string,
+    reaction: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getReactions(
+    tokenId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<ReactionStructOutput[]>;
+
+  removeReaction(
+    tokenId: BigNumberish,
+    reaction: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setReactionTypes(
+    tokenId: BigNumberish,
+    reactionTypes: string[],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -2224,11 +2484,6 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    verifyToken(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     mint(
       params: MeemMintParametersStruct,
       properties: MeemPropertiesStruct,
@@ -2293,6 +2548,8 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    lockUri(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
     removePermissionAt(
       tokenId: BigNumberish,
       propertyType: BigNumberish,
@@ -2305,6 +2562,12 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       newTotalCopies: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setData(
+      tokenId: BigNumberish,
+      data: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -2323,6 +2586,12 @@ export interface Meem extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setTokenUri(
+      tokenId: BigNumberish,
+      uri: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setTotalCopies(
       tokenId: BigNumberish,
       propertyType: BigNumberish,
@@ -2334,6 +2603,12 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       newTotalRemixes: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setURISource(
+      tokenId: BigNumberish,
+      uriSource: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -2495,6 +2770,36 @@ export interface Meem extends BaseContract {
       account: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    addReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    getReactedAt(
+      tokenId: BigNumberish,
+      addy: string,
+      reaction: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getReactions(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<ReactionStructOutput[]>;
+
+    removeReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setReactionTypes(
+      tokenId: BigNumberish,
+      reactionTypes: string[],
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -2576,6 +2881,9 @@ export interface Meem extends BaseContract {
       newTotalCopies?: null
     ): CopiesPerWalletSetEventFilter;
 
+    "DataSet(uint256,string)"(tokenId?: null, data?: null): DataSetEventFilter;
+    DataSet(tokenId?: null, data?: null): DataSetEventFilter;
+
     "PermissionsSet(uint256,uint8,uint8,tuple[])"(
       tokenId?: null,
       propertyType?: null,
@@ -2655,6 +2963,21 @@ export interface Meem extends BaseContract {
       newTotalRemixes?: null
     ): TotalRemixesSetEventFilter;
 
+    "URILockedBySet(uint256,address)"(
+      tokenId?: null,
+      lockedBy?: null
+    ): URILockedBySetEventFilter;
+    URILockedBySet(tokenId?: null, lockedBy?: null): URILockedBySetEventFilter;
+
+    "URISet(uint256,string)"(tokenId?: null, uri?: null): URISetEventFilter;
+    URISet(tokenId?: null, uri?: null): URISetEventFilter;
+
+    "URISourceSet(uint256,uint8)"(
+      tokenId?: null,
+      uriSource?: null
+    ): URISourceSetEventFilter;
+    URISourceSet(tokenId?: null, uriSource?: null): URISourceSetEventFilter;
+
     "RoyaltiesSet(uint256,tuple[])"(
       tokenId?: null,
       royalties?: null
@@ -2691,6 +3014,41 @@ export interface Meem extends BaseContract {
       previousOwner?: string | null,
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
+
+    "TokenReactionAdded(uint256,address,string,uint256)"(
+      tokenId?: null,
+      addy?: null,
+      reaction?: null,
+      newTotalReactions?: null
+    ): TokenReactionAddedEventFilter;
+    TokenReactionAdded(
+      tokenId?: null,
+      addy?: null,
+      reaction?: null,
+      newTotalReactions?: null
+    ): TokenReactionAddedEventFilter;
+
+    "TokenReactionRemoved(uint256,address,string,uint256)"(
+      tokenId?: null,
+      addy?: null,
+      reaction?: null,
+      newTotalReactions?: null
+    ): TokenReactionRemovedEventFilter;
+    TokenReactionRemoved(
+      tokenId?: null,
+      addy?: null,
+      reaction?: null,
+      newTotalReactions?: null
+    ): TokenReactionRemovedEventFilter;
+
+    "TokenReactionTypesSet(uint256,string[])"(
+      tokenId?: null,
+      reactionTypes?: null
+    ): TokenReactionTypesSetEventFilter;
+    TokenReactionTypesSet(
+      tokenId?: null,
+      reactionTypes?: null
+    ): TokenReactionTypesSetEventFilter;
   };
 
   estimateGas: {
@@ -2875,16 +3233,11 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    verifyToken(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     mint(
       params: MeemMintParametersStruct,
       properties: MeemPropertiesStruct,
       childProperties: MeemPropertiesStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     mintAndCopy(
@@ -2892,7 +3245,7 @@ export interface Meem extends BaseContract {
       properties: MeemPropertiesStruct,
       childProperties: MeemPropertiesStruct,
       toCopyAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     mintAndRemix(
@@ -2902,7 +3255,7 @@ export interface Meem extends BaseContract {
       remixParams: MeemMintParametersStruct,
       remixProperties: MeemPropertiesStruct,
       remixChildProperties: MeemPropertiesStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     addPermission(
@@ -2944,6 +3297,11 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    lockUri(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     removePermissionAt(
       tokenId: BigNumberish,
       propertyType: BigNumberish,
@@ -2956,6 +3314,12 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       newTotalCopies: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setData(
+      tokenId: BigNumberish,
+      data: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2974,6 +3338,12 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    setTokenUri(
+      tokenId: BigNumberish,
+      uri: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     setTotalCopies(
       tokenId: BigNumberish,
       propertyType: BigNumberish,
@@ -2985,6 +3355,12 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       newTotalRemixes: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setURISource(
+      tokenId: BigNumberish,
+      uriSource: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -3146,6 +3522,36 @@ export interface Meem extends BaseContract {
 
     transferOwnership(
       account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    addReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    getReactedAt(
+      tokenId: BigNumberish,
+      addy: string,
+      reaction: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getReactions(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    removeReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setReactionTypes(
+      tokenId: BigNumberish,
+      reactionTypes: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -3338,16 +3744,11 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    verifyToken(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     mint(
       params: MeemMintParametersStruct,
       properties: MeemPropertiesStruct,
       childProperties: MeemPropertiesStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     mintAndCopy(
@@ -3355,7 +3756,7 @@ export interface Meem extends BaseContract {
       properties: MeemPropertiesStruct,
       childProperties: MeemPropertiesStruct,
       toCopyAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     mintAndRemix(
@@ -3365,7 +3766,7 @@ export interface Meem extends BaseContract {
       remixParams: MeemMintParametersStruct,
       remixProperties: MeemPropertiesStruct,
       remixChildProperties: MeemPropertiesStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     addPermission(
@@ -3407,6 +3808,11 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    lockUri(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     removePermissionAt(
       tokenId: BigNumberish,
       propertyType: BigNumberish,
@@ -3419,6 +3825,12 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       newTotalCopies: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setData(
+      tokenId: BigNumberish,
+      data: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -3437,6 +3849,12 @@ export interface Meem extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    setTokenUri(
+      tokenId: BigNumberish,
+      uri: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     setTotalCopies(
       tokenId: BigNumberish,
       propertyType: BigNumberish,
@@ -3448,6 +3866,12 @@ export interface Meem extends BaseContract {
       tokenId: BigNumberish,
       propertyType: BigNumberish,
       newTotalRemixes: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setURISource(
+      tokenId: BigNumberish,
+      uriSource: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -3611,6 +4035,36 @@ export interface Meem extends BaseContract {
 
     transferOwnership(
       account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getReactedAt(
+      tokenId: BigNumberish,
+      addy: string,
+      reaction: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getReactions(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    removeReaction(
+      tokenId: BigNumberish,
+      reaction: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setReactionTypes(
+      tokenId: BigNumberish,
+      reactionTypes: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

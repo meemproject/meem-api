@@ -50,6 +50,9 @@ export namespace GetMeems {
 		sortBy?: SortBy
 
 		sortOrder?: SortOrder
+
+		/** Include individual reactions from these wallets */
+		withAddressReactions?: string[]
 	}
 
 	export interface IRequestBody {}

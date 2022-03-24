@@ -76,6 +76,25 @@ library LibAppStorage {
 		address meemID;
 		mapping(uint256 => uint256[]) copies;
 		mapping(uint256 => mapping(address => uint256[])) copiesOwnerTokens;
+		/** Keep track of "clipped" meems */
+		/** tokenId => array of addresses that have clipped */
+		mapping(uint256 => address[]) clippings;
+		/** address => tokenIds */
+		mapping(address => uint256[]) addressClippings;
+		/** address => tokenId => index */
+		mapping(address => mapping(uint256 => uint256)) clippingsIndex;
+		/** address => tokenId => index */
+		mapping(address => mapping(uint256 => uint256)) addressClippingsIndex;
+		/** address => tokenId => index */
+		mapping(address => mapping(uint256 => bool)) hasAddressClipped;
+		/** token => reaction name => total */
+		mapping(uint256 => mapping(string => uint256)) tokenReactions;
+		/** token => reaction name => address => reactedAt */
+		mapping(uint256 => mapping(string => mapping(address => uint256))) addressReactionsAt;
+		/** address => token => reaction names[] */
+		mapping(address => mapping(uint256 => string[])) addressReactions;
+		/** address => token => reaction name => index */
+		mapping(address => mapping(uint256 => mapping(string => uint256))) addressReactionsIndex;
 	}
 
 	function diamondStorage() internal pure returns (AppStorage storage ds) {
