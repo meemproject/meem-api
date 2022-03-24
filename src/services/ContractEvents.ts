@@ -730,9 +730,10 @@ export default class ContractEvent {
 		}
 
 		log.debug(`Saving meem to db: ${tokenId}`)
-		const meem = await orm.models.Meem.create(data)
 
 		await Promise.all([properties.save(), childProperties.save()])
+
+		const meem = await orm.models.Meem.create(data)
 
 		try {
 			const meemDataJson = JSON.parse(meem.data)

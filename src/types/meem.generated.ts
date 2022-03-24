@@ -1050,7 +1050,8 @@ export namespace MeemAPI {
 				Parent = 'parent',
 				Root = 'root',
 				MintedBy = 'mintedBy',
-				VerifiedBy = 'verifiedBy'
+				VerifiedBy = 'verifiedBy',
+				Reaction = 'reaction'
 			}
 
 			export interface IQueryParams extends IRequestPaginated {
@@ -1075,6 +1076,9 @@ export namespace MeemAPI {
 				sortBy?: SortBy
 
 				sortOrder?: SortOrder
+
+				/** The name of the reaction to sort by. Used when sortOrder === SortBy.Reaction */
+				sortReaction?: string
 
 				/** Include individual reactions from these wallets */
 				withAddressReactions?: string[]
