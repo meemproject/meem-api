@@ -70,7 +70,7 @@ export default class Meem extends BaseModel<Meem> {
 			}
 		},
 		tokenURI: {
-			type: DataTypes.STRING,
+			type: DataTypes.TEXT,
 			allowNull: false
 		},
 		owner: {

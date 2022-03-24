@@ -729,29 +729,31 @@ export default class ContractEvent {
 			reactionTypes: meemData.reactionTypes
 		}
 
-		const meem = orm.models.Meem.build(data)
+		log.debug(`Saving meem to db: ${tokenId}`)
+		const meem = await orm.models.Meem.create(data)
 
 		await Promise.all([properties.save(), childProperties.save()])
 
-		log.debug(`Saving meem to db: ${tokenId}`)
-		await meem.save()
+		try {
+			const meemDataJson = JSON.parse(meem.data)
 
-		const meemDataJson = JSON.parse(meem.data)
+			if (meemDataJson.tweetId) {
+				log.debug(
+					`Tweet Meem. Saving MeemId (${meem.id}) to tweet: (${meemDataJson.twitterId})`
+				)
+				const tweetMeem = await orm.models.Tweet.findOne({
+					where: {
+						tweetId: meemDataJson.tweetId
+					}
+				})
 
-		if (meemDataJson.tweetId) {
-			log.debug(
-				`Tweet Meem. Saving MeemId (${meem.id}) to tweet: (${meemDataJson.twitterId})`
-			)
-			const tweetMeem = await orm.models.Tweet.findOne({
-				where: {
-					tweetId: meemDataJson.tweetId
+				if (tweetMeem) {
+					tweetMeem.MeemId = meem.id
+					await tweetMeem.save()
 				}
-			})
-
-			if (tweetMeem) {
-				tweetMeem.MeemId = meem.id
-				await tweetMeem.save()
 			}
+		} catch (e) {
+			log.warn(e)
 		}
 
 		if (config.ENABLE_GUNDB) {
