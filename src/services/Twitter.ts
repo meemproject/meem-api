@@ -693,7 +693,7 @@ export default class TwitterService {
 							username: tweet.username,
 							userId: tweet.userId
 						}),
-						isURILocked: true,
+						isURILocked: false,
 						reactionTypes: MeemAPI.defaultReactionTypes,
 						uriSource: MeemAPI.UriSource.TokenUri,
 						// TODO: Is mintedBy the remixer here?
@@ -714,7 +714,7 @@ export default class TwitterService {
 							username: remixTweet.username,
 							userId: remixTweet.userId
 						}),
-						isURILocked: true,
+						isURILocked: false,
 						reactionTypes: MeemAPI.defaultReactionTypes,
 						uriSource: MeemAPI.UriSource.TokenUri,
 						mintedBy: remix.meemId?.defaultWallet
@@ -747,7 +747,7 @@ export default class TwitterService {
 							username: tweet.username,
 							userId: tweet.userId
 						}),
-						isURILocked: true,
+						isURILocked: false,
 						reactionTypes: MeemAPI.defaultReactionTypes,
 						uriSource: MeemAPI.UriSource.TokenUri,
 						mintedBy: toAddress
