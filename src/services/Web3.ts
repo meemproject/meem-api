@@ -1,6 +1,7 @@
+import { Readable } from 'stream'
+import Pinata, { PinataPinResponse } from '@pinata/sdk'
 import BigNumber from 'bignumber.js'
 import type { ethers as Ethers } from 'ethers'
-import _ from 'lodash'
 import { DateTime } from 'luxon'
 import Moralis from 'moralis/node'
 import request from 'superagent'
@@ -256,6 +257,11 @@ export default class Web3 {
 		})
 	}
 
+	private static getPinataInstance() {
+		const pinata = Pinata(config.PINATA_API_KEY, config.PINATA_API_SECRET)
+		return pinata
+	}
+
 	private static chainToMoralis(chain: MeemAPI.Chain): MoralisChainList {
 		switch (+chain) {
 			case MeemAPI.Chain.Rinkeby:
@@ -307,8 +313,6 @@ export default class Web3 {
 			}
 		}
 
-		await this.startMoralis()
-
 		this.validateCreateMeemMetadata(data.metadata)
 
 		const imgData = data.imageBase64 ?? data.image?.toString('base64')
@@ -326,20 +330,30 @@ export default class Web3 {
 			throw new Error('INVALID_METADATA')
 		}
 
-		const imageResponse = await request
-			.post('https://deep-index.moralis.io/api/v2/ipfs/uploadFolder')
-			.set('X-API-KEY', config.MORALIS_API_KEY)
-			.send([
-				{
-					path: `${meemId}/image.png`,
-					content: imgData
-				}
-			])
+		// const buffStream = new stream.PassThrough()
+		// buffStream.end(Buffer.from(imgData, 'base64'))
+		const buff = Buffer.from(imgData, 'base64')
+		const stream = Readable.from(buff)
+		// @ts-ignore
+		stream.path = `${meemId}/image.png`
 
-		const image: string =
-			_.isArray(imageResponse.body) && imageResponse.body.length > 0
-				? this.moralisPathToIPFSPath(imageResponse.body[0].path)
-				: ''
+		const imageResponse = await this.saveToPinata({
+			// file: Readable.from(Buffer.from(imgData, 'base64'))
+			// file: buffStream
+			file: stream
+		})
+
+		// const imageResponse = await this.saveToMoralis({
+		// 	// path: `${meemId}/image.png`,
+		// 	// content: imgData
+		// })
+
+		// const image: string =
+		// 	_.isArray(imageResponse.body) && imageResponse.body.length > 0
+		// 		? this.moralisPathToIPFSPath(imageResponse.body[0].path)
+		// 		: ''
+
+		const image = `ipfs://${imageResponse.IpfsHash}`
 
 		const externalUrl =
 			meemMetadata.external_url ?? `${config.MEEM_DOMAIN}/meems/${meemId}`
@@ -355,27 +369,30 @@ export default class Web3 {
 					: image
 		}
 
-		const jsonString = JSON.stringify(storedMetadata)
-		const jsonBase64 = Buffer.from(jsonString).toString('base64')
+		// const jsonString = JSON.stringify(storedMetadata)
+		// const jsonBase64 = Buffer.from(jsonString).toString('base64')
 
-		const metadataResponse = await request
-			.post('https://deep-index.moralis.io/api/v2/ipfs/uploadFolder')
-			.set('X-API-KEY', config.MORALIS_API_KEY)
-			.send([
-				{
-					path: `${meemId}/metadata.json`,
-					content: jsonBase64
-				}
-			])
+		// const metadataResponse = await this.saveToMoralis({
+		// 	path: `${meemId}/metadata.json`,
+		// 	content: jsonBase64
+		// })
 
-		const metadataPath: string =
-			_.isArray(metadataResponse.body) && metadataResponse.body.length > 0
-				? this.moralisPathToIPFSPath(metadataResponse.body[0].path)
-				: ''
+		// const metadataPath: string =
+		// 	_.isArray(metadataResponse.body) && metadataResponse.body.length > 0
+		// 		? this.moralisPathToIPFSPath(metadataResponse.body[0].path)
+		// 		: ''
 
+		const metadataResponse = await this.saveToPinata({
+			json: storedMetadata
+		})
+
+		// return {
+		// 	metadata: storedMetadata,
+		// 	tokenURI: metadataPath
+		// }
 		return {
 			metadata: storedMetadata,
-			tokenURI: metadataPath
+			tokenURI: `ipfs://${metadataResponse.IpfsHash}`
 		}
 	}
 
@@ -383,6 +400,77 @@ export default class Web3 {
 		if (!metadata.name || !metadata.description) {
 			throw new Error('INVALID_METADATA')
 		}
+	}
+
+	public static async syncPins() {
+		const meems = await orm.models.Meem.findAll({ limit: 5 })
+		const pinata = this.getPinataInstance()
+
+		for (let i = 0; i < meems.length; i += 1) {
+			const meem = meems[i]
+			const matches = meem.tokenURI.match(/ipfs:\/\/([^/]*)/)
+			if (matches && matches[1]) {
+				const ipfsHash = matches[1]
+				log.debug(`Pinning metadata w/ hash: ${ipfsHash}`)
+				// eslint-disable-next-line no-await-in-loop
+				await pinata.pinByHash(ipfsHash)
+			} else {
+				log.debug(`Skipping ${meem.tokenURI}`)
+			}
+
+			const imgMatches = meem.metadata.image.match(/ipfs:\/\/([^/]*)/)
+			if (imgMatches && imgMatches[1]) {
+				const ipfsHash = imgMatches[1]
+				log.debug(`Pinning image w/ hash: ${ipfsHash}`)
+				// eslint-disable-next-line no-await-in-loop
+				await pinata.pinByHash(ipfsHash)
+			} else {
+				log.debug(`Skipping ${meem.metadata.image}`)
+			}
+		}
+	}
+
+	private static async saveToMoralis(options: {
+		path: string
+		content: string
+	}) {
+		const { path, content } = options
+		await this.startMoralis()
+
+		const response = await request
+			.post('https://deep-index.moralis.io/api/v2/ipfs/uploadFolder')
+			.set('X-API-KEY', config.MORALIS_API_KEY)
+			.send([
+				{
+					path,
+					content
+				}
+			])
+
+		return response
+	}
+
+	private static async saveToPinata(options: {
+		json?: Record<string, any>
+		file?: Readable
+	}) {
+		const { json, file } = options
+
+		if (!json && !file) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		const pinata = this.getPinataInstance()
+
+		let response: PinataPinResponse
+
+		if (json) {
+			response = await pinata.pinJSONToIPFS(json)
+		} else {
+			response = await pinata.pinFileToIPFS(file)
+		}
+
+		return response
 	}
 
 	private static moralisPathToIPFSPath(path: string): string {

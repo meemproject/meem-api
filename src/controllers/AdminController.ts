@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 
-export default class ConfigController {
+export default class AdminController {
 	public static async runMigrations(
 		req: Request,
 		res: Response
@@ -44,6 +44,14 @@ export default class ConfigController {
 		res: Response
 	): Promise<Response> {
 		await services.prompts.seedPrompts()
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
+	public static async syncPins(req: Request, res: Response): Promise<Response> {
+		await services.web3.syncPins()
 
 		return res.json({
 			status: 'success'
