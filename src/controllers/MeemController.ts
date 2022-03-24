@@ -283,10 +283,10 @@ export default class MeemController {
 		let sortOrder = 'desc'
 
 		if (
-			req.query.sortReaction &&
+			sortReaction &&
 			req.query.sortBy === MeemAPI.v1.GetMeems.SortBy.Reaction
 		) {
-			sortBy = `reactionCounts.${req.query.sortReaction}`
+			sortBy = `reactionCounts.${sortReaction}`
 		} else if (
 			req.query.sortBy &&
 			Object.values(MeemAPI.v1.GetMeems.SortBy).includes(req.query.sortBy)
