@@ -372,7 +372,6 @@ export namespace MeemAPI {
 			}
 			prompt?: {
 				body: string
-				tokenId: string
 				startAt: string
 				tweetId: string
 			}

@@ -241,9 +241,6 @@ export default class MeemController {
 				return services.web3.toBigNumber(tokenId).toHexString()
 			})
 			and.push({
-				root: config.MEEM_PROXY_ADDRESS
-			})
-			and.push({
 				rootTokenId: {
 					[Op.in]: rootTokenIdsArray
 				}
@@ -257,12 +254,14 @@ export default class MeemController {
 				return services.web3.toBigNumber(tokenId).toHexString()
 			})
 			and.push({
-				root: config.MEEM_PROXY_ADDRESS
-			})
-			and.push({
-				rootTokenId: {
+				parentTokenId: {
 					[Op.in]: parentTokenIdsArray
 				}
+			})
+		}
+		if (rootTokenIds || parentTokenIds) {
+			and.push({
+				parent: config.MEEM_PROXY_ADDRESS
 			})
 		}
 		if (mintedBy) {
