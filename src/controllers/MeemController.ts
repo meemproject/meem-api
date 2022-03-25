@@ -215,6 +215,9 @@ export default class MeemController {
 		const itemsPerPage = limit
 		let meems: MeemAPI.IMetadataMeem[] = []
 		const and: Record<string, any>[] = []
+
+		log.debug('DEBUG PARENTTOKENID', parentTokenIds)
+
 		if (owner) {
 			and.push(
 				orm.sequelize.where(
@@ -258,6 +261,7 @@ export default class MeemController {
 					[Op.in]: parentTokenIdsArray
 				}
 			})
+			log.debug('DEBUG PARENTTOKENID: ADDED PARENT TOKEN ID QUERY')
 		}
 		if (rootTokenIds || parentTokenIds) {
 			and.push({
