@@ -205,6 +205,7 @@ export default class MeemController {
 			meemTypes,
 			mintedBy,
 			rootTokenIds,
+			parentTokenIds,
 			q,
 			withWalletReactions,
 			sortReaction
@@ -245,6 +246,22 @@ export default class MeemController {
 			and.push({
 				rootTokenId: {
 					[Op.in]: rootTokenIdsArray
+				}
+			})
+		}
+		if (parentTokenIds) {
+			let parentTokenIdsArray = _.isArray(parentTokenIds)
+				? parentTokenIds
+				: (parentTokenIds as string).split(',')
+			parentTokenIdsArray = parentTokenIdsArray.map(tokenId => {
+				return services.web3.toBigNumber(tokenId).toHexString()
+			})
+			and.push({
+				root: config.MEEM_PROXY_ADDRESS
+			})
+			and.push({
+				rootTokenId: {
+					[Op.in]: parentTokenIdsArray
 				}
 			})
 		}
