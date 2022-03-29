@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
 import BigNumber from 'bignumber.js'
 import type { ethers as Ethers } from 'ethers'

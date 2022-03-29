@@ -1,4 +1,6 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { PutItemInputAttributeMap } from 'aws-sdk/clients/dynamodb'
 import { MeemAPI } from '../types/meem.generated'
 
