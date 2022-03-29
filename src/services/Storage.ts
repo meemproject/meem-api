@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
 
 AWS.config.update({

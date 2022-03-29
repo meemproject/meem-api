@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
 import { Response } from 'express'
 import { TwitterApi, UserV2 } from 'twitter-api-v2'

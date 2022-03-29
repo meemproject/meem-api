@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import moment from 'moment-timezone'
+import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
 import { ApiV2Includes, TweetV2, TwitterApi, UserV2 } from 'twitter-api-v2'
 import Prompt from '../models/Prompt'
@@ -18,12 +18,16 @@ export default class PromptsService {
 		const prompts = promptsText.map((p, i) => {
 			return {
 				body: p,
-				startAt: moment()
-					.tz('America/Los_Angeles')
+				startAt: DateTime.now()
+					.setZone('America/Los_Angeles')
 					.startOf('day')
-					.add(i, 'days')
-					.add(7, 'hours')
-					.toDate()
+					.plus({
+						days: i
+					})
+					.plus({
+						hours: 7
+					})
+					.toJSDate()
 			}
 		})
 		await orm.models.Prompt.sync({ force: true })
@@ -58,7 +62,7 @@ export default class PromptsService {
 			where: {
 				hasStarted: false,
 				startAt: {
-					[Op.lte]: moment().tz('America/Los_Angeles').toDate()
+					[Op.lte]: DateTime.now().setZone('America/Los_Angeles').toJSDate()
 				}
 			}
 		})
@@ -167,10 +171,12 @@ export default class PromptsService {
 				hasStarted: true,
 				hasEnded: false,
 				startAt: {
-					[Op.lte]: moment()
-						.tz('America/Los_Angeles')
-						.subtract(12, 'hours')
-						.toDate()
+					[Op.lte]: DateTime.now()
+						.setZone('America/Los_Angeles')
+						.minus({
+							hours: 12
+						})
+						.toJSDate()
 				}
 			}
 		})
@@ -187,8 +193,6 @@ export default class PromptsService {
 		log.debug(`Ending prompt: ${promptToEnd.id}`)
 
 		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
-
-		// const endTime = moment().tz('America/Los_Angeles').startOf('day')
 
 		const getTweets = async (tweetIds: string[]) => {
 			const promptTweetResponse = await client.v2.tweets(tweetIds, {
