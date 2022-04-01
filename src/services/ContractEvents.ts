@@ -586,6 +586,7 @@ export default class ContractEvent {
 	) {
 		const tokenId = evt.args.tokenId.toHexString()
 		const { addy, reaction, newTotalReactions } = evt.args
+		log.debug(`Adding "${reaction}" reaction for ${addy} on token ${tokenId}`)
 
 		const [meem, wallet, block] = await Promise.all([
 			orm.models.Meem.findOne({
@@ -634,6 +635,8 @@ export default class ContractEvent {
 		const tokenId = evt.args.tokenId.toHexString()
 		const { addy, reaction, newTotalReactions } = evt.args
 
+		log.debug(`Removing "${reaction}" reaction for ${addy} on token ${tokenId}`)
+
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
@@ -664,6 +667,8 @@ export default class ContractEvent {
 	) {
 		const tokenId = evt.args.tokenId.toHexString()
 		const { reactionTypes } = evt.args
+
+		log.debug(`Reaction types set for token ${tokenId}`)
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
