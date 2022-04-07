@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers'
 import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
@@ -25,35 +26,47 @@ import {
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ContractEvent {
-	public static async meemSyncCounts() {
-		const meems = await orm.models.Meem.findAll()
+	public static async meemSyncReactions() {
+		log.debug('Syncing reactions...')
+		const meemContract = await services.meem.getMeemContract()
+		const [reactionAddedEvents, reactionRemovedEvents] = await Promise.all([
+			meemContract.queryFilter(meemContract.filters.TokenReactionAdded()),
+			meemContract.queryFilter(meemContract.filters.TokenReactionRemoved())
+		])
 
-		for (let i = 0; i < meems.length; i += 1) {
-			const meem = meems[i]
-			// eslint-disable-next-line no-await-in-loop
-			const [copiesResult, remixesResult] = await Promise.all([
-				orm.models.Meem.findAndCountAll({
-					where: {
-						parent: config.MEEM_PROXY_ADDRESS,
-						parentTokenId: meem.tokenId,
-						meemType: MeemAPI.MeemType.Copy
-					}
-				}),
-				orm.models.Meem.findAndCountAll({
-					where: {
-						parent: config.MEEM_PROXY_ADDRESS,
-						parentTokenId: meem.tokenId,
-						meemType: MeemAPI.MeemType.Remix
-					}
-				})
-			])
+		log.debug(
+			`Syncing ${reactionAddedEvents.length} reaction added events and ${reactionRemovedEvents.length} reaction removed events`
+		)
 
-			meem.copyCount = copiesResult.count
-			meem.remixCount = remixesResult.count
+		const orderedEvents: (
+			| TokenReactionAddedEvent
+			| TokenReactionRemovedEvent
+		)[] = [...reactionAddedEvents, ...reactionRemovedEvents]
 
-			// eslint-disable-next-line no-await-in-loop
-			await meem.save()
+		orderedEvents.sort((a, b) => {
+			return a.blockNumber - b.blockNumber
+		})
+
+		for (let i = 0; i < orderedEvents.length; i += 1) {
+			try {
+				const event = orderedEvents[i]
+				if (event.event === 'TokenReactionAdded') {
+					// eslint-disable-next-line no-await-in-loop
+					await this.meemHandleTokenReactionAdded(event)
+				} else if (event.event === 'TokenReactionRemoved') {
+					// eslint-disable-next-line no-await-in-loop
+					await this.meemHandleTokenReactionRemoved(event)
+				}
+				log.debug(event.blockNumber)
+			} catch (e) {
+				log.crit(e)
+			}
 		}
+
+		// if (failedEvents.length > 0) {
+		// 	log.debug(`Retrying ${failedEvents.length} events`)
+		// 	await this.meemSync(failedEvents)
+		// }
 	}
 
 	public static async meemSync(specificEvents?: TransferEvent[]) {
@@ -740,7 +753,7 @@ export default class ContractEvent {
 			...this.meemPropertiesDataToModelData(meemData.childProperties)
 		})
 
-		const data = {
+		const data: Record<string, any> = {
 			id: uuidv4(),
 			meemId: metadata.meem_id ?? null,
 			tokenId,
@@ -768,10 +781,7 @@ export default class ContractEvent {
 		log.debug(`Saving meem to db: ${tokenId}`)
 		const t = await orm.sequelize.transaction()
 
-		const promises: Promise<any>[] = [
-			properties.save({ transaction: t }),
-			childProperties.save({ transaction: t })
-		]
+		const promises: Promise<any>[] = []
 
 		const parentMeem =
 			meemData.parent.toLowerCase() ===
@@ -787,6 +797,8 @@ export default class ContractEvent {
 				: null
 
 		if (parentMeem) {
+			promises.push(meemContract.numCopiesOf(parentMeem.tokenId))
+			promises.push(meemContract.numRemixesOf(parentMeem.tokenId))
 			if (meemData.meemType === MeemAPI.MeemType.Remix) {
 				promises.push(parentMeem.increment('remixCount', { transaction: t }))
 			} else if (meemData.meemType === MeemAPI.MeemType.Copy) {
@@ -794,9 +806,21 @@ export default class ContractEvent {
 			}
 		}
 
-		await Promise.all(promises)
+		promises.push(properties.save({ transaction: t }))
+		promises.push(childProperties.save({ transaction: t }))
 
-		const meem = await orm.models.Meem.create(data, { transaction: t })
+		const [numCopies, numRemixes] = await Promise.all(promises)
+
+		const createUpdatePromises: Promise<any>[] = [
+			orm.models.Meem.create(data, { transaction: t })
+		]
+		if (parentMeem) {
+			parentMeem.numCopies = (numCopies as BigNumber).toNumber()
+			parentMeem.numRemixes = (numRemixes as BigNumber).toNumber()
+			promises.push(parentMeem.save({ transaction: t }))
+		}
+
+		const [meem] = (await Promise.all(createUpdatePromises)) as [Meem]
 
 		await t.commit()
 

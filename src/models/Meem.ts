@@ -158,12 +158,12 @@ export default class Meem extends BaseModel<Meem> {
 			allowNull: false,
 			defaultValue: 0
 		},
-		remixCount: {
+		numRemixes: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 			defaultValue: 0
 		},
-		copyCount: {
+		numCopies: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 			defaultValue: 0
@@ -217,9 +217,9 @@ export default class Meem extends BaseModel<Meem> {
 
 	public reactionCounts!: { [reaction: string]: number }
 
-	public remixCount!: number
+	public numRemixes!: number
 
-	public copyCount!: number
+	public numCopies!: number
 
 	public PropertiesId!: string | null
 

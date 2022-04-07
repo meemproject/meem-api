@@ -397,6 +397,8 @@ export interface IReaction {
 
 export interface IMetadataMeem extends IMeem {
 	reactionCounts: { [reaction: string]: number }
+	numCopies: number
+	numRemixes: number
 	addressReactions?: IReaction[]
 	metadata: IMeemMetadata
 	defaultTwitterUser?: {

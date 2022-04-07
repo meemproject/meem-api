@@ -968,7 +968,9 @@ export default class MeemService {
 				reactedAt: DateTime.fromJSDate(r.reactedAt).toSeconds(),
 				address: r.address,
 				MeemIdentificationId: r.MeemIdentificationId
-			}))
+			})),
+			numCopies: meem.numCopies,
+			numRemixes: meem.numRemixes
 		}
 	}
 
