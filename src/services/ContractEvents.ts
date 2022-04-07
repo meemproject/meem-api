@@ -62,11 +62,6 @@ export default class ContractEvent {
 				log.crit(e)
 			}
 		}
-
-		// if (failedEvents.length > 0) {
-		// 	log.debug(`Retrying ${failedEvents.length} events`)
-		// 	await this.meemSync(failedEvents)
-		// }
 	}
 
 	public static async meemSync(specificEvents?: TransferEvent[]) {
