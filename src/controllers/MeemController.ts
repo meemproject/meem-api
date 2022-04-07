@@ -208,7 +208,7 @@ export default class MeemController {
 			rootTokenIds,
 			parentTokenIds,
 			q,
-			withWalletReactions,
+			withAddressReactions,
 			sortReaction
 		} = req.query
 		const { page, limit: requestedLimit } = req
@@ -334,10 +334,10 @@ export default class MeemController {
 			}
 		]
 
-		if (withWalletReactions) {
-			const withWalletReactionsArr = Array.isArray(withWalletReactions)
-				? withWalletReactions
-				: [withWalletReactions]
+		if (withAddressReactions) {
+			const withWalletReactionsArr = Array.isArray(withAddressReactions)
+				? withAddressReactions
+				: [withAddressReactions]
 			const or: Record<string, any>[] = withWalletReactionsArr.map(w =>
 				orm.sequelize.where(
 					orm.sequelize.fn('lower', orm.sequelize.col('address')),
