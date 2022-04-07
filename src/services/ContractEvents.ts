@@ -794,11 +794,6 @@ export default class ContractEvent {
 		if (parentMeem) {
 			promises.push(meemContract.numCopiesOf(parentMeem.tokenId))
 			promises.push(meemContract.numRemixesOf(parentMeem.tokenId))
-			if (meemData.meemType === MeemAPI.MeemType.Remix) {
-				promises.push(parentMeem.increment('remixCount', { transaction: t }))
-			} else if (meemData.meemType === MeemAPI.MeemType.Copy) {
-				promises.push(parentMeem.increment('copyCount', { transaction: t }))
-			}
 		}
 
 		promises.push(properties.save({ transaction: t }))
