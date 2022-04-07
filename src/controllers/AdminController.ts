@@ -28,6 +28,17 @@ export default class AdminController {
 		})
 	}
 
+	public static async meemSyncReactions(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		await services.contractEvents.meemSyncReactions()
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
 	public static async syncDbMeemIdsToContract(
 		req: Request,
 		res: Response

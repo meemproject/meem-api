@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers'
 import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
@@ -25,6 +26,44 @@ import {
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ContractEvent {
+	public static async meemSyncReactions() {
+		log.debug('Syncing reactions...')
+		const meemContract = await services.meem.getMeemContract()
+		const [reactionAddedEvents, reactionRemovedEvents] = await Promise.all([
+			meemContract.queryFilter(meemContract.filters.TokenReactionAdded()),
+			meemContract.queryFilter(meemContract.filters.TokenReactionRemoved())
+		])
+
+		log.debug(
+			`Syncing ${reactionAddedEvents.length} reaction added events and ${reactionRemovedEvents.length} reaction removed events`
+		)
+
+		const orderedEvents: (
+			| TokenReactionAddedEvent
+			| TokenReactionRemovedEvent
+		)[] = [...reactionAddedEvents, ...reactionRemovedEvents]
+
+		orderedEvents.sort((a, b) => {
+			return a.blockNumber - b.blockNumber
+		})
+
+		for (let i = 0; i < orderedEvents.length; i += 1) {
+			try {
+				const event = orderedEvents[i]
+				if (event.event === 'TokenReactionAdded') {
+					// eslint-disable-next-line no-await-in-loop
+					await this.meemHandleTokenReactionAdded(event)
+				} else if (event.event === 'TokenReactionRemoved') {
+					// eslint-disable-next-line no-await-in-loop
+					await this.meemHandleTokenReactionRemoved(event)
+				}
+				log.debug(event.blockNumber)
+			} catch (e) {
+				log.crit(e)
+			}
+		}
+	}
+
 	public static async meemSync(specificEvents?: TransferEvent[]) {
 		log.debug('Syncing meems...')
 		const meemContract = await services.meem.getMeemContract()
@@ -709,7 +748,7 @@ export default class ContractEvent {
 			...this.meemPropertiesDataToModelData(meemData.childProperties)
 		})
 
-		const data = {
+		const data: Record<string, any> = {
 			id: uuidv4(),
 			meemId: metadata.meem_id ?? null,
 			tokenId,
@@ -735,13 +774,48 @@ export default class ContractEvent {
 		}
 
 		log.debug(`Saving meem to db: ${tokenId}`)
+		const t = await orm.sequelize.transaction()
 
-		await Promise.all([properties.save(), childProperties.save()])
+		const promises: Promise<any>[] = []
 
-		const meem = await orm.models.Meem.create(data)
+		const parentMeem =
+			meemData.parent.toLowerCase() ===
+				config.MEEM_PROXY_ADDRESS.toLowerCase() &&
+			[MeemAPI.MeemType.Remix, MeemAPI.MeemType.Copy].includes(
+				meemData.meemType
+			)
+				? await orm.models.Meem.findOne({
+						where: {
+							tokenId: meemData.parentTokenId.toHexString()
+						}
+				  })
+				: null
+
+		if (parentMeem) {
+			promises.push(meemContract.numCopiesOf(parentMeem.tokenId))
+			promises.push(meemContract.numRemixesOf(parentMeem.tokenId))
+		}
+
+		promises.push(properties.save({ transaction: t }))
+		promises.push(childProperties.save({ transaction: t }))
+
+		const [numCopies, numRemixes] = await Promise.all(promises)
+
+		const createUpdatePromises: Promise<any>[] = [
+			orm.models.Meem.create(data, { transaction: t })
+		]
+		if (parentMeem) {
+			parentMeem.numCopies = (numCopies as BigNumber).toNumber()
+			parentMeem.numRemixes = (numRemixes as BigNumber).toNumber()
+			promises.push(parentMeem.save({ transaction: t }))
+		}
+
+		const [meem] = (await Promise.all(createUpdatePromises)) as [Meem]
+
+		await t.commit()
 
 		try {
-			const meemDataJson = JSON.parse(meem.data)
+			const meemDataJson = services.meem.parseMeemData(meem.data)
 
 			if (meemDataJson.tweetId) {
 				log.debug(

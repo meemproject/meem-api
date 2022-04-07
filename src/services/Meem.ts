@@ -89,10 +89,12 @@ export default class MeemService {
 
 	public static async getErc721Metadata(uri: string) {
 		let metadata: MeemAPI.IERC721Metadata
+		if (uri.length === 0) {
+			return {}
+		}
 		if (/^data:application\/json/.test(uri)) {
 			const json = Buffer.from(uri.substring(29), 'base64').toString()
-			const result = JSON.parse(json)
-			metadata = result
+			metadata = JSON.parse(json)
 		} else if (/^ipfs/.test(uri)) {
 			const result = await services.ipfs.getIPFSFile(uri)
 			if (result.type !== 'application/json') {
@@ -966,7 +968,9 @@ export default class MeemService {
 				reactedAt: DateTime.fromJSDate(r.reactedAt).toSeconds(),
 				address: r.address,
 				MeemIdentificationId: r.MeemIdentificationId
-			}))
+			})),
+			numCopies: meem.numCopies,
+			numRemixes: meem.numRemixes
 		}
 	}
 
@@ -1125,5 +1129,28 @@ export default class MeemService {
 				// log.debug(returnData)
 			}
 		}
+	}
+
+	public static parseMeemData(data: string): Record<string, any> {
+		let parsedData: Record<string, any> | undefined
+
+		try {
+			if (/^data:application\/json/.test(data)) {
+				const json = Buffer.from(data.substring(29), 'base64').toString()
+				parsedData = JSON.parse(json)
+			}
+		} catch (e) {
+			log.trace(e)
+		}
+
+		try {
+			if (!parsedData) {
+				parsedData = JSON.parse(data)
+			}
+		} catch (e) {
+			log.trace(e)
+		}
+
+		return parsedData ?? {}
 	}
 }

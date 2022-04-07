@@ -158,6 +158,16 @@ export default class Meem extends BaseModel<Meem> {
 			allowNull: false,
 			defaultValue: 0
 		},
+		numRemixes: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 0
+		},
+		numCopies: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 0
+		},
 		reactionCounts: {
 			type: DataTypes.JSONB,
 			allowNull: false,
@@ -206,6 +216,10 @@ export default class Meem extends BaseModel<Meem> {
 	public uriSource!: MeemAPI.UriSource
 
 	public reactionCounts!: { [reaction: string]: number }
+
+	public numRemixes!: number
+
+	public numCopies!: number
 
 	public PropertiesId!: string | null
 
