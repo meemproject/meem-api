@@ -25,6 +25,37 @@ import {
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ContractEvent {
+	public static async meemSyncCounts() {
+		const meems = await orm.models.Meem.findAll()
+
+		for (let i = 0; i < meems.length; i += 1) {
+			const meem = meems[i]
+			// eslint-disable-next-line no-await-in-loop
+			const [copiesResult, remixesResult] = await Promise.all([
+				orm.models.Meem.findAndCountAll({
+					where: {
+						parent: config.MEEM_PROXY_ADDRESS,
+						parentTokenId: meem.tokenId,
+						meemType: MeemAPI.MeemType.Copy
+					}
+				}),
+				orm.models.Meem.findAndCountAll({
+					where: {
+						parent: config.MEEM_PROXY_ADDRESS,
+						parentTokenId: meem.tokenId,
+						meemType: MeemAPI.MeemType.Remix
+					}
+				})
+			])
+
+			meem.copyCount = copiesResult.count
+			meem.remixCount = remixesResult.count
+
+			// eslint-disable-next-line no-await-in-loop
+			await meem.save()
+		}
+	}
+
 	public static async meemSync(specificEvents?: TransferEvent[]) {
 		log.debug('Syncing meems...')
 		const meemContract = await services.meem.getMeemContract()
@@ -735,13 +766,42 @@ export default class ContractEvent {
 		}
 
 		log.debug(`Saving meem to db: ${tokenId}`)
+		const t = await orm.sequelize.transaction()
 
-		await Promise.all([properties.save(), childProperties.save()])
+		const promises: Promise<any>[] = [
+			properties.save({ transaction: t }),
+			childProperties.save({ transaction: t })
+		]
 
-		const meem = await orm.models.Meem.create(data)
+		const parentMeem =
+			meemData.parent.toLowerCase() ===
+				config.MEEM_PROXY_ADDRESS.toLowerCase() &&
+			[MeemAPI.MeemType.Remix, MeemAPI.MeemType.Copy].includes(
+				meemData.meemType
+			)
+				? await orm.models.Meem.findOne({
+						where: {
+							tokenId: meemData.parentTokenId.toHexString()
+						}
+				  })
+				: null
+
+		if (parentMeem) {
+			if (meemData.meemType === MeemAPI.MeemType.Remix) {
+				promises.push(parentMeem.increment('remixCount', { transaction: t }))
+			} else if (meemData.meemType === MeemAPI.MeemType.Copy) {
+				promises.push(parentMeem.increment('copyCount', { transaction: t }))
+			}
+		}
+
+		await Promise.all(promises)
+
+		const meem = await orm.models.Meem.create(data, { transaction: t })
+
+		await t.commit()
 
 		try {
-			const meemDataJson = JSON.parse(meem.data)
+			const meemDataJson = services.meem.parseMeemData(meem.data)
 
 			if (meemDataJson.tweetId) {
 				log.debug(
