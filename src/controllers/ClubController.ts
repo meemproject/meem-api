@@ -24,9 +24,24 @@ export default class ClubController {
 		req: IRequest<MeemAPI.v1.SearchClubs.IDefinition>,
 		res: IResponse<MeemAPI.v1.SearchClubs.IResponseBody>
 	): Promise<Response> {
-		const clubs = await services.club.searchClubs(req.query.query || '')
+		const { page, limit: requestedLimit } = req
+		const { query } = req.query
+		const limit = requestedLimit && requestedLimit > 100 ? 100 : requestedLimit
+		const q = query.toLowerCase()
+		const clubs = await orm.models.Club.findAndCountAll({
+			where: {
+				tokenName: {
+					[Op.iLike]: `%${q}%`
+				}
+			},
+			order: [['displayName', 'ASC']],
+			offset: page * limit,
+			limit
+		})
 		return res.json({
-			clubs
+			clubs: clubs.rows,
+			itemsPerPage: limit,
+			totalItems: clubs.count
 		})
 	}
 }

@@ -1,4 +1,10 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import {
+	IError,
+	HttpMethod,
+	IApiResponseBody,
+	IApiPaginatedResponseBody,
+	IRequestPaginated
+} from '../api.shared'
 import { IClub } from '../meem.shared'
 
 /** Get Meem */
@@ -7,15 +13,14 @@ export namespace SearchClubs {
 
 	export const path = () => `/api/1.0/clubs/search`
 
-	export const method = HttpMethod.Post
+	export const method = HttpMethod.Get
 
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		accountAddress?: string
+	export interface IQueryParams extends IRequestPaginated {
+		query: string
 	}
 
-	export interface IResponseBody extends IApiResponseBody {
+	export interface IRequestBody {}
+	export interface IResponseBody extends IApiPaginatedResponseBody {
 		clubs: IClub[]
 	}
 

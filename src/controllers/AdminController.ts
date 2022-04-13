@@ -61,6 +61,17 @@ export default class AdminController {
 		})
 	}
 
+	public static async seedClubs(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		await services.club.seedClubs()
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
 	public static async syncPins(req: Request, res: Response): Promise<Response> {
 		await services.web3.syncPins()
 
