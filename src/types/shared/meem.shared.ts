@@ -212,7 +212,7 @@ export interface IMeemMetadata {
 	image_original: string
 	meem_id: string
 	meem_properties?: IMeemMetadataProperties
-	extension_properties?: IMeemTweetsExtensionProperties | Record<string, any>
+	extension_properties?: Record<string, any>
 }
 
 export enum OpenSeaDisplayType {
@@ -301,27 +301,7 @@ export interface ICreateMeemMetadata {
 	meem_properties?: IMeemMetadataProperties
 
 	/** Extension properties. For trusted minters only. */
-	extension_properties?: IMeemTweetsExtensionProperties | Record<string, any>
-}
-
-export interface IMeemTweetsExtensionProperties {
-	meem_tweets_extension: {
-		tweet: {
-			text: string
-			userId: string
-			tweetId: string
-			entities?: any
-			username: string
-			createdAt: string
-			updatedAt: string
-			userProfileImageUrl: string
-		}
-		prompt?: {
-			body: string
-			startAt: string
-			tweetId: string
-		}
-	}
+	extension_properties?: Record<string, any>
 }
 
 export interface IMeemPermission {

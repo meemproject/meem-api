@@ -431,8 +431,6 @@ export namespace MeemAPI {
 
 	export interface IMetadataMeem extends IMeem {
 		reactionCounts: { [reaction: string]: number }
-		numCopies: number
-		numRemixes: number
 		addressReactions?: IReaction[]
 		metadata: IMeemMetadata
 		defaultTwitterUser?: {
@@ -550,26 +548,6 @@ export namespace MeemAPI {
 	}
 
 	export const defaultReactionTypes: string[] = ['upvote', 'downvote']
-
-	export interface TweetMeemExtensionProperties {
-		meem_tweets_extension: {
-			tweet: {
-				text: string
-				userId: string
-				tweetId: string
-				entities?: any
-				username: string
-				createdAt: string
-				updatedAt: string
-				userProfileImageUrl: string
-			}
-			prompt?: {
-				body: string
-				startAt: string
-				tweetId: string
-			}
-		}
-	}
 
 	export namespace v1 {
 		export namespace CheckClippingStatus {
@@ -1520,91 +1498,6 @@ export namespace MeemAPI {
 
 			export interface IResponseBody extends IApiResponseBody {
 				status: 'success'
-			}
-
-			export interface IDefinition {
-				pathParams: IPathParams
-				queryParams: IQueryParams
-				requestBody: IRequestBody
-				responseBody: IResponseBody
-			}
-
-			export type Response = IResponseBody | IError
-		}
-
-		/** Get Meem Tweets */
-		export namespace GetTweets {
-			export interface IPathParams {}
-
-			export const path = () => `/api/1.0/tweets`
-
-			export const method = HttpMethod.Get
-
-			export interface IQueryParams {}
-
-			export interface IRequestBody {}
-
-			export interface IResponseBody extends IApiResponseBody {
-				tweets: any[]
-			}
-
-			export interface IDefinition {
-				pathParams: IPathParams
-				queryParams: IQueryParams
-				requestBody: IRequestBody
-				responseBody: IResponseBody
-			}
-
-			export type Response = IResponseBody | IError
-		}
-
-		/** Get Twitter Access Token */
-		export namespace GetTwitterAccessToken {
-			export interface IPathParams {}
-
-			export const path = () => `/api/1.0/meemid/twitter/access-token`
-
-			export const method = HttpMethod.Post
-
-			export interface IQueryParams {}
-
-			export interface IRequestBody {
-				oauthToken: string
-				oauthTokenSecret: string
-				oauthVerifier: string
-			}
-
-			export interface IResponseBody extends IApiResponseBody {
-				accessToken: string
-				accessTokenSecret: string
-			}
-
-			export interface IDefinition {
-				pathParams: IPathParams
-				queryParams: IQueryParams
-				requestBody: IRequestBody
-				responseBody: IResponseBody
-			}
-
-			export type Response = IResponseBody | IError
-		}
-
-		/** Get Twitter Auth Url */
-		export namespace GetTwitterAuthUrl {
-			export interface IPathParams {}
-
-			export const path = () => `/api/1.0/meemid/twitter/request-url`
-
-			export const method = HttpMethod.Get
-
-			export interface IQueryParams {}
-
-			export interface IRequestBody {}
-
-			export interface IResponseBody extends IApiResponseBody {
-				url: string
-				oauthToken: string
-				oauthTokenSecret: string
 			}
 
 			export interface IDefinition {

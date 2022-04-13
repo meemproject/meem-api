@@ -5,9 +5,15 @@ import lintConfig from '../types/.eslintrc'
 
 export default class TypesService {
 	/** Creates the generated types file */
-	public static async generateTypesFile(): Promise<void> {
-		const { allTypes } = await this.getSharedTypes()
-		const { allTypesPath } = this.getSharedTypesPaths()
+	public static async generateTypesFiles(): Promise<void> {
+		const { types: allTypes } = await this.getSharedTypes({
+			includeProjectTypes: true
+		})
+		const { types: publicTypes } = await this.getSharedTypes({
+			includeProjectTypes: false
+		})
+		const { allTypesPath } = this.getAllTypesPath()
+		const { publicTypesPath } = this.getPublicTypesPath()
 
 		// Get eslint headers
 		let header = ''
@@ -19,13 +25,19 @@ export default class TypesService {
 		})
 
 		await Promise.all([fs.writeFile(allTypesPath, header + allTypes)])
-
 		await Promise.all([services.lint.fix(allTypesPath)])
+
+		await Promise.all([fs.writeFile(publicTypesPath, header + publicTypes)])
+		await Promise.all([services.lint.fix(publicTypesPath)])
 	}
 
 	/** Gets type definitions shared by the API. This can be written to a file */
-	public static async getSharedTypes(): Promise<{
-		allTypes: string
+	public static async getSharedTypes({
+		includeProjectTypes
+	}: {
+		includeProjectTypes: boolean
+	}): Promise<{
+		types: string
 	}> {
 		const sharedTypesGlob = path.join(process.cwd(), 'src/types/shared/**/*.ts')
 		const endpointsGlob = path.join(
@@ -36,19 +48,43 @@ export default class TypesService {
 			process.cwd(),
 			'src/types/shared/events/**/*.ts'
 		)
+		const projectTypesGlob = path.join(
+			process.cwd(),
+			'src/types/projects/**/*.ts'
+		)
+		const projectEndpointsGlob = path.join(
+			process.cwd(),
+			'src/types/projects/*/api/**/*.ts'
+		)
 
-		const [files, endpointFiles, eventsFiles] = await Promise.all([
+		const [
+			files,
+			endpointFiles,
+			eventsFiles,
+			projectFiles,
+			projectEndpointFiles
+		] = await Promise.all([
 			globby(sharedTypesGlob, {
 				ignore: [endpointsGlob, eventsGlob]
 			}),
 			globby(endpointsGlob),
-			globby(eventsGlob)
+			globby(eventsGlob),
+			globby(projectTypesGlob, { ignore: [projectEndpointsGlob] }),
+			globby(projectEndpointsGlob)
 		])
 
-		const [types, endpointTypes, eventTypes] = await Promise.all([
+		const [
+			types,
+			endpointTypes,
+			eventTypes,
+			projectTypes,
+			projectEndpointTypes
+		] = await Promise.all([
 			Promise.all(files.map(f => this.parseTypes(f))),
 			Promise.all(endpointFiles.map(f => this.parseTypes(f))),
-			Promise.all(eventsFiles.map(f => this.parseTypes(f)))
+			Promise.all(eventsFiles.map(f => this.parseTypes(f))),
+			Promise.all(projectFiles.map(f => this.parseTypes(f))),
+			Promise.all(projectEndpointFiles.map(f => this.parseTypes(f)))
 		])
 
 		const eventDefinitions: string[] = []
@@ -92,11 +128,16 @@ export default class TypesService {
 			}
 		})
 
-		const allTypes = `export namespace MeemAPI {\n${types.join(
-			'\n\n'
-		)}\nexport namespace v1 {\n${endpointTypes.join(
-			'\n\n'
-		)}\n}\nexport enum MeemEvent {\n
+		let typesConcat = types.join('\n\n')
+
+		let endpointTypesConcat = endpointTypes.join('\n\n')
+
+		if (includeProjectTypes) {
+			typesConcat += `\n\n${projectTypes.join('\n\n')}`
+			endpointTypesConcat += `\n\n${projectEndpointTypes.join('\n\n')}`
+		}
+
+		const allTypes = `export namespace MeemAPI {\n${typesConcat}\nexport namespace v1 {\n${endpointTypesConcat}\n}\nexport enum MeemEvent {\n
 			${(eventDefinitions ?? []).join('\n')}
 		\n}\nexport namespace Events {\n${generatedEventTypes.join(
 			'\n\n'
@@ -104,10 +145,19 @@ export default class TypesService {
 			' | '
 		)}\n\nexport type EventListener=${eventListeners.join(' | ')}}`
 
-		return { allTypes }
+		return { types: allTypes }
 	}
 
-	public static getSharedTypesPaths() {
+	public static getPublicTypesPath() {
+		return {
+			publicTypesPath: path.join(
+				process.cwd(),
+				'src/types/meem.public.generated.ts'
+			)
+		}
+	}
+
+	public static getAllTypesPath() {
 		return {
 			allTypesPath: path.join(process.cwd(), 'src/types/meem.generated.ts')
 		}

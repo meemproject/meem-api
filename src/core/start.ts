@@ -152,7 +152,7 @@ export default async function start() {
 	if (config.GENERATE_SHARED_TYPES) {
 		const typeGeneratorTimer = log.timerStart()
 		services.types
-			.generateTypesFile()
+			.generateTypesFiles()
 			.then(() => {
 				log.info(
 					`Shared types file generated: ${(
