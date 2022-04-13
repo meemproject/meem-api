@@ -1,4 +1,8 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import {
+	IError,
+	HttpMethod,
+	IApiResponseBody
+} from '../../../shared/api.shared'
 
 /** Get Twitter Access Token */
 export namespace GetTwitterAccessToken {
