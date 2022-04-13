@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import Child from '../services/Child'
+import Club from '../services/Club'
 import ContractEvents from '../services/ContractEvents'
 import Db from '../services/Db'
 import Ethers from '../services/Ethers'
@@ -27,6 +28,7 @@ declare global {
 		let git: typeof Git
 		let ipfs: typeof Ipfs
 		let lint: typeof Lint
+		let club: typeof Club
 		let meem: typeof Meem
 		let meemId: typeof MeemId
 		let prompts: typeof Prompts

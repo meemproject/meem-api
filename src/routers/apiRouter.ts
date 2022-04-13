@@ -1,5 +1,6 @@
 import coreExpress, { Express } from 'express'
 import multer from 'multer'
+import ClubController from '../controllers/ClubController'
 import ConfigController from '../controllers/ConfigController'
 import MeemController from '../controllers/MeemController'
 import MeemIdController from '../controllers/MeemIdController'
@@ -44,6 +45,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/meemid/twitter/access-token',
 		MeemController.getTwitterAccessToken
 	)
+	router.getAsync('/clubs/search', ClubController.searchClubs)
 	router.getAsync('/meems', MeemController.getMeems)
 	router.getAsync('/meems/:tokenId', MeemController.getMeem)
 	router.getAsync('/meems/:tokenId/children', MeemController.getChildMeems)

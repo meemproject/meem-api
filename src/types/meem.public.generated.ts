@@ -388,6 +388,13 @@ export namespace MeemAPI {
 		splitsLockedBy: string
 	}
 
+	export interface IClub {
+		tokenName: string
+		displayName: string
+		discription: string
+		tokenId: string
+	}
+
 	export interface IMeem {
 		tokenId: string
 		/** Address of the token owner */
@@ -431,6 +438,8 @@ export namespace MeemAPI {
 
 	export interface IMetadataMeem extends IMeem {
 		reactionCounts: { [reaction: string]: number }
+		numCopies: number
+		numRemixes: number
 		addressReactions?: IReaction[]
 		metadata: IMeemMetadata
 		defaultTwitterUser?: {
@@ -1379,6 +1388,34 @@ export namespace MeemAPI {
 			export interface IResponseBody extends IApiResponseBody {
 				metadata: IMeemMetadata
 				tokenURI: string
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		/** Get Meem */
+		export namespace SearchClubs {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/clubs/search`
+
+			export const method = HttpMethod.Post
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {
+				accountAddress?: string
+			}
+
+			export interface IResponseBody extends IApiResponseBody {
+				clubs: IClub[]
 			}
 
 			export interface IDefinition {

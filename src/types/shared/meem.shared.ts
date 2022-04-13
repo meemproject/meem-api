@@ -334,6 +334,13 @@ export interface IMeemProperties {
 	splitsLockedBy: string
 }
 
+export interface IClub {
+	tokenName: string
+	displayName: string
+	discription: string
+	tokenId: string
+}
+
 export interface IMeem {
 	tokenId: string
 	/** Address of the token owner */
