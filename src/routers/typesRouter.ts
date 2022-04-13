@@ -7,8 +7,11 @@ export default (app: Express, express: typeof coreExpress) => {
 	app.use('/api/1.0/', router)
 
 	router.use('/types', async (req, res) => {
-		const { publicTypesPath } = services.types.getPublicTypesPath()
-		const sharedTypes = await fs.readFile(publicTypesPath)
+		let typesPath = services.types.getPublicTypesPath().publicTypesPath
+		if (req.query.allTypes && req.query.allTypes === 'true') {
+			typesPath = services.types.getAllTypesPath().allTypesPath
+		}
+		const sharedTypes = await fs.readFile(typesPath)
 		return res.json({ types: sharedTypes.toString() })
 	})
 }
