@@ -337,7 +337,7 @@ export interface IMeemProperties {
 export interface IClub {
 	tokenName: string
 	displayName: string
-	discription: string
+	description: string
 	tokenId: string
 }
 

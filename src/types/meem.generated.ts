@@ -391,7 +391,7 @@ export namespace MeemAPI {
 	export interface IClub {
 		tokenName: string
 		displayName: string
-		discription: string
+		description: string
 		tokenId: string
 	}
 
@@ -1429,7 +1429,8 @@ export namespace MeemAPI {
 			export const method = HttpMethod.Get
 
 			export interface IQueryParams extends IRequestPaginated {
-				query: string
+				displayName?: string
+				tokenName?: string
 			}
 
 			export interface IRequestBody {}

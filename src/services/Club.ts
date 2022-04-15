@@ -1,7 +1,8 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import faker from 'faker'
-import { Op } from 'sequelize'
 import { v4 as uuidv4 } from 'uuid'
+import type ClubModel from '../models/Club'
+import { IClub } from '../types/shared/meem.shared'
 
 export default class ClubService {
 	public static async seedClubs() {
@@ -28,6 +29,15 @@ export default class ClubService {
 				log.crit(e)
 				log.debug(clubs[i])
 			}
+		}
+	}
+
+	public static clubToIClub(club: ClubModel): IClub {
+		return {
+			tokenId: club.tokenId,
+			tokenName: club.tokenName,
+			displayName: club.displayName,
+			description: club.description
 		}
 	}
 }

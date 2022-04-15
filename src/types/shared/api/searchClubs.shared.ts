@@ -16,7 +16,8 @@ export namespace SearchClubs {
 	export const method = HttpMethod.Get
 
 	export interface IQueryParams extends IRequestPaginated {
-		query: string
+		displayName?: string
+		tokenName?: string
 	}
 
 	export interface IRequestBody {}
