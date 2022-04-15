@@ -18,7 +18,6 @@ import {
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ClubController {
-	// TODO: Move to dedicated MeemID controller?
 	public static async searchClubs(
 		req: IAPIRequestPaginated<MeemAPI.v1.SearchClubs.IDefinition>,
 		res: IResponse<MeemAPI.v1.SearchClubs.IResponseBody>
@@ -57,6 +56,45 @@ export default class ClubController {
 			clubs,
 			itemsPerPage: limit,
 			totalItems: clubsQuery.count
+		})
+	}
+
+	public static async createOrUpdateClubConnection(
+		req: IRequest<MeemAPI.v1.CreateOrUpdateClubConnection.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateOrUpdateClubConnection.IResponseBody>
+	): Promise<Response> {
+		const { tokenId, connectionType } = req.params
+		if (config.DISABLE_ASYNC_MINTING) {
+			switch (connectionType) {
+				case 'twitter': {
+					services.club.createOrUpdateTwitterConnection({
+						tokenId,
+						signature: '',
+						twitterAccessToken: req.body.twitterAccessToken,
+						twitterAccessSecret: req.body.twitterAccessSecret
+					})
+					break
+				}
+				default:
+					break
+			}
+		} else {
+			// TODO: Async Function
+			// const lambda = new AWS.Lambda({
+			// 	accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+			// 	secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+			// 	region: 'us-east-1'
+			// })
+			// await lambda
+			// 	.invoke({
+			// 		InvocationType: 'Event',
+			// 		FunctionName: config.LAMBDA_MEEMID_UPDATE_FUNCTION,
+			// 		Payload: JSON.stringify(data)
+			// 	})
+			// 	.promise()
+		}
+		return res.json({
+			status: 'success'
 		})
 	}
 }

@@ -5,6 +5,27 @@ import type ClubModel from '../models/Club'
 import { IClub } from '../types/shared/meem.shared'
 
 export default class ClubService {
+	public static async createOrUpdateTwitterConnection(options: {
+		tokenId: string
+		signature: string
+		twitterAccessToken: string
+		twitterAccessSecret: string
+	}) {
+		const { tokenId, signature, twitterAccessToken, twitterAccessSecret } =
+			options
+		try {
+			const twitterUser = await services.twitter.getUser({
+				accessToken: twitterAccessToken,
+				accessSecret: twitterAccessSecret
+			})
+
+			log.debug(`Verified Twitter User: ${twitterUser.id} | ${signature}`)
+		} catch (e) {
+			log.crit(e)
+			await sockets?.emitError(config.errors.SERVER_ERROR, tokenId)
+		}
+	}
+
 	public static async seedClubs() {
 		const clubs = []
 
