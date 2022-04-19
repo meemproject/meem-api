@@ -1,20 +1,6 @@
-import AWS from 'aws-sdk'
-import BigNumber from 'bignumber.js'
-import type { ethers as Ethers } from 'ethers'
 import { Response } from 'express'
-import { parse } from 'json2csv'
-import _ from 'lodash'
-import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
-import sharp from 'sharp'
-import TwitterApi, { UserV2 } from 'twitter-api-v2'
-import { v4 as uuidv4, validate as uuidValidate } from 'uuid'
-import {
-	IAPIRequestPaginated,
-	IAuthenticatedRequest,
-	IRequest,
-	IResponse
-} from '../types/app'
+import { IAPIRequestPaginated, IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ClubController {
@@ -65,10 +51,21 @@ export default class ClubController {
 	): Promise<Response> {
 		const { tokenId, connectionType } = req.params
 		if (config.DISABLE_ASYNC_MINTING) {
+			// const tokenIdNumber = services.web3.toBigNumber(tokenId)
+			// TODO: Use tokenId instead of id to query for club
+			const club = await orm.models.Club.findOne({
+				where: {
+					tokenId
+				}
+			})
+			if (!club) {
+				throw new Error('TOKEN_NOT_FOUND')
+			}
+			let connection: Twitter | null
 			switch (connectionType) {
 				case 'twitter': {
-					services.club.createOrUpdateTwitterConnection({
-						tokenId,
+					connection = await services.club.createOrUpdateTwitterConnection({
+						clubId: club.id,
 						signature: '',
 						twitterAccessToken: req.body.twitterAccessToken,
 						twitterAccessSecret: req.body.twitterAccessSecret
@@ -78,21 +75,24 @@ export default class ClubController {
 				default:
 					break
 			}
-		} else {
-			// TODO: Async Function
-			// const lambda = new AWS.Lambda({
-			// 	accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-			// 	secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-			// 	region: 'us-east-1'
-			// })
-			// await lambda
-			// 	.invoke({
-			// 		InvocationType: 'Event',
-			// 		FunctionName: config.LAMBDA_MEEMID_UPDATE_FUNCTION,
-			// 		Payload: JSON.stringify(data)
-			// 	})
-			// 	.promise()
+			return res.json({
+				connection
+			})
 		}
+		// TODO: Async Function
+		// const lambda = new AWS.Lambda({
+		// 	accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+		// 	secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+		// 	region: 'us-east-1'
+		// })
+		// await lambda
+		// 	.invoke({
+		// 		InvocationType: 'Event',
+		// 		FunctionName: config.LAMBDA_MEEMID_UPDATE_FUNCTION,
+		// 		Payload: JSON.stringify(data)
+		// 	})
+		// 	.promise()
+
 		return res.json({
 			status: 'success'
 		})

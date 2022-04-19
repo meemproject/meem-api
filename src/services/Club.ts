@@ -2,16 +2,17 @@
 import faker from 'faker'
 import { v4 as uuidv4 } from 'uuid'
 import type ClubModel from '../models/Club'
+import Twitter from '../models/Twitter'
 import { IClub } from '../types/shared/meem.shared'
 
 export default class ClubService {
 	public static async createOrUpdateTwitterConnection(options: {
-		tokenId: string
+		clubId: string
 		signature: string
 		twitterAccessToken: string
 		twitterAccessSecret: string
-	}) {
-		const { tokenId, signature, twitterAccessToken, twitterAccessSecret } =
+	}): Promise<Twitter> {
+		const { clubId, signature, twitterAccessToken, twitterAccessSecret } =
 			options
 		try {
 			const twitterUser = await services.twitter.getUser({
@@ -19,10 +20,37 @@ export default class ClubService {
 				accessSecret: twitterAccessSecret
 			})
 
+			if (!twitterUser.id) {
+				throw new Error('NOT_AUTHORIZED')
+			}
+
+			let twitter: Twitter
+
+			const existingTwitter = await orm.models.Twitter.findOne({
+				where: {
+					twitterId: twitterUser.id_str
+				}
+			})
+
+			if (existingTwitter) {
+				existingTwitter.ClubId = clubId
+				const updatedTwitter = await existingTwitter.save()
+				twitter = updatedTwitter
+			} else {
+				twitter = await orm.models.Twitter.create({
+					twitterId: twitterUser.id_str,
+					isDefault: false,
+					ClubId: clubId
+				})
+			}
+
 			log.debug(`Verified Twitter User: ${twitterUser.id} | ${signature}`)
+
+			return twitter
 		} catch (e) {
 			log.crit(e)
-			await sockets?.emitError(config.errors.SERVER_ERROR, tokenId)
+			await sockets?.emitError(config.errors.SERVER_ERROR, clubId)
+			throw new Error('SERVER_ERROR')
 		}
 	}
 

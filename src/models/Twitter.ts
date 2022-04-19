@@ -37,7 +37,10 @@ export default class Twitter extends BaseModel<Twitter> {
 
 	public MeemIdentificationId!: string | null
 
+	public ClubId!: string | null
+
 	public static associate(models: IModels) {
 		this.belongsTo(models.MeemIdentification)
+		this.belongsTo(models.Club)
 	}
 }
