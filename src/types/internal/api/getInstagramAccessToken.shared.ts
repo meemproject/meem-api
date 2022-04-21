@@ -1,28 +1,22 @@
-import {
-	IError,
-	HttpMethod,
-	IApiResponseBody
-} from '../../../shared/api.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../shared/api.shared'
 
 /** Get Twitter Access Token */
-export namespace GetTwitterAccessToken {
+export namespace GetInstagramAccessToken {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/meemid/twitter/access-token`
+	export const path = () => `/api/1.0/meemid/instagram/access-token`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		oauthToken: string
-		oauthTokenSecret: string
-		oauthVerifier: string
+		code: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
 		accessToken: string
-		accessTokenSecret: string
+		userId: string
 	}
 
 	export interface IDefinition {

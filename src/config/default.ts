@@ -163,5 +163,8 @@ export default {
 	TWITTER_PROMPTS_PROJECT_TOKEN_ID:
 		process.env.TWITTER_PROMPTS_PROJECT_TOKEN_ID ?? '',
 	PINATA_API_KEY: process.env.PINATA_API_KEY ?? '',
-	PINATA_API_SECRET: process.env.PINATA_API_SECRET ?? ''
+	PINATA_API_SECRET: process.env.PINATA_API_SECRET ?? '',
+	IG_APP_ID: process.env.IG_APP_ID ?? '',
+	IG_APP_SECRET: process.env.IG_APP_SECRET ?? '',
+	IG_AUTH_CALLBACK_URL: process.env.IG_AUTH_CALLBACK_URL ?? ''
 }

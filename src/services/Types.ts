@@ -7,10 +7,10 @@ export default class TypesService {
 	/** Creates the generated types file */
 	public static async generateTypesFiles(): Promise<void> {
 		const { types: allTypes } = await this.getSharedTypes({
-			includeProjectTypes: true
+			includeInternalTypes: true
 		})
 		const { types: publicTypes } = await this.getSharedTypes({
-			includeProjectTypes: false
+			includeInternalTypes: false
 		})
 		const { allTypesPath } = this.getAllTypesPath()
 		const { publicTypesPath } = this.getPublicTypesPath()
@@ -33,9 +33,9 @@ export default class TypesService {
 
 	/** Gets type definitions shared by the API. This can be written to a file */
 	public static async getSharedTypes({
-		includeProjectTypes
+		includeInternalTypes
 	}: {
-		includeProjectTypes: boolean
+		includeInternalTypes: boolean
 	}): Promise<{
 		types: string
 	}> {
@@ -48,43 +48,43 @@ export default class TypesService {
 			process.cwd(),
 			'src/types/shared/events/**/*.ts'
 		)
-		const projectTypesGlob = path.join(
+		const internalTypesGlob = path.join(
 			process.cwd(),
-			'src/types/projects/**/*.ts'
+			'src/types/internal/**/*.ts'
 		)
-		const projectEndpointsGlob = path.join(
+		const internalEndpointsGlob = path.join(
 			process.cwd(),
-			'src/types/projects/*/api/**/*.ts'
+			'src/types/internal/api/**/*.ts'
 		)
 
 		const [
 			files,
 			endpointFiles,
 			eventsFiles,
-			projectFiles,
-			projectEndpointFiles
+			internalFiles,
+			internalEndpointFiles
 		] = await Promise.all([
 			globby(sharedTypesGlob, {
 				ignore: [endpointsGlob, eventsGlob]
 			}),
 			globby(endpointsGlob),
 			globby(eventsGlob),
-			globby(projectTypesGlob, { ignore: [projectEndpointsGlob] }),
-			globby(projectEndpointsGlob)
+			globby(internalTypesGlob, { ignore: [internalEndpointsGlob] }),
+			globby(internalEndpointsGlob)
 		])
 
 		const [
 			types,
 			endpointTypes,
 			eventTypes,
-			projectTypes,
-			projectEndpointTypes
+			internalTypes,
+			internalEndpointTypes
 		] = await Promise.all([
 			Promise.all(files.map(f => this.parseTypes(f))),
 			Promise.all(endpointFiles.map(f => this.parseTypes(f))),
 			Promise.all(eventsFiles.map(f => this.parseTypes(f))),
-			Promise.all(projectFiles.map(f => this.parseTypes(f))),
-			Promise.all(projectEndpointFiles.map(f => this.parseTypes(f)))
+			Promise.all(internalFiles.map(f => this.parseTypes(f))),
+			Promise.all(internalEndpointFiles.map(f => this.parseTypes(f)))
 		])
 
 		const eventDefinitions: string[] = []
@@ -132,9 +132,9 @@ export default class TypesService {
 
 		let endpointTypesConcat = endpointTypes.join('\n\n')
 
-		if (includeProjectTypes) {
-			typesConcat += `\n\n${projectTypes.join('\n\n')}`
-			endpointTypesConcat += `\n\n${projectEndpointTypes.join('\n\n')}`
+		if (includeInternalTypes) {
+			typesConcat += `\n\n${internalTypes.join('\n\n')}`
+			endpointTypesConcat += `\n\n${internalEndpointTypes.join('\n\n')}`
 		}
 
 		const allTypes = `export namespace MeemAPI {\n${typesConcat}\nexport namespace v1 {\n${endpointTypesConcat}\n}\nexport enum MeemEvent {\n

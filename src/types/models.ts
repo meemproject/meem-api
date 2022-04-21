@@ -1,6 +1,7 @@
 import Clipping from '../models/Clipping'
 import Club from '../models/Club'
 import Hashtag from '../models/Hashtag'
+import Instagram from '../models/Instagram'
 import Meem from '../models/Meem'
 import MeemIdentification from '../models/MeemIdentification'
 import MeemPass from '../models/MeemPass'
@@ -17,6 +18,7 @@ export interface IModels {
 	Club: typeof Club
 	Clipping: typeof Clipping
 	Hashtag: typeof Hashtag
+	Instagram: typeof Instagram
 	Meem: typeof Meem
 	MeemPass: typeof MeemPass
 	MeemProperties: typeof MeemProperties

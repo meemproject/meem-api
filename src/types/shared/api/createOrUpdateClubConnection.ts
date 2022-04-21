@@ -18,9 +18,13 @@ export namespace CreateOrUpdateClubConnection {
 
 	export interface IRequestBody {
 		/** Twitter account to add or lookup by */
-		twitterAccessToken: string
+		twitterAccessToken?: string
 		/** Twitter account to add or lookup by */
-		twitterAccessSecret: string
+		twitterAccessSecret?: string
+		/** Instagram authentication code */
+		instagramAuthCode?: string
+		/** Instagram account to add */
+		instagramUserId?: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

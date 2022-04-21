@@ -721,9 +721,13 @@ export namespace MeemAPI {
 
 			export interface IRequestBody {
 				/** Twitter account to add or lookup by */
-				twitterAccessToken: string
+				twitterAccessToken?: string
 				/** Twitter account to add or lookup by */
-				twitterAccessSecret: string
+				twitterAccessSecret?: string
+				/** Instagram authentication code */
+				instagramAuthCode?: string
+				/** Instagram account to add */
+				instagramUserId?: string
 			}
 
 			export interface IResponseBody extends IApiResponseBody {
@@ -1591,6 +1595,35 @@ export namespace MeemAPI {
 
 			export interface IResponseBody extends IApiResponseBody {
 				status: 'success'
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
+		/** Get Twitter Access Token */
+		export namespace GetInstagramAccessToken {
+			export interface IPathParams {}
+
+			export const path = () => `/api/1.0/meemid/instagram/access-token`
+
+			export const method = HttpMethod.Post
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {
+				code: string
+			}
+
+			export interface IResponseBody extends IApiResponseBody {
+				accessToken: string
+				userId: string
 			}
 
 			export interface IDefinition {

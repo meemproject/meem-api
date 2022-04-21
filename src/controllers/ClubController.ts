@@ -1,5 +1,6 @@
 import { Response } from 'express'
 import { Op } from 'sequelize'
+import Twitter from '../models/Twitter'
 import { IAPIRequestPaginated, IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -67,8 +68,17 @@ export default class ClubController {
 					connection = await services.club.createOrUpdateTwitterConnection({
 						clubId: club.id,
 						signature: '',
-						twitterAccessToken: req.body.twitterAccessToken,
-						twitterAccessSecret: req.body.twitterAccessSecret
+						twitterAccessToken: req.body.twitterAccessToken || '',
+						twitterAccessSecret: req.body.twitterAccessSecret || ''
+					})
+					break
+				}
+				case 'instagram': {
+					connection = await services.club.createOrUpdateInstagramConnection({
+						clubId: club.id,
+						signature: '',
+						instagramAuthCode: req.body.instagramAuthCode || '',
+						instagramUserId: req.body.instagramUserId || ''
 					})
 					break
 				}

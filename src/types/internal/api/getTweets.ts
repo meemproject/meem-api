@@ -1,8 +1,4 @@
-import {
-	IError,
-	HttpMethod,
-	IApiResponseBody
-} from '../../../shared/api.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../shared/api.shared'
 
 /** Get Meem Tweets */
 export namespace GetTweets {

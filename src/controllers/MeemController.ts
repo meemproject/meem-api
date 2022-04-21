@@ -8,6 +8,7 @@ import _ from 'lodash'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
 import sharp from 'sharp'
+import request from 'superagent'
 import TwitterApi, { UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4, validate as uuidValidate } from 'uuid'
 import Meem from '../models/Meem'
@@ -20,7 +21,6 @@ import {
 import { MeemAPI } from '../types/meem.generated'
 
 export default class MeemController {
-	// TODO: Move to dedicated MeemID controller?
 	public static async getTwitterAuthUrl(
 		req: IRequest<MeemAPI.v1.GetTwitterAuthUrl.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetTwitterAuthUrl.IResponseBody>
