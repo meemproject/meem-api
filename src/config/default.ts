@@ -166,5 +166,8 @@ export default {
 	PINATA_API_SECRET: process.env.PINATA_API_SECRET ?? '',
 	IG_APP_ID: process.env.IG_APP_ID ?? '',
 	IG_APP_SECRET: process.env.IG_APP_SECRET ?? '',
-	IG_AUTH_CALLBACK_URL: process.env.IG_AUTH_CALLBACK_URL ?? ''
+	IG_AUTH_CALLBACK_URL: process.env.IG_AUTH_CALLBACK_URL ?? '',
+	DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID ?? '',
+	DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET ?? '',
+	DISCORD_AUTH_CALLBACK_URL: process.env.DISCORD_AUTH_CALLBACK_URL ?? ''
 }

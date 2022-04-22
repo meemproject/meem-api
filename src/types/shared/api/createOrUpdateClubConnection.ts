@@ -25,6 +25,8 @@ export namespace CreateOrUpdateClubConnection {
 		instagramAuthCode?: string
 		/** Instagram account to add */
 		instagramUserId?: string
+		/** Discord authentication code */
+		discordAuthCode?: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

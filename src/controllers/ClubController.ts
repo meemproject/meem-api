@@ -82,6 +82,14 @@ export default class ClubController {
 					})
 					break
 				}
+				case 'discord': {
+					connection = await services.club.createOrUpdateDiscordConnection({
+						clubId: club.id,
+						signature: '',
+						discordAuthCode: req.body.discordAuthCode || ''
+					})
+					break
+				}
 				default:
 					break
 			}

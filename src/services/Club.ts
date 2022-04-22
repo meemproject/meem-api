@@ -3,6 +3,7 @@ import faker from 'faker'
 import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
 import type ClubModel from '../models/Club'
+import Discord from '../models/Discord'
 import Instagram from '../models/Instagram'
 import Twitter from '../models/Twitter'
 import { IClub } from '../types/shared/meem.shared'
@@ -102,6 +103,65 @@ export default class ClubService {
 				return instagram
 			}
 			throw new Error('NOT_AUTHORIZED')
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
+	public static async createOrUpdateDiscordConnection(options: {
+		clubId: string
+		signature: string
+		discordAuthCode: string
+	}): Promise<Discord> {
+		const { clubId, signature, discordAuthCode } = options
+		try {
+			const discordAuthResult = await request
+				.post('https://discord.com/api/oauth2/token')
+				.field('client_id', config.DISCORD_CLIENT_ID)
+				.field('client_secret', config.DISCORD_CLIENT_SECRET)
+				.field('grant_type', 'authorization_code')
+				.field('redirect_uri', config.DISCORD_AUTH_CALLBACK_URL)
+				.field('code', discordAuthCode)
+
+			if (!discordAuthResult.body.access_token) {
+				throw new Error('NOT_AUTHORIZED')
+			}
+
+			const discordUserResult = await request
+				.get('https://discord.com/api/oauth2/@me')
+				.auth(discordAuthResult.body.access_token, {
+					type: 'bearer'
+				})
+
+			if (!discordUserResult.body.user?.id) {
+				throw new Error('NOT_AUTHORIZED')
+			}
+
+			const discordUserId = discordUserResult.body.user.id
+			let discord: Discord
+
+			const existingDiscord = await orm.models.Discord.findOne({
+				where: {
+					discordId: discordUserId
+				}
+			})
+
+			if (existingDiscord) {
+				existingDiscord.ClubId = clubId
+				const updatedDiscord = await existingDiscord.save()
+				discord = updatedDiscord
+			} else {
+				discord = await orm.models.Discord.create({
+					discordId: discordUserId,
+					isDefault: false,
+					ClubId: clubId
+				})
+			}
+
+			log.debug(`Verified Discord User: ${discordUserId} | ${signature}`)
+
+			return discord
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')
