@@ -70,12 +70,16 @@ export default class TwitterListener {
 					const isMeemReplyTweet =
 						eventData.data.in_reply_to_user_id ===
 						config.TWITTER_MEEM_ACCOUNT_ID
+					const isClubTweet = /♣️/gi.test(eventData.data.text)
+
 					try {
 						if (isMeemReplyTweet) {
 							await services.twitter.handleMeemReplyTweet(
 								eventData.data,
 								eventData.includes
 							)
+						} else if (isClubTweet) {
+							services.twitter.handleJoinClubTweet(eventData.data)
 						} else {
 							await services.twitter.mintAndStoreTweet(
 								eventData.data,

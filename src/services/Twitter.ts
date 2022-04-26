@@ -211,6 +211,25 @@ export default class TwitterService {
 		}
 	}
 
+	public static async handleJoinClubTweet(tweetData: TweetV2): Promise<void> {
+		// log.debug('JOIN CLUB TWEET', tweetData)
+
+		const clubUrlData = tweetData.entities?.urls?.find(urlData =>
+			/clubs\/[0-9]*/.test(urlData.expanded_url)
+		)
+
+		if (!clubUrlData) {
+			return
+		}
+
+		const clubId = clubUrlData.expanded_url.split('clubs/')[1]
+
+		log.debug('JOIN CLUB WITH ID: ', clubId)
+
+		// TODO: Mint Club Token For Twitter user (If they have MeemId?)
+		// Mint to contract and allow Twitter user to claim if they create a MeemId?
+	}
+
 	public static async mintAndStoreTweet(
 		tweetData: TweetV2,
 		includes?: ApiV2Includes
