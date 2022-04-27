@@ -622,6 +622,38 @@ export namespace MeemAPI {
 			export type Response = IResponseBody | IError
 		}
 
+		export namespace CreateClubGuild {
+			export interface IPathParams {
+				/** The club token id to update */
+				tokenId: string
+			}
+
+			export const path = (options: IPathParams) =>
+				`/api/1.0/clubs/${options.tokenId}/guild`
+
+			export const method = HttpMethod.Post
+
+			export interface IQueryParams {}
+
+			export interface IRequestBody {
+				guildName: string
+				signature: string
+			}
+
+			export interface IResponseBody extends IApiResponseBody {
+				status: 'success'
+			}
+
+			export interface IDefinition {
+				pathParams: IPathParams
+				queryParams: IQueryParams
+				requestBody: IRequestBody
+				responseBody: IResponseBody
+			}
+
+			export type Response = IResponseBody | IError
+		}
+
 		/** Create Meem Image */
 		export namespace CreateMeemImage {
 			export interface IPathParams {}

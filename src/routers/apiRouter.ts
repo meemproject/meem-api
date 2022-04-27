@@ -50,6 +50,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 		MeemController.getTwitterAccessToken
 	)
 	router.getAsync('/clubs/search', ClubController.searchClubs)
+	router.postAsync('/clubs/:tokenId/guild', ClubController.createClubGuild)
 	router.postAsync(
 		'/clubs/:tokenId/connections/:connectionType',
 		ClubController.createOrUpdateClubConnection

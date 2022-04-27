@@ -115,4 +115,23 @@ export default class ClubController {
 			status: 'success'
 		})
 	}
+
+	public static async createClubGuild(
+		req: IRequest<MeemAPI.v1.CreateOrUpdateClubConnection.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateOrUpdateClubConnection.IResponseBody>
+	): Promise<Response> {
+		const { signature, guildName, contractAddress } = req.params
+
+		// TODO: Get the meemId and wallet address?
+		const guild = await services.club.createGuild({
+			name: guildName,
+			walletAddress: '',
+			signature: '',
+			contractAddress
+		})
+
+		return res.json({
+			guild
+		})
+	}
 }

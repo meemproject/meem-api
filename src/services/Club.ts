@@ -1,5 +1,8 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import { guild, user } from '@guildxyz/sdk'
+import { Bytes, Wallet } from 'ethers'
 import faker from 'faker'
+import { ethers } from 'hardhat'
 import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
 import type ClubModel from '../models/Club'
@@ -166,6 +169,54 @@ export default class ClubService {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')
 		}
+	}
+
+	public static async createGuild({
+		name,
+		signature,
+		walletAddress,
+		contractAddress
+	}: {
+		name: string
+		signature: string
+		walletAddress: string
+		contractAddress: string
+	}) {
+		// Creating a random wallet for the example
+		const wallet = ethers.Wallet.createRandom()
+		// Wrapping the signer function from ethers.js
+		const sign = (signableMessage: string | Bytes) =>
+			wallet.signMessage(signableMessage)
+
+		const clubGuild = await guild.create(
+			wallet.address, // You have to insert your own wallet here
+			sign,
+			{
+				name: 'Club Guild',
+				description: 'Cool stuff', // Optional
+				imageUrl: '', // Optional
+				theme: [{ mode: 'DARK', color: '#000000' }], // Optional
+				roles: [
+					{
+						name: 'Club Member',
+						logic: 'OR',
+						requirements: [
+							{
+								type: 'ERC20',
+								chain: 'POLYGON',
+								address: contractAddress,
+								data: {
+									amount: 1
+								}
+							}
+						]
+					}
+				]
+			}
+		)
+
+		// TODO: Joining user to the guild?
+		return clubGuild
 	}
 
 	public static async seedClubs() {
