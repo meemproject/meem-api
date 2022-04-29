@@ -5,6 +5,7 @@ import express, { Express } from 'express'
 import globby from 'globby'
 import Gun from 'gun'
 import ContractListener from '../listeners/ContractListener'
+import ProviderListener from '../listeners/ProviderListener'
 import TwitterListener from '../listeners/TwitterListener'
 import Configuration from './Configuration'
 import errorMiddleware from './errorMiddleware'
@@ -167,9 +168,20 @@ export default async function start() {
 	}
 
 	errorMiddleware(app)
+	g.listeners = {}
+
+	if (config.ENABLE_PROVIDER_LISTENERS) {
+		g.listeners = {
+			...g.listeners,
+			provider: new ProviderListener()
+		}
+
+		g.listeners.provider.start()
+	}
 
 	if (config.ENABLE_CONTRACT_LISTENERS) {
 		g.listeners = {
+			...g.listeners,
 			contract: new ContractListener()
 		}
 

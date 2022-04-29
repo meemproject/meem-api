@@ -20,3 +20,5 @@ src/sequelize/
 src/server/lib/protocols/
 src/server/lib/md5.ts
 src/server/lib/SignedRequest.ts
+*.generated.ts
+src/types/factories/
