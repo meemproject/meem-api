@@ -469,7 +469,7 @@ export default class ContractEvent {
 
 		if (!meem) {
 			log.debug(`Creating new meem: ${tokenId}`)
-			meem = await this.createNewMeem(tokenId)
+			meem = await this.createNewMeem(evt.address, tokenId)
 		} else {
 			log.debug(`Updating meem: ${tokenId}`)
 			meem.owner = evt.args.to
@@ -723,7 +723,8 @@ export default class ContractEvent {
 		await meem.save()
 	}
 
-	public static async createNewMeem(tokenId: string) {
+	public static async createNewMeem(address: string, tokenId: string) {
+		// TODO: Do we pass the contract address to getMeemContract?
 		const meemContract = await services.meem.getMeemContract()
 
 		log.debug(`Fetching meem from contract: ${tokenId}`)
@@ -734,6 +735,16 @@ export default class ContractEvent {
 		])
 
 		log.debug(`Meem found`, tokenURI, meemData)
+
+		const meemContractData = await orm.models.MeemContract.findOne({
+			where: {
+				address
+			}
+		})
+
+		if (!meemContractData) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
 
 		const metadata = (await services.meem.getErc721Metadata(
 			tokenURI
@@ -770,7 +781,8 @@ export default class ContractEvent {
 			mintedBy: meemData.mintedBy,
 			uriLockedBy: meemData.uriLockedBy,
 			uriSource: meemData.uriSource,
-			reactionTypes: meemData.reactionTypes
+			reactionTypes: meemData.reactionTypes,
+			MeemContractId: meemContractData.id
 		}
 
 		log.debug(`Saving meem to db: ${tokenId}`)

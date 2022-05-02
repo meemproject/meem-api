@@ -1,6 +1,7 @@
 import { Meem } from '@meemproject/meem-contracts'
 import meemABI from '@meemproject/meem-contracts/types/Meem.json'
-import { Contract, ethers, providers, utils } from 'ethers'
+import { Contract, providers, utils } from 'ethers'
+import { DateTime } from 'luxon'
 // import {} from '@meemproject/meem-contracts'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -63,7 +64,7 @@ export default class ProviderListener {
 				{
 					topics: [topicId]
 				},
-				async log => {
+				async rawLog => {
 					try {
 						/*
 						TODO: Handle log - get transaction, find the contract address, add the contract address to our DB of contracts that we listen for
@@ -83,11 +84,34 @@ export default class ProviderListener {
 						*/
 
 						const parsedLog = meemContract.interface.parseLog({
-							data: log.data,
-							topics: log.topics
+							data: rawLog.data,
+							topics: rawLog.topics
 						})
 
 						log.debug(parsedLog)
+
+						await orm.models.MeemContract.create({
+							address: rawLog.address,
+							totalOriginalsSupply: 10,
+							totalOriginalsSupplyLockedBy: MeemAPI.zeroAddress,
+							mintPermissions: [],
+							mintPermissionsLockedBy: MeemAPI.zeroAddress,
+							splits: [
+								{
+									toAddress: config.DAO_WALLET,
+									amount: 100,
+									lockedBy: MeemAPI.zeroAddress
+								}
+							],
+							splitsLockedBy: MeemAPI.zeroAddress,
+							originalsPerWallet: 0,
+							originalsPerWalletLockedBy: MeemAPI.zeroAddress,
+							isTransferrable: true,
+							isTransferrableLockedBy: MeemAPI.zeroAddress,
+							mintStartTimestamp: DateTime.now().toSeconds().toFixed(0),
+							mintEndTimestamp: '',
+							mintDatesLockedBy: MeemAPI.zeroAddress
+						})
 
 						/*
 							Handle parsed data
@@ -112,6 +136,7 @@ export default class ProviderListener {
 						  }
 						*/
 					} catch (e) {
+						console.log(e)
 						log.crit(e)
 					}
 				}
