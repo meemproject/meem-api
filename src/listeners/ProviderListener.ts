@@ -41,28 +41,19 @@ export default class ProviderListener {
 			// 	}
 			// })
 
-			const topicId = utils.id('MeemContractInitialized(address)')
-			log.debug(`topicId: ${topicId}`)
 			const meemContract = new Contract(
 				MeemAPI.zeroAddress,
 				meemABI
 			) as unknown as Meem
-			// const decode = ethers.utils.defaultAbiCoder.decode(
-			// 	['address'],
-			// 	'0x0000000000000000000000003fc5cdffd74d9eeebacb2a7dd94714023662abbf'
-			// )
 
-			// const result = meemContract.interface.parseLog({
-			// 	data: '0x0000000000000000000000003fc5cdffd74d9eeebacb2a7dd94714023662abbf',
-			// 	topics: [
-			// 		'0x273c08f8f7c609a33a4029ada1508fb7e43c5e434c66274c739d21dc1bb8171f'
-			// 	]
-			// })
-			// log.debug({ decode, result })
+			// const eventNames = Object.keys(meemContract.interface.events)
+
+			// See meemContract.interface.events for all available events
+			const topics = [utils.id('MeemContractInitialized(address)')]
 
 			this.provider.on(
 				{
-					topics: [topicId]
+					topics
 				},
 				async rawLog => {
 					try {
@@ -136,7 +127,6 @@ export default class ProviderListener {
 						  }
 						*/
 					} catch (e) {
-						console.log(e)
 						log.crit(e)
 					}
 				}
