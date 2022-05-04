@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
+import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 
 export default class MeemContract extends BaseModel<MeemContract> {
@@ -107,6 +108,34 @@ export default class MeemContract extends BaseModel<MeemContract> {
 	}
 
 	public id!: string
+
+	public address!: string
+
+	public totalOriginalsSupply!: string
+
+	public totalOriginalsSupplyLockedBy!: string
+
+	public mintPermissions!: MeemAPI.IMeemPermission[]
+
+	public mintPermissionsLockedBy!: string
+
+	public splits!: MeemAPI.IMeemSplit[]
+
+	public splitsLockedBy!: string
+
+	public originalsPerWallet!: string
+
+	public originalsPerWalletLockedBy!: string
+
+	public isTransferrable!: boolean
+
+	public isTransferrableLockedBy!: string
+
+	public mintStartTimestamp!: string
+
+	public mintEndTimestamp!: string
+
+	public mintDatesLockedBy!: string
 
 	public static associate(models: IModels) {}
 }

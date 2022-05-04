@@ -1,7 +1,9 @@
 import { Meem } from '@meemproject/meem-contracts'
+import { BasePropertiesStructOutput } from '@meemproject/meem-contracts/dist/types/Meem'
 import meemABI from '@meemproject/meem-contracts/types/Meem.json'
-import { Contract, providers, utils } from 'ethers'
+import { Contract, ethers, providers, utils } from 'ethers'
 import { DateTime } from 'luxon'
+import MeemContract from '../models/MeemContract'
 // import {} from '@meemproject/meem-contracts'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -41,14 +43,14 @@ export default class ProviderListener {
 			// 	}
 			// })
 
-			const meemContract = new Contract(
+			const genericMeemContract = new Contract(
 				MeemAPI.zeroAddress,
 				meemABI
 			) as unknown as Meem
 
-			// const eventNames = Object.keys(meemContract.interface.events)
+			// const eventNames = Object.keys(genericMeemContract.interface.events)
 
-			// See meemContract.interface.events for all available events
+			// See genericMeemContract.interface.events for all available events
 			const topics = [utils.id('MeemContractInitialized(address)')]
 
 			this.provider.on(
@@ -74,35 +76,55 @@ export default class ProviderListener {
 						}
 						*/
 
-						const parsedLog = meemContract.interface.parseLog({
+						const parsedLog = genericMeemContract.interface.parseLog({
 							data: rawLog.data,
 							topics: rawLog.topics
 						})
 
 						log.debug(parsedLog)
 
-						await orm.models.MeemContract.create({
+						const meemContract = (await services.meem.getMeemContract({
+							address: rawLog.address
+						})) as unknown as Meem
+
+						const baseProperties: BasePropertiesStructOutput =
+							await meemContract.getBaseProperties()
+
+						log.debug(baseProperties)
+
+						const meemContractData = {
 							address: rawLog.address,
-							totalOriginalsSupply: 10,
-							totalOriginalsSupplyLockedBy: MeemAPI.zeroAddress,
-							mintPermissions: [],
-							mintPermissionsLockedBy: MeemAPI.zeroAddress,
-							splits: [
-								{
-									toAddress: config.DAO_WALLET,
-									amount: 100,
-									lockedBy: MeemAPI.zeroAddress
-								}
-							],
-							splitsLockedBy: MeemAPI.zeroAddress,
-							originalsPerWallet: 0,
-							originalsPerWalletLockedBy: MeemAPI.zeroAddress,
-							isTransferrable: true,
-							isTransferrableLockedBy: MeemAPI.zeroAddress,
-							mintStartTimestamp: DateTime.now().toSeconds().toFixed(0),
-							mintEndTimestamp: '',
-							mintDatesLockedBy: MeemAPI.zeroAddress
-						})
+							totalOriginalsSupply:
+								baseProperties.totalOriginalsSupply.toHexString(),
+							totalOriginalsSupplyLockedBy:
+								baseProperties.totalOriginalsSupplyLockedBy,
+							mintPermissions: baseProperties.mintPermissions.map(p => ({
+								permission: p.permission,
+								addresses: p.addresses,
+								numTokens: p.numTokens.toHexString(),
+								lockedBy: p.lockedBy,
+								costWei: p.costWei.toHexString()
+							})),
+							mintPermissionsLockedBy: baseProperties.mintPermissionsLockedBy,
+							splits: baseProperties.splits.map(s => ({
+								toAddress: s.toAddress,
+								amount: s.amount.toNumber(),
+								lockedBy: s.lockedBy
+							})),
+							splitsLockedBy: baseProperties.splitsLockedBy,
+							originalsPerWallet:
+								baseProperties.originalsPerWallet.toHexString(),
+							originalsPerWalletLockedBy:
+								baseProperties.originalsPerWalletLockedBy,
+							isTransferrable: baseProperties.isTransferrable,
+							isTransferrableLockedBy: baseProperties.isTransferrableLockedBy,
+							mintStartTimestamp:
+								baseProperties.mintStartTimestamp.toHexString(),
+							mintEndTimestamp: baseProperties.mintEndTimestamp.toHexString(),
+							mintDatesLockedBy: baseProperties.mintDatesLockedBy
+						}
+
+						await orm.models.MeemContract.create(meemContractData)
 
 						/*
 							Handle parsed data

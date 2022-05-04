@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import * as path from 'path'
+import meemABI from '@meemproject/meem-contracts/types/Meem.json'
 import type { ethers as Ethers } from 'ethers'
 import fs from 'fs-extra'
 import _ from 'lodash'
@@ -8,7 +9,6 @@ import sharp from 'sharp'
 import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
 import ERC721ABI from '../abis/ERC721.json'
-import MeemABI from '../abis/Meem.json'
 import errors from '../config/errors'
 import meemAccessListTesting from '../lib/meem-access-testing.json'
 import meemAccessList from '../lib/meem-access.json'
@@ -140,19 +140,21 @@ export default class MeemService {
 	}
 
 	/** Get a Meem contract instance */
-	public static async getMeemContract(options?: { walletPrivateKey: string }) {
+	public static async getMeemContract(options: {
+		address: string
+		walletPrivateKey?: string
+	}) {
 		const ethers = services.ethers.getInstance()
 		if (config.TESTING) {
 			// @ts-ignore
-			const c = (await ethers.getContractAt(MeemABI, config.MEEM_PROXY_ADDRESS))
+			const c = (await ethers.getContractAt(meemABI, options.address))
 				// @ts-ignore
 				.connect(global.signer)
-			// const c = await ethers.getContractAt(MeemABI, config.MEEM_PROXY_ADDRESS)
+			// const c = await ethers.getContractAt(meemABI, options.address)
 			return c as Meem
 		}
 
-		let walletPrivateKey =
-			options?.walletPrivateKey ?? config.WALLET_PRIVATE_KEY
+		let walletPrivateKey = options.walletPrivateKey ?? config.WALLET_PRIVATE_KEY
 
 		if (config.TESTING) {
 			walletPrivateKey = config.HARDHAT_MEEM_CONTRACT_WALLET
@@ -163,8 +165,8 @@ export default class MeemService {
 		const wallet = new ethers.Wallet(walletPrivateKey, provider)
 
 		const meemContract = new ethers.Contract(
-			config.MEEM_PROXY_ADDRESS,
-			MeemABI,
+			options.address,
+			meemABI,
 			wallet
 		) as Meem
 
@@ -173,7 +175,7 @@ export default class MeemService {
 
 	public static meemInterface() {
 		const ethers = services.ethers.getInstance()
-		const inter = new ethers.utils.Interface(MeemABI)
+		const inter = new ethers.utils.Interface(meemABI)
 		return inter
 	}
 
