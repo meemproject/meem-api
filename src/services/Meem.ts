@@ -89,7 +89,7 @@ export default class MeemService {
 
 	public static async getErc721Metadata(uri: string) {
 		let metadata: MeemAPI.IERC721Metadata
-		if (uri.length === 0) {
+		if (uri.length === 0 || uri === 'ipfs://example') {
 			return {}
 		}
 		if (/^data:application\/json/.test(uri)) {
@@ -140,21 +140,23 @@ export default class MeemService {
 	}
 
 	/** Get a Meem contract instance */
-	public static async getMeemContract(options: {
-		address: string
+	public static async getMeemContract(options?: {
+		address?: string
 		walletPrivateKey?: string
 	}) {
 		const ethers = services.ethers.getInstance()
+		const address = options?.address || config.MEEM_PROXY_ADDRESS
 		if (config.TESTING) {
 			// @ts-ignore
-			const c = (await ethers.getContractAt(meemABI, options.address))
+			const c = (await ethers.getContractAt(meemABI, address))
 				// @ts-ignore
 				.connect(global.signer)
-			// const c = await ethers.getContractAt(meemABI, options.address)
+			// const c = await ethers.getContractAt(meemABI, address)
 			return c as Meem
 		}
 
-		let walletPrivateKey = options.walletPrivateKey ?? config.WALLET_PRIVATE_KEY
+		let walletPrivateKey =
+			options?.walletPrivateKey ?? config.WALLET_PRIVATE_KEY
 
 		if (config.TESTING) {
 			walletPrivateKey = config.HARDHAT_MEEM_CONTRACT_WALLET
@@ -164,11 +166,7 @@ export default class MeemService {
 
 		const wallet = new ethers.Wallet(walletPrivateKey, provider)
 
-		const meemContract = new ethers.Contract(
-			options.address,
-			meemABI,
-			wallet
-		) as Meem
+		const meemContract = new ethers.Contract(address, meemABI, wallet) as Meem
 
 		return meemContract
 	}

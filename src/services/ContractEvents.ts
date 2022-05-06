@@ -79,7 +79,16 @@ export default class ContractEvent {
 			try {
 				log.debug(`Syncing ${i + 1} / ${events.length} events`)
 				// eslint-disable-next-line no-await-in-loop
-				await this.meemHandleTransfer(events[i])
+				const block = await events[i].getBlock()
+				// eslint-disable-next-line no-await-in-loop
+				await this.meemHandleTransfer({
+					address: events[i].address,
+					tokenId: events[i].args.tokenId,
+					to: events[i].args.to,
+					from: events[i].args.from,
+					transactionHash: events[i].transactionHash,
+					transferredAtTimestamp: block.timestamp
+				})
 				// eslint-disable-next-line no-await-in-loop
 				await wait(2000)
 			} catch (e) {
@@ -459,8 +468,15 @@ export default class ContractEvent {
 		}
 	}
 
-	public static async meemHandleTransfer(evt: TransferEvent) {
-		const tokenId = evt.args.tokenId.toHexString()
+	public static async meemHandleTransfer(args: {
+		address: string
+		tokenId: BigNumber
+		to: string
+		from: string
+		transactionHash: string
+		transferredAtTimestamp: number
+	}) {
+		const tokenId = args.tokenId.toHexString()
 		let meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
@@ -469,48 +485,50 @@ export default class ContractEvent {
 
 		if (!meem) {
 			log.debug(`Creating new meem: ${tokenId}`)
-			meem = await this.createNewMeem(evt.address, tokenId)
+			meem = await this.createNewMeem(args.address, tokenId)
 		} else {
 			log.debug(`Updating meem: ${tokenId}`)
-			meem.owner = evt.args.to
+			meem.owner = args.to
 			await meem.save()
 			if (!meem.data || !meem.metadata) {
 				await this.updateMeem({ meem })
 			}
 		}
 
-		const block = await evt.getBlock()
+		// const block = await evt.getBlock()
 
-		const transferredAt = DateTime.fromSeconds(block.timestamp).toJSDate()
+		const transferredAt = DateTime.fromSeconds(
+			args.transferredAtTimestamp
+		).toJSDate()
 
 		await orm.models.Transfer.create({
-			from: evt.args.from,
-			to: evt.args.to,
-			transactionHash: evt.transactionHash,
+			from: args.from,
+			to: args.to,
+			transactionHash: args.transactionHash,
 			transferredAt,
 			MeemId: meem.id
 		})
 
-		if (config.ENABLE_GUNDB) {
-			const transfer = gun
-				.user()
-				.get('transfers')
-				.get(evt.transactionHash)
-				.put({
-					event: evt.event,
-					from: evt.args.from,
-					to: evt.args.to,
-					tokenId: evt.args.tokenId,
-					blockHash: evt.blockHash,
-					blockNumber: evt.blockNumber,
-					data: evt.data,
-					transactionHash: evt.transactionHash
-				})
+		// if (config.ENABLE_GUNDB) {
+		// 	const transfer = gun
+		// 		.user()
+		// 		.get('transfers')
+		// 		.get(evt.transactionHash)
+		// 		.put({
+		// 			event: evt.event,
+		// 			from: evt.args.from,
+		// 			to: evt.args.to,
+		// 			tokenId: evt.args.tokenId,
+		// 			blockHash: evt.blockHash,
+		// 			blockNumber: evt.blockNumber,
+		// 			data: evt.data,
+		// 			transactionHash: evt.transactionHash
+		// 		})
 
-			const token = gun.user().get('meems').get(tokenId)
-			token.get('transfers').put(transfer)
-			transfer.get('token').put(token)
-		}
+		// 	const token = gun.user().get('meems').get(tokenId)
+		// 	token.get('transfers').put(transfer)
+		// 	transfer.get('token').put(token)
+		// }
 	}
 
 	public static async meemHandlePermissionsSet(evt: PermissionsSetEvent) {
@@ -725,7 +743,9 @@ export default class ContractEvent {
 
 	public static async createNewMeem(address: string, tokenId: string) {
 		// TODO: Do we pass the contract address to getMeemContract?
-		const meemContract = await services.meem.getMeemContract()
+		const meemContract = await services.meem.getMeemContract({
+			address
+		})
 
 		log.debug(`Fetching meem from contract: ${tokenId}`)
 		// Fetch the meem data and create it
@@ -848,56 +868,56 @@ export default class ContractEvent {
 			log.warn(e)
 		}
 
-		if (config.ENABLE_GUNDB) {
-			const d = {
-				...data,
-				mintedAt: meemData.mintedAt.toNumber()
-				// properties: properties.get({ plain: true }),
-				// childProperties: childProperties.get({ plain: true }),
-				// metadata
-			}
+		// if (config.ENABLE_GUNDB) {
+		// 	const d = {
+		// 		...data,
+		// 		mintedAt: meemData.mintedAt.toNumber()
+		// 		// properties: properties.get({ plain: true }),
+		// 		// childProperties: childProperties.get({ plain: true }),
+		// 		// metadata
+		// 	}
 
-			const token = this.saveToGun({ paths: ['meems', tokenId], data: d })
-			const tokenProperties = this.saveToGun({
-				paths: ['properties', tokenId],
-				data: properties.get({ plain: true })
-			})
-			const tokenChildProperties = this.saveToGun({
-				paths: ['childProperties', tokenId],
-				data: childProperties.get({ plain: true })
-			})
-			const tokenMetadata = this.saveToGun({
-				paths: ['metadata', tokenId],
-				data: metadata
-			})
+		// 	const token = this.saveToGun({ paths: ['meems', tokenId], data: d })
+		// 	const tokenProperties = this.saveToGun({
+		// 		paths: ['properties', tokenId],
+		// 		data: properties.get({ plain: true })
+		// 	})
+		// 	const tokenChildProperties = this.saveToGun({
+		// 		paths: ['childProperties', tokenId],
+		// 		data: childProperties.get({ plain: true })
+		// 	})
+		// 	const tokenMetadata = this.saveToGun({
+		// 		paths: ['metadata', tokenId],
+		// 		data: metadata
+		// 	})
 
-			token.get('properties').put(tokenProperties)
-			token.get('childProperties').put(tokenChildProperties)
-			token.get('metadata').put(tokenMetadata)
-			tokenProperties.get('token').put(token)
-			tokenChildProperties.get('token').put(token)
-			tokenMetadata.get('token').put(token)
+		// 	token.get('properties').put(tokenProperties)
+		// 	token.get('childProperties').put(tokenChildProperties)
+		// 	token.get('metadata').put(tokenMetadata)
+		// 	tokenProperties.get('token').put(token)
+		// 	tokenChildProperties.get('token').put(token)
+		// 	tokenMetadata.get('token').put(token)
 
-			let parent: IGunChainReference<any, string | number | symbol, false>
-			let root: IGunChainReference<any, string | number | symbol, false>
+		// 	let parent: IGunChainReference<any, string | number | symbol, false>
+		// 	let root: IGunChainReference<any, string | number | symbol, false>
 
-			if (meemData.parent === config.MEEM_PROXY_ADDRESS) {
-				// Parent is a meem
-				parent = gun
-					.user()
-					.get('meems')
-					.get(meemData.parentTokenId.toHexString())
-				token.get('parentMeem').put(parent)
-				parent.get('childMeems').put(token)
-			}
+		// 	if (meemData.parent === config.MEEM_PROXY_ADDRESS) {
+		// 		// Parent is a meem
+		// 		parent = gun
+		// 			.user()
+		// 			.get('meems')
+		// 			.get(meemData.parentTokenId.toHexString())
+		// 		token.get('parentMeem').put(parent)
+		// 		parent.get('childMeems').put(token)
+		// 	}
 
-			if (meemData.root === config.MEEM_PROXY_ADDRESS) {
-				// Parent is a meem
-				root = gun.user().get('meems').get(meemData.parentTokenId.toHexString())
-				token.get('rootMeem').put(root)
-				root.get('descendantMeems').put(token)
-			}
-		}
+		// 	if (meemData.root === config.MEEM_PROXY_ADDRESS) {
+		// 		// Parent is a meem
+		// 		root = gun.user().get('meems').get(meemData.parentTokenId.toHexString())
+		// 		token.get('rootMeem').put(root)
+		// 		root.get('descendantMeems').put(token)
+		// 	}
+		// }
 
 		return meem
 	}

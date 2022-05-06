@@ -1,9 +1,10 @@
 import { Meem } from '@meemproject/meem-contracts'
 import { BasePropertiesStructOutput } from '@meemproject/meem-contracts/dist/types/Meem'
 import meemABI from '@meemproject/meem-contracts/types/Meem.json'
-import { Contract, ethers, providers, utils } from 'ethers'
+import { BigNumber, Contract, ethers, providers, utils } from 'ethers'
 import { DateTime } from 'luxon'
 import MeemContract from '../models/MeemContract'
+import ContractEvent from '../services/ContractEvents'
 // import {} from '@meemproject/meem-contracts'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -51,7 +52,12 @@ export default class ProviderListener {
 			// const eventNames = Object.keys(genericMeemContract.interface.events)
 
 			// See genericMeemContract.interface.events for all available events
-			const topics = [utils.id('MeemContractInitialized(address)')]
+			const topics = [
+				[
+					utils.id('MeemContractInitialized(address)'),
+					utils.id('MeemTransfer(address,address,uint256)')
+				]
+			]
 
 			this.provider.on(
 				{
@@ -76,6 +82,8 @@ export default class ProviderListener {
 						}
 						*/
 
+						const block = await this.provider?.getBlock(rawLog.blockHash)
+
 						const parsedLog = genericMeemContract.interface.parseLog({
 							data: rawLog.data,
 							topics: rawLog.topics
@@ -87,44 +95,66 @@ export default class ProviderListener {
 							address: rawLog.address
 						})) as unknown as Meem
 
-						const baseProperties: BasePropertiesStructOutput =
-							await meemContract.getBaseProperties()
+						switch (parsedLog.topic) {
+							case topics[0][0]: {
+								const baseProperties: BasePropertiesStructOutput =
+									await meemContract.getBaseProperties()
 
-						log.debug(baseProperties)
+								log.debug(baseProperties)
 
-						const meemContractData = {
-							address: rawLog.address,
-							totalOriginalsSupply:
-								baseProperties.totalOriginalsSupply.toHexString(),
-							totalOriginalsSupplyLockedBy:
-								baseProperties.totalOriginalsSupplyLockedBy,
-							mintPermissions: baseProperties.mintPermissions.map(p => ({
-								permission: p.permission,
-								addresses: p.addresses,
-								numTokens: p.numTokens.toHexString(),
-								lockedBy: p.lockedBy,
-								costWei: p.costWei.toHexString()
-							})),
-							mintPermissionsLockedBy: baseProperties.mintPermissionsLockedBy,
-							splits: baseProperties.splits.map(s => ({
-								toAddress: s.toAddress,
-								amount: s.amount.toNumber(),
-								lockedBy: s.lockedBy
-							})),
-							splitsLockedBy: baseProperties.splitsLockedBy,
-							originalsPerWallet:
-								baseProperties.originalsPerWallet.toHexString(),
-							originalsPerWalletLockedBy:
-								baseProperties.originalsPerWalletLockedBy,
-							isTransferrable: baseProperties.isTransferrable,
-							isTransferrableLockedBy: baseProperties.isTransferrableLockedBy,
-							mintStartTimestamp:
-								baseProperties.mintStartTimestamp.toHexString(),
-							mintEndTimestamp: baseProperties.mintEndTimestamp.toHexString(),
-							mintDatesLockedBy: baseProperties.mintDatesLockedBy
+								const meemContractData = {
+									address: rawLog.address,
+									totalOriginalsSupply:
+										baseProperties.totalOriginalsSupply.toHexString(),
+									totalOriginalsSupplyLockedBy:
+										baseProperties.totalOriginalsSupplyLockedBy,
+									mintPermissions: baseProperties.mintPermissions.map(p => ({
+										permission: p.permission,
+										addresses: p.addresses,
+										numTokens: p.numTokens.toHexString(),
+										lockedBy: p.lockedBy,
+										costWei: p.costWei.toHexString()
+									})),
+									mintPermissionsLockedBy:
+										baseProperties.mintPermissionsLockedBy,
+									splits: baseProperties.splits.map(s => ({
+										toAddress: s.toAddress,
+										amount: s.amount.toNumber(),
+										lockedBy: s.lockedBy
+									})),
+									splitsLockedBy: baseProperties.splitsLockedBy,
+									originalsPerWallet:
+										baseProperties.originalsPerWallet.toHexString(),
+									originalsPerWalletLockedBy:
+										baseProperties.originalsPerWalletLockedBy,
+									isTransferrable: baseProperties.isTransferrable,
+									isTransferrableLockedBy:
+										baseProperties.isTransferrableLockedBy,
+									mintStartTimestamp:
+										baseProperties.mintStartTimestamp.toHexString(),
+									mintEndTimestamp:
+										baseProperties.mintEndTimestamp.toHexString(),
+									mintDatesLockedBy: baseProperties.mintDatesLockedBy
+								}
+
+								await orm.models.MeemContract.create(meemContractData)
+								break
+							}
+							case topics[0][1]: {
+								await ContractEvent.meemHandleTransfer({
+									address: rawLog.address,
+									tokenId: parsedLog.args.tokenId,
+									to: parsedLog.args.to,
+									from: parsedLog.args.from,
+									transactionHash: rawLog.transactionHash,
+									transferredAtTimestamp:
+										block?.timestamp || DateTime.now().toSeconds()
+								})
+								break
+							}
+							default:
+								break
 						}
-
-						await orm.models.MeemContract.create(meemContractData)
 
 						/*
 							Handle parsed data
