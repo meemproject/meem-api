@@ -1,5 +1,12 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import * as path from 'path'
+import {
+	Meem,
+	MeemPermissionStructOutput,
+	MeemPropertiesStructOutput,
+	MeemStructOutput,
+	SplitStructOutput
+} from '@meemproject/meem-contracts/dist/types/Meem'
 import meemABI from '@meemproject/meem-contracts/types/Meem.json'
 import type { ethers as Ethers } from 'ethers'
 import fs from 'fs-extra'
@@ -14,13 +21,7 @@ import meemAccessListTesting from '../lib/meem-access-testing.json'
 import meemAccessList from '../lib/meem-access.json'
 import type MeemModel from '../models/Meem'
 import MeemIdentification from '../models/MeemIdentification'
-import { Meem, ERC721 } from '../types'
-import {
-	MeemPermissionStructOutput,
-	MeemPropertiesStructOutput,
-	MeemStructOutput,
-	SplitStructOutput
-} from '../types/Meem'
+import { ERC721 } from '../types'
 import { MeemAPI } from '../types/meem.generated'
 import {
 	MeemMetadataStorageProvider,
@@ -166,7 +167,11 @@ export default class MeemService {
 
 		const wallet = new ethers.Wallet(walletPrivateKey, provider)
 
-		const meemContract = new ethers.Contract(address, meemABI, wallet) as Meem
+		const meemContract = new ethers.Contract(
+			address,
+			meemABI,
+			wallet
+		) as unknown as Meem
 
 		return meemContract
 	}

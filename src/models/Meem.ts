@@ -17,6 +17,10 @@ export default class Meem extends BaseModel<Meem> {
 				fields: ['createdAt']
 			},
 			{
+				name: 'Meem_address',
+				fields: ['address']
+			},
+			{
 				name: 'Meem_tokenId',
 				fields: ['tokenId']
 			},
@@ -63,6 +67,11 @@ export default class Meem extends BaseModel<Meem> {
 		},
 		meemId: {
 			type: DataTypes.UUID
+		},
+		address: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaulValue: ''
 		},
 		tokenId: {
 			type: DataTypes.STRING,
@@ -184,6 +193,8 @@ export default class Meem extends BaseModel<Meem> {
 
 	public meemId!: string
 
+	public address!: string
+
 	public tokenId!: string
 
 	public tokenURI!: string
@@ -243,9 +254,7 @@ export default class Meem extends BaseModel<Meem> {
 	public Reactions!: Reaction[] | null
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.MeemProperties, {
-			as: 'MeemContract'
-		})
+		this.belongsTo(models.MeemContract)
 
 		this.belongsTo(models.MeemProperties, {
 			as: 'Properties'
