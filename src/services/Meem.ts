@@ -866,13 +866,13 @@ export default class MeemService {
 			mintStartTimestamp: services.web3
 				.toBigNumber(props?.mintStartTimestamp ?? DateTime.now().toSeconds())
 				.toHexString(),
-			mintEndTimestamp: props?.mintEndTimestamp
-				? services.web3.toBigNumber(props.mintEndTimestamp).toHexString()
-				: null,
+			mintEndTimestamp: services.web3
+				.toBigNumber(props?.mintEndTimestamp ?? 0)
+				.toHexString(),
 			mintDatesLockedBy: props?.mintDatesLockedBy ?? MeemAPI.zeroAddress,
-			transferLockupUntil: props?.transferLockupUntil
-				? services.web3.toBigNumber(props.transferLockupUntil).toHexString()
-				: null,
+			transferLockupUntil: services.web3
+				.toBigNumber(props?.transferLockupUntil ?? 0)
+				.toHexString(),
 			transferLockupUntilLockedBy:
 				props?.transferLockupUntilLockedBy ?? MeemAPI.zeroAddress
 		}
@@ -931,7 +931,14 @@ export default class MeemService {
 			remixPermissionsLockedBy: meemProperties.remixPermissionsLockedBy,
 			readPermissionsLockedBy: meemProperties.readPermissionsLockedBy,
 			splits: meemProperties.splits.map(s => this.meemSplitToInterface(s)),
-			splitsLockedBy: meemProperties.splitsLockedBy
+			splitsLockedBy: meemProperties.splitsLockedBy,
+			mintStartTimestamp: meemProperties.mintStartTimestamp.toHexString(),
+			mintEndTimestamp: meemProperties.mintEndTimestamp.toHexString(),
+			mintDatesLockedBy: meemProperties.mintDatesLockedBy,
+			isTransferrable: meemProperties.isTransferrable,
+			isTransferrableLockedBy: meemProperties.isTransferrableLockedBy,
+			transferLockupUntil: meemProperties.transferLockupUntil.toHexString(),
+			transferLockupUntilLockedBy: meemProperties.transferLockupUntilLockedBy
 		}
 	}
 

@@ -24,7 +24,8 @@ export default {
 		})
 		await queryInterface.addColumn('MeemProperties', 'mintEndTimestamp', {
 			type: DataTypes.STRING,
-			allowNull: true
+			allowNull: false,
+			defaultValue: ''
 		})
 		await queryInterface.addColumn('MeemProperties', 'mintDatesLockedBy', {
 			type: DataTypes.STRING,
@@ -33,7 +34,8 @@ export default {
 		})
 		await queryInterface.addColumn('MeemProperties', 'transferLockupUntil', {
 			type: DataTypes.STRING,
-			allowNull: true
+			allowNull: false,
+			defaultValue: ''
 		})
 		await queryInterface.addColumn(
 			'MeemProperties',

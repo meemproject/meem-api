@@ -132,12 +132,9 @@ export default class MeemProperties extends BaseModel<MeemProperties> {
 			type: DataTypes.STRING,
 			allowNull: true,
 			set(this: MeemProperties, val: any) {
-				if (!val) {
-					return
-				}
 				this.setDataValue(
 					'mintEndTimestamp',
-					services.web3.toBigNumber(val).toHexString()
+					services.web3.toBigNumber(val ?? 0).toHexString()
 				)
 			}
 		},
@@ -149,12 +146,9 @@ export default class MeemProperties extends BaseModel<MeemProperties> {
 			type: DataTypes.STRING,
 			allowNull: true,
 			set(this: MeemProperties, val: any) {
-				if (!val) {
-					return
-				}
 				this.setDataValue(
 					'transferLockupUntil',
-					services.web3.toBigNumber(val).toHexString()
+					services.web3.toBigNumber(val ?? 0).toHexString()
 				)
 			}
 		},

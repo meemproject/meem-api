@@ -390,9 +390,9 @@ export interface IMeemProperties {
 	isTransferrable: boolean
 	isTransferrableLockedBy: string
 	mintStartTimestamp: string
-	mintEndTimestamp: string | null
+	mintEndTimestamp: string
 	mintDatesLockedBy: string
-	transferLockupUntil: string | null
+	transferLockupUntil: string
 	transferLockupUntilLockedBy: string
 }
 

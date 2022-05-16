@@ -19,9 +19,8 @@ import {
 	MeemUnClippedEventObject
 } from '@meemproject/meem-contracts/dist/types/Meem'
 import meemABI from '@meemproject/meem-contracts/types/Meem.json'
-import { BigNumber, Contract, ethers, providers, utils } from 'ethers'
+import { Contract, providers, utils } from 'ethers'
 import { DateTime } from 'luxon'
-import MeemContract from '../models/MeemContract'
 import ContractEvent from '../services/ContractEvents'
 // import {} from '@meemproject/meem-contracts'
 import { MeemAPI } from '../types/meem.generated'

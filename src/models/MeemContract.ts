@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
-import type { IModels } from '../types/models'
 
 export default class MeemContract extends BaseModel<MeemContract> {
 	public static readonly modelName = 'MeemContract'
@@ -158,5 +157,5 @@ export default class MeemContract extends BaseModel<MeemContract> {
 
 	public transferLockupUntilLockedBy!: string
 
-	public static associate(models: IModels) {}
+	public static associate() {}
 }

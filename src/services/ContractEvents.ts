@@ -24,7 +24,6 @@ import { BigNumber } from 'ethers'
 import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { wait } from '../lib/utils'
 import Meem from '../models/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -286,7 +285,7 @@ export default class ContractEvent {
 		eventData: MeemCopiesPerWalletSetEventObject
 	}) {
 		const tokenId = args.eventData.tokenId.toHexString()
-		const { newTotalCopies, propertyType } = args.eventData
+		const { newTotalRemixes, propertyType } = args.eventData
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -319,7 +318,8 @@ export default class ContractEvent {
 				log.crit('Invalid propertyType')
 				return
 			}
-			prop.copiesPerWallet = newTotalCopies.toHexString()
+			// TODO: Update property name
+			prop.copiesPerWallet = newTotalRemixes.toHexString()
 			await prop.save()
 		}
 	}
@@ -1111,7 +1111,7 @@ export default class ContractEvent {
 		const { meem } = options
 		log.debug(`Syncing meem tokenId: ${meem.tokenId}`)
 		const meemContract = await services.meem.getMeemContract({
-			address: meem.address
+			address: meem.MeemContract.address
 		})
 		// Fetch the meem data and create it
 		const [meemData, tokenURI] = await Promise.all([
