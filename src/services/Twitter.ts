@@ -1,3 +1,4 @@
+import { Meem } from '@meemproject/meem-contracts/dist/types/Meem'
 import type { ethers as Ethers } from 'ethers'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
@@ -14,7 +15,6 @@ import { v4 as uuidv4 } from 'uuid'
 import Hashtag from '../models/Hashtag'
 import Prompt from '../models/Prompt'
 import Tweet from '../models/Tweet'
-import { Meem } from '../types'
 import { MeemAPI } from '../types/meem.generated'
 
 function errorcodeToErrorString(contractErrorName: string) {
