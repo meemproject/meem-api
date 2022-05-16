@@ -1,109 +1,131 @@
+import {
+	SplitStructOutput,
+	MeemPermissionStructOutput,
+	MeemPropertiesStructOutput,
+	MeemTransferEventObject,
+	MeemTotalCopiesSetEventObject,
+	MeemTotalRemixesSetEventObject,
+	MeemTotalCopiesLockedEventObject,
+	MeemTotalRemixesLockedEventObject,
+	MeemCopiesPerWalletSetEventObject,
+	MeemRemixesPerWalletSetEventObject,
+	MeemCopiesPerWalletLockedEventObject,
+	MeemRemixesPerWalletLockedEventObject,
+	MeemPropertiesSetEventObject,
+	MeemTokenReactionAddedEventObject,
+	MeemPermissionsSetEventObject,
+	MeemTokenReactionRemovedEventObject,
+	MeemTokenReactionTypesSetEventObject,
+	MeemSplitsSet_uint256_uint8_tuple_array_EventObject,
+	MeemClippedEventObject,
+	MeemUnClippedEventObject
+} from '@meemproject/meem-contracts/dist/types/Meem'
 import { BigNumber } from 'ethers'
 import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { wait } from '../lib/utils'
 import Meem from '../models/Meem'
-import {
-	RemixesPerWalletSetEvent,
-	CopiesPerWalletSetEvent,
-	MeemPermissionStructOutput,
-	MeemPropertiesStructOutput,
-	PermissionsSetEvent,
-	PropertiesSetEvent,
-	SplitsSetEvent,
-	SplitStructOutput,
-	TotalRemixesLockedEvent,
-	TotalRemixesSetEvent,
-	TotalCopiesLockedEvent,
-	TotalCopiesSetEvent,
-	TransferEvent,
-	TokenClippedEvent,
-	TokenReactionAddedEvent,
-	TokenReactionTypesSetEvent,
-	TokenReactionRemovedEvent
-} from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ContractEvent {
-	public static async meemSyncReactions() {
-		log.debug('Syncing reactions...')
-		const meemContract = await services.meem.getMeemContract()
-		const [reactionAddedEvents, reactionRemovedEvents] = await Promise.all([
-			meemContract.queryFilter(meemContract.filters.TokenReactionAdded()),
-			meemContract.queryFilter(meemContract.filters.TokenReactionRemoved())
-		])
+	// TODO: sync reactions?
+	// public static async meemSyncReactions() {
+	// 	log.debug('Syncing reactions...')
+	// 	const meemContract = await services.meem.getMeemContract()
+	// 	const [reactionAddedEvents, reactionRemovedEvents] = await Promise.all([
+	// 		meemContract.queryFilter(meemContract.filters.TokenReactionAdded()),
+	// 		meemContract.queryFilter(meemContract.filters.TokenReactionRemoved())
+	// 	])
 
-		log.debug(
-			`Syncing ${reactionAddedEvents.length} reaction added events and ${reactionRemovedEvents.length} reaction removed events`
-		)
+	// 	log.debug(
+	// 		`Syncing ${reactionAddedEvents.length} reaction added events and ${reactionRemovedEvents.length} reaction removed events`
+	// 	)
 
-		const orderedEvents: (
-			| TokenReactionAddedEvent
-			| TokenReactionRemovedEvent
-		)[] = [...reactionAddedEvents, ...reactionRemovedEvents]
+	// 	const orderedEvents: (
+	// 		| TokenReactionAddedEvent
+	// 		| TokenReactionRemovedEvent
+	// 	)[] = [...reactionAddedEvents, ...reactionRemovedEvents]
 
-		orderedEvents.sort((a, b) => {
-			return a.blockNumber - b.blockNumber
-		})
+	// 	orderedEvents.sort((a, b) => {
+	// 		return a.blockNumber - b.blockNumber
+	// 	})
 
-		for (let i = 0; i < orderedEvents.length; i += 1) {
-			try {
-				const event = orderedEvents[i]
-				if (event.event === 'TokenReactionAdded') {
-					// eslint-disable-next-line no-await-in-loop
-					await this.meemHandleTokenReactionAdded(event)
-				} else if (event.event === 'TokenReactionRemoved') {
-					// eslint-disable-next-line no-await-in-loop
-					await this.meemHandleTokenReactionRemoved(event)
-				}
-				log.debug(event.blockNumber)
-			} catch (e) {
-				log.crit(e)
-			}
-		}
-	}
+	// 	for (let i = 0; i < orderedEvents.length; i += 1) {
+	// 		try {
+	// 			const event = orderedEvents[i]
+	// 			if (event.event === 'TokenReactionAdded') {
+	// 				// eslint-disable-next-line no-await-in-loop
+	// 				await this.meemHandleTokenReactionAdded(event)
+	// 			} else if (event.event === 'TokenReactionRemoved') {
+	// 				// eslint-disable-next-line no-await-in-loop
+	// 				await this.meemHandleTokenReactionRemoved(event)
+	// 			}
+	// 			log.debug(event.blockNumber)
+	// 		} catch (e) {
+	// 			log.crit(e)
+	// 		}
+	// 	}
+	// }
 
-	public static async meemSync(specificEvents?: TransferEvent[]) {
-		log.debug('Syncing meems...')
-		const meemContract = await services.meem.getMeemContract()
-		const events =
-			specificEvents ??
-			(await meemContract.queryFilter(meemContract.filters.Transfer()))
+	// TODO: meemSync event update?
+	// public static async meemSync(specificEvents?: TransferEvent[]) {
+	// 	log.debug('Syncing meems...')
+	// 	const meemContract = await services.meem.getMeemContract()
+	// 	const events =
+	// 		specificEvents ??
+	// 		(await meemContract.queryFilter(meemContract.filters.Transfer()))
 
-		log.debug(`Syncing ${events.length} transfer events`)
+	// 	log.debug(`Syncing ${events.length} transfer events`)
 
-		const failedEvents: TransferEvent[] = []
+	// 	const failedEvents: TransferEvent[] = []
 
-		for (let i = 0; i < events.length; i += 1) {
-			try {
-				log.debug(`Syncing ${i + 1} / ${events.length} events`)
-				// eslint-disable-next-line no-await-in-loop
-				await this.meemHandleTransfer(events[i])
-				// eslint-disable-next-line no-await-in-loop
-				await wait(2000)
-			} catch (e) {
-				failedEvents.push(events[i])
-				log.crit(e)
-				log.debug(events[i])
-			}
-		}
+	// 	for (let i = 0; i < events.length; i += 1) {
+	// 		try {
+	// 			log.debug(`Syncing ${i + 1} / ${events.length} events`)
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			const block = await events[i].getBlock()
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			await this.meemHandleTransfer({
+	// 				address: events[i].address,
+	// 				tokenId: events[i].args.tokenId,
+	// 				to: events[i].args.to,
+	// 				from: events[i].args.from,
+	// 				transactionHash: events[i].transactionHash,
+	// 				transactionTimestamp: block.timestamp
+	// 			})
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			await wait(2000)
+	// 		} catch (e) {
+	// 			failedEvents.push(events[i])
+	// 			log.crit(e)
+	// 			log.debug(events[i])
+	// 		}
+	// 	}
 
-		if (failedEvents.length > 0) {
-			log.debug(`Retrying ${failedEvents.length} events`)
-			await this.meemSync(failedEvents)
-		}
-	}
+	// 	if (failedEvents.length > 0) {
+	// 		log.debug(`Retrying ${failedEvents.length} events`)
+	// 		await this.meemSync(failedEvents)
+	// 	}
+	// }
 
-	public static async meemHandleTotalCopiesSet(evt: TotalCopiesSetEvent) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { newTotalCopies, propertyType } = evt.args
+	public static async meemHandleTotalCopiesSet(args: {
+		address: string
+		eventData: MeemTotalCopiesSetEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { newTotalCopies, propertyType } = args.eventData
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -115,9 +137,7 @@ export default class ContractEvent {
 			]
 		})
 
-		if (!meem) {
-			// await this.createNewMeem(tokenId)
-		} else {
+		if (meem) {
 			const prop =
 				propertyType === MeemAPI.PropertyType.Meem
 					? meem.Properties
@@ -131,15 +151,24 @@ export default class ContractEvent {
 		}
 	}
 
-	public static async meemHandleTotalRemixesSet(evt: TotalRemixesSetEvent) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { newTotalRemixes, propertyType } = evt.args
+	public static async meemHandleTotalRemixesSet(args: {
+		address: string
+		eventData: MeemTotalRemixesSetEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { newTotalRemixes, propertyType } = args.eventData
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -151,9 +180,7 @@ export default class ContractEvent {
 			]
 		})
 
-		if (!meem) {
-			// await this.createNewMeem(tokenId)
-		} else {
+		if (meem) {
 			const prop =
 				propertyType === MeemAPI.PropertyType.Meem
 					? meem.Properties
@@ -167,15 +194,24 @@ export default class ContractEvent {
 		}
 	}
 
-	public static async meemHandleTotalCopiesLocked(evt: TotalCopiesLockedEvent) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { lockedBy, propertyType } = evt.args
+	public static async meemHandleTotalCopiesLocked(args: {
+		address: string
+		eventData: MeemTotalCopiesLockedEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { lockedBy, propertyType } = args.eventData
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -187,9 +223,7 @@ export default class ContractEvent {
 			]
 		})
 
-		if (!meem) {
-			// await this.createNewMeem(tokenId)
-		} else {
+		if (meem) {
 			const prop =
 				propertyType === MeemAPI.PropertyType.Meem
 					? meem.Properties
@@ -203,17 +237,24 @@ export default class ContractEvent {
 		}
 	}
 
-	public static async meemHandleTotalRemixesLocked(
-		evt: TotalRemixesLockedEvent
-	) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { lockedBy, propertyType } = evt.args
+	public static async meemHandleTotalRemixesLocked(args: {
+		address: string
+		eventData: MeemTotalRemixesLockedEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { lockedBy, propertyType } = args.eventData
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -225,9 +266,7 @@ export default class ContractEvent {
 			]
 		})
 
-		if (!meem) {
-			// await this.createNewMeem(tokenId)
-		} else {
+		if (meem) {
 			const prop =
 				propertyType === MeemAPI.PropertyType.Meem
 					? meem.Properties
@@ -241,17 +280,24 @@ export default class ContractEvent {
 		}
 	}
 
-	public static async meemHandleCopiesPerWalletSet(
-		evt: CopiesPerWalletSetEvent
-	) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { newTotalCopies, propertyType } = evt.args
+	public static async meemHandleCopiesPerWalletSet(args: {
+		address: string
+		eventData: MeemCopiesPerWalletSetEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { newTotalRemixes, propertyType } = args.eventData
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -263,9 +309,7 @@ export default class ContractEvent {
 			]
 		})
 
-		if (!meem) {
-			// await this.createNewMeem(tokenId)
-		} else {
+		if (meem) {
 			const prop =
 				propertyType === MeemAPI.PropertyType.Meem
 					? meem.Properties
@@ -274,22 +318,30 @@ export default class ContractEvent {
 				log.crit('Invalid propertyType')
 				return
 			}
-			prop.copiesPerWallet = newTotalCopies.toHexString()
+			// TODO: Update property name
+			prop.copiesPerWallet = newTotalRemixes.toHexString()
 			await prop.save()
 		}
 	}
 
-	public static async meemHandleRemixesPerWalletSet(
-		evt: RemixesPerWalletSetEvent
-	) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { newTotalRemixes, propertyType } = evt.args
+	public static async meemHandleRemixesPerWalletSet(args: {
+		address: string
+		eventData: MeemRemixesPerWalletSetEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { newTotalRemixes, propertyType } = args.eventData
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -301,9 +353,7 @@ export default class ContractEvent {
 			]
 		})
 
-		if (!meem) {
-			// await this.createNewMeem(tokenId)
-		} else if (meem.Properties) {
+		if (meem?.Properties) {
 			const prop =
 				propertyType === MeemAPI.PropertyType.Meem
 					? meem.Properties
@@ -317,17 +367,24 @@ export default class ContractEvent {
 		}
 	}
 
-	public static async meemHandleCopiesPerWalletLocked(
-		evt: TotalCopiesLockedEvent
-	) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { lockedBy, propertyType } = evt.args
+	public static async meemHandleCopiesPerWalletLocked(args: {
+		address: string
+		eventData: MeemCopiesPerWalletLockedEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { lockedBy, propertyType } = args.eventData
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -339,9 +396,7 @@ export default class ContractEvent {
 			]
 		})
 
-		if (!meem) {
-			// await this.createNewMeem(tokenId)
-		} else {
+		if (meem) {
 			const prop =
 				propertyType === MeemAPI.PropertyType.Meem
 					? meem.Properties
@@ -355,17 +410,24 @@ export default class ContractEvent {
 		}
 	}
 
-	public static async meemHandleRemixesPerWalletLocked(
-		evt: TotalRemixesLockedEvent
-	) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { lockedBy, propertyType } = evt.args
+	public static async meemHandleRemixesPerWalletLocked(args: {
+		address: string
+		eventData: MeemRemixesPerWalletLockedEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { lockedBy, propertyType } = args.eventData
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -377,9 +439,7 @@ export default class ContractEvent {
 			]
 		})
 
-		if (!meem) {
-			// await this.createNewMeem(tokenId)
-		} else {
+		if (meem) {
 			const prop =
 				propertyType === MeemAPI.PropertyType.Meem
 					? meem.Properties
@@ -393,15 +453,24 @@ export default class ContractEvent {
 		}
 	}
 
-	public static async meemHandleSplitsSet(evt: SplitsSetEvent) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { splits, propertyType } = evt.args
+	public static async meemHandleSplitsSet(args: {
+		address: string
+		eventData: MeemSplitsSet_uint256_uint8_tuple_array_EventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { splits, propertyType } = args.eventData
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -413,9 +482,7 @@ export default class ContractEvent {
 			]
 		})
 
-		if (!meem) {
-			// await this.createNewMeem(tokenId)
-		} else {
+		if (meem) {
 			const prop =
 				propertyType === MeemAPI.PropertyType.Meem
 					? meem.Properties
@@ -429,14 +496,23 @@ export default class ContractEvent {
 		}
 	}
 
-	public static async meemHandlePropertiesSet(evt: PropertiesSetEvent) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { propertyType, props } = evt.args
+	public static async meemHandlePropertiesSet(args: {
+		address: string
+		eventData: MeemPropertiesSetEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { propertyType, props } = args.eventData
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -448,79 +524,32 @@ export default class ContractEvent {
 			]
 		})
 
-		if (!meem) {
-			// await this.createNewMeem(tokenId)
-		} else if (propertyType === MeemAPI.PropertyType.Meem) {
+		if (meem && propertyType === MeemAPI.PropertyType.Meem) {
 			await meem.Properties?.update(this.meemPropertiesDataToModelData(props))
-		} else if (propertyType === MeemAPI.PropertyType.Child) {
+		} else if (meem && propertyType === MeemAPI.PropertyType.Child) {
 			await meem.ChildProperties?.update(
 				this.meemPropertiesDataToModelData(props)
 			)
 		}
 	}
 
-	public static async meemHandleTransfer(evt: TransferEvent) {
-		const tokenId = evt.args.tokenId.toHexString()
-		let meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			}
-		})
-
-		if (!meem) {
-			log.debug(`Creating new meem: ${tokenId}`)
-			meem = await this.createNewMeem(tokenId)
-		} else {
-			log.debug(`Updating meem: ${tokenId}`)
-			meem.owner = evt.args.to
-			await meem.save()
-			if (!meem.data || !meem.metadata) {
-				await this.updateMeem({ meem })
-			}
-		}
-
-		const block = await evt.getBlock()
-
-		const transferredAt = DateTime.fromSeconds(block.timestamp).toJSDate()
-
-		await orm.models.Transfer.create({
-			from: evt.args.from,
-			to: evt.args.to,
-			transactionHash: evt.transactionHash,
-			transferredAt,
-			MeemId: meem.id
-		})
-
-		if (config.ENABLE_GUNDB) {
-			const transfer = gun
-				.user()
-				.get('transfers')
-				.get(evt.transactionHash)
-				.put({
-					event: evt.event,
-					from: evt.args.from,
-					to: evt.args.to,
-					tokenId: evt.args.tokenId,
-					blockHash: evt.blockHash,
-					blockNumber: evt.blockNumber,
-					data: evt.data,
-					transactionHash: evt.transactionHash
-				})
-
-			const token = gun.user().get('meems').get(tokenId)
-			token.get('transfers').put(transfer)
-			transfer.get('token').put(token)
-		}
-	}
-
-	public static async meemHandlePermissionsSet(evt: PermissionsSetEvent) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { propertyType, permissionType, permission } = evt.args
+	public static async meemHandlePermissionsSet(args: {
+		address: string
+		eventData: MeemPermissionsSetEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { propertyType, permissionType, permission } = args.eventData
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -532,9 +561,7 @@ export default class ContractEvent {
 			]
 		})
 
-		if (!meem) {
-			// await this.createNewMeem(tokenId)
-		} else {
+		if (meem) {
 			const prop =
 				propertyType === MeemAPI.PropertyType.Meem
 					? meem.Properties
@@ -564,18 +591,29 @@ export default class ContractEvent {
 		}
 	}
 
-	public static async meemHandleTokenClipped(evt: TokenClippedEvent) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { addy } = evt.args
+	public static async meemHandleTokenClipped(args: {
+		address: string
+		transactionTimestamp: number
+		eventData: MeemClippedEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { addy } = args.eventData
 
-		const [wallet, meem, block] = await Promise.all([
+		const [wallet, meem] = await Promise.all([
 			orm.models.Wallet.findByAddress(addy),
 			orm.models.Meem.findOne({
 				where: {
 					tokenId
-				}
-			}),
-			evt.getBlock()
+				},
+				include: [
+					{
+						model: orm.models.MeemContract,
+						where: {
+							address: args.address
+						}
+					}
+				]
+			})
 		])
 
 		const clipping = await orm.models.Clipping.findOne({
@@ -594,18 +632,29 @@ export default class ContractEvent {
 			address: addy,
 			MeemIdentificationId: wallet?.MeemIdentificationId ?? null,
 			MeemId: meem?.id ?? null,
-			clippedAt: DateTime.fromSeconds(block.timestamp).toJSDate()
+			clippedAt: DateTime.fromSeconds(args.transactionTimestamp).toJSDate()
 		})
 	}
 
-	public static async meemHandleTokenUnClipped(evt: TokenClippedEvent) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { addy } = evt.args
+	public static async meemHandleTokenUnClipped(args: {
+		address: string
+		eventData: MeemUnClippedEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { addy } = args.eventData
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
-			}
+			},
+			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				}
+			]
 		})
 
 		if (!meem) {
@@ -620,21 +669,30 @@ export default class ContractEvent {
 		})
 	}
 
-	public static async meemHandleTokenReactionAdded(
-		evt: TokenReactionAddedEvent
-	) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { addy, reaction, newTotalReactions } = evt.args
+	public static async meemHandleTokenReactionAdded(args: {
+		address: string
+		transactionTimestamp: number
+		eventData: MeemTokenReactionAddedEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { addy, reaction, newTotalReactions } = args.eventData
 		log.debug(`Adding "${reaction}" reaction for ${addy} on token ${tokenId}`)
 
-		const [meem, wallet, block] = await Promise.all([
+		const [meem, wallet] = await Promise.all([
 			orm.models.Meem.findOne({
 				where: {
 					tokenId
-				}
+				},
+				include: [
+					{
+						model: orm.models.MeemContract,
+						where: {
+							address: args.address
+						}
+					}
+				]
 			}),
-			orm.models.Wallet.findByAddress(addy),
-			evt.getBlock()
+			orm.models.Wallet.findByAddress(addy)
 		])
 
 		if (!meem) {
@@ -664,22 +722,31 @@ export default class ContractEvent {
 			address: addy,
 			MeemId: meem.id,
 			MeemIdentification: wallet?.MeemIdentificationId ?? null,
-			reactedAt: DateTime.fromSeconds(block.timestamp).toJSDate()
+			reactedAt: DateTime.fromSeconds(args.transactionTimestamp).toJSDate()
 		})
 	}
 
-	public static async meemHandleTokenReactionRemoved(
-		evt: TokenReactionRemovedEvent
-	) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { addy, reaction, newTotalReactions } = evt.args
+	public static async meemHandleTokenReactionRemoved(args: {
+		address: string
+		eventData: MeemTokenReactionRemovedEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { addy, reaction, newTotalReactions } = args.eventData
 
 		log.debug(`Removing "${reaction}" reaction for ${addy} on token ${tokenId}`)
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
-			}
+			},
+			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				}
+			]
 		})
 
 		if (!meem) {
@@ -701,18 +768,27 @@ export default class ContractEvent {
 		])
 	}
 
-	public static async meemHandleTokenReactionTypesSet(
-		evt: TokenReactionTypesSetEvent
-	) {
-		const tokenId = evt.args.tokenId.toHexString()
-		const { reactionTypes } = evt.args
+	public static async meemHandleTokenReactionTypesSet(args: {
+		address: string
+		eventData: MeemTokenReactionTypesSetEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		const { reactionTypes } = args.eventData
 
 		log.debug(`Reaction types set for token ${tokenId}`)
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
-			}
+			},
+			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				}
+			]
 		})
 
 		if (!meem) {
@@ -723,8 +799,78 @@ export default class ContractEvent {
 		await meem.save()
 	}
 
-	public static async createNewMeem(tokenId: string) {
-		const meemContract = await services.meem.getMeemContract()
+	public static async meemHandleTransfer(args: {
+		address: string
+		transactionHash: string
+		transactionTimestamp: number
+		eventData: MeemTransferEventObject
+	}) {
+		const tokenId = args.eventData.tokenId.toHexString()
+		let meem = await orm.models.Meem.findOne({
+			where: {
+				tokenId
+			},
+			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				}
+			]
+		})
+
+		if (!meem) {
+			log.debug(`Creating new meem: ${tokenId}`)
+			meem = await this.createNewMeem(args.address, tokenId)
+		} else {
+			log.debug(`Updating meem: ${tokenId}`)
+			meem.owner = args.eventData.to
+			await meem.save()
+			if (!meem.data || !meem.metadata) {
+				await this.updateMeem({ meem })
+			}
+		}
+
+		const transferredAt = DateTime.fromSeconds(
+			args.transactionTimestamp
+		).toJSDate()
+
+		await orm.models.Transfer.create({
+			from: args.eventData.from,
+			to: args.eventData.to,
+			transactionHash: args.transactionHash,
+			transferredAt,
+			MeemId: meem.id
+		})
+
+		// if (config.ENABLE_GUNDB) {
+		// 	const transfer = gun
+		// 		.user()
+		// 		.get('transfers')
+		// 		.get(evt.transactionHash)
+		// 		.put({
+		// 			event: evt.event,
+		// 			from: args.eventData.from,
+		// 			to: args.eventData.to,
+		// 			tokenId: args.eventData.tokenId,
+		// 			blockHash: evt.blockHash,
+		// 			blockNumber: evt.blockNumber,
+		// 			data: evt.data,
+		// 			transactionHash: evt.transactionHash
+		// 		})
+
+		// 	const token = gun.user().get('meems').get(tokenId)
+		// 	token.get('transfers').put(transfer)
+		// 	transfer.get('token').put(token)
+		// }
+	}
+
+	public static async createNewMeem(address: string, tokenId: string) {
+		// TODO: Do we pass the contract address to getMeemContract?
+		const meemContract = await services.meem.getMeemContract({
+			address
+		})
 
 		log.debug(`Fetching meem from contract: ${tokenId}`)
 		// Fetch the meem data and create it
@@ -734,6 +880,16 @@ export default class ContractEvent {
 		])
 
 		log.debug(`Meem found`, tokenURI, meemData)
+
+		const meemContractData = await orm.models.MeemContract.findOne({
+			where: {
+				address
+			}
+		})
+
+		if (!meemContractData) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
 
 		const metadata = (await services.meem.getErc721Metadata(
 			tokenURI
@@ -770,7 +926,8 @@ export default class ContractEvent {
 			mintedBy: meemData.mintedBy,
 			uriLockedBy: meemData.uriLockedBy,
 			uriSource: meemData.uriSource,
-			reactionTypes: meemData.reactionTypes
+			reactionTypes: meemData.reactionTypes,
+			MeemContractId: meemContractData.id
 		}
 
 		log.debug(`Saving meem to db: ${tokenId}`)
@@ -787,7 +944,15 @@ export default class ContractEvent {
 				? await orm.models.Meem.findOne({
 						where: {
 							tokenId: meemData.parentTokenId.toHexString()
-						}
+						},
+						include: [
+							{
+								model: orm.models.MeemContract,
+								where: {
+									address
+								}
+							}
+						]
 				  })
 				: null
 
@@ -836,56 +1001,56 @@ export default class ContractEvent {
 			log.warn(e)
 		}
 
-		if (config.ENABLE_GUNDB) {
-			const d = {
-				...data,
-				mintedAt: meemData.mintedAt.toNumber()
-				// properties: properties.get({ plain: true }),
-				// childProperties: childProperties.get({ plain: true }),
-				// metadata
-			}
+		// if (config.ENABLE_GUNDB) {
+		// 	const d = {
+		// 		...data,
+		// 		mintedAt: meemData.mintedAt.toNumber()
+		// 		// properties: properties.get({ plain: true }),
+		// 		// childProperties: childProperties.get({ plain: true }),
+		// 		// metadata
+		// 	}
 
-			const token = this.saveToGun({ paths: ['meems', tokenId], data: d })
-			const tokenProperties = this.saveToGun({
-				paths: ['properties', tokenId],
-				data: properties.get({ plain: true })
-			})
-			const tokenChildProperties = this.saveToGun({
-				paths: ['childProperties', tokenId],
-				data: childProperties.get({ plain: true })
-			})
-			const tokenMetadata = this.saveToGun({
-				paths: ['metadata', tokenId],
-				data: metadata
-			})
+		// 	const token = this.saveToGun({ paths: ['meems', tokenId], data: d })
+		// 	const tokenProperties = this.saveToGun({
+		// 		paths: ['properties', tokenId],
+		// 		data: properties.get({ plain: true })
+		// 	})
+		// 	const tokenChildProperties = this.saveToGun({
+		// 		paths: ['childProperties', tokenId],
+		// 		data: childProperties.get({ plain: true })
+		// 	})
+		// 	const tokenMetadata = this.saveToGun({
+		// 		paths: ['metadata', tokenId],
+		// 		data: metadata
+		// 	})
 
-			token.get('properties').put(tokenProperties)
-			token.get('childProperties').put(tokenChildProperties)
-			token.get('metadata').put(tokenMetadata)
-			tokenProperties.get('token').put(token)
-			tokenChildProperties.get('token').put(token)
-			tokenMetadata.get('token').put(token)
+		// 	token.get('properties').put(tokenProperties)
+		// 	token.get('childProperties').put(tokenChildProperties)
+		// 	token.get('metadata').put(tokenMetadata)
+		// 	tokenProperties.get('token').put(token)
+		// 	tokenChildProperties.get('token').put(token)
+		// 	tokenMetadata.get('token').put(token)
 
-			let parent: IGunChainReference<any, string | number | symbol, false>
-			let root: IGunChainReference<any, string | number | symbol, false>
+		// 	let parent: IGunChainReference<any, string | number | symbol, false>
+		// 	let root: IGunChainReference<any, string | number | symbol, false>
 
-			if (meemData.parent === config.MEEM_PROXY_ADDRESS) {
-				// Parent is a meem
-				parent = gun
-					.user()
-					.get('meems')
-					.get(meemData.parentTokenId.toHexString())
-				token.get('parentMeem').put(parent)
-				parent.get('childMeems').put(token)
-			}
+		// 	if (meemData.parent === config.MEEM_PROXY_ADDRESS) {
+		// 		// Parent is a meem
+		// 		parent = gun
+		// 			.user()
+		// 			.get('meems')
+		// 			.get(meemData.parentTokenId.toHexString())
+		// 		token.get('parentMeem').put(parent)
+		// 		parent.get('childMeems').put(token)
+		// 	}
 
-			if (meemData.root === config.MEEM_PROXY_ADDRESS) {
-				// Parent is a meem
-				root = gun.user().get('meems').get(meemData.parentTokenId.toHexString())
-				token.get('rootMeem').put(root)
-				root.get('descendantMeems').put(token)
-			}
-		}
+		// 	if (meemData.root === config.MEEM_PROXY_ADDRESS) {
+		// 		// Parent is a meem
+		// 		root = gun.user().get('meems').get(meemData.parentTokenId.toHexString())
+		// 		token.get('rootMeem').put(root)
+		// 		root.get('descendantMeems').put(token)
+		// 	}
+		// }
 
 		return meem
 	}
@@ -945,7 +1110,9 @@ export default class ContractEvent {
 	private static async updateMeem(options: { meem: Meem }) {
 		const { meem } = options
 		log.debug(`Syncing meem tokenId: ${meem.tokenId}`)
-		const meemContract = await services.meem.getMeemContract()
+		const meemContract = await services.meem.getMeemContract({
+			address: meem.MeemContract.address
+		})
 		// Fetch the meem data and create it
 		const [meemData, tokenURI] = await Promise.all([
 			meemContract.getMeem(meem.tokenId),
@@ -987,7 +1154,18 @@ export default class ContractEvent {
 			remixPermissionsLockedBy: props.remixPermissionsLockedBy,
 			readPermissionsLockedBy: props.readPermissionsLockedBy,
 			splits: this.meemSplitsDataToModelData(props.splits),
-			splitsLockedBy: props.splitsLockedBy
+			splitsLockedBy: props.splitsLockedBy,
+			isTransferrable: props.isTransferrable,
+			isTransferrableLockedBy: props.isTransferrableLockedBy,
+			mintStartTimestamp: props.mintStartTimestamp.toHexString(),
+			mintEndTimestamp: !props.mintEndTimestamp.isZero
+				? props.mintEndTimestamp.toHexString()
+				: null,
+			mintDatesLockedBy: props.mintDatesLockedBy,
+			transferLockupUntil: !props.transferLockupUntil.isZero
+				? props.transferLockupUntil.toHexString()
+				: null,
+			transferLockupUntilLockedBy: props.transferLockupUntilLockedBy
 		}
 	}
 

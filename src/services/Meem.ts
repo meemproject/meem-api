@@ -1,5 +1,13 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import * as path from 'path'
+import {
+	Meem,
+	MeemPermissionStructOutput,
+	MeemPropertiesStructOutput,
+	MeemStructOutput,
+	SplitStructOutput
+} from '@meemproject/meem-contracts/dist/types/Meem'
+import meemABI from '@meemproject/meem-contracts/types/Meem.json'
 import type { ethers as Ethers } from 'ethers'
 import fs from 'fs-extra'
 import _ from 'lodash'
@@ -8,19 +16,12 @@ import sharp from 'sharp'
 import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
 import ERC721ABI from '../abis/ERC721.json'
-import MeemABI from '../abis/Meem.json'
 import errors from '../config/errors'
 import meemAccessListTesting from '../lib/meem-access-testing.json'
 import meemAccessList from '../lib/meem-access.json'
 import type MeemModel from '../models/Meem'
 import MeemIdentification from '../models/MeemIdentification'
-import { Meem, ERC721 } from '../types'
-import {
-	MeemPermissionStructOutput,
-	MeemPropertiesStructOutput,
-	MeemStructOutput,
-	SplitStructOutput
-} from '../types/Meem'
+import { ERC721 } from '../types'
 import { MeemAPI } from '../types/meem.generated'
 import {
 	MeemMetadataStorageProvider,
@@ -89,7 +90,7 @@ export default class MeemService {
 
 	public static async getErc721Metadata(uri: string) {
 		let metadata: MeemAPI.IERC721Metadata
-		if (uri.length === 0) {
+		if (uri.length === 0 || uri === 'ipfs://example') {
 			return {}
 		}
 		if (/^data:application\/json/.test(uri)) {
@@ -140,14 +141,18 @@ export default class MeemService {
 	}
 
 	/** Get a Meem contract instance */
-	public static async getMeemContract(options?: { walletPrivateKey: string }) {
+	public static async getMeemContract(options?: {
+		address?: string
+		walletPrivateKey?: string
+	}) {
 		const ethers = services.ethers.getInstance()
+		const address = options?.address || config.MEEM_PROXY_ADDRESS
 		if (config.TESTING) {
 			// @ts-ignore
-			const c = (await ethers.getContractAt(MeemABI, config.MEEM_PROXY_ADDRESS))
+			const c = (await ethers.getContractAt(meemABI, address))
 				// @ts-ignore
 				.connect(global.signer)
-			// const c = await ethers.getContractAt(MeemABI, config.MEEM_PROXY_ADDRESS)
+			// const c = await ethers.getContractAt(meemABI, address)
 			return c as Meem
 		}
 
@@ -163,17 +168,17 @@ export default class MeemService {
 		const wallet = new ethers.Wallet(walletPrivateKey, provider)
 
 		const meemContract = new ethers.Contract(
-			config.MEEM_PROXY_ADDRESS,
-			MeemABI,
+			address,
+			meemABI,
 			wallet
-		) as Meem
+		) as unknown as Meem
 
 		return meemContract
 	}
 
 	public static meemInterface() {
 		const ethers = services.ethers.getInstance()
-		const inter = new ethers.utils.Interface(MeemABI)
+		const inter = new ethers.utils.Interface(meemABI)
 		return inter
 	}
 
@@ -854,7 +859,22 @@ export default class MeemService {
 				.toHexString(),
 			remixesPerWalletLockedBy:
 				props?.remixesPerWalletLockedBy ?? MeemAPI.zeroAddress,
-			totalRemixesLockedBy: props?.totalRemixesLockedBy ?? MeemAPI.zeroAddress
+			totalRemixesLockedBy: props?.totalRemixesLockedBy ?? MeemAPI.zeroAddress,
+			isTransferrable: props?.isTransferrable ?? false,
+			isTransferrableLockedBy:
+				props?.isTransferrableLockedBy ?? MeemAPI.zeroAddress,
+			mintStartTimestamp: services.web3
+				.toBigNumber(props?.mintStartTimestamp ?? DateTime.now().toSeconds())
+				.toHexString(),
+			mintEndTimestamp: services.web3
+				.toBigNumber(props?.mintEndTimestamp ?? 0)
+				.toHexString(),
+			mintDatesLockedBy: props?.mintDatesLockedBy ?? MeemAPI.zeroAddress,
+			transferLockupUntil: services.web3
+				.toBigNumber(props?.transferLockupUntil ?? 0)
+				.toHexString(),
+			transferLockupUntilLockedBy:
+				props?.transferLockupUntilLockedBy ?? MeemAPI.zeroAddress
 		}
 	}
 
@@ -911,7 +931,14 @@ export default class MeemService {
 			remixPermissionsLockedBy: meemProperties.remixPermissionsLockedBy,
 			readPermissionsLockedBy: meemProperties.readPermissionsLockedBy,
 			splits: meemProperties.splits.map(s => this.meemSplitToInterface(s)),
-			splitsLockedBy: meemProperties.splitsLockedBy
+			splitsLockedBy: meemProperties.splitsLockedBy,
+			mintStartTimestamp: meemProperties.mintStartTimestamp.toHexString(),
+			mintEndTimestamp: meemProperties.mintEndTimestamp.toHexString(),
+			mintDatesLockedBy: meemProperties.mintDatesLockedBy,
+			isTransferrable: meemProperties.isTransferrable,
+			isTransferrableLockedBy: meemProperties.isTransferrableLockedBy,
+			transferLockupUntil: meemProperties.transferLockupUntil.toHexString(),
+			transferLockupUntilLockedBy: meemProperties.transferLockupUntilLockedBy
 		}
 	}
 

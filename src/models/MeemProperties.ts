@@ -108,6 +108,53 @@ export default class MeemProperties extends BaseModel<MeemProperties> {
 		splitsLockedBy: {
 			type: DataTypes.STRING,
 			allowNull: false
+		},
+		isTransferrable: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: true
+		},
+		isTransferrableLockedBy: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		mintStartTimestamp: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			set(this: MeemProperties, val: any) {
+				this.setDataValue(
+					'mintStartTimestamp',
+					services.web3.toBigNumber(val).toHexString()
+				)
+			}
+		},
+		mintEndTimestamp: {
+			type: DataTypes.STRING,
+			allowNull: true,
+			set(this: MeemProperties, val: any) {
+				this.setDataValue(
+					'mintEndTimestamp',
+					services.web3.toBigNumber(val ?? 0).toHexString()
+				)
+			}
+		},
+		mintDatesLockedBy: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		transferLockupUntil: {
+			type: DataTypes.STRING,
+			allowNull: true,
+			set(this: MeemProperties, val: any) {
+				this.setDataValue(
+					'transferLockupUntil',
+					services.web3.toBigNumber(val ?? 0).toHexString()
+				)
+			}
+		},
+		transferLockupUntilLockedBy: {
+			type: DataTypes.STRING,
+			allowNull: false
 		}
 	}
 
@@ -144,6 +191,20 @@ export default class MeemProperties extends BaseModel<MeemProperties> {
 	public splits!: MeemAPI.IMeemSplit[]
 
 	public splitsLockedBy!: string
+
+	public isTransferrable!: boolean
+
+	public isTransferrableLockedBy!: string
+
+	public mintStartTimestamp!: string
+
+	public mintEndTimestamp!: string
+
+	public mintDatesLockedBy!: string
+
+	public transferLockupUntil!: string
+
+	public transferLockupUntilLockedBy!: string
 
 	public static associate(_models: IModels) {}
 }

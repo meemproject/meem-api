@@ -21,7 +21,7 @@ export default class AdminController {
 	}
 
 	public static async meemSync(req: Request, res: Response): Promise<Response> {
-		await services.contractEvents.meemSync()
+		// await services.contractEvents.meemSync()
 
 		return res.json({
 			status: 'success'
@@ -32,7 +32,7 @@ export default class AdminController {
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		await services.contractEvents.meemSyncReactions()
+		// await services.contractEvents.meemSyncReactions()
 
 		return res.json({
 			status: 'success'

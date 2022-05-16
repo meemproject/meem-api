@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
+import MeemContract from './MeemContract'
 import MeemProperties from './MeemProperties'
 import type Reaction from './Reaction'
 import type Transfer from './Transfer'
@@ -46,6 +47,10 @@ export default class Meem extends BaseModel<Meem> {
 			{
 				name: 'Meem_ChildPropertiesId',
 				fields: ['ChildPropertiesId']
+			},
+			{
+				name: 'Meem_MeemContractId',
+				fields: ['MeemContractId']
 			}
 		]
 	}
@@ -221,9 +226,13 @@ export default class Meem extends BaseModel<Meem> {
 
 	public numCopies!: number
 
+	public MeemContractId!: string
+
 	public PropertiesId!: string | null
 
 	public ChildPropertiesId!: string | null
+
+	public MeemContract!: MeemContract
 
 	public Properties!: MeemProperties | null
 
@@ -234,6 +243,8 @@ export default class Meem extends BaseModel<Meem> {
 	public Reactions!: Reaction[] | null
 
 	public static associate(models: IModels) {
+		this.belongsTo(models.MeemContract)
+
 		this.belongsTo(models.MeemProperties, {
 			as: 'Properties'
 		})
