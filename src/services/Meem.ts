@@ -859,7 +859,22 @@ export default class MeemService {
 				.toHexString(),
 			remixesPerWalletLockedBy:
 				props?.remixesPerWalletLockedBy ?? MeemAPI.zeroAddress,
-			totalRemixesLockedBy: props?.totalRemixesLockedBy ?? MeemAPI.zeroAddress
+			totalRemixesLockedBy: props?.totalRemixesLockedBy ?? MeemAPI.zeroAddress,
+			isTransferrable: props?.isTransferrable ?? false,
+			isTransferrableLockedBy:
+				props?.isTransferrableLockedBy ?? MeemAPI.zeroAddress,
+			mintStartTimestamp: services.web3
+				.toBigNumber(props?.mintStartTimestamp ?? DateTime.now().toSeconds())
+				.toHexString(),
+			mintEndTimestamp: props?.mintEndTimestamp
+				? services.web3.toBigNumber(props.mintEndTimestamp).toHexString()
+				: null,
+			mintDatesLockedBy: props?.mintDatesLockedBy ?? MeemAPI.zeroAddress,
+			transferLockupUntil: props?.transferLockupUntil
+				? services.web3.toBigNumber(props.transferLockupUntil).toHexString()
+				: null,
+			transferLockupUntilLockedBy:
+				props?.transferLockupUntilLockedBy ?? MeemAPI.zeroAddress
 		}
 	}
 

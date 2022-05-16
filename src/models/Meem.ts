@@ -17,10 +17,6 @@ export default class Meem extends BaseModel<Meem> {
 				fields: ['createdAt']
 			},
 			{
-				name: 'Meem_address',
-				fields: ['address']
-			},
-			{
 				name: 'Meem_tokenId',
 				fields: ['tokenId']
 			},
@@ -67,11 +63,6 @@ export default class Meem extends BaseModel<Meem> {
 		},
 		meemId: {
 			type: DataTypes.UUID
-		},
-		address: {
-			type: DataTypes.STRING,
-			allowNull: false,
-			defaulValue: ''
 		},
 		tokenId: {
 			type: DataTypes.STRING,
@@ -192,8 +183,6 @@ export default class Meem extends BaseModel<Meem> {
 	public id!: string
 
 	public meemId!: string
-
-	public address!: string
 
 	public tokenId!: string
 

@@ -104,6 +104,23 @@ export default class MeemContract extends BaseModel<MeemContract> {
 		mintDatesLockedBy: {
 			type: DataTypes.STRING,
 			allowNull: false
+		},
+		transferLockupUntil: {
+			type: DataTypes.STRING,
+			allowNull: true,
+			set(this: MeemContract, val: any) {
+				if (!val) {
+					return
+				}
+				this.setDataValue(
+					'transferLockupUntil',
+					services.web3.toBigNumber(val).toHexString()
+				)
+			}
+		},
+		transferLockupUntilLockedBy: {
+			type: DataTypes.STRING,
+			allowNull: false
 		}
 	}
 
@@ -136,6 +153,10 @@ export default class MeemContract extends BaseModel<MeemContract> {
 	public mintEndTimestamp!: string
 
 	public mintDatesLockedBy!: string
+
+	public transferLockupUntil!: string
+
+	public transferLockupUntilLockedBy!: string
 
 	public static associate(models: IModels) {}
 }

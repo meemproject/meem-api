@@ -193,7 +193,11 @@ export default class ProviderListener {
 										baseProperties.mintStartTimestamp.toHexString(),
 									mintEndTimestamp:
 										baseProperties.mintEndTimestamp.toHexString(),
-									mintDatesLockedBy: baseProperties.mintDatesLockedBy
+									mintDatesLockedBy: baseProperties.mintDatesLockedBy,
+									transferLockupUntil:
+										baseProperties.transferLockupUntil.toHexString(),
+									transferLockupUntilLockedBy:
+										baseProperties.transferLockupUntilLockedBy
 								}
 
 								await orm.models.MeemContract.create(meemContractData)

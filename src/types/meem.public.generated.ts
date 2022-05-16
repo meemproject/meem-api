@@ -387,6 +387,13 @@ export interface IMeemProperties {
 	readPermissionsLockedBy: string
 	splits: IMeemSplit[]
 	splitsLockedBy: string
+	isTransferrable: boolean
+	isTransferrableLockedBy: string
+	mintStartTimestamp: string
+	mintEndTimestamp: string | null
+	mintDatesLockedBy: string
+	transferLockupUntil: string | null
+	transferLockupUntilLockedBy: string
 }
 
 export interface IMeem {

@@ -1154,7 +1154,18 @@ export default class ContractEvent {
 			remixPermissionsLockedBy: props.remixPermissionsLockedBy,
 			readPermissionsLockedBy: props.readPermissionsLockedBy,
 			splits: this.meemSplitsDataToModelData(props.splits),
-			splitsLockedBy: props.splitsLockedBy
+			splitsLockedBy: props.splitsLockedBy,
+			isTransferrable: props.isTransferrable,
+			isTransferrableLockedBy: props.isTransferrableLockedBy,
+			mintStartTimestamp: props.mintStartTimestamp.toHexString(),
+			mintEndTimestamp: !props.mintEndTimestamp.isZero
+				? props.mintEndTimestamp.toHexString()
+				: null,
+			mintDatesLockedBy: props.mintDatesLockedBy,
+			transferLockupUntil: !props.transferLockupUntil.isZero
+				? props.transferLockupUntil.toHexString()
+				: null,
+			transferLockupUntilLockedBy: props.transferLockupUntilLockedBy
 		}
 	}
 
