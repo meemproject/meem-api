@@ -70,7 +70,7 @@ export default class ProviderListener {
 			// const eventNames = Object.keys(genericMeemContract.interface.events)
 
 			// See genericMeemContract.interface.events for all available events
-			genericMeemContract.interface.events
+			// genericMeemContract.interface.events
 			const eventIds = {
 				MeemContractInitialized: utils.id('MeemContractInitialized(address)'),
 				MeemTransfer: utils.id('MeemTransfer(address,address,uint256)'),
@@ -112,13 +112,8 @@ export default class ProviderListener {
 				MeemClipped: utils.id('MeemClipped(uint256,address)'),
 				MeemUnClipped: utils.id('MeemUnClipped(uint256,address)')
 			}
-			const topics = [
-				[
-					eventIds.MeemContractInitialized,
-					eventIds.MeemTransfer,
-					eventIds.MeemPropertiesSet
-				]
-			]
+
+			const topics = [Object.values(eventIds)]
 
 			this.provider.on(
 				{

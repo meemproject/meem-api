@@ -118,10 +118,15 @@ export default class ContractEvent {
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -156,10 +161,15 @@ export default class ContractEvent {
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -194,10 +204,15 @@ export default class ContractEvent {
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -232,10 +247,15 @@ export default class ContractEvent {
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -270,10 +290,15 @@ export default class ContractEvent {
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -308,10 +333,15 @@ export default class ContractEvent {
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -346,10 +376,15 @@ export default class ContractEvent {
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -384,10 +419,15 @@ export default class ContractEvent {
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -422,10 +462,15 @@ export default class ContractEvent {
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -459,10 +504,15 @@ export default class ContractEvent {
 		const { propertyType, props } = args.eventData
 		const meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -491,10 +541,15 @@ export default class ContractEvent {
 		const { propertyType, permissionType, permission } = args.eventData
 		const meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
 			},
 			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				},
 				{
 					model: orm.models.MeemProperties,
 					as: 'Properties'
@@ -548,9 +603,16 @@ export default class ContractEvent {
 			orm.models.Wallet.findByAddress(addy),
 			orm.models.Meem.findOne({
 				where: {
-					address: args.address,
 					tokenId
-				}
+				},
+				include: [
+					{
+						model: orm.models.MeemContract,
+						where: {
+							address: args.address
+						}
+					}
+				]
 			})
 		])
 
@@ -583,9 +645,16 @@ export default class ContractEvent {
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
-			}
+			},
+			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				}
+			]
 		})
 
 		if (!meem) {
@@ -612,9 +681,16 @@ export default class ContractEvent {
 		const [meem, wallet] = await Promise.all([
 			orm.models.Meem.findOne({
 				where: {
-					address: args.address,
 					tokenId
-				}
+				},
+				include: [
+					{
+						model: orm.models.MeemContract,
+						where: {
+							address: args.address
+						}
+					}
+				]
 			}),
 			orm.models.Wallet.findByAddress(addy)
 		])
@@ -661,9 +737,16 @@ export default class ContractEvent {
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
-			}
+			},
+			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				}
+			]
 		})
 
 		if (!meem) {
@@ -696,9 +779,16 @@ export default class ContractEvent {
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
-			}
+			},
+			include: [
+				{
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
+				}
+			]
 		})
 
 		if (!meem) {
@@ -718,12 +808,14 @@ export default class ContractEvent {
 		const tokenId = args.eventData.tokenId.toHexString()
 		let meem = await orm.models.Meem.findOne({
 			where: {
-				address: args.address,
 				tokenId
 			},
 			include: [
 				{
-					model: orm.models.MeemContract
+					model: orm.models.MeemContract,
+					where: {
+						address: args.address
+					}
 				}
 			]
 		})
@@ -815,7 +907,6 @@ export default class ContractEvent {
 		const data: Record<string, any> = {
 			id: uuidv4(),
 			meemId: metadata.meem_id ?? null,
-			address,
 			tokenId,
 			tokenURI,
 			owner: meemData.owner,
@@ -853,7 +944,15 @@ export default class ContractEvent {
 				? await orm.models.Meem.findOne({
 						where: {
 							tokenId: meemData.parentTokenId.toHexString()
-						}
+						},
+						include: [
+							{
+								model: orm.models.MeemContract,
+								where: {
+									address
+								}
+							}
+						]
 				  })
 				: null
 
