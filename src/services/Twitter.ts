@@ -700,8 +700,8 @@ export default class TwitterService {
 						// TODO: Is mintedBy the remixer here?
 						mintedBy: remixerAccountAddress
 					},
-					properties,
-					properties,
+					services.meem.propertiesToMeemPropertiesStruct(properties),
+					services.meem.propertiesToMeemPropertiesStruct(properties),
 					{
 						to: remix.meemId?.defaultWallet,
 						tokenURI: remixMetadata.tokenURI,
@@ -720,8 +720,8 @@ export default class TwitterService {
 						uriSource: MeemAPI.UriSource.TokenUri,
 						mintedBy: remix.meemId?.defaultWallet
 					},
-					properties,
-					properties,
+					services.meem.propertiesToMeemPropertiesStruct(properties),
+					services.meem.propertiesToMeemPropertiesStruct(properties),
 					{
 						gasLimit: (+config.MINT_GAS_LIMIT * 2).toString(),
 						gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
@@ -753,8 +753,8 @@ export default class TwitterService {
 						uriSource: MeemAPI.UriSource.TokenUri,
 						mintedBy: toAddress
 					},
-					properties,
-					properties,
+					services.meem.propertiesToMeemPropertiesStruct(properties),
+					services.meem.propertiesToMeemPropertiesStruct(properties),
 					{
 						gasLimit: config.MINT_GAS_LIMIT,
 						gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()

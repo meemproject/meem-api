@@ -5,7 +5,8 @@ import {
 	MeemPermissionStructOutput,
 	MeemPropertiesStructOutput,
 	MeemStructOutput,
-	SplitStructOutput
+	SplitStructOutput,
+	MeemPropertiesStruct
 } from '@meemproject/meem-contracts/dist/types/Meem'
 import meemABI from '@meemproject/meem-contracts/types/Meem.json'
 import type { ethers as Ethers } from 'ethers'
@@ -467,14 +468,18 @@ export default class MeemService {
 					reactionTypes: ['upvote', 'downvote'],
 					mintedBy: data.accountAddress
 				},
-				this.buildProperties(data.properties),
-				this.buildProperties({
-					...data.childProperties,
-					totalCopies: services.web3
-						.toBigNumber(data.childProperties?.totalCopies ?? 0)
-						.toHexString(),
-					splits: data.childProperties?.splits ?? data.properties?.splits
-				}),
+				this.propertiesToMeemPropertiesStruct(
+					this.buildProperties(data.properties)
+				),
+				this.propertiesToMeemPropertiesStruct(
+					this.buildProperties({
+						...data.childProperties,
+						totalCopies: services.web3
+							.toBigNumber(data.childProperties?.totalCopies ?? 0)
+							.toHexString(),
+						splits: data.childProperties?.splits ?? data.properties?.splits
+					})
+				),
 				{
 					gasLimit: config.MINT_GAS_LIMIT,
 					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
@@ -590,42 +595,46 @@ export default class MeemService {
 				reactionTypes: MeemAPI.defaultReactionTypes,
 				mintedBy: config.MEEM_PROJECT_OWNER_ADDRESS
 			},
-			this.buildProperties({
-				copyPermissions: [
-					{
-						permission: MeemAPI.Permission.Addresses,
-						addresses: minterAddresses,
-						numTokens: '0',
-						lockedBy: MeemAPI.zeroAddress,
-						costWei: services.web3.toBigNumber(0).toHexString()
-					}
-				],
-				remixPermissions: [
-					{
-						permission: MeemAPI.Permission.Addresses,
-						addresses: minterAddresses,
-						numTokens: '0',
-						lockedBy: MeemAPI.zeroAddress,
-						costWei: services.web3.toBigNumber(0).toHexString()
-					}
-				],
-				splits: [
-					{
-						toAddress: config.MEEM_PROJECT_OWNER_ADDRESS,
-						amount: 100,
-						lockedBy: MeemAPI.zeroAddress
-					}
-				]
-			}),
-			this.buildProperties({
-				splits: [
-					{
-						toAddress: config.MEEM_PROJECT_OWNER_ADDRESS,
-						amount: 100,
-						lockedBy: MeemAPI.zeroAddress
-					}
-				]
-			}),
+			this.propertiesToMeemPropertiesStruct(
+				this.buildProperties({
+					copyPermissions: [
+						{
+							permission: MeemAPI.Permission.Addresses,
+							addresses: minterAddresses,
+							numTokens: '0',
+							lockedBy: MeemAPI.zeroAddress,
+							costWei: services.web3.toBigNumber(0).toHexString()
+						}
+					],
+					remixPermissions: [
+						{
+							permission: MeemAPI.Permission.Addresses,
+							addresses: minterAddresses,
+							numTokens: '0',
+							lockedBy: MeemAPI.zeroAddress,
+							costWei: services.web3.toBigNumber(0).toHexString()
+						}
+					],
+					splits: [
+						{
+							toAddress: config.MEEM_PROJECT_OWNER_ADDRESS,
+							amount: 100,
+							lockedBy: MeemAPI.zeroAddress
+						}
+					]
+				})
+			),
+			this.propertiesToMeemPropertiesStruct(
+				this.buildProperties({
+					splits: [
+						{
+							toAddress: config.MEEM_PROJECT_OWNER_ADDRESS,
+							amount: 100,
+							lockedBy: MeemAPI.zeroAddress
+						}
+					]
+				})
+			),
 			{
 				gasLimit: config.MINT_GAS_LIMIT,
 				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
@@ -863,16 +872,87 @@ export default class MeemService {
 			isTransferrable: props?.isTransferrable ?? false,
 			isTransferrableLockedBy:
 				props?.isTransferrableLockedBy ?? MeemAPI.zeroAddress,
-			mintStartTimestamp: services.web3
-				.toBigNumber(props?.mintStartTimestamp ?? DateTime.now().toSeconds())
-				.toHexString(),
-			mintEndTimestamp: services.web3
-				.toBigNumber(props?.mintEndTimestamp ?? 0)
-				.toHexString(),
+			mintStartAt: services.web3
+				.toBigNumber(props?.mintStartAt ?? 0)
+				.toNumber(),
+			mintEndAt: services.web3.toBigNumber(props?.mintEndAt ?? 0).toNumber(),
 			mintDatesLockedBy: props?.mintDatesLockedBy ?? MeemAPI.zeroAddress,
 			transferLockupUntil: services.web3
 				.toBigNumber(props?.transferLockupUntil ?? 0)
+				.toNumber(),
+			transferLockupUntilLockedBy:
+				props?.transferLockupUntilLockedBy ?? MeemAPI.zeroAddress
+		}
+	}
+
+	public static propertiesToMeemPropertiesStruct(
+		props?: Partial<MeemAPI.IMeemProperties>
+	): MeemPropertiesStruct {
+		return {
+			copyPermissions: props?.copyPermissions ?? [
+				{
+					permission: MeemAPI.Permission.Anyone,
+					addresses: [],
+					numTokens: services.web3.toBigNumber(0).toHexString(),
+					lockedBy: MeemAPI.zeroAddress,
+					costWei: services.web3.toBigNumber(0).toHexString()
+				}
+			],
+			remixPermissions: props?.remixPermissions ?? [
+				{
+					permission: MeemAPI.Permission.Anyone,
+					addresses: [],
+					numTokens: services.web3.toBigNumber(0).toHexString(),
+					lockedBy: MeemAPI.zeroAddress,
+					costWei: services.web3.toBigNumber(0).toHexString()
+				}
+			],
+			readPermissions: props?.readPermissions ?? [
+				{
+					permission: MeemAPI.Permission.Anyone,
+					addresses: [],
+					numTokens: services.web3.toBigNumber(0).toHexString(),
+					lockedBy: MeemAPI.zeroAddress,
+					costWei: services.web3.toBigNumber(0).toHexString()
+				}
+			],
+			copyPermissionsLockedBy:
+				props?.copyPermissionsLockedBy ?? MeemAPI.zeroAddress,
+			remixPermissionsLockedBy:
+				props?.remixPermissionsLockedBy ?? MeemAPI.zeroAddress,
+			readPermissionsLockedBy:
+				props?.readPermissionsLockedBy ?? MeemAPI.zeroAddress,
+			splits: props?.splits ?? [],
+			splitsLockedBy: props?.splitsLockedBy ?? MeemAPI.zeroAddress,
+			copiesPerWallet: services.web3
+				.toBigNumber(props?.copiesPerWallet ?? -1)
 				.toHexString(),
+			copiesPerWalletLockedBy:
+				props?.copiesPerWalletLockedBy ?? MeemAPI.zeroAddress,
+			totalCopies: services.web3
+				.toBigNumber(props?.totalCopies ?? 0)
+				.toHexString(),
+			totalCopiesLockedBy: props?.totalCopiesLockedBy ?? MeemAPI.zeroAddress,
+			totalRemixes: services.web3
+				.toBigNumber(props?.totalRemixes ?? -1)
+				.toHexString(),
+			remixesPerWallet: services.web3
+				.toBigNumber(props?.remixesPerWallet ?? -1)
+				.toHexString(),
+			remixesPerWalletLockedBy:
+				props?.remixesPerWalletLockedBy ?? MeemAPI.zeroAddress,
+			totalRemixesLockedBy: props?.totalRemixesLockedBy ?? MeemAPI.zeroAddress,
+			isTransferrable: props?.isTransferrable ?? false,
+			isTransferrableLockedBy:
+				props?.isTransferrableLockedBy ?? MeemAPI.zeroAddress,
+			mintStartTimestamp: services.web3.toBigNumber(props?.mintStartAt ?? 0),
+			mintEndTimestamp: services.web3
+				.toBigNumber(props?.mintEndAt ?? 0)
+				.toNumber(),
+			mintDatesLockedBy: props?.mintDatesLockedBy ?? MeemAPI.zeroAddress,
+			transferLockupUntil: services.web3
+				.toBigNumber(props?.transferLockupUntil ?? 0)
+				.toNumber(),
 			transferLockupUntilLockedBy:
 				props?.transferLockupUntilLockedBy ?? MeemAPI.zeroAddress
 		}
@@ -932,12 +1012,12 @@ export default class MeemService {
 			readPermissionsLockedBy: meemProperties.readPermissionsLockedBy,
 			splits: meemProperties.splits.map(s => this.meemSplitToInterface(s)),
 			splitsLockedBy: meemProperties.splitsLockedBy,
-			mintStartTimestamp: meemProperties.mintStartTimestamp.toHexString(),
-			mintEndTimestamp: meemProperties.mintEndTimestamp.toHexString(),
+			mintStartAt: meemProperties.mintStartTimestamp.toNumber(),
+			mintEndAt: meemProperties.mintEndTimestamp.toNumber(),
 			mintDatesLockedBy: meemProperties.mintDatesLockedBy,
 			isTransferrable: meemProperties.isTransferrable,
 			isTransferrableLockedBy: meemProperties.isTransferrableLockedBy,
-			transferLockupUntil: meemProperties.transferLockupUntil.toHexString(),
+			transferLockupUntil: meemProperties.transferLockupUntil.toNumber(),
 			transferLockupUntilLockedBy: meemProperties.transferLockupUntilLockedBy
 		}
 	}
@@ -979,8 +1059,32 @@ export default class MeemService {
 			root: meem.root,
 			rootTokenId: meem.rootTokenId,
 			generation: meem.generation,
-			properties: meem.Properties,
-			childProperties: meem.ChildProperties,
+			properties: {
+				...meem.Properties,
+				mintStartAt: meem.Properties.mintStartAt
+					? Math.floor(meem.Properties.mintStartAt.getTime() / 1000)
+					: -1,
+				mintEndAt: meem.Properties.mintEndAt
+					? Math.floor(meem.Properties.mintEndAt.getTime() / 1000)
+					: -1,
+				transferLockupUntil: meem.Properties.transferLockupUntil
+					? Math.floor(meem.Properties.transferLockupUntil.getTime() / 1000)
+					: -1
+			},
+			childProperties: {
+				...meem.ChildProperties,
+				mintStartAt: meem.ChildProperties.mintStartAt
+					? Math.floor(meem.ChildProperties.mintStartAt.getTime() / 1000)
+					: -1,
+				mintEndAt: meem.ChildProperties.mintEndAt
+					? Math.floor(meem.ChildProperties.mintEndAt.getTime() / 1000)
+					: -1,
+				transferLockupUntil: meem.ChildProperties.transferLockupUntil
+					? Math.floor(
+							meem.ChildProperties.transferLockupUntil.getTime() / 1000
+					  )
+					: -1
+			},
 			mintedAt: DateTime.fromJSDate(meem.mintedAt).toSeconds(),
 			data: meem.data,
 			uriLockedBy: meem.uriLockedBy,

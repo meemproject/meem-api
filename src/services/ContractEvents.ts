@@ -1,3 +1,4 @@
+import { Meem as MeemContract } from '@meemproject/meem-contracts'
 import {
 	SplitStructOutput,
 	MeemPermissionStructOutput,
@@ -18,7 +19,8 @@ import {
 	MeemTokenReactionTypesSetEventObject,
 	MeemSplitsSet_uint256_uint8_tuple_array_EventObject,
 	MeemClippedEventObject,
-	MeemUnClippedEventObject
+	MeemUnClippedEventObject,
+	MeemContractInitializedEventObject
 } from '@meemproject/meem-contracts/dist/types/Meem'
 import { BigNumber } from 'ethers'
 import { IGunChainReference } from 'gun/types/chain'
@@ -107,6 +109,85 @@ export default class ContractEvent {
 	// 		await this.meemSync(failedEvents)
 	// 	}
 	// }
+
+	public static async meemHandleContractInitialized(args: {
+		address: string
+		eventData?: MeemContractInitializedEventObject
+	}) {
+		const { address } = args
+		const meemContract = (await services.meem.getMeemContract({
+			address
+		})) as unknown as MeemContract
+
+		const contractInfo = await meemContract.getContractInfo()
+
+		const properties = orm.models.MeemProperties.build({
+			id: uuidv4(),
+			...this.meemPropertiesDataToModelData(contractInfo.defaultProperties)
+		})
+		const childProperties = orm.models.MeemProperties.build({
+			id: uuidv4(),
+			...this.meemPropertiesDataToModelData(contractInfo.defaultChildProperties)
+		})
+
+		const meemContractData = {
+			symbol: contractInfo.symbol,
+			name: contractInfo.name,
+			contractURI: contractInfo.contractURI,
+			childDepth: contractInfo.childDepth,
+			nonOwnerSplitAllocationAmount: contractInfo.nonOwnerSplitAllocationAmount,
+			address,
+			totalOriginalsSupply:
+				contractInfo.baseProperties.totalOriginalsSupply.toHexString(),
+			totalOriginalsSupplyLockedBy:
+				contractInfo.baseProperties.totalOriginalsSupplyLockedBy,
+			mintPermissions: contractInfo.baseProperties.mintPermissions.map(p => ({
+				permission: p.permission,
+				addresses: p.addresses,
+				numTokens: p.numTokens.toHexString(),
+				lockedBy: p.lockedBy,
+				costWei: p.costWei.toHexString()
+			})),
+			mintPermissionsLockedBy:
+				contractInfo.baseProperties.mintPermissionsLockedBy,
+			splits: contractInfo.baseProperties.splits.map(s => ({
+				toAddress: s.toAddress,
+				amount: s.amount.toNumber(),
+				lockedBy: s.lockedBy
+			})),
+			splitsLockedBy: contractInfo.baseProperties.splitsLockedBy,
+			originalsPerWallet:
+				contractInfo.baseProperties.originalsPerWallet.toHexString(),
+			originalsPerWalletLockedBy:
+				contractInfo.baseProperties.originalsPerWalletLockedBy,
+			isTransferrable: contractInfo.baseProperties.isTransferrable,
+			isTransferrableLockedBy:
+				contractInfo.baseProperties.isTransferrableLockedBy,
+			mintStartTimestamp:
+				contractInfo.baseProperties.mintStartTimestamp.toHexString(),
+			mintEndTimestamp:
+				contractInfo.baseProperties.mintEndTimestamp.toHexString(),
+			mintDatesLockedBy: contractInfo.baseProperties.mintDatesLockedBy,
+			transferLockupUntil:
+				contractInfo.baseProperties.transferLockupUntil.toHexString(),
+			transferLockupUntilLockedBy:
+				contractInfo.baseProperties.transferLockupUntilLockedBy,
+			DefaultProperties: properties.id,
+			DefaultChildProperties: childProperties.id
+		}
+
+		const t = await orm.sequelize.transaction()
+
+		await Promise.all([
+			properties.save({ transaction: t }),
+			childProperties.save({ transaction: t })
+		])
+		await orm.models.MeemContract.create(meemContractData, {
+			transaction: t
+		})
+
+		await t.commit()
+	}
 
 	public static async meemHandleTotalCopiesSet(args: {
 		address: string
@@ -285,7 +366,7 @@ export default class ContractEvent {
 		eventData: MeemCopiesPerWalletSetEventObject
 	}) {
 		const tokenId = args.eventData.tokenId.toHexString()
-		const { newTotalRemixes, propertyType } = args.eventData
+		const { newTotalCopies, propertyType } = args.eventData
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -319,7 +400,7 @@ export default class ContractEvent {
 				return
 			}
 			// TODO: Update property name
-			prop.copiesPerWallet = newTotalRemixes.toHexString()
+			prop.copiesPerWallet = newTotalCopies.toHexString()
 			await prop.save()
 		}
 	}

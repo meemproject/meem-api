@@ -1,7 +1,9 @@
+import { DateTime } from 'luxon'
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
+import MeemContract from './MeemContract'
 
 export default class MeemProperties extends BaseModel<MeemProperties> {
 	public static readonly modelName = 'MeemProperties'
@@ -118,23 +120,28 @@ export default class MeemProperties extends BaseModel<MeemProperties> {
 			type: DataTypes.STRING,
 			allowNull: false
 		},
-		mintStartTimestamp: {
-			type: DataTypes.STRING,
-			allowNull: false,
-			set(this: MeemProperties, val: any) {
+		mintStartAt: {
+			type: DataTypes.DATE,
+			set(this: MeemContract, val: any) {
 				this.setDataValue(
-					'mintStartTimestamp',
-					services.web3.toBigNumber(val).toHexString()
+					'mintStartAt',
+					DateTime.fromSeconds(
+						services.web3.toBigNumber(val).toNumber()
+					).toJSDate()
 				)
 			}
 		},
-		mintEndTimestamp: {
-			type: DataTypes.STRING,
-			allowNull: true,
-			set(this: MeemProperties, val: any) {
+		mintEndAt: {
+			type: DataTypes.DATE,
+			set(this: MeemContract, val: any) {
+				if (!val) {
+					return
+				}
 				this.setDataValue(
-					'mintEndTimestamp',
-					services.web3.toBigNumber(val ?? 0).toHexString()
+					'mintEndAt',
+					DateTime.fromSeconds(
+						services.web3.toBigNumber(val).toNumber()
+					).toJSDate()
 				)
 			}
 		},
@@ -143,12 +150,16 @@ export default class MeemProperties extends BaseModel<MeemProperties> {
 			allowNull: false
 		},
 		transferLockupUntil: {
-			type: DataTypes.STRING,
-			allowNull: true,
-			set(this: MeemProperties, val: any) {
+			type: DataTypes.DATE,
+			set(this: MeemContract, val: any) {
+				if (!val) {
+					return
+				}
 				this.setDataValue(
 					'transferLockupUntil',
-					services.web3.toBigNumber(val ?? 0).toHexString()
+					DateTime.fromSeconds(
+						services.web3.toBigNumber(val).toNumber()
+					).toJSDate()
 				)
 			}
 		},
@@ -196,13 +207,13 @@ export default class MeemProperties extends BaseModel<MeemProperties> {
 
 	public isTransferrableLockedBy!: string
 
-	public mintStartTimestamp!: string
+	public mintStartAt!: Date | null
 
-	public mintEndTimestamp!: string
+	public mintEndAt!: Date | null
 
 	public mintDatesLockedBy!: string
 
-	public transferLockupUntil!: string
+	public transferLockupUntil!: Date | null
 
 	public transferLockupUntilLockedBy!: string
 

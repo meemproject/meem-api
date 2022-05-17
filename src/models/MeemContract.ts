@@ -1,8 +1,10 @@
+import { DateTime } from 'luxon'
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import type Meem from './Meem'
+import type MeemProperties from './MeemProperties'
 
 export default class MeemContract extends BaseModel<MeemContract> {
 	public static readonly modelName = 'MeemContract'
@@ -21,6 +23,14 @@ export default class MeemContract extends BaseModel<MeemContract> {
 			type: DataTypes.UUID,
 			defaultValue: DataTypes.UUIDV4,
 			primaryKey: true
+		},
+		name: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		symbol: {
+			type: DataTypes.STRING,
+			allowNull: false
 		},
 		address: {
 			type: DataTypes.STRING,
@@ -79,26 +89,28 @@ export default class MeemContract extends BaseModel<MeemContract> {
 			type: DataTypes.STRING,
 			allowNull: false
 		},
-		mintStartTimestamp: {
-			type: DataTypes.STRING,
-			allowNull: false,
+		mintStartAt: {
+			type: DataTypes.DATE,
 			set(this: MeemContract, val: any) {
 				this.setDataValue(
-					'mintStartTimestamp',
-					services.web3.toBigNumber(val).toHexString()
+					'mintStartAt',
+					DateTime.fromSeconds(
+						services.web3.toBigNumber(val).toNumber()
+					).toJSDate()
 				)
 			}
 		},
-		mintEndTimestamp: {
-			type: DataTypes.STRING,
-			allowNull: true,
+		mintEndAt: {
+			type: DataTypes.DATE,
 			set(this: MeemContract, val: any) {
 				if (!val) {
 					return
 				}
 				this.setDataValue(
-					'mintEndTimestamp',
-					services.web3.toBigNumber(val).toHexString()
+					'mintEndAt',
+					DateTime.fromSeconds(
+						services.web3.toBigNumber(val).toNumber()
+					).toJSDate()
 				)
 			}
 		},
@@ -107,15 +119,16 @@ export default class MeemContract extends BaseModel<MeemContract> {
 			allowNull: false
 		},
 		transferLockupUntil: {
-			type: DataTypes.STRING,
-			allowNull: true,
+			type: DataTypes.DATE,
 			set(this: MeemContract, val: any) {
 				if (!val) {
 					return
 				}
 				this.setDataValue(
 					'transferLockupUntil',
-					services.web3.toBigNumber(val).toHexString()
+					DateTime.fromSeconds(
+						services.web3.toBigNumber(val).toNumber()
+					).toJSDate()
 				)
 			}
 		},
@@ -126,6 +139,10 @@ export default class MeemContract extends BaseModel<MeemContract> {
 	}
 
 	public id!: string
+
+	public name!: string
+
+	public symbol!: string
 
 	public address!: string
 
@@ -149,19 +166,35 @@ export default class MeemContract extends BaseModel<MeemContract> {
 
 	public isTransferrableLockedBy!: string
 
-	public mintStartTimestamp!: string
+	public mintStartAt!: Date | null
 
-	public mintEndTimestamp!: string
+	public mintEndAt!: Date | null
 
 	public mintDatesLockedBy!: string
 
-	public transferLockupUntil!: string
+	public transferLockupUntil!: Date | null
 
 	public transferLockupUntilLockedBy!: string
 
 	public meem?: Meem[] | null
 
+	public PropertiesId!: string | null
+
+	public ChildPropertiesId!: string | null
+
+	public Properties!: MeemProperties | null
+
+	public ChildProperties!: MeemProperties | null
+
 	public static associate(models: IModels) {
 		this.hasMany(models.Meem)
+
+		this.belongsTo(models.MeemProperties, {
+			as: 'DefaultProperties'
+		})
+
+		this.belongsTo(models.MeemProperties, {
+			as: 'DefaultChildProperties'
+		})
 	}
 }
