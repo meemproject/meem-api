@@ -135,6 +135,11 @@ export default class MeemContract extends BaseModel<MeemContract> {
 		transferLockupUntilLockedBy: {
 			type: DataTypes.STRING,
 			allowNull: false
+		},
+		contractURI: {
+			type: DataTypes.TEXT,
+			allowNull: false,
+			defaultValue: ''
 		}
 	}
 
@@ -143,6 +148,8 @@ export default class MeemContract extends BaseModel<MeemContract> {
 	public name!: string
 
 	public symbol!: string
+
+	public contractURI!: string
 
 	public address!: string
 
