@@ -144,4 +144,5 @@ coverage
 *.tgz
 *.swp
 
-node_modules/serverless/*
+node_modules/serverless
+node_modules/aws-sdk
