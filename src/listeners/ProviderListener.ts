@@ -2,6 +2,8 @@ import { Meem } from '@meemproject/meem-contracts'
 import {
 	BasePropertiesStructOutput,
 	MeemClippedEventObject,
+	MeemContractInitializedEvent,
+	MeemContractInitializedEventObject,
 	MeemCopiesPerWalletLockedEventObject,
 	MeemCopiesPerWalletSetEventObject,
 	MeemPropertiesSetEventObject,
@@ -21,7 +23,6 @@ import {
 import meemABI from '@meemproject/meem-contracts/types/Meem.json'
 import { Contract, providers, utils } from 'ethers'
 import { DateTime } from 'luxon'
-import ContractEvent from '../services/ContractEvents'
 // import {} from '@meemproject/meem-contracts'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -146,64 +147,20 @@ export default class ProviderListener {
 
 						log.debug(parsedLog)
 
-						const meemContract = (await services.meem.getMeemContract({
-							address: rawLog.address
-						})) as unknown as Meem
-
 						const eventData =
 							parsedLog.args as unknown as MeemTransferEventObject
 
 						switch (parsedLog.topic) {
 							case eventIds.MeemContractInitialized: {
-								const baseProperties: BasePropertiesStructOutput =
-									await meemContract.getBaseProperties()
-
-								log.debug(baseProperties)
-
-								const meemContractData = {
+								await services.contractEvents.meemHandleContractInitialized({
 									address: rawLog.address,
-									totalOriginalsSupply:
-										baseProperties.totalOriginalsSupply.toHexString(),
-									totalOriginalsSupplyLockedBy:
-										baseProperties.totalOriginalsSupplyLockedBy,
-									mintPermissions: baseProperties.mintPermissions.map(p => ({
-										permission: p.permission,
-										addresses: p.addresses,
-										numTokens: p.numTokens.toHexString(),
-										lockedBy: p.lockedBy,
-										costWei: p.costWei.toHexString()
-									})),
-									mintPermissionsLockedBy:
-										baseProperties.mintPermissionsLockedBy,
-									splits: baseProperties.splits.map(s => ({
-										toAddress: s.toAddress,
-										amount: s.amount.toNumber(),
-										lockedBy: s.lockedBy
-									})),
-									splitsLockedBy: baseProperties.splitsLockedBy,
-									originalsPerWallet:
-										baseProperties.originalsPerWallet.toHexString(),
-									originalsPerWalletLockedBy:
-										baseProperties.originalsPerWalletLockedBy,
-									isTransferrable: baseProperties.isTransferrable,
-									isTransferrableLockedBy:
-										baseProperties.isTransferrableLockedBy,
-									mintStartTimestamp:
-										baseProperties.mintStartTimestamp.toHexString(),
-									mintEndTimestamp:
-										baseProperties.mintEndTimestamp.toHexString(),
-									mintDatesLockedBy: baseProperties.mintDatesLockedBy,
-									transferLockupUntil:
-										baseProperties.transferLockupUntil.toHexString(),
-									transferLockupUntilLockedBy:
-										baseProperties.transferLockupUntilLockedBy
-								}
-
-								await orm.models.MeemContract.create(meemContractData)
+									eventData:
+										eventData as unknown as MeemContractInitializedEventObject
+								})
 								break
 							}
 							case eventIds.MeemTransfer: {
-								await ContractEvent.meemHandleTransfer({
+								await services.contractEvents.meemHandleTransfer({
 									address: rawLog.address,
 									transactionHash: rawLog.transactionHash,
 									transactionTimestamp:
@@ -213,7 +170,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemPropertiesSet: {
-								await ContractEvent.meemHandlePropertiesSet({
+								await services.contractEvents.meemHandlePropertiesSet({
 									address: rawLog.address,
 									eventData:
 										eventData as unknown as MeemPropertiesSetEventObject
@@ -221,7 +178,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemSplitsSet: {
-								await ContractEvent.meemHandleSplitsSet({
+								await services.contractEvents.meemHandleSplitsSet({
 									address: rawLog.address,
 									eventData:
 										eventData as unknown as MeemSplitsSet_uint256_uint8_tuple_array_EventObject
@@ -229,7 +186,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemTotalCopiesSet: {
-								await ContractEvent.meemHandleTotalCopiesSet({
+								await services.contractEvents.meemHandleTotalCopiesSet({
 									address: rawLog.address,
 									eventData:
 										eventData as unknown as MeemTotalCopiesSetEventObject
@@ -237,7 +194,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemTotalCopiesLocked: {
-								await ContractEvent.meemHandleTotalCopiesLocked({
+								await services.contractEvents.meemHandleTotalCopiesLocked({
 									address: rawLog.address,
 									eventData:
 										eventData as unknown as MeemTotalCopiesLockedEventObject
@@ -245,7 +202,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemCopiesPerWalletLocked: {
-								await ContractEvent.meemHandleCopiesPerWalletLocked({
+								await services.contractEvents.meemHandleCopiesPerWalletLocked({
 									address: rawLog.address,
 									eventData:
 										eventData as unknown as MeemCopiesPerWalletLockedEventObject
@@ -253,7 +210,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemCopiesPerWalletSet: {
-								await ContractEvent.meemHandleCopiesPerWalletSet({
+								await services.contractEvents.meemHandleCopiesPerWalletSet({
 									address: rawLog.address,
 									eventData:
 										eventData as unknown as MeemCopiesPerWalletSetEventObject
@@ -261,7 +218,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemTotalRemixesLocked: {
-								await ContractEvent.meemHandleTotalRemixesLocked({
+								await services.contractEvents.meemHandleTotalRemixesLocked({
 									address: rawLog.address,
 									eventData:
 										eventData as unknown as MeemTotalRemixesLockedEventObject
@@ -269,7 +226,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemTotalRemixesSet: {
-								await ContractEvent.meemHandleTotalRemixesSet({
+								await services.contractEvents.meemHandleTotalRemixesSet({
 									address: rawLog.address,
 									eventData:
 										eventData as unknown as MeemTotalRemixesSetEventObject
@@ -277,7 +234,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemRemixesPerWalletLocked: {
-								await ContractEvent.meemHandleRemixesPerWalletLocked({
+								await services.contractEvents.meemHandleRemixesPerWalletLocked({
 									address: rawLog.address,
 									eventData:
 										eventData as unknown as MeemRemixesPerWalletLockedEventObject
@@ -285,7 +242,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemRemixesPerWalletSet: {
-								await ContractEvent.meemHandleRemixesPerWalletSet({
+								await services.contractEvents.meemHandleRemixesPerWalletSet({
 									address: rawLog.address,
 									eventData:
 										eventData as unknown as MeemRemixesPerWalletSetEventObject
@@ -293,7 +250,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemTokenReactionAdded: {
-								await ContractEvent.meemHandleTokenReactionAdded({
+								await services.contractEvents.meemHandleTokenReactionAdded({
 									address: rawLog.address,
 									transactionTimestamp:
 										block?.timestamp || DateTime.now().toSeconds(),
@@ -303,7 +260,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemTokenReactionRemoved: {
-								await ContractEvent.meemHandleTokenReactionRemoved({
+								await services.contractEvents.meemHandleTokenReactionRemoved({
 									address: rawLog.address,
 									eventData:
 										eventData as unknown as MeemTokenReactionRemovedEventObject
@@ -311,7 +268,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemTokenReactionTypesSet: {
-								await ContractEvent.meemHandleTokenReactionTypesSet({
+								await services.contractEvents.meemHandleTokenReactionTypesSet({
 									address: rawLog.address,
 									eventData:
 										eventData as unknown as MeemTokenReactionTypesSetEventObject
@@ -319,7 +276,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemClipped: {
-								await ContractEvent.meemHandleTokenClipped({
+								await services.contractEvents.meemHandleTokenClipped({
 									address: rawLog.address,
 									transactionTimestamp:
 										block?.timestamp || DateTime.now().toSeconds(),
@@ -328,7 +285,7 @@ export default class ProviderListener {
 								break
 							}
 							case eventIds.MeemUnClipped: {
-								await ContractEvent.meemHandleTokenUnClipped({
+								await services.contractEvents.meemHandleTokenUnClipped({
 									address: rawLog.address,
 									eventData: eventData as unknown as MeemUnClippedEventObject
 								})
