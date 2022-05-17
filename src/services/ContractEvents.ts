@@ -366,7 +366,7 @@ export default class ContractEvent {
 		eventData: MeemCopiesPerWalletSetEventObject
 	}) {
 		const tokenId = args.eventData.tokenId.toHexString()
-		const { newTotalRemixes, propertyType } = args.eventData
+		const { newTotalCopies, propertyType } = args.eventData
 
 		const meem = await orm.models.Meem.findOne({
 			where: {
@@ -400,7 +400,7 @@ export default class ContractEvent {
 				return
 			}
 			// TODO: Update property name
-			prop.copiesPerWallet = newTotalRemixes.toHexString()
+			prop.copiesPerWallet = newTotalCopies.toHexString()
 			await prop.save()
 		}
 	}

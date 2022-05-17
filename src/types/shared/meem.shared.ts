@@ -337,7 +337,7 @@ export interface IMeemProperties {
 	mintStartAt: number
 	mintEndAt: number
 	mintDatesLockedBy: string
-	transferLockupUntil: string
+	transferLockupUntil: number
 	transferLockupUntilLockedBy: string
 }
 
