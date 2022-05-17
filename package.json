@@ -60,7 +60,7 @@
 	},
 	"dependencies": {
 		"@kengoldfarb/log": "^1.0.3",
-		"@meemproject/meem-contracts": "^0.3.0",
+		"@meemproject/meem-contracts": "0.3.1-pre-2a9f5b7.0",
 		"@octokit/rest": "^18.12.0",
 		"@pinata/sdk": "^1.1.23",
 		"bcrypt": "^5.0.1",
@@ -75,7 +75,6 @@
 		"fs-extra": "^10.0.0",
 		"globby": "^11",
 		"gun": "^0.2020.1235",
-		"ipfs-http-client": "^53.0.1",
 		"json2csv": "^5.0.6",
 		"jsonwebtoken": "^8.5.1",
 		"lodash": "^4.17.21",

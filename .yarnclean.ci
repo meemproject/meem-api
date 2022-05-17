@@ -143,3 +143,5 @@ coverage
 *.coffee
 *.tgz
 *.swp
+
+node_modules/serverless/*
