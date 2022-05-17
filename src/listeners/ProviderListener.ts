@@ -1,8 +1,6 @@
 import { Meem } from '@meemproject/meem-contracts'
 import {
-	BasePropertiesStructOutput,
 	MeemClippedEventObject,
-	MeemContractInitializedEvent,
 	MeemContractInitializedEventObject,
 	MeemCopiesPerWalletLockedEventObject,
 	MeemCopiesPerWalletSetEventObject,
