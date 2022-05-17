@@ -1,4 +1,9 @@
-version: 2
+version: 2.1
+
+# https://circleci.com/docs/2.0/deployment-integrations/#heroku
+orbs:
+  heroku: circleci/heroku@0.0.10 # Invoke the Heroku orb
+
 jobs:
   deploy_sls_dev:
     docker:
@@ -44,6 +49,12 @@ jobs:
       - run: git config --global user.email "$GIT_AUTHOR_EMAIL"
       - run: git config --global user.name "$GIT_AUTHOR_NAME"
       - run: yarn run release
+  deploy_heroku_dev:
+    executor: heroku/default
+    steps:
+      - checkout
+      - heroku/install
+      - heroku/deploy-via-git
 workflows:
   version: 2
   do_build:
@@ -84,3 +95,9 @@ workflows:
             branches:
               only:
                 - master
+      - deploy_heroku_dev:
+          context: api_dev
+          filters:
+            branches:
+              only:
+                - dev
