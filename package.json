@@ -83,13 +83,11 @@
 		"multer": "^1.4.4",
 		"pg": "^8.7.1",
 		"sequelize": "^6.9.0",
-		"serverless": "^2.64.1",
 		"sharp": "^0.29.2",
 		"string-argv": "^0.3.1",
 		"superagent": "^6",
 		"supertest": "^6.1.6",
 		"twitter-api-v2": "^1.7.0",
-		"typescript": "^4.4.4",
 		"umzug": "^2.3.0",
 		"uuid": "^8.3.2",
 		"ws": "^8.2.3"
@@ -147,12 +145,14 @@
 		"puppeteer-extra-plugin-adblocker": "^2.12.0",
 		"puppeteer-extra-plugin-stealth": "^2.9.0",
 		"sequelize-cli": "^6.3.0",
+		"serverless": "^2.64.1",
 		"serverless-prune-plugin": "^2.0.1",
 		"solc-0.8": "npm:solc@^0.8.4",
 		"sqlite3": "^5.0.2",
 		"ts-node": "^10.4.0",
 		"ts-node-dev": "1.1.8",
-		"typechain": "^6.0.2"
+		"typechain": "^6.0.2",
+		"typescript": "^4.4.4"
 	},
 	"optionalDependencies": {
 		"fsevents": "^2.3.2"
