@@ -24,6 +24,10 @@ export default class MeemContract extends BaseModel<MeemContract> {
 			defaultValue: DataTypes.UUIDV4,
 			primaryKey: true
 		},
+		slug: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
 		name: {
 			type: DataTypes.STRING,
 			allowNull: false
@@ -146,6 +150,8 @@ export default class MeemContract extends BaseModel<MeemContract> {
 	public id!: string
 
 	public name!: string
+
+	public slug!: string
 
 	public symbol!: string
 
