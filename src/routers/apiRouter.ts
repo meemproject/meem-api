@@ -8,7 +8,7 @@ import TestController from '../controllers/TestController'
 import TweetController from '../controllers/TweetController'
 import WebhookController from '../controllers/WebhookController'
 import extendedRouter from '../core/router'
-import userLoggedInPolicy from '../policies/UserLoggedInPolicy'
+// import userLoggedInPolicy from '../policies/UserLoggedInPolicy'
 
 export default (app: Express, _express: typeof coreExpress) => {
 	const router = extendedRouter()
@@ -70,7 +70,8 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	imageRouter.postAsync(
 		'/metadata',
-		userLoggedInPolicy,
+		// TODO: Authentication of some kind?
+		// userLoggedInPolicy,
 		upload.any(),
 		MeemController.saveMetadata
 	)
