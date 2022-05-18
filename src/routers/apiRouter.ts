@@ -70,7 +70,8 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	imageRouter.postAsync(
 		'/metadata',
-		userLoggedInPolicy,
+		// TODO: Authentication of some kind?
+		// userLoggedInPolicy,
 		upload.any(),
 		MeemController.saveMetadata
 	)
