@@ -130,7 +130,16 @@ export default class ContractEvent {
 			...this.meemPropertiesDataToModelData(contractInfo.defaultChildProperties)
 		})
 
+		let slug = ''
+
+		try {
+			slug = await services.meemContract.generateSlug(contractInfo.name)
+		} catch (e) {
+			slug = uuidv4()
+		}
+
 		const meemContractData = {
+			slug,
 			symbol: contractInfo.symbol,
 			name: contractInfo.name,
 			contractURI: contractInfo.contractURI,

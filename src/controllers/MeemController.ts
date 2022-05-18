@@ -20,7 +20,6 @@ import {
 import { MeemAPI } from '../types/meem.generated'
 
 export default class MeemController {
-	// TODO: Move to dedicated MeemID controller?
 	public static async getTwitterAuthUrl(
 		req: IRequest<MeemAPI.v1.GetTwitterAuthUrl.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetTwitterAuthUrl.IResponseBody>

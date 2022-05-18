@@ -8,6 +8,7 @@ import Git from '../services/Git'
 import Ipfs from '../services/Ipfs'
 import Lint from '../services/Lint'
 import Meem from '../services/Meem'
+import MeemContract from '../services/MeemContract'
 import MeemId from '../services/MeemId'
 import Prompts from '../services/Prompts'
 import Puppeteer from '../services/Puppeteer'
@@ -28,6 +29,7 @@ declare global {
 		let ipfs: typeof Ipfs
 		let lint: typeof Lint
 		let meem: typeof Meem
+		let meemContract: typeof MeemContract
 		let meemId: typeof MeemId
 		let prompts: typeof Prompts
 		let puppeteer: Puppeteer
