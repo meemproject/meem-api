@@ -133,7 +133,7 @@ export default class ContractEvent {
 		let slug = ''
 
 		try {
-			slug = await services.meem.generateSlug(contractInfo.name)
+			slug = await services.meemContract.generateSlug(contractInfo.name)
 		} catch (e) {
 			slug = uuidv4()
 		}

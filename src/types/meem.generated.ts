@@ -1348,6 +1348,36 @@ export namespace GetWrappedTokens {
 
 
 
+export namespace IsSlugAvailable {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/isSlugAvailable`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** New slug */
+		slug: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		isSlugAvailable: boolean
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
 export namespace Login {
 	export interface IPathParams {}
 
@@ -1489,6 +1519,40 @@ export namespace SearchMeemIds {
 
 	export interface IResponseBody extends IApiResponseBody {
 		meemIds: IMeemId[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace UpdateMeemContractSlug {
+	export interface IPathParams {
+		/** The meem pass id to fetch */
+		meemContractId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/meemContracts/${options.meemContractId}/updateSlug`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** New slug */
+		slug: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
 	}
 
 	export interface IDefinition {

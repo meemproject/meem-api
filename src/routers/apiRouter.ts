@@ -1,6 +1,7 @@
 import coreExpress, { Express } from 'express'
 import multer from 'multer'
 import ConfigController from '../controllers/ConfigController'
+import MeemContractController from '../controllers/MeemContractController'
 import MeemController from '../controllers/MeemController'
 import MeemIdController from '../controllers/MeemIdController'
 import NFTController from '../controllers/NFTController'
@@ -44,6 +45,11 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/meemid/twitter/access-token',
 		MeemController.getTwitterAccessToken
 	)
+	router.post('/isSlugAvailable', MeemContractController.isSlugAvailable)
+	// router.post(
+	// 	'/meemContracts/:meemContractId/updateSlug',
+	// 	MeemContractController.updateSlug
+	// )
 	router.getAsync('/meems', MeemController.getMeems)
 	router.getAsync('/meems/:tokenId', MeemController.getMeem)
 	router.getAsync('/meems/:tokenId/children', MeemController.getChildMeems)
