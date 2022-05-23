@@ -244,12 +244,7 @@ export default class ContractEvent {
 				const wallet = await orm.models.Wallet.findOne({
 					where: {
 						address: adminAddress.toLowerCase()
-					},
-					include: [
-						{
-							model: orm.models.MeemContractWallet
-						}
-					]
+					}
 				})
 
 				if (wallet) {
