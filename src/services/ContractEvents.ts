@@ -1,4 +1,4 @@
-import { Meem as MeemContract } from '@meemproject/meem-contracts'
+import { Meem as MeemContractType } from '@meemproject/meem-contracts'
 import {
 	SplitStructOutput,
 	MeemPermissionStructOutput,
@@ -27,6 +27,7 @@ import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import Meem from '../models/Meem'
+import MeemContract from '../models/MeemContract'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ContractEvent {
@@ -117,7 +118,7 @@ export default class ContractEvent {
 		const { address } = args
 		const meemContract = (await services.meem.getMeemContract({
 			address
-		})) as unknown as MeemContract
+		})) as unknown as MeemContractType
 
 		const contractInfo = await meemContract.getContractInfo()
 
@@ -224,13 +225,68 @@ export default class ContractEvent {
 			childProperties.save({ transaction: t })
 		])
 
+		let theMeemContract: MeemContract
+
 		if (!existingMeemContract) {
-			await orm.models.MeemContract.create(meemContractData, {
+			theMeemContract = await orm.models.MeemContract.create(meemContractData, {
 				transaction: t
 			})
 		} else {
-			await existingMeemContract.update(meemContractData)
+			theMeemContract = await existingMeemContract.update(meemContractData)
 		}
+
+		const adminRole = await meemContract.ADMIN_ROLE()
+
+		const admins = await meemContract.getRoles(adminRole)
+
+		await Promise.all(
+			admins.map(async adminAddress => {
+				const wallet = await orm.models.Wallet.findOne({
+					where: {
+						address: adminAddress.toLowerCase()
+					}
+				})
+
+				if (wallet) {
+					const existingMeemContractWallet =
+						await orm.models.MeemContractWallet.findOne({
+							where: {
+								MeemContractId: theMeemContract.id,
+								WalletId: wallet.id,
+								role: adminRole
+							}
+						})
+
+					if (!existingMeemContractWallet) {
+						await orm.models.MeemContractWallet.create(
+							{
+								MeemContractId: theMeemContract.id,
+								WalletId: wallet.id,
+								role: adminRole
+							},
+							{
+								transaction: t
+							}
+						)
+					}
+				} else {
+					const newWallet = await orm.models.Wallet.create({
+						address: adminAddress.toLocaleLowerCase(),
+						isDefault: true
+					})
+					await orm.models.MeemContractWallet.create(
+						{
+							MeemContractId: theMeemContract.id,
+							WalletId: newWallet.id,
+							role: adminRole
+						},
+						{
+							transaction: t
+						}
+					)
+				}
+			})
+		)
 
 		await t.commit()
 	}
