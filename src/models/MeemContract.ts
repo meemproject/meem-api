@@ -191,13 +191,13 @@ export default class MeemContract extends BaseModel<MeemContract> {
 
 	public meem?: Meem[] | null
 
-	public PropertiesId!: string | null
+	public DefaultPropertiesId!: string | null
 
-	public ChildPropertiesId!: string | null
+	public DefaultChildPropertiesId!: string | null
 
-	public Properties!: MeemProperties | null
+	public DefaultProperties!: MeemProperties | null
 
-	public ChildProperties!: MeemProperties | null
+	public DefaultChildProperties!: MeemProperties | null
 
 	public static associate(models: IModels) {
 		this.hasMany(models.Meem)

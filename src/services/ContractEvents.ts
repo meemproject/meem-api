@@ -121,21 +121,53 @@ export default class ContractEvent {
 
 		const contractInfo = await meemContract.getContractInfo()
 
-		const properties = orm.models.MeemProperties.build({
-			id: uuidv4(),
-			...this.meemPropertiesDataToModelData(contractInfo.defaultProperties)
-		})
-		const childProperties = orm.models.MeemProperties.build({
-			id: uuidv4(),
-			...this.meemPropertiesDataToModelData(contractInfo.defaultChildProperties)
+		const existingMeemContract = await orm.models.MeemContract.findOne({
+			where: {
+				address
+			},
+			include: [
+				{
+					model: orm.models.MeemProperties,
+					as: 'DefaultProperties'
+				},
+				{
+					model: orm.models.MeemProperties,
+					as: 'DefaultChildProperties'
+				}
+			]
 		})
 
-		let slug = ''
+		let slug = existingMeemContract?.slug
 
-		try {
-			slug = await services.meemContract.generateSlug(contractInfo.name)
-		} catch (e) {
-			slug = uuidv4()
+		const propertiesData = this.meemPropertiesDataToModelData(
+			contractInfo.defaultProperties
+		)
+		const childPropertiesData = this.meemPropertiesDataToModelData(
+			contractInfo.defaultChildProperties
+		)
+
+		const properties =
+			existingMeemContract?.DefaultProperties ??
+			orm.models.MeemProperties.build({
+				id: uuidv4(),
+				...propertiesData
+			})
+		const childProperties =
+			existingMeemContract?.DefaultChildProperties ??
+			orm.models.MeemProperties.build({
+				id: uuidv4(),
+				...childPropertiesData
+			})
+
+		if (!existingMeemContract || !slug) {
+			try {
+				slug = await services.meemContract.generateSlug(contractInfo.name)
+			} catch (e) {
+				slug = uuidv4()
+			}
+		} else {
+			properties.set(propertiesData)
+			childProperties.set(childPropertiesData)
 		}
 
 		const meemContractData = {
@@ -191,9 +223,14 @@ export default class ContractEvent {
 			properties.save({ transaction: t }),
 			childProperties.save({ transaction: t })
 		])
-		await orm.models.MeemContract.create(meemContractData, {
-			transaction: t
-		})
+
+		if (!existingMeemContract) {
+			await orm.models.MeemContract.create(meemContractData, {
+				transaction: t
+			})
+		} else {
+			await existingMeemContract.update(meemContractData)
+		}
 
 		await t.commit()
 	}
