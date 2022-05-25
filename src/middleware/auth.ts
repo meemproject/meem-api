@@ -28,6 +28,16 @@ export default (app: Express) => {
 					if (meemId) {
 						req.meemId = meemId
 					}
+				} else if (jwtData.walletAddress) {
+					const wallet = await orm.models.Wallet.findOne({
+						where: {
+							address: jwtData.walletAddress
+						}
+					})
+
+					if (wallet) {
+						req.wallet = wallet
+					}
 				}
 			} catch (e) {
 				log.warn(e)

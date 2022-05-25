@@ -69,14 +69,12 @@ export default class MeemIdService {
 		const { address, signature, twitterAccessToken, twitterAccessSecret } =
 			options
 
-		let meemIdentificationId
+		let wallet: Wallet | undefined
+		let meemIdentificationId = ''
 
 		if (address && signature) {
-			const wallet = await this.verifySignature({ address, signature })
-			if (!wallet.MeemIdentificationId) {
-				throw new Error('MEEM_ID_WALLET_NOT_CONNECTED')
-			}
-			meemIdentificationId = wallet.MeemIdentificationId
+			wallet = await this.verifySignature({ address, signature })
+			meemIdentificationId = wallet.MeemIdentificationId ?? ''
 		}
 		if (twitterAccessToken && twitterAccessSecret) {
 			const user = await services.twitter.getUser({
@@ -94,13 +92,23 @@ export default class MeemIdService {
 
 			meemIdentificationId = twitter.MeemIdentificationId
 		}
-		if (!meemIdentificationId) {
-			throw new Error('MEEM_ID_NOT_FOUND')
+
+		const meemId =
+			meemIdentificationId !== ''
+				? await this.getMeemId({ meemIdentificationId })
+				: null
+
+		if (!meemId && !wallet) {
+			throw new Error('LOGIN_FAILED')
 		}
 
-		const meemId = await this.getMeemId({ meemIdentificationId })
-
-		return { meemId, jwt: this.generateJWT({ meemId: meemIdentificationId }) }
+		return {
+			meemId,
+			jwt: this.generateJWT({
+				meemId: meemIdentificationId,
+				walletAddress: wallet?.address ?? ''
+			})
+		}
 	}
 
 	public static async verifySignature(options: {
@@ -269,7 +277,8 @@ export default class MeemIdService {
 			const meemId = await this.getMeemId({ meemIdentificationId })
 
 			const jwt = this.generateJWT({
-				meemId: meemIdentificationId
+				meemId: meemIdentificationId,
+				walletAddress: meemId.defaultWallet ?? ''
 			})
 
 			await sockets?.emit({
@@ -353,11 +362,12 @@ export default class MeemIdService {
 
 	public static generateJWT(options: {
 		meemId: string
+		walletAddress: string
 		/** Additional data to encode in the JWT. Do not store sensitive information here. */
 		data?: Record<string, any>
 		expiresIn?: number
 	}) {
-		const { meemId, expiresIn, data } = options
+		const { meemId, walletAddress, expiresIn, data } = options
 
 		let exp = config.JWT_EXPIRES_IN
 		if (expiresIn && +expiresIn > 0) {
@@ -366,7 +376,8 @@ export default class MeemIdService {
 		const token = jsonwebtoken.sign(
 			{
 				...data,
-				meemId
+				meemId,
+				walletAddress
 			},
 			config.JWT_SECRET,
 			{

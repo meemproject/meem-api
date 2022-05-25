@@ -365,6 +365,21 @@ const errors = {
 		status: 'failure',
 		reason: 'Unverified Meems can not be copied',
 		friendlyReason: 'Unverified Meems can not be copied'
+	},
+	SLUG_UNAVAILABLE: {
+		httpCode: 406,
+		status: 'failure',
+		reason: 'The slug provided is already taken. Please try a different slug.',
+		friendlyReason:
+			'The slug provided is already taken. Please try a different slug.'
+	},
+	INVALID_SLUG: {
+		httpCode: 400,
+		status: 'failure',
+		reason:
+			'Slug format is invalid. Please make sure there are no spaces and characters are all lowercase.',
+		friendlyReason:
+			'Slug format is invalid. Please make sure there are no spaces and characters are all lowercase.'
 	}
 }
 

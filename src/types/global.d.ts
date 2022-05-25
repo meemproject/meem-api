@@ -15,6 +15,7 @@ import Orm from '../core/Orm'
 import { IAppRouter } from '../core/router'
 import Sockets from '../core/Sockets'
 import MeemIdentification from '../models/MeemIdentification'
+import Wallet from '../models/Wallet'
 
 declare const configuration: Configuration
 declare const sockets: Sockets | undefined
@@ -45,6 +46,7 @@ declare global {
 	namespace Express {
 		interface IMeemRequest {
 			meemId?: MeemIdentification
+			wallet?: Wallet
 			limit?: number
 			page?: number
 		}
