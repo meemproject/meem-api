@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Response } from 'express'
-import { IAuthenticatedRequest, IRequest, IResponse } from '../types/app'
+import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class MeemContractController {

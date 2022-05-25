@@ -4,7 +4,6 @@ import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import type Meem from './Meem'
-import MeemContractWallet from './MeemContractWallet'
 import type MeemProperties from './MeemProperties'
 import Wallet from './Wallet'
 
