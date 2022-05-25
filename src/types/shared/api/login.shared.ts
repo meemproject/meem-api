@@ -23,7 +23,7 @@ export namespace Login {
 
 	export interface IResponseBody extends IApiResponseBody {
 		/** The MeemId */
-		meemId: IMeemId
+		meemId: IMeemId | null
 		/** JWT that can be used for future authentication */
 		jwt: string
 	}

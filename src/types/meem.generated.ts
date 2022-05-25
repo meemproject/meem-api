@@ -1400,7 +1400,7 @@ export namespace Login {
 
 	export interface IResponseBody extends IApiResponseBody {
 		/** The MeemId */
-		meemId: IMeemId
+		meemId: IMeemId | null
 		/** JWT that can be used for future authentication */
 		jwt: string
 	}
@@ -1533,16 +1533,16 @@ export namespace SearchMeemIds {
 
 
 
-export namespace UpdateMeemContractSlug {
+export namespace UpdateMeemContract {
 	export interface IPathParams {
 		/** The meem pass id to fetch */
 		meemContractId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.meemContractId}/updateSlug`
+		`/api/1.0/meemContracts/${options.meemContractId}`
 
-	export const method = HttpMethod.Post
+	export const method = HttpMethod.Patch
 
 	export interface IQueryParams {}
 

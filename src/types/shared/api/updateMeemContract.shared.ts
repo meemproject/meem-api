@@ -1,15 +1,15 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
-export namespace UpdateMeemContractSlug {
+export namespace UpdateMeemContract {
 	export interface IPathParams {
 		/** The meem pass id to fetch */
 		meemContractId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.meemContractId}/updateSlug`
+		`/api/1.0/meemContracts/${options.meemContractId}`
 
-	export const method = HttpMethod.Post
+	export const method = HttpMethod.Patch
 
 	export interface IQueryParams {}
 

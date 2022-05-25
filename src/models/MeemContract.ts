@@ -4,8 +4,8 @@ import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import type Meem from './Meem'
-import MeemContractWallet from './MeemContractWallet'
 import type MeemProperties from './MeemProperties'
+import Wallet from './Wallet'
 
 export default class MeemContract extends BaseModel<MeemContract> {
 	public static readonly modelName = 'MeemContract'
@@ -200,7 +200,7 @@ export default class MeemContract extends BaseModel<MeemContract> {
 
 	public DefaultChildProperties!: MeemProperties | null
 
-	public MeemContractWallets!: MeemContractWallet[]
+	public Wallets!: Wallet[]
 
 	public static associate(models: IModels) {
 		this.hasMany(models.Meem)

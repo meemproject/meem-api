@@ -385,7 +385,8 @@ export default class ConfigController {
 		}
 
 		const jwt = await services.meemId.generateJWT({
-			meemId: meemId.id
+			meemId: meemId.id,
+			walletAddress
 		})
 
 		return res.json({ jwt })
