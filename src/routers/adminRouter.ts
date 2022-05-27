@@ -22,6 +22,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	router.getAsync('/runMigrations', AdminController.runMigrations)
 	router.getAsync('/runSync', AdminController.runSync)
+	router.getAsync('/meemContractSync', AdminController.meemContractSync)
 	router.getAsync('/meemSync', AdminController.meemSync)
 	router.getAsync('/meemSyncReactions', AdminController.meemSyncReactions)
 	router.getAsync(
