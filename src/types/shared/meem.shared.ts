@@ -359,7 +359,6 @@ export interface IMeem {
 	childProperties: IMeemProperties
 	/** Unix timestamp of when the Meem was minted */
 	mintedAt: number
-	data: string
 	/** Will be a non-zero address if locked */
 	uriLockedBy: string
 	uriSource: UriSource

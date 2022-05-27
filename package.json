@@ -60,7 +60,7 @@
 	},
 	"dependencies": {
 		"@kengoldfarb/log": "^1.0.3",
-		"@meemproject/meem-contracts": "0.4.1",
+		"@meemproject/meem-contracts": "^0.4.3",
 		"@octokit/rest": "^18.12.0",
 		"@pinata/sdk": "^1.1.23",
 		"aws-sdk": "^2.1020.0",
