@@ -688,12 +688,12 @@ export default class TwitterService {
 						parent: config.MEEM_PROXY_ADDRESS,
 						parentTokenId: parentMeemTokenId || config.TWITTER_PROJECT_TOKEN_ID,
 						meemType: MeemAPI.MeemType.Remix,
-						data: JSON.stringify({
-							tweetId: tweet.tweetId,
-							text: tweet.text,
-							username: tweet.username,
-							userId: tweet.userId
-						}),
+						// data: JSON.stringify({
+						// 	tweetId: tweet.tweetId,
+						// 	text: tweet.text,
+						// 	username: tweet.username,
+						// 	userId: tweet.userId
+						// }),
 						isURILocked: false,
 						reactionTypes: MeemAPI.defaultReactionTypes,
 						uriSource: MeemAPI.UriSource.TokenUri,
@@ -709,12 +709,12 @@ export default class TwitterService {
 						parent: config.MEEM_PROXY_ADDRESS,
 						parentTokenId: config.TWITTER_PROJECT_TOKEN_ID,
 						meemType: MeemAPI.MeemType.Remix,
-						data: JSON.stringify({
-							tweetId: remixTweet.tweetId,
-							text: remixTweet.text,
-							username: remixTweet.username,
-							userId: remixTweet.userId
-						}),
+						// data: JSON.stringify({
+						// 	tweetId: remixTweet.tweetId,
+						// 	text: remixTweet.text,
+						// 	username: remixTweet.username,
+						// 	userId: remixTweet.userId
+						// }),
 						isURILocked: false,
 						reactionTypes: MeemAPI.defaultReactionTypes,
 						uriSource: MeemAPI.UriSource.TokenUri,
@@ -742,12 +742,12 @@ export default class TwitterService {
 						parent: config.MEEM_PROXY_ADDRESS,
 						parentTokenId: parentMeemTokenId || config.TWITTER_PROJECT_TOKEN_ID,
 						meemType: MeemAPI.MeemType.Remix,
-						data: JSON.stringify({
-							tweetId: tweet.tweetId,
-							text: tweet.text,
-							username: tweet.username,
-							userId: tweet.userId
-						}),
+						// data: JSON.stringify({
+						// 	tweetId: tweet.tweetId,
+						// 	text: tweet.text,
+						// 	username: tweet.username,
+						// 	userId: tweet.userId
+						// }),
 						isURILocked: false,
 						reactionTypes: MeemAPI.defaultReactionTypes,
 						uriSource: MeemAPI.UriSource.TokenUri,

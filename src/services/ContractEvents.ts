@@ -1102,7 +1102,7 @@ export default class ContractEvent {
 			generation: meemData.generation,
 			mintedAt: DateTime.fromSeconds(meemData.mintedAt.toNumber()).toJSDate(),
 			metadata,
-			data: meemData.data,
+			// data: meemData.data,
 			PropertiesId: properties.id,
 			ChildPropertiesId: childProperties.id,
 			meemType: meemData.meemType,
@@ -1306,7 +1306,7 @@ export default class ContractEvent {
 			tokenURI
 		)) as MeemAPI.IMeemMetadata
 
-		meem.data = meemData.data
+		// meem.data = meemData.data
 		meem.metadata = metadata
 		meem.uriLockedBy = meemData.uriLockedBy
 		await meem.save()
