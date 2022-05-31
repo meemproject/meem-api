@@ -1,3 +1,4 @@
+import { Log } from '@ethersproject/abstract-provider'
 import { Meem as MeemContractType } from '@meemproject/meem-contracts'
 import {
 	SplitStructOutput,
@@ -20,107 +21,201 @@ import {
 	MeemSplitsSet_uint256_uint8_tuple_array_EventObject,
 	MeemClippedEventObject,
 	MeemUnClippedEventObject,
-	MeemContractInitializedEventObject
+	ContractInfoStructOutput
 } from '@meemproject/meem-contracts/dist/types/Meem'
-import { BigNumber } from 'ethers'
+import meemABI from '@meemproject/meem-contracts/types/Meem.json'
+import { BigNumber, Contract, utils } from 'ethers'
 import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
+import { wait } from '../lib/utils'
 import Meem from '../models/Meem'
 import MeemContract from '../models/MeemContract'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ContractEvent {
 	// TODO: sync reactions?
-	// public static async meemSyncReactions() {
-	// 	log.debug('Syncing reactions...')
-	// 	const meemContract = await services.meem.getMeemContract()
-	// 	const [reactionAddedEvents, reactionRemovedEvents] = await Promise.all([
-	// 		meemContract.queryFilter(meemContract.filters.TokenReactionAdded()),
-	// 		meemContract.queryFilter(meemContract.filters.TokenReactionRemoved())
-	// 	])
+	public static async meemSyncReactions() {
+		log.debug('Syncing reactions...')
+		const provider = await services.ethers.getProvider({
+			networkName: MeemAPI.NetworkName.Rinkeby
+		})
 
-	// 	log.debug(
-	// 		`Syncing ${reactionAddedEvents.length} reaction added events and ${reactionRemovedEvents.length} reaction removed events`
-	// 	)
+		const genericMeemContract = new Contract(
+			MeemAPI.zeroAddress,
+			meemABI
+		) as unknown as MeemContractType
 
-	// 	const orderedEvents: (
-	// 		| TokenReactionAddedEvent
-	// 		| TokenReactionRemovedEvent
-	// 	)[] = [...reactionAddedEvents, ...reactionRemovedEvents]
+		const topics = {
+			MeemTokenReactionAdded: `MeemTokenReactionAdded(uint256,address,string,uint256)`,
+			MeemTokenReactionRemoved: `MeemTokenReactionRemoved(uint256,address,string,uint256)`
+		}
 
-	// 	orderedEvents.sort((a, b) => {
-	// 		return a.blockNumber - b.blockNumber
-	// 	})
+		const logs = await provider.getLogs({
+			fromBlock: 0,
+			toBlock: 'latest',
+			topics: [
+				[
+					utils.id(topics.MeemTokenReactionAdded),
+					utils.id(topics.MeemTokenReactionRemoved)
+				]
+			]
+		})
 
-	// 	for (let i = 0; i < orderedEvents.length; i += 1) {
-	// 		try {
-	// 			const event = orderedEvents[i]
-	// 			if (event.event === 'TokenReactionAdded') {
-	// 				// eslint-disable-next-line no-await-in-loop
-	// 				await this.meemHandleTokenReactionAdded(event)
-	// 			} else if (event.event === 'TokenReactionRemoved') {
-	// 				// eslint-disable-next-line no-await-in-loop
-	// 				await this.meemHandleTokenReactionRemoved(event)
-	// 			}
-	// 			log.debug(event.blockNumber)
-	// 		} catch (e) {
-	// 			log.crit(e)
-	// 		}
-	// 	}
-	// }
+		log.debug(`Syncing ${logs.length} reaction added/remvoed events`)
 
-	// TODO: meemSync event update?
-	// public static async meemSync(specificEvents?: TransferEvent[]) {
-	// 	log.debug('Syncing meems...')
-	// 	const meemContract = await services.meem.getMeemContract()
-	// 	const events =
-	// 		specificEvents ??
-	// 		(await meemContract.queryFilter(meemContract.filters.Transfer()))
+		for (let i = 0; i < logs.length; i += 1) {
+			try {
+				const parsedLog = genericMeemContract.interface.parseLog({
+					data: logs[i].data,
+					topics: logs[i].topics
+				})
 
-	// 	log.debug(`Syncing ${events.length} transfer events`)
+				// eslint-disable-next-line no-await-in-loop
+				const block = await provider.getBlock(logs[i].blockHash)
 
-	// 	const failedEvents: TransferEvent[] = []
+				if (parsedLog.topic === topics.MeemTokenReactionAdded) {
+					const eventData =
+						parsedLog.args as unknown as MeemTokenReactionAddedEventObject
+					// eslint-disable-next-line no-await-in-loop
+					await this.meemHandleTokenReactionAdded({
+						address: logs[i].address,
+						transactionTimestamp:
+							block?.timestamp || DateTime.now().toSeconds(),
+						eventData
+					})
+				} else if (parsedLog.topic === topics.MeemTokenReactionRemoved) {
+					const eventData =
+						parsedLog.args as unknown as MeemTokenReactionRemovedEventObject
+					// eslint-disable-next-line no-await-in-loop
+					await this.meemHandleTokenReactionRemoved({
+						address: logs[i].address,
+						eventData
+					})
+				}
+				log.debug(logs[i].blockNumber)
+			} catch (e) {
+				log.crit(e)
+			}
+		}
+	}
 
-	// 	for (let i = 0; i < events.length; i += 1) {
-	// 		try {
-	// 			log.debug(`Syncing ${i + 1} / ${events.length} events`)
-	// 			// eslint-disable-next-line no-await-in-loop
-	// 			const block = await events[i].getBlock()
-	// 			// eslint-disable-next-line no-await-in-loop
-	// 			await this.meemHandleTransfer({
-	// 				address: events[i].address,
-	// 				tokenId: events[i].args.tokenId,
-	// 				to: events[i].args.to,
-	// 				from: events[i].args.from,
-	// 				transactionHash: events[i].transactionHash,
-	// 				transactionTimestamp: block.timestamp
-	// 			})
-	// 			// eslint-disable-next-line no-await-in-loop
-	// 			await wait(2000)
-	// 		} catch (e) {
-	// 			failedEvents.push(events[i])
-	// 			log.crit(e)
-	// 			log.debug(events[i])
-	// 		}
-	// 	}
+	// TODO: Sync all MeemContracts and MeemContractWallets
+	// TODO: Sync Meems, Reactions, Clippings etc.
+	public static async meemContractSync(specificEvents?: Log[]) {
+		log.debug('Syncing MeemContracts...')
+		const provider = await services.ethers.getProvider({
+			networkName: MeemAPI.NetworkName.Rinkeby
+		})
+		const logs =
+			specificEvents ??
+			(await provider.getLogs({
+				fromBlock: 0,
+				toBlock: 'latest',
+				topics: [[utils.id('MeemContractInitialized(address)')]]
+			}))
 
-	// 	if (failedEvents.length > 0) {
-	// 		log.debug(`Retrying ${failedEvents.length} events`)
-	// 		await this.meemSync(failedEvents)
-	// 	}
-	// }
+		log.debug(`Syncing ${logs.length} initialized events`)
+
+		const failedEvents: Log[] = []
+
+		for (let i = 0; i < logs.length; i += 1) {
+			try {
+				log.debug(`Syncing ${i + 1} / ${logs.length} events`)
+
+				// eslint-disable-next-line no-await-in-loop
+				await this.meemHandleContractInitialized({
+					address: logs[i].address
+				})
+				// eslint-disable-next-line no-await-in-loop
+				await wait(500)
+			} catch (e) {
+				failedEvents.push(logs[i])
+				log.crit(e)
+				log.debug(logs[i])
+			}
+		}
+
+		if (failedEvents.length > 0) {
+			log.debug(`Completed with ${failedEvents.length} failed events`)
+			// log.debug(`Retrying ${failedEvents.length} events`)
+			// await this.meemContractSync(failedEvents)
+		}
+	}
+
+	public static async meemSync(specificEvents?: Log[]) {
+		log.debug('Syncing meems...')
+		const provider = await services.ethers.getProvider({
+			networkName: MeemAPI.NetworkName.Rinkeby
+		})
+
+		const genericMeemContract = new Contract(
+			MeemAPI.zeroAddress,
+			meemABI
+		) as unknown as MeemContractType
+
+		const logs =
+			specificEvents ??
+			(await provider.getLogs({
+				fromBlock: 0,
+				toBlock: 'latest',
+				topics: [[utils.id('MeemTransfer(address,address,uint256)')]]
+			}))
+
+		const failedEvents: Log[] = []
+
+		for (let i = 0; i < logs.length; i += 1) {
+			try {
+				log.debug(`Syncing ${i + 1} / ${logs.length} events`)
+
+				const parsedLog = genericMeemContract.interface.parseLog({
+					data: logs[i].data,
+					topics: logs[i].topics
+				})
+
+				const eventData = parsedLog.args as unknown as MeemTransferEventObject
+
+				// eslint-disable-next-line no-await-in-loop
+				const block = await provider.getBlock(logs[i].blockHash)
+				// eslint-disable-next-line no-await-in-loop
+				await this.meemHandleTransfer({
+					address: logs[i].address,
+					transactionHash: logs[i].transactionHash,
+					transactionTimestamp: block.timestamp,
+					eventData
+				})
+				// eslint-disable-next-line no-await-in-loop
+				await wait(500)
+			} catch (e) {
+				failedEvents.push(logs[i])
+				log.crit(e)
+				log.debug(logs[i])
+			}
+		}
+
+		if (failedEvents.length > 0) {
+			log.debug(`Completed with ${failedEvents.length} failed events`)
+			// log.debug(`Retrying ${failedEvents.length} events`)
+			// await this.meemSync(failedEvents)
+		}
+	}
 
 	public static async meemHandleContractInitialized(args: {
 		address: string
-		eventData?: MeemContractInitializedEventObject
-	}) {
+	}): Promise<MeemContract | null> {
 		const { address } = args
 		const meemContract = (await services.meem.getMeemContract({
 			address
 		})) as unknown as MeemContractType
 
-		const contractInfo = await meemContract.getContractInfo()
+		let contractInfo: ContractInfoStructOutput
+
+		try {
+			contractInfo = await meemContract.getContractInfo()
+		} catch (e) {
+			log.debug('getContractInfo function not available. Skipping')
+			return null
+		}
 
 		const existingMeemContract = await orm.models.MeemContract.findOne({
 			where: {
@@ -237,7 +332,13 @@ export default class ContractEvent {
 
 		const adminRole = await meemContract.ADMIN_ROLE()
 
-		const admins = await meemContract.getRoles(adminRole)
+		let admins: string[] = []
+
+		try {
+			admins = await meemContract.getRoles(adminRole)
+		} catch (e) {
+			log.error('getRoles function not available')
+		}
 
 		await Promise.all(
 			admins.map(async adminAddress => {
@@ -288,7 +389,11 @@ export default class ContractEvent {
 			})
 		)
 
+		log.debug(`Syncing MeemContract data: ${theMeemContract.address}`)
+
 		await t.commit()
+
+		return theMeemContract
 	}
 
 	public static async meemHandleTotalCopiesSet(args: {
@@ -1064,14 +1169,19 @@ export default class ContractEvent {
 
 		log.debug(`Meem found`, tokenURI, meemData)
 
-		const meemContractData = await orm.models.MeemContract.findOne({
+		let meemContractData = await orm.models.MeemContract.findOne({
 			where: {
 				address
 			}
 		})
 
 		if (!meemContractData) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			meemContractData = await this.meemHandleContractInitialized({
+				address
+			})
+			if (!meemContractData) {
+				throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			}
 		}
 
 		const metadata = (await services.meem.getErc721Metadata(

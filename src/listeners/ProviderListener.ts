@@ -1,7 +1,6 @@
 import { Meem } from '@meemproject/meem-contracts'
 import {
 	MeemClippedEventObject,
-	MeemContractInitializedEventObject,
 	MeemCopiesPerWalletLockedEventObject,
 	MeemCopiesPerWalletSetEventObject,
 	MeemPropertiesSetEventObject,
@@ -151,9 +150,7 @@ export default class ProviderListener {
 						switch (parsedLog.topic) {
 							case eventIds.MeemContractInitialized: {
 								await services.contractEvents.meemHandleContractInitialized({
-									address: rawLog.address,
-									eventData:
-										eventData as unknown as MeemContractInitializedEventObject
+									address: rawLog.address
 								})
 								break
 							}
