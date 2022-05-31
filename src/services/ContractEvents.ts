@@ -24,7 +24,8 @@ import {
 	MeemContractInitializedEventObject,
 	MeemTokenReactionAddedEvent,
 	MeemTokenReactionRemovedEvent,
-	MeemTransferEvent
+	MeemTransferEvent,
+	ContractInfoStructOutput
 } from '@meemproject/meem-contracts/dist/types/Meem'
 import meemABI from '@meemproject/meem-contracts/types/Meem.json'
 import { BigNumber, Contract, utils } from 'ethers'
@@ -139,7 +140,7 @@ export default class ContractEvent {
 					eventData
 				})
 				// eslint-disable-next-line no-await-in-loop
-				await wait(2000)
+				await wait(500)
 			} catch (e) {
 				failedEvents.push(logs[i])
 				log.crit(e)
@@ -205,7 +206,14 @@ export default class ContractEvent {
 			address
 		})) as unknown as MeemContractType
 
-		const contractInfo = await meemContract.getContractInfo()
+		let contractInfo: ContractInfoStructOutput
+
+		try {
+			contractInfo = await meemContract.getContractInfo()
+		} catch (e) {
+			log.debug('getContractInfo function not available. Skipping')
+			return
+		}
 
 		const existingMeemContract = await orm.models.MeemContract.findOne({
 			where: {
@@ -322,7 +330,13 @@ export default class ContractEvent {
 
 		const adminRole = await meemContract.ADMIN_ROLE()
 
-		const admins = await meemContract.getRoles(adminRole)
+		let admins: string[] = []
+
+		try {
+			admins = await meemContract.getRoles(adminRole)
+		} catch (e) {
+			log.error('getRoles function not available')
+		}
 
 		await Promise.all(
 			admins.map(async adminAddress => {
@@ -373,6 +387,7 @@ export default class ContractEvent {
 			})
 		)
 
+		log.debug(`Syncing MeemContract data: ${theMeemContract.address}`)
 		await t.commit()
 	}
 
