@@ -593,8 +593,7 @@ export default class MeemService {
 				isURILocked: true,
 				uriSource: MeemAPI.UriSource.TokenUri,
 				reactionTypes: MeemAPI.defaultReactionTypes,
-				mintedBy: config.MEEM_PROJECT_OWNER_ADDRESS,
-				data: ''
+				mintedBy: config.MEEM_PROJECT_OWNER_ADDRESS
 			},
 			this.propertiesToMeemPropertiesStruct(
 				this.buildProperties({
