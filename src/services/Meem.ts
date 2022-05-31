@@ -1276,7 +1276,7 @@ export default class MeemService {
 		}
 
 		try {
-			if (!parsedData) {
+			if (!parsedData && data !== '') {
 				parsedData = JSON.parse(data)
 			}
 		} catch (e) {
