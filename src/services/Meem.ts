@@ -466,8 +466,7 @@ export default class MeemService {
 					isURILocked: true,
 					uriSource: MeemAPI.UriSource.TokenUri,
 					reactionTypes: ['upvote', 'downvote'],
-					mintedBy: data.accountAddress,
-					data: ''
+					mintedBy: data.accountAddress
 				},
 				this.propertiesToMeemPropertiesStruct(
 					this.buildProperties(data.properties)

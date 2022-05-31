@@ -100,8 +100,6 @@ export default class ContractEvent {
 		}
 	}
 
-	// TODO: Sync all MeemContracts and MeemContractWallets
-	// TODO: Sync Meems, Reactions, Clippings etc.
 	public static async meemContractSync(specificEvents?: Log[]) {
 		log.debug('Syncing MeemContracts...')
 		const provider = await services.ethers.getProvider({
@@ -300,10 +298,8 @@ export default class ContractEvent {
 			isTransferrable: contractInfo.baseProperties.isTransferrable,
 			isTransferrableLockedBy:
 				contractInfo.baseProperties.isTransferrableLockedBy,
-			mintStartTimestamp:
-				contractInfo.baseProperties.mintStartTimestamp.toHexString(),
-			mintEndTimestamp:
-				contractInfo.baseProperties.mintEndTimestamp.toHexString(),
+			mintStartAt: contractInfo.baseProperties.mintStartTimestamp.toHexString(),
+			mintEndAt: contractInfo.baseProperties.mintEndTimestamp.toHexString(),
 			mintDatesLockedBy: contractInfo.baseProperties.mintDatesLockedBy,
 			transferLockupUntil:
 				contractInfo.baseProperties.transferLockupUntil.toHexString(),
@@ -1450,10 +1446,8 @@ export default class ContractEvent {
 			splitsLockedBy: props.splitsLockedBy,
 			isTransferrable: props.isTransferrable,
 			isTransferrableLockedBy: props.isTransferrableLockedBy,
-			mintStartTimestamp: props.mintStartTimestamp.toHexString(),
-			mintEndTimestamp: !props.mintEndTimestamp.isZero
-				? props.mintEndTimestamp.toHexString()
-				: null,
+			mintStartAt: props.mintStartTimestamp.toHexString(),
+			mintEndAt: props.mintEndTimestamp.toHexString(),
 			mintDatesLockedBy: props.mintDatesLockedBy,
 			transferLockupUntil: !props.transferLockupUntil.isZero
 				? props.transferLockupUntil.toHexString()

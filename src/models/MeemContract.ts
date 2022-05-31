@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers'
 import { DateTime } from 'luxon'
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
@@ -97,26 +98,35 @@ export default class MeemContract extends BaseModel<MeemContract> {
 		mintStartAt: {
 			type: DataTypes.DATE,
 			set(this: MeemContract, val: any) {
-				this.setDataValue(
-					'mintStartAt',
-					DateTime.fromSeconds(
-						services.web3.toBigNumber(val).toNumber()
-					).toJSDate()
-				)
+				const bigNumberString = val ?? BigNumber.from(-1).toHexString()
+				const timestamp = services.web3.toBigNumber(bigNumberString).toNumber()
+				if (timestamp < 1) {
+					this.setDataValue('mintStartAt', null)
+				} else {
+					this.setDataValue(
+						'mintStartAt',
+						DateTime.fromSeconds(
+							services.web3.toBigNumber(bigNumberString).toNumber()
+						).toJSDate()
+					)
+				}
 			}
 		},
 		mintEndAt: {
 			type: DataTypes.DATE,
 			set(this: MeemContract, val: any) {
-				if (!val) {
-					return
+				const bigNumberString = val ?? BigNumber.from(-1).toHexString()
+				const timestamp = services.web3.toBigNumber(bigNumberString).toNumber()
+				if (timestamp < 1) {
+					this.setDataValue('mintEndAt', null)
+				} else {
+					this.setDataValue(
+						'mintEndAt',
+						DateTime.fromSeconds(
+							services.web3.toBigNumber(bigNumberString).toNumber()
+						).toJSDate()
+					)
 				}
-				this.setDataValue(
-					'mintEndAt',
-					DateTime.fromSeconds(
-						services.web3.toBigNumber(val).toNumber()
-					).toJSDate()
-				)
 			}
 		},
 		mintDatesLockedBy: {
