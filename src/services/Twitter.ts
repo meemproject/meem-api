@@ -698,7 +698,8 @@ export default class TwitterService {
 						reactionTypes: MeemAPI.defaultReactionTypes,
 						uriSource: MeemAPI.UriSource.TokenUri,
 						// TODO: Is mintedBy the remixer here?
-						mintedBy: remixerAccountAddress
+						mintedBy: remixerAccountAddress,
+						data: ''
 					},
 					services.meem.propertiesToMeemPropertiesStruct(properties),
 					services.meem.propertiesToMeemPropertiesStruct(properties),
@@ -718,7 +719,8 @@ export default class TwitterService {
 						isURILocked: false,
 						reactionTypes: MeemAPI.defaultReactionTypes,
 						uriSource: MeemAPI.UriSource.TokenUri,
-						mintedBy: remix.meemId?.defaultWallet
+						mintedBy: remix.meemId?.defaultWallet,
+						data: ''
 					},
 					services.meem.propertiesToMeemPropertiesStruct(properties),
 					services.meem.propertiesToMeemPropertiesStruct(properties),
@@ -751,7 +753,8 @@ export default class TwitterService {
 						isURILocked: false,
 						reactionTypes: MeemAPI.defaultReactionTypes,
 						uriSource: MeemAPI.UriSource.TokenUri,
-						mintedBy: toAddress
+						mintedBy: toAddress,
+						data: ''
 					},
 					services.meem.propertiesToMeemPropertiesStruct(properties),
 					services.meem.propertiesToMeemPropertiesStruct(properties),

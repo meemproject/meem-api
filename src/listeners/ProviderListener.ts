@@ -1,7 +1,6 @@
 import { Meem } from '@meemproject/meem-contracts'
 import {
 	MeemClippedEventObject,
-	MeemContractInitializedEventObject,
 	MeemCopiesPerWalletLockedEventObject,
 	MeemCopiesPerWalletSetEventObject,
 	MeemPropertiesSetEventObject,

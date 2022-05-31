@@ -21,10 +21,6 @@ import {
 	MeemSplitsSet_uint256_uint8_tuple_array_EventObject,
 	MeemClippedEventObject,
 	MeemUnClippedEventObject,
-	MeemContractInitializedEventObject,
-	MeemTokenReactionAddedEvent,
-	MeemTokenReactionRemovedEvent,
-	MeemTransferEvent,
 	ContractInfoStructOutput
 } from '@meemproject/meem-contracts/dist/types/Meem'
 import meemABI from '@meemproject/meem-contracts/types/Meem.json'
