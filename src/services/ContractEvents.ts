@@ -41,9 +41,9 @@ export default class ContractEvent {
 	// TODO: sync reactions?
 	public static async meemSyncReactions() {
 		log.debug('Syncing reactions...')
-		const provider = await services.ethers.getProvider({
-			networkName: MeemAPI.NetworkName.Rinkeby
-		})
+		// const provider = await services.ethers.getProvider({
+		// 	networkName: MeemAPI.NetworkName.Rinkeby
+		// })
 
 		const meemContract = await services.meem.getMeemContract()
 		const [reactionAddedEvents, reactionRemovedEvents] = await Promise.all([
@@ -115,11 +115,6 @@ export default class ContractEvent {
 				topics: [[utils.id('MeemContractInitialized(address)')]]
 			}))
 
-		const genericMeemContract = new Contract(
-			MeemAPI.zeroAddress,
-			meemABI
-		) as unknown as MeemContractType
-
 		log.debug(`Syncing ${logs.length} initialized events`)
 
 		const failedEvents: Log[] = []
@@ -127,16 +122,66 @@ export default class ContractEvent {
 		for (let i = 0; i < logs.length; i += 1) {
 			try {
 				log.debug(`Syncing ${i + 1} / ${logs.length} events`)
+
+				// eslint-disable-next-line no-await-in-loop
+				await this.meemHandleContractInitialized({
+					address: logs[i].address
+				})
+				// eslint-disable-next-line no-await-in-loop
+				await wait(500)
+			} catch (e) {
+				failedEvents.push(logs[i])
+				log.crit(e)
+				log.debug(logs[i])
+			}
+		}
+
+		if (failedEvents.length > 0) {
+			log.debug(`Completed with ${failedEvents.length} failed events`)
+			// log.debug(`Retrying ${failedEvents.length} events`)
+			// await this.meemContractSync(failedEvents)
+		}
+	}
+
+	public static async meemSync(specificEvents?: Log[]) {
+		log.debug('Syncing meems...')
+		const provider = await services.ethers.getProvider({
+			networkName: MeemAPI.NetworkName.Rinkeby
+		})
+
+		const genericMeemContract = new Contract(
+			MeemAPI.zeroAddress,
+			meemABI
+		) as unknown as MeemContractType
+
+		const logs =
+			specificEvents ??
+			(await provider.getLogs({
+				fromBlock: 0,
+				toBlock: 'latest',
+				topics: [[utils.id('MeemTransfer(address,address,uint256)')]]
+			}))
+
+		const failedEvents: Log[] = []
+
+		for (let i = 0; i < logs.length; i += 1) {
+			try {
+				log.debug(`Syncing ${i + 1} / ${logs.length} events`)
+
 				const parsedLog = genericMeemContract.interface.parseLog({
 					data: logs[i].data,
 					topics: logs[i].topics
 				})
-				const eventData =
-					parsedLog.args as unknown as MeemContractInitializedEventObject
+
+				const eventData = parsedLog.args as unknown as MeemTransferEventObject
 
 				// eslint-disable-next-line no-await-in-loop
-				await this.meemHandleContractInitialized({
+				const block = await provider.getBlock(logs[i].blockHash)
+				// eslint-disable-next-line no-await-in-loop
+				await this.meemHandleTransfer({
 					address: logs[i].address,
+					transactionHash: logs[i].transactionHash,
+					transactionTimestamp: block.timestamp,
 					eventData
 				})
 				// eslint-disable-next-line no-await-in-loop
@@ -149,58 +194,15 @@ export default class ContractEvent {
 		}
 
 		if (failedEvents.length > 0) {
-			log.debug(`Retrying ${failedEvents.length} events`)
-			await this.meemContractSync(failedEvents)
-		}
-	}
-
-	public static async meemSync(specificEvents?: MeemTransferEvent[]) {
-		log.debug('Syncing meems...')
-		const meemContract = await services.meem.getMeemContract()
-		const events =
-			specificEvents ??
-			(await meemContract.queryFilter(meemContract.filters.MeemTransfer()))
-
-		log.debug(`Syncing ${events.length} transfer events`)
-
-		const failedEvents: MeemTransferEvent[] = []
-
-		for (let i = 0; i < events.length; i += 1) {
-			try {
-				log.debug(`Syncing ${i + 1} / ${events.length} events`)
-				// eslint-disable-next-line no-await-in-loop
-				const block = await events[i].getBlock()
-				const parsedLog = meemContract.interface.parseLog({
-					data: events[i].data,
-					topics: events[i].topics
-				})
-				const eventData = parsedLog.args as unknown as MeemTransferEventObject
-				// eslint-disable-next-line no-await-in-loop
-				await this.meemHandleTransfer({
-					address: events[i].address,
-					transactionHash: events[i].transactionHash,
-					transactionTimestamp: block.timestamp,
-					eventData
-				})
-				// eslint-disable-next-line no-await-in-loop
-				await wait(2000)
-			} catch (e) {
-				failedEvents.push(events[i])
-				log.crit(e)
-				log.debug(events[i])
-			}
-		}
-
-		if (failedEvents.length > 0) {
-			log.debug(`Retrying ${failedEvents.length} events`)
-			await this.meemSync(failedEvents)
+			log.debug(`Completed with ${failedEvents.length} failed events`)
+			// log.debug(`Retrying ${failedEvents.length} events`)
+			// await this.meemSync(failedEvents)
 		}
 	}
 
 	public static async meemHandleContractInitialized(args: {
 		address: string
-		eventData?: MeemContractInitializedEventObject
-	}) {
+	}): Promise<MeemContract | null> {
 		const { address } = args
 		const meemContract = (await services.meem.getMeemContract({
 			address
@@ -212,7 +214,7 @@ export default class ContractEvent {
 			contractInfo = await meemContract.getContractInfo()
 		} catch (e) {
 			log.debug('getContractInfo function not available. Skipping')
-			return
+			return null
 		}
 
 		const existingMeemContract = await orm.models.MeemContract.findOne({
@@ -388,7 +390,10 @@ export default class ContractEvent {
 		)
 
 		log.debug(`Syncing MeemContract data: ${theMeemContract.address}`)
+
 		await t.commit()
+
+		return theMeemContract
 	}
 
 	public static async meemHandleTotalCopiesSet(args: {
@@ -1164,14 +1169,19 @@ export default class ContractEvent {
 
 		log.debug(`Meem found`, tokenURI, meemData)
 
-		const meemContractData = await orm.models.MeemContract.findOne({
+		let meemContractData = await orm.models.MeemContract.findOne({
 			where: {
 				address
 			}
 		})
 
 		if (!meemContractData) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			meemContractData = await this.meemHandleContractInitialized({
+				address
+			})
+			if (!meemContractData) {
+				throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			}
 		}
 
 		const metadata = (await services.meem.getErc721Metadata(
