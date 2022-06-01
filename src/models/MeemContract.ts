@@ -136,15 +136,18 @@ export default class MeemContract extends BaseModel<MeemContract> {
 		transferLockupUntil: {
 			type: DataTypes.DATE,
 			set(this: MeemContract, val: any) {
-				if (!val) {
-					return
+				const bigNumberString = val ?? BigNumber.from(-1).toHexString()
+				const timestamp = services.web3.toBigNumber(bigNumberString).toNumber()
+				if (timestamp < 1) {
+					this.setDataValue('transferLockupUntil', null)
+				} else {
+					this.setDataValue(
+						'transferLockupUntil',
+						DateTime.fromSeconds(
+							services.web3.toBigNumber(bigNumberString).toNumber()
+						).toJSDate()
+					)
 				}
-				this.setDataValue(
-					'transferLockupUntil',
-					DateTime.fromSeconds(
-						services.web3.toBigNumber(val).toNumber()
-					).toJSDate()
-				)
 			}
 		},
 		transferLockupUntilLockedBy: {
