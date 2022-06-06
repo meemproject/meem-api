@@ -4,6 +4,7 @@ import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
+import Integration from './Integration'
 import type Meem from './Meem'
 import type MeemProperties from './MeemProperties'
 import Wallet from './Wallet'
@@ -215,11 +216,17 @@ export default class MeemContract extends BaseModel<MeemContract> {
 
 	public Wallets!: Wallet[]
 
+	public Integrations!: Integration[]
+
 	public static associate(models: IModels) {
 		this.hasMany(models.Meem)
 
 		this.belongsToMany(models.Wallet, {
 			through: models.MeemContractWallet
+		})
+
+		this.belongsToMany(models.Integration, {
+			through: models.MeemContractIntegration
 		})
 
 		this.belongsTo(models.MeemProperties, {

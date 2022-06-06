@@ -103,4 +103,84 @@ export default class MeemContractController {
 			status: 'success'
 		})
 	}
+
+	public static async createOrUpdateMeemContractIntegration(
+		req: IRequest<MeemAPI.v1.CreateOrUpdateMeemContractIntegration.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateOrUpdateMeemContractIntegration.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const genericMeemContract = await services.meem.getMeemContract()
+		const adminRole = await genericMeemContract.ADMIN_ROLE()
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: req.params.meemContractId
+			},
+			include: [
+				{
+					model: orm.models.Wallet,
+					where: {
+						address: req.wallet.address
+					},
+					through: {
+						where: {
+							role: adminRole
+						}
+					}
+				},
+				{
+					model: orm.models.Integration
+				}
+			]
+		})
+
+		if (!meemContract) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		if (meemContract.Wallets.length < 1) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		if (meemContract.Integrations.length < 1) {
+			const integration = await orm.models.Integration.findOne({
+				where: {
+					id: req.params.integrationId
+				}
+			})
+
+			if (!integration) {
+				throw new Error('INTEGRATION_NOT_FOUND')
+			}
+
+			await orm.models.MeemContractIntegration.create({
+				MeemContractId: meemContract.id,
+				IntegrationId: integration.id,
+				isEnabled: req.body.isEnabled ?? true
+			})
+		} else {
+			const integration = meemContract.Integrations[0]
+			const existingMeemContractIntegration =
+				await orm.models.MeemContractIntegration.findOne({
+					where: {
+						MeemContractId: meemContract.id,
+						IntegrationId: integration.id
+					}
+				})
+
+			if (!existingMeemContractIntegration) {
+				throw new Error('INTEGRATION_NOT_FOUND')
+			}
+
+			existingMeemContractIntegration.isEnabled = req.body.isEnabled
+
+			await existingMeemContractIntegration.save()
+		}
+
+		return res.json({
+			status: 'success'
+		})
+	}
 }
