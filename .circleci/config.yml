@@ -107,8 +107,8 @@ workflows:
             branches:
               only:
                 - dev
-      - deploy_heroku_dev:
-          context: api_dev
+      - deploy_heroku_stage:
+          context: api_stage
           filters:
             branches:
               only:
