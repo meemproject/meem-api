@@ -1,3 +1,31 @@
+# [1.5.0](https://github.com/meemproject/meem-api-aws/compare/v1.4.14...v1.5.0) (2022-06-07)
+
+
+### Bug Fixes
+
+* case-insensitive clippings ([8aa1763](https://github.com/meemproject/meem-api-aws/commit/8aa1763))
+* datetime formatting ([c243f13](https://github.com/meemproject/meem-api-aws/commit/c243f13))
+* fix naming for withAddressReactions ([a767db4](https://github.com/meemproject/meem-api-aws/commit/a767db4))
+* remove hardcoded network ([e4c673b](https://github.com/meemproject/meem-api-aws/commit/e4c673b))
+* remove unused deps to reduce filesize ([4f9a9cd](https://github.com/meemproject/meem-api-aws/commit/4f9a9cd))
+* save contractURI to db ([02d9f91](https://github.com/meemproject/meem-api-aws/commit/02d9f91))
+* sort by reaction nulls last ([1e59e60](https://github.com/meemproject/meem-api-aws/commit/1e59e60))
+* swap out moralis for pinata ([232f826](https://github.com/meemproject/meem-api-aws/commit/232f826))
+
+
+### Features
+
+* child counts ([434944a](https://github.com/meemproject/meem-api-aws/commit/434944a))
+* clipping query enhancements ([3a5ca59](https://github.com/meemproject/meem-api-aws/commit/3a5ca59))
+* Clippings ([61a1e99](https://github.com/meemproject/meem-api-aws/commit/61a1e99))
+* getMeems sorting ([449d018](https://github.com/meemproject/meem-api-aws/commit/449d018))
+* handle unclip event ([4197aee](https://github.com/meemproject/meem-api-aws/commit/4197aee))
+* pull numCopies / numRemixes from contract; sync reactions ([fc40385](https://github.com/meemproject/meem-api-aws/commit/fc40385))
+* reactions ([9f76c95](https://github.com/meemproject/meem-api-aws/commit/9f76c95))
+* search meem metadata ([e2e915a](https://github.com/meemproject/meem-api-aws/commit/e2e915a))
+* sort by reactions ([bc15a57](https://github.com/meemproject/meem-api-aws/commit/bc15a57))
+* standardize date handling and pull in all fields for contracts ([4548a11](https://github.com/meemproject/meem-api-aws/commit/4548a11))
+
 ## [1.4.14](https://github.com/meemproject/meem-api-aws/compare/v1.4.13...v1.4.14) (2022-03-03)
 
 ## [1.4.13](https://github.com/meemproject/meem-api-aws/compare/v1.4.12...v1.4.13) (2022-03-02)
