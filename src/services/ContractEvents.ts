@@ -37,9 +37,7 @@ export default class ContractEvent {
 	// TODO: sync reactions?
 	public static async meemSyncReactions() {
 		log.debug('Syncing reactions...')
-		const provider = await services.ethers.getProvider({
-			networkName: MeemAPI.NetworkName.Rinkeby
-		})
+		const provider = await services.ethers.getProvider()
 
 		const genericMeemContract = new Contract(
 			MeemAPI.zeroAddress,
@@ -102,9 +100,7 @@ export default class ContractEvent {
 
 	public static async meemContractSync(specificEvents?: Log[]) {
 		log.debug('Syncing MeemContracts...')
-		const provider = await services.ethers.getProvider({
-			networkName: MeemAPI.NetworkName.Rinkeby
-		})
+		const provider = await services.ethers.getProvider()
 		const logs =
 			specificEvents ??
 			(await provider.getLogs({
@@ -143,9 +139,7 @@ export default class ContractEvent {
 
 	public static async meemSync(specificEvents?: Log[]) {
 		log.debug('Syncing meems...')
-		const provider = await services.ethers.getProvider({
-			networkName: MeemAPI.NetworkName.Rinkeby
-		})
+		const provider = await services.ethers.getProvider()
 
 		const genericMeemContract = new Contract(
 			MeemAPI.zeroAddress,
