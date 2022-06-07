@@ -1,3 +1,5 @@
+## [1.5.2](https://github.com/meemproject/meem-api-aws/compare/v1.5.1...v1.5.2) (2022-06-07)
+
 ## [1.5.1](https://github.com/meemproject/meem-api-aws/compare/v1.5.0...v1.5.1) (2022-06-07)
 
 # [1.5.0](https://github.com/meemproject/meem-api-aws/compare/v1.4.14...v1.5.0) (2022-06-07)
