@@ -26,13 +26,35 @@ export default class Integration extends BaseModel<Integration> {
 		},
 		name: {
 			type: DataTypes.STRING,
-			allowNull: false
+			allowNull: false,
+			defaultValue: ''
+		},
+		description: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
+		},
+		icon: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
+		},
+		guideUrl: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
 		}
 	}
 
 	public id!: string
 
 	public name!: string
+
+	public description!: string
+
+	public icon!: string
+
+	public guideUrl!: string
 
 	public static associate(models: IModels) {}
 }

@@ -1,3 +1,4 @@
+import { MeemAPI } from '../../meem.generated'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
 export namespace CreateOrUpdateMeemContractIntegration {
@@ -17,7 +18,9 @@ export namespace CreateOrUpdateMeemContractIntegration {
 
 	export interface IRequestBody {
 		/** Is the integration enabled? */
-		isEnabled: boolean
+		isEnabled?: boolean
+		/** Metadata associated with this integration */
+		metadata?: MeemAPI.IMeemContractIntegrationMetadata
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

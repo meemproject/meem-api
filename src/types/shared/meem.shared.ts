@@ -401,6 +401,10 @@ export interface IERC721Metadata {
 	description?: string
 }
 
+export interface IMeemContractIntegrationMetadata {
+	externalUrl?: string
+}
+
 export interface INFT {
 	/** The address of the contract of the NFT */
 	tokenAddress: string

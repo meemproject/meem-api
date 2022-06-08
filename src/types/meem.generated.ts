@@ -456,6 +456,10 @@ export interface IERC721Metadata {
 	description?: string
 }
 
+export interface IMeemContractIntegrationMetadata {
+	externalUrl?: string
+}
+
 export interface INFT {
 	/** The address of the contract of the NFT */
 	tokenAddress: string
@@ -731,7 +735,9 @@ export namespace CreateOrUpdateMeemContractIntegration {
 
 	export interface IRequestBody {
 		/** Is the integration enabled? */
-		isEnabled: boolean
+		isEnabled?: boolean
+		/** Metadata associated with this integration */
+		metadata?: MeemAPI.IMeemContractIntegrationMetadata
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Response } from 'express'
+import _ from 'lodash'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -158,7 +159,8 @@ export default class MeemContractController {
 			await orm.models.MeemContractIntegration.create({
 				MeemContractId: meemContract.id,
 				IntegrationId: integration.id,
-				isEnabled: req.body.isEnabled ?? true
+				isEnabled: req.body.isEnabled ?? true,
+				metadata: req.body.metadata ?? {}
 			})
 		} else {
 			const integration = meemContract.Integrations[0]
@@ -174,7 +176,14 @@ export default class MeemContractController {
 				throw new Error('INTEGRATION_NOT_FOUND')
 			}
 
-			existingMeemContractIntegration.isEnabled = req.body.isEnabled
+			if (!_.isUndefined(req.body.isEnabled)) {
+				existingMeemContractIntegration.isEnabled = req.body.isEnabled
+			}
+
+			if (req.body.metadata) {
+				// TODO: Typecheck metadata
+				existingMeemContractIntegration.metadata = req.body.metadata
+			}
 
 			await existingMeemContractIntegration.save()
 		}
