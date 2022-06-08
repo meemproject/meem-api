@@ -56,5 +56,5 @@ export default class Integration extends BaseModel<Integration> {
 
 	public guideUrl!: string
 
-	public static associate(models: IModels) {}
+	public static associate() {}
 }
