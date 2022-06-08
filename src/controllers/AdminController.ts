@@ -156,7 +156,7 @@ export default class AdminController {
 					await orm.models.Integration.create(integrations[i])
 				} else {
 					// eslint-disable-next-line no-await-in-loop
-					await orm.models.Integration.update(integrations[i])
+					await existingIntegration.update(integrations[i])
 				}
 			} catch (e) {
 				failedIntegratiosn.push(integrations[i])
