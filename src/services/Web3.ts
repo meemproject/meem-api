@@ -99,9 +99,9 @@ export default class Web3 {
 				}
 			}
 			const ethers = services.ethers.getInstance()
-			const chain = options?.chain ?? MeemAPI.Chain.Polygon
+			const chain = options?.chain ?? MeemAPI.networkNameToChain(config.NETWORK)
 
-			await this.startMoralis()
+			// await this.startMoralis()
 
 			const blockInfo = await Moralis.Web3API.native.getDateToBlock({
 				chain: this.chainToMoralis(chain),

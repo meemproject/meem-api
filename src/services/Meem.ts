@@ -75,7 +75,7 @@ function handleStringErrorKey(errorKey: string) {
 export default class MeemService {
 	/** Get generic ERC721 contract instance */
 	public static async erc721Contract(options: {
-		networkName: MeemAPI.NetworkName
+		networkName?: MeemAPI.NetworkName
 		address: string
 	}) {
 		const ethers = services.ethers.getInstance()

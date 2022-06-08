@@ -22,7 +22,7 @@ export default class EthersService {
 		return this.ethers
 	}
 
-	public async getProvider(options?: { networkName: MeemAPI.NetworkName }) {
+	public async getProvider(options?: { networkName?: MeemAPI.NetworkName }) {
 		const { ethers } = await (config.TESTING
 			? import('hardhat')
 			: import('ethers'))

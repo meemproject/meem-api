@@ -32,7 +32,7 @@ export default class ProviderListener {
 		// const meemContract = await services.meem.getMeemContract()
 		// meemContract.filters.Crea
 		this.provider = await services.ethers.getProvider({
-			networkName: MeemAPI.NetworkName.Rinkeby
+			networkName: config.NETWORK
 		})
 		this.setupListners()
 			.then(() => {})
