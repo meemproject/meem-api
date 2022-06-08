@@ -29,6 +29,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/syncDbMeemIdsToContract',
 		AdminController.syncDbMeemIdsToContract
 	)
+	router.getAsync('/seedIntegrations', AdminController.seedIntegrations)
 	router.getAsync('/seedPrompts', AdminController.seedPrompts)
 	router.getAsync('/syncPins', AdminController.syncPins)
 }
