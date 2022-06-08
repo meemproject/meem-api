@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
-import { IModels } from '../types/models'
+import type { IModels } from '../types/models'
 
 export default class Integration extends BaseModel<Integration> {
 	public static readonly modelName = 'Integration'
