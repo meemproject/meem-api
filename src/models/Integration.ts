@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
+import { IModels } from '../types/models'
 
 export default class Integration extends BaseModel<Integration> {
 	public static readonly modelName = 'Integration'
@@ -55,5 +56,9 @@ export default class Integration extends BaseModel<Integration> {
 
 	public guideUrl!: string
 
-	public static associate() {}
+	public static associate(models: IModels) {
+		this.belongsToMany(models.MeemContract, {
+			through: models.MeemContractIntegration
+		})
+	}
 }
