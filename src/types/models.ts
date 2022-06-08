@@ -1,7 +1,9 @@
 import Clipping from '../models/Clipping'
 import Hashtag from '../models/Hashtag'
+import Integration from '../models/Integration'
 import Meem from '../models/Meem'
 import MeemContract from '../models/MeemContract'
+import MeemContractIntegration from '../models/MeemContractIntegration'
 import MeemContractWallet from '../models/MeemContractWallet'
 import MeemIdentification from '../models/MeemIdentification'
 import MeemPass from '../models/MeemPass'
@@ -17,8 +19,10 @@ import Wallet from '../models/Wallet'
 export interface IModels {
 	Clipping: typeof Clipping
 	Hashtag: typeof Hashtag
+	Integration: typeof Integration
 	Meem: typeof Meem
 	MeemContract: typeof MeemContract
+	MeemContractIntegration: typeof MeemContractIntegration
 	MeemContractWallet: typeof MeemContractWallet
 	MeemPass: typeof MeemPass
 	MeemProperties: typeof MeemProperties

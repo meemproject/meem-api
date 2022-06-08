@@ -50,6 +50,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/meemContracts/:meemContractId',
 		MeemContractController.updateMeemContract
 	)
+	router.postAsync(
+		'/meemContracts/:meemContractId/integrations/:integrationId',
+		MeemContractController.createOrUpdateMeemContractIntegration
+	)
 	router.getAsync('/meems', MeemController.getMeems)
 	router.getAsync('/meems/:tokenId', MeemController.getMeem)
 	router.getAsync('/meems/:tokenId/children', MeemController.getChildMeems)
