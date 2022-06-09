@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable import/no-extraneous-dependencies */
 import type { ethers as Ethers } from 'ethers'
+import { ReconnectingWebSocketProvider } from '../lib/ReconnectingWebsocketProvider'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class EthersService {
@@ -35,7 +36,7 @@ export default class EthersService {
 
 			case MeemAPI.NetworkName.Rinkeby:
 				// provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_RINKEBY)
-				provider = new ethers.providers.WebSocketProvider(
+				provider = new ReconnectingWebSocketProvider(
 					config.WS_RPC_RINKEBY,
 					'rinkeby'
 				)
@@ -43,10 +44,7 @@ export default class EthersService {
 
 			case MeemAPI.NetworkName.Polygon:
 				// provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_POLYGON)
-				provider = new ethers.providers.WebSocketProvider(
-					config.WS_RPC_POLYGON,
-					137
-				)
+				provider = new ReconnectingWebSocketProvider(config.WS_RPC_POLYGON, 137)
 				break
 
 			case MeemAPI.NetworkName.Hardhat:
