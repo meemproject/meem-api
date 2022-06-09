@@ -23,8 +23,8 @@ export default class TwitterListener {
 	private async setupListners() {
 		this.connectAttempts += 1
 		log.debug(`Setting up Twitter listeners. Attempt ${this.connectAttempts}`)
-		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 		try {
+			const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 			await services.twitter.checkForMissedTweets()
 			this.stream = await client.v2.searchStream({
 				'tweet.fields': [

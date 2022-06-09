@@ -176,6 +176,8 @@ export default async function start() {
 		}
 
 		g.listeners.provider.start()
+	} else {
+		log.debug('Provider listener disabled')
 	}
 
 	if (config.ENABLE_TWITTER_LISTENERS) {
