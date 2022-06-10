@@ -61,6 +61,12 @@ jobs:
       - checkout
       - heroku/install
       - heroku/deploy-via-git
+  deploy_heroku_prod:
+    executor: heroku/default
+    steps:
+      - checkout
+      - heroku/install
+      - heroku/deploy-via-git
 workflows:
   version: 2
   do_build:
@@ -113,3 +119,9 @@ workflows:
             branches:
               only:
                 - stage
+      - deploy_heroku_prod:
+          context: api_prod
+          filters:
+            branches:
+              only:
+                - master
