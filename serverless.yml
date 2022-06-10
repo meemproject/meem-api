@@ -135,6 +135,12 @@ functions:
          path: '/api/1.0/{p1}/{p2}/{p3}'
       - httpApi:
          method: '*'
+         path: '/api/1.0/{p1}/{p2}/{p3}/{p4}'
+      - httpApi:
+         method: '*'
+         path: '/api/1.0/{p1}/{p2}/{p3}/{p4}/{p5}'
+      - httpApi:
+         method: '*'
          path: '/admin/1.0/{p1}'
       - httpApi:
          method: '*'
@@ -142,6 +148,12 @@ functions:
       - httpApi:
          method: '*'
          path: '/admin/1.0/{p1}/{p2}/{p3}'
+      - httpApi:
+         method: '*'
+         path: '/admin/1.0/{p1}/{p2}/{p3}/{p4}'
+      - httpApi:
+         method: '*'
+         path: '/admin/1.0/{p1}/{p2}/{p3}/{p4}/{p5}'
       - httpApi:
          method: '*'
          path: '/'
