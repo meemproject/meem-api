@@ -26,6 +26,11 @@ export default class MeemContractIntegration extends BaseModel<MeemContractInteg
 			allowNull: false,
 			defaultValue: false
 		},
+		isPublic: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: true
+		},
 		metadata: {
 			type: DataTypes.JSONB,
 			allowNull: false,
@@ -36,6 +41,8 @@ export default class MeemContractIntegration extends BaseModel<MeemContractInteg
 	public id!: string
 
 	public isEnabled!: boolean
+
+	public isPublic!: boolean
 
 	public metadata!: MeemAPI.IMeemContractIntegrationMetadata
 
