@@ -715,6 +715,8 @@ export namespace CreateOrUpdateMeemContractIntegration {
 	export interface IRequestBody {
 		/** Is the integration enabled? */
 		isEnabled?: boolean
+		/** Is the integration publicly displayed on club */
+		isPublic?: boolean
 		/** Metadata associated with this integration */
 		metadata?: MeemAPI.IMeemContractIntegrationMetadata
 	}
