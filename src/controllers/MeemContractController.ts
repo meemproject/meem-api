@@ -121,15 +121,15 @@ export default class MeemContractController {
 			},
 			include: [
 				{
-					model: orm.models.Wallet
-					// where: {
-					// 	address: req.wallet.address
-					// }
-					// through: {
-					// 	where: {
-					// 		role: adminRole
-					// 	}
-					// }
+					model: orm.models.Wallet,
+					where: {
+						address: req.wallet.address
+					},
+					through: {
+						where: {
+							role: adminRole
+						}
+					}
 				},
 				{
 					model: orm.models.Integration
