@@ -1,6 +1,8 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
+import MeemContract from './MeemContract'
+import Wallet from './Wallet'
 
 export default class MeemContractWallet extends BaseModel<MeemContractWallet> {
 	public static readonly modelName = 'MeemContractWallet'
@@ -29,6 +31,14 @@ export default class MeemContractWallet extends BaseModel<MeemContractWallet> {
 	public id!: string
 
 	public role!: string
+
+	public WalletId!: string
+
+	public MeemContractId!: string
+
+	public Wallet!: Wallet | null
+
+	public MeemContract!: MeemContract | null
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.Wallet)
