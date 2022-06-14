@@ -1,7 +1,7 @@
 import { Op, DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import MeemContractWallet from './MeemContractWallet'
+import type MeemContractWallet from './MeemContractWallet'
 import type MeemIdentification from './MeemIdentification'
 
 export default class Wallet extends BaseModel<Wallet> {

@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import MeemContract from './MeemContract'
-import Wallet from './Wallet'
+import type MeemContract from './MeemContract'
+import type Wallet from './Wallet'
 
 export default class MeemContractWallet extends BaseModel<MeemContractWallet> {
 	public static readonly modelName = 'MeemContractWallet'
