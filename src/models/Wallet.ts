@@ -49,9 +49,10 @@ export default class Wallet extends BaseModel<Wallet> {
 		if (meemContractId) {
 			findAll.include = [
 				{
+					required: false,
 					model: orm.models.MeemContractWallet,
 					where: {
-						id: meemContractId
+						MeemContractId: meemContractId
 					}
 				}
 			]
