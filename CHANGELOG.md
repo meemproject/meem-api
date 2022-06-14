@@ -1,3 +1,11 @@
+## [1.5.5](https://github.com/meemproject/meem-api-aws/compare/v1.5.4...v1.5.5) (2022-06-14)
+
+
+### Bug Fixes
+
+* ensure wallet is set for meem id users ([6c27b09](https://github.com/meemproject/meem-api-aws/commit/6c27b09))
+* wallet lookup ([3d511c5](https://github.com/meemproject/meem-api-aws/commit/3d511c5))
+
 ## [1.5.4](https://github.com/meemproject/meem-api-aws/compare/v1.5.3...v1.5.4) (2022-06-09)
 
 
