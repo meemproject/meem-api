@@ -4,10 +4,10 @@ import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
-import Integration from './Integration'
+import type Integration from './Integration'
 import type Meem from './Meem'
 import type MeemProperties from './MeemProperties'
-import Wallet from './Wallet'
+import type Wallet from './Wallet'
 
 export default class MeemContract extends BaseModel<MeemContract> {
 	public static readonly modelName = 'MeemContract'

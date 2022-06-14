@@ -190,7 +190,7 @@ export default class MeemIdService {
 						}
 					}
 				}),
-				orm.models.Wallet.findAllByAddresses(meemIdData.wallets)
+				orm.models.Wallet.findAllBy({ addresses: meemIdData.wallets })
 			])
 
 			const twittersCreateData: Record<string, any>[] = []

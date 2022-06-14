@@ -1,6 +1,7 @@
 import { Op, DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
+import type MeemContractWallet from './MeemContractWallet'
 import type MeemIdentification from './MeemIdentification'
 
 export default class Wallet extends BaseModel<Wallet> {
@@ -30,13 +31,33 @@ export default class Wallet extends BaseModel<Wallet> {
 		}
 	}
 
-	public static async findAllByAddresses(addresses: string[]) {
-		const result = await orm.models.Wallet.findAll({
-			where: orm.sequelize.where(
+	public static async findAllBy(options: {
+		addresses?: string[]
+		meemContractId?: string
+	}) {
+		const { addresses, meemContractId } = options
+
+		const findAll: Record<string, any> = {}
+
+		if (addresses) {
+			findAll.where = orm.sequelize.where(
 				orm.sequelize.fn('lower', orm.sequelize.col('address')),
 				{ [Op.in]: addresses.map(w => w.toLowerCase()) }
 			)
-		})
+		}
+
+		if (meemContractId) {
+			findAll.include = [
+				{
+					model: orm.models.MeemContractWallet,
+					where: {
+						id: meemContractId
+					}
+				}
+			]
+		}
+
+		const result = await orm.models.Wallet.findAll(findAll)
 
 		return result
 	}
@@ -64,7 +85,12 @@ export default class Wallet extends BaseModel<Wallet> {
 
 	public MeemIdentificationId!: string | null
 
+	public MeemContractWalletId!: string | null
+
+	public MeemContractWallets!: MeemContractWallet[]
+
 	public static associate(models: IModels) {
 		this.belongsTo(models.MeemIdentification)
+		this.hasMany(models.MeemContractWallet)
 	}
 }
