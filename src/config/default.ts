@@ -62,7 +62,7 @@ export default {
 	CORS_DEFAULT_ORIGIN: process.env.CORS_DEFAULT_ORIGIN ?? 'meem.wtf',
 	CORS_ALLOWED_ORIGINS: process.env.CORS_ALLOWED_ORIGINS
 		? process.env.CORS_ALLOWED_ORIGINS.split(',').map(o => o.trim())
-		: [],
+		: ['clubs.link'],
 
 	REDIS_URL: process.env.REDIS_URL,
 	REDIS_ENABLED: process.env.REDIS_ENABLED !== 'false',

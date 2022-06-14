@@ -27,6 +27,10 @@ export default (app: Express) => {
 
 					if (meemId) {
 						req.meemId = meemId
+						if (meemId.Wallets && meemId.Wallets[0]) {
+							// eslint-disable-next-line prefer-destructuring
+							req.wallet = meemId.Wallets[0]
+						}
 					}
 				} else if (jwtData.walletAddress) {
 					const wallet = await orm.models.Wallet.findOne({

@@ -145,7 +145,11 @@ export default class MeemContractController {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		if (meemContract.Integrations.length < 1) {
+		const existingIntegration = meemContract.Integrations.find(
+			i => i.id === req.params.integrationId
+		)
+
+		if (!existingIntegration) {
 			const integration = await orm.models.Integration.findOne({
 				where: {
 					id: req.params.integrationId
@@ -160,15 +164,15 @@ export default class MeemContractController {
 				MeemContractId: meemContract.id,
 				IntegrationId: integration.id,
 				isEnabled: req.body.isEnabled ?? true,
+				isPublic: req.body.isPublic ?? true,
 				metadata: req.body.metadata ?? {}
 			})
 		} else {
-			const integration = meemContract.Integrations[0]
 			const existingMeemContractIntegration =
 				await orm.models.MeemContractIntegration.findOne({
 					where: {
 						MeemContractId: meemContract.id,
-						IntegrationId: integration.id
+						IntegrationId: existingIntegration.id
 					}
 				})
 
@@ -178,6 +182,10 @@ export default class MeemContractController {
 
 			if (!_.isUndefined(req.body.isEnabled)) {
 				existingMeemContractIntegration.isEnabled = req.body.isEnabled
+			}
+
+			if (!_.isUndefined(req.body.isPublic)) {
+				existingMeemContractIntegration.isPublic = req.body.isPublic
 			}
 
 			if (req.body.metadata) {

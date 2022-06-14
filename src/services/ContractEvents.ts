@@ -27,6 +27,7 @@ import meemABI from '@meemproject/meem-contracts/types/Meem.json'
 import { BigNumber, Contract, utils } from 'ethers'
 import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
+import { Op } from 'sequelize'
 import { v4 as uuidv4 } from 'uuid'
 import { wait } from '../lib/utils'
 import Meem from '../models/Meem'
@@ -330,56 +331,107 @@ export default class ContractEvent {
 			log.error('getRoles function not available')
 		}
 
-		await Promise.all(
-			admins.map(async adminAddress => {
-				const wallet = await orm.models.Wallet.findOne({
-					where: {
-						address: adminAddress.toLowerCase()
-					}
-				})
-
-				if (wallet) {
-					const existingMeemContractWallet =
-						await orm.models.MeemContractWallet.findOne({
-							where: {
-								MeemContractId: theMeemContract.id,
-								WalletId: wallet.id,
-								role: adminRole
-							}
-						})
-
-					if (!existingMeemContractWallet) {
-						await orm.models.MeemContractWallet.create(
-							{
-								MeemContractId: theMeemContract.id,
-								WalletId: wallet.id,
-								role: adminRole
-							},
-							{
-								transaction: t
-							}
+		const [adminWallets, currentAdminsToRemove] = await Promise.all([
+			orm.models.Wallet.findAllBy({
+				addresses: admins,
+				meemContractId: theMeemContract.id
+			}),
+			orm.models.MeemContractWallet.findAll({
+				where: {
+					role: adminRole
+				},
+				include: [
+					{
+						model: orm.models.MeemContract,
+						where: orm.sequelize.where(
+							orm.sequelize.fn(
+								'lower',
+								orm.sequelize.col('MeemContract.address')
+							),
+							theMeemContract.address.toLowerCase()
+						)
+					},
+					{
+						model: orm.models.Wallet,
+						where: orm.sequelize.where(
+							orm.sequelize.fn('lower', orm.sequelize.col('Wallet.address')),
+							{ [Op.notIn]: admins.map(w => w.toLowerCase()) }
 						)
 					}
-				} else {
-					const newWallet = await orm.models.Wallet.create({
-						address: adminAddress.toLocaleLowerCase(),
-						isDefault: true
-					})
-					await orm.models.MeemContractWallet.create(
-						{
-							MeemContractId: theMeemContract.id,
-							WalletId: newWallet.id,
-							role: adminRole
-						},
-						{
-							transaction: t
-						}
-					)
-				}
+				]
 			})
-		)
+		])
+
+		const walletsData: {
+			id: string
+			address: string
+			isDefault: boolean
+		}[] = []
+
+		const walletContractsData: {
+			MeemContractId: string
+			WalletId: string
+			role: string
+		}[] = []
+
+		admins.forEach(adminAddress => {
+			const wallet = adminWallets.find(
+				aw => aw.address.toLowerCase() === adminAddress.toLowerCase()
+			)
+
+			const meemContractWallet =
+				wallet?.MeemContractWallets && wallet?.MeemContractWallets[0]
+
+			if (!wallet) {
+				// Create the wallet
+				const walletId = uuidv4()
+				walletsData.push({
+					id: walletId,
+					address: adminAddress.toLowerCase(),
+					isDefault: true
+				})
+
+				walletContractsData.push({
+					MeemContractId: theMeemContract.id,
+					WalletId: walletId,
+					role: adminRole
+				})
+			} else if (wallet && !meemContractWallet) {
+				// Create the association
+				walletContractsData.push({
+					MeemContractId: theMeemContract.id,
+					WalletId: wallet.id,
+					role: adminRole
+				})
+			}
+		})
 
 		log.debug(`Syncing MeemContract data: ${theMeemContract.address}`)
+
+		const promises: Promise<any>[] = []
+		if (currentAdminsToRemove.length > 0) {
+			promises.push(
+				orm.models.MeemContractWallet.destroy({
+					where: {
+						id: currentAdminsToRemove.map(a => a.id)
+					},
+					transaction: t
+				})
+			)
+		}
+		if (walletsData.length > 0) {
+			promises.push(
+				orm.models.Wallet.bulkCreate(walletsData, { transaction: t })
+			)
+		}
+
+		await Promise.all(promises)
+
+		if (walletContractsData.length > 0) {
+			await orm.models.MeemContractWallet.bulkCreate(walletContractsData, {
+				transaction: t
+			})
+		}
 
 		await t.commit()
 
