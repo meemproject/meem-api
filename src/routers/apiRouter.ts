@@ -1,6 +1,7 @@
 import coreExpress, { Express } from 'express'
 import multer from 'multer'
 import ConfigController from '../controllers/ConfigController'
+import ContractController from '../controllers/ContractController'
 import MeemContractController from '../controllers/MeemContractController'
 import MeemController from '../controllers/MeemController'
 import MeemIdController from '../controllers/MeemIdController'
@@ -9,6 +10,7 @@ import TestController from '../controllers/TestController'
 import TweetController from '../controllers/TweetController'
 import WebhookController from '../controllers/WebhookController'
 import extendedRouter from '../core/router'
+import userLoggedInPolicy from '../policies/UserLoggedInPolicy'
 // import userLoggedInPolicy from '../policies/UserLoggedInPolicy'
 
 export default (app: Express, _express: typeof coreExpress) => {
@@ -88,6 +90,12 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	// Projects
 	router.postAsync('/projects', MeemController.createMeemProject)
+
+	router.postAsync(
+		'/contracts',
+		userLoggedInPolicy,
+		ContractController.createContract
+	)
 
 	if (config.ENABLE_TEST_ENDPOINTS) {
 		router.getAsync('/test/emit', TestController.testEmit)

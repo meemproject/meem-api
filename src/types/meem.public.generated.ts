@@ -562,6 +562,12 @@ export enum SortOrder {
 
 export const defaultReactionTypes: string[] = ['upvote', 'downvote']
 
+export enum ContractType {
+	Regular = 'regular',
+	DiamondProxy = 'diamondProxy',
+	DiamondFacet = 'diamondFacet'
+}
+
 export namespace v1 {
 
 export namespace CheckClippingStatus {
@@ -614,6 +620,42 @@ export namespace ClaimMeem {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace CreateContract {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/contracts`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		name: string
+		description: string
+		contractType: ContractType
+		address: string
+		functionSelectors: string[]
+		abi: any[]
+		bytecode: string
+		chainId: number
+	}
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'

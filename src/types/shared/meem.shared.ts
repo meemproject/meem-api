@@ -506,3 +506,9 @@ export enum SortOrder {
 }
 
 export const defaultReactionTypes: string[] = ['upvote', 'downvote']
+
+export enum ContractType {
+	Regular = 'regular',
+	DiamondProxy = 'diamondProxy',
+	DiamondFacet = 'diamondFacet'
+}

@@ -1,4 +1,5 @@
 import Clipping from '../models/Clipping'
+import Contract from '../models/Contract'
 import Hashtag from '../models/Hashtag'
 import Integration from '../models/Integration'
 import Meem from '../models/Meem'
@@ -18,6 +19,7 @@ import Wallet from '../models/Wallet'
 
 export interface IModels {
 	Clipping: typeof Clipping
+	Contract: typeof Contract
 	Hashtag: typeof Hashtag
 	Integration: typeof Integration
 	Meem: typeof Meem
