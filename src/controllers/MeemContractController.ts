@@ -105,6 +105,31 @@ export default class MeemContractController {
 		})
 	}
 
+	public static async createMeemContract(
+		req: IRequest<MeemAPI.v1.CreateMeemContract.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateMeemContract.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		try {
+			const contractAddress = await services.meemContract.createMeemContract({
+				clubContractAddress: req.body.clubContractAddress,
+				name: req.body.name,
+				description: req.body.description,
+				admins: req.body.admins
+			})
+
+			return res.json({
+				address: contractAddress
+			})
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
 	public static async createOrUpdateMeemContractIntegration(
 		req: IRequest<MeemAPI.v1.CreateOrUpdateMeemContractIntegration.IDefinition>,
 		res: IResponse<MeemAPI.v1.CreateOrUpdateMeemContractIntegration.IResponseBody>
