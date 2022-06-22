@@ -46,6 +46,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 		MeemController.getTwitterAccessToken
 	)
 	router.post('/isSlugAvailable', MeemContractController.isSlugAvailable)
+	router.post('/meemContracts', MeemContractController.createMeemContract)
 	router.patchAsync(
 		'/meemContracts/:meemContractId',
 		MeemContractController.updateMeemContract
