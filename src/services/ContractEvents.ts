@@ -228,6 +228,10 @@ export default class ContractEvent {
 
 		let slug = existingMeemContract?.slug
 
+		const metadata = await services.meem.getErc721Metadata(
+			contractInfo.contractURI
+		)
+
 		const propertiesData = this.meemPropertiesDataToModelData(
 			contractInfo.defaultProperties
 		)
@@ -258,7 +262,6 @@ export default class ContractEvent {
 			properties.set(propertiesData)
 			childProperties.set(childPropertiesData)
 		}
-
 		const meemContractData = {
 			slug,
 			symbol: contractInfo.symbol,
@@ -267,6 +270,7 @@ export default class ContractEvent {
 			childDepth: contractInfo.childDepth,
 			nonOwnerSplitAllocationAmount: contractInfo.nonOwnerSplitAllocationAmount,
 			address,
+			metadata,
 			totalOriginalsSupply:
 				contractInfo.baseProperties.totalOriginalsSupply.toHexString(),
 			totalOriginalsSupplyLockedBy:

@@ -43,6 +43,11 @@ export default class MeemContract extends BaseModel<MeemContract> {
 			type: DataTypes.STRING,
 			allowNull: false
 		},
+		metadata: {
+			type: DataTypes.JSONB,
+			allowNull: false,
+			defaultValue: {}
+		},
 		totalOriginalsSupply: {
 			type: DataTypes.STRING,
 			allowNull: false,
@@ -173,6 +178,8 @@ export default class MeemContract extends BaseModel<MeemContract> {
 	public contractURI!: string
 
 	public address!: string
+
+	public metadata!: any
 
 	public totalOriginalsSupply!: string
 

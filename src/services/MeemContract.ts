@@ -81,6 +81,7 @@ export default class MeemContractService {
 		// TODO: Generate the slug for the contract here and store the external URL
 		// TOOD: How do we create associations between Clubs and their projects i.e MAGS?
 		// TODO: Does each new (official) contract type have a model in our database?
+		// TODO: Verify club exists before storing address in metadata?
 
 		const contractMetadata = {
 			meem_contract_type: 'mags',
