@@ -32,7 +32,7 @@ export default class ProviderListener {
 		// const meemContract = await services.meem.getMeemContract()
 		// meemContract.filters.Crea
 		this.provider = await services.ethers.getProvider({
-			networkName: config.NETWORK
+			chainId: config.CHAIN_ID
 		})
 		this.setupListners()
 			.then(() => {})

@@ -7,22 +7,18 @@ import {
 	ContractType
 } from '../meem.shared'
 
-export namespace CreateContract {
+export namespace TrackContractInstance {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/contracts`
+	export const path = () => `/api/1.0/contractInstances`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		name: string
-		description: string
-		contractType: ContractType
-		functionSelectors: string[]
-		abi: any[]
-		bytecode: string
+		address: string
+		chainId: number
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

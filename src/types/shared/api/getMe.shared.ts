@@ -13,9 +13,8 @@ export namespace GetMe {
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The MeemId */
-		meemId: IMeemId
-		isAdmin: boolean
+		walletId: string
+		address: string
 	}
 
 	export interface IDefinition {

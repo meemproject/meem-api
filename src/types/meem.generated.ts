@@ -661,7 +661,7 @@ export namespace ClaimMeem {
 export namespace CreateContract {
 	export interface IPathParams {}
 
-	export const path = (options: IPathParams) => `/api/1.0/contracts`
+	export const path = () => `/api/1.0/contracts`
 
 	export const method = HttpMethod.Post
 
@@ -671,11 +671,9 @@ export namespace CreateContract {
 		name: string
 		description: string
 		contractType: ContractType
-		address: string
 		functionSelectors: string[]
 		abi: any[]
 		bytecode: string
-		chainId: number
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -1005,9 +1003,8 @@ export namespace GetMe {
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The MeemId */
-		meemId: IMeemId
-		isAdmin: boolean
+		walletId: string
+		address: string
 	}
 
 	export interface IDefinition {
@@ -1477,15 +1474,9 @@ export namespace Login {
 		address?: string
 		/** Login w/ wallet. Both address and signature must be provided */
 		signature?: string
-
-		/** Login twitter access token */
-		twitterAccessToken?: string
-		twitterAccessSecret?: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The MeemId */
-		meemId: IMeemId | null
 		/** JWT that can be used for future authentication */
 		jwt: string
 	}
@@ -1604,6 +1595,69 @@ export namespace SearchMeemIds {
 
 	export interface IResponseBody extends IApiResponseBody {
 		meemIds: IMeemId[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace TrackContractInstance {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/contractInstances`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		address: string
+		chainId: number
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace UpdateWalletContractInstance {
+	export interface IPathParams {
+		contractInstanceId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/walletContractInstances/${options.contractInstanceId}`
+
+	export const method = HttpMethod.Patch
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		note: string
+		name: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
 	}
 
 	export interface IDefinition {

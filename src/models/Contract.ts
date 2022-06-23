@@ -8,8 +8,8 @@ export default class Contract extends BaseModel<Contract> {
 	public static get indexes() {
 		return [
 			{
-				name: 'Contract_address',
-				fields: ['address']
+				name: 'Contract_contractType',
+				fields: ['contractType']
 			}
 		]
 	}
@@ -37,9 +37,6 @@ export default class Contract extends BaseModel<Contract> {
 			type: DataTypes.STRING,
 			allowNull: false
 		},
-		address: {
-			type: DataTypes.STRING
-		},
 		functionSelectors: {
 			type: DataTypes.JSONB,
 			allowNull: false,
@@ -52,10 +49,6 @@ export default class Contract extends BaseModel<Contract> {
 		},
 		bytecode: {
 			type: DataTypes.TEXT,
-			allowNull: false
-		},
-		chainId: {
-			type: DataTypes.INTEGER,
 			allowNull: false
 		}
 	}
@@ -70,15 +63,11 @@ export default class Contract extends BaseModel<Contract> {
 
 	public contractType!: string
 
-	public address!: string | null
-
 	public functionSelectors!: string[]
 
 	public abi!: any[]
 
 	public bytecode!: string
-
-	public chainId!: number
 
 	public CreatorId!: string | null
 

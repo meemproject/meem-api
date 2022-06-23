@@ -27,15 +27,12 @@ export default class AuthController {
 		req: IRequest<MeemAPI.v1.Login.IDefinition>,
 		res: IResponse<MeemAPI.v1.Login.IResponseBody>
 	): Promise<Response> {
-		const { meemId, jwt } = await services.meemId.login({
+		const { jwt } = await services.meemId.login({
 			address: req.body.address,
-			signature: req.body.signature,
-			twitterAccessToken: req.body.twitterAccessToken,
-			twitterAccessSecret: req.body.twitterAccessSecret
+			signature: req.body.signature
 		})
 
 		return res.json({
-			meemId,
 			jwt
 		})
 	}
@@ -124,15 +121,12 @@ export default class AuthController {
 		req: IRequest<MeemAPI.v1.GetMe.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMe.IResponseBody>
 	): Promise<Response> {
-		if (!req.meemId) {
+		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
-		const meemId = await services.meemId.getMeemId({
-			meemIdentification: req.meemId
-		})
 		return res.json({
-			meemId,
-			isAdmin: meemId.meemPass?.isAdmin === true
+			walletId: req.wallet.id,
+			address: req.wallet.address
 		})
 	}
 

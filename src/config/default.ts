@@ -76,7 +76,7 @@ export default {
 	SERVERLESS_LOG_FULL_REQUEST: process.env.SERVERLESS_LOG_FULL_REQUEST,
 	APP_AWS_ACCESS_KEY_ID: process.env.APP_AWS_ACCESS_KEY_ID ?? '',
 	APP_AWS_SECRET_ACCESS_KEY: process.env.APP_AWS_SECRET_ACCESS_KEY ?? '',
-	NETWORK: (process.env.NETWORK ?? 'rinkeby') as MeemAPI.NetworkName,
+	CHAIN_ID: process.env.CHAIN_ID ? +process.env.CHAIN_ID : 4,
 	WALLET_PRIVATE_KEY: process.env.WALLET_PRIVATE_KEY ?? '',
 	TWITTER_WALLET_PRIVATE_KEY: process.env.TWITTER_WALLET_PRIVATE_KEY ?? '',
 	MEEM_PROXY_ADDRESS: process.env.MEEM_PROXY_ADDRESS ?? '',

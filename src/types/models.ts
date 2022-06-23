@@ -1,5 +1,6 @@
 import Clipping from '../models/Clipping'
 import Contract from '../models/Contract'
+import ContractInstance from '../models/ContractInstance'
 import Hashtag from '../models/Hashtag'
 import Integration from '../models/Integration'
 import Meem from '../models/Meem'
@@ -16,10 +17,12 @@ import Tweet from '../models/Tweet'
 import TweetHashtag from '../models/TweetHashtag'
 import Twitter from '../models/Twitter'
 import Wallet from '../models/Wallet'
+import WalletContractInstance from '../models/WalletContractInstance'
 
 export interface IModels {
 	Clipping: typeof Clipping
 	Contract: typeof Contract
+	ContractInstance: typeof ContractInstance
 	Hashtag: typeof Hashtag
 	Integration: typeof Integration
 	Meem: typeof Meem
@@ -29,13 +32,14 @@ export interface IModels {
 	MeemPass: typeof MeemPass
 	MeemProperties: typeof MeemProperties
 	MeemIdentification: typeof MeemIdentification
+	Prompt: typeof Prompt
 	Reaction: typeof Reaction
 	Transfer: typeof Transfer
 	Tweet: typeof Tweet
 	TweetHashtag: typeof TweetHashtag
 	Twitter: typeof Twitter
 	Wallet: typeof Wallet
-	Prompt: typeof Prompt
+	WalletContractInstance: typeof WalletContractInstance
 }
 
 export type AppModel = IModels[keyof IModels]

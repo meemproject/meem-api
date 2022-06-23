@@ -60,52 +60,21 @@ export default class MeemIdService {
 		return wallet.nonce
 	}
 
-	public static async login(options: {
-		address?: string
-		signature?: string
-		twitterAccessToken?: string
-		twitterAccessSecret?: string
-	}) {
-		const { address, signature, twitterAccessToken, twitterAccessSecret } =
-			options
+	public static async login(options: { address?: string; signature?: string }) {
+		const { address, signature } = options
 
 		let wallet: Wallet | undefined
-		let meemIdentificationId = ''
 
 		if (address && signature) {
 			wallet = await this.verifySignature({ address, signature })
-			meemIdentificationId = wallet.MeemIdentificationId ?? ''
-		}
-		if (twitterAccessToken && twitterAccessSecret) {
-			const user = await services.twitter.getUser({
-				accessToken: twitterAccessToken,
-				accessSecret: twitterAccessSecret
-			})
-			const twitter = await orm.models.Twitter.findOne({
-				where: {
-					twitterId: user.id_str
-				}
-			})
-			if (!twitter?.MeemIdentificationId) {
-				throw new Error('MEEM_ID_TWITTER_NOT_CONNECTED')
-			}
-
-			meemIdentificationId = twitter.MeemIdentificationId
 		}
 
-		const meemId =
-			meemIdentificationId !== ''
-				? await this.getMeemId({ meemIdentificationId })
-				: null
-
-		if (!meemId && !wallet) {
+		if (!wallet) {
 			throw new Error('LOGIN_FAILED')
 		}
 
 		return {
-			meemId,
 			jwt: this.generateJWT({
-				meemId: meemIdentificationId,
 				walletAddress: wallet?.address ?? ''
 			})
 		}
@@ -118,7 +87,7 @@ export default class MeemIdService {
 		const ethers = services.ethers.getInstance()
 		const { address, signature } = options
 
-		const wallet = await orm.models.Wallet.findByAddress(address)
+		const wallet = await orm.models.Wallet.findByAddress<Wallet>(address)
 
 		if (!wallet || !wallet.nonce) {
 			throw new Error('WALLET_NOT_FOUND')
@@ -361,13 +330,12 @@ export default class MeemIdService {
 	}
 
 	public static generateJWT(options: {
-		meemId: string
 		walletAddress: string
 		/** Additional data to encode in the JWT. Do not store sensitive information here. */
 		data?: Record<string, any>
 		expiresIn?: number
 	}) {
-		const { meemId, walletAddress, expiresIn, data } = options
+		const { walletAddress, expiresIn, data } = options
 
 		let exp = config.JWT_EXPIRES_IN
 		if (expiresIn && +expiresIn > 0) {
@@ -376,7 +344,6 @@ export default class MeemIdService {
 		const token = jsonwebtoken.sign(
 			{
 				...data,
-				meemId,
 				walletAddress
 			},
 			config.JWT_SECRET,
