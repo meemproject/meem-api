@@ -55,7 +55,14 @@ export default class MeemContractService {
 		clubContractAddress: string
 		admins: string[]
 	}): Promise<string> {
-		const { name, description, admins, clubContractAddress } = options
+		const {
+			name,
+			description,
+			admins: clubAdmins,
+			clubContractAddress
+		} = options
+
+		const admins = clubAdmins.map(a => a.toLowerCase())
 
 		const imagePath = path.resolve(process.cwd(), 'src/lib/meem-badge.png')
 
@@ -65,6 +72,8 @@ export default class MeemContractService {
 		const provider = await services.ethers.getProvider()
 
 		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+
+		admins.push(wallet.address.toLowerCase())
 
 		const contract = await meemContracts.deployProxy({
 			signer: wallet

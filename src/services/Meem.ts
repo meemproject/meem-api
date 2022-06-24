@@ -1,5 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import * as path from 'path'
+import { Chain, UriSource } from '@meemproject/meem-contracts'
+import * as meemContracts from '@meemproject/meem-contracts'
 import {
 	Meem,
 	MeemPermissionStructOutput,
@@ -145,6 +147,7 @@ export default class MeemService {
 	public static async getMeemContract(options?: {
 		address?: string
 		walletPrivateKey?: string
+		chain?: Chain
 	}) {
 		const ethers = services.ethers.getInstance()
 		const address = options?.address || config.MEEM_PROXY_ADDRESS
@@ -164,7 +167,12 @@ export default class MeemService {
 			walletPrivateKey = config.HARDHAT_MEEM_CONTRACT_WALLET
 		}
 
-		const provider = await services.ethers.getProvider()
+		const networkName = MeemAPI.chainToNetworkName(options?.chain ?? 1)
+		log.debug('NETWORK NAME', networkName)
+
+		const provider = await services.ethers.getProvider({
+			networkName: MeemAPI.chainToNetworkName(options?.chain ?? 1)
+		})
 
 		const wallet = new ethers.Wallet(walletPrivateKey, provider)
 
@@ -544,6 +552,164 @@ export default class MeemService {
 		}
 	}
 
+	/** Mint a Meem */
+	public static async mintOriginalMeem(
+		data: MeemAPI.v1.MintOriginalMeem.IRequestBody
+	) {
+		// TODO: 🚨 Verify wallet address has minting priveleges
+
+		try {
+			if (!data.meemContractAddress) {
+				throw new Error('MISSING_CONTRACT_ADDRESS')
+			}
+
+			if (_.isUndefined(data.chain)) {
+				throw new Error('MISSING_CHAIN_ID')
+			}
+
+			if (!data.accountAddress) {
+				throw new Error('MISSING_ACCOUNT_ADDRESS')
+			}
+
+			if (!data.metadata) {
+				// TODO: Parse metadata and verify
+				throw new Error('MISSING_METADATA')
+			}
+
+			// const isAccessAllowed = await this.isAccessAllowed({
+			// 	chain: data.chain,
+			// 	accountAddress: data.accountAddress,
+			// 	contractAddress: data.tokenAddress
+			// })
+
+			// if (!isAccessAllowed && !config.TESTING) {
+			// 	throw new Error('MINTING_ACCESS_DENIED')
+			// }
+
+			// TODO: Remove redundant check and rely only on access?
+			// const isValidMeemProject = await this.isValidMeemProject({
+			// 	chain: data.chain,
+			// 	contractAddress: data.tokenAddress
+			// })
+
+			// if (!isValidMeemProject) {
+			// 	throw new Error('INVALID_MEEM_PROJECT')
+			// }
+
+			const meemContract = await this.getMeemContract({
+				address: data.meemContractAddress.toLowerCase(),
+				chain: data.chain ?? 1
+			})
+
+			let { recommendedGwei } = await services.web3.getGasEstimate({
+				chain: MeemAPI.networkNameToChain(config.NETWORK)
+			})
+
+			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
+				// throw new Error('GAS_PRICE_TOO_HIGH')
+				log.warn(`Recommended fee over max: ${recommendedGwei}`)
+				recommendedGwei = config.MAX_GAS_PRICE_GWEI
+			}
+
+			const tokenURI = _.isString(data.metadata)
+				? data.metadata
+				: JSON.stringify(data.metadata ?? {})
+
+			const mintParams: Parameters<Meem['mint']> = [
+				{
+					to: data.accountAddress.toLowerCase(),
+					tokenURI,
+					parentChain: data.chain,
+					parent: MeemAPI.zeroAddress,
+					parentTokenId: 0,
+					meemType: MeemAPI.MeemType.Original,
+					// data: '',
+					isURILocked: false,
+					uriSource: UriSource.Json,
+					reactionTypes: ['upvote', 'downvote', 'heart'],
+					mintedBy: data.accountAddress.toLowerCase()
+				},
+				data.properties
+					? this.propertiesToMeemPropertiesStruct(
+							this.buildProperties(data.properties)
+					  )
+					: meemContracts.defaultMeemProperties,
+				data.childProperties
+					? this.propertiesToMeemPropertiesStruct(
+							this.buildProperties({
+								...data.childProperties,
+								totalCopies: services.web3
+									.toBigNumber(data.childProperties?.totalCopies ?? 0)
+									.toHexString(),
+								splits: data.childProperties?.splits ?? data.properties?.splits
+							})
+					  )
+					: meemContracts.defaultMeemProperties,
+				{
+					gasLimit: config.MINT_GAS_LIMIT,
+					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+				}
+			]
+
+			log.debug('Minting meem w/ params', { mintParams })
+
+			const mintTx = await meemContract.mint(...mintParams)
+
+			log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
+
+			const receipt = await mintTx.wait()
+
+			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
+
+			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
+				const tokenId = (transferEvent.args[2] as Ethers.BigNumber).toNumber()
+				const returnData = {
+					toAddress: data.accountAddress.toLowerCase(),
+					tokenURI: 'TODO: tokenURI is base64 encoded JSON',
+					tokenId,
+					transactionHash: receipt.transactionHash
+				}
+				await sockets?.emit({
+					subscription: MeemAPI.MeemEvent.MeemMinted,
+					eventName: MeemAPI.MeemEvent.MeemMinted,
+					data: returnData
+				})
+
+				return returnData
+			}
+
+			throw new Error('TRANSFER_EVENT_NOT_FOUND')
+		} catch (e) {
+			const err = e as any
+
+			log.warn(err)
+
+			if (err.error?.error?.body) {
+				let errStr = 'UNKNOWN_CONTRACT_ERROR'
+				try {
+					const body = JSON.parse(err.error.error.body)
+					log.warn(body)
+					const inter = services.meem.meemInterface()
+					const errInfo = inter.parseError(body.error.data)
+					errStr = errorcodeToErrorString(errInfo.name)
+				} catch (parseError) {
+					// Unable to parse
+					return genericError()
+				}
+				const error = handleStringErrorKey(errStr)
+				await sockets?.emitError(error, data.accountAddress)
+				throw new Error(errStr)
+			}
+			if (err.message) {
+				const error = handleStringErrorKey(err.message)
+				await sockets?.emitError(error, data.accountAddress)
+				throw new Error(err.message)
+			}
+			await sockets?.emitError(errors.SERVER_ERROR, data.accountAddress)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
 	public static async createMeemProject(options: {
 		name: string
 		description: string
@@ -651,8 +817,6 @@ export default class MeemService {
 
 		log.debug(`Finished minting: ${receipt.transactionHash}`)
 	}
-
-	// TODO: Add mintOriginalMeem method
 
 	public static async isValidMeemProject(options: {
 		chain: MeemAPI.Chain

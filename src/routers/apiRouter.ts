@@ -62,6 +62,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/clippings', MeemController.getClippings)
 	router.postAsync('/clippings/status', MeemController.checkClippingStatus)
 	router.postAsync('/meems/mint', MeemController.mintWrappedMeem)
+	router.postAsync('/meems/mintOriginal', MeemController.mintOriginalMeem)
 	router.postAsync('/meems/claim/:tokenId', MeemController.claimMeem)
 	router.postAsync('/meems/create-image', MeemController.createMeemImage)
 	router.postAsync('/meems/getWrappedTokens', MeemController.getWrappedTokens)
