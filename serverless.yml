@@ -81,6 +81,7 @@ provider:
     IPFS_CONTENT_GATEWAY_URL: ${env:IPFS_CONTENT_GATEWAY_URL, 'https://ipfs.moralis.io:2053'}
     PINATA_API_KEY: ${env:PINATA_API_KEY, ''}
     PINATA_API_SECRET: ${env:PINATA_API_SECRET, ''}
+    CHAIN_ID: ${env:CHAIN_ID, '4'}
 
 package:
   excludeDevDependencies: true
