@@ -1,3 +1,5 @@
+import Bundle from '../models/Bundle'
+import BundleContract from '../models/BundleContract'
 import Clipping from '../models/Clipping'
 import Contract from '../models/Contract'
 import ContractInstance from '../models/ContractInstance'
@@ -20,6 +22,8 @@ import Wallet from '../models/Wallet'
 import WalletContractInstance from '../models/WalletContractInstance'
 
 export interface IModels {
+	Bundle: typeof Bundle
+	BundleContract: typeof BundleContract
 	Clipping: typeof Clipping
 	Contract: typeof Contract
 	ContractInstance: typeof ContractInstance

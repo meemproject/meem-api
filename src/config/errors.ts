@@ -380,6 +380,18 @@ const errors = {
 			'Slug format is invalid. Please make sure there are no spaces and characters are all lowercase.',
 		friendlyReason:
 			'Slug format is invalid. Please make sure there are no spaces and characters are all lowercase.'
+	},
+	BUNDLE_NOT_FOUND: {
+		httpCode: 404,
+		status: 'failure',
+		reason: 'The bundle was not found',
+		friendlyReason: 'The bundle was not found'
+	},
+	BUNDLE_ALREADY_EXISTS: {
+		httpCode: 400,
+		status: 'failure',
+		reason: 'A bundle with the same facets already exists',
+		friendlyReason: 'A bundle with the same facets already exists'
 	}
 }
 

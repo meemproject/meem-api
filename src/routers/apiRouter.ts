@@ -110,6 +110,18 @@ export default (app: Express, _express: typeof coreExpress) => {
 		ContractController.updateWalletContractInstance
 	)
 
+	router.postAsync(
+		'/bundles',
+		userLoggedInPolicy,
+		ContractController.createBundle
+	)
+
+	router.putAsync(
+		'/bundles/:bundleId',
+		userLoggedInPolicy,
+		ContractController.updateBundle
+	)
+
 	router.postAsync('/generateTypes', TypesController.generateTypes)
 
 	if (config.ENABLE_TEST_ENDPOINTS) {
