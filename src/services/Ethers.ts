@@ -4,7 +4,6 @@
 import type { ethers as Ethers } from 'ethers'
 import { chains } from '../lib/chains'
 import { ReconnectingWebSocketProvider } from '../lib/ReconnectingWebsocketProvider'
-import { MeemAPI } from '../types/meem.generated'
 
 export default class EthersService {
 	public static shouldInitialize = true

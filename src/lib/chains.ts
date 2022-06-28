@@ -1,3 +1,4 @@
+/* eslint-disable */
 export const chains = [
 	{
 		name: 'Ethereum Mainnet',
