@@ -1,10 +1,10 @@
 import { Op, DataTypes } from 'sequelize'
-import { BaseModel } from '../core/BaseModel'
+import ModelWithAddress from '../core/ModelWithAddress'
 import type { IModels } from '../types/models'
 import type MeemContractWallet from './MeemContractWallet'
 import type MeemIdentification from './MeemIdentification'
 
-export default class Wallet extends BaseModel<Wallet> {
+export default class Wallet extends ModelWithAddress<Wallet> {
 	public static readonly modelName = 'Wallet'
 
 	public static get indexes() {
@@ -29,6 +29,27 @@ export default class Wallet extends BaseModel<Wallet> {
 			allowNull: false,
 			defaultValue: false
 		}
+	}
+
+	public id!: string
+
+	public address!: string
+
+	public nonce!: string | null
+
+	public isDefault!: boolean
+
+	public MeemIdentification!: MeemIdentification | null
+
+	public MeemIdentificationId!: string | null
+
+	public MeemContractWalletId!: string | null
+
+	public MeemContractWallets!: MeemContractWallet[]
+
+	public static associate(models: IModels) {
+		this.belongsTo(models.MeemIdentification)
+		this.hasMany(models.MeemContractWallet)
 	}
 
 	public static async findAllBy(options: {
@@ -63,35 +84,16 @@ export default class Wallet extends BaseModel<Wallet> {
 		return result
 	}
 
-	public static async findByAddress(address: string) {
-		const result = await orm.models.Wallet.findOne({
-			where: orm.sequelize.where(
-				orm.sequelize.fn('lower', orm.sequelize.col('address')),
-				address.toLowerCase()
-			)
-		})
+	public static async findOrCreate(options: { address: string }) {
+		const { address } = options
+		let wallet = await this.findByAddress(address)
 
-		return result
-	}
+		if (!wallet) {
+			wallet = await this.create({
+				address
+			})
+		}
 
-	public id!: string
-
-	public address!: string
-
-	public nonce!: string | null
-
-	public isDefault!: boolean
-
-	public MeemIdentification!: MeemIdentification | null
-
-	public MeemIdentificationId!: string | null
-
-	public MeemContractWalletId!: string | null
-
-	public MeemContractWallets!: MeemContractWallet[]
-
-	public static associate(models: IModels) {
-		this.belongsTo(models.MeemIdentification)
-		this.hasMany(models.MeemContractWallet)
+		return wallet as Wallet
 	}
 }

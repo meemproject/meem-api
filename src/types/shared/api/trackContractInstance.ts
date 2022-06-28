@@ -1,20 +1,28 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemId } from '../meem.shared'
+import {
+	Chain,
+	IMeemPermission,
+	IMeemSplit,
+	IMeemProperties,
+	ContractType
+} from '../meem.shared'
 
-export namespace GetMe {
+export namespace TrackContractInstance {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/me`
+	export const path = () => `/api/1.0/contractInstances`
 
-	export const method = HttpMethod.Get
+	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
-	export interface IRequestBody {}
+	export interface IRequestBody {
+		address: string
+		chainId: number
+	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		walletId: string
-		address: string
+		status: 'success'
 	}
 
 	export interface IDefinition {

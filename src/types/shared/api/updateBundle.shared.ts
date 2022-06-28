@@ -1,20 +1,25 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemId } from '../meem.shared'
 
-export namespace GetMe {
-	export interface IPathParams {}
+export namespace UpdateBundle {
+	export interface IPathParams {
+		bundleId: string
+	}
 
-	export const path = () => `/api/1.0/me`
+	export const path = (options: IPathParams) =>
+		`/api/1.0/bundles/${options.bundleId}`
 
-	export const method = HttpMethod.Get
+	export const method = HttpMethod.Put
 
 	export interface IQueryParams {}
 
-	export interface IRequestBody {}
+	export interface IRequestBody {
+		name: string
+		description: string
+		contractIds: string[]
+	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		walletId: string
-		address: string
+		status: 'success'
 	}
 
 	export interface IDefinition {

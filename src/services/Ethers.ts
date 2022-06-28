@@ -2,8 +2,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable import/no-extraneous-dependencies */
 import type { ethers as Ethers } from 'ethers'
+import { chains } from '../lib/chains'
 import { ReconnectingWebSocketProvider } from '../lib/ReconnectingWebsocketProvider'
-import { MeemAPI } from '../types/meem.generated'
 
 export default class EthersService {
 	public static shouldInitialize = true
@@ -23,18 +23,20 @@ export default class EthersService {
 		return this.ethers
 	}
 
-	public async getProvider(options?: { networkName?: MeemAPI.NetworkName }) {
+	public async getProvider(options?: { chainId?: number }) {
 		const { ethers } = await (config.TESTING
 			? import('hardhat')
 			: import('ethers'))
-		const networkName = options?.networkName ?? config.NETWORK
+
+		const chainId = options?.chainId ?? config.CHAIN_ID
+
 		let provider: Ethers.providers.Provider
-		switch (networkName) {
-			case MeemAPI.NetworkName.Mainnet:
+		switch (chainId) {
+			case 1:
 				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_MAINNET)
 				break
 
-			case MeemAPI.NetworkName.Rinkeby:
+			case 4:
 				// provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_RINKEBY)
 				provider = new ReconnectingWebSocketProvider(
 					config.WS_RPC_RINKEBY,
@@ -42,17 +44,31 @@ export default class EthersService {
 				)
 				break
 
-			case MeemAPI.NetworkName.Polygon:
+			case 137:
 				// provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_POLYGON)
 				provider = new ReconnectingWebSocketProvider(config.WS_RPC_POLYGON, 137)
 				break
 
-			case MeemAPI.NetworkName.Hardhat:
+			case 31337:
 				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_HARDHAT)
 				break
 
-			default:
-				throw new Error('INVALID_NETWORK')
+			default: {
+				const chain = chains.find(c => c.chainId === options?.chainId)
+
+				if (!chain) {
+					throw new Error('INVALID_NETWORK')
+				}
+				const wsRPCUrl = chain.rpc.find(r => /^wss/.test(r))
+				if (wsRPCUrl) {
+					provider = new ReconnectingWebSocketProvider(wsRPCUrl, chain.chainId)
+				} else {
+					provider = new ethers.providers.JsonRpcProvider(
+						chain.rpc[0],
+						chain.chainId
+					)
+				}
+			}
 		}
 
 		return provider

@@ -1,24 +1,32 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import {
+	Chain,
+	IMeemPermission,
+	IMeemSplit,
+	IMeemProperties,
+	ContractType
+} from '../meem.shared'
 
-export namespace Login {
+export namespace CreateContract {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/login`
+	export const path = () => `/api/1.0/contracts`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Login w/ wallet. Both address and signature must be provided */
-		address?: string
-		/** Login w/ wallet. Both address and signature must be provided */
-		signature?: string
+		name: string
+		description: string
+		contractType: ContractType
+		functionSelectors: string[]
+		abi: any[]
+		bytecode: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** JWT that can be used for future authentication */
-		jwt: string
+		status: 'success'
 	}
 
 	export interface IDefinition {
