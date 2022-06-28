@@ -1,4 +1,5 @@
 import path from 'path'
+import { MeemAPI } from '../types/meem.generated'
 import errors from './errors'
 
 // eslint-disable-next-line
@@ -76,7 +77,9 @@ export default {
 	APP_AWS_ACCESS_KEY_ID: process.env.APP_AWS_ACCESS_KEY_ID ?? '',
 	APP_AWS_SECRET_ACCESS_KEY: process.env.APP_AWS_SECRET_ACCESS_KEY ?? '',
 	CHAIN_ID: process.env.CHAIN_ID ? +process.env.CHAIN_ID : 4,
-	NETWORK: process.env.NETWORK ? process.env.NETWORK : '',
+	NETWORK: process.env.NETWORK
+		? (process.env.NETWORK as MeemAPI.NetworkName)
+		: ('' as MeemAPI.NetworkName),
 	WALLET_PRIVATE_KEY: process.env.WALLET_PRIVATE_KEY ?? '',
 	TWITTER_WALLET_PRIVATE_KEY: process.env.TWITTER_WALLET_PRIVATE_KEY ?? '',
 	MEEM_PROXY_ADDRESS: process.env.MEEM_PROXY_ADDRESS ?? '',
