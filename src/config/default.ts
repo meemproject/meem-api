@@ -1,5 +1,4 @@
 import path from 'path'
-import { MeemAPI } from '../types/meem.generated'
 import errors from './errors'
 
 // eslint-disable-next-line

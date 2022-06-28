@@ -2,6 +2,7 @@ import os from 'os'
 import path from 'path'
 import { Request, Response } from 'express'
 import fs from 'fs-extra'
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { runTypeChain } from 'typechain'
 import { v4 as uuidv4 } from 'uuid'
 
