@@ -3,7 +3,7 @@ import path from 'path'
 import { Request, Response } from 'express'
 import fs from 'fs-extra'
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { runTypeChain } from 'typechain'
+// import { runTypeChain } from 'typechain'
 import { v4 as uuidv4 } from 'uuid'
 
 export default class TypesController {
@@ -23,13 +23,13 @@ export default class TypesController {
 
 		log.debug(`Created temp abi at: ${tmpFile}`)
 
-		await runTypeChain({
-			cwd: process.cwd(),
-			filesToProcess: [tmpFile],
-			allFiles: [tmpFile],
-			target: 'ethers-v5',
-			outDir
-		})
+		// await runTypeChain({
+		// 	cwd: process.cwd(),
+		// 	filesToProcess: [tmpFile],
+		// 	allFiles: [tmpFile],
+		// 	target: 'ethers-v5',
+		// 	outDir
+		// })
 		log.debug(`Wrote types to: ${outDir}`)
 
 		return res.json({
