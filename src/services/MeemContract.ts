@@ -4,6 +4,7 @@ import * as meemContracts from '@meemproject/meem-contracts'
 import { Chain, Permission } from '@meemproject/meem-contracts'
 import { ethers } from 'ethers'
 import fs from 'fs-extra'
+import _ from 'lodash'
 import slug from 'slug'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -51,23 +52,12 @@ export default class MeemContractService {
 
 	public static async createMeemContract(options: {
 		name: string
-		description: string
-		clubContractAddress: string
+		metadata: MeemAPI.IMeemContractMetadata
 		admins: string[]
 	}): Promise<string> {
-		const {
-			name,
-			description,
-			admins: clubAdmins,
-			clubContractAddress
-		} = options
+		const { name, admins: clubAdmins, metadata } = options
 
 		const admins = clubAdmins.map(a => a.toLowerCase())
-
-		const imagePath = path.resolve(process.cwd(), 'src/lib/meem-badge.png')
-
-		const image = await fs.readFile(imagePath)
-		const imageBase64 = image.toString('base64')
 
 		const provider = await services.ethers.getProvider()
 
@@ -92,18 +82,19 @@ export default class MeemContractService {
 		// TODO: Does each new (official) contract type have a model in our database?
 		// TODO: Verify club exists before storing address in metadata?
 
-		const contractMetadata = {
-			meem_contract_type: 'mags',
-			version: '1.0.0',
-			spec: 'meem-1.0.0',
-			name,
-			description,
-			external_url: '',
-			image: imageBase64,
-			club_contract_address: clubContractAddress
+		// TODO: Pass type-safe data in for contract types
+		// TODO: 🚨 Parse/validate metadata
+
+		let isValidMetadata = false
+
+		isValidMetadata =
+			!!metadata.meem_contract_type && !!metadata.spec && !!metadata.version
+
+		if (!isValidMetadata) {
+			throw new Error('INVALID_PARAMETERS')
 		}
 
-		const uri = JSON.stringify(contractMetadata)
+		const uri = JSON.stringify(metadata)
 
 		const baseProperties = {
 			// Total # of tokens available. -1 means unlimited.

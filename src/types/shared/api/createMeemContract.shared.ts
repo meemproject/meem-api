@@ -1,3 +1,4 @@
+import { MeemAPI } from '../../meem.generated'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
 /** Create Meem Image */
@@ -11,9 +12,11 @@ export namespace CreateMeemContract {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		clubContractAddress: string
 		name: string
-		description: string
+
+		/** JSON (or stringified) metadata object to be used for the minted Meem */
+		metadata: MeemAPI.IMeemContractMetadata
+
 		admins: string[]
 	}
 

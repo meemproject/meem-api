@@ -1,4 +1,6 @@
 import Clipping from '../models/Clipping'
+import ClubMeem from '../models/clubs/ClubMeem'
+import ClubMeemContract from '../models/clubs/ClubMeemContract'
 import Hashtag from '../models/Hashtag'
 import Integration from '../models/Integration'
 import Meem from '../models/Meem'
@@ -34,6 +36,10 @@ export interface IModels {
 	Twitter: typeof Twitter
 	Wallet: typeof Wallet
 	Prompt: typeof Prompt
+	Clubs: {
+		ClubMeem: typeof ClubMeem
+		ClubMeemContract: typeof ClubMeemContract
+	}
 }
 
 export type AppModel = IModels[keyof IModels]

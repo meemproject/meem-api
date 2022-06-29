@@ -203,6 +203,9 @@ export default class ContractEvent {
 
 		let contractInfo: ContractInfoStructOutput
 
+		// TODO: Parse metadata and create database models for contract type (Check if exist first)
+		// TODO: Parse associations from metadata and create database associations (Check if exist first)
+
 		try {
 			contractInfo = await meemContract.getContractInfo()
 		} catch (e) {
@@ -228,9 +231,9 @@ export default class ContractEvent {
 
 		let slug = existingMeemContract?.slug
 
-		const metadata = await services.meem.getErc721Metadata(
+		const metadata = (await services.meem.getErc721Metadata(
 			contractInfo.contractURI
-		)
+		)) as MeemAPI.IMeemContractMetadata
 
 		const propertiesData = this.meemPropertiesDataToModelData(
 			contractInfo.defaultProperties
@@ -324,6 +327,11 @@ export default class ContractEvent {
 		} else {
 			theMeemContract = await existingMeemContract.update(meemContractData)
 		}
+
+		await this.parseMeemContractMetadata({
+			meemContract: theMeemContract,
+			metadata
+		})
 
 		const adminRole = await meemContract.ADMIN_ROLE()
 
@@ -440,6 +448,41 @@ export default class ContractEvent {
 		await t.commit()
 
 		return theMeemContract
+	}
+
+	public static async parseMeemContractMetadata(args: {
+		meemContract: MeemContract
+		metadata: MeemAPI.IMeemContractMetadata
+	}) {
+		if (!args.metadata.meem_contract_type) {
+			return
+		}
+
+		switch (args.metadata.meem_contract_type) {
+			case 'clubs': {
+				const existingClubMeemContract =
+					await orm.models.Clubs.ClubMeemContract.findOne({
+						where: {
+							MeemContractId: args.meemContract.id
+						}
+					})
+
+				if (existingClubMeemContract) {
+					await existingClubMeemContract.update({
+						slug: args.meemContract.slug,
+						metadata: args.metadata
+					})
+				} else {
+					await orm.models.Clubs.ClubMeemContract.create({
+						slug: args.meemContract.slug,
+						metadata: args.metadata,
+						MeemContractId: args.meemContract.id
+					})
+				}
+				break
+			}
+			default:
+		}
 	}
 
 	public static async meemHandleTotalCopiesSet(args: {

@@ -259,15 +259,50 @@ export interface IMeemMetadataProperties {
 	parent_token_metadata?: Record<string, any> | null
 }
 
+// TODO: Deprecate this
 export interface IMeemMetadata {
 	name: string
 	description: string
 	external_url: string
 	image: string
-	image_original: string
-	meem_id: string
+	image_original?: string
+	meem_id?: string
 	meem_properties?: IMeemMetadataProperties
 	extension_properties?: Record<string, any>
+	associations?: {
+		meem_contracts: {
+			[address: string]: {
+				tokens: {
+					[tokenId: string]: any
+				}
+			}
+		}
+	}
+}
+
+export type IMeemContractType = 'clubs' | 'mags_content' | 'mags_publication'
+
+export interface IMeemContractMetadata {
+	meem_contract_type: IMeemContractType
+	version: string
+	spec: string
+	name: string
+	description: string
+	image: string
+	associations?: {
+		meem_contracts: {
+			[address: string]: any
+		}
+	}
+}
+
+export interface IMeemContractMetadata {
+	meem_contract_type: IMeemContractType
+	version: string
+	spec: string
+	name: string
+	description: string
+	image: string
 }
 
 export enum OpenSeaDisplayType {
@@ -642,9 +677,11 @@ export namespace CreateMeemContract {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		clubContractAddress: string
 		name: string
-		description: string
+
+		/** JSON (or stringified) metadata object to be used for the minted Meem */
+		metadata: MeemAPI.IMeemContractMetadata
+
 		admins: string[]
 	}
 
