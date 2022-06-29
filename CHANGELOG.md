@@ -1,3 +1,10 @@
+## [1.5.4](https://github.com/meemproject/meem-api-aws/compare/v1.5.3...v1.5.4) (2022-06-09)
+
+
+### Bug Fixes
+
+* reconnect websocket provider ([f27f1bf](https://github.com/meemproject/meem-api-aws/commit/f27f1bf))
+
 ## [1.5.3](https://github.com/meemproject/meem-api-aws/compare/v1.5.2...v1.5.3) (2022-06-07)
 
 ## [1.5.2](https://github.com/meemproject/meem-api-aws/compare/v1.5.1...v1.5.2) (2022-06-07)

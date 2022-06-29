@@ -13,6 +13,7 @@ export default class MeemContractService {
 		baseSlug: string,
 		depth?: number
 	): Promise<string> {
+		// TODO: 🚨 Figure out what to do with slugs. Do all contract types need slugs?
 		const theSlug = slug(baseSlug, { lower: true })
 
 		try {

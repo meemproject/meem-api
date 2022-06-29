@@ -328,11 +328,6 @@ export default class ContractEvent {
 			theMeemContract = await existingMeemContract.update(meemContractData)
 		}
 
-		await this.parseMeemContractMetadata({
-			meemContract: theMeemContract,
-			metadata
-		})
-
 		const adminRole = await meemContract.ADMIN_ROLE()
 
 		let admins: string[] = []
@@ -448,41 +443,6 @@ export default class ContractEvent {
 		await t.commit()
 
 		return theMeemContract
-	}
-
-	public static async parseMeemContractMetadata(args: {
-		meemContract: MeemContract
-		metadata: MeemAPI.IMeemContractMetadata
-	}) {
-		if (!args.metadata.meem_contract_type) {
-			return
-		}
-
-		switch (args.metadata.meem_contract_type) {
-			case 'clubs': {
-				const existingClubMeemContract =
-					await orm.models.Clubs.ClubMeemContract.findOne({
-						where: {
-							MeemContractId: args.meemContract.id
-						}
-					})
-
-				if (existingClubMeemContract) {
-					await existingClubMeemContract.update({
-						slug: args.meemContract.slug,
-						metadata: args.metadata
-					})
-				} else {
-					await orm.models.Clubs.ClubMeemContract.create({
-						slug: args.meemContract.slug,
-						metadata: args.metadata,
-						MeemContractId: args.meemContract.id
-					})
-				}
-				break
-			}
-			default:
-		}
 	}
 
 	public static async meemHandleTotalCopiesSet(args: {

@@ -108,9 +108,7 @@ export default class Web3 {
 				date: DateTime.now().toString()
 			})
 
-			const provider = await services.ethers.getProvider({
-				networkName: MeemAPI.chainToNetworkName(chain)
-			})
+			const provider = await services.ethers.getProvider()
 
 			const lastBlock = await provider.getBlockWithTransactions(blockInfo.block)
 

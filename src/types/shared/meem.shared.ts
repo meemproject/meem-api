@@ -225,7 +225,11 @@ export interface IMeemMetadata {
 	}
 }
 
-export type IMeemContractType = 'clubs' | 'mags_content' | 'mags_publication'
+export type IMeemContractType =
+	| 'meem'
+	| 'meem-club'
+	| 'meem-post'
+	| 'meem-publication'
 
 export interface IMeemContractMetadata {
 	meem_contract_type: IMeemContractType
@@ -541,3 +545,9 @@ export enum SortOrder {
 }
 
 export const defaultReactionTypes: string[] = ['upvote', 'downvote']
+
+export enum ContractType {
+	Regular = 'regular',
+	DiamondProxy = 'diamondProxy',
+	DiamondFacet = 'diamondFacet'
+}

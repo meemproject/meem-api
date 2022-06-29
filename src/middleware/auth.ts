@@ -13,26 +13,7 @@ export default (app: Express) => {
 		if (jwt) {
 			try {
 				const jwtData = services.meemId.verifyJWT(jwt)
-				if (jwtData.meemId) {
-					const meemId = await orm.models.MeemIdentification.findOne({
-						where: {
-							id: jwtData.meemId
-						},
-						include: [
-							orm.models.Wallet,
-							orm.models.Twitter,
-							orm.models.MeemPass
-						]
-					})
-
-					if (meemId) {
-						req.meemId = meemId
-						if (meemId.Wallets && meemId.Wallets[0]) {
-							// eslint-disable-next-line prefer-destructuring
-							req.wallet = meemId.Wallets[0]
-						}
-					}
-				} else if (jwtData.walletAddress) {
+				if (jwtData.walletAddress) {
 					const wallet = await orm.models.Wallet.findOne({
 						where: {
 							address: jwtData.walletAddress
