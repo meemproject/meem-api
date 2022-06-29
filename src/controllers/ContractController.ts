@@ -9,22 +9,15 @@ export default class ContractController {
 		req: IAuthenticatedRequest<MeemAPI.v1.CreateContract.IDefinition>,
 		res: IResponse<MeemAPI.v1.CreateContract.IResponseBody>
 	): Promise<Response> {
-		const {
-			name,
-			description,
-			contractType,
-			functionSelectors,
-			abi,
-			bytecode
-		} = req.body
+		const functionSelectors = services.ethers.getSelectors(req.body.abi)
 
 		await orm.models.Contract.create({
-			name,
-			description,
-			contractType,
+			name: req.body.name,
+			description: req.body.description,
+			contractType: req.body.contractType,
 			functionSelectors,
-			abi,
-			bytecode: bytecode.replace(/^0x/, '').trim(),
+			abi: req.body.abi,
+			bytecode: req.body.bytecode.replace(/^0x/, '').trim(),
 			CreatorId: req.wallet.id
 		})
 

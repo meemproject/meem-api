@@ -20,7 +20,6 @@ export namespace CreateContract {
 		name: string
 		description: string
 		contractType: ContractType
-		functionSelectors: string[]
 		abi: any[]
 		bytecode: string
 	}

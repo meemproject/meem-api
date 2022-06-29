@@ -73,4 +73,17 @@ export default class EthersService {
 
 		return provider
 	}
+
+	public getSelectors(abi: any[]): string[] {
+		const ethers = this.getInstance()
+
+		const functions = abi.filter(a => a.type === 'function')
+		const abiInterface = new ethers.utils.Interface(abi)
+		const sigHashes: string[] = []
+		functions.forEach(f => {
+			sigHashes.push(abiInterface.getSighash(ethers.utils.Fragment.from(f)))
+		})
+
+		return sigHashes
+	}
 }
