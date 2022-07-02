@@ -1210,6 +1210,7 @@ export default class ContractEvent {
 		})
 
 		log.debug(`Fetching meem from contract: ${tokenId}`)
+
 		// Fetch the meem data and create it
 		const [meemData, tokenURI] = await Promise.all([
 			meemContract.getMeem(tokenId),

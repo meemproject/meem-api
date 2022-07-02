@@ -556,8 +556,6 @@ export default class MeemService {
 	public static async mintOriginalMeem(
 		data: MeemAPI.v1.MintOriginalMeem.IRequestBody
 	) {
-		// TODO: 🚨 Verify wallet address has minting priveleges
-
 		try {
 			if (!data.meemContractAddress) {
 				throw new Error('MISSING_CONTRACT_ADDRESS')
@@ -600,6 +598,15 @@ export default class MeemService {
 				address: data.meemContractAddress.toLowerCase(),
 				chain: data.chain ?? 1
 			})
+
+			const adminRole = await meemContract.ADMIN_ROLE()
+			const admins = await meemContract.getRoles(adminRole)
+
+			const isAdmin = admins.find(a => a === data.accountAddress)
+
+			if (!isAdmin) {
+				throw new Error('NOT_AUTHORIZED')
+			}
 
 			let { recommendedGwei } = await services.web3.getGasEstimate({
 				chain: MeemAPI.networkNameToChain(config.NETWORK)
