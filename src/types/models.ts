@@ -8,6 +8,7 @@ import Integration from '../models/Integration'
 import Meem from '../models/Meem'
 import MeemContract from '../models/MeemContract'
 import MeemContractIntegration from '../models/MeemContractIntegration'
+import MeemContractTwitter from '../models/MeemContractTwitter'
 import MeemContractWallet from '../models/MeemContractWallet'
 import MeemIdentification from '../models/MeemIdentification'
 import MeemPass from '../models/MeemPass'
@@ -32,6 +33,7 @@ export interface IModels {
 	Meem: typeof Meem
 	MeemContract: typeof MeemContract
 	MeemContractIntegration: typeof MeemContractIntegration
+	MeemContractTwitter: typeof MeemContractTwitter
 	MeemContractWallet: typeof MeemContractWallet
 	MeemPass: typeof MeemPass
 	MeemProperties: typeof MeemProperties

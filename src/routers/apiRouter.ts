@@ -7,6 +7,7 @@ import MeemController from '../controllers/MeemController'
 import MeemIdController from '../controllers/MeemIdController'
 // import NFTController from '../controllers/NFTController'
 import TestController from '../controllers/TestController'
+import TweetController from '../controllers/TweetController'
 // import TweetController from '../controllers/TweetController'
 import TypesController from '../controllers/TypesController'
 // import WebhookController from '../controllers/WebhookController'
@@ -79,6 +80,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	// Twitter
 	// router.getAsync('/tweets', TweetController.getTweets)
+	router.postAsync(
+		'/integrations/twitter/verifyMeemContractTwitter',
+		TweetController.verifyMeemContractTwitter
+	)
 
 	imageRouter.postAsync('/meems/create-image', MeemController.createMeemImage)
 

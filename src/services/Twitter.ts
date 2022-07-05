@@ -1,5 +1,6 @@
 import { Meem } from '@meemproject/meem-contracts/dist/types/Meem'
 import type { ethers as Ethers } from 'ethers'
+import _ from 'lodash'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
 import {
@@ -13,8 +14,11 @@ import {
 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import Hashtag from '../models/Hashtag'
+import MeemContract from '../models/MeemContract'
+import MeemContractTwitter from '../models/MeemContractTwitter'
 import Prompt from '../models/Prompt'
 import Tweet from '../models/Tweet'
+import Twitter from '../models/Twitter'
 import { MeemAPI } from '../types/meem.generated'
 
 function errorcodeToErrorString(contractErrorName: string) {
@@ -161,6 +165,93 @@ export default class TwitterService {
 		}
 
 		return tweetUserMeemId
+	}
+
+	public static async verifyMeemContractTwitter(args: {
+		twitterUsername: string
+		meemContract: MeemContract
+	}): Promise<MeemContractTwitter> {
+		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+		const sanitizedUsername = args.twitterUsername.replace(/^@/g, '')
+
+		const twitterUser = await client.v2.userByUsername(sanitizedUsername)
+
+		if (!twitterUser) {
+			log.crit('No Twitter user found for username')
+			throw new Error('SERVER_ERROR')
+		}
+
+		let twitter: Twitter | undefined
+		const existingTwitter = await orm.models.Twitter.findOne({
+			where: {
+				twitterId: twitterUser.data.id
+			}
+		})
+
+		if (!existingTwitter) {
+			twitter = await orm.models.Twitter.create({
+				id: uuidv4(),
+				twitterId: twitterUser.data.id,
+				isDefault: true
+			})
+		} else {
+			twitter = existingTwitter
+		}
+
+		if (!twitter) {
+			log.crit('Twitter not found or created')
+			throw new Error('SERVER_ERROR')
+		}
+
+		const existingMeemContractTwitter =
+			await orm.models.MeemContractTwitter.findOne({
+				where: {
+					MeemContractId: args.meemContract.id,
+					TwitterId: twitter.id
+				}
+			})
+
+		if (existingMeemContractTwitter) {
+			return existingMeemContractTwitter
+		}
+
+		const usersLatestTweets = await client.v2.userTimeline(
+			twitterUser.data.id,
+			{
+				'tweet.fields': ['created_at', 'entities']
+			}
+		)
+
+		// Look for existing Twitter and create if none
+		// Verify user's last tweet contained something (clubs.link/club-slug)?
+		// If verification passes, check for existing MeemContractTwitter and create if none
+
+		const clubsTweet = usersLatestTweets.data.data.find(tweet => {
+			let isClubsTweet = false
+
+			const clubUrl = tweet.entities?.urls?.find(url => {
+				return /clubs\.link/.test(url.expanded_url)
+			})
+
+			if (clubUrl) {
+				const clubSlug = _.last(clubUrl.expanded_url.split('/'))
+				isClubsTweet = clubSlug?.toLowerCase() === args.meemContract.slug
+			}
+
+			return isClubsTweet
+		})
+
+		if (!clubsTweet) {
+			log.crit('Unable to find verification tweet')
+			throw new Error('SERVER_ERROR')
+		}
+
+		const meemContractTwitter = await orm.models.MeemContractTwitter.create({
+			MeemContractId: args.meemContract.id,
+			TwitterId: twitter.id
+		})
+
+		return meemContractTwitter
 	}
 
 	public static async handleMeemReplyTweet(
