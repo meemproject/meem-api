@@ -935,7 +935,7 @@ export default class ContractEvent {
 		const { addy } = args.eventData
 
 		const [wallet, meem] = await Promise.all([
-			orm.models.Wallet.findByAddress(addy) as unknown as Wallet,
+			orm.models.Wallet.findByAddress<Wallet>(addy) as unknown as Wallet | null,
 			orm.models.Meem.findOne({
 				where: {
 					tokenId
@@ -1027,7 +1027,7 @@ export default class ContractEvent {
 					}
 				]
 			}),
-			orm.models.Wallet.findByAddress(addy) as unknown as Wallet
+			orm.models.Wallet.findByAddress<Wallet>(addy)
 		])
 
 		if (!meem) {

@@ -44,7 +44,7 @@ export default class MeemIdService {
 		// Generate a nonce and save it for the wallet
 		const address = options.address.toLowerCase()
 
-		let wallet: Wallet | null = await orm.models.Wallet.findByAddress(address)
+		let wallet = await orm.models.Wallet.findByAddress<Wallet>(address)
 
 		if (!wallet) {
 			wallet = orm.models.Wallet.build({

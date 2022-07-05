@@ -9,6 +9,6 @@ export default class ModelWithAddress<T> extends BaseModel<T> {
 			)
 		})
 
-		return result
+		return result ? (result as unknown as A) : null
 	}
 }

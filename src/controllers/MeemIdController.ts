@@ -2,7 +2,6 @@
 import AWS from 'aws-sdk'
 import { Response } from 'express'
 import { TwitterApi, UserV2 } from 'twitter-api-v2'
-import Twitter from '../models/Twitter'
 import Wallet from '../models/Wallet'
 import { IAPIRequestPaginated, IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
@@ -81,10 +80,8 @@ export default class AuthController {
 			throw new Error('MISSING_PARAMETERS')
 		}
 
-		const item: Wallet | Twitter | null = await (req.query.address
-			? (orm.models.Wallet.findByAddress(
-					req.query.address
-			  ) as unknown as Wallet)
+		const item = await (req.query.address
+			? orm.models.Wallet.findByAddress<Wallet>(req.query.address)
 			: orm.models.Twitter.findOne({
 					where: {
 						twitterId: req.query.twitterId
