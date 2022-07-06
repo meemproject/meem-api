@@ -82,6 +82,7 @@ provider:
     PINATA_API_KEY: ${env:PINATA_API_KEY, ''}
     PINATA_API_SECRET: ${env:PINATA_API_SECRET, ''}
     CHAIN_ID: ${env:CHAIN_ID, '4'}
+    TWITTER_INTEGRATION_ID: ${env:TWITTER_INTEGRATION_ID, ''}
 
 package:
   excludeDevDependencies: true

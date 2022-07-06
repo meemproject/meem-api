@@ -78,13 +78,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/screenshot', MeemController.getScreenshot)
 	}
 
-	// Twitter
-	// router.getAsync('/tweets', TweetController.getTweets)
-	router.postAsync(
-		'/integrations/twitter/verifyMeemContractTwitter',
-		TweetController.verifyMeemContractTwitter
-	)
-
 	imageRouter.postAsync('/meems/create-image', MeemController.createMeemImage)
 
 	imageRouter.postAsync(
