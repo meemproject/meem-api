@@ -84,16 +84,16 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 		return result
 	}
 
-	public static async findOrCreate(options: { address: string }) {
-		const { address } = options
-		let wallet = await this.findByAddress(address)
+	// public static async findOrCreate(options: { address: string }) {
+	// 	const { address } = options
+	// 	let wallet = await this.findByAddress<Wallet>(address)
 
-		if (!wallet) {
-			wallet = await this.create({
-				address
-			})
-		}
+	// 	if (!wallet) {
+	// 		wallet = await this.create({
+	// 			address
+	// 		})
+	// 	}
 
-		return wallet as Wallet
-	}
+	// 	return wallet
+	// }
 }

@@ -138,6 +138,7 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
+		const integrationMetadata = req.body.metadata ?? {}
 		const genericMeemContract = await services.meem.getMeemContract()
 		const adminRole = await genericMeemContract.ADMIN_ROLE()
 		const meemContract = await orm.models.MeemContract.findOne({
@@ -170,41 +171,81 @@ export default class MeemContractController {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		const existingIntegration = meemContract.Integrations.find(
-			i => i.id === req.params.integrationId
-		)
+		const integration = await orm.models.Integration.findOne({
+			where: {
+				id: req.params.integrationId
+			}
+		})
 
-		if (!existingIntegration) {
-			const integration = await orm.models.Integration.findOne({
+		if (!integration) {
+			throw new Error('INTEGRATION_NOT_FOUND')
+		}
+
+		const existingMeemContractIntegration =
+			await orm.models.MeemContractIntegration.findOne({
 				where: {
-					id: req.params.integrationId
+					MeemContractId: meemContract.id,
+					IntegrationId: integration.id
 				}
 			})
 
-			if (!integration) {
-				throw new Error('INTEGRATION_NOT_FOUND')
-			}
+		// Integration Verification
+		// Can allow for third-party endpoint requests to verify information and return custom metadata
+		switch (integration.id) {
+			case config.TWITTER_INTEGRATION_ID: {
+				let twitterUsername = req.body.metadata?.twitterUsername
+					? (req.body.metadata?.twitterUsername as string)
+					: null
+				twitterUsername = twitterUsername?.replace(/^@/g, '').trim() ?? null
+				const integrationError = new Error('INTEGRATION_FAILED')
+				integrationError.message = 'Twitter verification failed.'
 
+				if (
+					existingMeemContractIntegration &&
+					existingMeemContractIntegration.metadata?.isVerified &&
+					(!twitterUsername ||
+						twitterUsername ===
+							existingMeemContractIntegration.metadata?.twitterUsername)
+				) {
+					break
+				}
+
+				if (!twitterUsername) {
+					throw integrationError
+				}
+
+				integrationMetadata.isVerified = false
+
+				const verifiedTwitter =
+					await services.twitter.verifyMeemContractTwitter({
+						twitterUsername,
+						meemContract
+					})
+
+				if (!verifiedTwitter) {
+					throw integrationError
+				}
+
+				integrationMetadata.isVerified = true
+				integrationMetadata.twitterUsername = verifiedTwitter.username
+				integrationMetadata.twitterUserId = verifiedTwitter.id
+				integrationMetadata.externalUrl = `https://twitter.com/${verifiedTwitter.username}`
+
+				break
+			}
+			default:
+				break
+		}
+
+		if (!existingMeemContractIntegration) {
 			await orm.models.MeemContractIntegration.create({
 				MeemContractId: meemContract.id,
 				IntegrationId: integration.id,
 				isEnabled: req.body.isEnabled ?? true,
 				isPublic: req.body.isPublic ?? true,
-				metadata: req.body.metadata ?? {}
+				metadata: integrationMetadata
 			})
 		} else {
-			const existingMeemContractIntegration =
-				await orm.models.MeemContractIntegration.findOne({
-					where: {
-						MeemContractId: meemContract.id,
-						IntegrationId: existingIntegration.id
-					}
-				})
-
-			if (!existingMeemContractIntegration) {
-				throw new Error('INTEGRATION_NOT_FOUND')
-			}
-
 			if (!_.isUndefined(req.body.isEnabled)) {
 				existingMeemContractIntegration.isEnabled = req.body.isEnabled
 			}
@@ -213,9 +254,9 @@ export default class MeemContractController {
 				existingMeemContractIntegration.isPublic = req.body.isPublic
 			}
 
-			if (req.body.metadata) {
+			if (integrationMetadata) {
 				// TODO: Typecheck metadata
-				existingMeemContractIntegration.metadata = req.body.metadata
+				existingMeemContractIntegration.metadata = integrationMetadata
 			}
 
 			await existingMeemContractIntegration.save()
