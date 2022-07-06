@@ -214,6 +214,8 @@ export default class MeemContractController {
 					throw integrationError
 				}
 
+				integrationMetadata.isVerified = false
+
 				const verifiedTwitter =
 					await services.twitter.verifyMeemContractTwitter({
 						twitterUsername,
