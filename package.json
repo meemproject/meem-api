@@ -60,10 +60,11 @@
 	},
 	"dependencies": {
 		"@kengoldfarb/log": "^1.0.3",
-		"@meemproject/meem-contracts": "^0.6.4",
+		"@meemproject/meem-contracts": "0.6.5-pre-8f38b75.0",
 		"@octokit/rest": "^18.12.0",
 		"@pinata/sdk": "^1.1.23",
 		"@ethersproject/abstract-provider": "^5.6.1",
+		"@typechain/ethers-v5": "^8.0.1",
 		"aws-sdk": "^2.1020.0",
 		"bcrypt": "^5.0.1",
 		"bignumber.js": "^9.0.1",
@@ -91,6 +92,7 @@
 		"superagent": "^6",
 		"supertest": "^6.1.6",
 		"twitter-api-v2": "^1.7.0",
+		"typechain": "^6.0.2",
 		"umzug": "^2.3.0",
 		"uuid": "^8.3.2",
 		"ws": "^8.2.3"
@@ -101,7 +103,6 @@
 		"@nomiclabs/hardhat-etherscan": "^3.0.0",
 		"@nomiclabs/hardhat-waffle": "^2.0.2",
 		"@solidstate/contracts": "0.0.27",
-		"@typechain/ethers-v5": "^8.0.1",
 		"@types/aws-lambda": "^8.10.85",
 		"@types/bcrypt": "^5.0.0",
 		"@types/busboy": "^0.3.1",
@@ -154,7 +155,6 @@
 		"sqlite3": "^5.0.2",
 		"ts-node": "^10.4.0",
 		"ts-node-dev": "1.1.8",
-		"typechain": "^6.0.2",
 		"typescript": "^4.4.4"
 	},
 	"optionalDependencies": {

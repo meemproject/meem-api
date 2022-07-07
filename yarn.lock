@@ -1304,10 +1304,10 @@
     semver "^7.3.5"
     tar "^6.1.11"
 
-"@meemproject/meem-contracts@^0.6.4":
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/@meemproject/meem-contracts/-/meem-contracts-0.6.4.tgz#960eb185190d12e924823d054a06507f5ba8f8c8"
-  integrity sha512-n9heOG7qkHe0LxtvJ95xH2bywMSiZFQxW/hMXqargtpdgAo4775mKB368ORMJHAKVcyjkgFIPL6efnvyf7GeiA==
+"@meemproject/meem-contracts@0.6.5-pre-8f38b75.0":
+  version "0.6.5-pre-8f38b75.0"
+  resolved "https://registry.yarnpkg.com/@meemproject/meem-contracts/-/meem-contracts-0.6.5-pre-8f38b75.0.tgz#d27e5c8e7d80b7bb805dd7a3a680cd872a9c9407"
+  integrity sha512-/Vpy531BVwygnl1/Gi/iMuNfWsE2XZr583Hvuil0a1F+ZCQNxshS/NvyKfsgVcOxNG96PWvIetWj9HX1vz30lA==
   dependencies:
     "@kengoldfarb/log" "^1.0.5"
     ethers "^5.6.4"
