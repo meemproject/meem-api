@@ -75,7 +75,7 @@ export default class TypesController {
 				matches?.forEach(m => {
 					const parts = m.match(/import[^;]*{([^;]*)}[^;]*from[^;]*"([^;]*)";/)
 					if (parts && parts[1] && parts[2]) {
-						const vars = parts[1].split(',').map(i => i.trim())
+						const vars = parts[1].split(',').map(p => p.trim())
 						const pkgName = parts[2].trim()
 						if (!/^\./.test(pkgName)) {
 							if (!imports[pkgName]) {
