@@ -82,7 +82,11 @@ export default class MeemService {
 	}) {
 		const ethers = services.ethers.getInstance()
 		const { networkName, address } = options
-		const provider = await services.ethers.getProvider({ networkName })
+		const provider = await services.ethers.getProvider({
+			chainId: MeemAPI.networkNameToChain(
+				networkName ?? MeemAPI.NetworkName.Mainnet
+			)
+		})
 
 		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 

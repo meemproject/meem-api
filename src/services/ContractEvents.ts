@@ -32,6 +32,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { wait } from '../lib/utils'
 import Meem from '../models/Meem'
 import MeemContract from '../models/MeemContract'
+import Wallet from '../models/Wallet'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ContractEvent {
@@ -937,7 +938,7 @@ export default class ContractEvent {
 		const { addy } = args.eventData
 
 		const [wallet, meem] = await Promise.all([
-			orm.models.Wallet.findByAddress(addy),
+			orm.models.Wallet.findByAddress<Wallet>(addy) as unknown as Wallet | null,
 			orm.models.Meem.findOne({
 				where: {
 					tokenId
@@ -1029,7 +1030,7 @@ export default class ContractEvent {
 					}
 				]
 			}),
-			orm.models.Wallet.findByAddress(addy)
+			orm.models.Wallet.findByAddress<Wallet>(addy)
 		])
 
 		if (!meem) {

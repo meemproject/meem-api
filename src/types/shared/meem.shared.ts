@@ -442,6 +442,7 @@ export interface IERC721Metadata {
 
 export interface IMeemContractIntegrationMetadata {
 	externalUrl?: string
+	[key: string]: unknown
 }
 
 export interface INFT {
