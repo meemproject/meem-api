@@ -175,7 +175,7 @@ export default class TwitterService {
 		const twitterUserResult = await client.v2.userByUsername(
 			args.twitterUsername,
 			{
-				'user.fields': ['url']
+				'user.fields': ['id', 'username', 'name', 'profile_image_url']
 			}
 		)
 
