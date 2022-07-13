@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/meemproject/meem-api-aws/compare/v1.5.5...v1.6.0) (2022-07-13)
+
+
+### Features
+
+* epm support ([96e673a](https://github.com/meemproject/meem-api-aws/commit/96e673a))
+
 ## [1.5.5](https://github.com/meemproject/meem-api-aws/compare/v1.5.4...v1.5.5) (2022-06-14)
 
 
