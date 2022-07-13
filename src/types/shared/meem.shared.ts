@@ -372,13 +372,15 @@ export interface IMeemProperties {
 }
 
 export interface IMeemContractBaseProperties {
-	totalOriginalsSupply: number
+	/** BigNumber hex string */
+	totalOriginalsSupply: string
 	totalOriginalsSupplyLockedBy: string
 	mintPermissions: IMeemPermission[]
 	mintPermissionsLockedBy: string
 	splits: IMeemSplit[]
 	splitsLockedBy: string
-	originalsPerWallet: number
+	/** BigNumber hex string */
+	originalsPerWallet: string
 	originalsPerWalletLockedBy: string
 	isTransferrable: boolean
 	isTransferrableLockedBy: string

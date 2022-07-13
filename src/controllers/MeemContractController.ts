@@ -140,13 +140,18 @@ export default class MeemContractController {
 				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
 				region: 'us-east-1'
 			})
-			await lambda
-				.invoke({
-					InvocationType: 'Event',
-					FunctionName: config.LAMBDA_CREATE_CONTRACT_FUNCTION,
-					Payload: JSON.stringify(req.body)
-				})
-				.promise()
+			try {
+				await lambda
+					.invoke({
+						InvocationType: 'Event',
+						FunctionName: config.LAMBDA_CREATE_CONTRACT_FUNCTION,
+						Payload: JSON.stringify(req.body)
+					})
+					.promise()
+			} catch (e) {
+				log.crit(e)
+				throw new Error('SERVER_ERROR')
+			}
 		}
 
 		return res.json({

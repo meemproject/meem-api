@@ -142,6 +142,7 @@ export default class MeemService {
 		walletPrivateKey?: string
 		chain?: Chain
 	}) {
+		const chain = options?.chain ?? MeemAPI.networkNameToChain(config.NETWORK)
 		const ethers = services.ethers.getInstance()
 		const address = options?.address || config.MEEM_PROXY_ADDRESS
 		if (config.TESTING) {
@@ -160,11 +161,11 @@ export default class MeemService {
 			walletPrivateKey = config.HARDHAT_MEEM_CONTRACT_WALLET
 		}
 
-		const networkName = MeemAPI.chainToNetworkName(options?.chain ?? 1)
+		const networkName = MeemAPI.chainToNetworkName(chain)
 		log.debug('NETWORK NAME', networkName)
 
 		const provider = await services.ethers.getProvider({
-			chainId: options?.chain ?? 1
+			chainId: chain
 		})
 
 		const wallet = new ethers.Wallet(walletPrivateKey, provider)
