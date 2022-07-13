@@ -1,11 +1,12 @@
 import * as meemContracts from '@meemproject/meem-contracts'
-import {
-	InitParamsStruct,
-	MeemPropertiesStruct
-} from '@meemproject/meem-contracts/dist/types/Meem'
+import { InitParamsStruct } from '@meemproject/meem-contracts/dist/types/Meem'
 import { BigNumberish } from 'ethers'
-import { MeemAPI } from '../../meem.generated'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import {
+	IMeemProperties,
+	IMeemContractMetadata,
+	IMeemContractBaseProperties
+} from '../meem.shared'
 
 /** Create Meem Image */
 export namespace CreateMeemContract {
@@ -25,27 +26,29 @@ export namespace CreateMeemContract {
 		admins: string[]
 
 		/** Contract metadata */
-		metadata: MeemAPI.IMeemContractMetadata
+		metadata: IMeemContractMetadata
 
 		/** Symbol for the contract */
 		symbol: string
 
 		/** Contract base properties */
-		baseProperties: InitParamsStruct
+		baseProperties: IMeemContractBaseProperties
 
 		/** Meem default properties */
-		defaultProperties: MeemPropertiesStruct
+		// TODO: Make this a partial
+		defaultProperties?: IMeemProperties
 
 		/** Meem default child properties */
-		defaultChildProperties: MeemPropertiesStruct
+		// TODO: Make this a partial
+		defaultChildProperties?: IMeemProperties
 
 		/** Token ID start */
-		tokenCounterStart: BigNumberish
+		tokenCounterStart: number
 
-		childDepth: BigNumberish
+		childDepth: number
 
 		/** Required non-owner split amount */
-		nonOwnerSplitAllocationAmount: BigNumberish
+		nonOwnerSplitAllocationAmount: number
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

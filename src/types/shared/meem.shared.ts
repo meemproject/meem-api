@@ -371,6 +371,37 @@ export interface IMeemProperties {
 	transferLockupUntilLockedBy: string
 }
 
+export interface IMeemContractBaseProperties {
+	totalOriginalsSupply: number
+	totalOriginalsSupplyLockedBy: string
+	mintPermissions: IMeemPermission[]
+	mintPermissionsLockedBy: string
+	splits: IMeemSplit[]
+	splitsLockedBy: string
+	originalsPerWallet: number
+	originalsPerWalletLockedBy: string
+	isTransferrable: boolean
+	isTransferrableLockedBy: string
+	mintStartAt: number
+	mintEndAt: number
+	mintDatesLockedBy: string
+	transferLockupUntil: number
+	transferLockupUntilLockedBy: string
+}
+
+export interface IMeemContractInitParams {
+	symbol: string
+	name: string
+	contractURI: string
+	baseProperties: IMeemContractBaseProperties
+	defaultProperties: IMeemProperties
+	defaultChildProperties: IMeemProperties
+	admins: string[]
+	tokenCounterStart: number
+	childDepth: number
+	nonOwnerSplitAllocationAmount: number
+}
+
 export interface IMeem {
 	tokenId: string
 	/** Address of the token owner */

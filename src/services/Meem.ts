@@ -707,15 +707,15 @@ export default class MeemService {
 					log.crit('Unable to parse error.')
 				}
 				const error = handleStringErrorKey(errStr)
-				await sockets?.emitError(error, data.accountAddress)
+				await sockets?.emitError(error, data.to)
 				throw new Error(errStr)
 			}
 			if (err.message) {
 				const error = handleStringErrorKey(err.message)
-				await sockets?.emitError(error, data.accountAddress)
+				await sockets?.emitError(error, data.to)
 				throw new Error(err.message)
 			}
-			await sockets?.emitError(errors.SERVER_ERROR, data.accountAddress)
+			await sockets?.emitError(errors.SERVER_ERROR, data.to)
 			throw new Error('SERVER_ERROR')
 		}
 	}

@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import * as meemContracts from '@meemproject/meem-contracts'
 import { Chain, Permission } from '@meemproject/meem-contracts'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import slug from 'slug'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -97,8 +97,8 @@ export default class MeemContractService {
 		contractData.baseProperties.mintPermissions.push({
 			permission: Permission.Addresses,
 			addresses: [wallet.address.toLowerCase()],
-			numTokens: 0,
-			costWei: 0,
+			numTokens: BigNumber.from(0).toHexString(),
+			costWei: BigNumber.from(0).toHexString(),
 			lockedBy: MeemAPI.zeroAddress
 		})
 
@@ -106,6 +106,37 @@ export default class MeemContractService {
 			signer: wallet,
 			proxyContractAddress: contract.address,
 			...contractData,
+			baseProperties: {
+				...contractData.baseProperties,
+				mintStartTimestamp: BigNumber.from(
+					contractData.baseProperties.mintStartAt ?? -1
+				),
+				mintEndTimestamp: BigNumber.from(
+					contractData.baseProperties.mintEndAt ?? -1
+				)
+			},
+			defaultProperties: contractData.defaultProperties
+				? {
+						...contractData.defaultProperties,
+						mintStartTimestamp: BigNumber.from(
+							contractData.defaultProperties.mintStartAt ?? -1
+						),
+						mintEndTimestamp: BigNumber.from(
+							contractData.defaultProperties.mintEndAt ?? -1
+						)
+				  }
+				: meemContracts.defaultMeemProperties,
+			defaultChildProperties: contractData.defaultChildProperties
+				? {
+						...contractData.defaultChildProperties,
+						mintStartTimestamp: BigNumber.from(
+							contractData.defaultChildProperties.mintStartAt ?? -1
+						),
+						mintEndTimestamp: BigNumber.from(
+							contractData.defaultChildProperties.mintEndAt ?? -1
+						)
+				  }
+				: meemContracts.defaultMeemProperties,
 			chain: Chain.Rinkeby,
 			version: 'latest'
 		})

@@ -426,6 +426,37 @@ export interface IMeemProperties {
 	transferLockupUntilLockedBy: string
 }
 
+export interface IMeemContractBaseProperties {
+	totalOriginalsSupply: number
+	totalOriginalsSupplyLockedBy: string
+	mintPermissions: IMeemPermission[]
+	mintPermissionsLockedBy: string
+	splits: IMeemSplit[]
+	splitsLockedBy: string
+	originalsPerWallet: number
+	originalsPerWalletLockedBy: string
+	isTransferrable: boolean
+	isTransferrableLockedBy: string
+	mintStartAt: number
+	mintEndAt: number
+	mintDatesLockedBy: string
+	transferLockupUntil: number
+	transferLockupUntilLockedBy: string
+}
+
+export interface IMeemContractInitParams {
+	symbol: string
+	name: string
+	contractURI: string
+	baseProperties: IMeemContractBaseProperties
+	defaultProperties: IMeemProperties
+	defaultChildProperties: IMeemProperties
+	admins: string[]
+	tokenCounterStart: number
+	childDepth: number
+	nonOwnerSplitAllocationAmount: number
+}
+
 export interface IMeem {
 	tokenId: string
 	/** Address of the token owner */
@@ -750,27 +781,27 @@ export namespace CreateMeemContract {
 		admins: string[]
 
 		/** Contract metadata */
-		metadata: MeemAPI.IMeemContractMetadata
+		metadata: IMeemContractMetadata
 
 		/** Symbol for the contract */
 		symbol: string
 
 		/** Contract base properties */
-		baseProperties: InitParamsStruct
+		baseProperties: IMeemContractBaseProperties
 
 		/** Meem default properties */
-		defaultProperties: MeemPropertiesStruct
+		defaultProperties?: IMeemProperties
 
 		/** Meem default child properties */
-		defaultChildProperties: MeemPropertiesStruct
+		defaultChildProperties?: IMeemProperties
 
 		/** Token ID start */
-		tokenCounterStart: BigNumberish
+		tokenCounterStart: number
 
-		childDepth: BigNumberish
+		childDepth: number
 
 		/** Required non-owner split amount */
-		nonOwnerSplitAllocationAmount: BigNumberish
+		nonOwnerSplitAllocationAmount: number
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
