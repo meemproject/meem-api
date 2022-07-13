@@ -33,7 +33,7 @@ export default (app: Express) => {
 		res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization')
 		res.setHeader(
 			'Access-Control-Allow-Methods',
-			'GET,POST,PUT,PATCH,DELETE,OPTIONS'
+			'GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD'
 		)
 		res.setHeader('Access-Control-Allow-Credentials', 'true')
 

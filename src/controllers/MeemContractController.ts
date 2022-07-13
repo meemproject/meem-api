@@ -252,6 +252,9 @@ export default class MeemContractController {
 
 				integrationMetadata.isVerified = true
 				integrationMetadata.twitterUsername = verifiedTwitter.username
+				integrationMetadata.twitterProfileImageUrl =
+					verifiedTwitter.profile_image_url
+				integrationMetadata.twitterDisplayName = verifiedTwitter.name
 				integrationMetadata.twitterUserId = verifiedTwitter.id
 				integrationMetadata.externalUrl = `https://twitter.com/${verifiedTwitter.username}`
 
