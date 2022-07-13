@@ -790,9 +790,11 @@ export namespace CreateMeemContract {
 		baseProperties: IMeemContractBaseProperties
 
 		/** Meem default properties */
+		// TODO: Make this a partial
 		defaultProperties?: IMeemProperties
 
 		/** Meem default child properties */
+		// TODO: Make this a partial
 		defaultChildProperties?: IMeemProperties
 
 		/** Token ID start */
