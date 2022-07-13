@@ -1,24 +1,58 @@
+import * as meemContracts from '@meemproject/meem-contracts'
+import { InitParamsStruct } from '@meemproject/meem-contracts/dist/types/Meem'
+import { BigNumberish } from 'ethers'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import {
+	IMeemProperties,
+	IMeemContractMetadata,
+	IMeemContractBaseProperties
+} from '../meem.shared'
 
 /** Create Meem Image */
 export namespace CreateMeemContract {
 	export interface IPathParams {}
 
-	export const path = () => `/meemContracts`
+	export const path = () => `/api/1.0/meemContracts`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		clubContractAddress: string
+		/** Name of the contract */
 		name: string
-		description: string
+
+		/** Contract admin wallet addresses */
 		admins: string[]
+
+		/** Contract metadata */
+		metadata: IMeemContractMetadata
+
+		/** Symbol for the contract */
+		symbol: string
+
+		/** Contract base properties */
+		baseProperties: IMeemContractBaseProperties
+
+		/** Meem default properties */
+		// TODO: Make this a partial
+		defaultProperties?: IMeemProperties
+
+		/** Meem default child properties */
+		// TODO: Make this a partial
+		defaultChildProperties?: IMeemProperties
+
+		/** Token ID start */
+		tokenCounterStart: number
+
+		childDepth: number
+
+		/** Required non-owner split amount */
+		nonOwnerSplitAllocationAmount: number
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		address: string
+		status: 'success'
 	}
 
 	export interface IDefinition {

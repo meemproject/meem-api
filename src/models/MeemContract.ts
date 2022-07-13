@@ -179,7 +179,7 @@ export default class MeemContract extends BaseModel<MeemContract> {
 
 	public address!: string
 
-	public metadata!: any
+	public metadata!: MeemAPI.IMeemContractMetadata
 
 	public totalOriginalsSupply!: string
 

@@ -204,6 +204,9 @@ export default class ContractEvent {
 
 		let contractInfo: ContractInfoStructOutput
 
+		// TODO: Parse metadata and create database models for contract type (Check if exist first)
+		// TODO: Parse associations from metadata and create database associations (Check if exist first)
+
 		try {
 			contractInfo = await meemContract.getContractInfo()
 		} catch (e) {
@@ -229,9 +232,9 @@ export default class ContractEvent {
 
 		let slug = existingMeemContract?.slug
 
-		const metadata = await services.meem.getErc721Metadata(
+		const metadata = (await services.meem.getErc721Metadata(
 			contractInfo.contractURI
-		)
+		)) as MeemAPI.IMeemContractMetadata
 
 		const propertiesData = this.meemPropertiesDataToModelData(
 			contractInfo.defaultProperties
@@ -1208,6 +1211,7 @@ export default class ContractEvent {
 		})
 
 		log.debug(`Fetching meem from contract: ${tokenId}`)
+
 		// Fetch the meem data and create it
 		const [meemData, tokenURI] = await Promise.all([
 			meemContract.getMeem(tokenId),
