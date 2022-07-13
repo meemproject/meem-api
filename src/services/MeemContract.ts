@@ -1,9 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import * as path from 'path'
 import * as meemContracts from '@meemproject/meem-contracts'
 import { Chain, Permission } from '@meemproject/meem-contracts'
-import { ethers } from 'ethers'
-import fs from 'fs-extra'
+import { BigNumber, ethers } from 'ethers'
 import slug from 'slug'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -12,6 +10,7 @@ export default class MeemContractService {
 		baseSlug: string,
 		depth?: number
 	): Promise<string> {
+		// TODO: 🚨 Figure out what to do with slugs. Do all contract types need slugs?
 		const theSlug = slug(baseSlug, { lower: true })
 
 		try {
@@ -49,18 +48,10 @@ export default class MeemContractService {
 		return !existingSlug
 	}
 
-	public static async createMeemContract(options: {
-		name: string
-		description: string
-		clubContractAddress: string
-		admins: string[]
-	}): Promise<string> {
-		const { name, description, admins, clubContractAddress } = options
-
-		const imagePath = path.resolve(process.cwd(), 'src/lib/meem-badge.png')
-
-		const image = await fs.readFile(imagePath)
-		const imageBase64 = image.toString('base64')
+	public static async createMeemContract(
+		data: MeemAPI.v1.CreateMeemContract.IRequestBody
+	): Promise<string> {
+		const { metadata } = data
 
 		const provider = await services.ethers.getProvider()
 
@@ -74,8 +65,6 @@ export default class MeemContractService {
 			`Deployed proxy at ${contract.address} w/ tx: ${contract.deployTransaction.hash}`
 		)
 
-		const clubSymbol = name.split(' ')[0].toUpperCase()
-
 		// MAGS metadata
 		// TODO: Abstract this to allow new types of contract metadata e.g. clubs, other project types
 		// TODO: Generate the slug for the contract here and store the external URL
@@ -83,74 +72,71 @@ export default class MeemContractService {
 		// TODO: Does each new (official) contract type have a model in our database?
 		// TODO: Verify club exists before storing address in metadata?
 
-		const contractMetadata = {
-			meem_contract_type: 'mags',
-			version: '1.0.0',
-			spec: 'meem-1.0.0',
-			name,
-			description,
-			external_url: '',
-			image: imageBase64,
-			club_contract_address: clubContractAddress
+		// TODO: Pass type-safe data in for contract types
+		// TODO: 🚨 Parse/validate metadata
+		// TODO: 🚨 Validate all properties!
+
+		let isValidMetadata = false
+
+		isValidMetadata =
+			!!metadata.meem_contract_type && !!metadata.spec && !!metadata.version
+
+		if (!isValidMetadata) {
+			throw new Error('INVALID_PARAMETERS')
 		}
 
-		const uri = JSON.stringify(contractMetadata)
+		const uri = JSON.stringify(metadata)
 
-		const baseProperties = {
-			// Total # of tokens available. -1 means unlimited.
-			totalOriginalsSupply: -1,
-			totalOriginalsSupplyLockedBy: MeemAPI.zeroAddress,
-			// Specify who can mint originals
-			mintPermissions: admins.map(admin => {
-				return {
-					permission: Permission.Addresses,
-					addresses: [admin.toLowerCase()],
-					numTokens: 0,
-					costWei: 0,
-					lockedBy: MeemAPI.zeroAddress
-				}
-			}),
-			mintPermissionsLockedBy: MeemAPI.zeroAddress,
-			// Payout of minting
-			splits: [],
-			splitsLockedBy: MeemAPI.zeroAddress,
-			// Number of originals allowed to be held by the same wallet
-			originalsPerWallet: -1,
-			originalsPerWalletLockedBy: MeemAPI.zeroAddress,
-			// Whether originals are transferrable
-			isTransferrable: true,
-			isTransferrableLockedBy: MeemAPI.zeroAddress,
-			// Mint start unix timestamp
-			mintStartTimestamp: -1,
-			// Mint end unix timestamp
-			mintEndTimestamp: -1,
-			mintDatesLockedBy: MeemAPI.zeroAddress,
-			// Prevent transfers until this unix timestamp
-			transferLockupUntil: 0,
-			transferLockupUntilLockedBy: MeemAPI.zeroAddress
-		}
-
-		log.debug(`baseProperties: ${JSON.stringify(baseProperties)}`)
-		log.debug(`club symbol: ${clubSymbol}`)
-		log.debug(`club admins: ${admins}`)
-
-		const data = {
-			name: name ?? '',
-			symbol: clubSymbol,
-			admins: admins ?? [],
+		const contractData = {
 			contractURI: uri,
-			baseProperties,
-			defaultProperties: meemContracts.defaultMeemProperties,
-			defaultChildProperties: meemContracts.defaultMeemProperties,
-			tokenCounterStart: 1,
-			childDepth: -1,
-			nonOwnerSplitAllocationAmount: 0
+			...data
 		}
+
+		// Add Meem admin to mintPermissions
+		contractData.admins.push(wallet.address.toLowerCase())
+		contractData.baseProperties.mintPermissions.push({
+			permission: Permission.Addresses,
+			addresses: [wallet.address.toLowerCase()],
+			numTokens: BigNumber.from(0).toHexString(),
+			costWei: BigNumber.from(0).toHexString(),
+			lockedBy: MeemAPI.zeroAddress
+		})
 
 		const tx = await meemContracts.initProxy({
 			signer: wallet,
 			proxyContractAddress: contract.address,
-			...data,
+			...contractData,
+			baseProperties: {
+				...contractData.baseProperties,
+				mintStartTimestamp: BigNumber.from(
+					contractData.baseProperties.mintStartAt ?? -1
+				),
+				mintEndTimestamp: BigNumber.from(
+					contractData.baseProperties.mintEndAt ?? -1
+				)
+			},
+			defaultProperties: contractData.defaultProperties
+				? {
+						...contractData.defaultProperties,
+						mintStartTimestamp: BigNumber.from(
+							contractData.defaultProperties.mintStartAt ?? -1
+						),
+						mintEndTimestamp: BigNumber.from(
+							contractData.defaultProperties.mintEndAt ?? -1
+						)
+				  }
+				: meemContracts.defaultMeemProperties,
+			defaultChildProperties: contractData.defaultChildProperties
+				? {
+						...contractData.defaultChildProperties,
+						mintStartTimestamp: BigNumber.from(
+							contractData.defaultChildProperties.mintStartAt ?? -1
+						),
+						mintEndTimestamp: BigNumber.from(
+							contractData.defaultChildProperties.mintEndAt ?? -1
+						)
+				  }
+				: meemContracts.defaultMeemProperties,
 			chain: Chain.Rinkeby,
 			version: 'latest'
 		})

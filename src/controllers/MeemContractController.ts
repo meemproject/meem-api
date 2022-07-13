@@ -1,4 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
+import AWS from 'aws-sdk'
 import { Response } from 'express'
 import _ from 'lodash'
 import { IRequest, IResponse } from '../types/app'
@@ -36,6 +37,7 @@ export default class MeemContractController {
 		req: IRequest<MeemAPI.v1.UpdateMeemContract.IDefinition>,
 		res: IResponse<MeemAPI.v1.UpdateMeemContract.IResponseBody>
 	): Promise<Response> {
+		// TODO: 🚨 refactor this to work with any contract type
 		// TODO: Remove hard-coded wallet
 		// const walletAddress = '0xa6567b5c1730faad90a62bf3dfc4e8fddd7f1ab1'
 		// const wallet = await orm.models.Wallet.findOne({
@@ -113,21 +115,43 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		try {
-			const contractAddress = await services.meemContract.createMeemContract({
-				clubContractAddress: req.body.clubContractAddress,
-				name: req.body.name,
-				description: req.body.description,
-				admins: req.body.admins
-			})
-
-			return res.json({
-				address: contractAddress
-			})
-		} catch (e) {
-			log.crit(e)
-			throw new Error('SERVER_ERROR')
+		if (!req.body.name) {
+			throw new Error('MISSING_PARAMETERS')
 		}
+
+		if (!req.body.admins) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		if (!req.body.metadata) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		if (config.DISABLE_ASYNC_MINTING) {
+			try {
+				await services.meemContract.createMeemContract(req.body)
+			} catch (e) {
+				log.crit(e)
+				throw new Error('SERVER_ERROR')
+			}
+		} else {
+			const lambda = new AWS.Lambda({
+				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+				region: 'us-east-1'
+			})
+			await lambda
+				.invoke({
+					InvocationType: 'Event',
+					FunctionName: config.LAMBDA_CREATE_CONTRACT_FUNCTION,
+					Payload: JSON.stringify(req.body)
+				})
+				.promise()
+		}
+
+		return res.json({
+			status: 'success'
+		})
 	}
 
 	public static async createOrUpdateMeemContractIntegration(

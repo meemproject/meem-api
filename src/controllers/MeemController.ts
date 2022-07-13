@@ -449,6 +449,46 @@ export default class MeemController {
 		})
 	}
 
+	public static async mintOriginalMeem(
+		req: IRequest<MeemAPI.v1.MintOriginalMeem.IDefinition>,
+		res: IResponse<MeemAPI.v1.MintOriginalMeem.IResponseBody>
+	): Promise<Response> {
+		// const {
+		// 	meemContractAddress,
+		// 	chain,
+		// 	metadata,
+		// 	properties,
+		// 	childProperties
+		// } = req.body
+
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		if (config.DISABLE_ASYNC_MINTING) {
+			await services.meem.mintOriginalMeem(req.body)
+		} else {
+			const lambda = new AWS.Lambda({
+				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+				region: 'us-east-1'
+			})
+			await lambda
+				.invoke({
+					InvocationType: 'Event',
+					FunctionName: config.LAMBDA_MINT_ORIGINAL_FUNCTION,
+					Payload: JSON.stringify(req.body)
+				})
+				.promise()
+		}
+
+		// TODO: Notify via Websockets
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
 	public static async mintWrappedMeem(
 		req: IRequest<MeemAPI.v1.MintMeem.IDefinition>,
 		res: IResponse<MeemAPI.v1.MintMeem.IResponseBody>
