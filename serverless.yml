@@ -113,7 +113,7 @@ functions:
     handler: build/src/serverless/mintOriginal.handle
     timeout: 300
     memorySize: 512
-   createContract:
+  createContract:
     handler: build/src/serverless/createContract.handle
     timeout: 300
     memorySize: 512
