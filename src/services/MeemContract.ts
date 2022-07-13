@@ -1,10 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import * as path from 'path'
 import * as meemContracts from '@meemproject/meem-contracts'
 import { Chain, Permission } from '@meemproject/meem-contracts'
 import { ethers } from 'ethers'
-import fs from 'fs-extra'
-import _ from 'lodash'
 import slug from 'slug'
 import { MeemAPI } from '../types/meem.generated'
 

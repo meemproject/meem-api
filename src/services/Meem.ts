@@ -43,17 +43,6 @@ function errorcodeToErrorString(contractErrorName: string) {
 	return 'UNKNOWN_CONTRACT_ERROR'
 }
 
-function genericError(message?: string) {
-	return {
-		status: 'failure',
-		code: 'SERVER_ERROR',
-		reason: 'Unable to find specific error',
-		friendlyReason:
-			message ||
-			'Sorry, something went wrong. Please try again in a few minutes.'
-	}
-}
-
 function handleStringErrorKey(errorKey: string) {
 	let err = config.errors.SERVER_ERROR
 	// @ts-ignore
