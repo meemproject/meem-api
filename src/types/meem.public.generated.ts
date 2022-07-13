@@ -259,7 +259,17 @@ export interface IMeemMetadataProperties {
 	parent_token_metadata?: Record<string, any> | null
 }
 
-// TODO: Deprecate this
+export type IMeemContractType =
+	| 'meem'
+	| 'meem-club'
+	| 'meem-post'
+	| 'meem-publication'
+
+export interface IMeemContractAssociation {
+	meem_contract_type: IMeemContractType
+	address: string
+	tokenIds: string[]
+}
 export interface IMeemMetadata {
 	name: string
 	description: string
@@ -269,23 +279,8 @@ export interface IMeemMetadata {
 	meem_id?: string
 	meem_properties?: IMeemMetadataProperties
 	extension_properties?: Record<string, any>
-	associations?: {
-		meem_contracts: {
-			[address: string]: {
-				tokens: {
-					[tokenId: string]: any
-				}
-			}
-		}
-	}
+	associations?: IMeemContractAssociation[]
 }
-
-export type IMeemContractType =
-	| 'meem'
-	| 'meem-club'
-	| 'meem-post'
-	| 'meem-publication'
-
 export interface IMeemContractMetadata {
 	meem_contract_type: IMeemContractType
 	version: string
@@ -293,11 +288,7 @@ export interface IMeemContractMetadata {
 	name: string
 	description: string
 	image: string
-	associations?: {
-		meem_contracts: {
-			[address: string]: any
-		}
-	}
+	associations?: IMeemContractAssociation[]
 }
 
 export interface IMeemContractMetadata {
@@ -745,23 +736,45 @@ export namespace CreateContract {
 export namespace CreateMeemContract {
 	export interface IPathParams {}
 
-	export const path = () => `/meemContracts`
+	export const path = () => `/api/1.0/meemContracts`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
+		/** Name of the contract */
 		name: string
 
-		/** JSON (or stringified) metadata object to be used for the minted Meem */
+		/** Contract admin wallet addresses */
+		admins: string[]
+
+		/** Contract metadata */
 		metadata: MeemAPI.IMeemContractMetadata
 
-		admins: string[]
+		/** Symbol for the contract */
+		symbol: string
+
+		/** Contract base properties */
+		baseProperties: InitParamsStruct
+
+		/** Meem default properties */
+		defaultProperties: MeemPropertiesStruct
+
+		/** Meem default child properties */
+		defaultChildProperties: MeemPropertiesStruct
+
+		/** Token ID start */
+		tokenCounterStart: BigNumberish
+
+		childDepth: BigNumberish
+
+		/** Required non-owner split amount */
+		nonOwnerSplitAllocationAmount: BigNumberish
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		address: string
+		status: 'success'
 	}
 
 	export interface IDefinition {
@@ -1652,8 +1665,8 @@ export namespace MintOriginalMeem {
 		/** JSON (or stringified) metadata object to be used for the minted Meem */
 		metadata?: string | any
 
-		/** The address of the original NFT owner. Also where the Meem will be minted to. */
-		accountAddress: string
+		/** The address where the Meem will be minted to. */
+		to: string
 
 		properties?: Partial<IMeemProperties>
 

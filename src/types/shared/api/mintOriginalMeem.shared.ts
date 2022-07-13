@@ -26,8 +26,8 @@ export namespace MintOriginalMeem {
 		/** JSON (or stringified) metadata object to be used for the minted Meem */
 		metadata?: string | any
 
-		/** The address of the original NFT owner. Also where the Meem will be minted to. */
-		accountAddress: string
+		/** The address where the Meem will be minted to. */
+		to: string
 
 		properties?: Partial<IMeemProperties>
 

@@ -175,7 +175,7 @@ export default class MeemService {
 		log.debug('NETWORK NAME', networkName)
 
 		const provider = await services.ethers.getProvider({
-			networkName: MeemAPI.chainToNetworkName(options?.chain ?? 1)
+			chainId: options?.chain ?? 1
 		})
 
 		const wallet = new ethers.Wallet(walletPrivateKey, provider)
@@ -344,7 +344,12 @@ export default class MeemService {
 		data: Omit<MeemAPI.v1.MintMeem.IRequestBody, 'base64Image'> & {
 			s3ImagePath?: string
 		}
-	) {
+	): Promise<{
+		toAddress: string
+		tokenURI: string
+		tokenId: number
+		transactionHash: string
+	}> {
 		try {
 			if (!data.tokenAddress) {
 				throw new Error('MISSING_TOKEN_ADDRESS')
@@ -540,7 +545,7 @@ export default class MeemService {
 					errStr = errorcodeToErrorString(errInfo.name)
 				} catch (parseError) {
 					// Unable to parse
-					return genericError()
+					log.crit('Unable to parse error.')
 				}
 				const error = handleStringErrorKey(errStr)
 				await sockets?.emitError(error, data.accountAddress)
@@ -559,7 +564,12 @@ export default class MeemService {
 	/** Mint a Meem */
 	public static async mintOriginalMeem(
 		data: MeemAPI.v1.MintOriginalMeem.IRequestBody
-	) {
+	): Promise<{
+		toAddress: string
+		tokenURI: string
+		tokenId: number
+		transactionHash: string
+	}> {
 		try {
 			if (!data.meemContractAddress) {
 				throw new Error('MISSING_CONTRACT_ADDRESS')
@@ -569,7 +579,7 @@ export default class MeemService {
 				throw new Error('MISSING_CHAIN_ID')
 			}
 
-			if (!data.accountAddress) {
+			if (!data.to) {
 				throw new Error('MISSING_ACCOUNT_ADDRESS')
 			}
 
@@ -606,7 +616,7 @@ export default class MeemService {
 			const adminRole = await meemContract.ADMIN_ROLE()
 			const admins = await meemContract.getRoles(adminRole)
 
-			const isAdmin = admins.find(a => a === data.accountAddress)
+			const isAdmin = admins.find(a => a === data.to)
 
 			if (!isAdmin) {
 				throw new Error('NOT_AUTHORIZED')
@@ -628,7 +638,7 @@ export default class MeemService {
 
 			const mintParams: Parameters<Meem['mint']> = [
 				{
-					to: data.accountAddress.toLowerCase(),
+					to: data.to.toLowerCase(),
 					tokenURI,
 					parentChain: data.chain,
 					parent: MeemAPI.zeroAddress,
@@ -638,7 +648,7 @@ export default class MeemService {
 					isURILocked: false,
 					uriSource: UriSource.Json,
 					reactionTypes: ['upvote', 'downvote', 'heart'],
-					mintedBy: data.accountAddress.toLowerCase()
+					mintedBy: data.to.toLowerCase() // TODO: Replace with wallet
 				},
 				data.properties
 					? this.propertiesToMeemPropertiesStruct(
@@ -675,7 +685,7 @@ export default class MeemService {
 			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
 				const tokenId = (transferEvent.args[2] as Ethers.BigNumber).toNumber()
 				const returnData = {
-					toAddress: data.accountAddress.toLowerCase(),
+					toAddress: data.to.toLowerCase(),
 					tokenURI: 'TODO: tokenURI is base64 encoded JSON',
 					tokenId,
 					transactionHash: receipt.transactionHash
@@ -705,7 +715,7 @@ export default class MeemService {
 					errStr = errorcodeToErrorString(errInfo.name)
 				} catch (parseError) {
 					// Unable to parse
-					return genericError()
+					log.crit('Unable to parse error.')
 				}
 				const error = handleStringErrorKey(errStr)
 				await sockets?.emitError(error, data.accountAddress)

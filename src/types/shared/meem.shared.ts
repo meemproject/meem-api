@@ -204,7 +204,17 @@ export interface IMeemMetadataProperties {
 	parent_token_metadata?: Record<string, any> | null
 }
 
-// TODO: Deprecate this
+export type IMeemContractType =
+	| 'meem'
+	| 'meem-club'
+	| 'meem-post'
+	| 'meem-publication'
+
+export interface IMeemContractAssociation {
+	meem_contract_type: IMeemContractType
+	address: string
+	tokenIds: string[]
+}
 export interface IMeemMetadata {
 	name: string
 	description: string
@@ -214,23 +224,8 @@ export interface IMeemMetadata {
 	meem_id?: string
 	meem_properties?: IMeemMetadataProperties
 	extension_properties?: Record<string, any>
-	associations?: {
-		meem_contracts: {
-			[address: string]: {
-				tokens: {
-					[tokenId: string]: any
-				}
-			}
-		}
-	}
+	associations?: IMeemContractAssociation[]
 }
-
-export type IMeemContractType =
-	| 'meem'
-	| 'meem-club'
-	| 'meem-post'
-	| 'meem-publication'
-
 export interface IMeemContractMetadata {
 	meem_contract_type: IMeemContractType
 	version: string
@@ -238,11 +233,7 @@ export interface IMeemContractMetadata {
 	name: string
 	description: string
 	image: string
-	associations?: {
-		meem_contracts: {
-			[address: string]: any
-		}
-	}
+	associations?: IMeemContractAssociation[]
 }
 
 export interface IMeemContractMetadata {

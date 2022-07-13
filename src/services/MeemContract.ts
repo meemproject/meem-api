@@ -51,20 +51,14 @@ export default class MeemContractService {
 		return !existingSlug
 	}
 
-	public static async createMeemContract(options: {
-		name: string
-		metadata: MeemAPI.IMeemContractMetadata
-		admins: string[]
-	}): Promise<string> {
-		const { name, admins: clubAdmins, metadata } = options
-
-		const admins = clubAdmins.map(a => a.toLowerCase())
+	public static async createMeemContract(
+		data: MeemAPI.v1.CreateMeemContract.IRequestBody
+	): Promise<string> {
+		const { metadata } = data
 
 		const provider = await services.ethers.getProvider()
 
 		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
-
-		admins.push(wallet.address.toLowerCase())
 
 		const contract = await meemContracts.deployProxy({
 			signer: wallet
@@ -73,8 +67,6 @@ export default class MeemContractService {
 		log.debug(
 			`Deployed proxy at ${contract.address} w/ tx: ${contract.deployTransaction.hash}`
 		)
-
-		const clubSymbol = name.split(' ')[0].toUpperCase()
 
 		// MAGS metadata
 		// TODO: Abstract this to allow new types of contract metadata e.g. clubs, other project types
@@ -85,6 +77,7 @@ export default class MeemContractService {
 
 		// TODO: Pass type-safe data in for contract types
 		// TODO: 🚨 Parse/validate metadata
+		// TODO: 🚨 Validate all properties!
 
 		let isValidMetadata = false
 
@@ -97,61 +90,25 @@ export default class MeemContractService {
 
 		const uri = JSON.stringify(metadata)
 
-		const baseProperties = {
-			// Total # of tokens available. -1 means unlimited.
-			totalOriginalsSupply: -1,
-			totalOriginalsSupplyLockedBy: MeemAPI.zeroAddress,
-			// Specify who can mint originals
-			mintPermissions: admins.map(admin => {
-				return {
-					permission: Permission.Addresses,
-					addresses: [admin.toLowerCase()],
-					numTokens: 0,
-					costWei: 0,
-					lockedBy: MeemAPI.zeroAddress
-				}
-			}),
-			mintPermissionsLockedBy: MeemAPI.zeroAddress,
-			// Payout of minting
-			splits: [],
-			splitsLockedBy: MeemAPI.zeroAddress,
-			// Number of originals allowed to be held by the same wallet
-			originalsPerWallet: -1,
-			originalsPerWalletLockedBy: MeemAPI.zeroAddress,
-			// Whether originals are transferrable
-			isTransferrable: true,
-			isTransferrableLockedBy: MeemAPI.zeroAddress,
-			// Mint start unix timestamp
-			mintStartTimestamp: -1,
-			// Mint end unix timestamp
-			mintEndTimestamp: -1,
-			mintDatesLockedBy: MeemAPI.zeroAddress,
-			// Prevent transfers until this unix timestamp
-			transferLockupUntil: 0,
-			transferLockupUntilLockedBy: MeemAPI.zeroAddress
-		}
-
-		log.debug(`baseProperties: ${JSON.stringify(baseProperties)}`)
-		log.debug(`club symbol: ${clubSymbol}`)
-		log.debug(`club admins: ${admins}`)
-
-		const data = {
-			name: name ?? '',
-			symbol: clubSymbol,
-			admins: admins ?? [],
+		const contractData = {
 			contractURI: uri,
-			baseProperties,
-			defaultProperties: meemContracts.defaultMeemProperties,
-			defaultChildProperties: meemContracts.defaultMeemProperties,
-			tokenCounterStart: 1,
-			childDepth: -1,
-			nonOwnerSplitAllocationAmount: 0
+			...data
 		}
+
+		// Add Meem admin to mintPermissions
+		contractData.admins.push(wallet.address.toLowerCase())
+		contractData.baseProperties.mintPermissions.push({
+			permission: Permission.Addresses,
+			addresses: [wallet.address.toLowerCase()],
+			numTokens: 0,
+			costWei: 0,
+			lockedBy: MeemAPI.zeroAddress
+		})
 
 		const tx = await meemContracts.initProxy({
 			signer: wallet,
 			proxyContractAddress: contract.address,
-			...data,
+			...contractData,
 			chain: Chain.Rinkeby,
 			version: 'latest'
 		})
