@@ -466,7 +466,10 @@ export default class MeemController {
 		}
 
 		if (config.DISABLE_ASYNC_MINTING) {
-			await services.meem.mintOriginalMeem(req.body)
+			await services.meem.mintOriginalMeem({
+				...req.body,
+				mintedBy: req.wallet.address
+			})
 		} else {
 			const lambda = new AWS.Lambda({
 				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
@@ -477,7 +480,10 @@ export default class MeemController {
 				.invoke({
 					InvocationType: 'Event',
 					FunctionName: config.LAMBDA_MINT_ORIGINAL_FUNCTION,
-					Payload: JSON.stringify(req.body)
+					Payload: JSON.stringify({
+						...req.body,
+						mintedBy: req.wallet.address
+					})
 				})
 				.promise()
 		}

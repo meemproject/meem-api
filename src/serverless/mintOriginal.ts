@@ -12,7 +12,9 @@ let server: Express.Application
 let request: SuperTest<Test>
 
 export const handle = async (
-	body: MeemAPI.v1.MintOriginalMeem.IRequestBody,
+	body: MeemAPI.v1.MintOriginalMeem.IRequestBody & {
+		mintedBy: string
+	},
 	context: AWSLambda.Context
 ) => {
 	// eslint-disable-next-line no-console
