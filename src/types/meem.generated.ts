@@ -289,15 +289,7 @@ export interface IMeemContractMetadata {
 	description: string
 	image: string
 	associations?: IMeemContractAssociation[]
-}
-
-export interface IMeemContractMetadata {
-	meem_contract_type: IMeemContractType
-	version: string
-	spec: string
-	name: string
-	description: string
-	image: string
+	[key: string]: unknown
 }
 
 export enum OpenSeaDisplayType {

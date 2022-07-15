@@ -4,6 +4,7 @@ import { Response } from 'express'
 import _ from 'lodash'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
+import { IMeemContractMetadata } from '../types/shared/meem.shared'
 
 export default class MeemContractController {
 	public static async isSlugAvailable(
