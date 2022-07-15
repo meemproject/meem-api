@@ -5,6 +5,7 @@ import { BasePropertiesStruct } from '@meemproject/meem-contracts/dist/types/Mee
 import { BigNumber, ethers } from 'ethers'
 import slug from 'slug'
 import { MeemAPI } from '../types/meem.generated'
+import { IMeemMetadata } from '../types/shared/meem.shared'
 
 export default class MeemContractService {
 	public static async generateSlug(
@@ -90,7 +91,6 @@ export default class MeemContractService {
 			const uri = JSON.stringify(metadata)
 
 			// Add Meem admin to mintPermissions
-			data.admins.push(wallet.address.toLowerCase())
 			data.baseProperties.mintPermissions.push({
 				permission: Permission.Addresses,
 				addresses: [wallet.address.toLowerCase()],
@@ -99,13 +99,13 @@ export default class MeemContractService {
 				lockedBy: MeemAPI.zeroAddress
 			})
 
-			const tx = await meemContracts.initProxy({
+			const contractInitParams = {
 				signer: wallet,
 				proxyContractAddress: contract.address,
 				contractURI: uri,
 				name: data.name,
 				symbol: data.symbol,
-				admins: data.admins,
+				admins: [...data.admins, wallet.address.toLowerCase()],
 				childDepth: data.childDepth,
 				tokenCounterStart: data.tokenCounterStart,
 				nonOwnerSplitAllocationAmount: data.nonOwnerSplitAllocationAmount,
@@ -122,11 +122,42 @@ export default class MeemContractService {
 							services.meem.buildProperties(data.defaultChildProperties)
 					  )
 					: meemContracts.defaultMeemProperties,
-				chain: config.NETWORK === 'matic' ? Chain.Polygon : Chain.Rinkeby,
+				chain: (config.NETWORK === 'matic' ? Chain.Polygon : Chain.Rinkeby) as
+					| Chain.Polygon
+					| Chain.Rinkeby,
 				version: 'latest'
-			})
+			}
+
+			const tx = await meemContracts.initProxy(contractInitParams)
 
 			log.debug(`Initialized proxy w/ tx: ${tx.hash}`)
+
+			if (data.mintAdminTokens) {
+				await tx.wait()
+				log.debug(`Minting admin tokens.`, data.admins)
+				const tokenMetadata: IMeemMetadata = {
+					name: metadata.name,
+					description: metadata.description,
+					image: metadata.image,
+					external_url: '' // TODO: Token urls?
+				}
+
+				await Promise.all(
+					data.admins.map(a => {
+						const address = a.toLowerCase()
+						return services.meem.mintOriginalMeem({
+							meemContractAddress: contract.address,
+							to: address,
+							metadata: tokenMetadata,
+							chain: MeemAPI.networkNameToChain(config.NETWORK),
+							properties: data.defaultProperties,
+							childProperties: data.defaultChildProperties,
+							mintedBy: wallet.address
+						})
+					})
+				)
+				log.debug(`Finished minting admin tokens.`)
+			}
 
 			return contract.address
 		} catch (e) {

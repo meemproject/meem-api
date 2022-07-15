@@ -827,6 +827,9 @@ export namespace CreateMeemContract {
 
 		/** Required non-owner split amount */
 		nonOwnerSplitAllocationAmount: number
+
+		/** If true, will mint a token to the admin wallet addresses  */
+		mintAdminTokens?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

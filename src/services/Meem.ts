@@ -553,7 +553,9 @@ export default class MeemService {
 
 	/** Mint a Meem */
 	public static async mintOriginalMeem(
-		data: MeemAPI.v1.MintOriginalMeem.IRequestBody
+		data: MeemAPI.v1.MintOriginalMeem.IRequestBody & {
+			mintedBy: string
+		}
 	): Promise<{
 		toAddress: string
 		tokenURI: string
@@ -606,7 +608,7 @@ export default class MeemService {
 			const adminRole = await meemContract.ADMIN_ROLE()
 			const admins = await meemContract.getRoles(adminRole)
 
-			const isAdmin = admins.find(a => a === data.to)
+			const isAdmin = admins.find(a => a === data.mintedBy)
 
 			if (!isAdmin) {
 				throw new Error('NOT_AUTHORIZED')
@@ -638,7 +640,7 @@ export default class MeemService {
 					isURILocked: false,
 					uriSource: UriSource.Json,
 					reactionTypes: ['upvote', 'downvote', 'heart'],
-					mintedBy: data.to.toLowerCase() // TODO: Replace with wallet
+					mintedBy: data.mintedBy.toLowerCase() // TODO: Replace with wallet
 				},
 				data.properties
 					? this.propertiesToMeemPropertiesStruct(

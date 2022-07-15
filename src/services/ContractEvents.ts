@@ -199,8 +199,7 @@ export default class ContractEvent {
 	}): Promise<MeemContract | null> {
 		const { address } = args
 		const meemContract = (await services.meem.getMeemContract({
-			address,
-			chain: MeemAPI.networkNameToChain(config.NETWORK)
+			address
 		})) as unknown as MeemContractType
 
 		let contractInfo: ContractInfoStructOutput
