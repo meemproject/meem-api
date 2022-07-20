@@ -58,14 +58,15 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/meemContracts/:meemContractId/integrations/:integrationId',
 		MeemContractController.createOrUpdateMeemContractIntegration
 	)
-	// router.getAsync('/meems', MeemController.getMeems)
-	// router.getAsync('/meems/:tokenId', MeemController.getMeem)
-	// router.getAsync('/meems/:tokenId/children', MeemController.getChildMeems)
-	// router.getAsync('/meems/:tokenId/collectors', MeemController.getCollectors)
-	// router.getAsync('/clippings', MeemController.getClippings)
-	// router.postAsync('/clippings/status', MeemController.checkClippingStatus)
-	// router.postAsync('/meems/mint', MeemController.mintWrappedMeem)
-	// router.postAsync('/meems/claim/:tokenId', MeemController.claimMeem)
+	router.getAsync('/meems', MeemController.getMeems)
+	router.getAsync('/meems/:tokenId', MeemController.getMeem)
+	router.getAsync('/meems/:tokenId/children', MeemController.getChildMeems)
+	router.getAsync('/meems/:tokenId/collectors', MeemController.getCollectors)
+	router.getAsync('/clippings', MeemController.getClippings)
+	router.postAsync('/clippings/status', MeemController.checkClippingStatus)
+	router.postAsync('/meems/mint', MeemController.mintWrappedMeem)
+	router.postAsync('/meems/mintOriginal', MeemController.mintOriginalMeem)
+	router.postAsync('/meems/claim/:tokenId', MeemController.claimMeem)
 	router.postAsync('/meems/create-image', MeemController.createMeemImage)
 	router.postAsync('/meems/getWrappedTokens', MeemController.getWrappedTokens)
 	// router.getAsync('/tokenOwner', MeemController.getTokenInfo)
@@ -76,9 +77,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 	if (config.ENABLE_URL_SCRAPER) {
 		router.getAsync('/screenshot', MeemController.getScreenshot)
 	}
-
-	// Twitter
-	// router.getAsync('/tweets', TweetController.getTweets)
 
 	imageRouter.postAsync('/meems/create-image', MeemController.createMeemImage)
 

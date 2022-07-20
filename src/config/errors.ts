@@ -392,6 +392,13 @@ const errors = {
 		status: 'failure',
 		reason: 'A bundle with the same facets already exists',
 		friendlyReason: 'A bundle with the same facets already exists'
+	},
+	INTEGRATION_FAILED: {
+		contractErrorCode: 'IntegrationFailed',
+		httpCode: 400,
+		status: 'failure',
+		reason: 'Something went wrong while creating the integration.',
+		friendlyReason: 'Something went wrong while creating the integration.'
 	}
 }
 

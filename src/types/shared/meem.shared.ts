@@ -204,15 +204,45 @@ export interface IMeemMetadataProperties {
 	parent_token_metadata?: Record<string, any> | null
 }
 
+export type IMeemContractType =
+	| 'meem'
+	| 'meem-club'
+	| 'meem-post'
+	| 'meem-publication'
+
+export interface IMeemContractAssociation {
+	meem_contract_type: IMeemContractType
+	address: string
+	tokenIds: string[]
+}
 export interface IMeemMetadata {
 	name: string
 	description: string
 	external_url: string
 	image: string
-	image_original: string
-	meem_id: string
+	image_original?: string
+	meem_id?: string
 	meem_properties?: IMeemMetadataProperties
 	extension_properties?: Record<string, any>
+	associations?: IMeemContractAssociation[]
+}
+export interface IMeemContractMetadata {
+	meem_contract_type: IMeemContractType
+	version: string
+	spec: string
+	name: string
+	description: string
+	image: string
+	associations?: IMeemContractAssociation[]
+}
+
+export interface IMeemContractMetadata {
+	meem_contract_type: IMeemContractType
+	version: string
+	spec: string
+	name: string
+	description: string
+	image: string
 }
 
 export enum OpenSeaDisplayType {
@@ -341,6 +371,39 @@ export interface IMeemProperties {
 	transferLockupUntilLockedBy: string
 }
 
+export interface IMeemContractBaseProperties {
+	/** BigNumber hex string */
+	totalOriginalsSupply: string
+	totalOriginalsSupplyLockedBy: string
+	mintPermissions: IMeemPermission[]
+	mintPermissionsLockedBy: string
+	splits: IMeemSplit[]
+	splitsLockedBy: string
+	/** BigNumber hex string */
+	originalsPerWallet: string
+	originalsPerWalletLockedBy: string
+	isTransferrable: boolean
+	isTransferrableLockedBy: string
+	mintStartAt: number
+	mintEndAt: number
+	mintDatesLockedBy: string
+	transferLockupUntil: number
+	transferLockupUntilLockedBy: string
+}
+
+export interface IMeemContractInitParams {
+	symbol: string
+	name: string
+	contractURI: string
+	baseProperties: IMeemContractBaseProperties
+	defaultProperties: IMeemProperties
+	defaultChildProperties: IMeemProperties
+	admins: string[]
+	tokenCounterStart: number
+	childDepth: number
+	nonOwnerSplitAllocationAmount: number
+}
+
 export interface IMeem {
 	tokenId: string
 	/** Address of the token owner */
@@ -403,6 +466,7 @@ export interface IERC721Metadata {
 
 export interface IMeemContractIntegrationMetadata {
 	externalUrl?: string
+	[key: string]: unknown
 }
 
 export interface INFT {

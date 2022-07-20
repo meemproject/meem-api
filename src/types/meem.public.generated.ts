@@ -259,15 +259,45 @@ export interface IMeemMetadataProperties {
 	parent_token_metadata?: Record<string, any> | null
 }
 
+export type IMeemContractType =
+	| 'meem'
+	| 'meem-club'
+	| 'meem-post'
+	| 'meem-publication'
+
+export interface IMeemContractAssociation {
+	meem_contract_type: IMeemContractType
+	address: string
+	tokenIds: string[]
+}
 export interface IMeemMetadata {
 	name: string
 	description: string
 	external_url: string
 	image: string
-	image_original: string
-	meem_id: string
+	image_original?: string
+	meem_id?: string
 	meem_properties?: IMeemMetadataProperties
 	extension_properties?: Record<string, any>
+	associations?: IMeemContractAssociation[]
+}
+export interface IMeemContractMetadata {
+	meem_contract_type: IMeemContractType
+	version: string
+	spec: string
+	name: string
+	description: string
+	image: string
+	associations?: IMeemContractAssociation[]
+}
+
+export interface IMeemContractMetadata {
+	meem_contract_type: IMeemContractType
+	version: string
+	spec: string
+	name: string
+	description: string
+	image: string
 }
 
 export enum OpenSeaDisplayType {
@@ -396,6 +426,39 @@ export interface IMeemProperties {
 	transferLockupUntilLockedBy: string
 }
 
+export interface IMeemContractBaseProperties {
+	/** BigNumber hex string */
+	totalOriginalsSupply: string
+	totalOriginalsSupplyLockedBy: string
+	mintPermissions: IMeemPermission[]
+	mintPermissionsLockedBy: string
+	splits: IMeemSplit[]
+	splitsLockedBy: string
+	/** BigNumber hex string */
+	originalsPerWallet: string
+	originalsPerWalletLockedBy: string
+	isTransferrable: boolean
+	isTransferrableLockedBy: string
+	mintStartAt: number
+	mintEndAt: number
+	mintDatesLockedBy: string
+	transferLockupUntil: number
+	transferLockupUntilLockedBy: string
+}
+
+export interface IMeemContractInitParams {
+	symbol: string
+	name: string
+	contractURI: string
+	baseProperties: IMeemContractBaseProperties
+	defaultProperties: IMeemProperties
+	defaultChildProperties: IMeemProperties
+	admins: string[]
+	tokenCounterStart: number
+	childDepth: number
+	nonOwnerSplitAllocationAmount: number
+}
+
 export interface IMeem {
 	tokenId: string
 	/** Address of the token owner */
@@ -458,6 +521,7 @@ export interface IERC721Metadata {
 
 export interface IMeemContractIntegrationMetadata {
 	externalUrl?: string
+	[key: string]: unknown
 }
 
 export interface INFT {
@@ -705,21 +769,50 @@ export namespace CreateContract {
 export namespace CreateMeemContract {
 	export interface IPathParams {}
 
-	export const path = () => `/meemContracts`
+	export const path = () => `/api/1.0/meemContracts`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		clubContractAddress: string
+		/** Name of the contract */
 		name: string
-		description: string
+
+		/** Contract admin wallet addresses */
 		admins: string[]
+
+		/** Contract metadata */
+		metadata: IMeemContractMetadata
+
+		/** Symbol for the contract */
+		symbol: string
+
+		/** Contract base properties */
+		baseProperties: IMeemContractBaseProperties
+
+		/** Meem default properties */
+		// TODO: Make this a partial
+		defaultProperties?: IMeemProperties
+
+		/** Meem default child properties */
+		// TODO: Make this a partial
+		defaultChildProperties?: IMeemProperties
+
+		/** Token ID start */
+		tokenCounterStart: number
+
+		childDepth: number
+
+		/** Required non-owner split amount */
+		nonOwnerSplitAllocationAmount: number
+
+		/** If true, will mint a token to the admin wallet addresses  */
+		mintAdminTokens?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		address: string
+		status: 'success'
 	}
 
 	export interface IDefinition {
@@ -1598,6 +1691,52 @@ export namespace MintMeem {
 
 		/** The address of the original NFT owner. Also where the Meem will be minted to. */
 		accountAddress: string
+
+		properties?: Partial<IMeemProperties>
+
+		childProperties?: Partial<IMeemProperties>
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		// transactionHash: string
+		// tokenId: number
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+/** Mint a new (wrapped) Meem */
+export namespace MintOriginalMeem {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/meems/mintOriginal`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The address of the Meem contract to mint token */
+		meemContractAddress: string
+
+		/** The chain where the Meem contract lives */
+		chain: Chain
+
+		/** JSON (or stringified) metadata object to be used for the minted Meem */
+		metadata?: string | any
+
+		/** The address where the Meem will be minted to. */
+		to: string
 
 		properties?: Partial<IMeemProperties>
 

@@ -41,6 +41,8 @@ provider:
     DYNAMODB_SOCKETS_TABLE: ${env:DYNAMODB_SOCKETS_TABLE, ''}
     AWS_WEBSOCKET_GATEWAY_URL: ${env:AWS_WEBSOCKET_GATEWAY_URL, ''}
     LAMBDA_MINT_FUNCTION: ${env:LAMBDA_MINT_FUNCTION, ''}
+    LAMBDA_MINT_ORIGINAL_FUNCTION: ${env:LAMBDA_MINT_ORIGINAL_FUNCTION, ''}
+    LAMBDA_CREATE_CONTRACT_FUNCTION: ${env:LAMBDA_CREATE_CONTRACT_FUNCTION, ''}
     LAMBDA_MEEMID_UPDATE_FUNCTION: ${env:LAMBDA_MEEMID_UPDATE_FUNCTION, ''}
     S3_BUCKET: ${env:S3_BUCKET, ''}
     MORALIS_API_KEY: ${env:MORALIS_API_KEY, ''}
@@ -82,6 +84,7 @@ provider:
     PINATA_API_KEY: ${env:PINATA_API_KEY, ''}
     PINATA_API_SECRET: ${env:PINATA_API_SECRET, ''}
     CHAIN_ID: ${env:CHAIN_ID, '4'}
+    TWITTER_INTEGRATION_ID: ${env:TWITTER_INTEGRATION_ID, ''}
 
 package:
   excludeDevDependencies: true
@@ -104,6 +107,14 @@ package:
 functions:
   mint:
     handler: build/src/serverless/mint.handle
+    timeout: 300
+    memorySize: 512
+  mintOriginal:
+    handler: build/src/serverless/mintOriginal.handle
+    timeout: 300
+    memorySize: 512
+  createContract:
+    handler: build/src/serverless/createContract.handle
     timeout: 300
     memorySize: 512
   meemIdUpdate:

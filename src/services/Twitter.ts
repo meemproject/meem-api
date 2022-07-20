@@ -1,5 +1,6 @@
 import { Meem } from '@meemproject/meem-contracts/dist/types/Meem'
 import type { ethers as Ethers } from 'ethers'
+import _ from 'lodash'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
 import {
@@ -13,8 +14,10 @@ import {
 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import Hashtag from '../models/Hashtag'
+import MeemContract from '../models/MeemContract'
 import Prompt from '../models/Prompt'
 import Tweet from '../models/Tweet'
+import Twitter from '../models/Twitter'
 import { MeemAPI } from '../types/meem.generated'
 
 function errorcodeToErrorString(contractErrorName: string) {
@@ -161,6 +164,76 @@ export default class TwitterService {
 		}
 
 		return tweetUserMeemId
+	}
+
+	public static async verifyMeemContractTwitter(args: {
+		twitterUsername: string
+		meemContract: MeemContract
+	}): Promise<UserV2> {
+		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+
+		const twitterUserResult = await client.v2.userByUsername(
+			args.twitterUsername,
+			{
+				'user.fields': ['id', 'username', 'name', 'profile_image_url']
+			}
+		)
+
+		if (!twitterUserResult) {
+			log.crit('No Twitter user found for username')
+			throw new Error('SERVER_ERROR')
+		}
+
+		let twitter: Twitter | undefined
+		const existingTwitter = await orm.models.Twitter.findOne({
+			where: {
+				twitterId: twitterUserResult.data.id
+			}
+		})
+
+		if (!existingTwitter) {
+			twitter = await orm.models.Twitter.create({
+				id: uuidv4(),
+				twitterId: twitterUserResult.data.id,
+				isDefault: true
+			})
+		} else {
+			twitter = existingTwitter
+		}
+
+		if (!twitter) {
+			log.crit('Twitter not found or created')
+			throw new Error('SERVER_ERROR')
+		}
+
+		const usersLatestTweets = await client.v2.userTimeline(
+			twitterUserResult.data.id,
+			{
+				'tweet.fields': ['created_at', 'entities']
+			}
+		)
+
+		const clubsTweet = usersLatestTweets.data.data.find(tweet => {
+			let isClubsTweet = false
+
+			const clubUrl = tweet.entities?.urls?.find(url => {
+				return /clubs\.link/.test(url.expanded_url)
+			})
+
+			if (clubUrl) {
+				const clubSlug = _.last(clubUrl.expanded_url.split('/'))
+				isClubsTweet = clubSlug?.toLowerCase() === args.meemContract.slug
+			}
+
+			return isClubsTweet
+		})
+
+		if (!clubsTweet) {
+			log.crit('Unable to find verification tweet')
+			throw new Error('SERVER_ERROR')
+		}
+
+		return twitterUserResult.data
 	}
 
 	public static async handleMeemReplyTweet(
