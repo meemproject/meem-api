@@ -1,25 +1,18 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import {
-	Chain,
-	IMeemPermission,
-	IMeemSplit,
-	IMeemProperties,
-	ContractType
-} from '../meem.shared'
 
-export namespace TrackContractInstance {
-	export interface IPathParams {}
+export namespace UntrackContractInstance {
+	export interface IPathParams {
+		contractInstanceId: string
+	}
 
-	export const path = () => `/api/1.0/contractInstances`
+	export const path = (options: IPathParams) =>
+		`/api/1.0/contractInstances/${options.contractInstanceId}`
 
-	export const method = HttpMethod.Post
+	export const method = HttpMethod.Delete
 
 	export interface IQueryParams {}
 
-	export interface IRequestBody {
-		address: string
-		chainId: number
-	}
+	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'

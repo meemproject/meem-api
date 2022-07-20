@@ -10,7 +10,6 @@ import {
 	SplitStructOutput,
 	MeemPropertiesStruct
 } from '@meemproject/meem-contracts/dist/types/Meem'
-import meemABI from '@meemproject/meem-contracts/types/Meem.json'
 import type { ethers as Ethers } from 'ethers'
 import fs from 'fs-extra'
 import _ from 'lodash'
@@ -19,6 +18,7 @@ import sharp from 'sharp'
 import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
 import ERC721ABI from '../abis/ERC721.json'
+import meemABI from '../abis/Meem.json'
 import errors from '../config/errors'
 import meemAccessListTesting from '../lib/meem-access-testing.json'
 import meemAccessList from '../lib/meem-access.json'

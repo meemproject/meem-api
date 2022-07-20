@@ -26,28 +26,11 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	router.getAsync('/getNonce', MeemIdController.getNonce)
 	router.postAsync('/login', MeemIdController.login)
-	// router.postAsync('/meemId', MeemIdController.createOrUpdateMeemId)
-	// router.getAsync('/meemId', MeemIdController.getMeemId)
-	// router.patchAsync('/meemId', MeemIdController.updateMeemId)
-	// router.patchAsync(
-	// 	'/meemPass/:meemPassId',
-	// 	MeemIdController.updateMeemPassById
-	// )
-	// router.getAsync('/meemPasses', MeemIdController.getMeemPasses)
-	// router.patchAsync('/me/meemPass', MeemIdController.updateMeemPass)
+
 	router.getAsync('/me', MeemIdController.getMe)
 
-	// router.getAsync('/access', MeemController.getAccessList)
 	router.getAsync('/config', ConfigController.getConfig)
-	// router.getAsync('/whitelist', MeemController.getWhitelist)
-	// router.getAsync(
-	// 	'/meemid/twitter/request-url',
-	// 	MeemController.getTwitterAuthUrl
-	// )
-	// router.postAsync(
-	// 	'/meemid/twitter/access-token',
-	// 	MeemController.getTwitterAccessToken
-	// )
+
 	router.post('/isSlugAvailable', MeemContractController.isSlugAvailable)
 	router.post('/meemContracts', MeemContractController.createMeemContract)
 	router.patchAsync(

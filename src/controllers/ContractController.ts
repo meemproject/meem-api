@@ -1,3 +1,4 @@
+import { ethers } from 'ethers'
 import { Response } from 'express'
 import { Op } from 'sequelize'
 import ContractInstance from '../models/ContractInstance'
@@ -65,7 +66,7 @@ export default class ContractController {
 			contractInstance = orm.models.ContractInstance.build()
 		}
 
-		contractInstance.address = address
+		contractInstance.address = ethers.utils.getAddress(address)
 		contractInstance.chainId = chainId
 		contractInstance.ContractId = contract?.id ?? null
 
@@ -76,6 +77,29 @@ export default class ContractController {
 				WalletId: req.wallet.id,
 				ContractInstanceId: contractInstance.id
 			})
+		}
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
+	public static async removeContractInstance(
+		req: IAuthenticatedRequest<MeemAPI.v1.UntrackContractInstance.IDefinition>,
+		res: IResponse<MeemAPI.v1.UntrackContractInstance.IResponseBody>
+	): Promise<Response> {
+		const { contractInstanceId } = req.params
+
+		const walletContractInstance =
+			await orm.models.WalletContractInstance.findOne({
+				where: {
+					WalletId: req.wallet.id,
+					ContractInstanceId: contractInstanceId
+				}
+			})
+
+		if (walletContractInstance) {
+			await walletContractInstance.destroy()
 		}
 
 		return res.json({
@@ -111,30 +135,9 @@ export default class ContractController {
 		req: IAuthenticatedRequest<MeemAPI.v1.CreateBundle.IDefinition>,
 		res: IResponse<MeemAPI.v1.CreateBundle.IResponseBody>
 	): Promise<Response> {
-		const { name, description, contractIds } = req.body
+		const { name, description, contracts } = req.body
 
 		const t = await orm.sequelize.transaction()
-
-		const bundles = await orm.models.Bundle.findAll({
-			include: [
-				{
-					model: orm.models.BundleContract,
-					where: {
-						ContractId: {
-							[Op.in]: contractIds
-						}
-					}
-				}
-			]
-		})
-
-		const existingBundle = bundles.find(
-			b => b.BundleContracts?.length === contractIds.length
-		)
-
-		if (existingBundle) {
-			throw new Error('BUNDLE_ALREADY_EXISTS')
-		}
 
 		const bundle = await orm.models.Bundle.create(
 			{
@@ -145,10 +148,10 @@ export default class ContractController {
 			{ transaction: t }
 		)
 
-		const bundleContractsData = contractIds.map((contractId, i) => ({
-			ContractId: contractId,
+		const bundleContractsData = contracts.map(contract => ({
+			ContractId: contract.id,
 			BundleId: bundle.id,
-			order: i
+			functionSelectors: contract.functionSelectors
 		}))
 
 		await orm.models.BundleContract.bulkCreate(bundleContractsData, {
@@ -167,7 +170,9 @@ export default class ContractController {
 		res: IResponse<MeemAPI.v1.UpdateBundle.IResponseBody>
 	): Promise<Response> {
 		const { bundleId } = req.params
-		const { name, description, contractIds } = req.body
+		const { name, description, contracts } = req.body
+
+		const contractIds = contracts.map(c => c.id)
 
 		const bundle = await orm.models.Bundle.findOne({
 			where: {
@@ -184,23 +189,26 @@ export default class ContractController {
 		const newBundleContractsData: {
 			BundleId: string
 			ContractId: string
+			functionSelectors: string[]
 			order: number
 		}[] = []
 
 		const updateContractsData: {
 			contractId: string
+			functionSelectors: string[]
 			order: number
 		}[] = []
 
 		const bundleContractIdsToDelete: string[] = []
 
-		contractIds.forEach((contractId, i) => {
+		contracts.forEach((contract, i) => {
 			const currentBundleContract = bundle?.BundleContracts?.find(
-				bc => bc.ContractId?.toLowerCase() === contractId.toLowerCase()
+				bc => bc.ContractId?.toLowerCase() === contract.id.toLowerCase()
 			)
-			if (currentBundleContract && currentBundleContract.order !== i) {
+			if (currentBundleContract) {
 				updateContractsData.push({
-					contractId,
+					contractId: contract.id,
+					functionSelectors: contract.functionSelectors,
 					order: i
 				})
 			}
@@ -208,7 +216,8 @@ export default class ContractController {
 			if (!currentBundleContract) {
 				newBundleContractsData.push({
 					BundleId: bundle.id,
-					ContractId: contractId,
+					ContractId: contract.id,
+					functionSelectors: contract.functionSelectors,
 					order: i
 				})
 			}
@@ -249,7 +258,7 @@ export default class ContractController {
 		updateContractsData.forEach(uc => {
 			promises.push(
 				orm.models.BundleContract.update(
-					{ order: uc.order },
+					{ functionSelectors: uc.functionSelectors, order: uc.order },
 					{
 						where: {
 							BundleId: bundle.id,

@@ -23,12 +23,12 @@ import {
 	MeemUnClippedEventObject,
 	ContractInfoStructOutput
 } from '@meemproject/meem-contracts/dist/types/Meem'
-import meemABI from '@meemproject/meem-contracts/types/Meem.json'
 import { BigNumber, Contract, utils } from 'ethers'
 import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
 import { v4 as uuidv4 } from 'uuid'
+import meemABI from '../abis/Meem.json'
 import { wait } from '../lib/utils'
 import Meem from '../models/Meem'
 import MeemContract from '../models/MeemContract'

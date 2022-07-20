@@ -71,7 +71,7 @@ export default class TypesController {
 				const matches = contents.match(
 					/import[^;]*{([^;]*)}[^;]*from[^;]*"([^;]*)";/g
 				)
-				// log.debug(matches)
+
 				matches?.forEach(m => {
 					const parts = m.match(/import[^;]*{([^;]*)}[^;]*from[^;]*"([^;]*)";/)
 					if (parts && parts[1] && parts[2]) {
