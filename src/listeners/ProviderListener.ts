@@ -67,7 +67,7 @@ export default class ProviderListener {
 			// genericMeemContract.interface.events
 			const eventIds = {
 				MeemDiamondCreated: utils.id('MeemDiamondCreated()'),
-				OwnershipTransferred: utils.id('OwnershipTransferred(address,address)'),
+				// OwnershipTransferred: utils.id('OwnershipTransferred(address,address)'),
 				MeemRoleGranted: utils.id('MeemRoleGranted(bytes32,address)'),
 				MeemRoleRevoked: utils.id('MeemRoleRevoked(bytes32,address)'),
 				MeemTokenClipped: utils.id('MeemTokenClipped(uint256,address)'),
@@ -147,6 +147,8 @@ export default class ProviderListener {
 
 				// event MeemSplitsSet(uint256 tokenId, Split[] splits);
 			}
+
+			log.debug(eventIds)
 
 			const topics = [Object.values(eventIds)]
 

@@ -814,6 +814,9 @@ export namespace CreateMeemContract {
 
 		/** If true, will mint a token to the admin wallet addresses  */
 		shouldMintAdminTokens?: boolean
+
+		/** The owner of the contract can upgrade */
+		contractOwnerAddress?: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

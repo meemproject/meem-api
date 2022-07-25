@@ -60,7 +60,7 @@
 	},
 	"dependencies": {
 		"@kengoldfarb/log": "^1.0.3",
-		"@meemproject/meem-contracts": "0.6.5-pre-8f38b75.0",
+		"@meemproject/meem-contracts": "0.6.11-pre-cacce14.0",
 		"@octokit/rest": "^18.12.0",
 		"@pinata/sdk": "^1.1.23",
 		"@ethersproject/abstract-provider": "^5.6.1",
