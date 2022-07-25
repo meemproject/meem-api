@@ -1,11 +1,10 @@
 import * as meemContracts from '@meemproject/meem-contracts'
-import { InitParamsStruct } from '@meemproject/meem-contracts/dist/types/Meem'
-import { BigNumberish } from 'ethers'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 import {
 	IMeemProperties,
-	IMeemContractMetadata,
-	IMeemContractBaseProperties
+	IMeemContractBaseProperties,
+	IMeemContractMetadataLike,
+	IMeemMetadataLike
 } from '../meem.shared'
 
 /** Create Meem Image */
@@ -26,7 +25,7 @@ export namespace CreateMeemContract {
 		admins: string[]
 
 		/** Contract metadata */
-		metadata: IMeemContractMetadata
+		metadata: IMeemContractMetadataLike
 
 		/** Symbol for the contract */
 		symbol: string
@@ -52,6 +51,9 @@ export namespace CreateMeemContract {
 
 		/** If true, will mint a token to the admin wallet addresses  */
 		mintAdminTokens?: boolean
+
+		/** Admin token metadata */
+		adminTokenMetadata?: IMeemMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
