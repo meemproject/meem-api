@@ -47,7 +47,7 @@
 		"postinstall": "if [ \"${RUN_POSTINSTALL:=\"false\"}\" = \"true\" ]; then npm run build; else echo \"Skipping postinstall RUN_POSTINSTALL is not set to true.\" && exit 0; fi",
 		"kill-inspect": "kill-port 4005",
 		"########## Meems ##########": "",
-		"generateTypes": "typechain --target=ethers-v5 'src/abis/*.json' --out-dir='src/types'",
+		"#generateTypes": "typechain --target=ethers-v5 'src/abis/*.json' --out-dir='src/types'",
 		"fetchMeemABI": "tsnd --transpile-only src/scripts/fetchMeemABI.ts",
 		"fetchWhitelist": "tsnd --transpile-only src/scripts/fetchWhitelist.ts",
 		"fetchAccess": "tsnd --transpile-only src/scripts/fetchAccess.ts",

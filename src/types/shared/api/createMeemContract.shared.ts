@@ -1,9 +1,9 @@
-import { InitParamsStruct } from '../../Meem'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 import {
 	IMeemProperties,
 	IMeemContractMetadata,
-	IMeemContractBaseProperties
+	IMeemContractBaseProperties,
+	IMeemContractInitParams
 } from '../meem.shared'
 
 /** Create Meem Image */
@@ -21,7 +21,7 @@ export namespace CreateMeemContract {
 		metadata: IMeemContractMetadata
 
 		/** Contract base properties */
-		contractParams: InitParamsStruct
+		contractParams: IMeemContractInitParams
 
 		/** If true, will mint a token to the admin wallet addresses  */
 		shouldMintAdminTokens?: boolean

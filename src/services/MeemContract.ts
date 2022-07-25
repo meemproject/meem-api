@@ -245,48 +245,48 @@ export default class MeemContractService {
 	}
 
 	/** Take a partial set of properties and return a full set w/ defaults */
-	public static buildProperties(
-		props?: Partial<MeemAPI.IMeemContractBaseProperties>
-	): MeemAPI.IMeemContractBaseProperties {
-		return {
-			totalOriginalsSupply: services.web3
-				.toBigNumber(props?.totalOriginalsSupply ?? -1)
-				.toHexString(),
-			totalOriginalsSupplyLockedBy:
-				props?.totalOriginalsSupplyLockedBy ?? MeemAPI.zeroAddress,
-			mintPermissions: props?.mintPermissions ?? [
-				{
-					permission: MeemAPI.Permission.Anyone,
-					addresses: [],
-					numTokens: services.web3.toBigNumber(0).toHexString(),
-					lockedBy: MeemAPI.zeroAddress,
-					costWei: services.web3.toBigNumber(0).toHexString()
-				}
-			],
-			mintPermissionsLockedBy:
-				props?.mintPermissionsLockedBy ?? MeemAPI.zeroAddress,
-			splits: props?.splits ?? [],
-			splitsLockedBy: props?.splitsLockedBy ?? MeemAPI.zeroAddress,
-			originalsPerWallet: services.web3
-				.toBigNumber(props?.originalsPerWallet ?? -1)
-				.toHexString(),
-			originalsPerWalletLockedBy:
-				props?.originalsPerWalletLockedBy ?? MeemAPI.zeroAddress,
-			isTransferrable: props?.isTransferrable ?? false,
-			isTransferrableLockedBy:
-				props?.isTransferrableLockedBy ?? MeemAPI.zeroAddress,
-			mintStartAt: services.web3
-				.toBigNumber(props?.mintStartAt ?? 0)
-				.toNumber(),
-			mintEndAt: services.web3.toBigNumber(props?.mintEndAt ?? 0).toNumber(),
-			mintDatesLockedBy: props?.mintDatesLockedBy ?? MeemAPI.zeroAddress,
-			transferLockupUntil: services.web3
-				.toBigNumber(props?.transferLockupUntil ?? 0)
-				.toNumber(),
-			transferLockupUntilLockedBy:
-				props?.transferLockupUntilLockedBy ?? MeemAPI.zeroAddress
-		}
-	}
+	// public static buildProperties(
+	// 	props?: Partial<MeemAPI.IMeemContractBaseProperties>
+	// ): MeemAPI.IMeemContractBaseProperties {
+	// 	return {
+	// 		totalOriginalsSupply: services.web3
+	// 			.toBigNumber(props?.totalOriginalsSupply ?? -1)
+	// 			.toHexString(),
+	// 		totalOriginalsSupplyLockedBy:
+	// 			props?.totalOriginalsSupplyLockedBy ?? MeemAPI.zeroAddress,
+	// 		mintPermissions: props?.mintPermissions ?? [
+	// 			{
+	// 				permission: MeemAPI.Permission.Anyone,
+	// 				addresses: [],
+	// 				numTokens: services.web3.toBigNumber(0).toHexString(),
+	// 				lockedBy: MeemAPI.zeroAddress,
+	// 				costWei: services.web3.toBigNumber(0).toHexString()
+	// 			}
+	// 		],
+	// 		mintPermissionsLockedBy:
+	// 			props?.mintPermissionsLockedBy ?? MeemAPI.zeroAddress,
+	// 		splits: props?.splits ?? [],
+	// 		splitsLockedBy: props?.splitsLockedBy ?? MeemAPI.zeroAddress,
+	// 		originalsPerWallet: services.web3
+	// 			.toBigNumber(props?.originalsPerWallet ?? -1)
+	// 			.toHexString(),
+	// 		originalsPerWalletLockedBy:
+	// 			props?.originalsPerWalletLockedBy ?? MeemAPI.zeroAddress,
+	// 		isTransferrable: props?.isTransferrable ?? false,
+	// 		isTransferrableLockedBy:
+	// 			props?.isTransferrableLockedBy ?? MeemAPI.zeroAddress,
+	// 		mintStartAt: services.web3
+	// 			.toBigNumber(props?.mintStartAt ?? 0)
+	// 			.toNumber(),
+	// 		mintEndAt: services.web3.toBigNumber(props?.mintEndAt ?? 0).toNumber(),
+	// 		mintDatesLockedBy: props?.mintDatesLockedBy ?? MeemAPI.zeroAddress,
+	// 		transferLockupUntil: services.web3
+	// 			.toBigNumber(props?.transferLockupUntil ?? 0)
+	// 			.toNumber(),
+	// 		transferLockupUntilLockedBy:
+	// 			props?.transferLockupUntilLockedBy ?? MeemAPI.zeroAddress
+	// 	}
+	// }
 
 	// public static propertiesToBasePropertiesStruct(
 	// 	props?: Partial<MeemAPI.IMeemContractBaseProperties>

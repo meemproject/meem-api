@@ -117,9 +117,9 @@ functions:
     handler: build/src/serverless/createContract.handle
     timeout: 300
     memorySize: 512
-  meemIdUpdate:
-    handler: build/src/serverless/meemIdUpdate.handle
-    timeout: 300
+  # meemIdUpdate:
+  #   handler: build/src/serverless/meemIdUpdate.handle
+  #   timeout: 300
   images:
     handler: build/src/serverless/handler.handle
     memorySize: 768

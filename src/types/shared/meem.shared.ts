@@ -341,6 +341,8 @@ export interface IMeemPermission {
 	numTokens: string
 	lockedBy: string
 	costWei: string
+	mintStartTimestamp: string
+	mintEndTimestamp: string
 }
 
 export interface IMeemProperties {
@@ -395,13 +397,13 @@ export interface IMeemContractInitParams {
 	symbol: string
 	name: string
 	contractURI: string
-	baseProperties: IMeemContractBaseProperties
-	defaultProperties: IMeemProperties
-	defaultChildProperties: IMeemProperties
 	admins: string[]
-	tokenCounterStart: number
-	childDepth: number
-	nonOwnerSplitAllocationAmount: number
+	minters: string[]
+	maxSupply: string
+	isMaxSupplyLocked: boolean
+	mintPermissions: IMeemPermission[]
+	splits: IMeemSplit[]
+	isTransferLocked: boolean
 }
 
 export interface IMeem {

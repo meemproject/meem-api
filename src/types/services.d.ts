@@ -10,7 +10,7 @@ import Lint from '../services/Lint'
 import Meem from '../services/Meem'
 import MeemContract from '../services/MeemContract'
 import MeemId from '../services/MeemId'
-import Prompts from '../services/Prompts'
+// import Prompts from '../services/Prompts'
 import Puppeteer from '../services/Puppeteer'
 import Scraper from '../services/Scraper'
 import Storage from '../services/Storage'
@@ -31,7 +31,7 @@ declare global {
 		let meem: typeof Meem
 		let meemContract: typeof MeemContract
 		let meemId: typeof MeemId
-		let prompts: typeof Prompts
+		// let prompts: typeof Prompts
 		let puppeteer: Puppeteer
 		let scraper: typeof Scraper
 		let storage: typeof Storage
