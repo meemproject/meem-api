@@ -1,17 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import * as path from 'path'
-import { Chain, UriSource } from '@meemproject/meem-contracts'
-import * as meemContracts from '@meemproject/meem-contracts'
-import {
-	Meem,
-	MeemPermissionStructOutput,
-	MeemPropertiesStructOutput,
-	MeemStructOutput,
-	SplitStructOutput,
-	MeemPropertiesStruct
-} from '@meemproject/meem-contracts/dist/types/Meem'
 import type { ethers as Ethers } from 'ethers'
-import fs from 'fs-extra'
+// import fs from 'fs-extra'
 import _ from 'lodash'
 import { DateTime } from 'luxon'
 import sharp from 'sharp'
@@ -23,13 +13,10 @@ import errors from '../config/errors'
 import meemAccessListTesting from '../lib/meem-access-testing.json'
 import meemAccessList from '../lib/meem-access.json'
 import type MeemModel from '../models/Meem'
-import MeemIdentification from '../models/MeemIdentification'
 import { ERC721 } from '../types'
+import { MeemProxyV1 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
-import {
-	MeemMetadataStorageProvider,
-	MeemType
-} from '../types/shared/meem.shared'
+import { MeemMetadataStorageProvider } from '../types/shared/meem.shared'
 
 function errorcodeToErrorString(contractErrorName: string) {
 	const allErrors: Record<string, any> = config.errors
@@ -140,9 +127,10 @@ export default class MeemService {
 	public static async getMeemContract(options?: {
 		address?: string
 		walletPrivateKey?: string
-		chain?: Chain
+		chainId?: number
 	}) {
-		const chain = options?.chain ?? MeemAPI.networkNameToChain(config.NETWORK)
+		const chainId = options?.chainId
+
 		const ethers = services.ethers.getInstance()
 		const address = options?.address || config.MEEM_PROXY_ADDRESS
 		if (config.TESTING) {
@@ -151,7 +139,7 @@ export default class MeemService {
 				// @ts-ignore
 				.connect(global.signer)
 			// const c = await ethers.getContractAt(meemABI, address)
-			return c as Meem
+			return c as MeemProxyV1
 		}
 
 		let walletPrivateKey =
@@ -161,11 +149,8 @@ export default class MeemService {
 			walletPrivateKey = config.HARDHAT_MEEM_CONTRACT_WALLET
 		}
 
-		const networkName = MeemAPI.chainToNetworkName(chain)
-		log.debug('NETWORK NAME', networkName)
-
 		const provider = await services.ethers.getProvider({
-			chainId: chain
+			chainId
 		})
 
 		const wallet = new ethers.Wallet(walletPrivateKey, provider)
@@ -174,7 +159,7 @@ export default class MeemService {
 			address,
 			meemABI,
 			wallet
-		) as unknown as Meem
+		) as unknown as MeemProxyV1
 
 		return meemContract
 	}
@@ -329,227 +314,224 @@ export default class MeemService {
 		}
 	}
 
-	/** Mint a Meem */
-	public static async mintWrappedMeem(
-		data: Omit<MeemAPI.v1.MintMeem.IRequestBody, 'base64Image'> & {
-			s3ImagePath?: string
-		}
-	): Promise<{
-		toAddress: string
-		tokenURI: string
-		tokenId: number
-		transactionHash: string
-	}> {
-		try {
-			if (!data.tokenAddress) {
-				throw new Error('MISSING_TOKEN_ADDRESS')
-			}
+	// /** Mint a Meem */
+	// public static async mintWrappedMeem(
+	// 	data: Omit<MeemAPI.v1.MintMeem.IRequestBody, 'base64Image'> & {
+	// 		s3ImagePath?: string
+	// 	}
+	// ): Promise<{
+	// 	toAddress: string
+	// 	tokenURI: string
+	// 	tokenId: number
+	// 	transactionHash: string
+	// }> {
+	// 	try {
+	// 		if (!data.tokenAddress) {
+	// 			throw new Error('MISSING_TOKEN_ADDRESS')
+	// 		}
 
-			if (_.isUndefined(data.chain)) {
-				throw new Error('MISSING_CHAIN_ID')
-			}
+	// 		if (_.isUndefined(data.chain)) {
+	// 			throw new Error('MISSING_CHAIN_ID')
+	// 		}
 
-			if (_.isUndefined(data.tokenId)) {
-				throw new Error('MISSING_TOKEN_ID')
-			}
+	// 		if (_.isUndefined(data.tokenId)) {
+	// 			throw new Error('MISSING_TOKEN_ID')
+	// 		}
 
-			if (!data.accountAddress) {
-				throw new Error('MISSING_ACCOUNT_ADDRESS')
-			}
+	// 		if (!data.accountAddress) {
+	// 			throw new Error('MISSING_ACCOUNT_ADDRESS')
+	// 		}
 
-			const meemId = uuidv4()
+	// 		const meemId = uuidv4()
 
-			const isMeemToken =
-				data.tokenAddress.toLowerCase() ===
-				config.MEEM_PROXY_ADDRESS.toLowerCase()
+	// 		const isMeemToken =
+	// 			data.tokenAddress.toLowerCase() ===
+	// 			config.MEEM_PROXY_ADDRESS.toLowerCase()
 
-			const isAccessAllowed = await this.isAccessAllowed({
-				chain: data.chain,
-				accountAddress: data.accountAddress,
-				contractAddress: data.tokenAddress
-			})
+	// 		const isAccessAllowed = await this.isAccessAllowed({
+	// 			chain: data.chain,
+	// 			accountAddress: data.accountAddress,
+	// 			contractAddress: data.tokenAddress
+	// 		})
 
-			if (!isAccessAllowed && !config.TESTING) {
-				throw new Error('MINTING_ACCESS_DENIED')
-			}
+	// 		if (!isAccessAllowed && !config.TESTING) {
+	// 			throw new Error('MINTING_ACCESS_DENIED')
+	// 		}
 
-			// TODO: Remove redundant check and rely only on access?
-			// const isValidMeemProject = await this.isValidMeemProject({
-			// 	chain: data.chain,
-			// 	contractAddress: data.tokenAddress
-			// })
+	// 		// TODO: Remove redundant check and rely only on access?
+	// 		// const isValidMeemProject = await this.isValidMeemProject({
+	// 		// 	chain: data.chain,
+	// 		// 	contractAddress: data.tokenAddress
+	// 		// })
 
-			// if (!isValidMeemProject) {
-			// 	throw new Error('INVALID_MEEM_PROJECT')
-			// }
+	// 		// if (!isValidMeemProject) {
+	// 		// 	throw new Error('INVALID_MEEM_PROJECT')
+	// 		// }
 
-			const contract = await (isMeemToken
-				? this.getMeemContract()
-				: this.erc721Contract({
-						networkName: MeemAPI.chainToNetworkName(data.chain),
-						address: data.tokenAddress
-				  }))
+	// 		const contract = await (isMeemToken
+	// 			? this.getMeemContract()
+	// 			: this.erc721Contract({
+	// 					networkName: MeemAPI.chainToNetworkName(data.chain),
+	// 					address: data.tokenAddress
+	// 			  }))
 
-			const owner = await contract.ownerOf(data.tokenId)
-			const isNFTOwner =
-				owner.toLowerCase() === data.accountAddress.toLowerCase()
-			if (
-				!isNFTOwner &&
-				data.accountAddress.toLowerCase() !==
-					config.MEEM_PROXY_ADDRESS.toLowerCase()
-			) {
-				throw new Error('TOKEN_NOT_OWNED')
-			}
+	// 		const owner = await contract.ownerOf(data.tokenId)
+	// 		const isNFTOwner =
+	// 			owner.toLowerCase() === data.accountAddress.toLowerCase()
+	// 		if (
+	// 			!isNFTOwner &&
+	// 			data.accountAddress.toLowerCase() !==
+	// 				config.MEEM_PROXY_ADDRESS.toLowerCase()
+	// 		) {
+	// 			throw new Error('TOKEN_NOT_OWNED')
+	// 		}
 
-			const contractInfo = await this.getContractInfo({
-				contractAddress: data.tokenAddress,
-				tokenId: data.tokenId,
-				networkName: MeemAPI.chainToNetworkName(data.chain)
-			})
+	// 		const contractInfo = await this.getContractInfo({
+	// 			contractAddress: data.tokenAddress,
+	// 			tokenId: data.tokenId,
+	// 			networkName: MeemAPI.chainToNetworkName(data.chain)
+	// 		})
 
-			let base64Image: string | undefined
+	// 		let base64Image: string | undefined
 
-			if (data.s3ImagePath) {
-				const imageData = await services.storage.getObject({
-					path: data.s3ImagePath
-				})
+	// 		if (data.s3ImagePath) {
+	// 			const imageData = await services.storage.getObject({
+	// 				path: data.s3ImagePath
+	// 			})
 
-				base64Image = imageData.toString('base64')
-			}
+	// 			base64Image = imageData.toString('base64')
+	// 		}
 
-			if (config.TESTING) {
-				base64Image = ''
-			}
+	// 		if (config.TESTING) {
+	// 			base64Image = ''
+	// 		}
 
-			const image =
-				base64Image ||
-				(await this.getImageFromMetadata(contractInfo.parentTokenMetadata))
+	// 		const image =
+	// 			base64Image ||
+	// 			(await this.getImageFromMetadata(contractInfo.parentTokenMetadata))
 
-			const imageBase64String = base64Image || image.toString('base64')
+	// 		const imageBase64String = base64Image || image.toString('base64')
 
-			const base64MeemImage = isMeemToken
-				? imageBase64String
-				: await this.createMeemImage({
-						base64Image: imageBase64String
-				  })
+	// 		const base64MeemImage = isMeemToken
+	// 			? imageBase64String
+	// 			: await this.createMeemImage({
+	// 					base64Image: imageBase64String
+	// 			  })
 
-			const [meemMetadata] = await Promise.all([
-				this.saveMeemMetadataasync(
-					{
-						name: data.name,
-						description: data.description || '',
-						collectionName: contractInfo.parentContractMetadata?.name,
-						imageBase64: base64MeemImage,
-						meemId
-					},
-					MeemAPI.MeemMetadataStorageProvider.Ipfs
-				),
-				data.s3ImagePath
-					? services.storage.deleteObject({ path: data.s3ImagePath })
-					: Promise.resolve(null)
-			])
+	// 		const [meemMetadata] = await Promise.all([
+	// 			this.saveMeemMetadataasync(
+	// 				{
+	// 					name: data.name,
+	// 					description: data.description || '',
+	// 					collectionName: contractInfo.parentContractMetadata?.name,
+	// 					imageBase64: base64MeemImage,
+	// 					meemId
+	// 				},
+	// 				MeemAPI.MeemMetadataStorageProvider.Ipfs
+	// 			),
+	// 			data.s3ImagePath
+	// 				? services.storage.deleteObject({ path: data.s3ImagePath })
+	// 				: Promise.resolve(null)
+	// 		])
 
-			const meemContract = await this.getMeemContract()
+	// 		const meemContract = await this.getMeemContract()
 
-			let { recommendedGwei } = await services.web3.getGasEstimate({
-				chain: MeemAPI.networkNameToChain(config.NETWORK)
-			})
+	// 		let { recommendedGwei } = await services.web3.getGasEstimate({
+	// 			chain: MeemAPI.networkNameToChain(config.NETWORK)
+	// 		})
 
-			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
-				// throw new Error('GAS_PRICE_TOO_HIGH')
-				log.warn(`Recommended fee over max: ${recommendedGwei}`)
-				recommendedGwei = config.MAX_GAS_PRICE_GWEI
-			}
+	// 		if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
+	// 			// throw new Error('GAS_PRICE_TOO_HIGH')
+	// 			log.warn(`Recommended fee over max: ${recommendedGwei}`)
+	// 			recommendedGwei = config.MAX_GAS_PRICE_GWEI
+	// 		}
 
-			const mintParams: Parameters<Meem['mint']> = [
-				{
-					to: data.accountAddress,
-					tokenURI: meemMetadata.tokenURI,
-					parentChain: data.chain,
-					parent: contractInfo.parentTokenAddress,
-					parentTokenId: contractInfo.parentTokenId,
-					meemType: MeemAPI.MeemType.Wrapped,
-					// data: '',
-					isURILocked: true,
-					uriSource: MeemAPI.UriSource.TokenUri,
-					reactionTypes: ['upvote', 'downvote'],
-					mintedBy: data.accountAddress
-				},
-				this.propertiesToMeemPropertiesStruct(
-					this.buildProperties(data.properties)
-				),
-				this.propertiesToMeemPropertiesStruct(
-					this.buildProperties({
-						...data.childProperties,
-						totalCopies: services.web3
-							.toBigNumber(data.childProperties?.totalCopies ?? 0)
-							.toHexString(),
-						splits: data.childProperties?.splits ?? data.properties?.splits
-					})
-				),
-				{
-					gasLimit: config.MINT_GAS_LIMIT,
-					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
-				}
-			]
+	// 		const mintParams: Parameters<MeemProxyV1['mint']> = [
+	// 			{
+	// 				to: data.accountAddress,
+	// 				tokenURI: meemMetadata.tokenURI,
+	// 				meemType: MeemAPI.MeemType.Wrapped,
+	// 				// data: '',
+	// 				isURILocked: true,
+	// 				uriSource: MeemAPI.UriSource.TokenUri,
+	// 				reactionTypes: ['upvote', 'downvote'],
+	// 				mintedBy: data.accountAddress
+	// 			},
+	// 			this.propertiesToMeemPropertiesStruct(
+	// 				this.buildProperties(data.properties)
+	// 			),
+	// 			this.propertiesToMeemPropertiesStruct(
+	// 				this.buildProperties({
+	// 					...data.childProperties,
+	// 					totalCopies: services.web3
+	// 						.toBigNumber(data.childProperties?.totalCopies ?? 0)
+	// 						.toHexString(),
+	// 					splits: data.childProperties?.splits ?? data.properties?.splits
+	// 				})
+	// 			),
+	// 			{
+	// 				gasLimit: config.MINT_GAS_LIMIT,
+	// 				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+	// 			}
+	// 		]
 
-			log.debug('Minting meem w/ params', { mintParams })
+	// 		log.debug('Minting meem w/ params', { mintParams })
 
-			const mintTx = await meemContract.mint(...mintParams)
+	// 		const mintTx = await meemContract.mint(...mintParams)
 
-			log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
+	// 		log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
 
-			const receipt = await mintTx.wait()
+	// 		const receipt = await mintTx.wait()
 
-			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
+	// 		const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
 
-			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
-				const tokenId = (transferEvent.args[2] as Ethers.BigNumber).toNumber()
-				const returnData = {
-					toAddress: data.accountAddress,
-					tokenURI: meemMetadata.tokenURI,
-					tokenId,
-					transactionHash: receipt.transactionHash
-				}
-				await sockets?.emit({
-					subscription: MeemAPI.MeemEvent.MeemMinted,
-					eventName: MeemAPI.MeemEvent.MeemMinted,
-					data: returnData
-				})
+	// 		if (transferEvent && transferEvent.args && transferEvent.args[2]) {
+	// 			const tokenId = (transferEvent.args[2] as Ethers.BigNumber).toNumber()
+	// 			const returnData = {
+	// 				toAddress: data.accountAddress,
+	// 				tokenURI: meemMetadata.tokenURI,
+	// 				tokenId,
+	// 				transactionHash: receipt.transactionHash
+	// 			}
+	// 			await sockets?.emit({
+	// 				subscription: MeemAPI.MeemEvent.MeemMinted,
+	// 				eventName: MeemAPI.MeemEvent.MeemMinted,
+	// 				data: returnData
+	// 			})
 
-				return returnData
-			}
-			throw new Error('TRANSFER_EVENT_NOT_FOUND')
-		} catch (e) {
-			const err = e as any
+	// 			return returnData
+	// 		}
+	// 		throw new Error('TRANSFER_EVENT_NOT_FOUND')
+	// 	} catch (e) {
+	// 		const err = e as any
 
-			log.warn(err)
+	// 		log.warn(err)
 
-			if (err.error?.error?.body) {
-				let errStr = 'UNKNOWN_CONTRACT_ERROR'
-				try {
-					const body = JSON.parse(err.error.error.body)
-					log.warn(body)
-					const inter = services.meem.meemInterface()
-					const errInfo = inter.parseError(body.error.data)
-					errStr = errorcodeToErrorString(errInfo.name)
-				} catch (parseError) {
-					// Unable to parse
-					log.crit('Unable to parse error.')
-				}
-				const error = handleStringErrorKey(errStr)
-				await sockets?.emitError(error, data.accountAddress)
-				throw new Error(errStr)
-			}
-			if (err.message) {
-				const error = handleStringErrorKey(err.message)
-				await sockets?.emitError(error, data.accountAddress)
-				throw new Error(err.message)
-			}
-			await sockets?.emitError(errors.SERVER_ERROR, data.accountAddress)
-			throw new Error('SERVER_ERROR')
-		}
-	}
+	// 		if (err.error?.error?.body) {
+	// 			let errStr = 'UNKNOWN_CONTRACT_ERROR'
+	// 			try {
+	// 				const body = JSON.parse(err.error.error.body)
+	// 				log.warn(body)
+	// 				const inter = services.meem.meemInterface()
+	// 				const errInfo = inter.parseError(body.error.data)
+	// 				errStr = errorcodeToErrorString(errInfo.name)
+	// 			} catch (parseError) {
+	// 				// Unable to parse
+	// 				log.crit('Unable to parse error.')
+	// 			}
+	// 			const error = handleStringErrorKey(errStr)
+	// 			await sockets?.emitError(error, data.accountAddress)
+	// 			throw new Error(errStr)
+	// 		}
+	// 		if (err.message) {
+	// 			const error = handleStringErrorKey(err.message)
+	// 			await sockets?.emitError(error, data.accountAddress)
+	// 			throw new Error(err.message)
+	// 		}
+	// 		await sockets?.emitError(errors.SERVER_ERROR, data.accountAddress)
+	// 		throw new Error('SERVER_ERROR')
+	// 	}
+	// }
 
 	/** Mint a Meem */
 	public static async mintOriginalMeem(
@@ -567,10 +549,6 @@ export default class MeemService {
 				throw new Error('MISSING_CONTRACT_ADDRESS')
 			}
 
-			if (_.isUndefined(data.chain)) {
-				throw new Error('MISSING_CHAIN_ID')
-			}
-
 			if (!data.to) {
 				throw new Error('MISSING_ACCOUNT_ADDRESS')
 			}
@@ -580,43 +558,20 @@ export default class MeemService {
 				throw new Error('MISSING_METADATA')
 			}
 
-			// const isAccessAllowed = await this.isAccessAllowed({
-			// 	chain: data.chain,
-			// 	accountAddress: data.accountAddress,
-			// 	contractAddress: data.tokenAddress
-			// })
-
-			// if (!isAccessAllowed && !config.TESTING) {
-			// 	throw new Error('MINTING_ACCESS_DENIED')
-			// }
-
-			// TODO: Remove redundant check and rely only on access?
-			// const isValidMeemProject = await this.isValidMeemProject({
-			// 	chain: data.chain,
-			// 	contractAddress: data.tokenAddress
-			// })
-
-			// if (!isValidMeemProject) {
-			// 	throw new Error('INVALID_MEEM_PROJECT')
-			// }
-
 			const meemContract = await this.getMeemContract({
-				address: data.meemContractAddress.toLowerCase(),
-				chain: data.chain ?? 1
+				address: data.meemContractAddress.toLowerCase()
 			})
 
 			const adminRole = await meemContract.ADMIN_ROLE()
-			const admins = await meemContract.getRoles(adminRole)
+			const isAdmin = await meemContract.hasRole(adminRole, data.mintedBy)
 
-			const isAdmin = admins.find(a => a === data.mintedBy)
+			// const isAdmin = admins.find(a => a === data.mintedBy)
 
 			if (!isAdmin) {
 				throw new Error('NOT_AUTHORIZED')
 			}
 
-			let { recommendedGwei } = await services.web3.getGasEstimate({
-				chain: MeemAPI.networkNameToChain(config.NETWORK)
-			})
+			let { recommendedGwei } = await services.web3.getGasEstimate()
 
 			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
 				// throw new Error('GAS_PRICE_TOO_HIGH')
@@ -628,36 +583,12 @@ export default class MeemService {
 				? data.metadata
 				: JSON.stringify(data.metadata ?? {})
 
-			const mintParams: Parameters<Meem['mint']> = [
+			const mintParams: Parameters<MeemProxyV1['mint']> = [
 				{
 					to: data.to.toLowerCase(),
 					tokenURI,
-					parentChain: data.chain,
-					parent: MeemAPI.zeroAddress,
-					parentTokenId: 0,
-					meemType: MeemAPI.MeemType.Original,
-					// data: '',
-					isURILocked: false,
-					uriSource: UriSource.Json,
-					reactionTypes: ['upvote', 'downvote', 'heart'],
-					mintedBy: data.mintedBy.toLowerCase() // TODO: Replace with wallet
+					tokenType: MeemAPI.MeemType.Original
 				},
-				data.properties
-					? this.propertiesToMeemPropertiesStruct(
-							this.buildProperties(data.properties)
-					  )
-					: meemContracts.defaultMeemProperties,
-				data.childProperties
-					? this.propertiesToMeemPropertiesStruct(
-							this.buildProperties({
-								...data.childProperties,
-								totalCopies: services.web3
-									.toBigNumber(data.childProperties?.totalCopies ?? 0)
-									.toHexString(),
-								splits: data.childProperties?.splits ?? data.properties?.splits
-							})
-					  )
-					: meemContracts.defaultMeemProperties,
 				{
 					gasLimit: config.MINT_GAS_LIMIT,
 					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
@@ -723,113 +654,113 @@ export default class MeemService {
 		}
 	}
 
-	public static async createMeemProject(options: {
-		name: string
-		description: string
-		minterAddresses: string[]
-	}) {
-		const { name, description, minterAddresses } = options
+	// public static async createMeemProject(options: {
+	// 	name: string
+	// 	description: string
+	// 	minterAddresses: string[]
+	// }) {
+	// 	const { name, description, minterAddresses } = options
 
-		const projectImagePath = path.resolve(
-			process.cwd(),
-			'src/lib/meem-badge.png'
-		)
+	// 	const projectImagePath = path.resolve(
+	// 		process.cwd(),
+	// 		'src/lib/meem-badge.png'
+	// 	)
 
-		const projectImage = await fs.readFile(projectImagePath)
+	// 	const projectImage = await fs.readFile(projectImagePath)
 
-		const meemMetadata = await this.saveMeemMetadataasync(
-			{
-				name,
-				description,
-				collectionName: 'Meem Projects',
-				imageBase64: projectImage.toString('base64'),
-				meemId: uuidv4()
-			},
-			MeemAPI.MeemMetadataStorageProvider.Ipfs
-		)
+	// 	const meemMetadata = await this.saveMeemMetadataasync(
+	// 		{
+	// 			name,
+	// 			description,
+	// 			collectionName: 'Meem Projects',
+	// 			imageBase64: projectImage.toString('base64'),
+	// 			meemId: uuidv4()
+	// 		},
+	// 		MeemAPI.MeemMetadataStorageProvider.Ipfs
+	// 	)
 
-		const meemContract = await this.getMeemContract()
+	// 	const meemContract = await this.getMeemContract()
 
-		let { recommendedGwei } = await services.web3.getGasEstimate({
-			chain: MeemAPI.networkNameToChain(config.NETWORK)
-		})
+	// 	let { recommendedGwei } = await services.web3.getGasEstimate({
+	// 		chain: MeemAPI.networkNameToChain(config.NETWORK)
+	// 	})
 
-		if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
-			// throw new Error('GAS_PRICE_TOO_HIGH')
-			log.warn(`Recommended fee over max: ${recommendedGwei}`)
-			recommendedGwei = config.MAX_GAS_PRICE_GWEI
-		}
+	// 	if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
+	// 		// throw new Error('GAS_PRICE_TOO_HIGH')
+	// 		log.warn(`Recommended fee over max: ${recommendedGwei}`)
+	// 		recommendedGwei = config.MAX_GAS_PRICE_GWEI
+	// 	}
 
-		const mintParams: Parameters<Meem['mint']> = [
-			{
-				to: config.MEEM_PROJECT_OWNER_ADDRESS,
-				tokenURI: meemMetadata.tokenURI,
-				parentChain: MeemAPI.networkNameToChain(config.NETWORK),
-				parent: MeemAPI.zeroAddress,
-				parentTokenId: 0,
-				meemType: MeemAPI.MeemType.Original,
-				// data: '',
-				isURILocked: true,
-				uriSource: MeemAPI.UriSource.TokenUri,
-				reactionTypes: MeemAPI.defaultReactionTypes,
-				mintedBy: config.MEEM_PROJECT_OWNER_ADDRESS
-			},
-			this.propertiesToMeemPropertiesStruct(
-				this.buildProperties({
-					copyPermissions: [
-						{
-							permission: MeemAPI.Permission.Addresses,
-							addresses: minterAddresses,
-							numTokens: '0',
-							lockedBy: MeemAPI.zeroAddress,
-							costWei: services.web3.toBigNumber(0).toHexString()
-						}
-					],
-					remixPermissions: [
-						{
-							permission: MeemAPI.Permission.Addresses,
-							addresses: minterAddresses,
-							numTokens: '0',
-							lockedBy: MeemAPI.zeroAddress,
-							costWei: services.web3.toBigNumber(0).toHexString()
-						}
-					],
-					splits: [
-						{
-							toAddress: config.MEEM_PROJECT_OWNER_ADDRESS,
-							amount: 100,
-							lockedBy: MeemAPI.zeroAddress
-						}
-					]
-				})
-			),
-			this.propertiesToMeemPropertiesStruct(
-				this.buildProperties({
-					splits: [
-						{
-							toAddress: config.MEEM_PROJECT_OWNER_ADDRESS,
-							amount: 100,
-							lockedBy: MeemAPI.zeroAddress
-						}
-					]
-				})
-			),
-			{
-				gasLimit: config.MINT_GAS_LIMIT,
-				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
-			}
-		]
+	// 	const mintParams: Parameters<Meem['mint']> = [
+	// 		{
+	// 			to: config.MEEM_PROJECT_OWNER_ADDRESS,
+	// 			tokenURI: meemMetadata.tokenURI,
+	// 			parentChain: MeemAPI.networkNameToChain(config.NETWORK),
+	// 			parent: MeemAPI.zeroAddress,
+	// 			parentTokenId: 0,
+	// 			meemType: MeemAPI.MeemType.Original,
+	// 			// data: '',
+	// 			isURILocked: true,
+	// 			uriSource: MeemAPI.UriSource.TokenUri,
+	// 			reactionTypes: MeemAPI.defaultReactionTypes,
+	// 			mintedBy: config.MEEM_PROJECT_OWNER_ADDRESS
+	// 		},
+	// 		this.propertiesToMeemPropertiesStruct(
+	// 			this.buildProperties({
+	// 				copyPermissions: [
+	// 					{
+	// 						permission: MeemAPI.Permission.Addresses,
+	// 						addresses: minterAddresses,
+	// 						numTokens: '0',
+	// 						lockedBy: MeemAPI.zeroAddress,
+	// 						costWei: services.web3.toBigNumber(0).toHexString()
+	// 					}
+	// 				],
+	// 				remixPermissions: [
+	// 					{
+	// 						permission: MeemAPI.Permission.Addresses,
+	// 						addresses: minterAddresses,
+	// 						numTokens: '0',
+	// 						lockedBy: MeemAPI.zeroAddress,
+	// 						costWei: services.web3.toBigNumber(0).toHexString()
+	// 					}
+	// 				],
+	// 				splits: [
+	// 					{
+	// 						toAddress: config.MEEM_PROJECT_OWNER_ADDRESS,
+	// 						amount: 100,
+	// 						lockedBy: MeemAPI.zeroAddress
+	// 					}
+	// 				]
+	// 			})
+	// 		),
+	// 		this.propertiesToMeemPropertiesStruct(
+	// 			this.buildProperties({
+	// 				splits: [
+	// 					{
+	// 						toAddress: config.MEEM_PROJECT_OWNER_ADDRESS,
+	// 						amount: 100,
+	// 						lockedBy: MeemAPI.zeroAddress
+	// 					}
+	// 				]
+	// 			})
+	// 		),
+	// 		{
+	// 			gasLimit: config.MINT_GAS_LIMIT,
+	// 			gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+	// 		}
+	// 	]
 
-		log.debug('Minting meem w/ params', { mintParams })
+	// 	log.debug('Minting meem w/ params', { mintParams })
 
-		const mintTx = await meemContract.mint(...mintParams)
+	// 	const mintTx = await meemContract.mint(...mintParams)
 
-		log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
+	// 	log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
 
-		const receipt = await mintTx.wait()
+	// 	const receipt = await mintTx.wait()
 
-		log.debug(`Finished minting: ${receipt.transactionHash}`)
-	}
+	// 	log.debug(`Finished minting: ${receipt.transactionHash}`)
+	// }
 
 	public static async isValidMeemProject(options: {
 		chain: MeemAPI.Chain
@@ -917,8 +848,8 @@ export default class MeemService {
 		})
 
 		// Fetch root data unless this isn't a Meem in which case root is the parent
-		let rootTokenAddress = contractAddress
-		let rootTokenId = tokenId
+		const rootTokenAddress = contractAddress
+		const rootTokenId = tokenId
 		let rootTokenMetadata = parentTokenMetadata
 		let rootTokenURI = parentTokenURI
 		let rootContractURI = parentContractURI
@@ -926,9 +857,9 @@ export default class MeemService {
 
 		if (isMeemToken) {
 			const meemContract = await this.getMeemContract()
-			const meem = await meemContract.getMeem(tokenId)
-			rootTokenAddress = meem.root
-			rootTokenId = meem.rootTokenId
+			// const meem = await meemContract.getMeem(tokenId)
+			// rootTokenAddress = meem.root
+			// rootTokenId = meem.rootTokenId
 
 			const meemInfo = await this.getMetadata({
 				contract: meemContract,
@@ -958,7 +889,7 @@ export default class MeemService {
 	}
 
 	public static async getMetadata(options: {
-		contract: ERC721 | Meem
+		contract: ERC721 | MeemProxyV1
 		tokenId: Ethers.BigNumberish
 	}) {
 		const { contract, tokenId } = options
@@ -988,237 +919,237 @@ export default class MeemService {
 		}
 	}
 
-	/** Take a partial set of properties and return a full set w/ defaults */
-	public static buildProperties(
-		props?: Partial<MeemAPI.IMeemProperties>
-	): MeemAPI.IMeemProperties {
-		return {
-			copyPermissions: props?.copyPermissions ?? [
-				{
-					permission: MeemAPI.Permission.Anyone,
-					addresses: [],
-					numTokens: services.web3.toBigNumber(0).toHexString(),
-					lockedBy: MeemAPI.zeroAddress,
-					costWei: services.web3.toBigNumber(0).toHexString()
-				}
-			],
-			remixPermissions: props?.remixPermissions ?? [
-				{
-					permission: MeemAPI.Permission.Anyone,
-					addresses: [],
-					numTokens: services.web3.toBigNumber(0).toHexString(),
-					lockedBy: MeemAPI.zeroAddress,
-					costWei: services.web3.toBigNumber(0).toHexString()
-				}
-			],
-			readPermissions: props?.readPermissions ?? [
-				{
-					permission: MeemAPI.Permission.Anyone,
-					addresses: [],
-					numTokens: services.web3.toBigNumber(0).toHexString(),
-					lockedBy: MeemAPI.zeroAddress,
-					costWei: services.web3.toBigNumber(0).toHexString()
-				}
-			],
-			copyPermissionsLockedBy:
-				props?.copyPermissionsLockedBy ?? MeemAPI.zeroAddress,
-			remixPermissionsLockedBy:
-				props?.remixPermissionsLockedBy ?? MeemAPI.zeroAddress,
-			readPermissionsLockedBy:
-				props?.readPermissionsLockedBy ?? MeemAPI.zeroAddress,
-			splits: props?.splits ?? [],
-			splitsLockedBy: props?.splitsLockedBy ?? MeemAPI.zeroAddress,
-			copiesPerWallet: services.web3
-				.toBigNumber(props?.copiesPerWallet ?? -1)
-				.toHexString(),
-			copiesPerWalletLockedBy:
-				props?.copiesPerWalletLockedBy ?? MeemAPI.zeroAddress,
-			totalCopies: services.web3
-				.toBigNumber(props?.totalCopies ?? 0)
-				.toHexString(),
-			totalCopiesLockedBy: props?.totalCopiesLockedBy ?? MeemAPI.zeroAddress,
-			totalRemixes: services.web3
-				.toBigNumber(props?.totalRemixes ?? -1)
-				.toHexString(),
-			remixesPerWallet: services.web3
-				.toBigNumber(props?.remixesPerWallet ?? -1)
-				.toHexString(),
-			remixesPerWalletLockedBy:
-				props?.remixesPerWalletLockedBy ?? MeemAPI.zeroAddress,
-			totalRemixesLockedBy: props?.totalRemixesLockedBy ?? MeemAPI.zeroAddress,
-			isTransferrable: props?.isTransferrable ?? false,
-			isTransferrableLockedBy:
-				props?.isTransferrableLockedBy ?? MeemAPI.zeroAddress,
-			mintStartAt: services.web3
-				.toBigNumber(props?.mintStartAt ?? 0)
-				.toNumber(),
-			mintEndAt: services.web3.toBigNumber(props?.mintEndAt ?? 0).toNumber(),
-			mintDatesLockedBy: props?.mintDatesLockedBy ?? MeemAPI.zeroAddress,
-			transferLockupUntil: services.web3
-				.toBigNumber(props?.transferLockupUntil ?? 0)
-				.toNumber(),
-			transferLockupUntilLockedBy:
-				props?.transferLockupUntilLockedBy ?? MeemAPI.zeroAddress
-		}
-	}
+	// /** Take a partial set of properties and return a full set w/ defaults */
+	// public static buildProperties(
+	// 	props?: Partial<MeemAPI.IMeemProperties>
+	// ): MeemAPI.IMeemProperties {
+	// 	return {
+	// 		copyPermissions: props?.copyPermissions ?? [
+	// 			{
+	// 				permission: MeemAPI.Permission.Anyone,
+	// 				addresses: [],
+	// 				numTokens: services.web3.toBigNumber(0).toHexString(),
+	// 				lockedBy: MeemAPI.zeroAddress,
+	// 				costWei: services.web3.toBigNumber(0).toHexString()
+	// 			}
+	// 		],
+	// 		remixPermissions: props?.remixPermissions ?? [
+	// 			{
+	// 				permission: MeemAPI.Permission.Anyone,
+	// 				addresses: [],
+	// 				numTokens: services.web3.toBigNumber(0).toHexString(),
+	// 				lockedBy: MeemAPI.zeroAddress,
+	// 				costWei: services.web3.toBigNumber(0).toHexString()
+	// 			}
+	// 		],
+	// 		readPermissions: props?.readPermissions ?? [
+	// 			{
+	// 				permission: MeemAPI.Permission.Anyone,
+	// 				addresses: [],
+	// 				numTokens: services.web3.toBigNumber(0).toHexString(),
+	// 				lockedBy: MeemAPI.zeroAddress,
+	// 				costWei: services.web3.toBigNumber(0).toHexString()
+	// 			}
+	// 		],
+	// 		copyPermissionsLockedBy:
+	// 			props?.copyPermissionsLockedBy ?? MeemAPI.zeroAddress,
+	// 		remixPermissionsLockedBy:
+	// 			props?.remixPermissionsLockedBy ?? MeemAPI.zeroAddress,
+	// 		readPermissionsLockedBy:
+	// 			props?.readPermissionsLockedBy ?? MeemAPI.zeroAddress,
+	// 		splits: props?.splits ?? [],
+	// 		splitsLockedBy: props?.splitsLockedBy ?? MeemAPI.zeroAddress,
+	// 		copiesPerWallet: services.web3
+	// 			.toBigNumber(props?.copiesPerWallet ?? -1)
+	// 			.toHexString(),
+	// 		copiesPerWalletLockedBy:
+	// 			props?.copiesPerWalletLockedBy ?? MeemAPI.zeroAddress,
+	// 		totalCopies: services.web3
+	// 			.toBigNumber(props?.totalCopies ?? 0)
+	// 			.toHexString(),
+	// 		totalCopiesLockedBy: props?.totalCopiesLockedBy ?? MeemAPI.zeroAddress,
+	// 		totalRemixes: services.web3
+	// 			.toBigNumber(props?.totalRemixes ?? -1)
+	// 			.toHexString(),
+	// 		remixesPerWallet: services.web3
+	// 			.toBigNumber(props?.remixesPerWallet ?? -1)
+	// 			.toHexString(),
+	// 		remixesPerWalletLockedBy:
+	// 			props?.remixesPerWalletLockedBy ?? MeemAPI.zeroAddress,
+	// 		totalRemixesLockedBy: props?.totalRemixesLockedBy ?? MeemAPI.zeroAddress,
+	// 		isTransferrable: props?.isTransferrable ?? false,
+	// 		isTransferrableLockedBy:
+	// 			props?.isTransferrableLockedBy ?? MeemAPI.zeroAddress,
+	// 		mintStartAt: services.web3
+	// 			.toBigNumber(props?.mintStartAt ?? 0)
+	// 			.toNumber(),
+	// 		mintEndAt: services.web3.toBigNumber(props?.mintEndAt ?? 0).toNumber(),
+	// 		mintDatesLockedBy: props?.mintDatesLockedBy ?? MeemAPI.zeroAddress,
+	// 		transferLockupUntil: services.web3
+	// 			.toBigNumber(props?.transferLockupUntil ?? 0)
+	// 			.toNumber(),
+	// 		transferLockupUntilLockedBy:
+	// 			props?.transferLockupUntilLockedBy ?? MeemAPI.zeroAddress
+	// 	}
+	// }
 
-	public static propertiesToMeemPropertiesStruct(
-		props?: Partial<MeemAPI.IMeemProperties>
-	): MeemPropertiesStruct {
-		return {
-			copyPermissions: props?.copyPermissions ?? [
-				{
-					permission: MeemAPI.Permission.Anyone,
-					addresses: [],
-					numTokens: services.web3.toBigNumber(0).toHexString(),
-					lockedBy: MeemAPI.zeroAddress,
-					costWei: services.web3.toBigNumber(0).toHexString()
-				}
-			],
-			remixPermissions: props?.remixPermissions ?? [
-				{
-					permission: MeemAPI.Permission.Anyone,
-					addresses: [],
-					numTokens: services.web3.toBigNumber(0).toHexString(),
-					lockedBy: MeemAPI.zeroAddress,
-					costWei: services.web3.toBigNumber(0).toHexString()
-				}
-			],
-			readPermissions: props?.readPermissions ?? [
-				{
-					permission: MeemAPI.Permission.Anyone,
-					addresses: [],
-					numTokens: services.web3.toBigNumber(0).toHexString(),
-					lockedBy: MeemAPI.zeroAddress,
-					costWei: services.web3.toBigNumber(0).toHexString()
-				}
-			],
-			copyPermissionsLockedBy:
-				props?.copyPermissionsLockedBy ?? MeemAPI.zeroAddress,
-			remixPermissionsLockedBy:
-				props?.remixPermissionsLockedBy ?? MeemAPI.zeroAddress,
-			readPermissionsLockedBy:
-				props?.readPermissionsLockedBy ?? MeemAPI.zeroAddress,
-			splits: props?.splits ?? [],
-			splitsLockedBy: props?.splitsLockedBy ?? MeemAPI.zeroAddress,
-			copiesPerWallet: services.web3
-				.toBigNumber(props?.copiesPerWallet ?? -1)
-				.toHexString(),
-			copiesPerWalletLockedBy:
-				props?.copiesPerWalletLockedBy ?? MeemAPI.zeroAddress,
-			totalCopies: services.web3
-				.toBigNumber(props?.totalCopies ?? 0)
-				.toHexString(),
-			totalCopiesLockedBy: props?.totalCopiesLockedBy ?? MeemAPI.zeroAddress,
-			totalRemixes: services.web3
-				.toBigNumber(props?.totalRemixes ?? -1)
-				.toHexString(),
-			remixesPerWallet: services.web3
-				.toBigNumber(props?.remixesPerWallet ?? -1)
-				.toHexString(),
-			remixesPerWalletLockedBy:
-				props?.remixesPerWalletLockedBy ?? MeemAPI.zeroAddress,
-			totalRemixesLockedBy: props?.totalRemixesLockedBy ?? MeemAPI.zeroAddress,
-			isTransferrable: props?.isTransferrable ?? false,
-			isTransferrableLockedBy:
-				props?.isTransferrableLockedBy ?? MeemAPI.zeroAddress,
-			mintStartTimestamp: services.web3.toBigNumber(props?.mintStartAt ?? 0),
-			mintEndTimestamp: services.web3
-				.toBigNumber(props?.mintEndAt ?? 0)
-				.toNumber(),
-			mintDatesLockedBy: props?.mintDatesLockedBy ?? MeemAPI.zeroAddress,
-			transferLockupUntil: services.web3
-				.toBigNumber(props?.transferLockupUntil ?? 0)
-				.toNumber(),
-			transferLockupUntilLockedBy:
-				props?.transferLockupUntilLockedBy ?? MeemAPI.zeroAddress
-		}
-	}
+	// public static propertiesToMeemPropertiesStruct(
+	// 	props?: Partial<MeemAPI.IMeemProperties>
+	// ): MeemPropertiesStruct {
+	// 	return {
+	// 		copyPermissions: props?.copyPermissions ?? [
+	// 			{
+	// 				permission: MeemAPI.Permission.Anyone,
+	// 				addresses: [],
+	// 				numTokens: services.web3.toBigNumber(0).toHexString(),
+	// 				lockedBy: MeemAPI.zeroAddress,
+	// 				costWei: services.web3.toBigNumber(0).toHexString()
+	// 			}
+	// 		],
+	// 		remixPermissions: props?.remixPermissions ?? [
+	// 			{
+	// 				permission: MeemAPI.Permission.Anyone,
+	// 				addresses: [],
+	// 				numTokens: services.web3.toBigNumber(0).toHexString(),
+	// 				lockedBy: MeemAPI.zeroAddress,
+	// 				costWei: services.web3.toBigNumber(0).toHexString()
+	// 			}
+	// 		],
+	// 		readPermissions: props?.readPermissions ?? [
+	// 			{
+	// 				permission: MeemAPI.Permission.Anyone,
+	// 				addresses: [],
+	// 				numTokens: services.web3.toBigNumber(0).toHexString(),
+	// 				lockedBy: MeemAPI.zeroAddress,
+	// 				costWei: services.web3.toBigNumber(0).toHexString()
+	// 			}
+	// 		],
+	// 		copyPermissionsLockedBy:
+	// 			props?.copyPermissionsLockedBy ?? MeemAPI.zeroAddress,
+	// 		remixPermissionsLockedBy:
+	// 			props?.remixPermissionsLockedBy ?? MeemAPI.zeroAddress,
+	// 		readPermissionsLockedBy:
+	// 			props?.readPermissionsLockedBy ?? MeemAPI.zeroAddress,
+	// 		splits: props?.splits ?? [],
+	// 		splitsLockedBy: props?.splitsLockedBy ?? MeemAPI.zeroAddress,
+	// 		copiesPerWallet: services.web3
+	// 			.toBigNumber(props?.copiesPerWallet ?? -1)
+	// 			.toHexString(),
+	// 		copiesPerWalletLockedBy:
+	// 			props?.copiesPerWalletLockedBy ?? MeemAPI.zeroAddress,
+	// 		totalCopies: services.web3
+	// 			.toBigNumber(props?.totalCopies ?? 0)
+	// 			.toHexString(),
+	// 		totalCopiesLockedBy: props?.totalCopiesLockedBy ?? MeemAPI.zeroAddress,
+	// 		totalRemixes: services.web3
+	// 			.toBigNumber(props?.totalRemixes ?? -1)
+	// 			.toHexString(),
+	// 		remixesPerWallet: services.web3
+	// 			.toBigNumber(props?.remixesPerWallet ?? -1)
+	// 			.toHexString(),
+	// 		remixesPerWalletLockedBy:
+	// 			props?.remixesPerWalletLockedBy ?? MeemAPI.zeroAddress,
+	// 		totalRemixesLockedBy: props?.totalRemixesLockedBy ?? MeemAPI.zeroAddress,
+	// 		isTransferrable: props?.isTransferrable ?? false,
+	// 		isTransferrableLockedBy:
+	// 			props?.isTransferrableLockedBy ?? MeemAPI.zeroAddress,
+	// 		mintStartTimestamp: services.web3.toBigNumber(props?.mintStartAt ?? 0),
+	// 		mintEndTimestamp: services.web3
+	// 			.toBigNumber(props?.mintEndAt ?? 0)
+	// 			.toNumber(),
+	// 		mintDatesLockedBy: props?.mintDatesLockedBy ?? MeemAPI.zeroAddress,
+	// 		transferLockupUntil: services.web3
+	// 			.toBigNumber(props?.transferLockupUntil ?? 0)
+	// 			.toNumber(),
+	// 		transferLockupUntilLockedBy:
+	// 			props?.transferLockupUntilLockedBy ?? MeemAPI.zeroAddress
+	// 	}
+	// }
 
-	public static meemToInterface(options: {
-		tokenId: string
-		meem: MeemStructOutput
-	}): MeemAPI.IMeem {
-		const { tokenId, meem } = options
+	// public static meemToInterface(options: {
+	// 	tokenId: string
+	// 	meem: MeemStructOutput
+	// }): MeemAPI.IMeem {
+	// 	const { tokenId, meem } = options
 
-		return {
-			tokenId,
-			owner: meem.owner,
-			parentChain: meem.parentChain,
-			parent: meem.parent,
-			parentTokenId: meem.parentTokenId.toHexString(),
-			rootChain: meem.rootChain,
-			root: meem.root,
-			rootTokenId: meem.rootTokenId.toHexString(),
-			generation: meem.generation.toNumber(),
-			properties: this.meemPropertiesToInterface(meem.properties),
-			childProperties: this.meemPropertiesToInterface(meem.childProperties),
-			mintedAt: meem.mintedAt.toNumber(),
-			uriLockedBy: meem.uriLockedBy,
-			uriSource: meem.uriSource,
-			reactionTypes: meem.reactionTypes,
-			meemType: meem.meemType,
-			mintedBy: meem.mintedBy
-		}
-	}
+	// 	return {
+	// 		tokenId,
+	// 		owner: meem.owner,
+	// 		parentChain: meem.parentChain,
+	// 		parent: meem.parent,
+	// 		parentTokenId: meem.parentTokenId.toHexString(),
+	// 		rootChain: meem.rootChain,
+	// 		root: meem.root,
+	// 		rootTokenId: meem.rootTokenId.toHexString(),
+	// 		generation: meem.generation.toNumber(),
+	// 		properties: this.meemPropertiesToInterface(meem.properties),
+	// 		childProperties: this.meemPropertiesToInterface(meem.childProperties),
+	// 		mintedAt: meem.mintedAt.toNumber(),
+	// 		uriLockedBy: meem.uriLockedBy,
+	// 		uriSource: meem.uriSource,
+	// 		reactionTypes: meem.reactionTypes,
+	// 		meemType: meem.meemType,
+	// 		mintedBy: meem.mintedBy
+	// 	}
+	// }
 
-	public static meemPropertiesToInterface(
-		meemProperties: MeemPropertiesStructOutput
-	): MeemAPI.IMeemProperties {
-		return {
-			totalCopies: meemProperties.totalCopies.toHexString(),
-			totalCopiesLockedBy: meemProperties.totalCopiesLockedBy,
-			copiesPerWallet: meemProperties.copiesPerWallet.toHexString(),
-			copiesPerWalletLockedBy: meemProperties.copiesPerWalletLockedBy,
-			totalRemixes: meemProperties.totalRemixes.toHexString(),
-			totalRemixesLockedBy: meemProperties.totalRemixesLockedBy,
-			remixesPerWallet: meemProperties.remixesPerWallet.toHexString(),
-			remixesPerWalletLockedBy: meemProperties.remixesPerWalletLockedBy,
-			copyPermissions: meemProperties.copyPermissions.map(perm =>
-				this.meemPermissionToInterface(perm)
-			),
-			remixPermissions: meemProperties.remixPermissions.map(perm =>
-				this.meemPermissionToInterface(perm)
-			),
-			readPermissions: meemProperties.readPermissions.map(perm =>
-				this.meemPermissionToInterface(perm)
-			),
-			copyPermissionsLockedBy: meemProperties.copyPermissionsLockedBy,
-			remixPermissionsLockedBy: meemProperties.remixPermissionsLockedBy,
-			readPermissionsLockedBy: meemProperties.readPermissionsLockedBy,
-			splits: meemProperties.splits.map(s => this.meemSplitToInterface(s)),
-			splitsLockedBy: meemProperties.splitsLockedBy,
-			mintStartAt: meemProperties.mintStartTimestamp.toNumber(),
-			mintEndAt: meemProperties.mintEndTimestamp.toNumber(),
-			mintDatesLockedBy: meemProperties.mintDatesLockedBy,
-			isTransferrable: meemProperties.isTransferrable,
-			isTransferrableLockedBy: meemProperties.isTransferrableLockedBy,
-			transferLockupUntil: meemProperties.transferLockupUntil.toNumber(),
-			transferLockupUntilLockedBy: meemProperties.transferLockupUntilLockedBy
-		}
-	}
+	// public static meemPropertiesToInterface(
+	// 	meemProperties: MeemPropertiesStructOutput
+	// ): MeemAPI.IMeemProperties {
+	// 	return {
+	// 		totalCopies: meemProperties.totalCopies.toHexString(),
+	// 		totalCopiesLockedBy: meemProperties.totalCopiesLockedBy,
+	// 		copiesPerWallet: meemProperties.copiesPerWallet.toHexString(),
+	// 		copiesPerWalletLockedBy: meemProperties.copiesPerWalletLockedBy,
+	// 		totalRemixes: meemProperties.totalRemixes.toHexString(),
+	// 		totalRemixesLockedBy: meemProperties.totalRemixesLockedBy,
+	// 		remixesPerWallet: meemProperties.remixesPerWallet.toHexString(),
+	// 		remixesPerWalletLockedBy: meemProperties.remixesPerWalletLockedBy,
+	// 		copyPermissions: meemProperties.copyPermissions.map(perm =>
+	// 			this.meemPermissionToInterface(perm)
+	// 		),
+	// 		remixPermissions: meemProperties.remixPermissions.map(perm =>
+	// 			this.meemPermissionToInterface(perm)
+	// 		),
+	// 		readPermissions: meemProperties.readPermissions.map(perm =>
+	// 			this.meemPermissionToInterface(perm)
+	// 		),
+	// 		copyPermissionsLockedBy: meemProperties.copyPermissionsLockedBy,
+	// 		remixPermissionsLockedBy: meemProperties.remixPermissionsLockedBy,
+	// 		readPermissionsLockedBy: meemProperties.readPermissionsLockedBy,
+	// 		splits: meemProperties.splits.map(s => this.meemSplitToInterface(s)),
+	// 		splitsLockedBy: meemProperties.splitsLockedBy,
+	// 		mintStartAt: meemProperties.mintStartTimestamp.toNumber(),
+	// 		mintEndAt: meemProperties.mintEndTimestamp.toNumber(),
+	// 		mintDatesLockedBy: meemProperties.mintDatesLockedBy,
+	// 		isTransferrable: meemProperties.isTransferrable,
+	// 		isTransferrableLockedBy: meemProperties.isTransferrableLockedBy,
+	// 		transferLockupUntil: meemProperties.transferLockupUntil.toNumber(),
+	// 		transferLockupUntilLockedBy: meemProperties.transferLockupUntilLockedBy
+	// 	}
+	// }
 
-	public static meemPermissionToInterface(
-		meemPermission: MeemPermissionStructOutput
-	): MeemAPI.IMeemPermission {
-		return {
-			permission: meemPermission.permission,
-			addresses: meemPermission.addresses,
-			numTokens: meemPermission.numTokens.toHexString(),
-			lockedBy: meemPermission.lockedBy,
-			costWei: services.web3.toBigNumber(0).toHexString()
-		}
-	}
+	// public static meemPermissionToInterface(
+	// 	meemPermission: MeemPermissionStructOutput
+	// ): MeemAPI.IMeemPermission {
+	// 	return {
+	// 		permission: meemPermission.permission,
+	// 		addresses: meemPermission.addresses,
+	// 		numTokens: meemPermission.numTokens.toHexString(),
+	// 		lockedBy: meemPermission.lockedBy,
+	// 		costWei: services.web3.toBigNumber(0).toHexString()
+	// 	}
+	// }
 
-	public static meemSplitToInterface(
-		split: SplitStructOutput
-	): MeemAPI.IMeemSplit {
-		return {
-			toAddress: split.toAddress,
-			amount: split.amount.toNumber(),
-			lockedBy: split.lockedBy
-		}
-	}
+	// public static meemSplitToInterface(
+	// 	split: SplitStructOutput
+	// ): MeemAPI.IMeemSplit {
+	// 	return {
+	// 		toAddress: split.toAddress,
+	// 		amount: split.amount.toNumber(),
+	// 		lockedBy: split.lockedBy
+	// 	}
+	// }
 
 	public static meemToIMeem(meem: MeemModel): MeemAPI.IMetadataMeem {
 		if (!meem.Properties || !meem.ChildProperties) {
@@ -1281,162 +1212,162 @@ export default class MeemService {
 		}
 	}
 
-	public static async claimMeem(
-		tokenId: string,
-		meemIdentification: MeemIdentification
-	): Promise<void> {
-		let meem: MeemModel | null = null
+	// public static async claimMeem(
+	// 	tokenId: string,
+	// 	meemIdentification: MeemIdentification
+	// ): Promise<void> {
+	// 	let meem: MeemModel | null = null
 
-		const tokenIdNumber = services.web3.toBigNumber(tokenId)
-		meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId: tokenIdNumber.toHexString()
-			},
-			include: [
-				{
-					model: orm.models.MeemProperties,
-					as: 'Properties'
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'ChildProperties'
-				}
-			]
-		})
+	// 	const tokenIdNumber = services.web3.toBigNumber(tokenId)
+	// 	meem = await orm.models.Meem.findOne({
+	// 		where: {
+	// 			tokenId: tokenIdNumber.toHexString()
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'Properties'
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'ChildProperties'
+	// 			}
+	// 		]
+	// 	})
 
-		const meemContract = await services.meem.getMeemContract()
+	// 	const meemContract = await services.meem.getMeemContract()
 
-		if (config.TESTING) {
-			const [testMeemData, testMeemTokenUri] = await Promise.all([
-				meemContract.getMeem(tokenIdNumber),
-				meemContract.tokenURI(tokenIdNumber)
-			])
-			const meemInterface = services.meem.meemToInterface({
-				tokenId: `${tokenIdNumber.toNumber()}`,
-				meem: testMeemData
-			})
-			meem = await orm.models.Meem.create({
-				...meemInterface,
-				tokenURI: testMeemTokenUri
-			})
-		}
+	// 	if (config.TESTING) {
+	// 		const [testMeemData, testMeemTokenUri] = await Promise.all([
+	// 			meemContract.getMeem(tokenIdNumber),
+	// 			meemContract.tokenURI(tokenIdNumber)
+	// 		])
+	// 		const meemInterface = services.meem.meemToInterface({
+	// 			tokenId: `${tokenIdNumber.toNumber()}`,
+	// 			meem: testMeemData
+	// 		})
+	// 		meem = await orm.models.Meem.create({
+	// 			...meemInterface,
+	// 			tokenURI: testMeemTokenUri
+	// 		})
+	// 	}
 
-		if (!meem) {
-			throw new Error('TOKEN_NOT_FOUND')
-		}
+	// 	if (!meem) {
+	// 		throw new Error('TOKEN_NOT_FOUND')
+	// 	}
 
-		if (meem.owner.toLowerCase() !== config.MEEM_PROXY_ADDRESS.toLowerCase()) {
-			throw new Error('NOT_AUTHORIZED')
-		}
+	// 	if (meem.owner.toLowerCase() !== config.MEEM_PROXY_ADDRESS.toLowerCase()) {
+	// 		throw new Error('NOT_AUTHORIZED')
+	// 	}
 
-		const meemId = await services.meemId.getMeemId({
-			meemIdentification
-		})
+	// 	const meemId = await services.meemId.getMeemId({
+	// 		meemIdentification
+	// 	})
 
-		const meemberAlreadyOwns = meemId.wallets.find(w => {
-			return w.toLowerCase() === meem?.owner.toLowerCase()
-		})
+	// 	const meemberAlreadyOwns = meemId.wallets.find(w => {
+	// 		return w.toLowerCase() === meem?.owner.toLowerCase()
+	// 	})
 
-		if (meemberAlreadyOwns) {
-			return
-		}
+	// 	if (meemberAlreadyOwns) {
+	// 		return
+	// 	}
 
-		const parentTokenIdString = services.web3
-			.toBigNumber(meem.parentTokenId)
-			.toString()
+	// 	const parentTokenIdString = services.web3
+	// 		.toBigNumber(meem.parentTokenId)
+	// 		.toString()
 
-		if (meem.meemType === MeemAPI.MeemType.Wrapped) {
-			const contract = await services.meem.erc721Contract({
-				networkName: MeemAPI.chainToNetworkName(meem.rootChain),
-				address: meem.root
-			})
+	// 	if (meem.meemType === MeemAPI.MeemType.Wrapped) {
+	// 		const contract = await services.meem.erc721Contract({
+	// 			networkName: MeemAPI.chainToNetworkName(meem.rootChain),
+	// 			address: meem.root
+	// 		})
 
-			const owner = await contract.ownerOf(
-				services.web3.toBigNumber(meem.rootTokenId)
-			)
+	// 		const owner = await contract.ownerOf(
+	// 			services.web3.toBigNumber(meem.rootTokenId)
+	// 		)
 
-			const meemberOwnedWallet = meemId.wallets.find(
-				w => w.toLowerCase() === owner.toLowerCase()
-			)
+	// 		const meemberOwnedWallet = meemId.wallets.find(
+	// 			w => w.toLowerCase() === owner.toLowerCase()
+	// 		)
 
-			if (!meemberOwnedWallet) {
-				throw new Error('NOT_AUTHORIZED')
-			}
+	// 		if (!meemberOwnedWallet) {
+	// 			throw new Error('NOT_AUTHORIZED')
+	// 		}
 
-			const claimTx = await meemContract[
-				'safeTransferFrom(address,address,uint256)'
-			](config.MEEM_PROXY_ADDRESS, meemberOwnedWallet, tokenIdNumber.toNumber())
+	// 		const claimTx = await meemContract[
+	// 			'safeTransferFrom(address,address,uint256)'
+	// 		](config.MEEM_PROXY_ADDRESS, meemberOwnedWallet, tokenIdNumber.toNumber())
 
-			const receipt = await claimTx.wait()
+	// 		const receipt = await claimTx.wait()
 
-			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
+	// 		const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
 
-			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
-				const returnData = {
-					tokenId,
-					transactionHash: receipt.transactionHash
-				}
+	// 		if (transferEvent && transferEvent.args && transferEvent.args[2]) {
+	// 			const returnData = {
+	// 				tokenId,
+	// 				transactionHash: receipt.transactionHash
+	// 			}
 
-				log.debug('MEEM TRANSFERRED', returnData)
-				// await sockets?.emit({
-				// 	subscription: MeemAPI.MeemEvent.MeemTransferred,
-				// 	eventName: MeemAPI.MeemEvent.MeemTransferred,
-				// 	data: returnData
-				// })
-				// log.debug(returnData)
-			}
-		} else if (
-			meem.meemType === MeemType.Remix &&
-			parentTokenIdString === config.TWITTER_PROJECT_TOKEN_ID
-		) {
-			const meemData = JSON.parse(meem.data)
+	// 			log.debug('MEEM TRANSFERRED', returnData)
+	// 			// await sockets?.emit({
+	// 			// 	subscription: MeemAPI.MeemEvent.MeemTransferred,
+	// 			// 	eventName: MeemAPI.MeemEvent.MeemTransferred,
+	// 			// 	data: returnData
+	// 			// })
+	// 			// log.debug(returnData)
+	// 		}
+	// 	} else if (
+	// 		meem.meemType === MeemType.Remix &&
+	// 		parentTokenIdString === config.TWITTER_PROJECT_TOKEN_ID
+	// 	) {
+	// 		const meemData = JSON.parse(meem.data)
 
-			if (!meemData.userId) {
-				throw new Error('SERVER_ERROR')
-			}
+	// 		if (!meemData.userId) {
+	// 			throw new Error('SERVER_ERROR')
+	// 		}
 
-			const ownerTwitterId = meemIdentification?.Twitters?.find(
-				t => t.twitterId === meemData.userId
-			)
+	// 		const ownerTwitterId = meemIdentification?.Twitters?.find(
+	// 			t => t.twitterId === meemData.userId
+	// 		)
 
-			if (!ownerTwitterId) {
-				throw new Error('NOT_AUTHORIZED')
-			}
+	// 		if (!ownerTwitterId) {
+	// 			throw new Error('NOT_AUTHORIZED')
+	// 		}
 
-			log.debug(
-				`Transferring meem ${tokenIdNumber.toNumber()} from ${
-					config.MEEM_PROXY_ADDRESS
-				} to ${meemId.defaultWallet}`
-			)
+	// 		log.debug(
+	// 			`Transferring meem ${tokenIdNumber.toNumber()} from ${
+	// 				config.MEEM_PROXY_ADDRESS
+	// 			} to ${meemId.defaultWallet}`
+	// 		)
 
-			const claimTx = await meemContract[
-				'safeTransferFrom(address,address,uint256)'
-			](
-				config.MEEM_PROXY_ADDRESS,
-				meemId.defaultWallet,
-				tokenIdNumber.toNumber()
-			)
+	// 		const claimTx = await meemContract[
+	// 			'safeTransferFrom(address,address,uint256)'
+	// 		](
+	// 			config.MEEM_PROXY_ADDRESS,
+	// 			meemId.defaultWallet,
+	// 			tokenIdNumber.toNumber()
+	// 		)
 
-			const receipt = await claimTx.wait()
+	// 		const receipt = await claimTx.wait()
 
-			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
+	// 		const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
 
-			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
-				const returnData = {
-					tokenId,
-					transactionHash: receipt.transactionHash
-				}
+	// 		if (transferEvent && transferEvent.args && transferEvent.args[2]) {
+	// 			const returnData = {
+	// 				tokenId,
+	// 				transactionHash: receipt.transactionHash
+	// 			}
 
-				log.debug('MEEM TRANSFERRED', returnData)
-				// await sockets?.emit({
-				// 	subscription: MeemAPI.MeemEvent.MeemTransferred,
-				// 	eventName: MeemAPI.MeemEvent.MeemTransferred,
-				// 	data: returnData
-				// })
-				// log.debug(returnData)
-			}
-		}
-	}
+	// 			log.debug('MEEM TRANSFERRED', returnData)
+	// 			// await sockets?.emit({
+	// 			// 	subscription: MeemAPI.MeemEvent.MeemTransferred,
+	// 			// 	eventName: MeemAPI.MeemEvent.MeemTransferred,
+	// 			// 	data: returnData
+	// 			// })
+	// 			// log.debug(returnData)
+	// 		}
+	// 	}
+	// }
 
 	public static parseMeemData(data: string): Record<string, any> {
 		let parsedData: Record<string, any> | undefined

@@ -24,6 +24,16 @@ export default class Bundle extends BaseModel<Bundle> {
 		description: {
 			type: DataTypes.TEXT,
 			allowNull: false
+		},
+		types: {
+			type: DataTypes.TEXT,
+			allowNull: false,
+			defaultValue: ''
+		},
+		abi: {
+			type: DataTypes.JSONB,
+			allowNull: false,
+			defaultValue: []
 		}
 	}
 
@@ -40,6 +50,10 @@ export default class Bundle extends BaseModel<Bundle> {
 	public CreatorId!: string | null
 
 	public Creator!: string | null
+
+	public types!: string
+
+	public abi!: Record<string, any>[]
 
 	public static associate(models: IModels) {
 		this.hasMany(models.BundleContract)

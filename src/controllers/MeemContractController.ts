@@ -115,11 +115,7 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		if (!req.body.name) {
-			throw new Error('MISSING_PARAMETERS')
-		}
-
-		if (!req.body.admins) {
+		if (!req.body.contractParams) {
 			throw new Error('MISSING_PARAMETERS')
 		}
 

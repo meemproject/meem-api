@@ -21,6 +21,8 @@ export namespace CreateBundle {
 
 	export interface IResponseBody extends IApiResponseBody {
 		bundleId: string
+		types: string
+		abi: Record<string, any>[]
 	}
 
 	export interface IDefinition {

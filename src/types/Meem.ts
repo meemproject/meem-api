@@ -34,28 +34,6 @@ export type FacetStructOutput = [string, string[]] & {
   selectors: string[];
 };
 
-export type MeemPermissionStruct = {
-  permission: BigNumberish;
-  addresses: string[];
-  numTokens: BigNumberish;
-  lockedBy: string;
-  costWei: BigNumberish;
-};
-
-export type MeemPermissionStructOutput = [
-  number,
-  string[],
-  BigNumber,
-  string,
-  BigNumber
-] & {
-  permission: number;
-  addresses: string[];
-  numTokens: BigNumber;
-  lockedBy: string;
-  costWei: BigNumber;
-};
-
 export type SplitStruct = {
   toAddress: string;
   amount: BigNumberish;
@@ -68,208 +46,6 @@ export type SplitStructOutput = [string, BigNumber, string] & {
   lockedBy: string;
 };
 
-export type BasePropertiesStruct = {
-  totalOriginalsSupply: BigNumberish;
-  totalOriginalsSupplyLockedBy: string;
-  mintPermissions: MeemPermissionStruct[];
-  mintPermissionsLockedBy: string;
-  splits: SplitStruct[];
-  splitsLockedBy: string;
-  originalsPerWallet: BigNumberish;
-  originalsPerWalletLockedBy: string;
-  isTransferrable: boolean;
-  isTransferrableLockedBy: string;
-  mintStartTimestamp: BigNumberish;
-  mintEndTimestamp: BigNumberish;
-  mintDatesLockedBy: string;
-  transferLockupUntil: BigNumberish;
-  transferLockupUntilLockedBy: string;
-};
-
-export type BasePropertiesStructOutput = [
-  BigNumber,
-  string,
-  MeemPermissionStructOutput[],
-  string,
-  SplitStructOutput[],
-  string,
-  BigNumber,
-  string,
-  boolean,
-  string,
-  BigNumber,
-  BigNumber,
-  string,
-  BigNumber,
-  string
-] & {
-  totalOriginalsSupply: BigNumber;
-  totalOriginalsSupplyLockedBy: string;
-  mintPermissions: MeemPermissionStructOutput[];
-  mintPermissionsLockedBy: string;
-  splits: SplitStructOutput[];
-  splitsLockedBy: string;
-  originalsPerWallet: BigNumber;
-  originalsPerWalletLockedBy: string;
-  isTransferrable: boolean;
-  isTransferrableLockedBy: string;
-  mintStartTimestamp: BigNumber;
-  mintEndTimestamp: BigNumber;
-  mintDatesLockedBy: string;
-  transferLockupUntil: BigNumber;
-  transferLockupUntilLockedBy: string;
-};
-
-export type MeemPropertiesStruct = {
-  totalRemixes: BigNumberish;
-  totalRemixesLockedBy: string;
-  remixesPerWallet: BigNumberish;
-  remixesPerWalletLockedBy: string;
-  copyPermissions: MeemPermissionStruct[];
-  remixPermissions: MeemPermissionStruct[];
-  readPermissions: MeemPermissionStruct[];
-  copyPermissionsLockedBy: string;
-  remixPermissionsLockedBy: string;
-  readPermissionsLockedBy: string;
-  splits: SplitStruct[];
-  splitsLockedBy: string;
-  totalCopies: BigNumberish;
-  totalCopiesLockedBy: string;
-  copiesPerWallet: BigNumberish;
-  copiesPerWalletLockedBy: string;
-  isTransferrable: boolean;
-  isTransferrableLockedBy: string;
-  mintStartTimestamp: BigNumberish;
-  mintEndTimestamp: BigNumberish;
-  mintDatesLockedBy: string;
-  transferLockupUntil: BigNumberish;
-  transferLockupUntilLockedBy: string;
-};
-
-export type MeemPropertiesStructOutput = [
-  BigNumber,
-  string,
-  BigNumber,
-  string,
-  MeemPermissionStructOutput[],
-  MeemPermissionStructOutput[],
-  MeemPermissionStructOutput[],
-  string,
-  string,
-  string,
-  SplitStructOutput[],
-  string,
-  BigNumber,
-  string,
-  BigNumber,
-  string,
-  boolean,
-  string,
-  BigNumber,
-  BigNumber,
-  string,
-  BigNumber,
-  string
-] & {
-  totalRemixes: BigNumber;
-  totalRemixesLockedBy: string;
-  remixesPerWallet: BigNumber;
-  remixesPerWalletLockedBy: string;
-  copyPermissions: MeemPermissionStructOutput[];
-  remixPermissions: MeemPermissionStructOutput[];
-  readPermissions: MeemPermissionStructOutput[];
-  copyPermissionsLockedBy: string;
-  remixPermissionsLockedBy: string;
-  readPermissionsLockedBy: string;
-  splits: SplitStructOutput[];
-  splitsLockedBy: string;
-  totalCopies: BigNumber;
-  totalCopiesLockedBy: string;
-  copiesPerWallet: BigNumber;
-  copiesPerWalletLockedBy: string;
-  isTransferrable: boolean;
-  isTransferrableLockedBy: string;
-  mintStartTimestamp: BigNumber;
-  mintEndTimestamp: BigNumber;
-  mintDatesLockedBy: string;
-  transferLockupUntil: BigNumber;
-  transferLockupUntilLockedBy: string;
-};
-
-export type InitParamsStruct = {
-  symbol: string;
-  name: string;
-  contractURI: string;
-  baseProperties: BasePropertiesStruct;
-  defaultProperties: MeemPropertiesStruct;
-  defaultChildProperties: MeemPropertiesStruct;
-  admins: string[];
-  tokenCounterStart: BigNumberish;
-  childDepth: BigNumberish;
-  nonOwnerSplitAllocationAmount: BigNumberish;
-};
-
-export type InitParamsStructOutput = [
-  string,
-  string,
-  string,
-  BasePropertiesStructOutput,
-  MeemPropertiesStructOutput,
-  MeemPropertiesStructOutput,
-  string[],
-  BigNumber,
-  BigNumber,
-  BigNumber
-] & {
-  symbol: string;
-  name: string;
-  contractURI: string;
-  baseProperties: BasePropertiesStructOutput;
-  defaultProperties: MeemPropertiesStructOutput;
-  defaultChildProperties: MeemPropertiesStructOutput;
-  admins: string[];
-  tokenCounterStart: BigNumber;
-  childDepth: BigNumber;
-  nonOwnerSplitAllocationAmount: BigNumber;
-};
-
-export type MeemMintParametersStruct = {
-  to: string;
-  tokenURI: string;
-  parentChain: BigNumberish;
-  parent: string;
-  parentTokenId: BigNumberish;
-  meemType: BigNumberish;
-  isURILocked: boolean;
-  mintedBy: string;
-  uriSource: BigNumberish;
-  reactionTypes: string[];
-};
-
-export type MeemMintParametersStructOutput = [
-  string,
-  string,
-  number,
-  string,
-  BigNumber,
-  number,
-  boolean,
-  string,
-  number,
-  string[]
-] & {
-  to: string;
-  tokenURI: string;
-  parentChain: number;
-  parent: string;
-  parentTokenId: BigNumber;
-  meemType: number;
-  isURILocked: boolean;
-  mintedBy: string;
-  uriSource: number;
-  reactionTypes: string[];
-};
-
 export type PartStruct = { account: string; value: BigNumberish };
 
 export type PartStructOutput = [string, BigNumber] & {
@@ -277,109 +53,123 @@ export type PartStructOutput = [string, BigNumber] & {
   value: BigNumber;
 };
 
-export type ReactionStruct = { reaction: string; count: BigNumberish };
+export type MeemPermissionStruct = {
+  permission: BigNumberish;
+  addresses: string[];
+  numTokens: BigNumberish;
+  costWei: BigNumberish;
+  mintStartTimestamp: BigNumberish;
+  mintEndTimestamp: BigNumberish;
+};
 
-export type ReactionStructOutput = [string, BigNumber] & {
-  reaction: string;
-  count: BigNumber;
+export type MeemPermissionStructOutput = [
+  number,
+  string[],
+  BigNumber,
+  BigNumber,
+  BigNumber,
+  BigNumber
+] & {
+  permission: number;
+  addresses: string[];
+  numTokens: BigNumber;
+  costWei: BigNumber;
+  mintStartTimestamp: BigNumber;
+  mintEndTimestamp: BigNumber;
+};
+
+export type MeemStruct = {
+  owner: string;
+  tokenType: BigNumberish;
+  mintedBy: string;
+  mintedAt: BigNumberish;
+};
+
+export type MeemStructOutput = [string, number, string, BigNumber] & {
+  owner: string;
+  tokenType: number;
+  mintedBy: string;
+  mintedAt: BigNumber;
+};
+
+export type MintParametersStruct = {
+  to: string;
+  tokenURI: string;
+  tokenType: BigNumberish;
+};
+
+export type MintParametersStructOutput = [string, string, number] & {
+  to: string;
+  tokenURI: string;
+  tokenType: number;
 };
 
 export type ContractInfoStruct = {
   symbol: string;
   name: string;
   contractURI: string;
-  baseProperties: BasePropertiesStruct;
-  defaultProperties: MeemPropertiesStruct;
-  defaultChildProperties: MeemPropertiesStruct;
-  childDepth: BigNumberish;
-  nonOwnerSplitAllocationAmount: BigNumberish;
+  maxSupply: BigNumberish;
+  isMaxSupplyLocked: boolean;
+  mintPermissions: MeemPermissionStruct[];
+  splits: SplitStruct[];
+  isTransferLocked: boolean;
 };
 
 export type ContractInfoStructOutput = [
   string,
   string,
   string,
-  BasePropertiesStructOutput,
-  MeemPropertiesStructOutput,
-  MeemPropertiesStructOutput,
   BigNumber,
-  BigNumber
+  boolean,
+  MeemPermissionStructOutput[],
+  SplitStructOutput[],
+  boolean
 ] & {
   symbol: string;
   name: string;
   contractURI: string;
-  baseProperties: BasePropertiesStructOutput;
-  defaultProperties: MeemPropertiesStructOutput;
-  defaultChildProperties: MeemPropertiesStructOutput;
-  childDepth: BigNumber;
-  nonOwnerSplitAllocationAmount: BigNumber;
+  maxSupply: BigNumber;
+  isMaxSupplyLocked: boolean;
+  mintPermissions: MeemPermissionStructOutput[];
+  splits: SplitStructOutput[];
+  isTransferLocked: boolean;
 };
 
-export type MeemStruct = {
-  owner: string;
-  parentChain: BigNumberish;
-  parent: string;
-  parentTokenId: BigNumberish;
-  rootChain: BigNumberish;
-  root: string;
-  rootTokenId: BigNumberish;
-  generation: BigNumberish;
-  properties: MeemPropertiesStruct;
-  childProperties: MeemPropertiesStruct;
-  mintedAt: BigNumberish;
-  uriLockedBy: string;
-  meemType: BigNumberish;
-  mintedBy: string;
-  uriSource: BigNumberish;
-  reactionTypes: string[];
+export type InitParamsStruct = {
+  symbol: string;
+  name: string;
+  contractURI: string;
+  admins: string[];
+  minters: string[];
+  maxSupply: BigNumberish;
+  isMaxSupplyLocked: boolean;
+  mintPermissions: MeemPermissionStruct[];
+  splits: SplitStruct[];
+  isTransferLocked: boolean;
 };
 
-export type MeemStructOutput = [
+export type InitParamsStructOutput = [
   string,
-  number,
   string,
+  string,
+  string[],
+  string[],
   BigNumber,
-  number,
-  string,
-  BigNumber,
-  BigNumber,
-  MeemPropertiesStructOutput,
-  MeemPropertiesStructOutput,
-  BigNumber,
-  string,
-  number,
-  string,
-  number,
-  string[]
+  boolean,
+  MeemPermissionStructOutput[],
+  SplitStructOutput[],
+  boolean
 ] & {
-  owner: string;
-  parentChain: number;
-  parent: string;
-  parentTokenId: BigNumber;
-  rootChain: number;
-  root: string;
-  rootTokenId: BigNumber;
-  generation: BigNumber;
-  properties: MeemPropertiesStructOutput;
-  childProperties: MeemPropertiesStructOutput;
-  mintedAt: BigNumber;
-  uriLockedBy: string;
-  meemType: number;
-  mintedBy: string;
-  uriSource: number;
-  reactionTypes: string[];
-};
-
-export type WrappedItemStruct = {
-  chain: BigNumberish;
-  contractAddress: string;
-  tokenId: BigNumberish;
-};
-
-export type WrappedItemStructOutput = [number, string, BigNumber] & {
-  chain: number;
-  contractAddress: string;
-  tokenId: BigNumber;
+  symbol: string;
+  name: string;
+  contractURI: string;
+  admins: string[];
+  minters: string[];
+  maxSupply: BigNumber;
+  isMaxSupplyLocked: boolean;
+  mintPermissions: MeemPermissionStructOutput[];
+  splits: SplitStructOutput[];
+  isTransferLocked: boolean;
 };
 
 export interface MeemProxyV1Interface extends ethers.utils.Interface {
@@ -397,28 +187,40 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     "supportsInterface(bytes4)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "ADMIN_ROLE()": FunctionFragment;
-    "MINTER_ROLE()": FunctionFragment;
-    "grantRole(address,bytes32)": FunctionFragment;
-    "hasRole(address,bytes32)": FunctionFragment;
-    "revokeRole(address,bytes32)": FunctionFragment;
+    "getRoles(bytes32)": FunctionFragment;
+    "grantRole(bytes32,address)": FunctionFragment;
+    "hasRole(bytes32,address)": FunctionFragment;
+    "revokeRole(bytes32,address)": FunctionFragment;
     "addressClippings(address)": FunctionFragment;
     "clip(uint256)": FunctionFragment;
     "clippings(uint256)": FunctionFragment;
     "hasAddressClipped(uint256,address)": FunctionFragment;
     "numClippings(uint256)": FunctionFragment;
+    "tokenClippings(uint256)": FunctionFragment;
     "unClip(uint256)": FunctionFragment;
+    "getRaribleV2Royalties(uint256)": FunctionFragment;
+    "handleSaleDistribution(uint256)": FunctionFragment;
+    "lockSplits(uint256)": FunctionFragment;
+    "setSplits(uint256,(address,uint256,address)[])": FunctionFragment;
+    "MINTER_ROLE()": FunctionFragment;
+    "lockMaxSupply()": FunctionFragment;
+    "maxSupply()": FunctionFragment;
+    "requireCanMint(address)": FunctionFragment;
+    "requireCanTransfer(address,address,uint256)": FunctionFragment;
+    "setIsTransferrable(bool)": FunctionFragment;
+    "setMaxSupply(uint256)": FunctionFragment;
+    "setMintingPermissions((uint8,address[],uint256,uint256,uint256,uint256)[])": FunctionFragment;
+    "validatePermissions((uint8,address[],uint256,uint256,uint256,uint256)[],(uint8,address[],uint256,uint256,uint256,uint256)[])": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
-    "baseTokenURI()": FunctionFragment;
-    "burn(uint256)": FunctionFragment;
-    "contractAddress()": FunctionFragment;
-    "contractURI()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
+    "getMeem(uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
+    "mint((address,string,uint8))": FunctionFragment;
     "name()": FunctionFragment;
-    "onERC721Received(address,address,uint256,bytes)": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
-    "ownerTokens(address)": FunctionFragment;
+    "requireCanMintTo(address)": FunctionFragment;
+    "requireTokenAdmin(uint256,address)": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
     "symbol()": FunctionFragment;
@@ -427,77 +229,12 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     "tokenURI(uint256)": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
-    "init((string,string,string,(int256,address,(uint8,address[],uint256,address,uint256)[],address,(address,uint256,address)[],address,int256,address,bool,address,int256,int256,address,uint256,address),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address,bool,address,int256,int256,address,uint256,address),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address,bool,address,int256,int256,address,uint256,address),address[],uint256,int256,uint256))": FunctionFragment;
-    "addPermission(uint256,uint8,uint8,(uint8,address[],uint256,address,uint256))": FunctionFragment;
-    "lockCopiesPerWallet(uint256,uint8)": FunctionFragment;
-    "lockIsTransferrable(uint256)": FunctionFragment;
-    "lockMintDates(uint256)": FunctionFragment;
-    "lockPermissions(uint256,uint8,uint8)": FunctionFragment;
-    "lockRemixesPerWallet(uint256,uint8)": FunctionFragment;
-    "lockTotalCopies(uint256,uint8)": FunctionFragment;
-    "lockTotalRemixes(uint256,uint8)": FunctionFragment;
-    "lockTransferLockup(uint256)": FunctionFragment;
-    "lockUri(uint256)": FunctionFragment;
-    "removePermissionAt(uint256,uint8,uint8,uint256)": FunctionFragment;
-    "setCopiesPerWallet(uint256,uint8,int256)": FunctionFragment;
-    "setData(uint256,string)": FunctionFragment;
-    "setIsTransferrable(uint256,bool)": FunctionFragment;
-    "setMintDates(uint256,int256,int256)": FunctionFragment;
-    "setPermissions(uint256,uint8,uint8,(uint8,address[],uint256,address,uint256)[])": FunctionFragment;
-    "setRemixesPerWallet(uint256,uint8,int256)": FunctionFragment;
-    "setTokenUri(uint256,string)": FunctionFragment;
-    "setTotalCopies(uint256,uint8,int256)": FunctionFragment;
-    "setTotalRemixes(uint256,uint8,int256)": FunctionFragment;
-    "setTransferLockup(uint256,uint256)": FunctionFragment;
-    "setURISource(uint256,uint8)": FunctionFragment;
-    "updatePermissionAt(uint256,uint8,uint8,uint256,(uint8,address[],uint256,address,uint256))": FunctionFragment;
-    "mint((address,string,uint8,address,uint256,uint8,bool,address,uint8,string[]),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address,bool,address,int256,int256,address,uint256,address),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address,bool,address,int256,int256,address,uint256,address))": FunctionFragment;
-    "mintAndCopy((address,string,uint8,address,uint256,uint8,bool,address,uint8,string[]),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address,bool,address,int256,int256,address,uint256,address),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address,bool,address,int256,int256,address,uint256,address),address)": FunctionFragment;
-    "mintAndRemix((address,string,uint8,address,uint256,uint8,bool,address,uint8,string[]),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address,bool,address,int256,int256,address,uint256,address),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address,bool,address,int256,int256,address,uint256,address),(address,string,uint8,address,uint256,uint8,bool,address,uint8,string[]),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address,bool,address,int256,int256,address,uint256,address),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address,bool,address,int256,int256,address,uint256,address))": FunctionFragment;
-    "addSplit(uint256,uint8,(address,uint256,address))": FunctionFragment;
-    "getRaribleV2Royalties(uint256)": FunctionFragment;
-    "lockSplits(uint256,uint8)": FunctionFragment;
-    "nonOwnerSplitAllocationAmount()": FunctionFragment;
-    "removeSplitAt(uint256,uint8,uint256)": FunctionFragment;
-    "setSplits(uint256,uint8,(address,uint256,address)[])": FunctionFragment;
-    "updateSplitAt(uint256,uint8,uint256,(address,uint256,address))": FunctionFragment;
-    "lockBaseSplits()": FunctionFragment;
-    "lockMintPermissions()": FunctionFragment;
-    "lockOriginalsPerWallet()": FunctionFragment;
-    "lockTotalOriginalsSupply()": FunctionFragment;
-    "reInitialize((string,string,string,(int256,address,(uint8,address[],uint256,address,uint256)[],address,(address,uint256,address)[],address,int256,address,bool,address,int256,int256,address,uint256,address),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address,bool,address,int256,int256,address,uint256,address),(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address,bool,address,int256,int256,address,uint256,address),address[],uint256,int256,uint256))": FunctionFragment;
-    "setBaseSplits((address,uint256,address)[])": FunctionFragment;
-    "setChildDepth(int256)": FunctionFragment;
+    "contractURI()": FunctionFragment;
+    "getContractInfo()": FunctionFragment;
+    "initialize((string,string,string,address[],address[],uint256,bool,(uint8,address[],uint256,uint256,uint256,uint256)[],(address,uint256,address)[],bool))": FunctionFragment;
+    "reinitialize((string,string,string,address[],address[],uint256,bool,(uint8,address[],uint256,uint256,uint256,uint256)[],(address,uint256,address)[],bool))": FunctionFragment;
     "setContractInfo(string,string)": FunctionFragment;
     "setContractURI(string)": FunctionFragment;
-    "setMintPermissions((uint8,address[],uint256,address,uint256)[])": FunctionFragment;
-    "setNonOwnerSplitAllocationAmount(uint256)": FunctionFragment;
-    "setOriginalsPerWallet(int256)": FunctionFragment;
-    "setProperties(uint8,(int256,address,int256,address,(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],(uint8,address[],uint256,address,uint256)[],address,address,address,(address,uint256,address)[],address,int256,address,int256,address,bool,address,int256,int256,address,uint256,address))": FunctionFragment;
-    "setTokenCounter(uint256)": FunctionFragment;
-    "setTokenRoot(uint256,uint8,address,uint256)": FunctionFragment;
-    "setTotalOriginalsSupply(int256)": FunctionFragment;
-    "addReaction(uint256,string)": FunctionFragment;
-    "getReactedAt(uint256,address,string)": FunctionFragment;
-    "getReactions(uint256)": FunctionFragment;
-    "removeReaction(uint256,string)": FunctionFragment;
-    "setReactionTypes(uint256,string[])": FunctionFragment;
-    "childDepth()": FunctionFragment;
-    "copiesOf(uint256)": FunctionFragment;
-    "getBaseProperties()": FunctionFragment;
-    "getContractInfo()": FunctionFragment;
-    "getDefaultProperties(uint8)": FunctionFragment;
-    "getMeem(uint256)": FunctionFragment;
-    "getRoles(bytes32)": FunctionFragment;
-    "isNFTWrapped(uint8,address,uint256)": FunctionFragment;
-    "numCopiesOf(uint256)": FunctionFragment;
-    "numRemixesOf(uint256)": FunctionFragment;
-    "ownedCopiesOf(uint256,address)": FunctionFragment;
-    "ownedRemixesOf(uint256,address)": FunctionFragment;
-    "remixesOf(uint256)": FunctionFragment;
-    "tokenIdOfOwnerIndex(address,uint256)": FunctionFragment;
-    "tokenIdsOfOwner(address)": FunctionFragment;
-    "wrappedTokens((uint8,address,uint256)[])": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -546,21 +283,18 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     functionFragment: "ADMIN_ROLE",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "MINTER_ROLE",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "getRoles", values: [BytesLike]): string;
   encodeFunctionData(
     functionFragment: "grantRole",
-    values: [string, BytesLike]
+    values: [BytesLike, string]
   ): string;
   encodeFunctionData(
     functionFragment: "hasRole",
-    values: [string, BytesLike]
+    values: [BytesLike, string]
   ): string;
   encodeFunctionData(
     functionFragment: "revokeRole",
-    values: [string, BytesLike]
+    values: [BytesLike, string]
   ): string;
   encodeFunctionData(
     functionFragment: "addressClippings",
@@ -580,8 +314,61 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "tokenClippings",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "unClip",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRaribleV2Royalties",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "handleSaleDistribution",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lockSplits",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSplits",
+    values: [BigNumberish, SplitStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "MINTER_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lockMaxSupply",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "maxSupply", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "requireCanMint",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "requireCanTransfer",
+    values: [string, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setIsTransferrable",
+    values: [boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMaxSupply",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMintingPermissions",
+    values: [MeemPermissionStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "validatePermissions",
+    values: [MeemPermissionStruct[], MeemPermissionStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "approve",
@@ -589,36 +376,34 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "baseTokenURI",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "burn", values: [BigNumberish]): string;
-  encodeFunctionData(
-    functionFragment: "contractAddress",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "contractURI",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "getApproved",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getMeem",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [string, string]
   ): string;
-  encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "onERC721Received",
-    values: [string, string, BigNumberish, BytesLike]
+    functionFragment: "mint",
+    values: [MintParametersStruct]
   ): string;
+  encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "ownerOf",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "ownerTokens", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "requireCanMintTo",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "requireTokenAdmin",
+    values: [BigNumberish, string]
+  ): string;
   encodeFunctionData(
     functionFragment: "safeTransferFrom",
     values: [string, string, BigNumberish]
@@ -649,190 +434,20 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "init",
+    functionFragment: "contractURI",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getContractInfo",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
     values: [InitParamsStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "addPermission",
-    values: [BigNumberish, BigNumberish, BigNumberish, MeemPermissionStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockCopiesPerWallet",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockIsTransferrable",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockMintDates",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockPermissions",
-    values: [BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockRemixesPerWallet",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockTotalCopies",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockTotalRemixes",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockTransferLockup",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockUri",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removePermissionAt",
-    values: [BigNumberish, BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setCopiesPerWallet",
-    values: [BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setData",
-    values: [BigNumberish, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setIsTransferrable",
-    values: [BigNumberish, boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMintDates",
-    values: [BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setPermissions",
-    values: [BigNumberish, BigNumberish, BigNumberish, MeemPermissionStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setRemixesPerWallet",
-    values: [BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setTokenUri",
-    values: [BigNumberish, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setTotalCopies",
-    values: [BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setTotalRemixes",
-    values: [BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setTransferLockup",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setURISource",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updatePermissionAt",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      MeemPermissionStruct
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "mint",
-    values: [
-      MeemMintParametersStruct,
-      MeemPropertiesStruct,
-      MeemPropertiesStruct
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "mintAndCopy",
-    values: [
-      MeemMintParametersStruct,
-      MeemPropertiesStruct,
-      MeemPropertiesStruct,
-      string
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "mintAndRemix",
-    values: [
-      MeemMintParametersStruct,
-      MeemPropertiesStruct,
-      MeemPropertiesStruct,
-      MeemMintParametersStruct,
-      MeemPropertiesStruct,
-      MeemPropertiesStruct
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addSplit",
-    values: [BigNumberish, BigNumberish, SplitStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRaribleV2Royalties",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockSplits",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "nonOwnerSplitAllocationAmount",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeSplitAt",
-    values: [BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSplits",
-    values: [BigNumberish, BigNumberish, SplitStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateSplitAt",
-    values: [BigNumberish, BigNumberish, BigNumberish, SplitStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockBaseSplits",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockMintPermissions",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockOriginalsPerWallet",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockTotalOriginalsSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "reInitialize",
+    functionFragment: "reinitialize",
     values: [InitParamsStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setBaseSplits",
-    values: [SplitStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setChildDepth",
-    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setContractInfo",
@@ -841,115 +456,6 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "setContractURI",
     values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMintPermissions",
-    values: [MeemPermissionStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setNonOwnerSplitAllocationAmount",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setOriginalsPerWallet",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setProperties",
-    values: [BigNumberish, MeemPropertiesStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setTokenCounter",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setTokenRoot",
-    values: [BigNumberish, BigNumberish, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setTotalOriginalsSupply",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addReaction",
-    values: [BigNumberish, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getReactedAt",
-    values: [BigNumberish, string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getReactions",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeReaction",
-    values: [BigNumberish, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setReactionTypes",
-    values: [BigNumberish, string[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "childDepth",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "copiesOf",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getBaseProperties",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getContractInfo",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getDefaultProperties",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getMeem",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "getRoles", values: [BytesLike]): string;
-  encodeFunctionData(
-    functionFragment: "isNFTWrapped",
-    values: [BigNumberish, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "numCopiesOf",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "numRemixesOf",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ownedCopiesOf",
-    values: [BigNumberish, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ownedRemixesOf",
-    values: [BigNumberish, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "remixesOf",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenIdOfOwnerIndex",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenIdsOfOwner",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "wrappedTokens",
-    values: [WrappedItemStruct[]]
   ): string;
 
   decodeFunctionResult(
@@ -992,10 +498,7 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "ADMIN_ROLE", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "MINTER_ROLE",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "getRoles", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
@@ -1013,38 +516,74 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     functionFragment: "numClippings",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenClippings",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "unClip", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getRaribleV2Royalties",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "handleSaleDistribution",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "lockSplits", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setSplits", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "MINTER_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "lockMaxSupply",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "maxSupply", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "requireCanMint",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "requireCanTransfer",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setIsTransferrable",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMaxSupply",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMintingPermissions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "validatePermissions",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "baseTokenURI",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "contractAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "contractURI",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "getApproved",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getMeem", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isApprovedForAll",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "onERC721Received",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "ownerTokens",
+    functionFragment: "requireCanMintTo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "requireTokenAdmin",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1073,147 +612,17 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "init", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "addPermission",
+    functionFragment: "contractURI",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "lockCopiesPerWallet",
+    functionFragment: "getContractInfo",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "lockIsTransferrable",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockMintDates",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockPermissions",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockRemixesPerWallet",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockTotalCopies",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockTotalRemixes",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockTransferLockup",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "lockUri", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "removePermissionAt",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setCopiesPerWallet",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "setData", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setIsTransferrable",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMintDates",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setPermissions",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setRemixesPerWallet",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setTokenUri",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setTotalCopies",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setTotalRemixes",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setTransferLockup",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setURISource",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updatePermissionAt",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "mintAndCopy",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "mintAndRemix",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "addSplit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getRaribleV2Royalties",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "lockSplits", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "nonOwnerSplitAllocationAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeSplitAt",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "setSplits", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "updateSplitAt",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockBaseSplits",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockMintPermissions",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockOriginalsPerWallet",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockTotalOriginalsSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "reInitialize",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setBaseSplits",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setChildDepth",
+    functionFragment: "reinitialize",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1224,119 +633,48 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     functionFragment: "setContractURI",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMintPermissions",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setNonOwnerSplitAllocationAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setOriginalsPerWallet",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setProperties",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setTokenCounter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setTokenRoot",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setTotalOriginalsSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "addReaction",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getReactedAt",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getReactions",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeReaction",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setReactionTypes",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "childDepth", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "copiesOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getBaseProperties",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getContractInfo",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getDefaultProperties",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getMeem", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getRoles", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "isNFTWrapped",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "numCopiesOf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "numRemixesOf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ownedCopiesOf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ownedRemixesOf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "remixesOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenIdOfOwnerIndex",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenIdsOfOwner",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "wrappedTokens",
-    data: BytesLike
-  ): Result;
 
   events: {
     "DiamondCut(tuple[],address,bytes)": EventFragment;
     "MeemDiamondCreated()": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "MeemRoleGranted(bytes32,address)": EventFragment;
+    "MeemRoleRevoked(bytes32,address)": EventFragment;
+    "MeemTokenClipped(uint256,address)": EventFragment;
+    "MeemTokenUnClipped(uint256,address)": EventFragment;
+    "MeemSplitsSet(uint256,tuple[])": EventFragment;
+    "RoyaltiesSet(uint256,tuple[])": EventFragment;
+    "MeemMaxSupplyLocked()": EventFragment;
+    "MeemMaxSupplySet(uint256)": EventFragment;
+    "MeemMintPermissionsSet(tuple[])": EventFragment;
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
+    "MeemTransfer(address,address,uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
+    "MeemContractInfoSet(address)": EventFragment;
+    "MeemContractInitialized(address)": EventFragment;
+    "MeemContractURISet(address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "DiamondCut"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MeemDiamondCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemRoleGranted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemRoleRevoked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemTokenClipped"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemTokenUnClipped"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemSplitsSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoyaltiesSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemMaxSupplyLocked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemMaxSupplySet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemMintPermissionsSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemTransfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemContractInfoSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemContractInitialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemContractURISet"): EventFragment;
 }
 
 export type DiamondCutEvent = TypedEvent<
@@ -1359,6 +697,71 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
+export type MeemRoleGrantedEvent = TypedEvent<
+  [string, string],
+  { role: string; user: string }
+>;
+
+export type MeemRoleGrantedEventFilter = TypedEventFilter<MeemRoleGrantedEvent>;
+
+export type MeemRoleRevokedEvent = TypedEvent<
+  [string, string],
+  { role: string; user: string }
+>;
+
+export type MeemRoleRevokedEventFilter = TypedEventFilter<MeemRoleRevokedEvent>;
+
+export type MeemTokenClippedEvent = TypedEvent<
+  [BigNumber, string],
+  { tokenId: BigNumber; addy: string }
+>;
+
+export type MeemTokenClippedEventFilter =
+  TypedEventFilter<MeemTokenClippedEvent>;
+
+export type MeemTokenUnClippedEvent = TypedEvent<
+  [BigNumber, string],
+  { tokenId: BigNumber; addy: string }
+>;
+
+export type MeemTokenUnClippedEventFilter =
+  TypedEventFilter<MeemTokenUnClippedEvent>;
+
+export type MeemSplitsSetEvent = TypedEvent<
+  [BigNumber, SplitStructOutput[]],
+  { tokenId: BigNumber; splits: SplitStructOutput[] }
+>;
+
+export type MeemSplitsSetEventFilter = TypedEventFilter<MeemSplitsSetEvent>;
+
+export type RoyaltiesSetEvent = TypedEvent<
+  [BigNumber, PartStructOutput[]],
+  { tokenId: BigNumber; royalties: PartStructOutput[] }
+>;
+
+export type RoyaltiesSetEventFilter = TypedEventFilter<RoyaltiesSetEvent>;
+
+export type MeemMaxSupplyLockedEvent = TypedEvent<[], {}>;
+
+export type MeemMaxSupplyLockedEventFilter =
+  TypedEventFilter<MeemMaxSupplyLockedEvent>;
+
+export type MeemMaxSupplySetEvent = TypedEvent<
+  [BigNumber],
+  { maxSupply: BigNumber }
+>;
+
+export type MeemMaxSupplySetEventFilter =
+  TypedEventFilter<MeemMaxSupplySetEvent>;
+
+export type MeemMintPermissionsSetEvent = TypedEvent<
+  [MeemPermissionStructOutput[]],
+  { mintPermissions: MeemPermissionStructOutput[] }
+>;
+
+export type MeemMintPermissionsSetEventFilter =
+  TypedEventFilter<MeemMintPermissionsSetEvent>;
+
 export type ApprovalEvent = TypedEvent<
   [string, string, BigNumber],
   { owner: string; operator: string; tokenId: BigNumber }
@@ -1373,12 +776,43 @@ export type ApprovalForAllEvent = TypedEvent<
 
 export type ApprovalForAllEventFilter = TypedEventFilter<ApprovalForAllEvent>;
 
+export type MeemTransferEvent = TypedEvent<
+  [string, string, BigNumber],
+  { from: string; to: string; tokenId: BigNumber }
+>;
+
+export type MeemTransferEventFilter = TypedEventFilter<MeemTransferEvent>;
+
 export type TransferEvent = TypedEvent<
   [string, string, BigNumber],
   { from: string; to: string; tokenId: BigNumber }
 >;
 
 export type TransferEventFilter = TypedEventFilter<TransferEvent>;
+
+export type MeemContractInfoSetEvent = TypedEvent<
+  [string],
+  { contractAddress: string }
+>;
+
+export type MeemContractInfoSetEventFilter =
+  TypedEventFilter<MeemContractInfoSetEvent>;
+
+export type MeemContractInitializedEvent = TypedEvent<
+  [string],
+  { contractAddress: string }
+>;
+
+export type MeemContractInitializedEventFilter =
+  TypedEventFilter<MeemContractInitializedEvent>;
+
+export type MeemContractURISetEvent = TypedEvent<
+  [string],
+  { contractAddress: string }
+>;
+
+export type MeemContractURISetEventFilter =
+  TypedEventFilter<MeemContractURISetEvent>;
 
 export interface MeemProxyV1 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -1447,7 +881,12 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    supportsInterface(
+    "supportsInterface(bytes4)"(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "supportsInterface(bytes4)"(
       interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
@@ -1459,23 +898,23 @@ export interface MeemProxyV1 extends BaseContract {
 
     ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    MINTER_ROLE(overrides?: CallOverrides): Promise<[string]>;
+    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<[string[]]>;
 
     grantRole(
-      user: string,
       role: BytesLike,
+      user: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     hasRole(
-      user: string,
       role: BytesLike,
+      user: string,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
     revokeRole(
-      user: string,
       role: BytesLike,
+      user: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1505,10 +944,94 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    tokenClippings(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string[]]>;
+
     unClip(
       tokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    getRaribleV2Royalties(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[PartStructOutput[]]>;
+
+    "handleSaleDistribution(uint256)"(
+      tokenId: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "handleSaleDistribution(uint256)"(
+      tokenId: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    lockSplits(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setSplits(
+      tokenId: BigNumberish,
+      splits: SplitStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    MINTER_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    lockMaxSupply(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    maxSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "requireCanMint(address)"(
+      minter: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "requireCanMint(address)"(
+      minter: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setIsTransferrable(
+      isTransferLocked: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setMaxSupply(
+      newMaxSupply: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setMintingPermissions(
+      newPermissions: MeemPermissionStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    validatePermissions(
+      basePermissions: MeemPermissionStruct[],
+      overridePermissions: MeemPermissionStruct[],
+      overrides?: CallOverrides
+    ): Promise<[void]>;
 
     approve(
       operator: string,
@@ -1516,26 +1039,17 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    balanceOf(
-      _owner: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { balance: BigNumber }>;
-
-    baseTokenURI(overrides?: CallOverrides): Promise<[string]>;
-
-    burn(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    contractAddress(overrides?: CallOverrides): Promise<[string]>;
-
-    contractURI(overrides?: CallOverrides): Promise<[string]>;
+    balanceOf(account: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    getMeem(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[MeemStructOutput]>;
 
     isApprovedForAll(
       account: string,
@@ -1543,25 +1057,28 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    name(overrides?: CallOverrides): Promise<[string]>;
+    mint(
+      params: MintParametersStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
-    onERC721Received(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      arg3: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+    name(overrides?: CallOverrides): Promise<[string]>;
 
     ownerOf(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    ownerTokens(
-      owner: string,
+    requireCanMintTo(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    requireTokenAdmin(
+      tokenId: BigNumberish,
+      addy: string,
       overrides?: CallOverrides
-    ): Promise<[BigNumber[]]>;
+    ): Promise<[void]>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,
@@ -1587,24 +1104,22 @@ export interface MeemProxyV1 extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
     tokenByIndex(
-      _index: BigNumberish,
+      index: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber] & { tokenId_: BigNumber }>;
+    ): Promise<[BigNumber]>;
 
     tokenOfOwnerByIndex(
-      _owner: string,
-      _index: BigNumberish,
+      owner: string,
+      index: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber] & { tokenId_: BigNumber }>;
+    ): Promise<[BigNumber]>;
 
     tokenURI(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    totalSupply(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { totalSupply_: BigNumber }>;
+    totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     transferFrom(
       from: string,
@@ -1613,291 +1128,40 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    init(
+    contractURI(overrides?: CallOverrides): Promise<[string]>;
+
+    getContractInfo(
+      overrides?: CallOverrides
+    ): Promise<[ContractInfoStructOutput]>;
+
+    initialize(
       params: InitParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    addPermission(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      permission: MeemPermissionStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    lockCopiesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "lockIsTransferrable(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "lockIsTransferrable()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "lockMintDates(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "lockMintDates()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    lockPermissions(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    lockRemixesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    lockTotalCopies(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    lockTotalRemixes(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "lockTransferLockup(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "lockTransferLockup()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    lockUri(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    removePermissionAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      idx: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setCopiesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalCopies: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setData(
-      tokenId: BigNumberish,
-      data: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setIsTransferrable(uint256,bool)"(
-      tokenId: BigNumberish,
-      isTransferrable: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setIsTransferrable(bool)"(
-      isTransferrable: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setMintDates(uint256,int256,int256)"(
-      tokenId: BigNumberish,
-      startTimestamp: BigNumberish,
-      endTimestamp: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setMintDates(int256,int256)"(
-      startTimestamp: BigNumberish,
-      endTimestamp: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setPermissions(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      permissions: MeemPermissionStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setRemixesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalRemixes: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setTokenUri(
-      tokenId: BigNumberish,
-      uri: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setTotalCopies(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalCopies: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setTotalRemixes(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalRemixes: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setTransferLockup(uint256,uint256)"(
-      tokenId: BigNumberish,
-      lockupUntil: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setTransferLockup(uint256)"(
-      lockupUntil: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setURISource(
-      tokenId: BigNumberish,
-      uriSource: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    updatePermissionAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      idx: BigNumberish,
-      permission: MeemPermissionStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    mint(
-      params: MeemMintParametersStruct,
-      properties: MeemPropertiesStruct,
-      childProperties: MeemPropertiesStruct,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    mintAndCopy(
-      params: MeemMintParametersStruct,
-      properties: MeemPropertiesStruct,
-      childProperties: MeemPropertiesStruct,
-      toCopyAddress: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    mintAndRemix(
-      params: MeemMintParametersStruct,
-      properties: MeemPropertiesStruct,
-      childProperties: MeemPropertiesStruct,
-      remixParams: MeemMintParametersStruct,
-      remixProperties: MeemPropertiesStruct,
-      remixChildProperties: MeemPropertiesStruct,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    addSplit(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      split: SplitStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    getRaribleV2Royalties(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[PartStructOutput[]]>;
-
-    lockSplits(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    nonOwnerSplitAllocationAmount(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    removeSplitAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      idx: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setSplits(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      splits: SplitStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    updateSplitAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      idx: BigNumberish,
-      split: SplitStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    lockBaseSplits(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    lockMintPermissions(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    lockOriginalsPerWallet(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    lockTotalOriginalsSupply(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    reInitialize(
+    reinitialize(
       params: InitParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setBaseSplits(
-      splits: SplitStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setChildDepth(
-      newChildDepth: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setContractInfo(
+    "setContractInfo(string,string)"(
       name: string,
       symbol: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setContractInfo(string,string,string,uint256)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
+      maxSupply: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "setContractInfo(string,string,string)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1905,152 +1169,6 @@ export interface MeemProxyV1 extends BaseContract {
       newContractURI: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    setMintPermissions(
-      permissions: MeemPermissionStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setNonOwnerSplitAllocationAmount(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setOriginalsPerWallet(
-      originalsPerWallet: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setProperties(
-      propertyType: BigNumberish,
-      props: MeemPropertiesStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setTokenCounter(
-      tokenCounter: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setTokenRoot(
-      tokenId: BigNumberish,
-      rootChain: BigNumberish,
-      root: string,
-      rootTokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setTotalOriginalsSupply(
-      totalSupply: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    addReaction(
-      tokenId: BigNumberish,
-      reaction: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    getReactedAt(
-      tokenId: BigNumberish,
-      addy: string,
-      reaction: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    getReactions(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[ReactionStructOutput[]]>;
-
-    removeReaction(
-      tokenId: BigNumberish,
-      reaction: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setReactionTypes(
-      tokenId: BigNumberish,
-      reactionTypes: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    childDepth(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    copiesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber[]]>;
-
-    getBaseProperties(
-      overrides?: CallOverrides
-    ): Promise<[BasePropertiesStructOutput]>;
-
-    getContractInfo(
-      overrides?: CallOverrides
-    ): Promise<[ContractInfoStructOutput]>;
-
-    getDefaultProperties(
-      propertyType: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[MeemPropertiesStructOutput]>;
-
-    getMeem(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[MeemStructOutput]>;
-
-    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<[string[]]>;
-
-    isNFTWrapped(
-      chain: BigNumberish,
-      contractAddress: string,
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    numCopiesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    numRemixesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    ownedCopiesOf(
-      tokenId: BigNumberish,
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber[]]>;
-
-    ownedRemixesOf(
-      tokenId: BigNumberish,
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber[]]>;
-
-    remixesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber[]]>;
-
-    tokenIdOfOwnerIndex(
-      _owner: string,
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    tokenIdsOfOwner(
-      _owner: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber[]] & { tokenIds_: BigNumber[] }>;
-
-    wrappedTokens(
-      items: WrappedItemStruct[],
-      overrides?: CallOverrides
-    ): Promise<[BigNumber[]]>;
   };
 
   acceptOwnership(
@@ -2086,7 +1204,12 @@ export interface MeemProxyV1 extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  supportsInterface(
+  "supportsInterface(bytes4)"(
+    interfaceId: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "supportsInterface(bytes4)"(
     interfaceId: BytesLike,
     overrides?: CallOverrides
   ): Promise<boolean>;
@@ -2098,23 +1221,23 @@ export interface MeemProxyV1 extends BaseContract {
 
   ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  MINTER_ROLE(overrides?: CallOverrides): Promise<string>;
+  getRoles(role: BytesLike, overrides?: CallOverrides): Promise<string[]>;
 
   grantRole(
-    user: string,
     role: BytesLike,
+    user: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   hasRole(
-    user: string,
     role: BytesLike,
+    user: string,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   revokeRole(
-    user: string,
     role: BytesLike,
+    user: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -2144,10 +1267,94 @@ export interface MeemProxyV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  tokenClippings(
+    tokenId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string[]>;
+
   unClip(
     tokenId: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  getRaribleV2Royalties(
+    tokenId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<PartStructOutput[]>;
+
+  "handleSaleDistribution(uint256)"(
+    tokenId: BigNumberish,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "handleSaleDistribution(uint256)"(
+    tokenId: BigNumberish,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  lockSplits(
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setSplits(
+    tokenId: BigNumberish,
+    splits: SplitStruct[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  MINTER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  lockMaxSupply(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "requireCanMint(address)"(
+    minter: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "requireCanMint(address)"(
+    minter: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "requireCanTransfer(address,address,uint256)"(
+    from: string,
+    to: string,
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "requireCanTransfer(address,address,uint256)"(
+    from: string,
+    to: string,
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setIsTransferrable(
+    isTransferLocked: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setMaxSupply(
+    newMaxSupply: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setMintingPermissions(
+    newPermissions: MeemPermissionStruct[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  validatePermissions(
+    basePermissions: MeemPermissionStruct[],
+    overridePermissions: MeemPermissionStruct[],
+    overrides?: CallOverrides
+  ): Promise<void>;
 
   approve(
     operator: string,
@@ -2155,23 +1362,17 @@ export interface MeemProxyV1 extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  balanceOf(_owner: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  baseTokenURI(overrides?: CallOverrides): Promise<string>;
-
-  burn(
-    tokenId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  contractAddress(overrides?: CallOverrides): Promise<string>;
-
-  contractURI(overrides?: CallOverrides): Promise<string>;
+  balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   getApproved(
     tokenId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  getMeem(
+    tokenId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<MeemStructOutput>;
 
   isApprovedForAll(
     account: string,
@@ -2179,19 +1380,25 @@ export interface MeemProxyV1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  name(overrides?: CallOverrides): Promise<string>;
+  mint(
+    params: MintParametersStruct,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  onERC721Received(
-    arg0: string,
-    arg1: string,
-    arg2: BigNumberish,
-    arg3: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<string>;
+  name(overrides?: CallOverrides): Promise<string>;
 
   ownerOf(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
-  ownerTokens(owner: string, overrides?: CallOverrides): Promise<BigNumber[]>;
+  requireCanMintTo(
+    to: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  requireTokenAdmin(
+    tokenId: BigNumberish,
+    addy: string,
+    overrides?: CallOverrides
+  ): Promise<void>;
 
   "safeTransferFrom(address,address,uint256)"(
     from: string,
@@ -2217,13 +1424,13 @@ export interface MeemProxyV1 extends BaseContract {
   symbol(overrides?: CallOverrides): Promise<string>;
 
   tokenByIndex(
-    _index: BigNumberish,
+    index: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   tokenOfOwnerByIndex(
-    _owner: string,
-    _index: BigNumberish,
+    owner: string,
+    index: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -2238,289 +1445,38 @@ export interface MeemProxyV1 extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  init(
+  contractURI(overrides?: CallOverrides): Promise<string>;
+
+  getContractInfo(overrides?: CallOverrides): Promise<ContractInfoStructOutput>;
+
+  initialize(
     params: InitParamsStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  addPermission(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    permissionType: BigNumberish,
-    permission: MeemPermissionStruct,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  lockCopiesPerWallet(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "lockIsTransferrable(uint256)"(
-    tokenId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "lockIsTransferrable()"(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "lockMintDates(uint256)"(
-    tokenId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "lockMintDates()"(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  lockPermissions(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    permissionType: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  lockRemixesPerWallet(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  lockTotalCopies(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  lockTotalRemixes(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "lockTransferLockup(uint256)"(
-    tokenId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "lockTransferLockup()"(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  lockUri(
-    tokenId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  removePermissionAt(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    permissionType: BigNumberish,
-    idx: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setCopiesPerWallet(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    newTotalCopies: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setData(
-    tokenId: BigNumberish,
-    data: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setIsTransferrable(uint256,bool)"(
-    tokenId: BigNumberish,
-    isTransferrable: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setIsTransferrable(bool)"(
-    isTransferrable: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setMintDates(uint256,int256,int256)"(
-    tokenId: BigNumberish,
-    startTimestamp: BigNumberish,
-    endTimestamp: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setMintDates(int256,int256)"(
-    startTimestamp: BigNumberish,
-    endTimestamp: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setPermissions(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    permissionType: BigNumberish,
-    permissions: MeemPermissionStruct[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setRemixesPerWallet(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    newTotalRemixes: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setTokenUri(
-    tokenId: BigNumberish,
-    uri: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setTotalCopies(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    newTotalCopies: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setTotalRemixes(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    newTotalRemixes: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setTransferLockup(uint256,uint256)"(
-    tokenId: BigNumberish,
-    lockupUntil: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setTransferLockup(uint256)"(
-    lockupUntil: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setURISource(
-    tokenId: BigNumberish,
-    uriSource: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  updatePermissionAt(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    permissionType: BigNumberish,
-    idx: BigNumberish,
-    permission: MeemPermissionStruct,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  mint(
-    params: MeemMintParametersStruct,
-    properties: MeemPropertiesStruct,
-    childProperties: MeemPropertiesStruct,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  mintAndCopy(
-    params: MeemMintParametersStruct,
-    properties: MeemPropertiesStruct,
-    childProperties: MeemPropertiesStruct,
-    toCopyAddress: string,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  mintAndRemix(
-    params: MeemMintParametersStruct,
-    properties: MeemPropertiesStruct,
-    childProperties: MeemPropertiesStruct,
-    remixParams: MeemMintParametersStruct,
-    remixProperties: MeemPropertiesStruct,
-    remixChildProperties: MeemPropertiesStruct,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  addSplit(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    split: SplitStruct,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  getRaribleV2Royalties(
-    tokenId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<PartStructOutput[]>;
-
-  lockSplits(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  nonOwnerSplitAllocationAmount(overrides?: CallOverrides): Promise<BigNumber>;
-
-  removeSplitAt(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    idx: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setSplits(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    splits: SplitStruct[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  updateSplitAt(
-    tokenId: BigNumberish,
-    propertyType: BigNumberish,
-    idx: BigNumberish,
-    split: SplitStruct,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  lockBaseSplits(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  lockMintPermissions(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  lockOriginalsPerWallet(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  lockTotalOriginalsSupply(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  reInitialize(
+  reinitialize(
     params: InitParamsStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setBaseSplits(
-    splits: SplitStruct[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setChildDepth(
-    newChildDepth: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setContractInfo(
+  "setContractInfo(string,string)"(
     name: string,
     symbol: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setContractInfo(string,string,string,uint256)"(
+    name: string,
+    symbol: string,
+    newContractURI: string,
+    maxSupply: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setContractInfo(string,string,string)"(
+    name: string,
+    symbol: string,
+    newContractURI: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -2528,150 +1484,6 @@ export interface MeemProxyV1 extends BaseContract {
     newContractURI: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  setMintPermissions(
-    permissions: MeemPermissionStruct[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setNonOwnerSplitAllocationAmount(
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setOriginalsPerWallet(
-    originalsPerWallet: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setProperties(
-    propertyType: BigNumberish,
-    props: MeemPropertiesStruct,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setTokenCounter(
-    tokenCounter: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setTokenRoot(
-    tokenId: BigNumberish,
-    rootChain: BigNumberish,
-    root: string,
-    rootTokenId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setTotalOriginalsSupply(
-    totalSupply: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  addReaction(
-    tokenId: BigNumberish,
-    reaction: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  getReactedAt(
-    tokenId: BigNumberish,
-    addy: string,
-    reaction: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  getReactions(
-    tokenId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<ReactionStructOutput[]>;
-
-  removeReaction(
-    tokenId: BigNumberish,
-    reaction: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setReactionTypes(
-    tokenId: BigNumberish,
-    reactionTypes: string[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  childDepth(overrides?: CallOverrides): Promise<BigNumber>;
-
-  copiesOf(
-    tokenId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber[]>;
-
-  getBaseProperties(
-    overrides?: CallOverrides
-  ): Promise<BasePropertiesStructOutput>;
-
-  getContractInfo(overrides?: CallOverrides): Promise<ContractInfoStructOutput>;
-
-  getDefaultProperties(
-    propertyType: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<MeemPropertiesStructOutput>;
-
-  getMeem(
-    tokenId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<MeemStructOutput>;
-
-  getRoles(role: BytesLike, overrides?: CallOverrides): Promise<string[]>;
-
-  isNFTWrapped(
-    chain: BigNumberish,
-    contractAddress: string,
-    tokenId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  numCopiesOf(
-    tokenId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  numRemixesOf(
-    tokenId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  ownedCopiesOf(
-    tokenId: BigNumberish,
-    owner: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber[]>;
-
-  ownedRemixesOf(
-    tokenId: BigNumberish,
-    owner: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber[]>;
-
-  remixesOf(
-    tokenId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber[]>;
-
-  tokenIdOfOwnerIndex(
-    _owner: string,
-    tokenId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  tokenIdsOfOwner(
-    _owner: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber[]>;
-
-  wrappedTokens(
-    items: WrappedItemStruct[],
-    overrides?: CallOverrides
-  ): Promise<BigNumber[]>;
 
   callStatic: {
     acceptOwnership(overrides?: CallOverrides): Promise<void>;
@@ -2708,7 +1520,12 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    supportsInterface(
+    "supportsInterface(bytes4)"(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "supportsInterface(bytes4)"(
       interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -2720,23 +1537,23 @@ export interface MeemProxyV1 extends BaseContract {
 
     ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    MINTER_ROLE(overrides?: CallOverrides): Promise<string>;
+    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<string[]>;
 
     grantRole(
-      user: string,
       role: BytesLike,
+      user: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
     hasRole(
-      user: string,
       role: BytesLike,
+      user: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     revokeRole(
-      user: string,
       role: BytesLike,
+      user: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -2763,7 +1580,86 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    tokenClippings(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string[]>;
+
     unClip(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    getRaribleV2Royalties(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PartStructOutput[]>;
+
+    "handleSaleDistribution(uint256)"(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "handleSaleDistribution(uint256)"(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    lockSplits(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    setSplits(
+      tokenId: BigNumberish,
+      splits: SplitStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    MINTER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    lockMaxSupply(overrides?: CallOverrides): Promise<void>;
+
+    maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "requireCanMint(address)"(
+      minter: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "requireCanMint(address)"(
+      minter: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setIsTransferrable(
+      isTransferLocked: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setMaxSupply(
+      newMaxSupply: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setMintingPermissions(
+      newPermissions: MeemPermissionStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    validatePermissions(
+      basePermissions: MeemPermissionStruct[],
+      overridePermissions: MeemPermissionStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     approve(
       operator: string,
@@ -2771,20 +1667,17 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    balanceOf(_owner: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    baseTokenURI(overrides?: CallOverrides): Promise<string>;
-
-    burn(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    contractAddress(overrides?: CallOverrides): Promise<string>;
-
-    contractURI(overrides?: CallOverrides): Promise<string>;
+    balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    getMeem(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<MeemStructOutput>;
 
     isApprovedForAll(
       account: string,
@@ -2792,19 +1685,22 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    name(overrides?: CallOverrides): Promise<string>;
-
-    onERC721Received(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      arg3: BytesLike,
+    mint(
+      params: MintParametersStruct,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<void>;
+
+    name(overrides?: CallOverrides): Promise<string>;
 
     ownerOf(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
-    ownerTokens(owner: string, overrides?: CallOverrides): Promise<BigNumber[]>;
+    requireCanMintTo(to: string, overrides?: CallOverrides): Promise<void>;
+
+    requireTokenAdmin(
+      tokenId: BigNumberish,
+      addy: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,
@@ -2830,13 +1726,13 @@ export interface MeemProxyV1 extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<string>;
 
     tokenByIndex(
-      _index: BigNumberish,
+      index: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     tokenOfOwnerByIndex(
-      _owner: string,
-      _index: BigNumberish,
+      owner: string,
+      index: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -2851,271 +1747,40 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    init(params: InitParamsStruct, overrides?: CallOverrides): Promise<void>;
+    contractURI(overrides?: CallOverrides): Promise<string>;
 
-    addPermission(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      permission: MeemPermissionStruct,
+    getContractInfo(
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<ContractInfoStructOutput>;
 
-    lockCopiesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "lockIsTransferrable(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "lockIsTransferrable()"(overrides?: CallOverrides): Promise<void>;
-
-    "lockMintDates(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "lockMintDates()"(overrides?: CallOverrides): Promise<void>;
-
-    lockPermissions(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    lockRemixesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    lockTotalCopies(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    lockTotalRemixes(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "lockTransferLockup(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "lockTransferLockup()"(overrides?: CallOverrides): Promise<void>;
-
-    lockUri(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    removePermissionAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      idx: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setCopiesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalCopies: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setData(
-      tokenId: BigNumberish,
-      data: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "setIsTransferrable(uint256,bool)"(
-      tokenId: BigNumberish,
-      isTransferrable: boolean,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "setIsTransferrable(bool)"(
-      isTransferrable: boolean,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "setMintDates(uint256,int256,int256)"(
-      tokenId: BigNumberish,
-      startTimestamp: BigNumberish,
-      endTimestamp: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "setMintDates(int256,int256)"(
-      startTimestamp: BigNumberish,
-      endTimestamp: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setPermissions(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      permissions: MeemPermissionStruct[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setRemixesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalRemixes: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setTokenUri(
-      tokenId: BigNumberish,
-      uri: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setTotalCopies(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalCopies: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setTotalRemixes(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalRemixes: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "setTransferLockup(uint256,uint256)"(
-      tokenId: BigNumberish,
-      lockupUntil: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "setTransferLockup(uint256)"(
-      lockupUntil: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setURISource(
-      tokenId: BigNumberish,
-      uriSource: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    updatePermissionAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      idx: BigNumberish,
-      permission: MeemPermissionStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    mint(
-      params: MeemMintParametersStruct,
-      properties: MeemPropertiesStruct,
-      childProperties: MeemPropertiesStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    mintAndCopy(
-      params: MeemMintParametersStruct,
-      properties: MeemPropertiesStruct,
-      childProperties: MeemPropertiesStruct,
-      toCopyAddress: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    mintAndRemix(
-      params: MeemMintParametersStruct,
-      properties: MeemPropertiesStruct,
-      childProperties: MeemPropertiesStruct,
-      remixParams: MeemMintParametersStruct,
-      remixProperties: MeemPropertiesStruct,
-      remixChildProperties: MeemPropertiesStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    addSplit(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      split: SplitStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    getRaribleV2Royalties(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PartStructOutput[]>;
-
-    lockSplits(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    nonOwnerSplitAllocationAmount(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    removeSplitAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      idx: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setSplits(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      splits: SplitStruct[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    updateSplitAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      idx: BigNumberish,
-      split: SplitStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    lockBaseSplits(overrides?: CallOverrides): Promise<void>;
-
-    lockMintPermissions(overrides?: CallOverrides): Promise<void>;
-
-    lockOriginalsPerWallet(overrides?: CallOverrides): Promise<void>;
-
-    lockTotalOriginalsSupply(overrides?: CallOverrides): Promise<void>;
-
-    reInitialize(
+    initialize(
       params: InitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setBaseSplits(
-      splits: SplitStruct[],
+    reinitialize(
+      params: InitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setChildDepth(
-      newChildDepth: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setContractInfo(
+    "setContractInfo(string,string)"(
       name: string,
       symbol: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setContractInfo(string,string,string,uint256)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
+      maxSupply: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "setContractInfo(string,string,string)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3123,152 +1788,6 @@ export interface MeemProxyV1 extends BaseContract {
       newContractURI: string,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    setMintPermissions(
-      permissions: MeemPermissionStruct[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setNonOwnerSplitAllocationAmount(
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setOriginalsPerWallet(
-      originalsPerWallet: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setProperties(
-      propertyType: BigNumberish,
-      props: MeemPropertiesStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setTokenCounter(
-      tokenCounter: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setTokenRoot(
-      tokenId: BigNumberish,
-      rootChain: BigNumberish,
-      root: string,
-      rootTokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setTotalOriginalsSupply(
-      totalSupply: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    addReaction(
-      tokenId: BigNumberish,
-      reaction: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    getReactedAt(
-      tokenId: BigNumberish,
-      addy: string,
-      reaction: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getReactions(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<ReactionStructOutput[]>;
-
-    removeReaction(
-      tokenId: BigNumberish,
-      reaction: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setReactionTypes(
-      tokenId: BigNumberish,
-      reactionTypes: string[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    childDepth(overrides?: CallOverrides): Promise<BigNumber>;
-
-    copiesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
-
-    getBaseProperties(
-      overrides?: CallOverrides
-    ): Promise<BasePropertiesStructOutput>;
-
-    getContractInfo(
-      overrides?: CallOverrides
-    ): Promise<ContractInfoStructOutput>;
-
-    getDefaultProperties(
-      propertyType: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<MeemPropertiesStructOutput>;
-
-    getMeem(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<MeemStructOutput>;
-
-    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<string[]>;
-
-    isNFTWrapped(
-      chain: BigNumberish,
-      contractAddress: string,
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    numCopiesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    numRemixesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    ownedCopiesOf(
-      tokenId: BigNumberish,
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
-
-    ownedRemixesOf(
-      tokenId: BigNumberish,
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
-
-    remixesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
-
-    tokenIdOfOwnerIndex(
-      _owner: string,
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    tokenIdsOfOwner(
-      _owner: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
-
-    wrappedTokens(
-      items: WrappedItemStruct[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
   };
 
   filters: {
@@ -3295,6 +1814,67 @@ export interface MeemProxyV1 extends BaseContract {
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
 
+    "MeemRoleGranted(bytes32,address)"(
+      role?: BytesLike | null,
+      user?: string | null
+    ): MeemRoleGrantedEventFilter;
+    MeemRoleGranted(
+      role?: BytesLike | null,
+      user?: string | null
+    ): MeemRoleGrantedEventFilter;
+
+    "MeemRoleRevoked(bytes32,address)"(
+      role?: BytesLike | null,
+      user?: string | null
+    ): MeemRoleRevokedEventFilter;
+    MeemRoleRevoked(
+      role?: BytesLike | null,
+      user?: string | null
+    ): MeemRoleRevokedEventFilter;
+
+    "MeemTokenClipped(uint256,address)"(
+      tokenId?: BigNumberish | null,
+      addy?: string | null
+    ): MeemTokenClippedEventFilter;
+    MeemTokenClipped(
+      tokenId?: BigNumberish | null,
+      addy?: string | null
+    ): MeemTokenClippedEventFilter;
+
+    "MeemTokenUnClipped(uint256,address)"(
+      tokenId?: BigNumberish | null,
+      addy?: string | null
+    ): MeemTokenUnClippedEventFilter;
+    MeemTokenUnClipped(
+      tokenId?: BigNumberish | null,
+      addy?: string | null
+    ): MeemTokenUnClippedEventFilter;
+
+    "MeemSplitsSet(uint256,tuple[])"(
+      tokenId?: null,
+      splits?: null
+    ): MeemSplitsSetEventFilter;
+    MeemSplitsSet(tokenId?: null, splits?: null): MeemSplitsSetEventFilter;
+
+    "RoyaltiesSet(uint256,tuple[])"(
+      tokenId?: null,
+      royalties?: null
+    ): RoyaltiesSetEventFilter;
+    RoyaltiesSet(tokenId?: null, royalties?: null): RoyaltiesSetEventFilter;
+
+    "MeemMaxSupplyLocked()"(): MeemMaxSupplyLockedEventFilter;
+    MeemMaxSupplyLocked(): MeemMaxSupplyLockedEventFilter;
+
+    "MeemMaxSupplySet(uint256)"(maxSupply?: null): MeemMaxSupplySetEventFilter;
+    MeemMaxSupplySet(maxSupply?: null): MeemMaxSupplySetEventFilter;
+
+    "MeemMintPermissionsSet(tuple[])"(
+      mintPermissions?: null
+    ): MeemMintPermissionsSetEventFilter;
+    MeemMintPermissionsSet(
+      mintPermissions?: null
+    ): MeemMintPermissionsSetEventFilter;
+
     "Approval(address,address,uint256)"(
       owner?: string | null,
       operator?: string | null,
@@ -3317,6 +1897,17 @@ export interface MeemProxyV1 extends BaseContract {
       approved?: null
     ): ApprovalForAllEventFilter;
 
+    "MeemTransfer(address,address,uint256)"(
+      from?: string | null,
+      to?: string | null,
+      tokenId?: BigNumberish | null
+    ): MeemTransferEventFilter;
+    MeemTransfer(
+      from?: string | null,
+      to?: string | null,
+      tokenId?: BigNumberish | null
+    ): MeemTransferEventFilter;
+
     "Transfer(address,address,uint256)"(
       from?: string | null,
       to?: string | null,
@@ -3327,6 +1918,27 @@ export interface MeemProxyV1 extends BaseContract {
       to?: string | null,
       tokenId?: BigNumberish | null
     ): TransferEventFilter;
+
+    "MeemContractInfoSet(address)"(
+      contractAddress?: string | null
+    ): MeemContractInfoSetEventFilter;
+    MeemContractInfoSet(
+      contractAddress?: string | null
+    ): MeemContractInfoSetEventFilter;
+
+    "MeemContractInitialized(address)"(
+      contractAddress?: string | null
+    ): MeemContractInitializedEventFilter;
+    MeemContractInitialized(
+      contractAddress?: string | null
+    ): MeemContractInitializedEventFilter;
+
+    "MeemContractURISet(address)"(
+      contractAddress?: string | null
+    ): MeemContractURISetEventFilter;
+    MeemContractURISet(
+      contractAddress?: string | null
+    ): MeemContractURISetEventFilter;
   };
 
   estimateGas: {
@@ -3366,7 +1978,12 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    supportsInterface(
+    "supportsInterface(bytes4)"(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "supportsInterface(bytes4)"(
       interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -3378,23 +1995,23 @@ export interface MeemProxyV1 extends BaseContract {
 
     ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    MINTER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     grantRole(
-      user: string,
       role: BytesLike,
+      user: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     hasRole(
-      user: string,
       role: BytesLike,
+      user: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     revokeRole(
-      user: string,
       role: BytesLike,
+      user: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -3424,9 +2041,93 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    tokenClippings(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     unClip(
       tokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    getRaribleV2Royalties(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "handleSaleDistribution(uint256)"(
+      tokenId: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "handleSaleDistribution(uint256)"(
+      tokenId: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    lockSplits(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setSplits(
+      tokenId: BigNumberish,
+      splits: SplitStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    MINTER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    lockMaxSupply(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "requireCanMint(address)"(
+      minter: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "requireCanMint(address)"(
+      minter: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setIsTransferrable(
+      isTransferLocked: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setMaxSupply(
+      newMaxSupply: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setMintingPermissions(
+      newPermissions: MeemPermissionStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    validatePermissions(
+      basePermissions: MeemPermissionStruct[],
+      overridePermissions: MeemPermissionStruct[],
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     approve(
@@ -3435,20 +2136,14 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    balanceOf(_owner: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    baseTokenURI(overrides?: CallOverrides): Promise<BigNumber>;
-
-    burn(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    contractAddress(overrides?: CallOverrides): Promise<BigNumber>;
-
-    contractURI(overrides?: CallOverrides): Promise<BigNumber>;
+    balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     getApproved(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getMeem(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -3459,22 +2154,28 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    name(overrides?: CallOverrides): Promise<BigNumber>;
-
-    onERC721Received(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      arg3: BytesLike,
-      overrides?: CallOverrides
+    mint(
+      params: MintParametersStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    name(overrides?: CallOverrides): Promise<BigNumber>;
 
     ownerOf(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    ownerTokens(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
+    requireCanMintTo(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    requireTokenAdmin(
+      tokenId: BigNumberish,
+      addy: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,
@@ -3500,13 +2201,13 @@ export interface MeemProxyV1 extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
     tokenByIndex(
-      _index: BigNumberish,
+      index: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     tokenOfOwnerByIndex(
-      _owner: string,
-      _index: BigNumberish,
+      owner: string,
+      index: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -3524,439 +2225,44 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    init(
+    contractURI(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getContractInfo(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
       params: InitParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    addPermission(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      permission: MeemPermissionStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    lockCopiesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "lockIsTransferrable(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "lockIsTransferrable()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "lockMintDates(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "lockMintDates()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    lockPermissions(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    lockRemixesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    lockTotalCopies(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    lockTotalRemixes(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "lockTransferLockup(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "lockTransferLockup()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    lockUri(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    removePermissionAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      idx: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setCopiesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalCopies: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setData(
-      tokenId: BigNumberish,
-      data: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setIsTransferrable(uint256,bool)"(
-      tokenId: BigNumberish,
-      isTransferrable: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setIsTransferrable(bool)"(
-      isTransferrable: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setMintDates(uint256,int256,int256)"(
-      tokenId: BigNumberish,
-      startTimestamp: BigNumberish,
-      endTimestamp: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setMintDates(int256,int256)"(
-      startTimestamp: BigNumberish,
-      endTimestamp: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setPermissions(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      permissions: MeemPermissionStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setRemixesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalRemixes: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setTokenUri(
-      tokenId: BigNumberish,
-      uri: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setTotalCopies(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalCopies: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setTotalRemixes(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalRemixes: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setTransferLockup(uint256,uint256)"(
-      tokenId: BigNumberish,
-      lockupUntil: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setTransferLockup(uint256)"(
-      lockupUntil: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setURISource(
-      tokenId: BigNumberish,
-      uriSource: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    updatePermissionAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      idx: BigNumberish,
-      permission: MeemPermissionStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    mint(
-      params: MeemMintParametersStruct,
-      properties: MeemPropertiesStruct,
-      childProperties: MeemPropertiesStruct,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    mintAndCopy(
-      params: MeemMintParametersStruct,
-      properties: MeemPropertiesStruct,
-      childProperties: MeemPropertiesStruct,
-      toCopyAddress: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    mintAndRemix(
-      params: MeemMintParametersStruct,
-      properties: MeemPropertiesStruct,
-      childProperties: MeemPropertiesStruct,
-      remixParams: MeemMintParametersStruct,
-      remixProperties: MeemPropertiesStruct,
-      remixChildProperties: MeemPropertiesStruct,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    addSplit(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      split: SplitStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    getRaribleV2Royalties(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    lockSplits(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    nonOwnerSplitAllocationAmount(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    removeSplitAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      idx: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setSplits(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      splits: SplitStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    updateSplitAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      idx: BigNumberish,
-      split: SplitStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    lockBaseSplits(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    lockMintPermissions(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    lockOriginalsPerWallet(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    lockTotalOriginalsSupply(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    reInitialize(
+    reinitialize(
       params: InitParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setBaseSplits(
-      splits: SplitStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setChildDepth(
-      newChildDepth: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setContractInfo(
+    "setContractInfo(string,string)"(
       name: string,
       symbol: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setContractInfo(string,string,string,uint256)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
+      maxSupply: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setContractInfo(string,string,string)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     setContractURI(
       newContractURI: string,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setMintPermissions(
-      permissions: MeemPermissionStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setNonOwnerSplitAllocationAmount(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setOriginalsPerWallet(
-      originalsPerWallet: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setProperties(
-      propertyType: BigNumberish,
-      props: MeemPropertiesStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setTokenCounter(
-      tokenCounter: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setTokenRoot(
-      tokenId: BigNumberish,
-      rootChain: BigNumberish,
-      root: string,
-      rootTokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setTotalOriginalsSupply(
-      totalSupply: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    addReaction(
-      tokenId: BigNumberish,
-      reaction: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    getReactedAt(
-      tokenId: BigNumberish,
-      addy: string,
-      reaction: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getReactions(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    removeReaction(
-      tokenId: BigNumberish,
-      reaction: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setReactionTypes(
-      tokenId: BigNumberish,
-      reactionTypes: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    childDepth(overrides?: CallOverrides): Promise<BigNumber>;
-
-    copiesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getBaseProperties(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getContractInfo(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getDefaultProperties(
-      propertyType: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getMeem(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
-
-    isNFTWrapped(
-      chain: BigNumberish,
-      contractAddress: string,
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    numCopiesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    numRemixesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    ownedCopiesOf(
-      tokenId: BigNumberish,
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    ownedRemixesOf(
-      tokenId: BigNumberish,
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    remixesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    tokenIdOfOwnerIndex(
-      _owner: string,
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    tokenIdsOfOwner(
-      _owner: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    wrappedTokens(
-      items: WrappedItemStruct[],
-      overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
@@ -3999,7 +2305,12 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    supportsInterface(
+    "supportsInterface(bytes4)"(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "supportsInterface(bytes4)"(
       interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -4011,23 +2322,26 @@ export interface MeemProxyV1 extends BaseContract {
 
     ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    MINTER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    grantRole(
-      user: string,
-      role: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    hasRole(
-      user: string,
+    getRoles(
       role: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    revokeRole(
-      user: string,
+    grantRole(
       role: BytesLike,
+      user: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    revokeRole(
+      role: BytesLike,
+      user: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -4057,9 +2371,93 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    tokenClippings(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     unClip(
       tokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getRaribleV2Royalties(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "handleSaleDistribution(uint256)"(
+      tokenId: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "handleSaleDistribution(uint256)"(
+      tokenId: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    lockSplits(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setSplits(
+      tokenId: BigNumberish,
+      splits: SplitStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    MINTER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    lockMaxSupply(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    maxSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "requireCanMint(address)"(
+      minter: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "requireCanMint(address)"(
+      minter: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setIsTransferrable(
+      isTransferLocked: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMaxSupply(
+      newMaxSupply: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMintingPermissions(
+      newPermissions: MeemPermissionStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    validatePermissions(
+      basePermissions: MeemPermissionStruct[],
+      overridePermissions: MeemPermissionStruct[],
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     approve(
@@ -4069,22 +2467,16 @@ export interface MeemProxyV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     balanceOf(
-      _owner: string,
+      account: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    baseTokenURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    burn(
+    getApproved(
       tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    contractAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    contractURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getApproved(
+    getMeem(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -4095,23 +2487,26 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    onERC721Received(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      arg3: BytesLike,
-      overrides?: CallOverrides
+    mint(
+      params: MintParametersStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     ownerOf(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    ownerTokens(
-      owner: string,
+    requireCanMintTo(
+      to: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    requireTokenAdmin(
+      tokenId: BigNumberish,
+      addy: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -4139,13 +2534,13 @@ export interface MeemProxyV1 extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     tokenByIndex(
-      _index: BigNumberish,
+      index: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     tokenOfOwnerByIndex(
-      _owner: string,
-      _index: BigNumberish,
+      owner: string,
+      index: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -4163,442 +2558,44 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    init(
+    contractURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getContractInfo(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initialize(
       params: InitParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    addPermission(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      permission: MeemPermissionStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    lockCopiesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "lockIsTransferrable(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "lockIsTransferrable()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "lockMintDates(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "lockMintDates()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    lockPermissions(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    lockRemixesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    lockTotalCopies(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    lockTotalRemixes(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "lockTransferLockup(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "lockTransferLockup()"(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    lockUri(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    removePermissionAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      idx: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setCopiesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalCopies: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setData(
-      tokenId: BigNumberish,
-      data: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setIsTransferrable(uint256,bool)"(
-      tokenId: BigNumberish,
-      isTransferrable: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setIsTransferrable(bool)"(
-      isTransferrable: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setMintDates(uint256,int256,int256)"(
-      tokenId: BigNumberish,
-      startTimestamp: BigNumberish,
-      endTimestamp: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setMintDates(int256,int256)"(
-      startTimestamp: BigNumberish,
-      endTimestamp: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setPermissions(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      permissions: MeemPermissionStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setRemixesPerWallet(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalRemixes: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTokenUri(
-      tokenId: BigNumberish,
-      uri: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTotalCopies(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalCopies: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTotalRemixes(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      newTotalRemixes: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setTransferLockup(uint256,uint256)"(
-      tokenId: BigNumberish,
-      lockupUntil: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setTransferLockup(uint256)"(
-      lockupUntil: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setURISource(
-      tokenId: BigNumberish,
-      uriSource: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    updatePermissionAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      permissionType: BigNumberish,
-      idx: BigNumberish,
-      permission: MeemPermissionStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    mint(
-      params: MeemMintParametersStruct,
-      properties: MeemPropertiesStruct,
-      childProperties: MeemPropertiesStruct,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    mintAndCopy(
-      params: MeemMintParametersStruct,
-      properties: MeemPropertiesStruct,
-      childProperties: MeemPropertiesStruct,
-      toCopyAddress: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    mintAndRemix(
-      params: MeemMintParametersStruct,
-      properties: MeemPropertiesStruct,
-      childProperties: MeemPropertiesStruct,
-      remixParams: MeemMintParametersStruct,
-      remixProperties: MeemPropertiesStruct,
-      remixChildProperties: MeemPropertiesStruct,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    addSplit(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      split: SplitStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getRaribleV2Royalties(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    lockSplits(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    nonOwnerSplitAllocationAmount(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    removeSplitAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      idx: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setSplits(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      splits: SplitStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    updateSplitAt(
-      tokenId: BigNumberish,
-      propertyType: BigNumberish,
-      idx: BigNumberish,
-      split: SplitStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    lockBaseSplits(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    lockMintPermissions(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    lockOriginalsPerWallet(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    lockTotalOriginalsSupply(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    reInitialize(
+    reinitialize(
       params: InitParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setBaseSplits(
-      splits: SplitStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setChildDepth(
-      newChildDepth: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setContractInfo(
+    "setContractInfo(string,string)"(
       name: string,
       symbol: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setContractInfo(string,string,string,uint256)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
+      maxSupply: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setContractInfo(string,string,string)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setContractURI(
       newContractURI: string,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMintPermissions(
-      permissions: MeemPermissionStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setNonOwnerSplitAllocationAmount(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setOriginalsPerWallet(
-      originalsPerWallet: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setProperties(
-      propertyType: BigNumberish,
-      props: MeemPropertiesStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTokenCounter(
-      tokenCounter: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTokenRoot(
-      tokenId: BigNumberish,
-      rootChain: BigNumberish,
-      root: string,
-      rootTokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTotalOriginalsSupply(
-      totalSupply: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    addReaction(
-      tokenId: BigNumberish,
-      reaction: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getReactedAt(
-      tokenId: BigNumberish,
-      addy: string,
-      reaction: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getReactions(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    removeReaction(
-      tokenId: BigNumberish,
-      reaction: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setReactionTypes(
-      tokenId: BigNumberish,
-      reactionTypes: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    childDepth(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    copiesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getBaseProperties(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getContractInfo(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getDefaultProperties(
-      propertyType: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getMeem(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getRoles(
-      role: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isNFTWrapped(
-      chain: BigNumberish,
-      contractAddress: string,
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    numCopiesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    numRemixesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    ownedCopiesOf(
-      tokenId: BigNumberish,
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    ownedRemixesOf(
-      tokenId: BigNumberish,
-      owner: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    remixesOf(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    tokenIdOfOwnerIndex(
-      _owner: string,
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    tokenIdsOfOwner(
-      _owner: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    wrappedTokens(
-      items: WrappedItemStruct[],
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }
@@ -4949,6 +2946,44 @@ const _abi = [
     stateMutability: "payable",
   },
   {
+    name: "MeemRoleGranted",
+    type: "event",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        indexed: true,
+        internalType: "bytes32",
+      },
+      {
+        name: "user",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "MeemRoleRevoked",
+    type: "event",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        indexed: true,
+        internalType: "bytes32",
+      },
+      {
+        name: "user",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
     name: "ADMIN_ROLE",
     type: "function",
     inputs: [],
@@ -4959,17 +2994,23 @@ const _abi = [
         internalType: "bytes32",
       },
     ],
-    stateMutability: "view",
+    stateMutability: "pure",
   },
   {
-    name: "MINTER_ROLE",
+    name: "getRoles",
     type: "function",
-    inputs: [],
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+    ],
     outputs: [
       {
         name: "",
-        type: "bytes32",
-        internalType: "bytes32",
+        type: "address[]",
+        internalType: "address[]",
       },
     ],
     stateMutability: "view",
@@ -4979,14 +3020,14 @@ const _abi = [
     type: "function",
     inputs: [
       {
-        name: "user",
-        type: "address",
-        internalType: "address",
-      },
-      {
         name: "role",
         type: "bytes32",
         internalType: "bytes32",
+      },
+      {
+        name: "user",
+        type: "address",
+        internalType: "address",
       },
     ],
     outputs: [],
@@ -4997,14 +3038,14 @@ const _abi = [
     type: "function",
     inputs: [
       {
-        name: "user",
-        type: "address",
-        internalType: "address",
-      },
-      {
         name: "role",
         type: "bytes32",
         internalType: "bytes32",
+      },
+      {
+        name: "user",
+        type: "address",
+        internalType: "address",
       },
     ],
     outputs: [
@@ -5021,18 +3062,56 @@ const _abi = [
     type: "function",
     inputs: [
       {
-        name: "user",
-        type: "address",
-        internalType: "address",
-      },
-      {
         name: "role",
         type: "bytes32",
         internalType: "bytes32",
       },
+      {
+        name: "user",
+        type: "address",
+        internalType: "address",
+      },
     ],
     outputs: [],
     stateMutability: "nonpayable",
+  },
+  {
+    name: "MeemTokenClipped",
+    type: "event",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
+      {
+        name: "addy",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "MeemTokenUnClipped",
+    type: "event",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
+      {
+        name: "addy",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
   },
   {
     name: "addressClippings",
@@ -5129,6 +3208,25 @@ const _abi = [
     stateMutability: "view",
   },
   {
+    name: "tokenClippings",
+    type: "function",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "address[]",
+        internalType: "address[]",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
     name: "unClip",
     type: "function",
     inputs: [
@@ -5140,6 +3238,451 @@ const _abi = [
     ],
     outputs: [],
     stateMutability: "nonpayable",
+  },
+  {
+    name: "MeemSplitsSet",
+    type: "event",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+      {
+        name: "splits",
+        type: "tuple[]",
+        indexed: false,
+        components: [
+          {
+            name: "toAddress",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "lockedBy",
+            type: "address",
+            internalType: "address",
+          },
+        ],
+        internalType: "struct Split[]",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "RoyaltiesSet",
+    type: "event",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+      {
+        name: "royalties",
+        type: "tuple[]",
+        indexed: false,
+        components: [
+          {
+            name: "account",
+            type: "address",
+            internalType: "address payable",
+          },
+          {
+            name: "value",
+            type: "uint96",
+            internalType: "uint96",
+          },
+        ],
+        internalType: "struct LibPart.Part[]",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "getRaribleV2Royalties",
+    type: "function",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "tuple[]",
+        components: [
+          {
+            name: "account",
+            type: "address",
+            internalType: "address payable",
+          },
+          {
+            name: "value",
+            type: "uint96",
+            internalType: "uint96",
+          },
+        ],
+        internalType: "struct LibPart.Part[]",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    name: "handleSaleDistribution",
+    type: "function",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    name: "lockSplits",
+    type: "function",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setSplits",
+    type: "function",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "splits",
+        type: "tuple[]",
+        components: [
+          {
+            name: "toAddress",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "lockedBy",
+            type: "address",
+            internalType: "address",
+          },
+        ],
+        internalType: "struct Split[]",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "MeemMaxSupplyLocked",
+    type: "event",
+    inputs: [],
+    anonymous: false,
+  },
+  {
+    name: "MeemMaxSupplySet",
+    type: "event",
+    inputs: [
+      {
+        name: "maxSupply",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "MeemMintPermissionsSet",
+    type: "event",
+    inputs: [
+      {
+        name: "mintPermissions",
+        type: "tuple[]",
+        indexed: false,
+        components: [
+          {
+            name: "permission",
+            type: "uint8",
+            internalType: "enum Permission",
+          },
+          {
+            name: "addresses",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "numTokens",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "costWei",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintStartTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintEndTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        internalType: "struct MeemPermission[]",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "MINTER_ROLE",
+    type: "function",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+  },
+  {
+    name: "lockMaxSupply",
+    type: "function",
+    inputs: [],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "maxSupply",
+    type: "function",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    name: "requireCanMint",
+    type: "function",
+    inputs: [
+      {
+        name: "minter",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    name: "requireCanTransfer",
+    type: "function",
+    inputs: [
+      {
+        name: "from",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "to",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setIsTransferrable",
+    type: "function",
+    inputs: [
+      {
+        name: "isTransferLocked",
+        type: "bool",
+        internalType: "bool",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setMaxSupply",
+    type: "function",
+    inputs: [
+      {
+        name: "newMaxSupply",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setMintingPermissions",
+    type: "function",
+    inputs: [
+      {
+        name: "newPermissions",
+        type: "tuple[]",
+        components: [
+          {
+            name: "permission",
+            type: "uint8",
+            internalType: "enum Permission",
+          },
+          {
+            name: "addresses",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "numTokens",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "costWei",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintStartTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintEndTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        internalType: "struct MeemPermission[]",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "validatePermissions",
+    type: "function",
+    inputs: [
+      {
+        name: "basePermissions",
+        type: "tuple[]",
+        components: [
+          {
+            name: "permission",
+            type: "uint8",
+            internalType: "enum Permission",
+          },
+          {
+            name: "addresses",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "numTokens",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "costWei",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintStartTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintEndTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        internalType: "struct MeemPermission[]",
+      },
+      {
+        name: "overridePermissions",
+        type: "tuple[]",
+        components: [
+          {
+            name: "permission",
+            type: "uint8",
+            internalType: "enum Permission",
+          },
+          {
+            name: "addresses",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "numTokens",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "costWei",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintStartTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintEndTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        internalType: "struct MeemPermission[]",
+      },
+    ],
+    outputs: [],
+    stateMutability: "pure",
   },
   {
     name: "Approval",
@@ -5192,6 +3735,31 @@ const _abi = [
     anonymous: false,
   },
   {
+    name: "MeemTransfer",
+    type: "event",
+    inputs: [
+      {
+        name: "from",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "to",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "tokenId",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
     name: "Transfer",
     type: "event",
     inputs: [
@@ -5239,68 +3807,16 @@ const _abi = [
     type: "function",
     inputs: [
       {
-        name: "_owner",
+        name: "account",
         type: "address",
         internalType: "address",
       },
     ],
     outputs: [
       {
-        name: "balance",
+        name: "",
         type: "uint256",
         internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "baseTokenURI",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    stateMutability: "pure",
-  },
-  {
-    name: "burn",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "contractAddress",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "contractURI",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "string",
-        internalType: "string",
       },
     ],
     stateMutability: "view",
@@ -5323,6 +3839,60 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+  },
+  {
+    name: "getMeem",
+    type: "function",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "tuple",
+        components: [
+          {
+            name: "owner",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "tokenType",
+            type: "uint8",
+            internalType: "enum TokenType",
+          },
+          {
+            name: "mintedBy",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "mintedAt",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        internalType: "struct Meem",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    name: "handleSaleDistribution",
+    type: "function",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "payable",
   },
   {
     name: "isApprovedForAll",
@@ -5349,6 +3919,36 @@ const _abi = [
     stateMutability: "view",
   },
   {
+    name: "mint",
+    type: "function",
+    inputs: [
+      {
+        name: "params",
+        type: "tuple",
+        components: [
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "tokenURI",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "tokenType",
+            type: "uint8",
+            internalType: "enum TokenType",
+          },
+        ],
+        internalType: "struct MintParameters",
+      },
+    ],
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
     name: "name",
     type: "function",
     inputs: [],
@@ -5357,40 +3957,6 @@ const _abi = [
         name: "",
         type: "string",
         internalType: "string",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "onERC721Received",
-    type: "function",
-    inputs: [
-      {
-        name: "",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "",
-        type: "bytes",
-        internalType: "bytes",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "bytes4",
-        internalType: "bytes4",
       },
     ],
     stateMutability: "view",
@@ -5415,22 +3981,70 @@ const _abi = [
     stateMutability: "view",
   },
   {
-    name: "ownerTokens",
+    name: "requireCanMint",
     type: "function",
     inputs: [
       {
-        name: "owner",
+        name: "minter",
         type: "address",
         internalType: "address",
       },
     ],
-    outputs: [
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    name: "requireCanMintTo",
+    type: "function",
+    inputs: [
       {
-        name: "",
-        type: "uint256[]",
-        internalType: "uint256[]",
+        name: "to",
+        type: "address",
+        internalType: "address",
       },
     ],
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    name: "requireCanTransfer",
+    type: "function",
+    inputs: [
+      {
+        name: "from",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "to",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "requireTokenAdmin",
+    type: "function",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "addy",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [],
     stateMutability: "view",
   },
   {
@@ -5503,6 +4117,25 @@ const _abi = [
     stateMutability: "nonpayable",
   },
   {
+    name: "supportsInterface",
+    type: "function",
+    inputs: [
+      {
+        name: "interfaceId",
+        type: "bytes4",
+        internalType: "bytes4",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "bool",
+        internalType: "bool",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
     name: "symbol",
     type: "function",
     inputs: [],
@@ -5520,14 +4153,14 @@ const _abi = [
     type: "function",
     inputs: [
       {
-        name: "_index",
+        name: "index",
         type: "uint256",
         internalType: "uint256",
       },
     ],
     outputs: [
       {
-        name: "tokenId_",
+        name: "",
         type: "uint256",
         internalType: "uint256",
       },
@@ -5539,19 +4172,19 @@ const _abi = [
     type: "function",
     inputs: [
       {
-        name: "_owner",
+        name: "owner",
         type: "address",
         internalType: "address",
       },
       {
-        name: "_index",
+        name: "index",
         type: "uint256",
         internalType: "uint256",
       },
     ],
     outputs: [
       {
-        name: "tokenId_",
+        name: "",
         type: "uint256",
         internalType: "uint256",
       },
@@ -5583,7 +4216,7 @@ const _abi = [
     inputs: [],
     outputs: [
       {
-        name: "totalSupply_",
+        name: "",
         type: "uint256",
         internalType: "uint256",
       },
@@ -5614,4810 +4247,53 @@ const _abi = [
     stateMutability: "payable",
   },
   {
-    name: "init",
-    type: "function",
+    name: "MeemContractInfoSet",
+    type: "event",
     inputs: [
       {
-        name: "params",
-        type: "tuple",
-        components: [
-          {
-            name: "symbol",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "name",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "contractURI",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "baseProperties",
-            type: "tuple",
-            components: [
-              {
-                name: "totalOriginalsSupply",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalOriginalsSupplyLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "mintPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "mintPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "splits",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "toAddress",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "amount",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                ],
-                internalType: "struct Split[]",
-              },
-              {
-                name: "splitsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "originalsPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "originalsPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "isTransferrable",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "isTransferrableLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintDatesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "transferLockupUntil",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "transferLockupUntilLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct BaseProperties",
-          },
-          {
-            name: "defaultProperties",
-            type: "tuple",
-            components: [
-              {
-                name: "totalRemixes",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalRemixesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "remixesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copyPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "remixPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "readPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "copyPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "readPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "splits",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "toAddress",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "amount",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                ],
-                internalType: "struct Split[]",
-              },
-              {
-                name: "splitsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "totalCopies",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalCopiesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copiesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "copiesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "isTransferrable",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "isTransferrableLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintDatesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "transferLockupUntil",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "transferLockupUntilLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct MeemProperties",
-          },
-          {
-            name: "defaultChildProperties",
-            type: "tuple",
-            components: [
-              {
-                name: "totalRemixes",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalRemixesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "remixesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copyPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "remixPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "readPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "copyPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "readPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "splits",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "toAddress",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "amount",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                ],
-                internalType: "struct Split[]",
-              },
-              {
-                name: "splitsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "totalCopies",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalCopiesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copiesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "copiesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "isTransferrable",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "isTransferrableLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintDatesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "transferLockupUntil",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "transferLockupUntilLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct MeemProperties",
-          },
-          {
-            name: "admins",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "tokenCounterStart",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "childDepth",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "nonOwnerSplitAllocationAmount",
-            type: "uint256",
-            internalType: "uint256",
-          },
-        ],
-        internalType: "struct InitParams",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "addPermission",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-      {
-        name: "permissionType",
-        type: "uint8",
-        internalType: "enum PermissionType",
-      },
-      {
-        name: "permission",
-        type: "tuple",
-        components: [
-          {
-            name: "permission",
-            type: "uint8",
-            internalType: "enum Permission",
-          },
-          {
-            name: "addresses",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "numTokens",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "lockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "costWei",
-            type: "uint256",
-            internalType: "uint256",
-          },
-        ],
-        internalType: "struct MeemPermission",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockCopiesPerWallet",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockIsTransferrable",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockMintDates",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockPermissions",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-      {
-        name: "permissionType",
-        type: "uint8",
-        internalType: "enum PermissionType",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockRemixesPerWallet",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockTotalCopies",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockTotalRemixes",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockTransferLockup",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockUri",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "removePermissionAt",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-      {
-        name: "permissionType",
-        type: "uint8",
-        internalType: "enum PermissionType",
-      },
-      {
-        name: "idx",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setCopiesPerWallet",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-      {
-        name: "newTotalCopies",
-        type: "int256",
-        internalType: "int256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setData",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "data",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setIsTransferrable",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "isTransferrable",
-        type: "bool",
-        internalType: "bool",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setMintDates",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "startTimestamp",
-        type: "int256",
-        internalType: "int256",
-      },
-      {
-        name: "endTimestamp",
-        type: "int256",
-        internalType: "int256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setPermissions",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-      {
-        name: "permissionType",
-        type: "uint8",
-        internalType: "enum PermissionType",
-      },
-      {
-        name: "permissions",
-        type: "tuple[]",
-        components: [
-          {
-            name: "permission",
-            type: "uint8",
-            internalType: "enum Permission",
-          },
-          {
-            name: "addresses",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "numTokens",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "lockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "costWei",
-            type: "uint256",
-            internalType: "uint256",
-          },
-        ],
-        internalType: "struct MeemPermission[]",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setRemixesPerWallet",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-      {
-        name: "newTotalRemixes",
-        type: "int256",
-        internalType: "int256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setTokenUri",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "uri",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setTotalCopies",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-      {
-        name: "newTotalCopies",
-        type: "int256",
-        internalType: "int256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setTotalRemixes",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-      {
-        name: "newTotalRemixes",
-        type: "int256",
-        internalType: "int256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setTransferLockup",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "lockupUntil",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setURISource",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "uriSource",
-        type: "uint8",
-        internalType: "enum URISource",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "updatePermissionAt",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-      {
-        name: "permissionType",
-        type: "uint8",
-        internalType: "enum PermissionType",
-      },
-      {
-        name: "idx",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "permission",
-        type: "tuple",
-        components: [
-          {
-            name: "permission",
-            type: "uint8",
-            internalType: "enum Permission",
-          },
-          {
-            name: "addresses",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "numTokens",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "lockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "costWei",
-            type: "uint256",
-            internalType: "uint256",
-          },
-        ],
-        internalType: "struct MeemPermission",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "mint",
-    type: "function",
-    inputs: [
-      {
-        name: "params",
-        type: "tuple",
-        components: [
-          {
-            name: "to",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "tokenURI",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "parentChain",
-            type: "uint8",
-            internalType: "enum Chain",
-          },
-          {
-            name: "parent",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "parentTokenId",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "meemType",
-            type: "uint8",
-            internalType: "enum MeemType",
-          },
-          {
-            name: "isURILocked",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "mintedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "uriSource",
-            type: "uint8",
-            internalType: "enum URISource",
-          },
-          {
-            name: "reactionTypes",
-            type: "string[]",
-            internalType: "string[]",
-          },
-        ],
-        internalType: "struct MeemMintParameters",
-      },
-      {
-        name: "properties",
-        type: "tuple",
-        components: [
-          {
-            name: "totalRemixes",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalRemixesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "remixesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copyPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "remixPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "readPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "copyPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "readPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "splitsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "totalCopies",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalCopiesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copiesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "copiesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "isTransferrable",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "isTransferrableLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "mintStartTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintEndTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintDatesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "transferLockupUntil",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "transferLockupUntilLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-        ],
-        internalType: "struct MeemProperties",
-      },
-      {
-        name: "childProperties",
-        type: "tuple",
-        components: [
-          {
-            name: "totalRemixes",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalRemixesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "remixesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copyPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "remixPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "readPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "copyPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "readPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "splitsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "totalCopies",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalCopiesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copiesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "copiesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "isTransferrable",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "isTransferrableLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "mintStartTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintEndTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintDatesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "transferLockupUntil",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "transferLockupUntilLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-        ],
-        internalType: "struct MeemProperties",
-      },
-    ],
-    outputs: [],
-    stateMutability: "payable",
-  },
-  {
-    name: "mintAndCopy",
-    type: "function",
-    inputs: [
-      {
-        name: "params",
-        type: "tuple",
-        components: [
-          {
-            name: "to",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "tokenURI",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "parentChain",
-            type: "uint8",
-            internalType: "enum Chain",
-          },
-          {
-            name: "parent",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "parentTokenId",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "meemType",
-            type: "uint8",
-            internalType: "enum MeemType",
-          },
-          {
-            name: "isURILocked",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "mintedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "uriSource",
-            type: "uint8",
-            internalType: "enum URISource",
-          },
-          {
-            name: "reactionTypes",
-            type: "string[]",
-            internalType: "string[]",
-          },
-        ],
-        internalType: "struct MeemMintParameters",
-      },
-      {
-        name: "properties",
-        type: "tuple",
-        components: [
-          {
-            name: "totalRemixes",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalRemixesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "remixesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copyPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "remixPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "readPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "copyPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "readPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "splitsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "totalCopies",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalCopiesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copiesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "copiesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "isTransferrable",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "isTransferrableLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "mintStartTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintEndTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintDatesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "transferLockupUntil",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "transferLockupUntilLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-        ],
-        internalType: "struct MeemProperties",
-      },
-      {
-        name: "childProperties",
-        type: "tuple",
-        components: [
-          {
-            name: "totalRemixes",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalRemixesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "remixesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copyPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "remixPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "readPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "copyPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "readPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "splitsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "totalCopies",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalCopiesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copiesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "copiesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "isTransferrable",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "isTransferrableLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "mintStartTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintEndTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintDatesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "transferLockupUntil",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "transferLockupUntilLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-        ],
-        internalType: "struct MeemProperties",
-      },
-      {
-        name: "toCopyAddress",
+        name: "contractAddress",
         type: "address",
+        indexed: true,
         internalType: "address",
       },
     ],
-    outputs: [],
-    stateMutability: "payable",
+    anonymous: false,
   },
   {
-    name: "mintAndRemix",
-    type: "function",
+    name: "MeemContractInitialized",
+    type: "event",
     inputs: [
       {
-        name: "params",
-        type: "tuple",
-        components: [
-          {
-            name: "to",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "tokenURI",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "parentChain",
-            type: "uint8",
-            internalType: "enum Chain",
-          },
-          {
-            name: "parent",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "parentTokenId",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "meemType",
-            type: "uint8",
-            internalType: "enum MeemType",
-          },
-          {
-            name: "isURILocked",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "mintedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "uriSource",
-            type: "uint8",
-            internalType: "enum URISource",
-          },
-          {
-            name: "reactionTypes",
-            type: "string[]",
-            internalType: "string[]",
-          },
-        ],
-        internalType: "struct MeemMintParameters",
-      },
-      {
-        name: "properties",
-        type: "tuple",
-        components: [
-          {
-            name: "totalRemixes",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalRemixesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "remixesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copyPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "remixPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "readPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "copyPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "readPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "splitsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "totalCopies",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalCopiesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copiesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "copiesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "isTransferrable",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "isTransferrableLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "mintStartTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintEndTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintDatesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "transferLockupUntil",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "transferLockupUntilLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-        ],
-        internalType: "struct MeemProperties",
-      },
-      {
-        name: "childProperties",
-        type: "tuple",
-        components: [
-          {
-            name: "totalRemixes",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalRemixesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "remixesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copyPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "remixPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "readPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "copyPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "readPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "splitsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "totalCopies",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalCopiesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copiesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "copiesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "isTransferrable",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "isTransferrableLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "mintStartTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintEndTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintDatesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "transferLockupUntil",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "transferLockupUntilLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-        ],
-        internalType: "struct MeemProperties",
-      },
-      {
-        name: "remixParams",
-        type: "tuple",
-        components: [
-          {
-            name: "to",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "tokenURI",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "parentChain",
-            type: "uint8",
-            internalType: "enum Chain",
-          },
-          {
-            name: "parent",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "parentTokenId",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "meemType",
-            type: "uint8",
-            internalType: "enum MeemType",
-          },
-          {
-            name: "isURILocked",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "mintedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "uriSource",
-            type: "uint8",
-            internalType: "enum URISource",
-          },
-          {
-            name: "reactionTypes",
-            type: "string[]",
-            internalType: "string[]",
-          },
-        ],
-        internalType: "struct MeemMintParameters",
-      },
-      {
-        name: "remixProperties",
-        type: "tuple",
-        components: [
-          {
-            name: "totalRemixes",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalRemixesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "remixesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copyPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "remixPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "readPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "copyPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "readPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "splitsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "totalCopies",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalCopiesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copiesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "copiesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "isTransferrable",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "isTransferrableLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "mintStartTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintEndTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintDatesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "transferLockupUntil",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "transferLockupUntilLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-        ],
-        internalType: "struct MeemProperties",
-      },
-      {
-        name: "remixChildProperties",
-        type: "tuple",
-        components: [
-          {
-            name: "totalRemixes",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalRemixesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "remixesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copyPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "remixPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "readPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "copyPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "readPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "splitsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "totalCopies",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalCopiesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copiesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "copiesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "isTransferrable",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "isTransferrableLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "mintStartTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintEndTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintDatesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "transferLockupUntil",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "transferLockupUntilLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-        ],
-        internalType: "struct MeemProperties",
-      },
-    ],
-    outputs: [],
-    stateMutability: "payable",
-  },
-  {
-    name: "addSplit",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-      {
-        name: "split",
-        type: "tuple",
-        components: [
-          {
-            name: "toAddress",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "amount",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "lockedBy",
-            type: "address",
-            internalType: "address",
-          },
-        ],
-        internalType: "struct Split",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "getRaribleV2Royalties",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "tuple[]",
-        components: [
-          {
-            name: "account",
-            type: "address",
-            internalType: "address payable",
-          },
-          {
-            name: "value",
-            type: "uint96",
-            internalType: "uint96",
-          },
-        ],
-        internalType: "struct LibPart.Part[]",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "lockSplits",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "nonOwnerSplitAllocationAmount",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "removeSplitAt",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-      {
-        name: "idx",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setSplits",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-      {
-        name: "splits",
-        type: "tuple[]",
-        components: [
-          {
-            name: "toAddress",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "amount",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "lockedBy",
-            type: "address",
-            internalType: "address",
-          },
-        ],
-        internalType: "struct Split[]",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "updateSplitAt",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-      {
-        name: "idx",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "split",
-        type: "tuple",
-        components: [
-          {
-            name: "toAddress",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "amount",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "lockedBy",
-            type: "address",
-            internalType: "address",
-          },
-        ],
-        internalType: "struct Split",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockBaseSplits",
-    type: "function",
-    inputs: [],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockIsTransferrable",
-    type: "function",
-    inputs: [],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockMintDates",
-    type: "function",
-    inputs: [],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockMintPermissions",
-    type: "function",
-    inputs: [],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockOriginalsPerWallet",
-    type: "function",
-    inputs: [],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockTotalOriginalsSupply",
-    type: "function",
-    inputs: [],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "lockTransferLockup",
-    type: "function",
-    inputs: [],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "reInitialize",
-    type: "function",
-    inputs: [
-      {
-        name: "params",
-        type: "tuple",
-        components: [
-          {
-            name: "symbol",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "name",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "contractURI",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "baseProperties",
-            type: "tuple",
-            components: [
-              {
-                name: "totalOriginalsSupply",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalOriginalsSupplyLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "mintPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "mintPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "splits",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "toAddress",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "amount",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                ],
-                internalType: "struct Split[]",
-              },
-              {
-                name: "splitsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "originalsPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "originalsPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "isTransferrable",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "isTransferrableLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintDatesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "transferLockupUntil",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "transferLockupUntilLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct BaseProperties",
-          },
-          {
-            name: "defaultProperties",
-            type: "tuple",
-            components: [
-              {
-                name: "totalRemixes",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalRemixesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "remixesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copyPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "remixPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "readPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "copyPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "readPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "splits",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "toAddress",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "amount",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                ],
-                internalType: "struct Split[]",
-              },
-              {
-                name: "splitsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "totalCopies",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalCopiesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copiesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "copiesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "isTransferrable",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "isTransferrableLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintDatesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "transferLockupUntil",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "transferLockupUntilLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct MeemProperties",
-          },
-          {
-            name: "defaultChildProperties",
-            type: "tuple",
-            components: [
-              {
-                name: "totalRemixes",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalRemixesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "remixesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copyPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "remixPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "readPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "copyPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "readPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "splits",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "toAddress",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "amount",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                ],
-                internalType: "struct Split[]",
-              },
-              {
-                name: "splitsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "totalCopies",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalCopiesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copiesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "copiesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "isTransferrable",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "isTransferrableLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintDatesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "transferLockupUntil",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "transferLockupUntilLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct MeemProperties",
-          },
-          {
-            name: "admins",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "tokenCounterStart",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "childDepth",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "nonOwnerSplitAllocationAmount",
-            type: "uint256",
-            internalType: "uint256",
-          },
-        ],
-        internalType: "struct InitParams",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setBaseSplits",
-    type: "function",
-    inputs: [
-      {
-        name: "splits",
-        type: "tuple[]",
-        components: [
-          {
-            name: "toAddress",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "amount",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "lockedBy",
-            type: "address",
-            internalType: "address",
-          },
-        ],
-        internalType: "struct Split[]",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setChildDepth",
-    type: "function",
-    inputs: [
-      {
-        name: "newChildDepth",
-        type: "int256",
-        internalType: "int256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setContractInfo",
-    type: "function",
-    inputs: [
-      {
-        name: "name",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "symbol",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setContractURI",
-    type: "function",
-    inputs: [
-      {
-        name: "newContractURI",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setIsTransferrable",
-    type: "function",
-    inputs: [
-      {
-        name: "isTransferrable",
-        type: "bool",
-        internalType: "bool",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setMintDates",
-    type: "function",
-    inputs: [
-      {
-        name: "startTimestamp",
-        type: "int256",
-        internalType: "int256",
-      },
-      {
-        name: "endTimestamp",
-        type: "int256",
-        internalType: "int256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setMintPermissions",
-    type: "function",
-    inputs: [
-      {
-        name: "permissions",
-        type: "tuple[]",
-        components: [
-          {
-            name: "permission",
-            type: "uint8",
-            internalType: "enum Permission",
-          },
-          {
-            name: "addresses",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "numTokens",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "lockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "costWei",
-            type: "uint256",
-            internalType: "uint256",
-          },
-        ],
-        internalType: "struct MeemPermission[]",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setNonOwnerSplitAllocationAmount",
-    type: "function",
-    inputs: [
-      {
-        name: "amount",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setOriginalsPerWallet",
-    type: "function",
-    inputs: [
-      {
-        name: "originalsPerWallet",
-        type: "int256",
-        internalType: "int256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setProperties",
-    type: "function",
-    inputs: [
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-      {
-        name: "props",
-        type: "tuple",
-        components: [
-          {
-            name: "totalRemixes",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalRemixesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "remixesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copyPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "remixPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "readPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "copyPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "readPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "splitsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "totalCopies",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalCopiesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copiesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "copiesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "isTransferrable",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "isTransferrableLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "mintStartTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintEndTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintDatesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "transferLockupUntil",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "transferLockupUntilLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-        ],
-        internalType: "struct MeemProperties",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setTokenCounter",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenCounter",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setTokenRoot",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "rootChain",
-        type: "uint8",
-        internalType: "enum Chain",
-      },
-      {
-        name: "root",
+        name: "contractAddress",
         type: "address",
+        indexed: true,
         internalType: "address",
       },
-      {
-        name: "rootTokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
     ],
-    outputs: [],
-    stateMutability: "nonpayable",
+    anonymous: false,
   },
   {
-    name: "setTotalOriginalsSupply",
-    type: "function",
+    name: "MeemContractURISet",
+    type: "event",
     inputs: [
       {
-        name: "totalSupply",
-        type: "int256",
-        internalType: "int256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setTransferLockup",
-    type: "function",
-    inputs: [
-      {
-        name: "lockupUntil",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "addReaction",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "reaction",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "getReactedAt",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "addy",
+        name: "contractAddress",
         type: "address",
+        indexed: true,
         internalType: "address",
       },
-      {
-        name: "reaction",
-        type: "string",
-        internalType: "string",
-      },
     ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
+    anonymous: false,
   },
   {
-    name: "getReactions",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "tuple[]",
-        components: [
-          {
-            name: "reaction",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "count",
-            type: "uint256",
-            internalType: "uint256",
-          },
-        ],
-        internalType: "struct Reaction[]",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "removeReaction",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "reaction",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setReactionTypes",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "reactionTypes",
-        type: "string[]",
-        internalType: "string[]",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "childDepth",
+    name: "contractURI",
     type: "function",
     inputs: [],
     outputs: [
       {
         name: "",
-        type: "int256",
-        internalType: "int256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "copiesOf",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256[]",
-        internalType: "uint256[]",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "getBaseProperties",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "tuple",
-        components: [
-          {
-            name: "totalOriginalsSupply",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "totalOriginalsSupplyLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "mintPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "mintPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "splitsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "originalsPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "originalsPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "isTransferrable",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "isTransferrableLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "mintStartTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintEndTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintDatesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "transferLockupUntil",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "transferLockupUntilLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-        ],
-        internalType: "struct BaseProperties",
+        type: "string",
+        internalType: "string",
       },
     ],
     stateMutability: "view",
@@ -10447,624 +4323,17 @@ const _abi = [
             internalType: "string",
           },
           {
-            name: "baseProperties",
-            type: "tuple",
-            components: [
-              {
-                name: "totalOriginalsSupply",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalOriginalsSupplyLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "mintPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "mintPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "splits",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "toAddress",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "amount",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                ],
-                internalType: "struct Split[]",
-              },
-              {
-                name: "splitsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "originalsPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "originalsPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "isTransferrable",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "isTransferrableLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintDatesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "transferLockupUntil",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "transferLockupUntilLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct BaseProperties",
-          },
-          {
-            name: "defaultProperties",
-            type: "tuple",
-            components: [
-              {
-                name: "totalRemixes",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalRemixesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "remixesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copyPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "remixPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "readPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "copyPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "readPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "splits",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "toAddress",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "amount",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                ],
-                internalType: "struct Split[]",
-              },
-              {
-                name: "splitsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "totalCopies",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalCopiesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copiesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "copiesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "isTransferrable",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "isTransferrableLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintDatesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "transferLockupUntil",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "transferLockupUntilLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct MeemProperties",
-          },
-          {
-            name: "defaultChildProperties",
-            type: "tuple",
-            components: [
-              {
-                name: "totalRemixes",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalRemixesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "remixesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copyPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "remixPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "readPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "copyPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "readPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "splits",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "toAddress",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "amount",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                ],
-                internalType: "struct Split[]",
-              },
-              {
-                name: "splitsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "totalCopies",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalCopiesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copiesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "copiesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "isTransferrable",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "isTransferrableLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintDatesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "transferLockupUntil",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "transferLockupUntilLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct MeemProperties",
-          },
-          {
-            name: "childDepth",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "nonOwnerSplitAllocationAmount",
+            name: "maxSupply",
             type: "uint256",
             internalType: "uint256",
           },
-        ],
-        internalType: "struct ContractInfo",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "getDefaultProperties",
-    type: "function",
-    inputs: [
-      {
-        name: "propertyType",
-        type: "uint8",
-        internalType: "enum PropertyType",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "tuple",
-        components: [
           {
-            name: "totalRemixes",
-            type: "int256",
-            internalType: "int256",
+            name: "isMaxSupplyLocked",
+            type: "bool",
+            internalType: "bool",
           },
           {
-            name: "totalRemixesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixesPerWallet",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "remixesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "copyPermissions",
+            name: "mintPermissions",
             type: "tuple[]",
             components: [
               {
@@ -11083,96 +4352,22 @@ const _abi = [
                 internalType: "uint256",
               },
               {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
+                name: "costWei",
+                type: "uint256",
+                internalType: "uint256",
               },
               {
-                name: "costWei",
+                name: "mintStartTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintEndTimestamp",
                 type: "uint256",
                 internalType: "uint256",
               },
             ],
             internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "remixPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "readPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "copyPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "remixPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "readPermissionsLockedBy",
-            type: "address",
-            internalType: "address",
           },
           {
             name: "splits",
@@ -11197,833 +4392,325 @@ const _abi = [
             internalType: "struct Split[]",
           },
           {
-            name: "splitsLockedBy",
-            type: "address",
-            internalType: "address",
+            name: "isTransferLocked",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
+        internalType: "struct ContractInfo",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    name: "initialize",
+    type: "function",
+    inputs: [
+      {
+        name: "params",
+        type: "tuple",
+        components: [
+          {
+            name: "symbol",
+            type: "string",
+            internalType: "string",
           },
           {
-            name: "totalCopies",
-            type: "int256",
-            internalType: "int256",
+            name: "name",
+            type: "string",
+            internalType: "string",
           },
           {
-            name: "totalCopiesLockedBy",
-            type: "address",
-            internalType: "address",
+            name: "contractURI",
+            type: "string",
+            internalType: "string",
           },
           {
-            name: "copiesPerWallet",
-            type: "int256",
-            internalType: "int256",
+            name: "admins",
+            type: "address[]",
+            internalType: "address[]",
           },
           {
-            name: "copiesPerWalletLockedBy",
-            type: "address",
-            internalType: "address",
+            name: "minters",
+            type: "address[]",
+            internalType: "address[]",
           },
           {
-            name: "isTransferrable",
+            name: "maxSupply",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "isMaxSupplyLocked",
             type: "bool",
             internalType: "bool",
           },
           {
-            name: "isTransferrableLockedBy",
-            type: "address",
-            internalType: "address",
+            name: "mintPermissions",
+            type: "tuple[]",
+            components: [
+              {
+                name: "permission",
+                type: "uint8",
+                internalType: "enum Permission",
+              },
+              {
+                name: "addresses",
+                type: "address[]",
+                internalType: "address[]",
+              },
+              {
+                name: "numTokens",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "costWei",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintStartTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintEndTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+            ],
+            internalType: "struct MeemPermission[]",
           },
           {
-            name: "mintStartTimestamp",
-            type: "int256",
-            internalType: "int256",
+            name: "splits",
+            type: "tuple[]",
+            components: [
+              {
+                name: "toAddress",
+                type: "address",
+                internalType: "address",
+              },
+              {
+                name: "amount",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "lockedBy",
+                type: "address",
+                internalType: "address",
+              },
+            ],
+            internalType: "struct Split[]",
           },
           {
-            name: "mintEndTimestamp",
-            type: "int256",
-            internalType: "int256",
-          },
-          {
-            name: "mintDatesLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "transferLockupUntil",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "transferLockupUntilLockedBy",
-            type: "address",
-            internalType: "address",
+            name: "isTransferLocked",
+            type: "bool",
+            internalType: "bool",
           },
         ],
-        internalType: "struct MeemProperties",
+        internalType: "struct InitParams",
       },
     ],
-    stateMutability: "view",
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
-    name: "getMeem",
+    name: "reinitialize",
     type: "function",
     inputs: [
       {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
+        name: "params",
         type: "tuple",
         components: [
           {
-            name: "owner",
-            type: "address",
-            internalType: "address",
+            name: "symbol",
+            type: "string",
+            internalType: "string",
           },
           {
-            name: "parentChain",
-            type: "uint8",
-            internalType: "enum Chain",
+            name: "name",
+            type: "string",
+            internalType: "string",
           },
           {
-            name: "parent",
-            type: "address",
-            internalType: "address",
+            name: "contractURI",
+            type: "string",
+            internalType: "string",
           },
           {
-            name: "parentTokenId",
+            name: "admins",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "minters",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "maxSupply",
             type: "uint256",
             internalType: "uint256",
           },
           {
-            name: "rootChain",
-            type: "uint8",
-            internalType: "enum Chain",
+            name: "isMaxSupplyLocked",
+            type: "bool",
+            internalType: "bool",
           },
           {
-            name: "root",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "rootTokenId",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "generation",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "properties",
-            type: "tuple",
+            name: "mintPermissions",
+            type: "tuple[]",
             components: [
               {
-                name: "totalRemixes",
-                type: "int256",
-                internalType: "int256",
+                name: "permission",
+                type: "uint8",
+                internalType: "enum Permission",
               },
               {
-                name: "totalRemixesLockedBy",
-                type: "address",
-                internalType: "address",
+                name: "addresses",
+                type: "address[]",
+                internalType: "address[]",
               },
               {
-                name: "remixesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "remixesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copyPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "remixPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "readPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "copyPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "readPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "splits",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "toAddress",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "amount",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                ],
-                internalType: "struct Split[]",
-              },
-              {
-                name: "splitsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "totalCopies",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalCopiesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copiesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "copiesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "isTransferrable",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "isTransferrableLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintDatesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "transferLockupUntil",
+                name: "numTokens",
                 type: "uint256",
                 internalType: "uint256",
               },
               {
-                name: "transferLockupUntilLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct MeemProperties",
-          },
-          {
-            name: "childProperties",
-            type: "tuple",
-            components: [
-              {
-                name: "totalRemixes",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalRemixesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "remixesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copyPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "remixPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "readPermissions",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "permission",
-                    type: "uint8",
-                    internalType: "enum Permission",
-                  },
-                  {
-                    name: "addresses",
-                    type: "address[]",
-                    internalType: "address[]",
-                  },
-                  {
-                    name: "numTokens",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "costWei",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                ],
-                internalType: "struct MeemPermission[]",
-              },
-              {
-                name: "copyPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "remixPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "readPermissionsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "splits",
-                type: "tuple[]",
-                components: [
-                  {
-                    name: "toAddress",
-                    type: "address",
-                    internalType: "address",
-                  },
-                  {
-                    name: "amount",
-                    type: "uint256",
-                    internalType: "uint256",
-                  },
-                  {
-                    name: "lockedBy",
-                    type: "address",
-                    internalType: "address",
-                  },
-                ],
-                internalType: "struct Split[]",
-              },
-              {
-                name: "splitsLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "totalCopies",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "totalCopiesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "copiesPerWallet",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "copiesPerWalletLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "isTransferrable",
-                type: "bool",
-                internalType: "bool",
-              },
-              {
-                name: "isTransferrableLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "int256",
-                internalType: "int256",
-              },
-              {
-                name: "mintDatesLockedBy",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "transferLockupUntil",
+                name: "costWei",
                 type: "uint256",
                 internalType: "uint256",
               },
               {
-                name: "transferLockupUntilLockedBy",
+                name: "mintStartTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintEndTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+            ],
+            internalType: "struct MeemPermission[]",
+          },
+          {
+            name: "splits",
+            type: "tuple[]",
+            components: [
+              {
+                name: "toAddress",
+                type: "address",
+                internalType: "address",
+              },
+              {
+                name: "amount",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "lockedBy",
                 type: "address",
                 internalType: "address",
               },
             ],
-            internalType: "struct MeemProperties",
+            internalType: "struct Split[]",
           },
           {
-            name: "mintedAt",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "uriLockedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "meemType",
-            type: "uint8",
-            internalType: "enum MeemType",
-          },
-          {
-            name: "mintedBy",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "uriSource",
-            type: "uint8",
-            internalType: "enum URISource",
-          },
-          {
-            name: "reactionTypes",
-            type: "string[]",
-            internalType: "string[]",
+            name: "isTransferLocked",
+            type: "bool",
+            internalType: "bool",
           },
         ],
-        internalType: "struct Meem",
+        internalType: "struct InitParams",
       },
     ],
-    stateMutability: "view",
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
-    name: "getRoles",
+    name: "setContractInfo",
     type: "function",
     inputs: [
       {
-        name: "role",
-        type: "bytes32",
-        internalType: "bytes32",
+        name: "name",
+        type: "string",
+        internalType: "string",
       },
-    ],
-    outputs: [
       {
-        name: "",
-        type: "address[]",
-        internalType: "address[]",
+        name: "symbol",
+        type: "string",
+        internalType: "string",
       },
     ],
-    stateMutability: "view",
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
-    name: "isNFTWrapped",
+    name: "setContractInfo",
     type: "function",
     inputs: [
       {
-        name: "chain",
-        type: "uint8",
-        internalType: "enum Chain",
+        name: "name",
+        type: "string",
+        internalType: "string",
       },
       {
-        name: "contractAddress",
-        type: "address",
-        internalType: "address",
+        name: "symbol",
+        type: "string",
+        internalType: "string",
       },
       {
-        name: "tokenId",
+        name: "newContractURI",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "maxSupply",
         type: "uint256",
         internalType: "uint256",
       },
     ],
-    outputs: [
-      {
-        name: "",
-        type: "bool",
-        internalType: "bool",
-      },
-    ],
-    stateMutability: "view",
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
-    name: "numCopiesOf",
+    name: "setContractInfo",
     type: "function",
     inputs: [
       {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
+        name: "name",
+        type: "string",
+        internalType: "string",
       },
-    ],
-    outputs: [
       {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
+        name: "symbol",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "newContractURI",
+        type: "string",
+        internalType: "string",
       },
     ],
-    stateMutability: "view",
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
-    name: "numRemixesOf",
+    name: "setContractURI",
     type: "function",
     inputs: [
       {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
+        name: "newContractURI",
+        type: "string",
+        internalType: "string",
       },
     ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "ownedCopiesOf",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "owner",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256[]",
-        internalType: "uint256[]",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "ownedRemixesOf",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "owner",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256[]",
-        internalType: "uint256[]",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "remixesOf",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256[]",
-        internalType: "uint256[]",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "tokenIdOfOwnerIndex",
-    type: "function",
-    inputs: [
-      {
-        name: "_owner",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "tokenIdsOfOwner",
-    type: "function",
-    inputs: [
-      {
-        name: "_owner",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [
-      {
-        name: "tokenIds_",
-        type: "uint256[]",
-        internalType: "uint256[]",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "wrappedTokens",
-    type: "function",
-    inputs: [
-      {
-        name: "items",
-        type: "tuple[]",
-        components: [
-          {
-            name: "chain",
-            type: "uint8",
-            internalType: "enum Chain",
-          },
-          {
-            name: "contractAddress",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "tokenId",
-            type: "uint256",
-            internalType: "uint256",
-          },
-        ],
-        internalType: "struct WrappedItem[]",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256[]",
-        internalType: "uint256[]",
-      },
-    ],
-    stateMutability: "view",
+    outputs: [],
+    stateMutability: "nonpayable",
   },
 ];
 

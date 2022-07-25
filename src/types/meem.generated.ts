@@ -743,6 +743,8 @@ export namespace CreateBundle {
 
 	export interface IResponseBody extends IApiResponseBody {
 		bundleId: string
+		types: string
+		abi: Record<string, any>[]
 	}
 
 	export interface IDefinition {
@@ -776,6 +778,7 @@ export namespace CreateContract {
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
+		contractId: string
 	}
 
 	export interface IDefinition {
@@ -801,39 +804,14 @@ export namespace CreateMeemContract {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Name of the contract */
-		name: string
-
-		/** Contract admin wallet addresses */
-		admins: string[]
-
 		/** Contract metadata */
 		metadata: IMeemContractMetadata
 
-		/** Symbol for the contract */
-		symbol: string
-
 		/** Contract base properties */
-		baseProperties: IMeemContractBaseProperties
-
-		/** Meem default properties */
-		// TODO: Make this a partial
-		defaultProperties?: IMeemProperties
-
-		/** Meem default child properties */
-		// TODO: Make this a partial
-		defaultChildProperties?: IMeemProperties
-
-		/** Token ID start */
-		tokenCounterStart: number
-
-		childDepth: number
-
-		/** Required non-owner split amount */
-		nonOwnerSplitAllocationAmount: number
+		contractParams: InitParamsStruct
 
 		/** If true, will mint a token to the admin wallet addresses  */
-		mintAdminTokens?: boolean
+		shouldMintAdminTokens?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -1754,18 +1732,11 @@ export namespace MintOriginalMeem {
 		/** The address of the Meem contract to mint token */
 		meemContractAddress: string
 
-		/** The chain where the Meem contract lives */
-		chain: Chain
-
 		/** JSON (or stringified) metadata object to be used for the minted Meem */
 		metadata?: string | any
 
 		/** The address where the Meem will be minted to. */
 		to: string
-
-		properties?: Partial<IMeemProperties>
-
-		childProperties?: Partial<IMeemProperties>
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -1929,7 +1900,8 @@ export namespace UpdateBundle {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		types: string
+		abi: Record<string, any>[]
 	}
 
 	export interface IDefinition {

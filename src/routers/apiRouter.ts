@@ -31,8 +31,8 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	router.getAsync('/config', ConfigController.getConfig)
 
-	router.post('/isSlugAvailable', MeemContractController.isSlugAvailable)
-	router.post('/meemContracts', MeemContractController.createMeemContract)
+	router.postAsync('/isSlugAvailable', MeemContractController.isSlugAvailable)
+	router.postAsync('/meemContracts', MeemContractController.createMeemContract)
 	router.patchAsync(
 		'/meemContracts/:meemContractId',
 		MeemContractController.updateMeemContract

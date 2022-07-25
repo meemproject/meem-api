@@ -22,7 +22,8 @@ export namespace UpdateBundle {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		types: string
+		abi: Record<string, any>[]
 	}
 
 	export interface IDefinition {

@@ -10,20 +10,46 @@ export default class ContractController {
 		req: IAuthenticatedRequest<MeemAPI.v1.CreateContract.IDefinition>,
 		res: IResponse<MeemAPI.v1.CreateContract.IResponseBody>
 	): Promise<Response> {
+		const { name, description, contractType, abi, bytecode } = req.body
+
+		if (
+			!name ||
+			!description ||
+			!contractType ||
+			!abi ||
+			!bytecode ||
+			!Object.values(MeemAPI.ContractType).includes(contractType)
+		) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
 		const functionSelectors = services.ethers.getSelectors(req.body.abi)
 
-		await orm.models.Contract.create({
-			name: req.body.name,
-			description: req.body.description,
-			contractType: req.body.contractType,
+		const existingContract = await orm.models.Contract.findOne({
+			where: {
+				bytecode: {
+					[Op.iLike]: `%${req.body.bytecode.replace(/^0x/, '').trim()}%`
+				}
+			}
+		})
+
+		if (existingContract) {
+			throw new Error('CONTRACT_ALREADY_EXISTS')
+		}
+
+		const contract = await orm.models.Contract.create({
+			name,
+			description,
+			contractType,
 			functionSelectors,
-			abi: req.body.abi,
-			bytecode: req.body.bytecode.replace(/^0x/, '').trim(),
+			abi,
+			bytecode: bytecode.replace(/^0x/, '').trim(),
 			CreatorId: req.wallet.id
 		})
 
 		return res.json({
-			status: 'success'
+			status: 'success',
+			contractId: contract.id
 		})
 	}
 
@@ -160,8 +186,14 @@ export default class ContractController {
 
 		await t.commit()
 
-		return res.json({
+		const { types, abi } = await services.types.generateContractTypes({
 			bundleId: bundle.id
+		})
+
+		return res.json({
+			bundleId: bundle.id,
+			types,
+			abi
 		})
 	}
 
@@ -273,8 +305,13 @@ export default class ContractController {
 
 		await t.commit()
 
+		const { types, abi } = await services.types.generateContractTypes({
+			bundleId: bundle.id
+		})
+
 		return res.json({
-			status: 'success'
+			types,
+			abi
 		})
 	}
 }

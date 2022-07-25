@@ -20,18 +20,11 @@ export namespace MintOriginalMeem {
 		/** The address of the Meem contract to mint token */
 		meemContractAddress: string
 
-		/** The chain where the Meem contract lives */
-		chain: Chain
-
 		/** JSON (or stringified) metadata object to be used for the minted Meem */
 		metadata?: string | any
 
 		/** The address where the Meem will be minted to. */
 		to: string
-
-		properties?: Partial<IMeemProperties>
-
-		childProperties?: Partial<IMeemProperties>
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

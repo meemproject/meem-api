@@ -1,6 +1,4 @@
-import * as meemContracts from '@meemproject/meem-contracts'
-import { InitParamsStruct } from '@meemproject/meem-contracts/dist/types/Meem'
-import { BigNumberish } from 'ethers'
+import { InitParamsStruct } from '../../Meem'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 import {
 	IMeemProperties,
@@ -19,39 +17,14 @@ export namespace CreateMeemContract {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Name of the contract */
-		name: string
-
-		/** Contract admin wallet addresses */
-		admins: string[]
-
 		/** Contract metadata */
 		metadata: IMeemContractMetadata
 
-		/** Symbol for the contract */
-		symbol: string
-
 		/** Contract base properties */
-		baseProperties: IMeemContractBaseProperties
-
-		/** Meem default properties */
-		// TODO: Make this a partial
-		defaultProperties?: IMeemProperties
-
-		/** Meem default child properties */
-		// TODO: Make this a partial
-		defaultChildProperties?: IMeemProperties
-
-		/** Token ID start */
-		tokenCounterStart: number
-
-		childDepth: number
-
-		/** Required non-owner split amount */
-		nonOwnerSplitAllocationAmount: number
+		contractParams: InitParamsStruct
 
 		/** If true, will mint a token to the admin wallet addresses  */
-		mintAdminTokens?: boolean
+		shouldMintAdminTokens?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

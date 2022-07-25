@@ -2,7 +2,6 @@ import { Readable } from 'stream'
 import Pinata, { PinataPinResponse } from '@pinata/sdk'
 import BigNumber from 'bignumber.js'
 import type { ethers as Ethers } from 'ethers'
-import { DateTime } from 'luxon'
 import Moralis from 'moralis/node'
 import request from 'superagent'
 import { v4 as uuidv4, validate as validateUUID } from 'uuid'
@@ -80,9 +79,7 @@ export default class Web3 {
 		return result
 	}
 
-	public static async getGasEstimate(options?: {
-		chain?: MeemAPI.Chain
-	}): Promise<{
+	public static async getGasEstimate(options?: { chainId?: string }): Promise<{
 		avgGwei?: number
 		distribution?: Record<number, number>
 		blockInfo?: {
@@ -99,18 +96,13 @@ export default class Web3 {
 				}
 			}
 			const ethers = services.ethers.getInstance()
-			const chain = options?.chain ?? MeemAPI.networkNameToChain(config.NETWORK)
 
-			// await this.startMoralis()
-
-			const blockInfo = await Moralis.Web3API.native.getDateToBlock({
-				chain: this.chainToMoralis(chain),
-				date: DateTime.now().toString()
+			const provider = await services.ethers.getProvider({
+				chainId: options?.chainId
 			})
 
-			const provider = await services.ethers.getProvider()
-
-			const lastBlock = await provider.getBlockWithTransactions(blockInfo.block)
+			// const lastBlock = await provider.getBlockWithTransactions(blockInfo.block)
+			const lastBlock = await provider.getBlockWithTransactions('latest')
 
 			let gasPrices: Ethers.BigNumber[] = []
 
@@ -170,14 +162,12 @@ export default class Web3 {
 			log.debug({
 				avgGwei: this.weiToGwei(avg).toNumber(),
 				distribution,
-				blockInfo,
 				recommendedGwei: this.weiToGwei(filteredEstimate).toNumber()
 			})
 
 			return {
 				avgGwei: this.weiToGwei(avg).toNumber(),
 				distribution,
-				blockInfo,
 				recommendedGwei: this.weiToGwei(filteredEstimate).toNumber()
 			}
 		} catch (e) {

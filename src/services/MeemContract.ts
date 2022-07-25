@@ -1,9 +1,13 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import * as meemContracts from '@meemproject/meem-contracts'
-import { Chain, Permission } from '@meemproject/meem-contracts'
-import { BasePropertiesStruct } from '@meemproject/meem-contracts/dist/types/Meem'
-import { BigNumber, ethers } from 'ethers'
+import { getCuts, IFacetVersion } from '@meemproject/meem-contracts'
+import { ethers } from 'ethers'
+import _ from 'lodash'
 import slug from 'slug'
+import {
+	InitParamsStruct,
+	MeemProxyV1,
+	MeemProxyV1__factory
+} from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 import { IMeemMetadata } from '../types/shared/meem.shared'
 
@@ -54,18 +58,67 @@ export default class MeemContractService {
 		data: MeemAPI.v1.CreateMeemContract.IRequestBody
 	): Promise<string> {
 		try {
-			const { metadata } = data
+			const { metadata, contractParams } = data
 
 			const provider = await services.ethers.getProvider()
 
 			const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 
-			const contract = await meemContracts.deployProxy({
-				signer: wallet
-			})
+			const [dbContract, bundle] = await Promise.all([
+				orm.models.Contract.findOne({
+					where: {
+						id: config.MEEM_PROXY_CONTRACT_ID
+					}
+				}),
+				orm.models.Bundle.findOne({
+					where: {
+						id: config.MEEM_BUNDLE_ID
+					},
+					include: [
+						{
+							model: orm.models.BundleContract,
+							include: [
+								{
+									model: orm.models.Contract,
+									include: [orm.models.ContractInstance]
+								}
+							]
+						}
+					]
+				})
+			])
+
+			if (!dbContract) {
+				throw new Error('CONTRACT_NOT_FOUND')
+			}
+
+			if (!bundle) {
+				throw new Error('BUNDLE_NOT_FOUND')
+			}
+
+			const proxyContractFactory = new ethers.ContractFactory(
+				dbContract.abi,
+				{
+					object: dbContract.bytecode
+				},
+				wallet
+			)
+
+			const proxyContract = (await proxyContractFactory.deploy(
+				wallet.address
+			)) as MeemProxyV1
+			log.debug(
+				`Deploying contract w/ tx: ${proxyContract.deployTransaction.hash}`
+			)
+			await proxyContract.deployed()
 
 			log.debug(
-				`Deployed proxy at ${contract.address} w/ tx: ${contract.deployTransaction.hash}`
+				`Deployed proxy at ${proxyContract.address} w/ tx: ${proxyContract.deployTransaction.hash}`
+			)
+
+			const meemContract = MeemProxyV1__factory.connect(
+				proxyContract.address,
+				wallet
 			)
 
 			// MAGS metadata
@@ -90,51 +143,79 @@ export default class MeemContractService {
 
 			const uri = JSON.stringify(metadata)
 
-			// Add Meem admin to mintPermissions
-			data.baseProperties.mintPermissions.push({
-				permission: Permission.Addresses,
-				addresses: [wallet.address.toLowerCase()],
-				numTokens: BigNumber.from(0).toHexString(),
-				costWei: BigNumber.from(0).toHexString(),
-				lockedBy: MeemAPI.zeroAddress
-			})
+			const cleanAdmins = _.uniqBy(
+				[...contractParams.admins, wallet.address.toLowerCase()],
+				a => a && a.toLowerCase()
+			)
 
-			const contractInitParams = {
-				signer: wallet,
-				proxyContractAddress: contract.address,
+			const cleanMinters = _.uniqBy(
+				[...contractParams.minters, wallet.address.toLowerCase()],
+				a => a && a.toLowerCase()
+			)
+
+			const contractInitParams: InitParamsStruct = {
+				symbol: contractParams.symbol,
+				name: contractParams.name,
 				contractURI: uri,
-				name: data.name,
-				symbol: data.symbol,
-				admins: [...data.admins, wallet.address.toLowerCase()],
-				childDepth: data.childDepth,
-				tokenCounterStart: data.tokenCounterStart,
-				nonOwnerSplitAllocationAmount: data.nonOwnerSplitAllocationAmount,
-				baseProperties: this.propertiesToBasePropertiesStruct(
-					this.buildProperties(data.baseProperties)
-				),
-				defaultProperties: data.defaultProperties
-					? services.meem.propertiesToMeemPropertiesStruct(
-							services.meem.buildProperties(data.defaultProperties)
-					  )
-					: meemContracts.defaultMeemProperties,
-				defaultChildProperties: data.defaultChildProperties
-					? services.meem.propertiesToMeemPropertiesStruct(
-							services.meem.buildProperties(data.defaultChildProperties)
-					  )
-					: meemContracts.defaultMeemProperties,
-				chain: (config.NETWORK === 'matic' ? Chain.Polygon : Chain.Rinkeby) as
-					| Chain.Polygon
-					| Chain.Rinkeby,
-				version: 'latest'
+				admins: cleanAdmins,
+				minters: cleanMinters,
+				maxSupply: contractParams.maxSupply,
+				isMaxSupplyLocked: contractParams.isMaxSupplyLocked,
+				mintPermissions: contractParams.mintPermissions,
+				splits: contractParams.splits,
+				isTransferLocked: contractParams.isTransferLocked
 			}
 
-			const tx = await meemContracts.initProxy(contractInitParams)
+			log.debug(contractInitParams)
 
-			log.debug(`Initialized proxy w/ tx: ${tx.hash}`)
+			const toVersion: IFacetVersion[] = []
 
-			if (data.mintAdminTokens) {
-				await tx.wait()
-				log.debug(`Minting admin tokens.`, data.admins)
+			bundle.BundleContracts?.forEach(bc => {
+				const contractInstance =
+					bc.Contract?.ContractInstances && bc.Contract?.ContractInstances[0]
+				if (!contractInstance) {
+					throw new Error('FACET_NOT_DEPLOYED')
+				}
+
+				toVersion.push({
+					address: contractInstance.address,
+					functionSelectors: bc.functionSelectors
+				})
+			})
+
+			const cuts = getCuts({
+				proxyContractAddress: proxyContract.address,
+				fromVersion: [],
+				toVersion
+			})
+
+			const iFace = new ethers.utils.Interface(bundle.abi)
+
+			const functionCall = iFace.encodeFunctionData('initialize', [
+				contractInitParams
+			])
+
+			const facetCuts = cuts.map(c => ({
+				target: c.facetAddress,
+				action: c.action,
+				selectors: c.functionSelectors
+			}))
+
+			const cutTx = await proxyContract.diamondCut(
+				facetCuts,
+				proxyContract.address,
+				functionCall,
+				{
+					gasLimit: config.MINT_GAS_LIMIT
+				}
+			)
+
+			log.debug(`Running diamond cut w/ TX: ${cutTx.hash}`)
+
+			await cutTx.wait()
+
+			if (data.shouldMintAdminTokens) {
+				log.debug(`Minting admin tokens.`, cleanAdmins)
 				const tokenMetadata: IMeemMetadata = {
 					name: metadata.name,
 					description: metadata.description,
@@ -143,15 +224,12 @@ export default class MeemContractService {
 				}
 
 				await Promise.all(
-					data.admins.map(a => {
+					cleanAdmins.map(a => {
 						const address = a.toLowerCase()
 						return services.meem.mintOriginalMeem({
-							meemContractAddress: contract.address,
+							meemContractAddress: meemContract.address,
 							to: address,
 							metadata: tokenMetadata,
-							chain: MeemAPI.networkNameToChain(config.NETWORK),
-							properties: data.defaultProperties,
-							childProperties: data.defaultChildProperties,
 							mintedBy: wallet.address
 						})
 					})
@@ -159,7 +237,7 @@ export default class MeemContractService {
 				log.debug(`Finished minting admin tokens.`)
 			}
 
-			return contract.address
+			return meemContract.address
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')
@@ -210,46 +288,46 @@ export default class MeemContractService {
 		}
 	}
 
-	public static propertiesToBasePropertiesStruct(
-		props?: Partial<MeemAPI.IMeemContractBaseProperties>
-	): BasePropertiesStruct {
-		return {
-			mintPermissions: props?.mintPermissions ?? [
-				{
-					permission: MeemAPI.Permission.Anyone,
-					addresses: [],
-					numTokens: services.web3.toBigNumber(0).toHexString(),
-					lockedBy: MeemAPI.zeroAddress,
-					costWei: services.web3.toBigNumber(0).toHexString()
-				}
-			],
-			mintPermissionsLockedBy:
-				props?.mintPermissionsLockedBy ?? MeemAPI.zeroAddress,
-			splits: props?.splits ?? [],
-			splitsLockedBy: props?.splitsLockedBy ?? MeemAPI.zeroAddress,
-			totalOriginalsSupply: services.web3
-				.toBigNumber(props?.totalOriginalsSupply ?? -1)
-				.toHexString(),
-			totalOriginalsSupplyLockedBy:
-				props?.totalOriginalsSupplyLockedBy ?? MeemAPI.zeroAddress,
-			originalsPerWallet: services.web3
-				.toBigNumber(props?.originalsPerWallet ?? 0)
-				.toHexString(),
-			originalsPerWalletLockedBy:
-				props?.originalsPerWalletLockedBy ?? MeemAPI.zeroAddress,
-			isTransferrable: props?.isTransferrable ?? false,
-			isTransferrableLockedBy:
-				props?.isTransferrableLockedBy ?? MeemAPI.zeroAddress,
-			mintStartTimestamp: services.web3.toBigNumber(props?.mintStartAt ?? 0),
-			mintEndTimestamp: services.web3
-				.toBigNumber(props?.mintEndAt ?? 0)
-				.toNumber(),
-			mintDatesLockedBy: props?.mintDatesLockedBy ?? MeemAPI.zeroAddress,
-			transferLockupUntil: services.web3
-				.toBigNumber(props?.transferLockupUntil ?? 0)
-				.toNumber(),
-			transferLockupUntilLockedBy:
-				props?.transferLockupUntilLockedBy ?? MeemAPI.zeroAddress
-		}
-	}
+	// public static propertiesToBasePropertiesStruct(
+	// 	props?: Partial<MeemAPI.IMeemContractBaseProperties>
+	// ): BasePropertiesStruct {
+	// 	return {
+	// 		mintPermissions: props?.mintPermissions ?? [
+	// 			{
+	// 				permission: MeemAPI.Permission.Anyone,
+	// 				addresses: [],
+	// 				numTokens: services.web3.toBigNumber(0).toHexString(),
+	// 				lockedBy: MeemAPI.zeroAddress,
+	// 				costWei: services.web3.toBigNumber(0).toHexString()
+	// 			}
+	// 		],
+	// 		mintPermissionsLockedBy:
+	// 			props?.mintPermissionsLockedBy ?? MeemAPI.zeroAddress,
+	// 		splits: props?.splits ?? [],
+	// 		splitsLockedBy: props?.splitsLockedBy ?? MeemAPI.zeroAddress,
+	// 		totalOriginalsSupply: services.web3
+	// 			.toBigNumber(props?.totalOriginalsSupply ?? -1)
+	// 			.toHexString(),
+	// 		totalOriginalsSupplyLockedBy:
+	// 			props?.totalOriginalsSupplyLockedBy ?? MeemAPI.zeroAddress,
+	// 		originalsPerWallet: services.web3
+	// 			.toBigNumber(props?.originalsPerWallet ?? 0)
+	// 			.toHexString(),
+	// 		originalsPerWalletLockedBy:
+	// 			props?.originalsPerWalletLockedBy ?? MeemAPI.zeroAddress,
+	// 		isTransferrable: props?.isTransferrable ?? false,
+	// 		isTransferrableLockedBy:
+	// 			props?.isTransferrableLockedBy ?? MeemAPI.zeroAddress,
+	// 		mintStartTimestamp: services.web3.toBigNumber(props?.mintStartAt ?? 0),
+	// 		mintEndTimestamp: services.web3
+	// 			.toBigNumber(props?.mintEndAt ?? 0)
+	// 			.toNumber(),
+	// 		mintDatesLockedBy: props?.mintDatesLockedBy ?? MeemAPI.zeroAddress,
+	// 		transferLockupUntil: services.web3
+	// 			.toBigNumber(props?.transferLockupUntil ?? 0)
+	// 			.toNumber(),
+	// 		transferLockupUntilLockedBy:
+	// 			props?.transferLockupUntilLockedBy ?? MeemAPI.zeroAddress
+	// 	}
+	// }
 }
