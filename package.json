@@ -93,6 +93,7 @@
 		"string-argv": "^0.3.1",
 		"superagent": "^6",
 		"supertest": "^6.1.6",
+		"tslib": "^2.4.0",
 		"twitter-api-v2": "^1.7.0",
 		"umzug": "^2.3.0",
 		"uuid": "^8.3.2",
