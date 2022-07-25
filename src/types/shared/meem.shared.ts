@@ -95,7 +95,6 @@ export enum MeemType {
 
 /** The permission corresponding to the smart contract */
 export enum Permission {
-	Owner,
 	Anyone,
 	Addresses,
 	Holders
@@ -380,7 +379,7 @@ export interface IMeemContractBaseProperties {
 }
 
 export interface IMeemContractInitParams {
-	symbol: string
+	symbol?: string
 	name: string
 	contractURI: string
 	admins: string[]

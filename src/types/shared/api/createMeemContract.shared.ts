@@ -4,7 +4,9 @@ import {
 	IMeemContractBaseProperties,
 	IMeemContractMetadataLike,
 	IMeemMetadataLike,
-	IMeemContractInitParams
+	IMeemContractInitParams,
+	IMeemPermission,
+	IMeemSplit
 } from '../meem.shared'
 
 /** Create Meem Image */
@@ -21,8 +23,32 @@ export namespace CreateMeemContract {
 		/** Contract metadata */
 		metadata: IMeemContractMetadataLike
 
-		/** Contract base properties */
-		contractParams: IMeemContractInitParams
+		/** The symbol for the token. If omitted, will use a slug of the name */
+		symbol?: string
+
+		/** The name of the token */
+		name: string
+
+		/** Contract admins */
+		admins?: string[]
+
+		/** Special minter permissions */
+		minters?: string[]
+
+		/** The max number of tokens */
+		maxSupply: string
+
+		/** Whether the max supply is locked */
+		isMaxSupplyLocked?: boolean
+
+		/** Minting permissions */
+		mintPermissions?: IMeemPermission[]
+
+		/** Splits for minting / transfers */
+		splits?: IMeemSplit[]
+
+		/** Whether tokens can be transferred */
+		isTransferLocked?: boolean
 
 		/** If true, will mint a token to the admin wallet addresses  */
 		shouldMintAdminTokens?: boolean

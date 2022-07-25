@@ -192,6 +192,7 @@ export default class ContractEvent {
 		try {
 			contractInfo = await meemContract.getContractInfo()
 		} catch (e) {
+			log.debug(e)
 			log.debug('getContractInfo function not available. Skipping')
 			return null
 		}
@@ -203,11 +204,13 @@ export default class ContractEvent {
 			include: [
 				{
 					model: orm.models.MeemProperties,
-					as: 'DefaultProperties'
+					as: 'DefaultProperties',
+					required: false
 				},
 				{
 					model: orm.models.MeemProperties,
-					as: 'DefaultChildProperties'
+					as: 'DefaultChildProperties',
+					required: false
 				}
 			]
 		})
@@ -242,6 +245,8 @@ export default class ContractEvent {
 				addresses: p.addresses,
 				numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
 				// lockedBy: p.lockedBy,
+				mintEndTimestamp: p.mintEndTimestamp,
+				mintStartTimestamp: p.mintStartTimestamp,
 				costWei: ethers.BigNumber.from(p.costWei).toHexString()
 			})),
 			mintPermissionsLockedBy: MeemAPI.zeroAddress,

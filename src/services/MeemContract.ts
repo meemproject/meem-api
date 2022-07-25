@@ -60,7 +60,21 @@ export default class MeemContractService {
 		data: MeemAPI.v1.CreateMeemContract.IRequestBody
 	): Promise<string> {
 		try {
-			const { metadata, contractParams, adminTokenMetadata } = data
+			const {
+				metadata,
+				name,
+				maxSupply,
+				isMaxSupplyLocked,
+				mintPermissions,
+				splits,
+				isTransferLocked,
+				shouldMintAdminTokens,
+				adminTokenMetadata
+			} = data
+
+			const symbol = data.symbol ?? slug(data.name)
+			const admins = data.admins ?? []
+			const minters = data.minters ?? []
 
 			if (!metadata?.meem_metadata_version) {
 				throw new Error('INVALID_METADATA')
@@ -174,26 +188,26 @@ export default class MeemContractService {
 			const uri = JSON.stringify(metadata)
 
 			const cleanAdmins = _.uniqBy(
-				[...contractParams.admins, wallet.address.toLowerCase()],
+				[...admins, wallet.address.toLowerCase()],
 				a => a && a.toLowerCase()
 			)
 
 			const cleanMinters = _.uniqBy(
-				[...contractParams.minters, wallet.address.toLowerCase()],
+				[...minters, wallet.address.toLowerCase()],
 				a => a && a.toLowerCase()
 			)
 
 			const contractInitParams: InitParamsStruct = {
-				symbol: contractParams.symbol,
-				name: contractParams.name,
+				symbol,
+				name,
 				contractURI: uri,
 				admins: cleanAdmins,
 				minters: cleanMinters,
-				maxSupply: contractParams.maxSupply,
-				isMaxSupplyLocked: contractParams.isMaxSupplyLocked,
-				mintPermissions: contractParams.mintPermissions,
-				splits: contractParams.splits,
-				isTransferLocked: contractParams.isTransferLocked
+				maxSupply,
+				isMaxSupplyLocked: isMaxSupplyLocked ?? false,
+				mintPermissions: mintPermissions ?? [],
+				splits: splits ?? [],
+				isTransferLocked: isTransferLocked ?? false
 			}
 
 			log.debug(contractInitParams)
@@ -244,20 +258,32 @@ export default class MeemContractService {
 
 			await cutTx.wait()
 
-			if (data.shouldMintAdminTokens && adminTokenMetadata) {
+			if (shouldMintAdminTokens && adminTokenMetadata) {
 				log.debug(`Minting admin tokens.`, cleanAdmins)
 
-				await Promise.all(
-					cleanAdmins.map(a => {
-						const address = a.toLowerCase()
-						return services.meem.mintOriginalMeem({
-							meemContractAddress: meemContract.address,
-							to: address,
-							metadata: adminTokenMetadata,
-							mintedBy: wallet.address
-						})
+				for (let i = 0; i < cleanAdmins.length; i += 1) {
+					// TODO: Bulk minting
+
+					// eslint-disable-next-line no-await-in-loop
+					await services.meem.mintOriginalMeem({
+						meemContractAddress: meemContract.address,
+						to: cleanAdmins[i].toLowerCase(),
+						metadata: adminTokenMetadata,
+						mintedBy: wallet.address
 					})
-				)
+				}
+
+				// await Promise.all(
+				// 	cleanAdmins.map(a => {
+				// 		const address = a.toLowerCase()
+				// 		return services.meem.mintOriginalMeem({
+				// 			meemContractAddress: meemContract.address,
+				// 			to: address,
+				// 			metadata: adminTokenMetadata,
+				// 			mintedBy: wallet.address
+				// 		})
+				// 	})
+				// )
 				log.debug(`Finished minting admin tokens.`)
 			}
 

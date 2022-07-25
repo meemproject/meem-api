@@ -80,6 +80,8 @@ export default class MeemService {
 		if (/^data:application\/json/.test(uri)) {
 			const json = Buffer.from(uri.substring(29), 'base64').toString()
 			metadata = JSON.parse(json)
+		} else if (/^{/.test(uri)) {
+			metadata = JSON.parse(uri)
 		} else if (/^ipfs/.test(uri)) {
 			const result = await services.ipfs.getIPFSFile(uri)
 			if (result.type !== 'application/json') {
@@ -634,7 +636,7 @@ export default class MeemService {
 		} catch (e) {
 			const err = e as any
 
-			log.warn(err)
+			log.warn(err, data)
 
 			if (err.error?.error?.body) {
 				let errStr = 'UNKNOWN_CONTRACT_ERROR'
