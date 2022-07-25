@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import * as path from 'path'
+import { Validator } from '@meemproject/metadata'
 import type { ethers as Ethers } from 'ethers'
 // import fs from 'fs-extra'
 import _ from 'lodash'
@@ -553,9 +554,16 @@ export default class MeemService {
 				throw new Error('MISSING_ACCOUNT_ADDRESS')
 			}
 
-			if (!data.metadata) {
-				// TODO: Parse metadata and verify
-				throw new Error('MISSING_METADATA')
+			if (!data.metadata?.meem_metadata_version) {
+				throw new Error('INVALID_METADATA')
+			}
+
+			const validator = new Validator(data.metadata.meem_metadata_version)
+			const validatorResult = validator.validate(data.metadata)
+
+			if (!validatorResult.valid) {
+				log.crit(validatorResult.errors.map((e: any) => e.message))
+				throw new Error('INVALID_METADATA')
 			}
 
 			const meemContract = await this.getMeemContract({

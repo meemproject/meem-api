@@ -204,16 +204,10 @@ export interface IMeemMetadataProperties {
 	parent_token_metadata?: Record<string, any> | null
 }
 
-export type IMeemContractType =
-	| 'meem'
-	| 'meem-club'
-	| 'meem-post'
-	| 'meem-publication'
-
 export interface IMeemContractAssociation {
-	meem_contract_type: IMeemContractType
+	meem_contract_type: string
 	address: string
-	tokenIds: string[]
+	tokenIds?: string[]
 }
 export interface IMeemMetadata {
 	name: string
@@ -226,23 +220,15 @@ export interface IMeemMetadata {
 	extension_properties?: Record<string, any>
 	associations?: IMeemContractAssociation[]
 }
-export interface IMeemContractMetadata {
-	meem_contract_type: IMeemContractType
-	version: string
-	spec: string
-	name: string
-	description: string
-	image: string
-	associations?: IMeemContractAssociation[]
-}
 
-export interface IMeemContractMetadata {
-	meem_contract_type: IMeemContractType
-	version: string
-	spec: string
-	name: string
-	description: string
-	image: string
+export interface IMeemMetadataLike {
+	meem_metadata_version: string
+	[key: string]: any
+}
+export interface IMeemContractMetadataLike {
+	meem_contract_type: string
+	meem_metadata_version: string
+	[key: string]: any
 }
 
 export enum OpenSeaDisplayType {

@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { getCuts, IFacetVersion } from '@meemproject/meem-contracts'
+import { Validator } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 import _ from 'lodash'
 import slug from 'slug'
@@ -9,7 +10,6 @@ import {
 	MeemProxyV1__factory
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
-import { IMeemMetadata } from '../types/shared/meem.shared'
 
 export default class MeemContractService {
 	public static async generateSlug(
@@ -27,11 +27,13 @@ export default class MeemContractService {
 		} catch (e) {
 			log.debug(e)
 		}
+
 		const newDepth = depth ? depth + 1 : 1
 
 		if (newDepth > 5) {
 			throw new Error('INVALID_SLUG')
 		}
+
 		try {
 			// Slug is not available so try to create one w/ a random number...
 			const rand = Math.floor(Math.random() * 10000) + 1
@@ -58,7 +60,46 @@ export default class MeemContractService {
 		data: MeemAPI.v1.CreateMeemContract.IRequestBody
 	): Promise<string> {
 		try {
-			const { metadata, contractParams } = data
+			const { metadata, contractParams, adminTokenMetadata } = data
+
+			if (!metadata?.meem_metadata_version) {
+				throw new Error('INVALID_METADATA')
+			}
+
+			const contractMetadataValidator = new Validator(
+				metadata.meem_metadata_version
+			)
+			const contractMetadataValidatorResult =
+				contractMetadataValidator.validate(metadata)
+
+			if (!contractMetadataValidatorResult.valid) {
+				log.crit(
+					contractMetadataValidatorResult.errors.map((e: any) => e.message)
+				)
+				throw new Error('INVALID_METADATA')
+			}
+
+			if (
+				data.shouldMintAdminTokens &&
+				!adminTokenMetadata?.meem_metadata_version
+			) {
+				throw new Error('INVALID_METADATA')
+			}
+
+			if (data.shouldMintAdminTokens && adminTokenMetadata) {
+				const tokenMetadataValidator = new Validator(
+					adminTokenMetadata.meem_metadata_version
+				)
+				const tokenMetadataValidatorResult =
+					tokenMetadataValidator.validate(adminTokenMetadata)
+
+				if (!tokenMetadataValidatorResult.valid) {
+					log.crit(
+						tokenMetadataValidatorResult.errors.map((e: any) => e.message)
+					)
+					throw new Error('INVALID_METADATA')
+				}
+			}
 
 			const provider = await services.ethers.getProvider()
 
@@ -121,7 +162,6 @@ export default class MeemContractService {
 				wallet
 			)
 
-			// MAGS metadata
 			// TODO: Abstract this to allow new types of contract metadata e.g. clubs, other project types
 			// TODO: Generate the slug for the contract here and store the external URL
 			// TOOD: How do we create associations between Clubs and their projects i.e MAGS?
@@ -129,17 +169,7 @@ export default class MeemContractService {
 			// TODO: Verify club exists before storing address in metadata?
 
 			// TODO: Pass type-safe data in for contract types
-			// TODO: 🚨 Parse/validate metadata
 			// TODO: 🚨 Validate all properties!
-
-			let isValidMetadata = false
-
-			isValidMetadata =
-				!!metadata.meem_contract_type && !!metadata.spec && !!metadata.version
-
-			if (!isValidMetadata) {
-				throw new Error('INVALID_PARAMETERS')
-			}
 
 			const uri = JSON.stringify(metadata)
 
@@ -214,14 +244,8 @@ export default class MeemContractService {
 
 			await cutTx.wait()
 
-			if (data.shouldMintAdminTokens) {
+			if (data.shouldMintAdminTokens && adminTokenMetadata) {
 				log.debug(`Minting admin tokens.`, cleanAdmins)
-				const tokenMetadata: IMeemMetadata = {
-					name: metadata.name,
-					description: metadata.description,
-					image: metadata.image,
-					external_url: '' // TODO: Token urls?
-				}
 
 				await Promise.all(
 					cleanAdmins.map(a => {
@@ -229,7 +253,7 @@ export default class MeemContractService {
 						return services.meem.mintOriginalMeem({
 							meemContractAddress: meemContract.address,
 							to: address,
-							metadata: tokenMetadata,
+							metadata: adminTokenMetadata,
 							mintedBy: wallet.address
 						})
 					})

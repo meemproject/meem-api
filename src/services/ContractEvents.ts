@@ -1,4 +1,5 @@
 import { Log } from '@ethersproject/abstract-provider'
+import { MeemContractMetadataLike } from '@meemproject/metadata'
 import { Contract, ethers, utils } from 'ethers'
 import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
@@ -215,7 +216,7 @@ export default class ContractEvent {
 
 		const metadata = (await services.meem.getErc721Metadata(
 			contractInfo.contractURI
-		)) as MeemAPI.IMeemContractMetadata
+		)) as MeemContractMetadataLike
 
 		if (!existingMeemContract || !slug) {
 			try {

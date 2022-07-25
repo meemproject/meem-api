@@ -1,3 +1,4 @@
+import { MeemContractMetadataLike } from '@meemproject/metadata'
 import { BigNumber } from 'ethers'
 import { DateTime } from 'luxon'
 import { DataTypes } from 'sequelize'
@@ -179,7 +180,7 @@ export default class MeemContract extends BaseModel<MeemContract> {
 
 	public address!: string
 
-	public metadata!: MeemAPI.IMeemContractMetadata
+	public metadata!: MeemContractMetadataLike
 
 	public totalOriginalsSupply!: string
 

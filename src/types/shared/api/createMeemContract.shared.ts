@@ -1,8 +1,9 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 import {
 	IMeemProperties,
-	IMeemContractMetadata,
 	IMeemContractBaseProperties,
+	IMeemContractMetadataLike,
+	IMeemMetadataLike,
 	IMeemContractInitParams
 } from '../meem.shared'
 
@@ -18,7 +19,7 @@ export namespace CreateMeemContract {
 
 	export interface IRequestBody {
 		/** Contract metadata */
-		metadata: IMeemContractMetadata
+		metadata: IMeemContractMetadataLike
 
 		/** Contract base properties */
 		contractParams: IMeemContractInitParams
@@ -26,8 +27,8 @@ export namespace CreateMeemContract {
 		/** If true, will mint a token to the admin wallet addresses  */
 		shouldMintAdminTokens?: boolean
 
-		/** The owner of the contract can upgrade */
-		contractOwnerAddress?: string
+		/** Admin token metadata */
+		adminTokenMetadata?: IMeemMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
