@@ -259,16 +259,10 @@ export interface IMeemMetadataProperties {
 	parent_token_metadata?: Record<string, any> | null
 }
 
-export type IMeemContractType =
-	| 'meem'
-	| 'meem-club'
-	| 'meem-post'
-	| 'meem-publication'
-
 export interface IMeemContractAssociation {
-	meem_contract_type: IMeemContractType
+	meem_contract_type: string
 	address: string
-	tokenIds: string[]
+	tokenIds?: string[]
 }
 export interface IMeemMetadata {
 	name: string
@@ -281,23 +275,15 @@ export interface IMeemMetadata {
 	extension_properties?: Record<string, any>
 	associations?: IMeemContractAssociation[]
 }
-export interface IMeemContractMetadata {
-	meem_contract_type: IMeemContractType
-	version: string
-	spec: string
-	name: string
-	description: string
-	image: string
-	associations?: IMeemContractAssociation[]
-}
 
-export interface IMeemContractMetadata {
-	meem_contract_type: IMeemContractType
-	version: string
-	spec: string
-	name: string
-	description: string
-	image: string
+export interface IMeemMetadataLike {
+	meem_metadata_version: string
+	[key: string]: any
+}
+export interface IMeemContractMetadataLike {
+	meem_contract_type: string
+	meem_metadata_version: string
+	[key: string]: any
 }
 
 export enum OpenSeaDisplayType {
@@ -804,7 +790,7 @@ export namespace CreateMeemContract {
 		admins: string[]
 
 		/** Contract metadata */
-		metadata: IMeemContractMetadata
+		metadata: IMeemContractMetadataLike
 
 		/** Symbol for the contract */
 		symbol: string
@@ -830,6 +816,9 @@ export namespace CreateMeemContract {
 
 		/** If true, will mint a token to the admin wallet addresses  */
 		mintAdminTokens?: boolean
+
+		/** Admin token metadata */
+		adminTokenMetadata?: IMeemMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -1721,8 +1710,8 @@ export namespace MintOriginalMeem {
 		/** The chain where the Meem contract lives */
 		chain: Chain
 
-		/** JSON (or stringified) metadata object to be used for the minted Meem */
-		metadata?: string | any
+		/** Metadata object to be used for the minted Meem */
+		metadata?: IMeemMetadataLike
 
 		/** The address where the Meem will be minted to. */
 		to: string

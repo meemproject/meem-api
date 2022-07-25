@@ -3,7 +3,8 @@ import {
 	Chain,
 	IMeemPermission,
 	IMeemSplit,
-	IMeemProperties
+	IMeemProperties,
+	IMeemMetadataLike
 } from '../meem.shared'
 
 /** Mint a new (wrapped) Meem */
@@ -23,8 +24,8 @@ export namespace MintOriginalMeem {
 		/** The chain where the Meem contract lives */
 		chain: Chain
 
-		/** JSON (or stringified) metadata object to be used for the minted Meem */
-		metadata?: string | any
+		/** Metadata object to be used for the minted Meem */
+		metadata?: IMeemMetadataLike
 
 		/** The address where the Meem will be minted to. */
 		to: string

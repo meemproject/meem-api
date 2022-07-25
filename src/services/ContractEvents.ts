@@ -24,6 +24,7 @@ import {
 	ContractInfoStructOutput
 } from '@meemproject/meem-contracts/dist/types/Meem'
 import meemABI from '@meemproject/meem-contracts/types/Meem.json'
+import { MeemContractMetadataLike } from '@meemproject/metadata'
 import { BigNumber, Contract, utils } from 'ethers'
 import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
@@ -234,7 +235,7 @@ export default class ContractEvent {
 
 		const metadata = (await services.meem.getErc721Metadata(
 			contractInfo.contractURI
-		)) as MeemAPI.IMeemContractMetadata
+		)) as MeemContractMetadataLike
 
 		const propertiesData = this.meemPropertiesDataToModelData(
 			contractInfo.defaultProperties
