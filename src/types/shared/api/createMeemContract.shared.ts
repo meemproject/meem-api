@@ -1,10 +1,12 @@
-import * as meemContracts from '@meemproject/meem-contracts'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 import {
 	IMeemProperties,
 	IMeemContractBaseProperties,
 	IMeemContractMetadataLike,
-	IMeemMetadataLike
+	IMeemMetadataLike,
+	IMeemContractInitParams,
+	IMeemPermission,
+	IMeemSplit
 } from '../meem.shared'
 
 /** Create Meem Image */
@@ -18,39 +20,38 @@ export namespace CreateMeemContract {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Name of the contract */
-		name: string
-
-		/** Contract admin wallet addresses */
-		admins: string[]
-
 		/** Contract metadata */
 		metadata: IMeemContractMetadataLike
 
-		/** Symbol for the contract */
-		symbol: string
+		/** The symbol for the token. If omitted, will use a slug of the name */
+		symbol?: string
 
-		/** Contract base properties */
-		baseProperties: IMeemContractBaseProperties
+		/** The name of the token */
+		name: string
 
-		/** Meem default properties */
-		// TODO: Make this a partial
-		defaultProperties?: IMeemProperties
+		/** Contract admins */
+		admins?: string[]
 
-		/** Meem default child properties */
-		// TODO: Make this a partial
-		defaultChildProperties?: IMeemProperties
+		/** Special minter permissions */
+		minters?: string[]
 
-		/** Token ID start */
-		tokenCounterStart: number
+		/** The max number of tokens */
+		maxSupply: string
 
-		childDepth: number
+		/** Whether the max supply is locked */
+		isMaxSupplyLocked?: boolean
 
-		/** Required non-owner split amount */
-		nonOwnerSplitAllocationAmount: number
+		/** Minting permissions */
+		mintPermissions?: IMeemPermission[]
+
+		/** Splits for minting / transfers */
+		splits?: IMeemSplit[]
+
+		/** Whether tokens can be transferred */
+		isTransferLocked?: boolean
 
 		/** If true, will mint a token to the admin wallet addresses  */
-		mintAdminTokens?: boolean
+		shouldMintAdminTokens?: boolean
 
 		/** Admin token metadata */
 		adminTokenMetadata?: IMeemMetadataLike

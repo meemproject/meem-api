@@ -7,6 +7,8 @@ import Wallet from './Wallet'
 export default class WalletContractInstance extends ModelWithAddress<WalletContractInstance> {
 	public static readonly modelName = 'WalletContractInstance'
 
+	public static readonly paranoid: boolean = false
+
 	public static get indexes() {
 		return [
 			{

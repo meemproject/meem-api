@@ -5,7 +5,7 @@ import express, { Express } from 'express'
 import globby from 'globby'
 import Gun from 'gun'
 import ProviderListener from '../listeners/ProviderListener'
-import TwitterListener from '../listeners/TwitterListener'
+// import TwitterListener from '../listeners/TwitterListener'
 import Configuration from './Configuration'
 import errorMiddleware from './errorMiddleware'
 import Orm from './Orm'
@@ -180,13 +180,13 @@ export default async function start() {
 		log.debug('Provider listener disabled')
 	}
 
-	if (config.ENABLE_TWITTER_LISTENERS) {
-		g.listeners = {
-			twitter: new TwitterListener()
-		}
+	// if (config.ENABLE_TWITTER_LISTENERS) {
+	// 	g.listeners = {
+	// 		twitter: new TwitterListener()
+	// 	}
 
-		g.listeners.twitter.start()
-	}
+	// 	g.listeners.twitter.start()
+	// }
 
 	log.info(
 		`Server boot: ${(log.timerEnd(bootTimer) / 1000).toFixed(4)} seconds`

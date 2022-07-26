@@ -6,7 +6,7 @@ export default class TweetController {
 		req: IRequest<MeemAPI.v1.GetTweets.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetTweets.IResponseBody>
 	): Promise<any> {
-		await services.twitter.checkForMissedTweets()
+		// await services.twitter.checkForMissedTweets()
 		return res.json({
 			tweets: []
 		})

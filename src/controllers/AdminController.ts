@@ -39,33 +39,33 @@ export default class AdminController {
 		})
 	}
 
-	public static async meemSyncReactions(
-		req: Request,
-		res: Response
-	): Promise<Response> {
-		await services.contractEvents.meemSyncReactions()
+	// public static async meemSyncReactions(
+	// 	req: Request,
+	// 	res: Response
+	// ): Promise<Response> {
+	// 	await services.contractEvents.meemSyncReactions()
 
-		return res.json({
-			status: 'success'
-		})
-	}
+	// 	return res.json({
+	// 		status: 'success'
+	// 	})
+	// }
 
-	public static async syncDbMeemIdsToContract(
-		req: Request,
-		res: Response
-	): Promise<Response> {
-		const meemIds = await services.meemId.syncDbToContract()
+	// public static async syncDbMeemIdsToContract(
+	// 	req: Request,
+	// 	res: Response
+	// ): Promise<Response> {
+	// 	const meemIds = await services.meemId.syncDbToContract()
 
-		return res.json({
-			meemIds
-		})
-	}
+	// 	return res.json({
+	// 		meemIds
+	// 	})
+	// }
 
 	public static async seedPrompts(
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		await services.prompts.seedPrompts()
+		// await services.prompts.seedPrompts()
 
 		return res.json({
 			status: 'success'

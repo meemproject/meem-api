@@ -87,7 +87,7 @@ export default {
 	TWITTER_PROJECT_TOKEN_ID: process.env.TWITTER_PROJECT_TOKEN_ID ?? '',
 	INFURA_ID: process.env.INFURA_ID ?? '',
 	IPFS_CONTENT_GATEWAY_URL:
-		process.env.IPFS_CONTENT_GATEWAY_URL ?? 'https://ipfs.moralis.io:2053',
+		process.env.IPFS_CONTENT_GATEWAY_URL ?? 'https://gateway.pinata.cloud',
 	GITHUB_KEY: process.env.GITHUB_KEY ?? '',
 	ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY ?? '',
 	DYNAMODB_SOCKETS_TABLE: process.env.DYNAMODB_SOCKETS_TABLE ?? '',
@@ -172,5 +172,7 @@ export default {
 		process.env.TWITTER_PROMPTS_PROJECT_TOKEN_ID ?? '',
 	PINATA_API_KEY: process.env.PINATA_API_KEY ?? '',
 	PINATA_API_SECRET: process.env.PINATA_API_SECRET ?? '',
-	TWITTER_INTEGRATION_ID: process.env.TWITTER_INTEGRATION_ID ?? ''
+	TWITTER_INTEGRATION_ID: process.env.TWITTER_INTEGRATION_ID ?? '',
+	MEEM_BUNDLE_ID: process.env.MEEM_BUNDLE_ID ?? '',
+	MEEM_PROXY_CONTRACT_ID: process.env.MEEM_PROXY_CONTRACT_ID ?? ''
 }

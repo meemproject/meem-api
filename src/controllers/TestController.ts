@@ -253,38 +253,6 @@ export default class ConfigController {
 		return res.json({
 			status: 'success'
 		})
-		// const gas = await services.meem.getGasEstimate(MeemAPI.NetworkName.Polygon)
-		// const gas = await services.web3.getGasEstimate({
-		// 	chain: MeemAPI.networkNameToChain(config.NETWORK)
-		// })
-
-		// return res.json({
-		// 	gas
-		// })
-
-		const contract = await services.meem.getMeemContract()
-
-		const result = await contract.wrappedTokens([
-			{
-				chain: MeemAPI.Chain.Rinkeby,
-				contractAddress: '0x3d60EFFFC36bCdD32f8966A0339B6f78Aaff121e',
-				tokenId: 48
-			}
-			// {
-			// 	chain: MeemAPI.Chain.Rinkeby,
-			// 	contractAddress: '0x3d60EFFFC36bCdD32f8966A0339B6f78Aaff121e',
-			// 	tokenId: 49
-			// },
-			// {
-			// 	chain: MeemAPI.Chain.Rinkeby,
-			// 	contractAddress: '0x3d60EFFFC36bCdD32f8966A0339B6f78Aaff121e',
-			// 	tokenId: 50
-			// }
-		])
-
-		return res.json({
-			result
-		})
 	}
 
 	public static async testTweets(
@@ -395,8 +363,8 @@ export default class ConfigController {
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		await services.prompts.endCurrentPrompt()
-		await services.prompts.sendNextPrompt()
+		// await services.prompts.endCurrentPrompt()
+		// await services.prompts.sendNextPrompt()
 
 		return res.json({
 			status: 'success'
