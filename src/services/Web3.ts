@@ -2,35 +2,9 @@ import { Readable } from 'stream'
 import Pinata, { PinataPinResponse } from '@pinata/sdk'
 import BigNumber from 'bignumber.js'
 import type { ethers as Ethers } from 'ethers'
-import Moralis from 'moralis/node'
 import request from 'superagent'
 import { v4 as uuidv4, validate as validateUUID } from 'uuid'
 import { MeemAPI } from '../types/meem.generated'
-import { AsyncReturnType } from '../types/shared/api.shared'
-
-type MoralisChainList =
-	| 'eth'
-	| '0x1'
-	| 'ropsten'
-	| '0x3'
-	| 'rinkeby'
-	| '0x4'
-	| 'goerli'
-	| '0x5'
-	| 'kovan'
-	| '0x2a'
-	| 'polygon'
-	| '0x89'
-	| 'mumbai'
-	| '0x13881'
-	| 'bsc'
-	| '0x38'
-	| 'bsc testnet'
-	| '0x61'
-	| 'avalanche'
-	| '0xa86a'
-	| 'fantom'
-	| '0xfa'
 
 export default class Web3 {
 	public static gweiToWei(gwei: number | Ethers.BigNumber): Ethers.BigNumber {
@@ -179,50 +153,6 @@ export default class Web3 {
 		}
 	}
 
-	public static async getNFTs(options: {
-		address: string
-		chains?: MeemAPI.Chain[]
-		offset?: number
-		limit?: number
-	}): Promise<MeemAPI.IChainNFTsResult[]> {
-		if (config.TESTING) {
-			return services.testing.getNFTs()
-		}
-		const { address, offset, limit } = options
-
-		const chains = options.chains ?? [
-			MeemAPI.Chain.Ethereum,
-			MeemAPI.Chain.Polygon
-		]
-
-		await this.startMoralis()
-
-		const promises = chains.map(chain =>
-			Moralis.Web3API.account.getNFTs({
-				chain: this.chainToMoralis(chain),
-				address,
-				offset,
-				limit
-			})
-		)
-
-		const nftResults = await Promise.all(promises)
-
-		const result: MeemAPI.IChainNFTsResult[] = []
-
-		chains.forEach((chain, i) => {
-			result.push({
-				chain,
-				total: nftResults[i].total ?? 0,
-				page: nftResults[i].page ?? 0,
-				pageSize: nftResults[i].page_size ?? 0,
-				nfts: this.normalizeMoralisNFTs(nftResults[i])
-			})
-		})
-
-		return result
-	}
-
 	public static toBigNumber(
 		val: BigNumber.Value | Ethers.BigNumberish
 	): Ethers.BigNumber {
@@ -239,50 +169,9 @@ export default class Web3 {
 		return ebn
 	}
 
-	private static async startMoralis() {
-		await Moralis.Web3API.initialize({
-			apiKey: config.MORALIS_API_KEY
-		})
-	}
-
 	private static getPinataInstance() {
 		const pinata = Pinata(config.PINATA_API_KEY, config.PINATA_API_SECRET)
 		return pinata
-	}
-
-	private static chainToMoralis(chain: MeemAPI.Chain): MoralisChainList {
-		switch (+chain) {
-			case MeemAPI.Chain.Rinkeby:
-				return 'rinkeby'
-
-			case MeemAPI.Chain.Polygon:
-				return 'polygon'
-
-			default:
-			case MeemAPI.Chain.Ethereum:
-				return 'eth'
-		}
-	}
-
-	private static normalizeMoralisNFTs(
-		nfts: AsyncReturnType<typeof Moralis.Web3API.account.getNFTs>
-	): MeemAPI.INFT[] {
-		return (
-			nfts.result?.map(n => ({
-				metadata: n.metadata,
-				tokenAddress: n.token_address,
-				tokenId: n.token_id,
-				contractType: n.contract_type,
-				ownerOf: n.owner_of,
-				blockNumber: n.block_number,
-				blockNumberMinted: n.block_number_minted,
-				tokenUri: n.token_uri,
-				syncedAt: n.synced_at,
-				amount: n.amount,
-				name: n.name,
-				symbol: n.symbol
-			})) ?? []
-		)
 	}
 
 	public static async saveMeemMetadata(data: {
@@ -331,16 +220,6 @@ export default class Web3 {
 			file: stream
 		})
 
-		// const imageResponse = await this.saveToMoralis({
-		// 	// path: `${meemId}/image.png`,
-		// 	// content: imgData
-		// })
-
-		// const image: string =
-		// 	_.isArray(imageResponse.body) && imageResponse.body.length > 0
-		// 		? this.moralisPathToIPFSPath(imageResponse.body[0].path)
-		// 		: ''
-
 		const image = `ipfs://${imageResponse.IpfsHash}`
 
 		const externalUrl =
@@ -356,19 +235,6 @@ export default class Web3 {
 					? meemMetadata.image
 					: image
 		}
-
-		// const jsonString = JSON.stringify(storedMetadata)
-		// const jsonBase64 = Buffer.from(jsonString).toString('base64')
-
-		// const metadataResponse = await this.saveToMoralis({
-		// 	path: `${meemId}/metadata.json`,
-		// 	content: jsonBase64
-		// })
-
-		// const metadataPath: string =
-		// 	_.isArray(metadataResponse.body) && metadataResponse.body.length > 0
-		// 		? this.moralisPathToIPFSPath(metadataResponse.body[0].path)
-		// 		: ''
 
 		const metadataResponse = await this.saveToPinata({
 			json: storedMetadata
@@ -418,26 +284,6 @@ export default class Web3 {
 		}
 	}
 
-	private static async saveToMoralis(options: {
-		path: string
-		content: string
-	}) {
-		const { path, content } = options
-		await this.startMoralis()
-
-		const response = await request
-			.post('https://deep-index.moralis.io/api/v2/ipfs/uploadFolder')
-			.set('X-API-KEY', config.MORALIS_API_KEY)
-			.send([
-				{
-					path,
-					content
-				}
-			])
-
-		return response
-	}
-
 	private static async saveToPinata(options: {
 		json?: Record<string, any>
 		file?: Readable
@@ -459,10 +305,5 @@ export default class Web3 {
 		}
 
 		return response
-	}
-
-	private static moralisPathToIPFSPath(path: string): string {
-		const ipfsPath = path.replace(/.*\/ipfs\//, '')
-		return `ipfs://${ipfsPath}`
 	}
 }

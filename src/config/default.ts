@@ -104,7 +104,6 @@ export default {
 		process.env.LAMBDA_MEEMID_UPDATE_FUNCTION ?? '',
 	DISABLE_ASYNC_MINTING: process.env.DISABLE_ASYNC_MINTING === 'true',
 	S3_BUCKET: process.env.S3_BUCKET ?? '',
-	MORALIS_API_KEY: process.env.MORALIS_API_KEY ?? '',
 	JSON_RPC_MAINNET:
 		process.env.JSON_RPC_MAINNET ??
 		'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/eth/mainnet',
