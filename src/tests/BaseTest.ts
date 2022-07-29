@@ -1,10 +1,8 @@
 import { Server } from 'http'
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Suite } from 'mocha'
 import supertest, { SuperTest, Test, Response } from 'supertest'
 import start from '../core/start'
 import { MeemAPI } from '../types/meem.generated'
-import { wallets } from './mocks'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
@@ -108,7 +106,7 @@ export default class BaseTest {
 		}
 	}
 
-	protected setSigner(signer: SignerWithAddress) {
+	protected setSigner(signer: any) {
 		// @ts-ignore
 		// eslint-disable-next-line prefer-destructuring
 		global.signer = signer

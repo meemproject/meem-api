@@ -26,6 +26,7 @@ export namespace CreateContract {
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
+		contractId: string
 	}
 
 	export interface IDefinition {

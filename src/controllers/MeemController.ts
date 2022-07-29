@@ -1,15 +1,15 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
-import BigNumber from 'bignumber.js'
-import type { ethers as Ethers } from 'ethers'
+// import BigNumber from 'bignumber.js'
+// import type { ethers as Ethers } from 'ethers'
 import { Response } from 'express'
-import { parse } from 'json2csv'
+// import { parse } from 'json2csv'
 import _ from 'lodash'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
 import sharp from 'sharp'
 import TwitterApi, { UserV2 } from 'twitter-api-v2'
-import { v4 as uuidv4, validate as uuidValidate } from 'uuid'
+import { validate as uuidValidate } from 'uuid'
 import Meem from '../models/Meem'
 import {
 	IAPIRequestPaginated,
@@ -428,26 +428,26 @@ export default class MeemController {
 		})
 	}
 
-	public static async claimMeem(
-		req: IRequest<MeemAPI.v1.ClaimMeem.IDefinition>,
-		res: IResponse<MeemAPI.v1.ClaimMeem.IResponseBody>
-	): Promise<Response> {
-		if (!req.meemId) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
+	// public static async claimMeem(
+	// 	req: IRequest<MeemAPI.v1.ClaimMeem.IDefinition>,
+	// 	res: IResponse<MeemAPI.v1.ClaimMeem.IResponseBody>
+	// ): Promise<Response> {
+	// 	if (!req.meemId) {
+	// 		throw new Error('USER_NOT_LOGGED_IN')
+	// 	}
 
-		if (!req.meemId.MeemPass) {
-			throw new Error('MEEMPASS_NOT_FOUND')
-		}
+	// 	if (!req.meemId.MeemPass) {
+	// 		throw new Error('MEEMPASS_NOT_FOUND')
+	// 	}
 
-		const { tokenId } = req.params
+	// 	const { tokenId } = req.params
 
-		await services.meem.claimMeem(tokenId, req.meemId)
+	// 	await services.meem.claimMeem(tokenId, req.meemId)
 
-		return res.json({
-			status: 'success'
-		})
-	}
+	// 	return res.json({
+	// 		status: 'success'
+	// 	})
+	// }
 
 	public static async mintOriginalMeem(
 		req: IRequest<MeemAPI.v1.MintOriginalMeem.IDefinition>,
@@ -495,63 +495,63 @@ export default class MeemController {
 		})
 	}
 
-	public static async mintWrappedMeem(
-		req: IRequest<MeemAPI.v1.MintMeem.IDefinition>,
-		res: IResponse<MeemAPI.v1.MintMeem.IResponseBody>
-	): Promise<Response> {
-		const data = req.body
+	// public static async mintWrappedMeem(
+	// 	req: IRequest<MeemAPI.v1.MintMeem.IDefinition>,
+	// 	res: IResponse<MeemAPI.v1.MintMeem.IResponseBody>
+	// ): Promise<Response> {
+	// 	const data = req.body
 
-		const meemContract = await services.meem.getMeemContract()
+	// 	const meemContract = await services.meem.getMeemContract()
 
-		const isAlreadyWrapped = await meemContract.isNFTWrapped(
-			data.chain,
-			data.tokenAddress,
-			data.tokenId
-		)
+	// 	const isAlreadyWrapped = await meemContract.isNFTWrapped(
+	// 		data.chain,
+	// 		data.tokenAddress,
+	// 		data.tokenId
+	// 	)
 
-		if (isAlreadyWrapped) {
-			throw new Error('NFT_ALREADY_WRAPPED')
-		}
+	// 	if (isAlreadyWrapped) {
+	// 		throw new Error('NFT_ALREADY_WRAPPED')
+	// 	}
 
-		let s3ImagePath: string | undefined
-		if (data.base64Image) {
-			s3ImagePath = `mintImages/${uuidv4()}.png`
-			await services.storage.putObject({
-				path: s3ImagePath,
-				data: Buffer.from(data.base64Image, 'base64')
-			})
-		}
+	// 	let s3ImagePath: string | undefined
+	// 	if (data.base64Image) {
+	// 		s3ImagePath = `mintImages/${uuidv4()}.png`
+	// 		await services.storage.putObject({
+	// 			path: s3ImagePath,
+	// 			data: Buffer.from(data.base64Image, 'base64')
+	// 		})
+	// 	}
 
-		const mintData = {
-			...data,
-			base64Image: undefined,
-			s3ImagePath
-		}
+	// 	const mintData = {
+	// 		...data,
+	// 		base64Image: undefined,
+	// 		s3ImagePath
+	// 	}
 
-		if (config.DISABLE_ASYNC_MINTING) {
-			await services.meem.mintWrappedMeem(mintData)
-		} else {
-			const lambda = new AWS.Lambda({
-				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-				region: 'us-east-1'
-			})
+	// 	if (config.DISABLE_ASYNC_MINTING) {
+	// 		await services.meem.mintWrappedMeem(mintData)
+	// 	} else {
+	// 		const lambda = new AWS.Lambda({
+	// 			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+	// 			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+	// 			region: 'us-east-1'
+	// 		})
 
-			await lambda
-				.invoke({
-					InvocationType: 'Event',
-					FunctionName: config.LAMBDA_MINT_FUNCTION,
-					Payload: JSON.stringify(mintData)
-				})
-				.promise()
-		}
+	// 		await lambda
+	// 			.invoke({
+	// 				InvocationType: 'Event',
+	// 				FunctionName: config.LAMBDA_MINT_FUNCTION,
+	// 				Payload: JSON.stringify(mintData)
+	// 			})
+	// 			.promise()
+	// 	}
 
-		// TODO: Notify via Websockets
+	// 	// TODO: Notify via Websockets
 
-		return res.json({
-			status: 'success'
-		})
-	}
+	// 	return res.json({
+	// 		status: 'success'
+	// 	})
+	// }
 
 	public static async createMeemImage(
 		req: IRequest<MeemAPI.v1.CreateMeemImage.IDefinition>,
@@ -596,71 +596,71 @@ export default class MeemController {
 		return res.end(body, 'binary')
 	}
 
-	public static async getWrappedTokens(
-		req: IRequest<MeemAPI.v1.GetWrappedTokens.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetWrappedTokens.IResponseBody>
-	): Promise<any> {
-		const contract = await services.meem.getMeemContract()
-		let tokenIds: Ethers.BigNumber[] = []
+	// public static async getWrappedTokens(
+	// 	req: IRequest<MeemAPI.v1.GetWrappedTokens.IDefinition>,
+	// 	res: IResponse<MeemAPI.v1.GetWrappedTokens.IResponseBody>
+	// ): Promise<any> {
+	// 	const contract = await services.meem.getMeemContract()
+	// 	let tokenIds: Ethers.BigNumber[] = []
 
-		const nfts = req.body.nfts.map(n => ({
-			...n,
-			tokenId: services.web3.toBigNumber(n.tokenId)
-		}))
+	// 	const nfts = req.body.nfts.map(n => ({
+	// 		...n,
+	// 		tokenId: services.web3.toBigNumber(n.tokenId)
+	// 	}))
 
-		try {
-			tokenIds = await contract.wrappedTokens(nfts)
-		} catch (e) {
-			log.warn(e)
-		}
-		const wrappedTokens: {
-			chain: MeemAPI.Chain
-			contractAddress: string
-			tokenId: string
-			wrappedTokenId: string
-		}[] = []
+	// 	try {
+	// 		tokenIds = await contract.wrappedTokens(nfts)
+	// 	} catch (e) {
+	// 		log.warn(e)
+	// 	}
+	// 	const wrappedTokens: {
+	// 		chain: MeemAPI.Chain
+	// 		contractAddress: string
+	// 		tokenId: string
+	// 		wrappedTokenId: string
+	// 	}[] = []
 
-		nfts.forEach((nft, i) => {
-			if (typeof tokenIds[i] !== 'undefined' && tokenIds[i].toNumber() !== 0) {
-				wrappedTokens.push({
-					...nft,
-					tokenId: nft.tokenId.toHexString(),
-					wrappedTokenId: tokenIds[i].toHexString()
-				})
-			}
-		})
+	// 	nfts.forEach((nft, i) => {
+	// 		if (typeof tokenIds[i] !== 'undefined' && tokenIds[i].toNumber() !== 0) {
+	// 			wrappedTokens.push({
+	// 				...nft,
+	// 				tokenId: nft.tokenId.toHexString(),
+	// 				wrappedTokenId: tokenIds[i].toHexString()
+	// 			})
+	// 		}
+	// 	})
 
-		return res.json({
-			wrappedTokens
-		})
-	}
+	// 	return res.json({
+	// 		wrappedTokens
+	// 	})
+	// }
 
-	public static async createMeemProject(
-		req: IRequest<MeemAPI.v1.CreateMeemProject.IDefinition>,
-		res: IResponse<MeemAPI.v1.CreateMeemProject.IResponseBody>
-	): Promise<any> {
-		if (!req.meemId?.MeemPass?.canCreateProjects) {
-			throw new Error('NOT_AUTHORIZED')
-		}
+	// public static async createMeemProject(
+	// 	req: IRequest<MeemAPI.v1.CreateMeemProject.IDefinition>,
+	// 	res: IResponse<MeemAPI.v1.CreateMeemProject.IResponseBody>
+	// ): Promise<any> {
+	// 	if (!req.meemId?.MeemPass?.canCreateProjects) {
+	// 		throw new Error('NOT_AUTHORIZED')
+	// 	}
 
-		if (
-			!req.body.name ||
-			!req.body.description ||
-			!Array.isArray(req.body.minterAddresses)
-		) {
-			throw new Error('MISSING_PARAMETERS')
-		}
+	// 	if (
+	// 		!req.body.name ||
+	// 		!req.body.description ||
+	// 		!Array.isArray(req.body.minterAddresses)
+	// 	) {
+	// 		throw new Error('MISSING_PARAMETERS')
+	// 	}
 
-		await services.meem.createMeemProject({
-			name: req.body.name,
-			description: req.body.description,
-			minterAddresses: req.body.minterAddresses
-		})
+	// 	await services.meem.createMeemProject({
+	// 		name: req.body.name,
+	// 		description: req.body.description,
+	// 		minterAddresses: req.body.minterAddresses
+	// 	})
 
-		return res.json({
-			status: 'success'
-		})
-	}
+	// 	return res.json({
+	// 		status: 'success'
+	// 	})
+	// }
 
 	public static async getScreenshot(
 		req: IRequest<MeemAPI.v1.GetUrlScreenshot.IDefinition>,
@@ -807,141 +807,141 @@ export default class MeemController {
 		})
 	}
 
-	public static async getCollectors(
-		req: IAPIRequestPaginated<MeemAPI.v1.GetCollectors.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetCollectors.IResponseBody>
-	): Promise<any> {
-		let { tokenId } = req.params
-		const { csv: isCsv } = req.query
-		const { page, limit: requestedLimit } = req
-		const limit = requestedLimit > 100 ? 100 : requestedLimit
+	// public static async getCollectors(
+	// 	req: IAPIRequestPaginated<MeemAPI.v1.GetCollectors.IDefinition>,
+	// 	res: IResponse<MeemAPI.v1.GetCollectors.IResponseBody>
+	// ): Promise<any> {
+	// 	let { tokenId } = req.params
+	// 	const { csv: isCsv } = req.query
+	// 	const { page, limit: requestedLimit } = req
+	// 	const limit = requestedLimit > 100 ? 100 : requestedLimit
 
-		if (!tokenId) {
-			throw new Error('MISSING_PARAMETERS')
-		}
+	// 	if (!tokenId) {
+	// 		throw new Error('MISSING_PARAMETERS')
+	// 	}
 
-		// Make sure numeric token IDs are converted to hex
-		tokenId = services.web3.toBigNumber(tokenId).toHexString()
+	// 	// Make sure numeric token IDs are converted to hex
+	// 	tokenId = services.web3.toBigNumber(tokenId).toHexString()
 
-		const and: Record<string, any>[] = [
-			{
-				parentTokenId: tokenId
-			},
-			{
-				meemType: MeemAPI.MeemType.Copy
-			}
-		]
+	// 	const and: Record<string, any>[] = [
+	// 		{
+	// 			parentTokenId: tokenId
+	// 		},
+	// 		{
+	// 			meemType: MeemAPI.MeemType.Copy
+	// 		}
+	// 	]
 
-		const result = await orm.models.Meem.findAndCountAll({
-			where: {
-				[Op.and]: and
-			},
-			order: [['mintedAt', 'ASC']],
-			include: [
-				{
-					model: orm.models.MeemProperties,
-					as: 'Properties'
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'ChildProperties'
-				}
-			],
-			limit,
-			offset: page * limit
-		})
+	// 	const result = await orm.models.Meem.findAndCountAll({
+	// 		where: {
+	// 			[Op.and]: and
+	// 		},
+	// 		order: [['mintedAt', 'ASC']],
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'Properties'
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'ChildProperties'
+	// 			}
+	// 		],
+	// 		limit,
+	// 		offset: page * limit
+	// 	})
 
-		const copies = result.rows.map(m => services.meem.meemToIMeem(m))
+	// 	const copies = result.rows.map(m => services.meem.meemToIMeem(m))
 
-		let collectors = await Promise.all(
-			copies.map(async (copy, i) => {
-				const meemId = await services.meemId.getMeemId({
-					walletAddress: copy.owner
-				})
-				return {
-					...copy,
-					edition: page + i + 1,
-					meemId
-				}
-			})
-		)
+	// 	let collectors = await Promise.all(
+	// 		copies.map(async (copy, i) => {
+	// 			const meemId = await services.meemId.getMeemId({
+	// 				walletAddress: copy.owner
+	// 			})
+	// 			return {
+	// 				...copy,
+	// 				edition: page + i + 1,
+	// 				meemId
+	// 			}
+	// 		})
+	// 	)
 
-		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+	// 	const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 
-		const twitterIds = collectors.map(
-			collector => collector.meemId.defaultTwitter
-		)
+	// 	const twitterIds = collectors.map(
+	// 		collector => collector.meemId.defaultTwitter
+	// 	)
 
-		let twitterUsers: UserV2[] = []
+	// 	let twitterUsers: UserV2[] = []
 
-		if (twitterIds.length > 0) {
-			const twitterUsersResult = await client.v2.users(twitterIds, {
-				'user.fields': ['profile_image_url']
-			})
-			twitterUsers = twitterUsersResult.data
-		}
+	// 	if (twitterIds.length > 0) {
+	// 		const twitterUsersResult = await client.v2.users(twitterIds, {
+	// 			'user.fields': ['profile_image_url']
+	// 		})
+	// 		twitterUsers = twitterUsersResult.data
+	// 	}
 
-		collectors = collectors.map(collector => {
-			const twitterUser: UserV2 | undefined = twitterUsers.find(
-				u => u.id === collector.meemId.defaultTwitter
-			)
-			return {
-				...collector,
-				...(twitterUser && {
-					defaultTwitterUser: {
-						id: collector.meemId.defaultTwitter,
-						username: twitterUser?.username,
-						displayName: twitterUser?.name,
-						profileImageUrl: twitterUser?.profile_image_url || null
-					}
-				})
-			}
-		})
+	// 	collectors = collectors.map(collector => {
+	// 		const twitterUser: UserV2 | undefined = twitterUsers.find(
+	// 			u => u.id === collector.meemId.defaultTwitter
+	// 		)
+	// 		return {
+	// 			...collector,
+	// 			...(twitterUser && {
+	// 				defaultTwitterUser: {
+	// 					id: collector.meemId.defaultTwitter,
+	// 					username: twitterUser?.username,
+	// 					displayName: twitterUser?.name,
+	// 					profileImageUrl: twitterUser?.profile_image_url || null
+	// 				}
+	// 			})
+	// 		}
+	// 	})
 
-		const collectorResults: MeemAPI.ICollectorResult[] = collectors.map(c => {
-			const copyTokenId = services.web3.toBigNumber(c.tokenId).toNumber()
-			return {
-				tokenId: `${copyTokenId}`,
-				owner: c.owner,
-				edition: c.edition,
-				twitter: c.defaultTwitterUser
-			}
-		})
+	// 	const collectorResults: MeemAPI.ICollectorResult[] = collectors.map(c => {
+	// 		const copyTokenId = services.web3.toBigNumber(c.tokenId).toNumber()
+	// 		return {
+	// 			tokenId: `${copyTokenId}`,
+	// 			owner: c.owner,
+	// 			edition: c.edition,
+	// 			twitter: c.defaultTwitterUser
+	// 		}
+	// 	})
 
-		if (isCsv) {
-			const fields = [
-				'tokenId',
-				'owner',
-				'edition',
-				'twitterId',
-				'twitterUsername',
-				'twitterDisplayName',
-				'twitterProfileImageUrl'
-			]
-			const csvCollectorResults = collectorResults.map(c => {
-				const csvResult = {
-					...c,
-					twitterId: c.twitter?.id || '',
-					twitterUsername: c.twitter?.username || '',
-					twitterDisplayName: c.twitter?.displayName || '',
-					twitterProfileImageUrl: c.twitter?.profileImageUrl || ''
-				}
-				delete csvResult.twitter
-				return csvResult
-			})
-			const opts = { fields }
-			const csvData = parse(csvCollectorResults, opts)
+	// 	if (isCsv) {
+	// 		const fields = [
+	// 			'tokenId',
+	// 			'owner',
+	// 			'edition',
+	// 			'twitterId',
+	// 			'twitterUsername',
+	// 			'twitterDisplayName',
+	// 			'twitterProfileImageUrl'
+	// 		]
+	// 		const csvCollectorResults = collectorResults.map(c => {
+	// 			const csvResult = {
+	// 				...c,
+	// 				twitterId: c.twitter?.id || '',
+	// 				twitterUsername: c.twitter?.username || '',
+	// 				twitterDisplayName: c.twitter?.displayName || '',
+	// 				twitterProfileImageUrl: c.twitter?.profileImageUrl || ''
+	// 			}
+	// 			delete csvResult.twitter
+	// 			return csvResult
+	// 		})
+	// 		const opts = { fields }
+	// 		const csvData = parse(csvCollectorResults, opts)
 
-			res.setHeader('content-type', 'text/csv')
-			return res.send(csvData)
-		}
+	// 		res.setHeader('content-type', 'text/csv')
+	// 		return res.send(csvData)
+	// 	}
 
-		return res.json({
-			collectors: collectorResults,
-			totalItems: result.count,
-			itemsPerPage: limit
-		})
-	}
+	// 	return res.json({
+	// 		collectors: collectorResults,
+	// 		totalItems: result.count,
+	// 		itemsPerPage: limit
+	// 	})
+	// }
 
 	public static async getClippings(
 		req: IAPIRequestPaginated<MeemAPI.v1.GetMeemClippings.IDefinition>,

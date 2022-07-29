@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
+import type ContractInstance from './ContractInstance'
 
 export default class Contract extends BaseModel<Contract> {
 	public static readonly modelName = 'Contract'
@@ -73,9 +74,13 @@ export default class Contract extends BaseModel<Contract> {
 
 	public Creator!: string | null
 
+	public ContractInstances?: ContractInstance[] | null
+
 	public static associate(models: IModels) {
 		this.belongsTo(models.Wallet, {
 			as: 'Creator'
 		})
+
+		this.hasMany(models.ContractInstance)
 	}
 }

@@ -14,7 +14,7 @@ export default class Configuration {
 		) {
 			this.currentPath = `${process.cwd()}/src/`
 		} else {
-			this.currentPath = `${process.cwd()}/build/src/`
+			this.currentPath = `${process.cwd()}/build/`
 		}
 	}
 

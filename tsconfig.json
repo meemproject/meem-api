@@ -24,10 +24,8 @@
 		"baseUrl": "."
 	},
 	"include": [
-		"src/**/*",
-		"tasks/**/*",
+		"src/**/*"
 	],
-	"files": ["./hardhat.config.ts"],
 	"exclude": [
 		"**/node_modules/*",
 		"src/swagger/**/*"

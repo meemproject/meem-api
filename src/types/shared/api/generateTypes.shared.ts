@@ -1,28 +1,23 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
-export namespace CreateBundle {
+export namespace GenerateTypes {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/bundles`
+	export const path = () => '/api/1.0/generateTypes'
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		name: string
-		description: string
-		// contractIds: string[]
-		contracts: {
-			id: string
-			functionSelectors: string[]
-		}[]
+		abi?: Record<string, any>[]
+		bundleId?: string
+		name?: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		bundleId: string
-		types: string
 		abi: Record<string, any>[]
+		types: string
 	}
 
 	export interface IDefinition {

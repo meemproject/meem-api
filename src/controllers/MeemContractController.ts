@@ -119,10 +119,6 @@ export default class MeemContractController {
 			throw new Error('MISSING_PARAMETERS')
 		}
 
-		if (!req.body.admins) {
-			throw new Error('MISSING_PARAMETERS')
-		}
-
 		if (!req.body.metadata) {
 			throw new Error('MISSING_PARAMETERS')
 		}

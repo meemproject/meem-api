@@ -1,7 +1,7 @@
 /* eslint-disable global-require */
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable import/no-extraneous-dependencies */
-import type { ethers as Ethers } from 'ethers'
+import type { BigNumberish, ethers as Ethers } from 'ethers'
 import { chains } from '../lib/chains'
 import { ReconnectingWebSocketProvider } from '../lib/ReconnectingWebsocketProvider'
 
@@ -11,11 +11,7 @@ export default class EthersService {
 	private ethers: typeof Ethers
 
 	public constructor() {
-		if (config.TESTING) {
-			this.ethers = require('hardhat').ethers
-		} else {
-			this.ethers = require('ethers').ethers
-		}
+		this.ethers = require('ethers').ethers
 		this.ethers.utils.Logger.setLogLevel(this.ethers.utils.Logger.levels.ERROR)
 	}
 
@@ -23,15 +19,13 @@ export default class EthersService {
 		return this.ethers
 	}
 
-	public async getProvider(options?: { chainId?: number }) {
-		const { ethers } = await (config.TESTING
-			? import('hardhat')
-			: import('ethers'))
+	public async getProvider(options?: { chainId?: BigNumberish }) {
+		const { ethers } = await import('ethers')
 
-		const chainId = options?.chainId ?? config.CHAIN_ID
+		const chainId = ethers.BigNumber.from(options?.chainId ?? config.CHAIN_ID)
 
 		let provider: Ethers.providers.Provider
-		switch (chainId) {
+		switch (chainId.toNumber()) {
 			case 1:
 				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_MAINNET)
 				break

@@ -1,28 +1,21 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
-export namespace CreateBundle {
+export namespace TrackContractInstance {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/bundles`
+	export const path = () => `/api/1.0/contractInstances`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		name: string
-		description: string
-		// contractIds: string[]
-		contracts: {
-			id: string
-			functionSelectors: string[]
-		}[]
+		address: string
+		chainId: number
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		bundleId: string
-		types: string
-		abi: Record<string, any>[]
+		status: 'success'
 	}
 
 	export interface IDefinition {

@@ -26,30 +26,13 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	router.getAsync('/getNonce', MeemIdController.getNonce)
 	router.postAsync('/login', MeemIdController.login)
-	// router.postAsync('/meemId', MeemIdController.createOrUpdateMeemId)
-	// router.getAsync('/meemId', MeemIdController.getMeemId)
-	// router.patchAsync('/meemId', MeemIdController.updateMeemId)
-	// router.patchAsync(
-	// 	'/meemPass/:meemPassId',
-	// 	MeemIdController.updateMeemPassById
-	// )
-	// router.getAsync('/meemPasses', MeemIdController.getMeemPasses)
-	// router.patchAsync('/me/meemPass', MeemIdController.updateMeemPass)
+
 	router.getAsync('/me', MeemIdController.getMe)
 
-	// router.getAsync('/access', MeemController.getAccessList)
 	router.getAsync('/config', ConfigController.getConfig)
-	// router.getAsync('/whitelist', MeemController.getWhitelist)
-	// router.getAsync(
-	// 	'/meemid/twitter/request-url',
-	// 	MeemController.getTwitterAuthUrl
-	// )
-	// router.postAsync(
-	// 	'/meemid/twitter/access-token',
-	// 	MeemController.getTwitterAccessToken
-	// )
-	router.post('/isSlugAvailable', MeemContractController.isSlugAvailable)
-	router.post('/meemContracts', MeemContractController.createMeemContract)
+
+	router.postAsync('/isSlugAvailable', MeemContractController.isSlugAvailable)
+	router.postAsync('/meemContracts', MeemContractController.createMeemContract)
 	router.patchAsync(
 		'/meemContracts/:meemContractId',
 		MeemContractController.updateMeemContract
@@ -61,18 +44,11 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/meems', MeemController.getMeems)
 	router.getAsync('/meems/:tokenId', MeemController.getMeem)
 	router.getAsync('/meems/:tokenId/children', MeemController.getChildMeems)
-	router.getAsync('/meems/:tokenId/collectors', MeemController.getCollectors)
 	router.getAsync('/clippings', MeemController.getClippings)
 	router.postAsync('/clippings/status', MeemController.checkClippingStatus)
-	router.postAsync('/meems/mint', MeemController.mintWrappedMeem)
 	router.postAsync('/meems/mintOriginal', MeemController.mintOriginalMeem)
-	router.postAsync('/meems/claim/:tokenId', MeemController.claimMeem)
 	router.postAsync('/meems/create-image', MeemController.createMeemImage)
-	router.postAsync('/meems/getWrappedTokens', MeemController.getWrappedTokens)
-	// router.getAsync('/tokenOwner', MeemController.getTokenInfo)
 	router.getAsync('/ipfs', MeemController.getIPFSFile)
-	// router.getAsync('/nfts', NFTController.getNFTs)
-	// router.postAsync('/webhook/moralis', WebhookController.handleMoralisWebhook)
 
 	if (config.ENABLE_URL_SCRAPER) {
 		router.getAsync('/screenshot', MeemController.getScreenshot)

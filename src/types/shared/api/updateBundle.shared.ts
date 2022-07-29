@@ -15,11 +15,15 @@ export namespace UpdateBundle {
 	export interface IRequestBody {
 		name: string
 		description: string
-		contractIds: string[]
+		contracts: {
+			id: string
+			functionSelectors: string[]
+		}[]
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		types: string
+		abi: Record<string, any>[]
 	}
 
 	export interface IDefinition {

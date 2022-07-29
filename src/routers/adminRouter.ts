@@ -24,11 +24,11 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/runSync', AdminController.runSync)
 	router.getAsync('/meemContractSync', AdminController.meemContractSync)
 	router.getAsync('/meemSync', AdminController.meemSync)
-	router.getAsync('/meemSyncReactions', AdminController.meemSyncReactions)
-	router.getAsync(
-		'/syncDbMeemIdsToContract',
-		AdminController.syncDbMeemIdsToContract
-	)
+	// router.getAsync('/meemSyncReactions', AdminController.meemSyncReactions)
+	// router.getAsync(
+	// 	'/syncDbMeemIdsToContract',
+	// 	AdminController.syncDbMeemIdsToContract
+	// )
 	router.getAsync('/seedIntegrations', AdminController.seedIntegrations)
 	router.getAsync('/seedPrompts', AdminController.seedPrompts)
 	router.getAsync('/syncPins', AdminController.syncPins)
