@@ -11,11 +11,7 @@ export default class EthersService {
 	private ethers: typeof Ethers
 
 	public constructor() {
-		if (config.TESTING) {
-			this.ethers = require('hardhat').ethers
-		} else {
-			this.ethers = require('ethers').ethers
-		}
+		this.ethers = require('ethers').ethers
 		this.ethers.utils.Logger.setLogLevel(this.ethers.utils.Logger.levels.ERROR)
 	}
 
@@ -24,9 +20,7 @@ export default class EthersService {
 	}
 
 	public async getProvider(options?: { chainId?: BigNumberish }) {
-		const { ethers } = await (config.TESTING
-			? import('hardhat')
-			: import('ethers'))
+		const { ethers } = await import('ethers')
 
 		const chainId = ethers.BigNumber.from(options?.chainId ?? config.CHAIN_ID)
 

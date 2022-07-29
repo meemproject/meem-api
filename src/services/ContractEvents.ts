@@ -1,7 +1,7 @@
 import { Log } from '@ethersproject/abstract-provider'
 import { MeemContractMetadataLike } from '@meemproject/metadata'
 import { Contract, ethers, utils } from 'ethers'
-import { IGunChainReference } from 'gun/types/chain'
+// import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
 import { v4 as uuidv4 } from 'uuid'
@@ -1293,57 +1293,57 @@ export default class ContractEvent {
 		return meem
 	}
 
-	public static saveToGun(options: {
-		paths: string[]
-		from?: IGunChainReference<any, string, false>
-		data: any
-	}): IGunChainReference<any, string, false> {
-		// return new Promise((resolve, reject) => {
-		const { paths, data, from } = options
-		let item: IGunChainReference<any, string, false> = gun.user()
+	// public static saveToGun(options: {
+	// 	paths: string[]
+	// 	from?: IGunChainReference<any, string, false>
+	// 	data: any
+	// }): IGunChainReference<any, string, false> {
+	// 	// return new Promise((resolve, reject) => {
+	// 	const { paths, data, from } = options
+	// 	let item: IGunChainReference<any, string, false> = gun.user()
 
-		if (paths.length === 0) {
-			throw new Error('Paths must be set')
-		}
+	// 	if (paths.length === 0) {
+	// 		throw new Error('Paths must be set')
+	// 	}
 
-		paths.forEach(path => {
-			if (from && !item) {
-				item = from.get(path)
-			} else if (item) {
-				item = item.get(path)
-			} else {
-				item = gun.user().get(path)
-			}
-		})
+	// 	paths.forEach(path => {
+	// 		if (from && !item) {
+	// 			item = from.get(path)
+	// 		} else if (item) {
+	// 			item = item.get(path)
+	// 		} else {
+	// 			item = gun.user().get(path)
+	// 		}
+	// 	})
 
-		const dataObject = this.toPureObject(data)
+	// 	const dataObject = this.toPureObject(data)
 
-		Object.keys(dataObject).forEach(key => {
-			const val = dataObject[key]
-			if (typeof val === 'object') {
-				this.saveToGun({ paths: [key], from: item, data: val })
-			} else if (Object.prototype.toString.call(val) === '[object Date]') {
-				item.get(key).put(((val as Date).getTime() / 1000) as any, ack => {
-					if (ack.ok) {
-						log.debug(`Gun sync: ${paths.join('/')}/${key}`)
-					} else if (ack.err) {
-						log.crit(ack.err)
-					}
-				})
-			} else {
-				item.get(key).put(val, ack => {
-					if (ack.ok) {
-						log.debug(`Gun sync: ${paths.join('/')}/${key}`)
-					} else if (ack.err) {
-						log.crit(`Error saving: ${key}`, val)
-						log.crit(ack.err)
-					}
-				})
-			}
-		})
+	// 	Object.keys(dataObject).forEach(key => {
+	// 		const val = dataObject[key]
+	// 		if (typeof val === 'object') {
+	// 			this.saveToGun({ paths: [key], from: item, data: val })
+	// 		} else if (Object.prototype.toString.call(val) === '[object Date]') {
+	// 			item.get(key).put(((val as Date).getTime() / 1000) as any, ack => {
+	// 				if (ack.ok) {
+	// 					log.debug(`Gun sync: ${paths.join('/')}/${key}`)
+	// 				} else if (ack.err) {
+	// 					log.crit(ack.err)
+	// 				}
+	// 			})
+	// 		} else {
+	// 			item.get(key).put(val, ack => {
+	// 				if (ack.ok) {
+	// 					log.debug(`Gun sync: ${paths.join('/')}/${key}`)
+	// 				} else if (ack.err) {
+	// 					log.crit(`Error saving: ${key}`, val)
+	// 					log.crit(ack.err)
+	// 				}
+	// 			})
+	// 		}
+	// 	})
 
-		return item
-	}
+	// 	return item
+	// }
 
 	private static async updateMeem(options: { meem: Meem }) {
 		const { meem } = options

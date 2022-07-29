@@ -3,7 +3,6 @@ import path from 'path'
 import log, { LogLevel } from '@kengoldfarb/log'
 import express, { Express } from 'express'
 import globby from 'globby'
-import Gun from 'gun'
 import ProviderListener from '../listeners/ProviderListener'
 // import TwitterListener from '../listeners/TwitterListener'
 import Configuration from './Configuration'
@@ -191,43 +190,6 @@ export default async function start() {
 	log.info(
 		`Server boot: ${(log.timerEnd(bootTimer) / 1000).toFixed(4)} seconds`
 	)
-
-	if (config.ENABLE_GUNDB) {
-		// require('gun/sea')
-		g.gunServer = Gun({
-			web: server,
-			axe: false,
-			s3: {
-				key: config.APP_AWS_ACCESS_KEY_ID,
-				secret: config.APP_AWS_SECRET_ACCESS_KEY,
-				bucket: config.GUNDB_S3_BUCKET
-			},
-			// file: path.join(process.cwd(), 'tmp/gun.json'),
-			// file: false,
-			// radisk: false,
-			localStorage: false
-		})
-
-		// g.gunServer.on('opt', msg => {
-		// 	console.log({ msg })
-		// })
-
-		// gun.on
-
-		g.gun = Gun({
-			peers: [`http://localhost:${config.PORT}/gun`]
-		})
-
-		// gun.user().create(config.GUNDB_USER, config.GUNDB_PASSWORD, _data => {
-		// 	log.debug('GunDB user created')
-		// 	console.log(_data)
-		// })
-		// gun.get('~@meems', d => console.log(d)).once(m => console.log(m))
-		// gun.user().auth(config.GUNDB_USER, config.GUNDB_PASSWORD, _data => {
-		// 	log.debug('GunDB user authenticated')
-		// 	console.log(_data)
-		// })
-	}
 
 	return {
 		server,

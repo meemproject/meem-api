@@ -6,9 +6,8 @@
 /* eslint-disable import/no-extraneous-dependencies */
 
 import { default as logger } from '@kengoldfarb/log'
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { RouterOptions } from 'express'
-import { IGunChainReference } from 'gun/types/chain'
+// import { IGunChainReference } from 'gun/types/chain'
 import defaultConfig from '../config/default'
 import Configuration from '../core/Configuration'
 import Orm from '../core/Orm'
@@ -29,8 +28,6 @@ declare global {
 	const config: typeof defaultConfig
 	const log: typeof logger
 	const orm: Orm
-	const gun: IGunChainReference
-	const signer: SignerWithAddress | undefined
 
 	namespace NodeJS {
 		interface Global {
@@ -39,7 +36,6 @@ declare global {
 			orm: Orm
 			config: typeof defaultConfig
 			log: typeof logger
-			signer: SignerWithAddress | undefined
 		}
 	}
 

@@ -7,10 +7,10 @@ export default class NFTController {
 		req: IRequest<MeemAPI.v1.GetNFTs.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetNFTs.IResponseBody>
 	): Promise<Response> {
-		const result = await services.web3.getNFTs(req.query)
+		// const result = await services.web3.getNFTs(req.query)
 
 		return res.json({
-			chains: result
+			chains: []
 		})
 	}
 }

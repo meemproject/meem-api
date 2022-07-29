@@ -1,6 +1,6 @@
 import { Readable } from 'stream'
 import Pinata, { PinataPinResponse } from '@pinata/sdk'
-import BigNumber from 'bignumber.js'
+// import BigNumber from 'bignumber.js'
 import type { ethers as Ethers } from 'ethers'
 import request from 'superagent'
 import { v4 as uuidv4, validate as validateUUID } from 'uuid'
@@ -153,12 +153,10 @@ export default class Web3 {
 		}
 	}
 
-	public static toBigNumber(
-		val: BigNumber.Value | Ethers.BigNumberish
-	): Ethers.BigNumber {
+	public static toBigNumber(val: Ethers.BigNumberish): Ethers.BigNumber {
 		const ethers = services.ethers.getInstance()
-		const bn = new BigNumber(val.toString() as BigNumber.Value)
-		let bigStr = bn.toString(16)
+		const bn = ethers.BigNumber.from(val.toString())
+		let bigStr = bn.toString()
 		let isNegative = false
 		if (/^-/.test(bigStr)) {
 			bigStr = bigStr.substr(1)
