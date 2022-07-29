@@ -4,29 +4,34 @@ import {
 	IMeemPermission,
 	IMeemSplit,
 	IMeemProperties,
-	ContractType
+	IMeemMetadataLike
 } from '../meem.shared'
 
-export namespace CreateContract {
+/** Mint a new (wrapped) Meem */
+export namespace MintOriginalMeem {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/contracts`
+	export const path = () => `/api/1.0/meems/mintOriginal`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		name: string
-		description: string
-		contractType: ContractType
-		abi: any[]
-		bytecode: string
+		/** The address of the Meem contract to mint token */
+		meemContractAddress: string
+
+		/** Metadata object to be used for the minted Meem */
+		metadata?: IMeemMetadataLike
+
+		/** The address where the Meem will be minted to. */
+		to: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
+		// transactionHash: string
+		// tokenId: number
 		status: 'success'
-		contractId: string
 	}
 
 	export interface IDefinition {

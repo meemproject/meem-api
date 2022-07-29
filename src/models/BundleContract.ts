@@ -32,12 +32,19 @@ export default class BundleContract extends BaseModel<BundleContract> {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 			defaultValue: 0
+		},
+		functionSelectors: {
+			type: DataTypes.JSONB,
+			allowNull: false,
+			defaultValue: []
 		}
 	}
 
 	public id!: string
 
 	public order!: number
+
+	public functionSelectors!: string[]
 
 	public BundleId!: string | null
 

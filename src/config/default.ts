@@ -87,7 +87,7 @@ export default {
 	TWITTER_PROJECT_TOKEN_ID: process.env.TWITTER_PROJECT_TOKEN_ID ?? '',
 	INFURA_ID: process.env.INFURA_ID ?? '',
 	IPFS_CONTENT_GATEWAY_URL:
-		process.env.IPFS_CONTENT_GATEWAY_URL ?? 'https://ipfs.moralis.io:2053',
+		process.env.IPFS_CONTENT_GATEWAY_URL ?? 'https://gateway.pinata.cloud',
 	GITHUB_KEY: process.env.GITHUB_KEY ?? '',
 	ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY ?? '',
 	DYNAMODB_SOCKETS_TABLE: process.env.DYNAMODB_SOCKETS_TABLE ?? '',
@@ -96,11 +96,14 @@ export default {
 	ENABLE_TEST_ENDPOINTS: process.env.ENABLE_TEST_ENDPOINTS === 'true',
 	WEBSOCKETS_ENABLED: process.env.WEBSOCKETS_ENABLED === 'true',
 	LAMBDA_MINT_FUNCTION: process.env.LAMBDA_MINT_FUNCTION ?? '',
+	LAMBDA_MINT_ORIGINAL_FUNCTION:
+		process.env.LAMBDA_MINT_ORIGINAL_FUNCTION ?? '',
+	LAMBDA_CREATE_CONTRACT_FUNCTION:
+		process.env.LAMBDA_CREATE_CONTRACT_FUNCTION ?? '',
 	LAMBDA_MEEMID_UPDATE_FUNCTION:
 		process.env.LAMBDA_MEEMID_UPDATE_FUNCTION ?? '',
 	DISABLE_ASYNC_MINTING: process.env.DISABLE_ASYNC_MINTING === 'true',
 	S3_BUCKET: process.env.S3_BUCKET ?? '',
-	MORALIS_API_KEY: process.env.MORALIS_API_KEY ?? '',
 	JSON_RPC_MAINNET:
 		process.env.JSON_RPC_MAINNET ??
 		'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/eth/mainnet',
@@ -168,5 +171,7 @@ export default {
 		process.env.TWITTER_PROMPTS_PROJECT_TOKEN_ID ?? '',
 	PINATA_API_KEY: process.env.PINATA_API_KEY ?? '',
 	PINATA_API_SECRET: process.env.PINATA_API_SECRET ?? '',
-	TWITTER_INTEGRATION_ID: process.env.TWITTER_INTEGRATION_ID ?? ''
+	TWITTER_INTEGRATION_ID: process.env.TWITTER_INTEGRATION_ID ?? '',
+	MEEM_BUNDLE_ID: process.env.MEEM_BUNDLE_ID ?? '',
+	MEEM_PROXY_CONTRACT_ID: process.env.MEEM_PROXY_CONTRACT_ID ?? ''
 }

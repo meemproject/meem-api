@@ -95,7 +95,6 @@ export enum MeemType {
 
 /** The permission corresponding to the smart contract */
 export enum Permission {
-	Owner,
 	Anyone,
 	Addresses,
 	Holders
@@ -204,15 +203,31 @@ export interface IMeemMetadataProperties {
 	parent_token_metadata?: Record<string, any> | null
 }
 
+export interface IMeemContractAssociation {
+	meem_contract_type: string
+	address: string
+	tokenIds?: string[]
+}
 export interface IMeemMetadata {
 	name: string
 	description: string
 	external_url: string
 	image: string
-	image_original: string
-	meem_id: string
+	image_original?: string
+	meem_id?: string
 	meem_properties?: IMeemMetadataProperties
 	extension_properties?: Record<string, any>
+	associations?: IMeemContractAssociation[]
+}
+
+export interface IMeemMetadataLike {
+	meem_metadata_version: string
+	[key: string]: any
+}
+export interface IMeemContractMetadataLike {
+	meem_contract_type: string
+	meem_metadata_version: string
+	[key: string]: any
 }
 
 export enum OpenSeaDisplayType {
@@ -311,6 +326,8 @@ export interface IMeemPermission {
 	numTokens: string
 	lockedBy: string
 	costWei: string
+	mintStartTimestamp: string
+	mintEndTimestamp: string
 }
 
 export interface IMeemProperties {
@@ -339,6 +356,39 @@ export interface IMeemProperties {
 	mintDatesLockedBy: string
 	transferLockupUntil: number
 	transferLockupUntilLockedBy: string
+}
+
+export interface IMeemContractBaseProperties {
+	/** BigNumber hex string */
+	totalOriginalsSupply: string
+	totalOriginalsSupplyLockedBy: string
+	mintPermissions: IMeemPermission[]
+	mintPermissionsLockedBy: string
+	splits: IMeemSplit[]
+	splitsLockedBy: string
+	/** BigNumber hex string */
+	originalsPerWallet: string
+	originalsPerWalletLockedBy: string
+	isTransferrable: boolean
+	isTransferrableLockedBy: string
+	mintStartAt: number
+	mintEndAt: number
+	mintDatesLockedBy: string
+	transferLockupUntil: number
+	transferLockupUntilLockedBy: string
+}
+
+export interface IMeemContractInitParams {
+	symbol?: string
+	name: string
+	contractURI: string
+	admins: string[]
+	minters: string[]
+	maxSupply: string
+	isMaxSupplyLocked: boolean
+	mintPermissions: IMeemPermission[]
+	splits: IMeemSplit[]
+	isTransferLocked: boolean
 }
 
 export interface IMeem {

@@ -12,7 +12,7 @@ let server: Express.Application
 let request: SuperTest<Test>
 
 export const handle = async (
-	body: MeemAPI.v1.MintMeem.IRequestBody,
+	body: MeemAPI.v1.CreateMeemContract.IRequestBody,
 	context: AWSLambda.Context
 ) => {
 	// eslint-disable-next-line no-console
@@ -42,7 +42,7 @@ export const handle = async (
 		log.crit('AWS_WEBSOCKET_GATEWAY_URL is not set')
 	}
 
-	// const meem = await services.meem.mintWrappedMeem(body)
+	const meem = await services.meemContract.createMeemContract(body)
 
-	// return meem
+	return meem
 }

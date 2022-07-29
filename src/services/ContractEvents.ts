@@ -1,104 +1,86 @@
 import { Log } from '@ethersproject/abstract-provider'
-import { Meem as MeemContractType } from '@meemproject/meem-contracts'
-import {
-	SplitStructOutput,
-	MeemPermissionStructOutput,
-	MeemPropertiesStructOutput,
-	MeemTransferEventObject,
-	MeemTotalCopiesSetEventObject,
-	MeemTotalRemixesSetEventObject,
-	MeemTotalCopiesLockedEventObject,
-	MeemTotalRemixesLockedEventObject,
-	MeemCopiesPerWalletSetEventObject,
-	MeemRemixesPerWalletSetEventObject,
-	MeemCopiesPerWalletLockedEventObject,
-	MeemRemixesPerWalletLockedEventObject,
-	MeemPropertiesSetEventObject,
-	MeemTokenReactionAddedEventObject,
-	MeemPermissionsSetEventObject,
-	MeemTokenReactionRemovedEventObject,
-	MeemTokenReactionTypesSetEventObject,
-	MeemSplitsSet_uint256_uint8_tuple_array_EventObject,
-	MeemClippedEventObject,
-	MeemUnClippedEventObject,
-	ContractInfoStructOutput
-} from '@meemproject/meem-contracts/dist/types/Meem'
-import meemABI from '@meemproject/meem-contracts/types/Meem.json'
-import { BigNumber, Contract, utils } from 'ethers'
-import { IGunChainReference } from 'gun/types/chain'
+import { MeemContractMetadataLike } from '@meemproject/metadata'
+import { Contract, ethers, utils } from 'ethers'
+// import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
 import { v4 as uuidv4 } from 'uuid'
+import meemABI from '../abis/Meem.json'
 import { wait } from '../lib/utils'
 import Meem from '../models/Meem'
 import MeemContract from '../models/MeemContract'
-import Wallet from '../models/Wallet'
+import {
+	ContractInfoStruct,
+	MeemPermissionStruct,
+	MeemProxyV1,
+	MeemSplitsSetEvent,
+	MeemTransferEvent,
+	SplitStructOutput
+} from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ContractEvent {
 	// TODO: sync reactions?
-	public static async meemSyncReactions() {
-		log.debug('Syncing reactions...')
-		const provider = await services.ethers.getProvider()
+	// public static async meemSyncReactions() {
+	// 	log.debug('Syncing reactions...')
+	// 	const provider = await services.ethers.getProvider()
 
-		const genericMeemContract = new Contract(
-			MeemAPI.zeroAddress,
-			meemABI
-		) as unknown as MeemContractType
+	// 	const genericMeemContract = new Contract(MeemAPI.zeroAddress, meemABI)
+	// 	// ) as unknown as MeemContractType
 
-		const topics = {
-			MeemTokenReactionAdded: `MeemTokenReactionAdded(uint256,address,string,uint256)`,
-			MeemTokenReactionRemoved: `MeemTokenReactionRemoved(uint256,address,string,uint256)`
-		}
+	// 	const topics = {
+	// 		MeemTokenReactionAdded: `MeemTokenReactionAdded(uint256,address,string,uint256)`,
+	// 		MeemTokenReactionRemoved: `MeemTokenReactionRemoved(uint256,address,string,uint256)`
+	// 	}
 
-		const logs = await provider.getLogs({
-			fromBlock: 0,
-			toBlock: 'latest',
-			topics: [
-				[
-					utils.id(topics.MeemTokenReactionAdded),
-					utils.id(topics.MeemTokenReactionRemoved)
-				]
-			]
-		})
+	// 	const logs = await provider.getLogs({
+	// 		fromBlock: 0,
+	// 		toBlock: 'latest',
+	// 		topics: [
+	// 			[
+	// 				utils.id(topics.MeemTokenReactionAdded),
+	// 				utils.id(topics.MeemTokenReactionRemoved)
+	// 			]
+	// 		]
+	// 	})
 
-		log.debug(`Syncing ${logs.length} reaction added/remvoed events`)
+	// 	log.debug(`Syncing ${logs.length} reaction added/remvoed events`)
 
-		for (let i = 0; i < logs.length; i += 1) {
-			try {
-				const parsedLog = genericMeemContract.interface.parseLog({
-					data: logs[i].data,
-					topics: logs[i].topics
-				})
+	// 	for (let i = 0; i < logs.length; i += 1) {
+	// 		try {
+	// 			const parsedLog = genericMeemContract.interface.parseLog({
+	// 				data: logs[i].data,
+	// 				topics: logs[i].topics
+	// 			})
 
-				// eslint-disable-next-line no-await-in-loop
-				const block = await provider.getBlock(logs[i].blockHash)
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			const block = await provider.getBlock(logs[i].blockHash)
 
-				if (parsedLog.topic === topics.MeemTokenReactionAdded) {
-					const eventData =
-						parsedLog.args as unknown as MeemTokenReactionAddedEventObject
-					// eslint-disable-next-line no-await-in-loop
-					await this.meemHandleTokenReactionAdded({
-						address: logs[i].address,
-						transactionTimestamp:
-							block?.timestamp || DateTime.now().toSeconds(),
-						eventData
-					})
-				} else if (parsedLog.topic === topics.MeemTokenReactionRemoved) {
-					const eventData =
-						parsedLog.args as unknown as MeemTokenReactionRemovedEventObject
-					// eslint-disable-next-line no-await-in-loop
-					await this.meemHandleTokenReactionRemoved({
-						address: logs[i].address,
-						eventData
-					})
-				}
-				log.debug(logs[i].blockNumber)
-			} catch (e) {
-				log.crit(e)
-			}
-		}
-	}
+	// 			if (parsedLog.topic === topics.MeemTokenReactionAdded) {
+	// 				const eventData =
+	// 					parsedLog.args as unknown as MeemTokenReactionAddedEventObject
+	// 				// eslint-disable-next-line no-await-in-loop
+	// 				await this.meemHandleTokenReactionAdded({
+	// 					address: logs[i].address,
+	// 					transactionTimestamp:
+	// 						block?.timestamp || DateTime.now().toSeconds(),
+	// 					eventData
+	// 				})
+	// 			} else if (parsedLog.topic === topics.MeemTokenReactionRemoved) {
+	// 				const eventData =
+	// 					parsedLog.args as unknown as MeemTokenReactionRemovedEventObject
+	// 				// eslint-disable-next-line no-await-in-loop
+	// 				await this.meemHandleTokenReactionRemoved({
+	// 					address: logs[i].address,
+	// 					eventData
+	// 				})
+	// 			}
+	// 			log.debug(logs[i].blockNumber)
+	// 		} catch (e) {
+	// 			log.crit(e)
+	// 		}
+	// 	}
+	// }
 
 	public static async meemContractSync(specificEvents?: Log[]) {
 		log.debug('Syncing MeemContracts...')
@@ -146,7 +128,7 @@ export default class ContractEvent {
 		const genericMeemContract = new Contract(
 			MeemAPI.zeroAddress,
 			meemABI
-		) as unknown as MeemContractType
+		) as unknown as MeemProxyV1
 
 		const logs =
 			specificEvents ??
@@ -167,7 +149,7 @@ export default class ContractEvent {
 					topics: logs[i].topics
 				})
 
-				const eventData = parsedLog.args as unknown as MeemTransferEventObject
+				const eventData = parsedLog.args as MeemTransferEvent['args']
 
 				// eslint-disable-next-line no-await-in-loop
 				const block = await provider.getBlock(logs[i].blockHash)
@@ -200,13 +182,17 @@ export default class ContractEvent {
 		const { address } = args
 		const meemContract = (await services.meem.getMeemContract({
 			address
-		})) as unknown as MeemContractType
+		})) as unknown as MeemProxyV1
 
-		let contractInfo: ContractInfoStructOutput
+		let contractInfo: ContractInfoStruct
+
+		// TODO: Parse metadata and create database models for contract type (Check if exist first)
+		// TODO: Parse associations from metadata and create database associations (Check if exist first)
 
 		try {
 			contractInfo = await meemContract.getContractInfo()
 		} catch (e) {
+			log.debug(e)
 			log.debug('getContractInfo function not available. Skipping')
 			return null
 		}
@@ -218,40 +204,22 @@ export default class ContractEvent {
 			include: [
 				{
 					model: orm.models.MeemProperties,
-					as: 'DefaultProperties'
+					as: 'DefaultProperties',
+					required: false
 				},
 				{
 					model: orm.models.MeemProperties,
-					as: 'DefaultChildProperties'
+					as: 'DefaultChildProperties',
+					required: false
 				}
 			]
 		})
 
 		let slug = existingMeemContract?.slug
 
-		const metadata = await services.meem.getErc721Metadata(
+		const metadata = (await services.meem.getErc721Metadata(
 			contractInfo.contractURI
-		)
-
-		const propertiesData = this.meemPropertiesDataToModelData(
-			contractInfo.defaultProperties
-		)
-		const childPropertiesData = this.meemPropertiesDataToModelData(
-			contractInfo.defaultChildProperties
-		)
-
-		const properties =
-			existingMeemContract?.DefaultProperties ??
-			orm.models.MeemProperties.build({
-				id: uuidv4(),
-				...propertiesData
-			})
-		const childProperties =
-			existingMeemContract?.DefaultChildProperties ??
-			orm.models.MeemProperties.build({
-				id: uuidv4(),
-				...childPropertiesData
-			})
+		)) as MeemContractMetadataLike
 
 		if (!existingMeemContract || !slug) {
 			try {
@@ -259,62 +227,54 @@ export default class ContractEvent {
 			} catch (e) {
 				slug = uuidv4()
 			}
-		} else {
-			properties.set(propertiesData)
-			childProperties.set(childPropertiesData)
 		}
+
 		const meemContractData = {
 			slug,
 			symbol: contractInfo.symbol,
 			name: contractInfo.name,
 			contractURI: contractInfo.contractURI,
-			childDepth: contractInfo.childDepth,
-			nonOwnerSplitAllocationAmount: contractInfo.nonOwnerSplitAllocationAmount,
+			childDepth: -1,
+			nonOwnerSplitAllocationAmount: 0,
 			address,
 			metadata,
-			totalOriginalsSupply:
-				contractInfo.baseProperties.totalOriginalsSupply.toHexString(),
-			totalOriginalsSupplyLockedBy:
-				contractInfo.baseProperties.totalOriginalsSupplyLockedBy,
-			mintPermissions: contractInfo.baseProperties.mintPermissions.map(p => ({
+			totalOriginalsSupply: contractInfo.maxSupply,
+			totalOriginalsSupplyLockedBy: MeemAPI.zeroAddress,
+			mintPermissions: contractInfo.mintPermissions.map(p => ({
 				permission: p.permission,
 				addresses: p.addresses,
-				numTokens: p.numTokens.toHexString(),
-				lockedBy: p.lockedBy,
-				costWei: p.costWei.toHexString()
+				numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
+				// lockedBy: p.lockedBy,
+				mintEndTimestamp: p.mintEndTimestamp,
+				mintStartTimestamp: p.mintStartTimestamp,
+				costWei: ethers.BigNumber.from(p.costWei).toHexString()
 			})),
-			mintPermissionsLockedBy:
-				contractInfo.baseProperties.mintPermissionsLockedBy,
-			splits: contractInfo.baseProperties.splits.map(s => ({
+			mintPermissionsLockedBy: MeemAPI.zeroAddress,
+			splits: contractInfo.splits.map(s => ({
 				toAddress: s.toAddress,
-				amount: s.amount.toNumber(),
+				amount: ethers.BigNumber.from(s.amount).toNumber(),
 				lockedBy: s.lockedBy
 			})),
-			splitsLockedBy: contractInfo.baseProperties.splitsLockedBy,
-			originalsPerWallet:
-				contractInfo.baseProperties.originalsPerWallet.toHexString(),
-			originalsPerWalletLockedBy:
-				contractInfo.baseProperties.originalsPerWalletLockedBy,
-			isTransferrable: contractInfo.baseProperties.isTransferrable,
-			isTransferrableLockedBy:
-				contractInfo.baseProperties.isTransferrableLockedBy,
-			mintStartAt: contractInfo.baseProperties.mintStartTimestamp.toHexString(),
-			mintEndAt: contractInfo.baseProperties.mintEndTimestamp.toHexString(),
-			mintDatesLockedBy: contractInfo.baseProperties.mintDatesLockedBy,
-			transferLockupUntil:
-				contractInfo.baseProperties.transferLockupUntil.toHexString(),
-			transferLockupUntilLockedBy:
-				contractInfo.baseProperties.transferLockupUntilLockedBy,
-			DefaultProperties: properties.id,
-			DefaultChildProperties: childProperties.id
+			splitsLockedBy: MeemAPI.zeroAddress,
+			originalsPerWallet: '-0x1',
+			originalsPerWalletLockedBy: MeemAPI.zeroAddress,
+			isTransferrable: !contractInfo.isTransferLocked,
+			isTransferrableLockedBy: MeemAPI.zeroAddress,
+			mintStartAt: '-0x1',
+			mintEndAt: '-0x1',
+			mintDatesLockedBy: MeemAPI.zeroAddress,
+			transferLockupUntil: '-0x1',
+			transferLockupUntilLockedBy: MeemAPI.zeroAddress
+			// DefaultProperties: properties.id,
+			// DefaultChildProperties: childProperties.id
 		}
 
 		const t = await orm.sequelize.transaction()
 
-		await Promise.all([
-			properties.save({ transaction: t }),
-			childProperties.save({ transaction: t })
-		])
+		// await Promise.all([
+		// 	properties.save({ transaction: t }),
+		// 	childProperties.save({ transaction: t })
+		// ])
 
 		let theMeemContract: MeemContract
 
@@ -443,702 +403,692 @@ export default class ContractEvent {
 		return theMeemContract
 	}
 
-	public static async meemHandleTotalCopiesSet(args: {
+	// public static async meemHandleTotalCopiesSet(args: {
+	// 	address: string
+	// 	eventData: MeemTotalCopiesSetEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { newTotalCopies, propertyType } = args.eventData
+
+	// 	const meem = await orm.models.Meem.findOne({
+	// 		where: {
+	// 			tokenId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemContract,
+	// 				where: {
+	// 					address: args.address
+	// 				}
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'Properties'
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'ChildProperties'
+	// 			}
+	// 		]
+	// 	})
+
+	// 	if (meem) {
+	// 		const prop =
+	// 			propertyType === MeemAPI.PropertyType.Meem
+	// 				? meem.Properties
+	// 				: meem.ChildProperties
+	// 		if (!prop) {
+	// 			log.crit('Invalid propertyType')
+	// 			return
+	// 		}
+	// 		prop.totalCopies = newTotalCopies.toHexString()
+	// 		await prop.save()
+	// 	}
+	// }
+
+	// public static async meemHandleTotalRemixesSet(args: {
+	// 	address: string
+	// 	eventData: MeemTotalRemixesSetEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { newTotalRemixes, propertyType } = args.eventData
+
+	// 	const meem = await orm.models.Meem.findOne({
+	// 		where: {
+	// 			tokenId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemContract,
+	// 				where: {
+	// 					address: args.address
+	// 				}
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'Properties'
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'ChildProperties'
+	// 			}
+	// 		]
+	// 	})
+
+	// 	if (meem) {
+	// 		const prop =
+	// 			propertyType === MeemAPI.PropertyType.Meem
+	// 				? meem.Properties
+	// 				: meem.ChildProperties
+	// 		if (!prop) {
+	// 			log.crit('Invalid propertyType')
+	// 			return
+	// 		}
+	// 		prop.totalRemixes = newTotalRemixes.toHexString()
+	// 		await prop.save()
+	// 	}
+	// }
+
+	// public static async meemHandleTotalCopiesLocked(args: {
+	// 	address: string
+	// 	eventData: MeemTotalCopiesLockedEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { lockedBy, propertyType } = args.eventData
+
+	// 	const meem = await orm.models.Meem.findOne({
+	// 		where: {
+	// 			tokenId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemContract,
+	// 				where: {
+	// 					address: args.address
+	// 				}
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'Properties'
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'ChildProperties'
+	// 			}
+	// 		]
+	// 	})
+
+	// 	if (meem) {
+	// 		const prop =
+	// 			propertyType === MeemAPI.PropertyType.Meem
+	// 				? meem.Properties
+	// 				: meem.ChildProperties
+	// 		if (!prop) {
+	// 			log.crit('Invalid propertyType')
+	// 			return
+	// 		}
+	// 		prop.totalCopiesLockedBy = lockedBy
+	// 		await prop.save()
+	// 	}
+	// }
+
+	// public static async meemHandleTotalRemixesLocked(args: {
+	// 	address: string
+	// 	eventData: MeemTotalRemixesLockedEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { lockedBy, propertyType } = args.eventData
+
+	// 	const meem = await orm.models.Meem.findOne({
+	// 		where: {
+	// 			tokenId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemContract,
+	// 				where: {
+	// 					address: args.address
+	// 				}
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'Properties'
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'ChildProperties'
+	// 			}
+	// 		]
+	// 	})
+
+	// 	if (meem) {
+	// 		const prop =
+	// 			propertyType === MeemAPI.PropertyType.Meem
+	// 				? meem.Properties
+	// 				: meem.ChildProperties
+	// 		if (!prop) {
+	// 			log.crit('Invalid propertyType')
+	// 			return
+	// 		}
+	// 		prop.totalRemixesLockedBy = lockedBy
+	// 		await prop.save()
+	// 	}
+	// }
+
+	// public static async meemHandleCopiesPerWalletSet(args: {
+	// 	address: string
+	// 	eventData: MeemCopiesPerWalletSetEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { newTotalCopies, propertyType } = args.eventData
+
+	// 	const meem = await orm.models.Meem.findOne({
+	// 		where: {
+	// 			tokenId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemContract,
+	// 				where: {
+	// 					address: args.address
+	// 				}
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'Properties'
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'ChildProperties'
+	// 			}
+	// 		]
+	// 	})
+
+	// 	if (meem) {
+	// 		const prop =
+	// 			propertyType === MeemAPI.PropertyType.Meem
+	// 				? meem.Properties
+	// 				: meem.ChildProperties
+	// 		if (!prop) {
+	// 			log.crit('Invalid propertyType')
+	// 			return
+	// 		}
+	// 		// TODO: Update property name
+	// 		prop.copiesPerWallet = newTotalCopies.toHexString()
+	// 		await prop.save()
+	// 	}
+	// }
+
+	// public static async meemHandleRemixesPerWalletSet(args: {
+	// 	address: string
+	// 	eventData: MeemRemixesPerWalletSetEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { newTotalRemixes, propertyType } = args.eventData
+
+	// 	const meem = await orm.models.Meem.findOne({
+	// 		where: {
+	// 			tokenId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemContract,
+	// 				where: {
+	// 					address: args.address
+	// 				}
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'Properties'
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'ChildProperties'
+	// 			}
+	// 		]
+	// 	})
+
+	// 	if (meem?.Properties) {
+	// 		const prop =
+	// 			propertyType === MeemAPI.PropertyType.Meem
+	// 				? meem.Properties
+	// 				: meem.ChildProperties
+	// 		if (!prop) {
+	// 			log.crit('Invalid propertyType')
+	// 			return
+	// 		}
+	// 		prop.remixesPerWallet = newTotalRemixes.toHexString()
+	// 		await prop.save()
+	// 	}
+	// }
+
+	// public static async meemHandleCopiesPerWalletLocked(args: {
+	// 	address: string
+	// 	eventData: MeemCopiesPerWalletLockedEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { lockedBy, propertyType } = args.eventData
+
+	// 	const meem = await orm.models.Meem.findOne({
+	// 		where: {
+	// 			tokenId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemContract,
+	// 				where: {
+	// 					address: args.address
+	// 				}
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'Properties'
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'ChildProperties'
+	// 			}
+	// 		]
+	// 	})
+
+	// 	if (meem) {
+	// 		const prop =
+	// 			propertyType === MeemAPI.PropertyType.Meem
+	// 				? meem.Properties
+	// 				: meem.ChildProperties
+	// 		if (!prop) {
+	// 			log.crit('Invalid propertyType')
+	// 			return
+	// 		}
+	// 		prop.copiesPerWalletLockedBy = lockedBy
+	// 		await prop.save()
+	// 	}
+	// }
+
+	// public static async meemHandleRemixesPerWalletLocked(args: {
+	// 	address: string
+	// 	eventData: MeemRemixesPerWalletLockedEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { lockedBy, propertyType } = args.eventData
+
+	// 	const meem = await orm.models.Meem.findOne({
+	// 		where: {
+	// 			tokenId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemContract,
+	// 				where: {
+	// 					address: args.address
+	// 				}
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'Properties'
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'ChildProperties'
+	// 			}
+	// 		]
+	// 	})
+
+	// 	if (meem) {
+	// 		const prop =
+	// 			propertyType === MeemAPI.PropertyType.Meem
+	// 				? meem.Properties
+	// 				: meem.ChildProperties
+	// 		if (!prop) {
+	// 			log.crit('Invalid propertyType')
+	// 			return
+	// 		}
+	// 		prop.remixesPerWalletLockedBy = lockedBy
+	// 		await prop.save()
+	// 	}
+	// }
+
+	public static async meemHandleSplitsSet(_args: {
 		address: string
-		eventData: MeemTotalCopiesSetEventObject
+		eventData: MeemSplitsSetEvent['args']
 	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { newTotalCopies, propertyType } = args.eventData
-
-		const meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'Properties'
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'ChildProperties'
-				}
-			]
-		})
-
-		if (meem) {
-			const prop =
-				propertyType === MeemAPI.PropertyType.Meem
-					? meem.Properties
-					: meem.ChildProperties
-			if (!prop) {
-				log.crit('Invalid propertyType')
-				return
-			}
-			prop.totalCopies = newTotalCopies.toHexString()
-			await prop.save()
-		}
+		// const tokenId = args.eventData.tokenId.toHexString()
+		// const { splits } = args.eventData
+		// const meem = await orm.models.Meem.findOne({
+		// 	where: {
+		// 		tokenId
+		// 	},
+		// 	include: [
+		// 		{
+		// 			model: orm.models.MeemContract,
+		// 			where: {
+		// 				address: args.address
+		// 			}
+		// 		}
+		// 	]
+		// })
+		// if (meem) {
+		// 	const prop =
+		// 		propertyType === MeemAPI.PropertyType.Meem
+		// 			? meem.Properties
+		// 			: meem.ChildProperties
+		// 	if (!prop) {
+		// 		log.crit('Invalid propertyType')
+		// 		return
+		// 	}
+		// 	prop.splits = this.meemSplitsDataToModelData(splits)
+		// 	await prop.save()
+		// }
 	}
 
-	public static async meemHandleTotalRemixesSet(args: {
-		address: string
-		eventData: MeemTotalRemixesSetEventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { newTotalRemixes, propertyType } = args.eventData
+	// public static async meemHandlePropertiesSet(args: {
+	// 	address: string
+	// 	eventData: MeemPropertiesSetEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { propertyType, props } = args.eventData
+	// 	const meem = await orm.models.Meem.findOne({
+	// 		where: {
+	// 			tokenId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemContract,
+	// 				where: {
+	// 					address: args.address
+	// 				}
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'Properties'
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'ChildProperties'
+	// 			}
+	// 		]
+	// 	})
 
-		const meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'Properties'
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'ChildProperties'
-				}
-			]
-		})
+	// 	if (meem && propertyType === MeemAPI.PropertyType.Meem) {
+	// 		await meem.Properties?.update(this.meemPropertiesDataToModelData(props))
+	// 	} else if (meem && propertyType === MeemAPI.PropertyType.Child) {
+	// 		await meem.ChildProperties?.update(
+	// 			this.meemPropertiesDataToModelData(props)
+	// 		)
+	// 	}
+	// }
 
-		if (meem) {
-			const prop =
-				propertyType === MeemAPI.PropertyType.Meem
-					? meem.Properties
-					: meem.ChildProperties
-			if (!prop) {
-				log.crit('Invalid propertyType')
-				return
-			}
-			prop.totalRemixes = newTotalRemixes.toHexString()
-			await prop.save()
-		}
-	}
+	// public static async meemHandlePermissionsSet(args: {
+	// 	address: string
+	// 	eventData: MeemPermissionsSetEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { propertyType, permissionType, permission } = args.eventData
+	// 	const meem = await orm.models.Meem.findOne({
+	// 		where: {
+	// 			tokenId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemContract,
+	// 				where: {
+	// 					address: args.address
+	// 				}
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'Properties'
+	// 			},
+	// 			{
+	// 				model: orm.models.MeemProperties,
+	// 				as: 'ChildProperties'
+	// 			}
+	// 		]
+	// 	})
 
-	public static async meemHandleTotalCopiesLocked(args: {
-		address: string
-		eventData: MeemTotalCopiesLockedEventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { lockedBy, propertyType } = args.eventData
+	// 	if (meem) {
+	// 		const prop =
+	// 			propertyType === MeemAPI.PropertyType.Meem
+	// 				? meem.Properties
+	// 				: meem.ChildProperties
+	// 		if (!prop) {
+	// 			log.warn(`Missing MeemProperties for token: ${tokenId}`)
+	// 			return
+	// 		}
+	// 		switch (permissionType) {
+	// 			case MeemAPI.PermissionType.Copy:
+	// 				prop.copyPermissions = this.meemPermissionsDataToModelData(permission)
+	// 				break
 
-		const meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'Properties'
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'ChildProperties'
-				}
-			]
-		})
+	// 			case MeemAPI.PermissionType.Read:
+	// 				prop.readPermissions = this.meemPermissionsDataToModelData(permission)
+	// 				break
 
-		if (meem) {
-			const prop =
-				propertyType === MeemAPI.PropertyType.Meem
-					? meem.Properties
-					: meem.ChildProperties
-			if (!prop) {
-				log.crit('Invalid propertyType')
-				return
-			}
-			prop.totalCopiesLockedBy = lockedBy
-			await prop.save()
-		}
-	}
+	// 			case MeemAPI.PermissionType.Remix:
+	// 				prop.remixPermissions =
+	// 					this.meemPermissionsDataToModelData(permission)
+	// 				break
 
-	public static async meemHandleTotalRemixesLocked(args: {
-		address: string
-		eventData: MeemTotalRemixesLockedEventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { lockedBy, propertyType } = args.eventData
+	// 			default:
+	// 				break
+	// 		}
+	// 		await prop.save()
+	// 	}
+	// }
 
-		const meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'Properties'
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'ChildProperties'
-				}
-			]
-		})
+	// public static async meemHandleTokenClipped(args: {
+	// 	address: string
+	// 	transactionTimestamp: number
+	// 	eventData: MeemClippedEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { addy } = args.eventData
 
-		if (meem) {
-			const prop =
-				propertyType === MeemAPI.PropertyType.Meem
-					? meem.Properties
-					: meem.ChildProperties
-			if (!prop) {
-				log.crit('Invalid propertyType')
-				return
-			}
-			prop.totalRemixesLockedBy = lockedBy
-			await prop.save()
-		}
-	}
+	// 	const [wallet, meem] = await Promise.all([
+	// 		orm.models.Wallet.findByAddress<Wallet>(addy) as unknown as Wallet | null,
+	// 		orm.models.Meem.findOne({
+	// 			where: {
+	// 				tokenId
+	// 			},
+	// 			include: [
+	// 				{
+	// 					model: orm.models.MeemContract,
+	// 					where: {
+	// 						address: args.address
+	// 					}
+	// 				}
+	// 			]
+	// 		})
+	// 	])
 
-	public static async meemHandleCopiesPerWalletSet(args: {
-		address: string
-		eventData: MeemCopiesPerWalletSetEventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { newTotalCopies, propertyType } = args.eventData
+	// 	const clipping = await orm.models.Clipping.findOne({
+	// 		where: {
+	// 			address: addy,
+	// 			MeemIdentificationId: wallet?.MeemIdentificationId ?? null,
+	// 			MeemId: meem?.id ?? null
+	// 		}
+	// 	})
 
-		const meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'Properties'
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'ChildProperties'
-				}
-			]
-		})
+	// 	if (clipping) {
+	// 		throw new Error('ALREADY_CLIPPED')
+	// 	}
 
-		if (meem) {
-			const prop =
-				propertyType === MeemAPI.PropertyType.Meem
-					? meem.Properties
-					: meem.ChildProperties
-			if (!prop) {
-				log.crit('Invalid propertyType')
-				return
-			}
-			// TODO: Update property name
-			prop.copiesPerWallet = newTotalCopies.toHexString()
-			await prop.save()
-		}
-	}
+	// 	await orm.models.Clipping.create({
+	// 		address: addy,
+	// 		MeemIdentificationId: wallet?.MeemIdentificationId ?? null,
+	// 		MeemId: meem?.id ?? null,
+	// 		clippedAt: DateTime.fromSeconds(args.transactionTimestamp).toJSDate()
+	// 	})
+	// }
 
-	public static async meemHandleRemixesPerWalletSet(args: {
-		address: string
-		eventData: MeemRemixesPerWalletSetEventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { newTotalRemixes, propertyType } = args.eventData
+	// public static async meemHandleTokenUnClipped(args: {
+	// 	address: string
+	// 	eventData: MeemUnClippedEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { addy } = args.eventData
 
-		const meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'Properties'
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'ChildProperties'
-				}
-			]
-		})
+	// 	const meem = await orm.models.Meem.findOne({
+	// 		where: {
+	// 			tokenId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemContract,
+	// 				where: {
+	// 					address: args.address
+	// 				}
+	// 			}
+	// 		]
+	// 	})
 
-		if (meem?.Properties) {
-			const prop =
-				propertyType === MeemAPI.PropertyType.Meem
-					? meem.Properties
-					: meem.ChildProperties
-			if (!prop) {
-				log.crit('Invalid propertyType')
-				return
-			}
-			prop.remixesPerWallet = newTotalRemixes.toHexString()
-			await prop.save()
-		}
-	}
+	// 	if (!meem) {
+	// 		throw new Error('MEEM_NOT_FOUND')
+	// 	}
 
-	public static async meemHandleCopiesPerWalletLocked(args: {
-		address: string
-		eventData: MeemCopiesPerWalletLockedEventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { lockedBy, propertyType } = args.eventData
+	// 	await orm.models.Clipping.destroy({
+	// 		where: {
+	// 			MeemId: meem.id,
+	// 			address: addy
+	// 		}
+	// 	})
+	// }
 
-		const meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'Properties'
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'ChildProperties'
-				}
-			]
-		})
+	// public static async meemHandleTokenReactionAdded(args: {
+	// 	address: string
+	// 	transactionTimestamp: number
+	// 	eventData: MeemTokenReactionAddedEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { addy, reaction, newTotalReactions } = args.eventData
+	// 	log.debug(`Adding "${reaction}" reaction for ${addy} on token ${tokenId}`)
 
-		if (meem) {
-			const prop =
-				propertyType === MeemAPI.PropertyType.Meem
-					? meem.Properties
-					: meem.ChildProperties
-			if (!prop) {
-				log.crit('Invalid propertyType')
-				return
-			}
-			prop.copiesPerWalletLockedBy = lockedBy
-			await prop.save()
-		}
-	}
+	// 	const [meem, wallet] = await Promise.all([
+	// 		orm.models.Meem.findOne({
+	// 			where: {
+	// 				tokenId
+	// 			},
+	// 			include: [
+	// 				{
+	// 					model: orm.models.MeemContract,
+	// 					where: {
+	// 						address: args.address
+	// 					}
+	// 				}
+	// 			]
+	// 		}),
+	// 		orm.models.Wallet.findByAddress<Wallet>(addy)
+	// 	])
 
-	public static async meemHandleRemixesPerWalletLocked(args: {
-		address: string
-		eventData: MeemRemixesPerWalletLockedEventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { lockedBy, propertyType } = args.eventData
+	// 	if (!meem) {
+	// 		throw new Error('MEEM_NOT_FOUND')
+	// 	}
 
-		const meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'Properties'
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'ChildProperties'
-				}
-			]
-		})
+	// 	meem.reactionCounts[reaction] = newTotalReactions.toNumber()
+	// 	meem.changed('reactionCounts', true)
 
-		if (meem) {
-			const prop =
-				propertyType === MeemAPI.PropertyType.Meem
-					? meem.Properties
-					: meem.ChildProperties
-			if (!prop) {
-				log.crit('Invalid propertyType')
-				return
-			}
-			prop.remixesPerWalletLockedBy = lockedBy
-			await prop.save()
-		}
-	}
+	// 	await meem.save()
 
-	public static async meemHandleSplitsSet(args: {
-		address: string
-		eventData: MeemSplitsSet_uint256_uint8_tuple_array_EventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { splits, propertyType } = args.eventData
+	// 	const existingReaction = await orm.models.Reaction.findOne({
+	// 		where: {
+	// 			address: addy,
+	// 			reaction,
+	// 			MeemId: meem.id
+	// 		}
+	// 	})
 
-		const meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'Properties'
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'ChildProperties'
-				}
-			]
-		})
+	// 	if (existingReaction) {
+	// 		log.warn(`Address ${addy} Already reacted to meem: ${tokenId}`)
+	// 		return
+	// 	}
 
-		if (meem) {
-			const prop =
-				propertyType === MeemAPI.PropertyType.Meem
-					? meem.Properties
-					: meem.ChildProperties
-			if (!prop) {
-				log.crit('Invalid propertyType')
-				return
-			}
-			prop.splits = this.meemSplitsDataToModelData(splits)
-			await prop.save()
-		}
-	}
+	// 	await orm.models.Reaction.create({
+	// 		reaction,
+	// 		address: addy,
+	// 		MeemId: meem.id,
+	// 		MeemIdentification: wallet?.MeemIdentificationId ?? null,
+	// 		reactedAt: DateTime.fromSeconds(args.transactionTimestamp).toJSDate()
+	// 	})
+	// }
 
-	public static async meemHandlePropertiesSet(args: {
-		address: string
-		eventData: MeemPropertiesSetEventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { propertyType, props } = args.eventData
-		const meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'Properties'
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'ChildProperties'
-				}
-			]
-		})
+	// public static async meemHandleTokenReactionRemoved(args: {
+	// 	address: string
+	// 	eventData: MeemTokenReactionRemovedEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { addy, reaction, newTotalReactions } = args.eventData
 
-		if (meem && propertyType === MeemAPI.PropertyType.Meem) {
-			await meem.Properties?.update(this.meemPropertiesDataToModelData(props))
-		} else if (meem && propertyType === MeemAPI.PropertyType.Child) {
-			await meem.ChildProperties?.update(
-				this.meemPropertiesDataToModelData(props)
-			)
-		}
-	}
+	// 	log.debug(`Removing "${reaction}" reaction for ${addy} on token ${tokenId}`)
 
-	public static async meemHandlePermissionsSet(args: {
-		address: string
-		eventData: MeemPermissionsSetEventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { propertyType, permissionType, permission } = args.eventData
-		const meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'Properties'
-				},
-				{
-					model: orm.models.MeemProperties,
-					as: 'ChildProperties'
-				}
-			]
-		})
+	// 	const meem = await orm.models.Meem.findOne({
+	// 		where: {
+	// 			tokenId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemContract,
+	// 				where: {
+	// 					address: args.address
+	// 				}
+	// 			}
+	// 		]
+	// 	})
 
-		if (meem) {
-			const prop =
-				propertyType === MeemAPI.PropertyType.Meem
-					? meem.Properties
-					: meem.ChildProperties
-			if (!prop) {
-				log.warn(`Missing MeemProperties for token: ${tokenId}`)
-				return
-			}
-			switch (permissionType) {
-				case MeemAPI.PermissionType.Copy:
-					prop.copyPermissions = this.meemPermissionsDataToModelData(permission)
-					break
+	// 	if (!meem) {
+	// 		throw new Error('MEEM_NOT_FOUND')
+	// 	}
 
-				case MeemAPI.PermissionType.Read:
-					prop.readPermissions = this.meemPermissionsDataToModelData(permission)
-					break
+	// 	meem.reactionCounts[reaction] = newTotalReactions.toNumber()
+	// 	meem.changed('reactionCounts', true)
 
-				case MeemAPI.PermissionType.Remix:
-					prop.remixPermissions =
-						this.meemPermissionsDataToModelData(permission)
-					break
+	// 	await Promise.all([
+	// 		orm.models.Reaction.destroy({
+	// 			where: {
+	// 				address: addy,
+	// 				reaction,
+	// 				MeemId: meem.id
+	// 			}
+	// 		}),
+	// 		meem.save()
+	// 	])
+	// }
 
-				default:
-					break
-			}
-			await prop.save()
-		}
-	}
+	// public static async meemHandleTokenReactionTypesSet(args: {
+	// 	address: string
+	// 	eventData: MeemTokenReactionTypesSetEventObject
+	// }) {
+	// 	const tokenId = args.eventData.tokenId.toHexString()
+	// 	const { reactionTypes } = args.eventData
 
-	public static async meemHandleTokenClipped(args: {
-		address: string
-		transactionTimestamp: number
-		eventData: MeemClippedEventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { addy } = args.eventData
+	// 	log.debug(`Reaction types set for token ${tokenId}`)
 
-		const [wallet, meem] = await Promise.all([
-			orm.models.Wallet.findByAddress<Wallet>(addy) as unknown as Wallet | null,
-			orm.models.Meem.findOne({
-				where: {
-					tokenId
-				},
-				include: [
-					{
-						model: orm.models.MeemContract,
-						where: {
-							address: args.address
-						}
-					}
-				]
-			})
-		])
+	// 	const meem = await orm.models.Meem.findOne({
+	// 		where: {
+	// 			tokenId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemContract,
+	// 				where: {
+	// 					address: args.address
+	// 				}
+	// 			}
+	// 		]
+	// 	})
 
-		const clipping = await orm.models.Clipping.findOne({
-			where: {
-				address: addy,
-				MeemIdentificationId: wallet?.MeemIdentificationId ?? null,
-				MeemId: meem?.id ?? null
-			}
-		})
+	// 	if (!meem) {
+	// 		throw new Error('MEEM_NOT_FOUND')
+	// 	}
 
-		if (clipping) {
-			throw new Error('ALREADY_CLIPPED')
-		}
-
-		await orm.models.Clipping.create({
-			address: addy,
-			MeemIdentificationId: wallet?.MeemIdentificationId ?? null,
-			MeemId: meem?.id ?? null,
-			clippedAt: DateTime.fromSeconds(args.transactionTimestamp).toJSDate()
-		})
-	}
-
-	public static async meemHandleTokenUnClipped(args: {
-		address: string
-		eventData: MeemUnClippedEventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { addy } = args.eventData
-
-		const meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				}
-			]
-		})
-
-		if (!meem) {
-			throw new Error('MEEM_NOT_FOUND')
-		}
-
-		await orm.models.Clipping.destroy({
-			where: {
-				MeemId: meem.id,
-				address: addy
-			}
-		})
-	}
-
-	public static async meemHandleTokenReactionAdded(args: {
-		address: string
-		transactionTimestamp: number
-		eventData: MeemTokenReactionAddedEventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { addy, reaction, newTotalReactions } = args.eventData
-		log.debug(`Adding "${reaction}" reaction for ${addy} on token ${tokenId}`)
-
-		const [meem, wallet] = await Promise.all([
-			orm.models.Meem.findOne({
-				where: {
-					tokenId
-				},
-				include: [
-					{
-						model: orm.models.MeemContract,
-						where: {
-							address: args.address
-						}
-					}
-				]
-			}),
-			orm.models.Wallet.findByAddress<Wallet>(addy)
-		])
-
-		if (!meem) {
-			throw new Error('MEEM_NOT_FOUND')
-		}
-
-		meem.reactionCounts[reaction] = newTotalReactions.toNumber()
-		meem.changed('reactionCounts', true)
-
-		await meem.save()
-
-		const existingReaction = await orm.models.Reaction.findOne({
-			where: {
-				address: addy,
-				reaction,
-				MeemId: meem.id
-			}
-		})
-
-		if (existingReaction) {
-			log.warn(`Address ${addy} Already reacted to meem: ${tokenId}`)
-			return
-		}
-
-		await orm.models.Reaction.create({
-			reaction,
-			address: addy,
-			MeemId: meem.id,
-			MeemIdentification: wallet?.MeemIdentificationId ?? null,
-			reactedAt: DateTime.fromSeconds(args.transactionTimestamp).toJSDate()
-		})
-	}
-
-	public static async meemHandleTokenReactionRemoved(args: {
-		address: string
-		eventData: MeemTokenReactionRemovedEventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { addy, reaction, newTotalReactions } = args.eventData
-
-		log.debug(`Removing "${reaction}" reaction for ${addy} on token ${tokenId}`)
-
-		const meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				}
-			]
-		})
-
-		if (!meem) {
-			throw new Error('MEEM_NOT_FOUND')
-		}
-
-		meem.reactionCounts[reaction] = newTotalReactions.toNumber()
-		meem.changed('reactionCounts', true)
-
-		await Promise.all([
-			orm.models.Reaction.destroy({
-				where: {
-					address: addy,
-					reaction,
-					MeemId: meem.id
-				}
-			}),
-			meem.save()
-		])
-	}
-
-	public static async meemHandleTokenReactionTypesSet(args: {
-		address: string
-		eventData: MeemTokenReactionTypesSetEventObject
-	}) {
-		const tokenId = args.eventData.tokenId.toHexString()
-		const { reactionTypes } = args.eventData
-
-		log.debug(`Reaction types set for token ${tokenId}`)
-
-		const meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				}
-			]
-		})
-
-		if (!meem) {
-			throw new Error('MEEM_NOT_FOUND')
-		}
-
-		meem.reactionTypes = reactionTypes
-		await meem.save()
-	}
+	// 	meem.reactionTypes = reactionTypes
+	// 	await meem.save()
+	// }
 
 	public static async meemHandleTransfer(args: {
 		address: string
 		transactionHash: string
 		transactionTimestamp: number
-		eventData: MeemTransferEventObject
+		eventData: MeemTransferEvent['args']
 	}) {
 		const tokenId = args.eventData.tokenId.toHexString()
 		let meem = await orm.models.Meem.findOne({
@@ -1208,6 +1158,7 @@ export default class ContractEvent {
 		})
 
 		log.debug(`Fetching meem from contract: ${tokenId}`)
+
 		// Fetch the meem data and create it
 		const [meemData, tokenURI] = await Promise.all([
 			meemContract.getMeem(tokenId),
@@ -1235,85 +1186,32 @@ export default class ContractEvent {
 			tokenURI
 		)) as MeemAPI.IMeemMetadata
 
-		const properties = orm.models.MeemProperties.build({
-			id: uuidv4(),
-			...this.meemPropertiesDataToModelData(meemData.properties)
-		})
-		const childProperties = orm.models.MeemProperties.build({
-			id: uuidv4(),
-			...this.meemPropertiesDataToModelData(meemData.childProperties)
-		})
-
 		const data: Record<string, any> = {
 			id: uuidv4(),
 			meemId: metadata.meem_id ?? null,
 			tokenId,
 			tokenURI,
 			owner: meemData.owner,
-			parentChain: meemData.parentChain,
-			parent: meemData.parent,
-			parentTokenId: meemData.parentTokenId.toHexString(),
-			rootChain: meemData.rootChain,
-			root: meemData.root,
-			rootTokenId: meemData.rootTokenId.toHexString(),
-			generation: meemData.generation,
+			parentChain: 0,
+			parent: 0,
+			parentTokenId: 0,
+			rootChain: 0,
+			root: 0,
+			rootTokenId: 0,
+			generation: 0,
 			mintedAt: DateTime.fromSeconds(meemData.mintedAt.toNumber()).toJSDate(),
 			metadata,
-			// data: meemData.data,
-			PropertiesId: properties.id,
-			ChildPropertiesId: childProperties.id,
-			meemType: meemData.meemType,
+			meemType: meemData.tokenType,
 			mintedBy: meemData.mintedBy,
-			uriLockedBy: meemData.uriLockedBy,
-			uriSource: meemData.uriSource,
-			reactionTypes: meemData.reactionTypes,
 			MeemContractId: meemContractData.id
 		}
 
 		log.debug(`Saving meem to db: ${tokenId}`)
 		const t = await orm.sequelize.transaction()
 
-		const promises: Promise<any>[] = []
-
-		const parentMeem =
-			meemData.parent.toLowerCase() ===
-				config.MEEM_PROXY_ADDRESS.toLowerCase() &&
-			[MeemAPI.MeemType.Remix, MeemAPI.MeemType.Copy].includes(
-				meemData.meemType
-			)
-				? await orm.models.Meem.findOne({
-						where: {
-							tokenId: meemData.parentTokenId.toHexString()
-						},
-						include: [
-							{
-								model: orm.models.MeemContract,
-								where: {
-									address
-								}
-							}
-						]
-				  })
-				: null
-
-		if (parentMeem) {
-			promises.push(meemContract.numCopiesOf(parentMeem.tokenId))
-			promises.push(meemContract.numRemixesOf(parentMeem.tokenId))
-		}
-
-		promises.push(properties.save({ transaction: t }))
-		promises.push(childProperties.save({ transaction: t }))
-
-		const [numCopies, numRemixes] = await Promise.all(promises)
-
 		const createUpdatePromises: Promise<any>[] = [
 			orm.models.Meem.create(data, { transaction: t })
 		]
-		if (parentMeem) {
-			parentMeem.numCopies = (numCopies as BigNumber).toNumber()
-			parentMeem.numRemixes = (numRemixes as BigNumber).toNumber()
-			promises.push(parentMeem.save({ transaction: t }))
-		}
 
 		const [meem] = (await Promise.all(createUpdatePromises)) as [Meem]
 
@@ -1395,57 +1293,57 @@ export default class ContractEvent {
 		return meem
 	}
 
-	public static saveToGun(options: {
-		paths: string[]
-		from?: IGunChainReference<any, string, false>
-		data: any
-	}): IGunChainReference<any, string, false> {
-		// return new Promise((resolve, reject) => {
-		const { paths, data, from } = options
-		let item: IGunChainReference<any, string, false> = gun.user()
+	// public static saveToGun(options: {
+	// 	paths: string[]
+	// 	from?: IGunChainReference<any, string, false>
+	// 	data: any
+	// }): IGunChainReference<any, string, false> {
+	// 	// return new Promise((resolve, reject) => {
+	// 	const { paths, data, from } = options
+	// 	let item: IGunChainReference<any, string, false> = gun.user()
 
-		if (paths.length === 0) {
-			throw new Error('Paths must be set')
-		}
+	// 	if (paths.length === 0) {
+	// 		throw new Error('Paths must be set')
+	// 	}
 
-		paths.forEach(path => {
-			if (from && !item) {
-				item = from.get(path)
-			} else if (item) {
-				item = item.get(path)
-			} else {
-				item = gun.user().get(path)
-			}
-		})
+	// 	paths.forEach(path => {
+	// 		if (from && !item) {
+	// 			item = from.get(path)
+	// 		} else if (item) {
+	// 			item = item.get(path)
+	// 		} else {
+	// 			item = gun.user().get(path)
+	// 		}
+	// 	})
 
-		const dataObject = this.toPureObject(data)
+	// 	const dataObject = this.toPureObject(data)
 
-		Object.keys(dataObject).forEach(key => {
-			const val = dataObject[key]
-			if (typeof val === 'object') {
-				this.saveToGun({ paths: [key], from: item, data: val })
-			} else if (Object.prototype.toString.call(val) === '[object Date]') {
-				item.get(key).put(((val as Date).getTime() / 1000) as any, ack => {
-					if (ack.ok) {
-						log.debug(`Gun sync: ${paths.join('/')}/${key}`)
-					} else if (ack.err) {
-						log.crit(ack.err)
-					}
-				})
-			} else {
-				item.get(key).put(val, ack => {
-					if (ack.ok) {
-						log.debug(`Gun sync: ${paths.join('/')}/${key}`)
-					} else if (ack.err) {
-						log.crit(`Error saving: ${key}`, val)
-						log.crit(ack.err)
-					}
-				})
-			}
-		})
+	// 	Object.keys(dataObject).forEach(key => {
+	// 		const val = dataObject[key]
+	// 		if (typeof val === 'object') {
+	// 			this.saveToGun({ paths: [key], from: item, data: val })
+	// 		} else if (Object.prototype.toString.call(val) === '[object Date]') {
+	// 			item.get(key).put(((val as Date).getTime() / 1000) as any, ack => {
+	// 				if (ack.ok) {
+	// 					log.debug(`Gun sync: ${paths.join('/')}/${key}`)
+	// 				} else if (ack.err) {
+	// 					log.crit(ack.err)
+	// 				}
+	// 			})
+	// 		} else {
+	// 			item.get(key).put(val, ack => {
+	// 				if (ack.ok) {
+	// 					log.debug(`Gun sync: ${paths.join('/')}/${key}`)
+	// 				} else if (ack.err) {
+	// 					log.crit(`Error saving: ${key}`, val)
+	// 					log.crit(ack.err)
+	// 				}
+	// 			})
+	// 		}
+	// 	})
 
-		return item
-	}
+	// 	return item
+	// }
 
 	private static async updateMeem(options: { meem: Meem }) {
 		const { meem } = options
@@ -1465,47 +1363,52 @@ export default class ContractEvent {
 
 		// meem.data = meemData.data
 		meem.metadata = metadata
-		meem.uriLockedBy = meemData.uriLockedBy
+		meem.owner = meemData.owner
+		meem.mintedAt = DateTime.fromSeconds(
+			meemData.mintedAt.toNumber()
+		).toJSDate()
+		meem.mintedBy = meemData.mintedBy
+		// meem.uriLockedBy = meemData.uriLockedBy
 		await meem.save()
 	}
 
-	private static meemPropertiesDataToModelData(
-		props: MeemPropertiesStructOutput
-	) {
-		return {
-			totalCopies: props.totalCopies.toHexString(),
-			totalCopiesLockedBy: props.totalCopiesLockedBy,
-			copiesPerWallet: props.copiesPerWallet.toHexString(),
-			copiesPerWalletLockedBy: props.copiesPerWalletLockedBy,
-			totalRemixes: props.totalRemixes.toHexString(),
-			totalRemixesLockedBy: props.totalRemixesLockedBy,
-			remixesPerWallet: props.remixesPerWallet.toHexString(),
-			remixesPerWalletLockedBy: props.remixesPerWalletLockedBy,
-			copyPermissions: this.meemPermissionsDataToModelData(
-				props.copyPermissions
-			),
-			remixPermissions: this.meemPermissionsDataToModelData(
-				props.remixPermissions
-			),
-			readPermissions: this.meemPermissionsDataToModelData(
-				props.readPermissions
-			),
-			copyPermissionsLockedBy: props.copyPermissionsLockedBy,
-			remixPermissionsLockedBy: props.remixPermissionsLockedBy,
-			readPermissionsLockedBy: props.readPermissionsLockedBy,
-			splits: this.meemSplitsDataToModelData(props.splits),
-			splitsLockedBy: props.splitsLockedBy,
-			isTransferrable: props.isTransferrable,
-			isTransferrableLockedBy: props.isTransferrableLockedBy,
-			mintStartAt: props.mintStartTimestamp.toHexString(),
-			mintEndAt: props.mintEndTimestamp.toHexString(),
-			mintDatesLockedBy: props.mintDatesLockedBy,
-			transferLockupUntil: !props.transferLockupUntil.isZero
-				? props.transferLockupUntil.toHexString()
-				: null,
-			transferLockupUntilLockedBy: props.transferLockupUntilLockedBy
-		}
-	}
+	// private static meemPropertiesDataToModelData(
+	// 	props: MeemPropertiesStructOutput
+	// ) {
+	// 	return {
+	// 		totalCopies: props.totalCopies.toHexString(),
+	// 		totalCopiesLockedBy: props.totalCopiesLockedBy,
+	// 		copiesPerWallet: props.copiesPerWallet.toHexString(),
+	// 		copiesPerWalletLockedBy: props.copiesPerWalletLockedBy,
+	// 		totalRemixes: props.totalRemixes.toHexString(),
+	// 		totalRemixesLockedBy: props.totalRemixesLockedBy,
+	// 		remixesPerWallet: props.remixesPerWallet.toHexString(),
+	// 		remixesPerWalletLockedBy: props.remixesPerWalletLockedBy,
+	// 		copyPermissions: this.meemPermissionsDataToModelData(
+	// 			props.copyPermissions
+	// 		),
+	// 		remixPermissions: this.meemPermissionsDataToModelData(
+	// 			props.remixPermissions
+	// 		),
+	// 		readPermissions: this.meemPermissionsDataToModelData(
+	// 			props.readPermissions
+	// 		),
+	// 		copyPermissionsLockedBy: props.copyPermissionsLockedBy,
+	// 		remixPermissionsLockedBy: props.remixPermissionsLockedBy,
+	// 		readPermissionsLockedBy: props.readPermissionsLockedBy,
+	// 		splits: this.meemSplitsDataToModelData(props.splits),
+	// 		splitsLockedBy: props.splitsLockedBy,
+	// 		isTransferrable: props.isTransferrable,
+	// 		isTransferrableLockedBy: props.isTransferrableLockedBy,
+	// 		mintStartAt: props.mintStartTimestamp.toHexString(),
+	// 		mintEndAt: props.mintEndTimestamp.toHexString(),
+	// 		mintDatesLockedBy: props.mintDatesLockedBy,
+	// 		transferLockupUntil: !props.transferLockupUntil.isZero
+	// 			? props.transferLockupUntil.toHexString()
+	// 			: null,
+	// 		transferLockupUntilLockedBy: props.transferLockupUntilLockedBy
+	// 	}
+	// }
 
 	private static meemSplitsDataToModelData(splits: SplitStructOutput[]) {
 		return splits.map(s => ({
@@ -1515,15 +1418,13 @@ export default class ContractEvent {
 		}))
 	}
 
-	private static meemPermissionsDataToModelData(
-		perms: MeemPermissionStructOutput[]
-	) {
+	private static meemPermissionsDataToModelData(perms: MeemPermissionStruct[]) {
 		return perms.map(p => ({
 			permission: p.permission,
 			addresses: p.addresses,
-			numTokens: p.numTokens.toHexString(),
-			lockedBy: p.lockedBy,
-			costWei: p.costWei.toHexString()
+			numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
+			// lockedBy: p.lockedBy,
+			costWei: ethers.BigNumber.from(p.costWei).toHexString()
 		}))
 	}
 

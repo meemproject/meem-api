@@ -393,12 +393,24 @@ const errors = {
 		reason: 'A bundle with the same facets already exists',
 		friendlyReason: 'A bundle with the same facets already exists'
 	},
+	CONTRACT_ALREADY_EXISTS: {
+		httpCode: 400,
+		status: 'failure',
+		reason: 'A contract with the same bytecode already exists.',
+		friendlyReason: 'A contract with the same bytecode already exists.'
+	},
 	INTEGRATION_FAILED: {
 		contractErrorCode: 'IntegrationFailed',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'Something went wrong while creating the integration.',
 		friendlyReason: 'Something went wrong while creating the integration.'
+	},
+	FACET_NOT_DEPLOYED: {
+		httpCode: 400,
+		status: 'failure',
+		reason: 'One or more of the facets have not been deployed yet.',
+		friendlyReason: 'One or more of the facets have not been deployed yet.'
 	}
 }
 

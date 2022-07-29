@@ -150,7 +150,6 @@ export enum MeemType {
 
 /** The permission corresponding to the smart contract */
 export enum Permission {
-	Owner,
 	Anyone,
 	Addresses,
 	Holders
@@ -259,15 +258,31 @@ export interface IMeemMetadataProperties {
 	parent_token_metadata?: Record<string, any> | null
 }
 
+export interface IMeemContractAssociation {
+	meem_contract_type: string
+	address: string
+	tokenIds?: string[]
+}
 export interface IMeemMetadata {
 	name: string
 	description: string
 	external_url: string
 	image: string
-	image_original: string
-	meem_id: string
+	image_original?: string
+	meem_id?: string
 	meem_properties?: IMeemMetadataProperties
 	extension_properties?: Record<string, any>
+	associations?: IMeemContractAssociation[]
+}
+
+export interface IMeemMetadataLike {
+	meem_metadata_version: string
+	[key: string]: any
+}
+export interface IMeemContractMetadataLike {
+	meem_contract_type: string
+	meem_metadata_version: string
+	[key: string]: any
 }
 
 export enum OpenSeaDisplayType {
@@ -366,6 +381,8 @@ export interface IMeemPermission {
 	numTokens: string
 	lockedBy: string
 	costWei: string
+	mintStartTimestamp: string
+	mintEndTimestamp: string
 }
 
 export interface IMeemProperties {
@@ -394,6 +411,39 @@ export interface IMeemProperties {
 	mintDatesLockedBy: string
 	transferLockupUntil: number
 	transferLockupUntilLockedBy: string
+}
+
+export interface IMeemContractBaseProperties {
+	/** BigNumber hex string */
+	totalOriginalsSupply: string
+	totalOriginalsSupplyLockedBy: string
+	mintPermissions: IMeemPermission[]
+	mintPermissionsLockedBy: string
+	splits: IMeemSplit[]
+	splitsLockedBy: string
+	/** BigNumber hex string */
+	originalsPerWallet: string
+	originalsPerWalletLockedBy: string
+	isTransferrable: boolean
+	isTransferrableLockedBy: string
+	mintStartAt: number
+	mintEndAt: number
+	mintDatesLockedBy: string
+	transferLockupUntil: number
+	transferLockupUntilLockedBy: string
+}
+
+export interface IMeemContractInitParams {
+	symbol?: string
+	name: string
+	contractURI: string
+	admins: string[]
+	minters: string[]
+	maxSupply: string
+	isMaxSupplyLocked: boolean
+	mintPermissions: IMeemPermission[]
+	splits: IMeemSplit[]
+	isTransferLocked: boolean
 }
 
 export interface IMeem {
@@ -650,11 +700,17 @@ export namespace CreateBundle {
 	export interface IRequestBody {
 		name: string
 		description: string
-		contractIds: string[]
+		// contractIds: string[]
+		contracts: {
+			id: string
+			functionSelectors: string[]
+		}[]
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
 		bundleId: string
+		types: string
+		abi: Record<string, any>[]
 	}
 
 	export interface IDefinition {
@@ -688,6 +744,7 @@ export namespace CreateContract {
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
+		contractId: string
 	}
 
 	export interface IDefinition {
@@ -706,21 +763,52 @@ export namespace CreateContract {
 export namespace CreateMeemContract {
 	export interface IPathParams {}
 
-	export const path = () => `/meemContracts`
+	export const path = () => `/api/1.0/meemContracts`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		clubContractAddress: string
+		/** Contract metadata */
+		metadata: IMeemContractMetadataLike
+
+		/** The symbol for the token. If omitted, will use a slug of the name */
+		symbol?: string
+
+		/** The name of the token */
 		name: string
-		description: string
-		admins: string[]
+
+		/** Contract admins */
+		admins?: string[]
+
+		/** Special minter permissions */
+		minters?: string[]
+
+		/** The max number of tokens */
+		maxSupply: string
+
+		/** Whether the max supply is locked */
+		isMaxSupplyLocked?: boolean
+
+		/** Minting permissions */
+		mintPermissions?: IMeemPermission[]
+
+		/** Splits for minting / transfers */
+		splits?: IMeemSplit[]
+
+		/** Whether tokens can be transferred */
+		isTransferLocked?: boolean
+
+		/** If true, will mint a token to the admin wallet addresses  */
+		shouldMintAdminTokens?: boolean
+
+		/** Admin token metadata */
+		adminTokenMetadata?: IMeemMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		address: string
+		status: 'success'
 	}
 
 	export interface IDefinition {
@@ -864,6 +952,38 @@ export namespace CreateOrUpdateMeemId {
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GenerateTypes {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/generateTypes'
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		abi?: Record<string, any>[]
+		bundleId?: string
+		name?: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		abi: Record<string, any>[]
+		types: string
 	}
 
 	export interface IDefinition {
@@ -1591,6 +1711,45 @@ export namespace MintMeem {
 
 
 
+/** Mint a new (wrapped) Meem */
+export namespace MintOriginalMeem {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/meems/mintOriginal`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The address of the Meem contract to mint token */
+		meemContractAddress: string
+
+		/** Metadata object to be used for the minted Meem */
+		metadata?: IMeemMetadataLike
+
+		/** The address where the Meem will be minted to. */
+		to: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		// transactionHash: string
+		// tokenId: number
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
 export namespace SaveMetadata {
 	export interface IPathParams {}
 
@@ -1682,6 +1841,36 @@ export namespace TrackContractInstance {
 
 
 
+export namespace UntrackContractInstance {
+	export interface IPathParams {
+		contractInstanceId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/contractInstances/${options.contractInstanceId}`
+
+	export const method = HttpMethod.Delete
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
 export namespace UpdateBundle {
 	export interface IPathParams {
 		bundleId: string
@@ -1697,11 +1886,15 @@ export namespace UpdateBundle {
 	export interface IRequestBody {
 		name: string
 		description: string
-		contractIds: string[]
+		contracts: {
+			id: string
+			functionSelectors: string[]
+		}[]
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		types: string
+		abi: Record<string, any>[]
 	}
 
 	export interface IDefinition {
