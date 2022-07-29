@@ -108,22 +108,22 @@ package:
 
 functions:
   mint:
-    handler: build/src/serverless/mint.handle
+    handler: build/serverless/mint.handle
     timeout: 300
     memorySize: 512
   mintOriginal:
-    handler: build/src/serverless/mintOriginal.handle
+    handler: build/serverless/mintOriginal.handle
     timeout: 300
     memorySize: 512
   createContract:
-    handler: build/src/serverless/createContract.handle
+    handler: build/serverless/createContract.handle
     timeout: 300
     memorySize: 512
   # meemIdUpdate:
-  #   handler: build/src/serverless/meemIdUpdate.handle
+  #   handler: build/serverless/meemIdUpdate.handle
   #   timeout: 300
   images:
-    handler: build/src/serverless/handler.handle
+    handler: build/serverless/handler.handle
     memorySize: 768
     events:
       - httpApi:
@@ -136,7 +136,7 @@ functions:
          method: '*'
          path: '/images/1.0/{p1}/{p2}/{p3}'
   catchAll:
-    handler: build/src/serverless/handler.handle
+    handler: build/serverless/handler.handle
     events:
       - httpApi:
          method: '*'
@@ -172,13 +172,13 @@ functions:
          method: '*'
          path: '/'
   sockets:
-    handler: build/src/serverless/socket.handle
+    handler: build/serverless/socket.handle
     events:
       - websocket: $connect
       - websocket: $disconnect
       - websocket: $default
   cron:
-    handler: build/src/serverless/cron.handle
+    handler: build/serverless/cron.handle
     timeout: 600
     events:
       - schedule:
