@@ -139,6 +139,7 @@ coverage
 *.md
 *.mkd
 *.ts
+!@typechain/**/*
 *.jst
 *.coffee
 *.tgz
