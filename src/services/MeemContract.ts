@@ -159,9 +159,17 @@ export default class MeemContractService {
 				wallet
 			)
 
-			const proxyContract = (await proxyContractFactory.deploy(
-				wallet.address
-			)) as MeemProxyV1
+			let { recommendedGwei } = await services.web3.getGasEstimate()
+
+			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
+				// throw new Error('GAS_PRICE_TOO_HIGH')
+				log.warn(`Recommended fee over max: ${recommendedGwei}`)
+				recommendedGwei = config.MAX_GAS_PRICE_GWEI
+			}
+
+			const proxyContract = (await proxyContractFactory.deploy(wallet.address, {
+				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+			})) as MeemProxyV1
 			log.debug(
 				`Deploying contract w/ tx: ${proxyContract.deployTransaction.hash}`
 			)
@@ -252,7 +260,8 @@ export default class MeemContractService {
 				proxyContract.address,
 				functionCall,
 				{
-					gasLimit: config.MINT_GAS_LIMIT
+					gasLimit: config.MINT_GAS_LIMIT,
+					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
 				}
 			)
 

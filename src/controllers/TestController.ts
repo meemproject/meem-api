@@ -241,6 +241,35 @@ export default class ConfigController {
 		})
 	}
 
+	public static async testError(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		// sockets?.emit
+
+		// await services.db.getSubscriptions({
+		// 	subscriptionKey: '1234'
+		// })
+
+		// await services.db.removeSubscriptions({
+		// 	connectionId: '1234'
+		// })
+
+		await sockets?.emitError(
+			{
+				httpCode: 400,
+				friendlyReason: 'Sorry, something went wrong',
+				reason: 'Test error',
+				status: 'failure'
+			},
+			req.body.address
+		)
+
+		return res.json({
+			config: { version: config.version }
+		})
+	}
+
 	public static async testWrapped(
 		req: Request,
 		res: Response

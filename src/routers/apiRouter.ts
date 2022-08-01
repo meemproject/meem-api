@@ -101,6 +101,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	if (config.ENABLE_TEST_ENDPOINTS) {
 		router.getAsync('/test/emit', TestController.testEmit)
+		router.getAsync('/test/error', TestController.testError)
 		router.getAsync('/test/wrapped', TestController.testWrapped)
 		router.getAsync(
 			'/test/saveSubscription',
