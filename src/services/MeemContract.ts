@@ -185,7 +185,9 @@ export default class MeemContractService {
 			// TODO: Pass type-safe data in for contract types
 			// TODO: 🚨 Validate all properties!
 
-			const uri = JSON.stringify(metadata)
+			// const uri = JSON.stringify(metadata)
+			const result = await services.web3.saveToPinata({ json: metadata })
+			const uri = `ipfs://${result.IpfsHash}`
 
 			const cleanAdmins = _.uniqBy(
 				[...admins, wallet.address.toLowerCase()],

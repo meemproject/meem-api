@@ -589,9 +589,11 @@ export default class MeemService {
 				recommendedGwei = config.MAX_GAS_PRICE_GWEI
 			}
 
-			const tokenURI = _.isString(data.metadata)
-				? data.metadata
-				: JSON.stringify(data.metadata ?? {})
+			const result = await services.web3.saveToPinata({
+				json: data.metadata
+			})
+
+			const tokenURI = `ipfs://${result.IpfsHash}`
 
 			const mintParams: Parameters<MeemProxyV1['mint']> = [
 				{

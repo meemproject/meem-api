@@ -282,7 +282,7 @@ export default class Web3 {
 		}
 	}
 
-	private static async saveToPinata(options: {
+	public static async saveToPinata(options: {
 		json?: Record<string, any>
 		file?: Readable
 	}) {
