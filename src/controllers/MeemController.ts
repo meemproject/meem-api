@@ -1,9 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
-// import BigNumber from 'bignumber.js'
-// import type { ethers as Ethers } from 'ethers'
 import { Response } from 'express'
-// import { parse } from 'json2csv'
 import _ from 'lodash'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
@@ -11,6 +8,7 @@ import sharp from 'sharp'
 import TwitterApi, { UserV2 } from 'twitter-api-v2'
 import { validate as uuidValidate } from 'uuid'
 import Meem from '../models/Meem'
+import MeemContract from '../models/MeemContract'
 import {
 	IAPIRequestPaginated,
 	IAuthenticatedRequest,
@@ -465,11 +463,34 @@ export default class MeemController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
+		// TODO: Check permissions for minting
+		// Allowed if user is a contract admin
+		const meemContract =
+			await orm.models.MeemContract.findByAddress<MeemContract>(
+				req.body.meemContractAddress,
+				[{ model: orm.models.Wallet, include: [orm.models.MeemContractWallet] }]
+			)
+
+		if (!meemContract) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		const canMint = await meemContract.canMint(req.wallet.address)
+
+		if (!canMint) {
+			throw new Error('MINTING_ACCESS_DENIED')
+		}
+
 		if (config.DISABLE_ASYNC_MINTING) {
-			await services.meem.mintOriginalMeem({
-				...req.body,
-				mintedBy: req.wallet.address
-			})
+			try {
+				await services.meem.mintOriginalMeem({
+					...req.body,
+					mintedBy: req.wallet.address
+				})
+			} catch (e) {
+				log.crit(e)
+				sockets?.emitError(config.errors.MINT_FAILED, req.wallet.address)
+			}
 		} else {
 			const lambda = new AWS.Lambda({
 				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,

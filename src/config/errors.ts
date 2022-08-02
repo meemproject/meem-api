@@ -419,6 +419,15 @@ const errors = {
 		status: 'failure',
 		reason: 'Something went wrong creating the contract.',
 		friendlyReason: 'Something went wrong creating the contract.'
+	},
+	MINT_FAILED: {
+		code: 'MINT_FAILED',
+		httpCode: 400,
+		status: 'failure',
+		reason:
+			'Something went wrong minting. Check that you have the correct permissions and try again.',
+		friendlyReason:
+			'Something went wrong minting. Check that you have the correct permissions and try again.'
 	}
 }
 

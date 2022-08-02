@@ -7,6 +7,8 @@ import type MeemIdentification from './MeemIdentification'
 export default class Wallet extends ModelWithAddress<Wallet> {
 	public static readonly modelName = 'Wallet'
 
+	public static readonly paranoid: boolean = false
+
 	public static get indexes() {
 		return []
 	}

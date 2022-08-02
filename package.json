@@ -27,7 +27,7 @@
 		"db:migrate:production": "NODE_ENV=production node ./node_modules/.bin/sequelize db:migrate",
 		"########## Tests ##########": "",
 		"#test": "NODE_ENV=local DISABLE_MIGRATIONS=true ALLOW_NON_SSL=true ORM_LOGGING=false LOG_LEVEL=debug TESTING=true ENABLE_GUNDB=false GENERATE_SHARED_TYPES=false PORT= mocha --exit -r ts-node/register/transpile-only 'src/**/*.test.ts'",
-		"test": "DISABLE_ORM_SYNC=false NODE_ENV=local DISABLE_MIGRATIONS=true ALLOW_NON_SSL=true ORM_LOGGING=false LOG_LEVEL=debug TESTING=true ENABLE_GUNDB=false GENERATE_SHARED_TYPES=false PORT= DATABASE_URL=sqlite:./tmp/testing.db ENABLE_CONTRACT_LISTENERS=false ENABLE_TWITTER_LISTENERS=false hardhat test --network hardhat",
+		"test": "DISABLE_ORM_SYNC=false NODE_ENV=local DISABLE_MIGRATIONS=true ALLOW_NON_SSL=true ORM_LOGGING=false LOG_LEVEL=debug TESTING=true ENABLE_GUNDB=false GENERATE_SHARED_TYPES=false PORT= DATABASE_URL=sqlite:./tmp/testing.db ENABLE_CONTRACT_LISTENERS=false ENABLE_TWITTER_LISTENERS=false mocha --exit -r ts-node/register/transpile-only 'src/**/*.test.ts'",
 		"########## Serverless ##########": "",
 		"deploy:dev": "SLS_DEBUG=* sls deploy -s dev",
 		"deploy:staging": "SLS_DEBUG=* sls deploy -s staging",
