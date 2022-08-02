@@ -3,10 +3,12 @@ import BundleContract from '../models/BundleContract'
 import Clipping from '../models/Clipping'
 import Contract from '../models/Contract'
 import ContractInstance from '../models/ContractInstance'
+import Guild from '../models/Guild'
 import Hashtag from '../models/Hashtag'
 import Integration from '../models/Integration'
 import Meem from '../models/Meem'
 import MeemContract from '../models/MeemContract'
+import MeemContractGuild from '../models/MeemContractGuild'
 import MeemContractIntegration from '../models/MeemContractIntegration'
 import MeemContractWallet from '../models/MeemContractWallet'
 import MeemIdentification from '../models/MeemIdentification'
@@ -29,8 +31,10 @@ export interface IModels {
 	ContractInstance: typeof ContractInstance
 	Hashtag: typeof Hashtag
 	Integration: typeof Integration
+	Guild: typeof Guild
 	Meem: typeof Meem
 	MeemContract: typeof MeemContract
+	MeemContractGuild: typeof MeemContractGuild
 	MeemContractIntegration: typeof MeemContractIntegration
 	MeemContractWallet: typeof MeemContractWallet
 	MeemPass: typeof MeemPass

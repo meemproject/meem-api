@@ -107,6 +107,50 @@ export default class MeemContractController {
 		})
 	}
 
+	public static async createGuild(
+		req: IRequest<MeemAPI.v1.CreateMeemContractGuild.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateMeemContractGuild.IResponseBody>
+	): Promise<any> {
+		if (!req.wallet) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const { meemContractId } = req.params
+		const { name } = req.body
+
+		try {
+			const guildId = await services.guild.createGuild({
+				meemContractId,
+				name
+			})
+
+			return res.json({
+				guildId
+			})
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
+	public static async getGuilds(
+		req: IRequest<MeemAPI.v1.GetMeemContractGuilds.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetMeemContractGuilds.IResponseBody>
+	): Promise<any> {
+		if (!req.wallet) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const { meemContractId } = req.params
+
+		const guilds = await services.guild.getMeemContractGuilds({
+			meemContractId
+		})
+		return res.json({
+			guilds
+		})
+	}
+
 	public static async createMeemContract(
 		req: IRequest<MeemAPI.v1.CreateMeemContract.IDefinition>,
 		res: IResponse<MeemAPI.v1.CreateMeemContract.IResponseBody>
