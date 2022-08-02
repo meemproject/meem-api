@@ -61,11 +61,6 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 				)
 			}
 		},
-		isMaxSupplyLocked: {
-			type: DataTypes.BOOLEAN,
-			allowNull: false,
-			defaultValue: false
-		},
 		mintPermissions: {
 			type: DataTypes.JSONB,
 			allowNull: false
@@ -194,8 +189,6 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 	public metadata!: MeemContractMetadataLike
 
 	public maxSupply!: string
-
-	public isMaxSupplyLocked!: boolean
 
 	public mintPermissions!: MeemAPI.IMeemPermission[]
 

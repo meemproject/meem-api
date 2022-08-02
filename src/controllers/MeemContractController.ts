@@ -79,7 +79,7 @@ export default class MeemContractController {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		if (meemContract.Wallets.length < 1) {
+		if (meemContract.Wallets && meemContract.Wallets.length < 1) {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
@@ -194,7 +194,7 @@ export default class MeemContractController {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		if (meemContract.Wallets.length < 1) {
+		if (meemContract.Wallets && meemContract.Wallets.length < 1) {
 			throw new Error('NOT_AUTHORIZED')
 		}
 

@@ -6,8 +6,8 @@ import _ from 'lodash'
 import slug from 'slug'
 import {
 	InitParamsStruct,
-	MeemProxyV1,
-	MeemProxyV1__factory
+	MeemDiamondV3,
+	MeemDiamondV3__factory
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -64,7 +64,6 @@ export default class MeemContractService {
 				metadata,
 				name,
 				maxSupply,
-				isMaxSupplyLocked,
 				mintPermissions,
 				splits,
 				isTransferLocked,
@@ -169,7 +168,7 @@ export default class MeemContractService {
 
 			const proxyContract = (await proxyContractFactory.deploy(wallet.address, {
 				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
-			})) as MeemProxyV1
+			})) as MeemDiamondV3
 			log.debug(
 				`Deploying contract w/ tx: ${proxyContract.deployTransaction.hash}`
 			)
@@ -179,7 +178,7 @@ export default class MeemContractService {
 				`Deployed proxy at ${proxyContract.address} w/ tx: ${proxyContract.deployTransaction.hash}`
 			)
 
-			const meemContract = MeemProxyV1__factory.connect(
+			const meemContract = MeemDiamondV3__factory.connect(
 				proxyContract.address,
 				wallet
 			)
@@ -200,21 +199,46 @@ export default class MeemContractService {
 			const cleanAdmins = _.uniqBy(
 				[...admins, wallet.address.toLowerCase()],
 				a => a && a.toLowerCase()
-			)
+			).map(a => ({
+				role: config.ADMIN_ROLE,
+				user: a,
+				hasRole: true
+			}))
 
 			const cleanMinters = _.uniqBy(
 				[...minters, wallet.address.toLowerCase()],
 				a => a && a.toLowerCase()
-			)
+			).map(a => ({
+				role: config.MINTER_ROLE,
+				user: a,
+				hasRole: true
+			}))
 
 			const contractInitParams: InitParamsStruct = {
 				symbol,
 				name,
 				contractURI: uri,
-				admins: cleanAdmins,
-				minters: cleanMinters,
+				roles: [
+					...cleanAdmins,
+					...cleanMinters,
+					// Give ourselves the admin, minter, and upgrader roles by default
+					{
+						role: config.ADMIN_ROLE,
+						user: wallet.address,
+						hasRole: true
+					},
+					{
+						role: config.MINTER_ROLE,
+						user: wallet.address,
+						hasRole: true
+					},
+					{
+						role: config.UPGRADER_ROLE,
+						user: wallet.address,
+						hasRole: true
+					}
+				],
 				maxSupply,
-				isMaxSupplyLocked: isMaxSupplyLocked ?? false,
 				mintPermissions: mintPermissions ?? [],
 				splits: splits ?? [],
 				isTransferLocked: isTransferLocked ?? false
@@ -278,7 +302,7 @@ export default class MeemContractService {
 					// eslint-disable-next-line no-await-in-loop
 					await services.meem.mintOriginalMeem({
 						meemContractAddress: meemContract.address,
-						to: cleanAdmins[i].toLowerCase(),
+						to: cleanAdmins[i].user.toLowerCase(),
 						metadata: adminTokenMetadata,
 						mintedBy: wallet.address
 					})

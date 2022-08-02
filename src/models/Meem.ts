@@ -55,11 +55,6 @@ export default class Meem extends BaseModel<Meem> {
 			type: DataTypes.TEXT,
 			allowNull: false
 		},
-		// owner: {
-		// 	type: DataTypes.STRING,
-		// 	allowNull: false
-		// },
-
 		mintedAt: {
 			type: DataTypes.DATE,
 			allowNull: false
