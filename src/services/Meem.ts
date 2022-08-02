@@ -44,6 +44,7 @@ function handleStringErrorKey(errorKey: string) {
 	}
 
 	return {
+		code: errorKey,
 		status: 'failure',
 		httpCode: 500,
 		reason: err.reason,

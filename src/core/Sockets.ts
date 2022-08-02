@@ -244,6 +244,7 @@ export default class Sockets {
 	public async emitError(
 		/** The error code */
 		error: {
+			code: string
 			httpCode: number
 			status: string
 			reason: string

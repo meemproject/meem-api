@@ -124,7 +124,15 @@ export default class MeemContractController {
 		}
 
 		if (config.DISABLE_ASYNC_MINTING) {
-			await services.meemContract.createMeemContract(req.body)
+			try {
+				await services.meemContract.createMeemContract(req.body)
+			} catch (e) {
+				log.crit(e)
+				sockets?.emitError(
+					config.errors.CONTRACT_CREATION_FAILED,
+					req.wallet.address
+				)
+			}
 		} else {
 			const lambda = new AWS.Lambda({
 				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,

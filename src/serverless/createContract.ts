@@ -50,12 +50,7 @@ export const handle = async (
 		log.crit(e)
 		if (body.senderWalletAddress) {
 			await sockets?.emitError(
-				{
-					httpCode: 500,
-					friendlyReason: e?.message,
-					reason: e?.message,
-					status: 'failure'
-				},
+				config.errors.CONTRACT_CREATION_FAILED,
 				body.senderWalletAddress
 			)
 		}

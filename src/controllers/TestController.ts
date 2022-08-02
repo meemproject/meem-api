@@ -256,13 +256,8 @@ export default class ConfigController {
 		// })
 
 		await sockets?.emitError(
-			{
-				httpCode: 400,
-				friendlyReason: 'Sorry, something went wrong',
-				reason: 'Test error',
-				status: 'failure'
-			},
-			req.body.address
+			config.errors.CONTRACT_CREATION_FAILED,
+			req.query.address as string
 		)
 
 		return res.json({
