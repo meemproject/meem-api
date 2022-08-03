@@ -34,6 +34,7 @@ export interface IEmitOptions {
 export type EventHandler<TData = Record<string, any>> = (options: {
 	socketId: string
 	data?: Partial<TData>
+	walletAddress?: string
 }) => Promise<void>
 
 export type CanSubscribeHandler = (options: {

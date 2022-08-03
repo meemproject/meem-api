@@ -81,8 +81,6 @@ export default class MeemController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		// TODO: Check permissions for minting
-		// Allowed if user is a contract admin
 		const meemContract =
 			await orm.models.MeemContract.findByAddress<MeemContract>(
 				req.body.meemContractAddress,
@@ -126,8 +124,6 @@ export default class MeemController {
 				})
 				.promise()
 		}
-
-		// TODO: Notify via Websockets
 
 		return res.json({
 			status: 'success'

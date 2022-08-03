@@ -66,7 +66,7 @@ export default class ProviderListener {
 			// See genericMeemContract.interface.events for all available events
 			// genericMeemContract.interface.events
 			const eventIds = {
-				MeemDiamondCreated: utils.id('MeemDiamondCreated()'),
+				// MeemDiamondCreated: utils.id('MeemDiamondCreated()'),
 				// OwnershipTransferred: utils.id('OwnershipTransferred(address,address)'),
 				MeemRoleGranted: utils.id('MeemRoleGranted(bytes32,address)'),
 				MeemRoleRevoked: utils.id('MeemRoleRevoked(bytes32,address)'),

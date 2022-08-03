@@ -2,6 +2,7 @@
 import AWS from 'aws-sdk'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { PutItemInputAttributeMap } from 'aws-sdk/clients/dynamodb'
+import { ethers } from 'ethers'
 import { MeemAPI } from '../types/meem.generated'
 
 AWS.config.update({
@@ -31,7 +32,7 @@ export default class DbService {
 
 			if (walletAddress) {
 				item.walletAddress = {
-					S: walletAddress
+					S: ethers.utils.getAddress(walletAddress)
 				}
 			}
 			return {
@@ -83,7 +84,7 @@ export default class DbService {
 			query.FilterExpression = '#walletAddress = :walletAddress'
 			query.ExpressionAttributeNames['#walletAddress'] = 'walletAddress'
 			query.ExpressionAttributeValues[':walletAddress'] = {
-				S: walletAddress
+				S: ethers.utils.getAddress(walletAddress)
 			}
 		}
 

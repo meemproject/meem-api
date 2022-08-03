@@ -420,6 +420,13 @@ const errors = {
 		reason: 'Something went wrong creating the contract.',
 		friendlyReason: 'Something went wrong creating the contract.'
 	},
+	CONTRACT_UPDATE_FAILED: {
+		code: 'CONTRACT_UPDATE_FAILED',
+		httpCode: 400,
+		status: 'failure',
+		reason: 'Something went wrong updating the contract.',
+		friendlyReason: 'Something went wrong updating the contract.'
+	},
 	MINT_FAILED: {
 		code: 'MINT_FAILED',
 		httpCode: 400,
