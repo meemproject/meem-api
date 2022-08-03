@@ -2,7 +2,6 @@ import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
 import Meem from './Meem'
-import MeemIdentification from './MeemIdentification'
 
 export default class Clipping extends BaseModel<Clipping> {
 	public static readonly modelName = 'Clipping'
@@ -12,10 +11,6 @@ export default class Clipping extends BaseModel<Clipping> {
 			{
 				name: 'Clipping_MeemId',
 				fields: ['MeemId']
-			},
-			{
-				name: 'Clipping_MeemIdentificationId',
-				fields: ['MeemIdentificationId']
 			},
 			{
 				name: 'Clipping_address',
@@ -54,12 +49,7 @@ export default class Clipping extends BaseModel<Clipping> {
 
 	public Meem!: Meem | null
 
-	public MeemIdentificationId!: string | null
-
-	public MeemIdentification!: MeemIdentification | null
-
 	public static associate(models: IModels) {
 		this.belongsTo(models.Meem)
-		this.belongsTo(models.MeemIdentification)
 	}
 }

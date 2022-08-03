@@ -1,7 +1,6 @@
 import crypto from 'crypto'
 import jsonwebtoken from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
-import Twitter from '../models/Twitter'
 import Wallet from '../models/Wallet'
 
 export default class MeemIdService {
@@ -99,28 +98,5 @@ export default class MeemIdService {
 	public static verifyJWT(token: string): Record<string, any> {
 		const data = jsonwebtoken.verify(token, config.JWT_SECRET)
 		return data as Record<string, any>
-	}
-
-	private static findMeemIdentificationId(options: {
-		twitters?: Twitter[]
-		wallets?: Wallet[]
-	}) {
-		const { twitters, wallets } = options
-		if (twitters) {
-			for (let i = 0; i < twitters.length; i += 1) {
-				if (twitters[i].MeemIdentificationId) {
-					return twitters[i].MeemIdentificationId
-				}
-			}
-		}
-		if (wallets) {
-			for (let i = 0; i < wallets.length; i += 1) {
-				if (wallets[i].MeemIdentificationId) {
-					return wallets[i].MeemIdentificationId
-				}
-			}
-		}
-
-		return null
 	}
 }
