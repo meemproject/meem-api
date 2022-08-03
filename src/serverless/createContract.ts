@@ -12,7 +12,9 @@ let server: Express.Application
 let request: SuperTest<Test>
 
 export const handle = async (
-	body: MeemAPI.v1.CreateMeemContract.IRequestBody,
+	body: MeemAPI.v1.CreateMeemContract.IRequestBody & {
+		senderWalletAddress?: string
+	},
 	context: AWSLambda.Context
 ) => {
 	// eslint-disable-next-line no-console
@@ -28,21 +30,34 @@ export const handle = async (
 	)
 	context.callbackWaitsForEmptyEventLoop = false
 
-	if (!request || !server) {
-		const result = await start()
-		server = result.app
-		request = supertest(server)
+	try {
+		if (!request || !server) {
+			const result = await start()
+			server = result.app
+			request = supertest(server)
+		}
+
+		if (config.AWS_WEBSOCKET_GATEWAY_URL) {
+			sockets?.connectLambda({
+				endpoint: config.AWS_WEBSOCKET_GATEWAY_URL
+			})
+		} else {
+			log.crit('AWS_WEBSOCKET_GATEWAY_URL is not set')
+		}
+
+		await services.meemContract.createMeemContract(body)
+	} catch (e: any) {
+		log.crit(e)
+		if (body.senderWalletAddress) {
+			await sockets?.emitError(
+				{
+					httpCode: 500,
+					friendlyReason: e?.message,
+					reason: e?.message,
+					status: 'failure'
+				},
+				body.senderWalletAddress
+			)
+		}
 	}
-
-	if (config.AWS_WEBSOCKET_GATEWAY_URL) {
-		sockets?.connectLambda({
-			endpoint: config.AWS_WEBSOCKET_GATEWAY_URL
-		})
-	} else {
-		log.crit('AWS_WEBSOCKET_GATEWAY_URL is not set')
-	}
-
-	const meem = await services.meemContract.createMeemContract(body)
-
-	return meem
 }

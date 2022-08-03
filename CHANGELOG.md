@@ -1,3 +1,22 @@
+## [1.7.2](https://github.com/meemproject/meem-api-aws/compare/v1.7.1...v1.7.2) (2022-08-01)
+
+## [1.7.1](https://github.com/meemproject/meem-api-aws/compare/v1.7.0...v1.7.1) (2022-07-29)
+
+# [1.7.0](https://github.com/meemproject/meem-api-aws/compare/v1.6.0...v1.7.0) (2022-07-29)
+
+
+### Features
+
+* gassless club creeation ([54dcac7](https://github.com/meemproject/meem-api-aws/commit/54dcac7))
+* generate types files ([511babf](https://github.com/meemproject/meem-api-aws/commit/511babf))
+
+# [1.6.0](https://github.com/meemproject/meem-api-aws/compare/v1.5.5...v1.6.0) (2022-07-13)
+
+
+### Features
+
+* epm support ([96e673a](https://github.com/meemproject/meem-api-aws/commit/96e673a))
+
 ## [1.5.5](https://github.com/meemproject/meem-api-aws/compare/v1.5.4...v1.5.5) (2022-06-14)
 
 

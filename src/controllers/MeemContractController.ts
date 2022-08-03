@@ -168,30 +168,24 @@ export default class MeemContractController {
 		}
 
 		if (config.DISABLE_ASYNC_MINTING) {
-			try {
-				await services.meemContract.createMeemContract(req.body)
-			} catch (e) {
-				log.crit(e)
-				throw new Error('SERVER_ERROR')
-			}
+			await services.meemContract.createMeemContract(req.body)
 		} else {
 			const lambda = new AWS.Lambda({
 				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
 				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
 				region: 'us-east-1'
 			})
-			try {
-				await lambda
-					.invoke({
-						InvocationType: 'Event',
-						FunctionName: config.LAMBDA_CREATE_CONTRACT_FUNCTION,
-						Payload: JSON.stringify(req.body)
+
+			await lambda
+				.invoke({
+					InvocationType: 'Event',
+					FunctionName: config.LAMBDA_CREATE_CONTRACT_FUNCTION,
+					Payload: JSON.stringify({
+						...req.body,
+						senderWalletAddress: req.wallet.address
 					})
-					.promise()
-			} catch (e) {
-				log.crit(e)
-				throw new Error('SERVER_ERROR')
-			}
+				})
+				.promise()
 		}
 
 		return res.json({
