@@ -172,9 +172,11 @@ export default class TypesService {
 	}
 
 	public static async generateContractTypes(
-		options: MeemAPI.v1.GenerateTypes.IRequestBody
+		options: MeemAPI.v1.GenerateTypes.IRequestBody & {
+			shouldForceUpdate?: boolean
+		}
 	) {
-		const { bundleId } = options
+		const { bundleId, shouldForceUpdate } = options
 		let abi = options.abi ?? []
 		const name = slug(options.name ?? 'MyContract')
 
@@ -192,7 +194,11 @@ export default class TypesService {
 				throw new Error('BUNDLE_NOT_FOUND')
 			}
 
-			if (bundle.abi.length > 0 && bundle.types.length > 0) {
+			if (
+				bundle.abi.length > 0 &&
+				bundle.types.length > 0 &&
+				!shouldForceUpdate
+			) {
 				return {
 					types: bundle.types,
 					abi: bundle.abi

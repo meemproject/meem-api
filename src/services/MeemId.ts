@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import jsonwebtoken from 'jsonwebtoken'
+import jsonwebtoken, { SignOptions } from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 import Wallet from '../models/Wallet'
 
@@ -71,13 +71,19 @@ export default class MeemIdService {
 		walletAddress: string
 		/** Additional data to encode in the JWT. Do not store sensitive information here. */
 		data?: Record<string, any>
-		expiresIn?: number
+		expiresIn?: number | null
 	}) {
 		const { walletAddress, expiresIn, data } = options
-
-		let exp = config.JWT_EXPIRES_IN
-		if (expiresIn && +expiresIn > 0) {
-			exp = +expiresIn
+		const jwtOptions: SignOptions = {
+			algorithm: 'HS512',
+			jwtid: uuidv4()
+		}
+		if (expiresIn !== null) {
+			let exp = config.JWT_EXPIRES_IN
+			if (expiresIn && +expiresIn > 0) {
+				exp = +expiresIn
+			}
+			jwtOptions.expiresIn = exp
 		}
 		const token = jsonwebtoken.sign(
 			{
@@ -85,11 +91,7 @@ export default class MeemIdService {
 				walletAddress
 			},
 			config.JWT_SECRET,
-			{
-				algorithm: 'HS512',
-				jwtid: uuidv4(),
-				expiresIn: exp
-			}
+			jwtOptions
 		)
 
 		return token

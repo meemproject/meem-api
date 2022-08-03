@@ -125,7 +125,10 @@ export default class MeemContractController {
 
 		if (config.DISABLE_ASYNC_MINTING) {
 			try {
-				await services.meemContract.createMeemContract(req.body)
+				await services.meemContract.createMeemContract({
+					...req.body,
+					senderWalletAddress: req.wallet.address
+				})
 			} catch (e) {
 				log.crit(e)
 				sockets?.emitError(

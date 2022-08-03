@@ -306,7 +306,8 @@ export default class ContractController {
 		await t.commit()
 
 		const { types, abi } = await services.types.generateContractTypes({
-			bundleId: bundle.id
+			bundleId: bundle.id,
+			shouldForceUpdate: true
 		})
 
 		return res.json({

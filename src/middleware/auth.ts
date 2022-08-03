@@ -14,10 +14,16 @@ export default (app: Express) => {
 			try {
 				const jwtData = services.meemId.verifyJWT(jwt)
 				if (jwtData.walletAddress) {
+					const where: Record<string, any> = {
+						address: jwtData.walletAddress
+					}
+
+					if (jwtData.apiKey) {
+						where.apiKey = jwtData.apiKey
+					}
+
 					const wallet = await orm.models.Wallet.findOne({
-						where: {
-							address: jwtData.walletAddress
-						}
+						where
 					})
 
 					if (wallet) {

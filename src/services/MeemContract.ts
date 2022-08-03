@@ -4,11 +4,8 @@ import { Validator } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 import _ from 'lodash'
 import slug from 'slug'
-import {
-	InitParamsStruct,
-	MeemDiamondV3,
-	MeemDiamondV3__factory
-} from '../types/Meem'
+import Wallet from '../models/Wallet'
+import { InitParamsStruct, Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class MeemContractService {
@@ -57,19 +54,30 @@ export default class MeemContractService {
 	}
 
 	public static async createMeemContract(
-		data: MeemAPI.v1.CreateMeemContract.IRequestBody
+		data: MeemAPI.v1.CreateMeemContract.IRequestBody & {
+			senderWalletAddress: string
+		}
 	): Promise<string> {
+		const {
+			metadata,
+			name,
+			maxSupply,
+			mintPermissions,
+			splits,
+			isTransferLocked,
+			shouldMintAdminTokens,
+			adminTokenMetadata,
+			senderWalletAddress
+		} = data
+		let senderWallet = await orm.models.Wallet.findByAddress<Wallet>(
+			senderWalletAddress
+		)
 		try {
-			const {
-				metadata,
-				name,
-				maxSupply,
-				mintPermissions,
-				splits,
-				isTransferLocked,
-				shouldMintAdminTokens,
-				adminTokenMetadata
-			} = data
+			if (!senderWallet) {
+				senderWallet = await orm.models.Wallet.create({
+					address: senderWalletAddress
+				})
+			}
 
 			const symbol = data.symbol ?? slug(data.name)
 			const admins = data.admins ?? []
@@ -166,9 +174,14 @@ export default class MeemContractService {
 				recommendedGwei = config.MAX_GAS_PRICE_GWEI
 			}
 
-			const proxyContract = (await proxyContractFactory.deploy(wallet.address, {
-				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
-			})) as MeemDiamondV3
+			const proxyContract = (await proxyContractFactory.deploy(
+				// senderWallet.address,
+				wallet.address,
+				[senderWallet.address, wallet.address],
+				{
+					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+				}
+			)) as any
 			log.debug(
 				`Deploying contract w/ tx: ${proxyContract.deployTransaction.hash}`
 			)
@@ -178,7 +191,7 @@ export default class MeemContractService {
 				`Deployed proxy at ${proxyContract.address} w/ tx: ${proxyContract.deployTransaction.hash}`
 			)
 
-			const meemContract = MeemDiamondV3__factory.connect(
+			const meemContract = Mycontract__factory.connect(
 				proxyContract.address,
 				wallet
 			)
@@ -324,6 +337,10 @@ export default class MeemContractService {
 
 			return meemContract.address
 		} catch (e) {
+			await sockets?.emitError(
+				config.errors.CONTRACT_CREATION_FAILED,
+				senderWalletAddress
+			)
 			log.crit(e)
 			throw new Error('SERVER_ERROR')
 		}

@@ -13,7 +13,7 @@ let request: SuperTest<Test>
 
 export const handle = async (
 	body: MeemAPI.v1.CreateMeemContract.IRequestBody & {
-		senderWalletAddress?: string
+		senderWalletAddress: string
 	},
 	context: AWSLambda.Context
 ) => {
@@ -48,11 +48,5 @@ export const handle = async (
 		await services.meemContract.createMeemContract(body)
 	} catch (e: any) {
 		log.crit(e)
-		if (body.senderWalletAddress) {
-			await sockets?.emitError(
-				config.errors.CONTRACT_CREATION_FAILED,
-				body.senderWalletAddress
-			)
-		}
 	}
 }

@@ -25,10 +25,8 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 		nonce: {
 			type: DataTypes.STRING
 		},
-		isDefault: {
-			type: DataTypes.BOOLEAN,
-			allowNull: false,
-			defaultValue: false
+		apiKey: {
+			type: DataTypes.UUID
 		}
 	}
 
@@ -38,9 +36,7 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 
 	public nonce!: string | null
 
-	public isDefault!: boolean
-
-	public MeemIdentificationId!: string | null
+	public apiKey!: string | null
 
 	public MeemContractWalletId!: string | null
 
