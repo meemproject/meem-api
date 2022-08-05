@@ -2,7 +2,6 @@
 import AWS from 'aws-sdk'
 import { Response } from 'express'
 import _ from 'lodash'
-import MeemContract from '../models/MeemContract'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
