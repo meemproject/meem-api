@@ -335,7 +335,7 @@ export default class MeemContractController {
 					Payload: JSON.stringify({
 						...req.body,
 						meemContractId,
-						mintedBy: req.wallet.address
+						senderWalletAddress: req.wallet.address
 					})
 				})
 				.promise()

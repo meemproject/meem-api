@@ -59,12 +59,7 @@ export default class MeemContractService {
 			meemContractId: string
 		}
 	): Promise<string> {
-		const {
-			shouldMintAdminTokens,
-			adminTokenMetadata,
-			senderWalletAddress,
-			meemContractId
-		} = data
+		const { senderWalletAddress, meemContractId } = data
 		try {
 			const meemContractInstance = await orm.models.MeemContract.findOne({
 				where: {
@@ -125,22 +120,6 @@ export default class MeemContractService {
 					removeAdmins.push(cleanAdmins[i].user)
 				}
 			}
-
-			console.log({
-				...contractInitParams,
-				roles: [
-					...newAdmins.map(a => ({
-						role: config.ADMIN_ROLE,
-						user: a,
-						hasRole: true
-					})),
-					...removeAdmins.map(a => ({
-						role: config.ADMIN_ROLE,
-						user: a,
-						hasRole: false
-					}))
-				]
-			})
 
 			const tx = await meemContract.reinitialize(
 				{
