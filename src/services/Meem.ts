@@ -11,7 +11,7 @@ import errors from '../config/errors'
 import meemAccessListTesting from '../lib/meem-access-testing.json'
 import meemAccessList from '../lib/meem-access.json'
 import { ERC721 } from '../types/ERC721'
-import { MeemDiamondV3 } from '../types/Meem'
+import { Mycontract } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 import { MeemMetadataStorageProvider } from '../types/shared/meem.shared'
 
@@ -139,7 +139,7 @@ export default class MeemService {
 				// @ts-ignore
 				.connect(global.signer)
 			// const c = await ethers.getContractAt(meemABI, address)
-			return c as MeemDiamondV3
+			return c as Mycontract
 		}
 
 		let walletPrivateKey =
@@ -159,7 +159,7 @@ export default class MeemService {
 			address,
 			meemABI,
 			wallet
-		) as unknown as MeemDiamondV3
+		) as unknown as Mycontract
 
 		return meemContract
 	}
@@ -446,7 +446,7 @@ export default class MeemService {
 	// 			recommendedGwei = config.MAX_GAS_PRICE_GWEI
 	// 		}
 
-	// 		const mintParams: Parameters<MeemDiamondV3['mint']> = [
+	// 		const mintParams: Parameters<Mycontract['mint']> = [
 	// 			{
 	// 				to: data.accountAddress,
 	// 				tokenURI: meemMetadata.tokenURI,
@@ -592,7 +592,7 @@ export default class MeemService {
 
 			const tokenURI = `ipfs://${result.IpfsHash}`
 
-			const mintParams: Parameters<MeemDiamondV3['mint']> = [
+			const mintParams: Parameters<Mycontract['mint']> = [
 				{
 					to: data.to.toLowerCase(),
 					tokenURI,
@@ -898,7 +898,7 @@ export default class MeemService {
 	}
 
 	public static async getMetadata(options: {
-		contract: ERC721 | MeemDiamondV3
+		contract: ERC721 | Mycontract
 		tokenId: Ethers.BigNumberish
 	}) {
 		const { contract, tokenId } = options
