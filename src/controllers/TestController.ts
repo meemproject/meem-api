@@ -256,13 +256,8 @@ export default class ConfigController {
 		// })
 
 		await sockets?.emitError(
-			{
-				httpCode: 400,
-				friendlyReason: 'Sorry, something went wrong',
-				reason: 'Test error',
-				status: 'failure'
-			},
-			req.body.address
+			config.errors.CONTRACT_CREATION_FAILED,
+			req.query.address as string
 		)
 
 		return res.json({
@@ -365,21 +360,6 @@ export default class ConfigController {
 		res: Response
 	): Promise<Response> {
 		const { walletAddress } = req.query as Record<string, string>
-
-		const meemId = await orm.models.MeemIdentification.findOne({
-			include: [
-				{
-					model: orm.models.Wallet,
-					where: {
-						address: walletAddress
-					}
-				}
-			]
-		})
-
-		if (!meemId) {
-			throw new Error('MEEM_ID_NOT_FOUND')
-		}
 
 		const jwt = await services.meemId.generateJWT({
 			walletAddress

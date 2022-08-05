@@ -34,6 +34,7 @@ export interface IEmitOptions {
 export type EventHandler<TData = Record<string, any>> = (options: {
 	socketId: string
 	data?: Partial<TData>
+	walletAddress?: string
 }) => Promise<void>
 
 export type CanSubscribeHandler = (options: {
@@ -244,6 +245,7 @@ export default class Sockets {
 	public async emitError(
 		/** The error code */
 		error: {
+			code: string
 			httpCode: number
 			status: string
 			reason: string
