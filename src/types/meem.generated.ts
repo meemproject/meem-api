@@ -642,6 +642,37 @@ export interface TweetMeemExtensionProperties {
 
 export namespace v1 {
 
+export namespace AuthenticateWithDiscord {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/identity/discord/authenticate`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The authorization code provided by Discord OAuth response */
+		authCode: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		/** The Discord access token */
+		accessToken: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
 export namespace CheckClippingStatus {
 	export interface IPathParams {}
 
@@ -1167,6 +1198,38 @@ export namespace GetConfig {
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetDiscordUserGuilds {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/identity/discord/guilds`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		/* Discord access token for user making request */
+		/* TODO: Store this on the identity of the user */
+		accessToken: string
+	}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		/** The user's Discord guilds */
+		guilds: { [key: string]: any }[]
+	}
 
 	export interface IDefinition {
 		pathParams: IPathParams

@@ -2,6 +2,7 @@ import coreExpress, { Express } from 'express'
 import multer from 'multer'
 import ConfigController from '../controllers/ConfigController'
 import ContractController from '../controllers/ContractController'
+import IdentityController from '../controllers/IdentityController'
 import MeemContractController from '../controllers/MeemContractController'
 import MeemController from '../controllers/MeemController'
 import MeemIdController from '../controllers/MeemIdController'
@@ -28,6 +29,14 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/login', MeemIdController.login)
 
 	router.getAsync('/me', MeemIdController.getMe)
+	router.postAsync(
+		'/identity/discord/authenticate',
+		IdentityController.authenticateWithDiscord
+	)
+	router.getAsync(
+		'/identity/discord/guilds',
+		IdentityController.getDiscordGuilds
+	)
 
 	router.getAsync('/config', ConfigController.getConfig)
 
