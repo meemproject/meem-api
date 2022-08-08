@@ -15,44 +15,6 @@ import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
 
 
 
-export type FacetCutStruct = {
-  target: string;
-  action: BigNumberish;
-  selectors: BytesLike[];
-};
-
-export type FacetCutStructOutput = [string, number, string[]] & {
-  target: string;
-  action: number;
-  selectors: string[];
-};
-
-export type FacetStruct = { target: string; selectors: BytesLike[] };
-
-export type FacetStructOutput = [string, string[]] & {
-  target: string;
-  selectors: string[];
-};
-
-export type SplitStruct = {
-  toAddress: string;
-  amount: BigNumberish;
-  lockedBy: string;
-};
-
-export type SplitStructOutput = [string, BigNumber, string] & {
-  toAddress: string;
-  amount: BigNumber;
-  lockedBy: string;
-};
-
-export type PartStruct = { account: string; value: BigNumberish };
-
-export type PartStructOutput = [string, BigNumber] & {
-  account: string;
-  value: BigNumber;
-};
-
 export type MeemPermissionStruct = {
   permission: BigNumberish;
   addresses: string[];
@@ -76,6 +38,96 @@ export type MeemPermissionStructOutput = [
   costWei: BigNumber;
   mintStartTimestamp: BigNumber;
   mintEndTimestamp: BigNumber;
+};
+
+export type SplitStruct = {
+  toAddress: string;
+  amount: BigNumberish;
+  lockedBy: string;
+};
+
+export type SplitStructOutput = [string, BigNumber, string] & {
+  toAddress: string;
+  amount: BigNumber;
+  lockedBy: string;
+};
+
+export type ContractInfoStruct = {
+  symbol: string;
+  name: string;
+  contractURI: string;
+  maxSupply: BigNumberish;
+  mintPermissions: MeemPermissionStruct[];
+  splits: SplitStruct[];
+  isTransferLocked: boolean;
+};
+
+export type ContractInfoStructOutput = [
+  string,
+  string,
+  string,
+  BigNumber,
+  MeemPermissionStructOutput[],
+  SplitStructOutput[],
+  boolean
+] & {
+  symbol: string;
+  name: string;
+  contractURI: string;
+  maxSupply: BigNumber;
+  mintPermissions: MeemPermissionStructOutput[];
+  splits: SplitStructOutput[];
+  isTransferLocked: boolean;
+};
+
+export type SetRoleItemStruct = {
+  user: string;
+  role: BytesLike;
+  hasRole: boolean;
+};
+
+export type SetRoleItemStructOutput = [string, string, boolean] & {
+  user: string;
+  role: string;
+  hasRole: boolean;
+};
+
+export type InitParamsStruct = {
+  symbol: string;
+  name: string;
+  contractURI: string;
+  roles: SetRoleItemStruct[];
+  maxSupply: BigNumberish;
+  mintPermissions: MeemPermissionStruct[];
+  splits: SplitStruct[];
+  isTransferLocked: boolean;
+};
+
+export type InitParamsStructOutput = [
+  string,
+  string,
+  string,
+  SetRoleItemStructOutput[],
+  BigNumber,
+  MeemPermissionStructOutput[],
+  SplitStructOutput[],
+  boolean
+] & {
+  symbol: string;
+  name: string;
+  contractURI: string;
+  roles: SetRoleItemStructOutput[];
+  maxSupply: BigNumber;
+  mintPermissions: MeemPermissionStructOutput[];
+  splits: SplitStructOutput[];
+  isTransferLocked: boolean;
+};
+
+export type PartStruct = { account: string; value: BigNumberish };
+
+export type PartStructOutput = [string, BigNumber] & {
+  account: string;
+  value: BigNumber;
 };
 
 export type MeemStruct = {
@@ -104,113 +156,35 @@ export type MintParametersStructOutput = [string, string, number] & {
   tokenType: number;
 };
 
-export type ContractInfoStruct = {
-  symbol: string;
-  name: string;
-  contractURI: string;
-  maxSupply: BigNumberish;
-  isMaxSupplyLocked: boolean;
-  mintPermissions: MeemPermissionStruct[];
-  splits: SplitStruct[];
-  isTransferLocked: boolean;
-};
-
-export type ContractInfoStructOutput = [
-  string,
-  string,
-  string,
-  BigNumber,
-  boolean,
-  MeemPermissionStructOutput[],
-  SplitStructOutput[],
-  boolean
-] & {
-  symbol: string;
-  name: string;
-  contractURI: string;
-  maxSupply: BigNumber;
-  isMaxSupplyLocked: boolean;
-  mintPermissions: MeemPermissionStructOutput[];
-  splits: SplitStructOutput[];
-  isTransferLocked: boolean;
-};
-
-export type InitParamsStruct = {
-  symbol: string;
-  name: string;
-  contractURI: string;
-  admins: string[];
-  minters: string[];
-  maxSupply: BigNumberish;
-  isMaxSupplyLocked: boolean;
-  mintPermissions: MeemPermissionStruct[];
-  splits: SplitStruct[];
-  isTransferLocked: boolean;
-};
-
-export type InitParamsStructOutput = [
-  string,
-  string,
-  string,
-  string[],
-  string[],
-  BigNumber,
-  boolean,
-  MeemPermissionStructOutput[],
-  SplitStructOutput[],
-  boolean
-] & {
-  symbol: string;
-  name: string;
-  contractURI: string;
-  admins: string[];
-  minters: string[];
-  maxSupply: BigNumber;
-  isMaxSupplyLocked: boolean;
-  mintPermissions: MeemPermissionStructOutput[];
-  splits: SplitStructOutput[];
-  isTransferLocked: boolean;
-};
-
-export interface MeemProxyV1Interface extends ethers.utils.Interface {
+export interface MycontractInterface extends ethers.utils.Interface {
   functions: {
-    "acceptOwnership()": FunctionFragment;
-    "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
-    "facetAddress(bytes4)": FunctionFragment;
-    "facetAddresses()": FunctionFragment;
-    "facetFunctionSelectors(address)": FunctionFragment;
-    "facets()": FunctionFragment;
-    "getFallbackAddress()": FunctionFragment;
-    "nomineeOwner()": FunctionFragment;
-    "owner()": FunctionFragment;
-    "setFallbackAddress(address)": FunctionFragment;
-    "supportsInterface(bytes4)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
-    "ADMIN_ROLE()": FunctionFragment;
-    "getRoles(bytes32)": FunctionFragment;
-    "grantRole(bytes32,address)": FunctionFragment;
-    "hasRole(bytes32,address)": FunctionFragment;
-    "revokeRole(bytes32,address)": FunctionFragment;
-    "addressClippings(address)": FunctionFragment;
-    "clip(uint256)": FunctionFragment;
-    "clippings(uint256)": FunctionFragment;
-    "hasAddressClipped(uint256,address)": FunctionFragment;
-    "numClippings(uint256)": FunctionFragment;
-    "tokenClippings(uint256)": FunctionFragment;
-    "unClip(uint256)": FunctionFragment;
-    "getRaribleV2Royalties(uint256)": FunctionFragment;
-    "handleSaleDistribution(uint256)": FunctionFragment;
-    "lockSplits(uint256)": FunctionFragment;
-    "setSplits(uint256,(address,uint256,address)[])": FunctionFragment;
+    "contractURI()": FunctionFragment;
+    "getContractInfo()": FunctionFragment;
+    "initialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256)[],(address,uint256,address)[],bool))": FunctionFragment;
+    "reinitialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256)[],(address,uint256,address)[],bool))": FunctionFragment;
+    "setContractInfo(string,string)": FunctionFragment;
+    "setContractURI(string)": FunctionFragment;
     "MINTER_ROLE()": FunctionFragment;
-    "lockMaxSupply()": FunctionFragment;
     "maxSupply()": FunctionFragment;
-    "requireCanMint(address)": FunctionFragment;
+    "requireCanMint(address,uint256)": FunctionFragment;
     "requireCanTransfer(address,address,uint256)": FunctionFragment;
     "setIsTransferrable(bool)": FunctionFragment;
     "setMaxSupply(uint256)": FunctionFragment;
     "setMintingPermissions((uint8,address[],uint256,uint256,uint256,uint256)[])": FunctionFragment;
     "validatePermissions((uint8,address[],uint256,uint256,uint256,uint256)[],(uint8,address[],uint256,uint256,uint256,uint256)[])": FunctionFragment;
+    "ADMIN_ROLE()": FunctionFragment;
+    "UPGRADER_ROLE()": FunctionFragment;
+    "bulkSetRoles((address,bytes32,bool)[])": FunctionFragment;
+    "canUpgradeContract(address)": FunctionFragment;
+    "getRoles(bytes32)": FunctionFragment;
+    "grantRole(bytes32,address)": FunctionFragment;
+    "hasRole(bytes32,address)": FunctionFragment;
+    "requireRole(bytes32,address)": FunctionFragment;
+    "revokeRole(bytes32,address)": FunctionFragment;
+    "getRaribleV2Royalties(uint256)": FunctionFragment;
+    "handleSaleDistribution(uint256,address,uint256)": FunctionFragment;
+    "lockSplits(uint256)": FunctionFragment;
+    "setSplits(uint256,(address,uint256,address)[])": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
@@ -223,132 +197,47 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     "requireTokenAdmin(uint256,address)": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
+    "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
     "tokenByIndex(uint256)": FunctionFragment;
     "tokenOfOwnerByIndex(address,uint256)": FunctionFragment;
     "tokenURI(uint256)": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
-    "contractURI()": FunctionFragment;
-    "getContractInfo()": FunctionFragment;
-    "initialize((string,string,string,address[],address[],uint256,bool,(uint8,address[],uint256,uint256,uint256,uint256)[],(address,uint256,address)[],bool))": FunctionFragment;
-    "reinitialize((string,string,string,address[],address[],uint256,bool,(uint8,address[],uint256,uint256,uint256,uint256)[],(address,uint256,address)[],bool))": FunctionFragment;
-    "setContractInfo(string,string)": FunctionFragment;
-    "setContractURI(string)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "acceptOwnership",
+    functionFragment: "contractURI",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "diamondCut",
-    values: [FacetCutStruct[], string, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "facetAddress",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "facetAddresses",
+    functionFragment: "getContractInfo",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "facetFunctionSelectors",
+    functionFragment: "initialize",
+    values: [InitParamsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reinitialize",
+    values: [InitParamsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setContractInfo",
+    values: [string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setContractURI",
     values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "facets", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "getFallbackAddress",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "nomineeOwner",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "setFallbackAddress",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "supportsInterface",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ADMIN_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "getRoles", values: [BytesLike]): string;
-  encodeFunctionData(
-    functionFragment: "grantRole",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "hasRole",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "revokeRole",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addressClippings",
-    values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "clip", values: [BigNumberish]): string;
-  encodeFunctionData(
-    functionFragment: "clippings",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "hasAddressClipped",
-    values: [BigNumberish, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "numClippings",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenClippings",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "unClip",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRaribleV2Royalties",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "handleSaleDistribution",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lockSplits",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSplits",
-    values: [BigNumberish, SplitStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "MINTER_ROLE",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "lockMaxSupply",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "maxSupply", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "requireCanMint",
-    values: [string]
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "requireCanTransfer",
@@ -369,6 +258,55 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "validatePermissions",
     values: [MeemPermissionStruct[], MeemPermissionStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ADMIN_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "UPGRADER_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "bulkSetRoles",
+    values: [SetRoleItemStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "canUpgradeContract",
+    values: [string]
+  ): string;
+  encodeFunctionData(functionFragment: "getRoles", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "grantRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "requireRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRaribleV2Royalties",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "handleSaleDistribution",
+    values: [BigNumberish, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lockSplits",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSplits",
+    values: [BigNumberish, SplitStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "approve",
@@ -412,6 +350,10 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     functionFragment: "setApprovalForAll",
     values: [string, boolean]
   ): string;
+  encodeFunctionData(
+    functionFragment: "supportsInterface",
+    values: [BytesLike]
+  ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "tokenByIndex",
@@ -433,110 +375,30 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     values: [string, string, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "contractURI",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getContractInfo",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initialize",
-    values: [InitParamsStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "reinitialize",
-    values: [InitParamsStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setContractInfo",
-    values: [string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setContractURI",
-    values: [string]
-  ): string;
 
   decodeFunctionResult(
-    functionFragment: "acceptOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "facetAddress",
+    functionFragment: "contractURI",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "facetAddresses",
+    functionFragment: "getContractInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "reinitialize",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "facetFunctionSelectors",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "facets", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getFallbackAddress",
+    functionFragment: "setContractInfo",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "nomineeOwner",
+    functionFragment: "setContractURI",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setFallbackAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "supportsInterface",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "ADMIN_ROLE", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getRoles", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "addressClippings",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "clip", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "clippings", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "hasAddressClipped",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "numClippings",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenClippings",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "unClip", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getRaribleV2Royalties",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "handleSaleDistribution",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "lockSplits", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setSplits", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "MINTER_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lockMaxSupply",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "maxSupply", data: BytesLike): Result;
@@ -564,6 +426,37 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     functionFragment: "validatePermissions",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "ADMIN_ROLE", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "UPGRADER_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "bulkSetRoles",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "canUpgradeContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getRoles", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "requireRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getRaribleV2Royalties",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "handleSaleDistribution",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "lockSplits", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setSplits", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
@@ -594,6 +487,10 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     functionFragment: "setApprovalForAll",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tokenByIndex",
@@ -612,134 +509,76 @@ export interface MeemProxyV1Interface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "contractURI",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getContractInfo",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "reinitialize",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setContractInfo",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setContractURI",
-    data: BytesLike
-  ): Result;
 
   events: {
-    "DiamondCut(tuple[],address,bytes)": EventFragment;
-    "MeemDiamondCreated()": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
-    "MeemRoleGranted(bytes32,address)": EventFragment;
-    "MeemRoleRevoked(bytes32,address)": EventFragment;
-    "MeemTokenClipped(uint256,address)": EventFragment;
-    "MeemTokenUnClipped(uint256,address)": EventFragment;
-    "MeemSplitsSet(uint256,tuple[])": EventFragment;
-    "RoyaltiesSet(uint256,tuple[])": EventFragment;
+    "MeemContractInfoSet(address)": EventFragment;
+    "MeemContractInitialized(address)": EventFragment;
+    "MeemContractURISet(address)": EventFragment;
+    "MeemIsTransferrableLocked()": EventFragment;
     "MeemMaxSupplyLocked()": EventFragment;
     "MeemMaxSupplySet(uint256)": EventFragment;
     "MeemMintPermissionsSet(tuple[])": EventFragment;
+    "MeemRoleGranted(bytes32,address)": EventFragment;
+    "MeemRoleRevoked(bytes32,address)": EventFragment;
+    "RoleGranted(bytes32,address,address)": EventFragment;
+    "RoleRevoked(bytes32,address,address)": EventFragment;
+    "RoleSet(bytes32,address[],address)": EventFragment;
+    "MeemSplitsSet(uint256,tuple[])": EventFragment;
+    "RoyaltiesSet(uint256,tuple[])": EventFragment;
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
     "MeemTransfer(address,address,uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
-    "MeemContractInfoSet(address)": EventFragment;
-    "MeemContractInitialized(address)": EventFragment;
-    "MeemContractURISet(address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "DiamondCut"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemDiamondCreated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemRoleGranted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemRoleRevoked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemTokenClipped"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemTokenUnClipped"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemSplitsSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoyaltiesSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemContractInfoSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemContractInitialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemContractURISet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemIsTransferrableLocked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MeemMaxSupplyLocked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MeemMaxSupplySet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MeemMintPermissionsSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemRoleGranted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemRoleRevoked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemSplitsSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoyaltiesSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MeemTransfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemContractInfoSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemContractInitialized"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemContractURISet"): EventFragment;
 }
 
-export type DiamondCutEvent = TypedEvent<
-  [FacetCutStructOutput[], string, string],
-  { facetCuts: FacetCutStructOutput[]; target: string; data: string }
+export type MeemContractInfoSetEvent = TypedEvent<
+  [string],
+  { contractAddress: string }
 >;
 
-export type DiamondCutEventFilter = TypedEventFilter<DiamondCutEvent>;
+export type MeemContractInfoSetEventFilter =
+  TypedEventFilter<MeemContractInfoSetEvent>;
 
-export type MeemDiamondCreatedEvent = TypedEvent<[], {}>;
-
-export type MeemDiamondCreatedEventFilter =
-  TypedEventFilter<MeemDiamondCreatedEvent>;
-
-export type OwnershipTransferredEvent = TypedEvent<
-  [string, string],
-  { previousOwner: string; newOwner: string }
+export type MeemContractInitializedEvent = TypedEvent<
+  [string],
+  { contractAddress: string }
 >;
 
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
+export type MeemContractInitializedEventFilter =
+  TypedEventFilter<MeemContractInitializedEvent>;
 
-export type MeemRoleGrantedEvent = TypedEvent<
-  [string, string],
-  { role: string; user: string }
+export type MeemContractURISetEvent = TypedEvent<
+  [string],
+  { contractAddress: string }
 >;
 
-export type MeemRoleGrantedEventFilter = TypedEventFilter<MeemRoleGrantedEvent>;
+export type MeemContractURISetEventFilter =
+  TypedEventFilter<MeemContractURISetEvent>;
 
-export type MeemRoleRevokedEvent = TypedEvent<
-  [string, string],
-  { role: string; user: string }
->;
+export type MeemIsTransferrableLockedEvent = TypedEvent<[], {}>;
 
-export type MeemRoleRevokedEventFilter = TypedEventFilter<MeemRoleRevokedEvent>;
-
-export type MeemTokenClippedEvent = TypedEvent<
-  [BigNumber, string],
-  { tokenId: BigNumber; addy: string }
->;
-
-export type MeemTokenClippedEventFilter =
-  TypedEventFilter<MeemTokenClippedEvent>;
-
-export type MeemTokenUnClippedEvent = TypedEvent<
-  [BigNumber, string],
-  { tokenId: BigNumber; addy: string }
->;
-
-export type MeemTokenUnClippedEventFilter =
-  TypedEventFilter<MeemTokenUnClippedEvent>;
-
-export type MeemSplitsSetEvent = TypedEvent<
-  [BigNumber, SplitStructOutput[]],
-  { tokenId: BigNumber; splits: SplitStructOutput[] }
->;
-
-export type MeemSplitsSetEventFilter = TypedEventFilter<MeemSplitsSetEvent>;
-
-export type RoyaltiesSetEvent = TypedEvent<
-  [BigNumber, PartStructOutput[]],
-  { tokenId: BigNumber; royalties: PartStructOutput[] }
->;
-
-export type RoyaltiesSetEventFilter = TypedEventFilter<RoyaltiesSetEvent>;
+export type MeemIsTransferrableLockedEventFilter =
+  TypedEventFilter<MeemIsTransferrableLockedEvent>;
 
 export type MeemMaxSupplyLockedEvent = TypedEvent<[], {}>;
 
@@ -761,6 +600,55 @@ export type MeemMintPermissionsSetEvent = TypedEvent<
 
 export type MeemMintPermissionsSetEventFilter =
   TypedEventFilter<MeemMintPermissionsSetEvent>;
+
+export type MeemRoleGrantedEvent = TypedEvent<
+  [string, string],
+  { role: string; user: string }
+>;
+
+export type MeemRoleGrantedEventFilter = TypedEventFilter<MeemRoleGrantedEvent>;
+
+export type MeemRoleRevokedEvent = TypedEvent<
+  [string, string],
+  { role: string; user: string }
+>;
+
+export type MeemRoleRevokedEventFilter = TypedEventFilter<MeemRoleRevokedEvent>;
+
+export type RoleGrantedEvent = TypedEvent<
+  [string, string, string],
+  { role: string; account: string; sender: string }
+>;
+
+export type RoleGrantedEventFilter = TypedEventFilter<RoleGrantedEvent>;
+
+export type RoleRevokedEvent = TypedEvent<
+  [string, string, string],
+  { role: string; account: string; sender: string }
+>;
+
+export type RoleRevokedEventFilter = TypedEventFilter<RoleRevokedEvent>;
+
+export type RoleSetEvent = TypedEvent<
+  [string, string[], string],
+  { role: string; account: string[]; sender: string }
+>;
+
+export type RoleSetEventFilter = TypedEventFilter<RoleSetEvent>;
+
+export type MeemSplitsSetEvent = TypedEvent<
+  [BigNumber, SplitStructOutput[]],
+  { tokenId: BigNumber; splits: SplitStructOutput[] }
+>;
+
+export type MeemSplitsSetEventFilter = TypedEventFilter<MeemSplitsSetEvent>;
+
+export type RoyaltiesSetEvent = TypedEvent<
+  [BigNumber, PartStructOutput[]],
+  { tokenId: BigNumber; royalties: PartStructOutput[] }
+>;
+
+export type RoyaltiesSetEventFilter = TypedEventFilter<RoyaltiesSetEvent>;
 
 export type ApprovalEvent = TypedEvent<
   [string, string, BigNumber],
@@ -790,36 +678,12 @@ export type TransferEvent = TypedEvent<
 
 export type TransferEventFilter = TypedEventFilter<TransferEvent>;
 
-export type MeemContractInfoSetEvent = TypedEvent<
-  [string],
-  { contractAddress: string }
->;
-
-export type MeemContractInfoSetEventFilter =
-  TypedEventFilter<MeemContractInfoSetEvent>;
-
-export type MeemContractInitializedEvent = TypedEvent<
-  [string],
-  { contractAddress: string }
->;
-
-export type MeemContractInitializedEventFilter =
-  TypedEventFilter<MeemContractInitializedEvent>;
-
-export type MeemContractURISetEvent = TypedEvent<
-  [string],
-  { contractAddress: string }
->;
-
-export type MeemContractURISetEventFilter =
-  TypedEventFilter<MeemContractURISetEvent>;
-
-export interface MeemProxyV1 extends BaseContract {
+export interface Mycontract extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: MeemProxyV1Interface;
+  interface: MycontractInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -841,160 +705,61 @@ export interface MeemProxyV1 extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    acceptOwnership(
+    contractURI(overrides?: CallOverrides): Promise<[string]>;
+
+    getContractInfo(
+      overrides?: CallOverrides
+    ): Promise<[ContractInfoStructOutput]>;
+
+    initialize(
+      params: InitParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    diamondCut(
-      facetCuts: FacetCutStruct[],
-      target: string,
-      data: BytesLike,
+    reinitialize(
+      params: InitParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    facetAddress(
-      selector: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[string] & { facet: string }>;
-
-    facetAddresses(
-      overrides?: CallOverrides
-    ): Promise<[string[]] & { addresses: string[] }>;
-
-    facetFunctionSelectors(
-      facet: string,
-      overrides?: CallOverrides
-    ): Promise<[string[]] & { selectors: string[] }>;
-
-    facets(
-      overrides?: CallOverrides
-    ): Promise<[FacetStructOutput[]] & { diamondFacets: FacetStructOutput[] }>;
-
-    getFallbackAddress(overrides?: CallOverrides): Promise<[string]>;
-
-    nomineeOwner(overrides?: CallOverrides): Promise<[string]>;
-
-    owner(overrides?: CallOverrides): Promise<[string]>;
-
-    setFallbackAddress(
-      fallbackAddress: string,
+    "setContractInfo(string,string)"(
+      name: string,
+      symbol: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "supportsInterface(bytes4)"(
-      interfaceId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "supportsInterface(bytes4)"(
-      interfaceId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    transferOwnership(
-      account: string,
+    "setContractInfo(string,string,string,uint256)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
+      maxSupply: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<[string[]]>;
-
-    grantRole(
-      role: BytesLike,
-      user: string,
+    "setContractInfo(string,string,string)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    hasRole(
-      role: BytesLike,
-      user: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    revokeRole(
-      role: BytesLike,
-      user: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    addressClippings(
-      addy: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber[]]>;
-
-    clip(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    clippings(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[string[]]>;
-
-    hasAddressClipped(
-      tokenId: BigNumberish,
-      addy: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    numClippings(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    tokenClippings(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[string[]]>;
-
-    unClip(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    getRaribleV2Royalties(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[PartStructOutput[]]>;
-
-    "handleSaleDistribution(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "handleSaleDistribution(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    lockSplits(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setSplits(
-      tokenId: BigNumberish,
-      splits: SplitStruct[],
+    setContractURI(
+      newContractURI: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     MINTER_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    lockMaxSupply(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     maxSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "requireCanMint(address)"(
+    "requireCanMint(address,uint256)"(
       minter: string,
+      msgValue: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    "requireCanMint(address)"(
+    "requireCanMint(address,uint256)"(
       minter: string,
+      msgValue: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1013,7 +778,7 @@ export interface MeemProxyV1 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setIsTransferrable(
-      isTransferLocked: boolean,
+      isTransferrable: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1032,6 +797,76 @@ export interface MeemProxyV1 extends BaseContract {
       overridePermissions: MeemPermissionStruct[],
       overrides?: CallOverrides
     ): Promise<[void]>;
+
+    ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    UPGRADER_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    bulkSetRoles(
+      items: SetRoleItemStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    canUpgradeContract(
+      upgrader: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<[string[]]>;
+
+    grantRole(
+      role: BytesLike,
+      user: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    requireRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
+    revokeRole(
+      role: BytesLike,
+      user: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    getRaribleV2Royalties(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[PartStructOutput[]]>;
+
+    "handleSaleDistribution(uint256,address,uint256)"(
+      tokenId: BigNumberish,
+      msgSender: string,
+      msgValue: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "handleSaleDistribution(uint256,address,uint256)"(
+      tokenId: BigNumberish,
+      msgSender: string,
+      msgValue: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    lockSplits(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setSplits(
+      tokenId: BigNumberish,
+      splits: SplitStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     approve(
       operator: string,
@@ -1101,6 +936,11 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
     tokenByIndex(
@@ -1127,197 +967,61 @@ export interface MeemProxyV1 extends BaseContract {
       tokenId: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    contractURI(overrides?: CallOverrides): Promise<[string]>;
-
-    getContractInfo(
-      overrides?: CallOverrides
-    ): Promise<[ContractInfoStructOutput]>;
-
-    initialize(
-      params: InitParamsStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    reinitialize(
-      params: InitParamsStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setContractInfo(string,string)"(
-      name: string,
-      symbol: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setContractInfo(string,string,string,uint256)"(
-      name: string,
-      symbol: string,
-      newContractURI: string,
-      maxSupply: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "setContractInfo(string,string,string)"(
-      name: string,
-      symbol: string,
-      newContractURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setContractURI(
-      newContractURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
 
-  acceptOwnership(
+  contractURI(overrides?: CallOverrides): Promise<string>;
+
+  getContractInfo(overrides?: CallOverrides): Promise<ContractInfoStructOutput>;
+
+  initialize(
+    params: InitParamsStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  diamondCut(
-    facetCuts: FacetCutStruct[],
-    target: string,
-    data: BytesLike,
+  reinitialize(
+    params: InitParamsStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  facetAddress(selector: BytesLike, overrides?: CallOverrides): Promise<string>;
-
-  facetAddresses(overrides?: CallOverrides): Promise<string[]>;
-
-  facetFunctionSelectors(
-    facet: string,
-    overrides?: CallOverrides
-  ): Promise<string[]>;
-
-  facets(overrides?: CallOverrides): Promise<FacetStructOutput[]>;
-
-  getFallbackAddress(overrides?: CallOverrides): Promise<string>;
-
-  nomineeOwner(overrides?: CallOverrides): Promise<string>;
-
-  owner(overrides?: CallOverrides): Promise<string>;
-
-  setFallbackAddress(
-    fallbackAddress: string,
+  "setContractInfo(string,string)"(
+    name: string,
+    symbol: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "supportsInterface(bytes4)"(
-    interfaceId: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "supportsInterface(bytes4)"(
-    interfaceId: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  transferOwnership(
-    account: string,
+  "setContractInfo(string,string,string,uint256)"(
+    name: string,
+    symbol: string,
+    newContractURI: string,
+    maxSupply: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  getRoles(role: BytesLike, overrides?: CallOverrides): Promise<string[]>;
-
-  grantRole(
-    role: BytesLike,
-    user: string,
+  "setContractInfo(string,string,string)"(
+    name: string,
+    symbol: string,
+    newContractURI: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  hasRole(
-    role: BytesLike,
-    user: string,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  revokeRole(
-    role: BytesLike,
-    user: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  addressClippings(
-    addy: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber[]>;
-
-  clip(
-    tokenId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  clippings(
-    tokenId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<string[]>;
-
-  hasAddressClipped(
-    tokenId: BigNumberish,
-    addy: string,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  numClippings(
-    tokenId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  tokenClippings(
-    tokenId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<string[]>;
-
-  unClip(
-    tokenId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  getRaribleV2Royalties(
-    tokenId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<PartStructOutput[]>;
-
-  "handleSaleDistribution(uint256)"(
-    tokenId: BigNumberish,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "handleSaleDistribution(uint256)"(
-    tokenId: BigNumberish,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  lockSplits(
-    tokenId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setSplits(
-    tokenId: BigNumberish,
-    splits: SplitStruct[],
+  setContractURI(
+    newContractURI: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   MINTER_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  lockMaxSupply(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-  "requireCanMint(address)"(
+  "requireCanMint(address,uint256)"(
     minter: string,
+    msgValue: BigNumberish,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "requireCanMint(address)"(
+  "requireCanMint(address,uint256)"(
     minter: string,
+    msgValue: BigNumberish,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1336,7 +1040,7 @@ export interface MeemProxyV1 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setIsTransferrable(
-    isTransferLocked: boolean,
+    isTransferrable: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1355,6 +1059,76 @@ export interface MeemProxyV1 extends BaseContract {
     overridePermissions: MeemPermissionStruct[],
     overrides?: CallOverrides
   ): Promise<void>;
+
+  ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  UPGRADER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  bulkSetRoles(
+    items: SetRoleItemStruct[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  canUpgradeContract(
+    upgrader: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  getRoles(role: BytesLike, overrides?: CallOverrides): Promise<string[]>;
+
+  grantRole(
+    role: BytesLike,
+    user: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  hasRole(
+    role: BytesLike,
+    user: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  requireRole(
+    role: BytesLike,
+    user: string,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
+  revokeRole(
+    role: BytesLike,
+    user: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  getRaribleV2Royalties(
+    tokenId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<PartStructOutput[]>;
+
+  "handleSaleDistribution(uint256,address,uint256)"(
+    tokenId: BigNumberish,
+    msgSender: string,
+    msgValue: BigNumberish,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "handleSaleDistribution(uint256,address,uint256)"(
+    tokenId: BigNumberish,
+    msgSender: string,
+    msgValue: BigNumberish,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  lockSplits(
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setSplits(
+    tokenId: BigNumberish,
+    splits: SplitStruct[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   approve(
     operator: string,
@@ -1421,6 +1195,11 @@ export interface MeemProxyV1 extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  supportsInterface(
+    interfaceId: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   symbol(overrides?: CallOverrides): Promise<string>;
 
   tokenByIndex(
@@ -1445,184 +1224,62 @@ export interface MeemProxyV1 extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  contractURI(overrides?: CallOverrides): Promise<string>;
-
-  getContractInfo(overrides?: CallOverrides): Promise<ContractInfoStructOutput>;
-
-  initialize(
-    params: InitParamsStruct,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  reinitialize(
-    params: InitParamsStruct,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setContractInfo(string,string)"(
-    name: string,
-    symbol: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setContractInfo(string,string,string,uint256)"(
-    name: string,
-    symbol: string,
-    newContractURI: string,
-    maxSupply: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setContractInfo(string,string,string)"(
-    name: string,
-    symbol: string,
-    newContractURI: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setContractURI(
-    newContractURI: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
-    acceptOwnership(overrides?: CallOverrides): Promise<void>;
+    contractURI(overrides?: CallOverrides): Promise<string>;
 
-    diamondCut(
-      facetCuts: FacetCutStruct[],
-      target: string,
-      data: BytesLike,
+    getContractInfo(
+      overrides?: CallOverrides
+    ): Promise<ContractInfoStructOutput>;
+
+    initialize(
+      params: InitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    facetAddress(
-      selector: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    facetAddresses(overrides?: CallOverrides): Promise<string[]>;
-
-    facetFunctionSelectors(
-      facet: string,
-      overrides?: CallOverrides
-    ): Promise<string[]>;
-
-    facets(overrides?: CallOverrides): Promise<FacetStructOutput[]>;
-
-    getFallbackAddress(overrides?: CallOverrides): Promise<string>;
-
-    nomineeOwner(overrides?: CallOverrides): Promise<string>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
-
-    setFallbackAddress(
-      fallbackAddress: string,
+    reinitialize(
+      params: InitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "supportsInterface(bytes4)"(
-      interfaceId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "supportsInterface(bytes4)"(
-      interfaceId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    transferOwnership(
-      account: string,
+    "setContractInfo(string,string)"(
+      name: string,
+      symbol: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<string[]>;
-
-    grantRole(
-      role: BytesLike,
-      user: string,
+    "setContractInfo(string,string,string,uint256)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
+      maxSupply: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    hasRole(
-      role: BytesLike,
-      user: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    revokeRole(
-      role: BytesLike,
-      user: string,
+    "setContractInfo(string,string,string)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    addressClippings(
-      addy: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
-
-    clip(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    clippings(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<string[]>;
-
-    hasAddressClipped(
-      tokenId: BigNumberish,
-      addy: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    numClippings(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    tokenClippings(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<string[]>;
-
-    unClip(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    getRaribleV2Royalties(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PartStructOutput[]>;
-
-    "handleSaleDistribution(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "handleSaleDistribution(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    lockSplits(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    setSplits(
-      tokenId: BigNumberish,
-      splits: SplitStruct[],
+    setContractURI(
+      newContractURI: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
     MINTER_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    lockMaxSupply(overrides?: CallOverrides): Promise<void>;
-
     maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "requireCanMint(address)"(
+    "requireCanMint(address,uint256)"(
       minter: string,
+      msgValue: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "requireCanMint(address)"(
+    "requireCanMint(address,uint256)"(
       minter: string,
+      msgValue: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1641,7 +1298,7 @@ export interface MeemProxyV1 extends BaseContract {
     ): Promise<void>;
 
     setIsTransferrable(
-      isTransferLocked: boolean,
+      isTransferrable: boolean,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1658,6 +1315,73 @@ export interface MeemProxyV1 extends BaseContract {
     validatePermissions(
       basePermissions: MeemPermissionStruct[],
       overridePermissions: MeemPermissionStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    UPGRADER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    bulkSetRoles(
+      items: SetRoleItemStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    canUpgradeContract(
+      upgrader: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<string[]>;
+
+    grantRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    hasRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    requireRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    revokeRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    getRaribleV2Royalties(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PartStructOutput[]>;
+
+    "handleSaleDistribution(uint256,address,uint256)"(
+      tokenId: BigNumberish,
+      msgSender: string,
+      msgValue: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "handleSaleDistribution(uint256,address,uint256)"(
+      tokenId: BigNumberish,
+      msgSender: string,
+      msgValue: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    lockSplits(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    setSplits(
+      tokenId: BigNumberish,
+      splits: SplitStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1723,6 +1447,11 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     symbol(overrides?: CallOverrides): Promise<string>;
 
     tokenByIndex(
@@ -1746,73 +1475,45 @@ export interface MeemProxyV1 extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    contractURI(overrides?: CallOverrides): Promise<string>;
-
-    getContractInfo(
-      overrides?: CallOverrides
-    ): Promise<ContractInfoStructOutput>;
-
-    initialize(
-      params: InitParamsStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    reinitialize(
-      params: InitParamsStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "setContractInfo(string,string)"(
-      name: string,
-      symbol: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "setContractInfo(string,string,string,uint256)"(
-      name: string,
-      symbol: string,
-      newContractURI: string,
-      maxSupply: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "setContractInfo(string,string,string)"(
-      name: string,
-      symbol: string,
-      newContractURI: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setContractURI(
-      newContractURI: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {
-    "DiamondCut(tuple[],address,bytes)"(
-      facetCuts?: null,
-      target?: null,
-      data?: null
-    ): DiamondCutEventFilter;
-    DiamondCut(
-      facetCuts?: null,
-      target?: null,
-      data?: null
-    ): DiamondCutEventFilter;
+    "MeemContractInfoSet(address)"(
+      contractAddress?: string | null
+    ): MeemContractInfoSetEventFilter;
+    MeemContractInfoSet(
+      contractAddress?: string | null
+    ): MeemContractInfoSetEventFilter;
 
-    "MeemDiamondCreated()"(): MeemDiamondCreatedEventFilter;
-    MeemDiamondCreated(): MeemDiamondCreatedEventFilter;
+    "MeemContractInitialized(address)"(
+      contractAddress?: string | null
+    ): MeemContractInitializedEventFilter;
+    MeemContractInitialized(
+      contractAddress?: string | null
+    ): MeemContractInitializedEventFilter;
 
-    "OwnershipTransferred(address,address)"(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): OwnershipTransferredEventFilter;
-    OwnershipTransferred(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): OwnershipTransferredEventFilter;
+    "MeemContractURISet(address)"(
+      contractAddress?: string | null
+    ): MeemContractURISetEventFilter;
+    MeemContractURISet(
+      contractAddress?: string | null
+    ): MeemContractURISetEventFilter;
+
+    "MeemIsTransferrableLocked()"(): MeemIsTransferrableLockedEventFilter;
+    MeemIsTransferrableLocked(): MeemIsTransferrableLockedEventFilter;
+
+    "MeemMaxSupplyLocked()"(): MeemMaxSupplyLockedEventFilter;
+    MeemMaxSupplyLocked(): MeemMaxSupplyLockedEventFilter;
+
+    "MeemMaxSupplySet(uint256)"(maxSupply?: null): MeemMaxSupplySetEventFilter;
+    MeemMaxSupplySet(maxSupply?: null): MeemMaxSupplySetEventFilter;
+
+    "MeemMintPermissionsSet(tuple[])"(
+      mintPermissions?: null
+    ): MeemMintPermissionsSetEventFilter;
+    MeemMintPermissionsSet(
+      mintPermissions?: null
+    ): MeemMintPermissionsSetEventFilter;
 
     "MeemRoleGranted(bytes32,address)"(
       role?: BytesLike | null,
@@ -1832,23 +1533,38 @@ export interface MeemProxyV1 extends BaseContract {
       user?: string | null
     ): MeemRoleRevokedEventFilter;
 
-    "MeemTokenClipped(uint256,address)"(
-      tokenId?: BigNumberish | null,
-      addy?: string | null
-    ): MeemTokenClippedEventFilter;
-    MeemTokenClipped(
-      tokenId?: BigNumberish | null,
-      addy?: string | null
-    ): MeemTokenClippedEventFilter;
+    "RoleGranted(bytes32,address,address)"(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): RoleGrantedEventFilter;
+    RoleGranted(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): RoleGrantedEventFilter;
 
-    "MeemTokenUnClipped(uint256,address)"(
-      tokenId?: BigNumberish | null,
-      addy?: string | null
-    ): MeemTokenUnClippedEventFilter;
-    MeemTokenUnClipped(
-      tokenId?: BigNumberish | null,
-      addy?: string | null
-    ): MeemTokenUnClippedEventFilter;
+    "RoleRevoked(bytes32,address,address)"(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): RoleRevokedEventFilter;
+    RoleRevoked(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): RoleRevokedEventFilter;
+
+    "RoleSet(bytes32,address[],address)"(
+      role?: BytesLike | null,
+      account?: string[] | null,
+      sender?: string | null
+    ): RoleSetEventFilter;
+    RoleSet(
+      role?: BytesLike | null,
+      account?: string[] | null,
+      sender?: string | null
+    ): RoleSetEventFilter;
 
     "MeemSplitsSet(uint256,tuple[])"(
       tokenId?: null,
@@ -1861,19 +1577,6 @@ export interface MeemProxyV1 extends BaseContract {
       royalties?: null
     ): RoyaltiesSetEventFilter;
     RoyaltiesSet(tokenId?: null, royalties?: null): RoyaltiesSetEventFilter;
-
-    "MeemMaxSupplyLocked()"(): MeemMaxSupplyLockedEventFilter;
-    MeemMaxSupplyLocked(): MeemMaxSupplyLockedEventFilter;
-
-    "MeemMaxSupplySet(uint256)"(maxSupply?: null): MeemMaxSupplySetEventFilter;
-    MeemMaxSupplySet(maxSupply?: null): MeemMaxSupplySetEventFilter;
-
-    "MeemMintPermissionsSet(tuple[])"(
-      mintPermissions?: null
-    ): MeemMintPermissionsSetEventFilter;
-    MeemMintPermissionsSet(
-      mintPermissions?: null
-    ): MeemMintPermissionsSetEventFilter;
 
     "Approval(address,address,uint256)"(
       owner?: string | null,
@@ -1918,180 +1621,62 @@ export interface MeemProxyV1 extends BaseContract {
       to?: string | null,
       tokenId?: BigNumberish | null
     ): TransferEventFilter;
-
-    "MeemContractInfoSet(address)"(
-      contractAddress?: string | null
-    ): MeemContractInfoSetEventFilter;
-    MeemContractInfoSet(
-      contractAddress?: string | null
-    ): MeemContractInfoSetEventFilter;
-
-    "MeemContractInitialized(address)"(
-      contractAddress?: string | null
-    ): MeemContractInitializedEventFilter;
-    MeemContractInitialized(
-      contractAddress?: string | null
-    ): MeemContractInitializedEventFilter;
-
-    "MeemContractURISet(address)"(
-      contractAddress?: string | null
-    ): MeemContractURISetEventFilter;
-    MeemContractURISet(
-      contractAddress?: string | null
-    ): MeemContractURISetEventFilter;
   };
 
   estimateGas: {
-    acceptOwnership(
+    contractURI(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getContractInfo(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      params: InitParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    diamondCut(
-      facetCuts: FacetCutStruct[],
-      target: string,
-      data: BytesLike,
+    reinitialize(
+      params: InitParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    facetAddress(
-      selector: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    facetAddresses(overrides?: CallOverrides): Promise<BigNumber>;
-
-    facetFunctionSelectors(
-      facet: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    facets(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getFallbackAddress(overrides?: CallOverrides): Promise<BigNumber>;
-
-    nomineeOwner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    setFallbackAddress(
-      fallbackAddress: string,
+    "setContractInfo(string,string)"(
+      name: string,
+      symbol: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "supportsInterface(bytes4)"(
-      interfaceId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "supportsInterface(bytes4)"(
-      interfaceId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    transferOwnership(
-      account: string,
+    "setContractInfo(string,string,string,uint256)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
+      maxSupply: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
-
-    grantRole(
-      role: BytesLike,
-      user: string,
+    "setContractInfo(string,string,string)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    hasRole(
-      role: BytesLike,
-      user: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    revokeRole(
-      role: BytesLike,
-      user: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    addressClippings(
-      addy: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    clip(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    clippings(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    hasAddressClipped(
-      tokenId: BigNumberish,
-      addy: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    numClippings(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    tokenClippings(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    unClip(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    getRaribleV2Royalties(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "handleSaleDistribution(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "handleSaleDistribution(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    lockSplits(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setSplits(
-      tokenId: BigNumberish,
-      splits: SplitStruct[],
+    setContractURI(
+      newContractURI: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     MINTER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    lockMaxSupply(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "requireCanMint(address)"(
+    "requireCanMint(address,uint256)"(
       minter: string,
+      msgValue: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "requireCanMint(address)"(
+    "requireCanMint(address,uint256)"(
       minter: string,
+      msgValue: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2110,7 +1695,7 @@ export interface MeemProxyV1 extends BaseContract {
     ): Promise<BigNumber>;
 
     setIsTransferrable(
-      isTransferLocked: boolean,
+      isTransferrable: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2128,6 +1713,76 @@ export interface MeemProxyV1 extends BaseContract {
       basePermissions: MeemPermissionStruct[],
       overridePermissions: MeemPermissionStruct[],
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    UPGRADER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    bulkSetRoles(
+      items: SetRoleItemStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    canUpgradeContract(
+      upgrader: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    grantRole(
+      role: BytesLike,
+      user: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    hasRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    requireRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    revokeRole(
+      role: BytesLike,
+      user: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    getRaribleV2Royalties(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "handleSaleDistribution(uint256,address,uint256)"(
+      tokenId: BigNumberish,
+      msgSender: string,
+      msgValue: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "handleSaleDistribution(uint256,address,uint256)"(
+      tokenId: BigNumberish,
+      msgSender: string,
+      msgValue: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    lockSplits(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setSplits(
+      tokenId: BigNumberish,
+      splits: SplitStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     approve(
@@ -2198,6 +1853,11 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
     tokenByIndex(
@@ -2224,26 +1884,28 @@ export interface MeemProxyV1 extends BaseContract {
       tokenId: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+  };
 
-    contractURI(overrides?: CallOverrides): Promise<BigNumber>;
+  populateTransaction: {
+    contractURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getContractInfo(overrides?: CallOverrides): Promise<BigNumber>;
+    getContractInfo(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     initialize(
       params: InitParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    ): Promise<PopulatedTransaction>;
 
     reinitialize(
       params: InitParamsStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    ): Promise<PopulatedTransaction>;
 
     "setContractInfo(string,string)"(
       name: string,
       symbol: string,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    ): Promise<PopulatedTransaction>;
 
     "setContractInfo(string,string,string,uint256)"(
       name: string,
@@ -2251,177 +1913,33 @@ export interface MeemProxyV1 extends BaseContract {
       newContractURI: string,
       maxSupply: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    ): Promise<PopulatedTransaction>;
 
     "setContractInfo(string,string,string)"(
       name: string,
       symbol: string,
       newContractURI: string,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    ): Promise<PopulatedTransaction>;
 
     setContractURI(
       newContractURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    acceptOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    diamondCut(
-      facetCuts: FacetCutStruct[],
-      target: string,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    facetAddress(
-      selector: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    facetAddresses(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    facetFunctionSelectors(
-      facet: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    facets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getFallbackAddress(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    nomineeOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    setFallbackAddress(
-      fallbackAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "supportsInterface(bytes4)"(
-      interfaceId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "supportsInterface(bytes4)"(
-      interfaceId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getRoles(
-      role: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    grantRole(
-      role: BytesLike,
-      user: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    hasRole(
-      role: BytesLike,
-      user: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    revokeRole(
-      role: BytesLike,
-      user: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    addressClippings(
-      addy: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    clip(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    clippings(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    hasAddressClipped(
-      tokenId: BigNumberish,
-      addy: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    numClippings(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    tokenClippings(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    unClip(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getRaribleV2Royalties(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "handleSaleDistribution(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "handleSaleDistribution(uint256)"(
-      tokenId: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    lockSplits(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setSplits(
-      tokenId: BigNumberish,
-      splits: SplitStruct[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     MINTER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    lockMaxSupply(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     maxSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "requireCanMint(address)"(
+    "requireCanMint(address,uint256)"(
       minter: string,
+      msgValue: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "requireCanMint(address)"(
+    "requireCanMint(address,uint256)"(
       minter: string,
+      msgValue: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2440,7 +1958,7 @@ export interface MeemProxyV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setIsTransferrable(
-      isTransferLocked: boolean,
+      isTransferrable: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2458,6 +1976,79 @@ export interface MeemProxyV1 extends BaseContract {
       basePermissions: MeemPermissionStruct[],
       overridePermissions: MeemPermissionStruct[],
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    UPGRADER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    bulkSetRoles(
+      items: SetRoleItemStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    canUpgradeContract(
+      upgrader: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getRoles(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    grantRole(
+      role: BytesLike,
+      user: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    requireRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    revokeRole(
+      role: BytesLike,
+      user: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getRaribleV2Royalties(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "handleSaleDistribution(uint256,address,uint256)"(
+      tokenId: BigNumberish,
+      msgSender: string,
+      msgValue: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "handleSaleDistribution(uint256,address,uint256)"(
+      tokenId: BigNumberish,
+      msgSender: string,
+      msgValue: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    lockSplits(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setSplits(
+      tokenId: BigNumberish,
+      splits: SplitStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     approve(
@@ -2531,6 +2122,11 @@ export interface MeemProxyV1 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     tokenByIndex(
@@ -2556,46 +2152,6 @@ export interface MeemProxyV1 extends BaseContract {
       to: string,
       tokenId: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    contractURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getContractInfo(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    initialize(
-      params: InitParamsStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    reinitialize(
-      params: InitParamsStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setContractInfo(string,string)"(
-      name: string,
-      symbol: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setContractInfo(string,string,string,uint256)"(
-      name: string,
-      symbol: string,
-      newContractURI: string,
-      maxSupply: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setContractInfo(string,string,string)"(
-      name: string,
-      symbol: string,
-      newContractURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setContractURI(
-      newContractURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
@@ -2653,750 +2209,485 @@ export type GetARGsTypeFromFactory<F> = F extends MinEthersFactory<any, any>
 
 const _abi = [
   {
-    type: "constructor",
-    inputs: [
-      {
-        name: "owner",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "DiamondCut",
+    name: "MeemContractInfoSet",
     type: "event",
     inputs: [
       {
-        name: "facetCuts",
-        type: "tuple[]",
-        indexed: false,
+        name: "contractAddress",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "MeemContractInitialized",
+    type: "event",
+    inputs: [
+      {
+        name: "contractAddress",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "MeemContractURISet",
+    type: "event",
+    inputs: [
+      {
+        name: "contractAddress",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "contractURI",
+    type: "function",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "string",
+        internalType: "string",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    name: "getContractInfo",
+    type: "function",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "tuple",
         components: [
           {
-            name: "target",
-            type: "address",
-            internalType: "address",
+            name: "symbol",
+            type: "string",
+            internalType: "string",
           },
           {
-            name: "action",
-            type: "uint8",
-            internalType: "enum IDiamondCuttable.FacetCutAction",
+            name: "name",
+            type: "string",
+            internalType: "string",
           },
           {
-            name: "selectors",
-            type: "bytes4[]",
-            internalType: "bytes4[]",
-          },
-        ],
-        internalType: "struct IDiamondCuttable.FacetCut[]",
-      },
-      {
-        name: "target",
-        type: "address",
-        indexed: false,
-        internalType: "address",
-      },
-      {
-        name: "data",
-        type: "bytes",
-        indexed: false,
-        internalType: "bytes",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "MeemDiamondCreated",
-    type: "event",
-    inputs: [],
-    anonymous: false,
-  },
-  {
-    name: "OwnershipTransferred",
-    type: "event",
-    inputs: [
-      {
-        name: "previousOwner",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-      {
-        name: "newOwner",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: "fallback",
-    stateMutability: "payable",
-  },
-  {
-    name: "acceptOwnership",
-    type: "function",
-    inputs: [],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "diamondCut",
-    type: "function",
-    inputs: [
-      {
-        name: "facetCuts",
-        type: "tuple[]",
-        components: [
-          {
-            name: "target",
-            type: "address",
-            internalType: "address",
+            name: "contractURI",
+            type: "string",
+            internalType: "string",
           },
           {
-            name: "action",
-            type: "uint8",
-            internalType: "enum IDiamondCuttable.FacetCutAction",
-          },
-          {
-            name: "selectors",
-            type: "bytes4[]",
-            internalType: "bytes4[]",
-          },
-        ],
-        internalType: "struct IDiamondCuttable.FacetCut[]",
-      },
-      {
-        name: "target",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "data",
-        type: "bytes",
-        internalType: "bytes",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "facetAddress",
-    type: "function",
-    inputs: [
-      {
-        name: "selector",
-        type: "bytes4",
-        internalType: "bytes4",
-      },
-    ],
-    outputs: [
-      {
-        name: "facet",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "facetAddresses",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "addresses",
-        type: "address[]",
-        internalType: "address[]",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "facetFunctionSelectors",
-    type: "function",
-    inputs: [
-      {
-        name: "facet",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [
-      {
-        name: "selectors",
-        type: "bytes4[]",
-        internalType: "bytes4[]",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "facets",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "diamondFacets",
-        type: "tuple[]",
-        components: [
-          {
-            name: "target",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "selectors",
-            type: "bytes4[]",
-            internalType: "bytes4[]",
-          },
-        ],
-        internalType: "struct IDiamondLoupe.Facet[]",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "getFallbackAddress",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "nomineeOwner",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "owner",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "setFallbackAddress",
-    type: "function",
-    inputs: [
-      {
-        name: "fallbackAddress",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "supportsInterface",
-    type: "function",
-    inputs: [
-      {
-        name: "interfaceId",
-        type: "bytes4",
-        internalType: "bytes4",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "bool",
-        internalType: "bool",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "transferOwnership",
-    type: "function",
-    inputs: [
-      {
-        name: "account",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "receive",
-    stateMutability: "payable",
-  },
-  {
-    name: "MeemRoleGranted",
-    type: "event",
-    inputs: [
-      {
-        name: "role",
-        type: "bytes32",
-        indexed: true,
-        internalType: "bytes32",
-      },
-      {
-        name: "user",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "MeemRoleRevoked",
-    type: "event",
-    inputs: [
-      {
-        name: "role",
-        type: "bytes32",
-        indexed: true,
-        internalType: "bytes32",
-      },
-      {
-        name: "user",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "ADMIN_ROLE",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "bytes32",
-        internalType: "bytes32",
-      },
-    ],
-    stateMutability: "pure",
-  },
-  {
-    name: "getRoles",
-    type: "function",
-    inputs: [
-      {
-        name: "role",
-        type: "bytes32",
-        internalType: "bytes32",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "address[]",
-        internalType: "address[]",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "grantRole",
-    type: "function",
-    inputs: [
-      {
-        name: "role",
-        type: "bytes32",
-        internalType: "bytes32",
-      },
-      {
-        name: "user",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "hasRole",
-    type: "function",
-    inputs: [
-      {
-        name: "role",
-        type: "bytes32",
-        internalType: "bytes32",
-      },
-      {
-        name: "user",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "bool",
-        internalType: "bool",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "revokeRole",
-    type: "function",
-    inputs: [
-      {
-        name: "role",
-        type: "bytes32",
-        internalType: "bytes32",
-      },
-      {
-        name: "user",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "MeemTokenClipped",
-    type: "event",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        indexed: true,
-        internalType: "uint256",
-      },
-      {
-        name: "addy",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "MeemTokenUnClipped",
-    type: "event",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        indexed: true,
-        internalType: "uint256",
-      },
-      {
-        name: "addy",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "addressClippings",
-    type: "function",
-    inputs: [
-      {
-        name: "addy",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256[]",
-        internalType: "uint256[]",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "clip",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "clippings",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "address[]",
-        internalType: "address[]",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "hasAddressClipped",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "addy",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "bool",
-        internalType: "bool",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "numClippings",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "tokenClippings",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "address[]",
-        internalType: "address[]",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "unClip",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "MeemSplitsSet",
-    type: "event",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        indexed: false,
-        internalType: "uint256",
-      },
-      {
-        name: "splits",
-        type: "tuple[]",
-        indexed: false,
-        components: [
-          {
-            name: "toAddress",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "amount",
+            name: "maxSupply",
             type: "uint256",
             internalType: "uint256",
           },
           {
-            name: "lockedBy",
-            type: "address",
-            internalType: "address",
+            name: "mintPermissions",
+            type: "tuple[]",
+            components: [
+              {
+                name: "permission",
+                type: "uint8",
+                internalType: "enum Permission",
+              },
+              {
+                name: "addresses",
+                type: "address[]",
+                internalType: "address[]",
+              },
+              {
+                name: "numTokens",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "costWei",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintStartTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintEndTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+            ],
+            internalType: "struct MeemPermission[]",
+          },
+          {
+            name: "splits",
+            type: "tuple[]",
+            components: [
+              {
+                name: "toAddress",
+                type: "address",
+                internalType: "address",
+              },
+              {
+                name: "amount",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "lockedBy",
+                type: "address",
+                internalType: "address",
+              },
+            ],
+            internalType: "struct Split[]",
+          },
+          {
+            name: "isTransferLocked",
+            type: "bool",
+            internalType: "bool",
           },
         ],
-        internalType: "struct Split[]",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "RoyaltiesSet",
-    type: "event",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        indexed: false,
-        internalType: "uint256",
-      },
-      {
-        name: "royalties",
-        type: "tuple[]",
-        indexed: false,
-        components: [
-          {
-            name: "account",
-            type: "address",
-            internalType: "address payable",
-          },
-          {
-            name: "value",
-            type: "uint96",
-            internalType: "uint96",
-          },
-        ],
-        internalType: "struct LibPart.Part[]",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "getRaribleV2Royalties",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "tuple[]",
-        components: [
-          {
-            name: "account",
-            type: "address",
-            internalType: "address payable",
-          },
-          {
-            name: "value",
-            type: "uint96",
-            internalType: "uint96",
-          },
-        ],
-        internalType: "struct LibPart.Part[]",
+        internalType: "struct ContractInfo",
       },
     ],
     stateMutability: "view",
   },
   {
-    name: "handleSaleDistribution",
+    name: "initialize",
     type: "function",
     inputs: [
       {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "payable",
-  },
-  {
-    name: "lockSplits",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setSplits",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "splits",
-        type: "tuple[]",
+        name: "params",
+        type: "tuple",
         components: [
           {
-            name: "toAddress",
-            type: "address",
-            internalType: "address",
+            name: "symbol",
+            type: "string",
+            internalType: "string",
           },
           {
-            name: "amount",
+            name: "name",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "contractURI",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "roles",
+            type: "tuple[]",
+            components: [
+              {
+                name: "user",
+                type: "address",
+                internalType: "address",
+              },
+              {
+                name: "role",
+                type: "bytes32",
+                internalType: "bytes32",
+              },
+              {
+                name: "hasRole",
+                type: "bool",
+                internalType: "bool",
+              },
+            ],
+            internalType: "struct SetRoleItem[]",
+          },
+          {
+            name: "maxSupply",
             type: "uint256",
             internalType: "uint256",
           },
           {
-            name: "lockedBy",
-            type: "address",
-            internalType: "address",
+            name: "mintPermissions",
+            type: "tuple[]",
+            components: [
+              {
+                name: "permission",
+                type: "uint8",
+                internalType: "enum Permission",
+              },
+              {
+                name: "addresses",
+                type: "address[]",
+                internalType: "address[]",
+              },
+              {
+                name: "numTokens",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "costWei",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintStartTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintEndTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+            ],
+            internalType: "struct MeemPermission[]",
+          },
+          {
+            name: "splits",
+            type: "tuple[]",
+            components: [
+              {
+                name: "toAddress",
+                type: "address",
+                internalType: "address",
+              },
+              {
+                name: "amount",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "lockedBy",
+                type: "address",
+                internalType: "address",
+              },
+            ],
+            internalType: "struct Split[]",
+          },
+          {
+            name: "isTransferLocked",
+            type: "bool",
+            internalType: "bool",
           },
         ],
-        internalType: "struct Split[]",
+        internalType: "struct InitParams",
       },
     ],
     outputs: [],
     stateMutability: "nonpayable",
+  },
+  {
+    name: "reinitialize",
+    type: "function",
+    inputs: [
+      {
+        name: "params",
+        type: "tuple",
+        components: [
+          {
+            name: "symbol",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "name",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "contractURI",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "roles",
+            type: "tuple[]",
+            components: [
+              {
+                name: "user",
+                type: "address",
+                internalType: "address",
+              },
+              {
+                name: "role",
+                type: "bytes32",
+                internalType: "bytes32",
+              },
+              {
+                name: "hasRole",
+                type: "bool",
+                internalType: "bool",
+              },
+            ],
+            internalType: "struct SetRoleItem[]",
+          },
+          {
+            name: "maxSupply",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintPermissions",
+            type: "tuple[]",
+            components: [
+              {
+                name: "permission",
+                type: "uint8",
+                internalType: "enum Permission",
+              },
+              {
+                name: "addresses",
+                type: "address[]",
+                internalType: "address[]",
+              },
+              {
+                name: "numTokens",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "costWei",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintStartTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintEndTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+            ],
+            internalType: "struct MeemPermission[]",
+          },
+          {
+            name: "splits",
+            type: "tuple[]",
+            components: [
+              {
+                name: "toAddress",
+                type: "address",
+                internalType: "address",
+              },
+              {
+                name: "amount",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "lockedBy",
+                type: "address",
+                internalType: "address",
+              },
+            ],
+            internalType: "struct Split[]",
+          },
+          {
+            name: "isTransferLocked",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
+        internalType: "struct InitParams",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setContractInfo",
+    type: "function",
+    inputs: [
+      {
+        name: "name",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "symbol",
+        type: "string",
+        internalType: "string",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setContractInfo",
+    type: "function",
+    inputs: [
+      {
+        name: "name",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "symbol",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "newContractURI",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "maxSupply",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setContractInfo",
+    type: "function",
+    inputs: [
+      {
+        name: "name",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "symbol",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "newContractURI",
+        type: "string",
+        internalType: "string",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setContractURI",
+    type: "function",
+    inputs: [
+      {
+        name: "newContractURI",
+        type: "string",
+        internalType: "string",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "MeemIsTransferrableLocked",
+    type: "event",
+    inputs: [],
+    anonymous: false,
   },
   {
     name: "MeemMaxSupplyLocked",
@@ -3476,13 +2767,6 @@ const _abi = [
     stateMutability: "pure",
   },
   {
-    name: "lockMaxSupply",
-    type: "function",
-    inputs: [],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
     name: "maxSupply",
     type: "function",
     inputs: [],
@@ -3503,6 +2787,11 @@ const _abi = [
         name: "minter",
         type: "address",
         internalType: "address",
+      },
+      {
+        name: "msgValue",
+        type: "uint256",
+        internalType: "uint256",
       },
     ],
     outputs: [],
@@ -3536,7 +2825,7 @@ const _abi = [
     type: "function",
     inputs: [
       {
-        name: "isTransferLocked",
+        name: "isTransferrable",
         type: "bool",
         internalType: "bool",
       },
@@ -3683,6 +2972,460 @@ const _abi = [
     ],
     outputs: [],
     stateMutability: "pure",
+  },
+  {
+    name: "MeemRoleGranted",
+    type: "event",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        indexed: true,
+        internalType: "bytes32",
+      },
+      {
+        name: "user",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "MeemRoleRevoked",
+    type: "event",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        indexed: true,
+        internalType: "bytes32",
+      },
+      {
+        name: "user",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "RoleGranted",
+    type: "event",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        indexed: true,
+        internalType: "bytes32",
+      },
+      {
+        name: "account",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "sender",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "RoleRevoked",
+    type: "event",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        indexed: true,
+        internalType: "bytes32",
+      },
+      {
+        name: "account",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "sender",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "RoleSet",
+    type: "event",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        indexed: true,
+        internalType: "bytes32",
+      },
+      {
+        name: "account",
+        type: "address[]",
+        indexed: true,
+        internalType: "address[]",
+      },
+      {
+        name: "sender",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "ADMIN_ROLE",
+    type: "function",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+  },
+  {
+    name: "UPGRADER_ROLE",
+    type: "function",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+  },
+  {
+    name: "bulkSetRoles",
+    type: "function",
+    inputs: [
+      {
+        name: "items",
+        type: "tuple[]",
+        components: [
+          {
+            name: "user",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "hasRole",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
+        internalType: "struct SetRoleItem[]",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "canUpgradeContract",
+    type: "function",
+    inputs: [
+      {
+        name: "upgrader",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "bool",
+        internalType: "bool",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    name: "getRoles",
+    type: "function",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "address[]",
+        internalType: "address[]",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    name: "grantRole",
+    type: "function",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+      {
+        name: "user",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "hasRole",
+    type: "function",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+      {
+        name: "user",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "bool",
+        internalType: "bool",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    name: "requireRole",
+    type: "function",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+      {
+        name: "user",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [],
+    stateMutability: "view",
+  },
+  {
+    name: "revokeRole",
+    type: "function",
+    inputs: [
+      {
+        name: "role",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+      {
+        name: "user",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "MeemSplitsSet",
+    type: "event",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+      {
+        name: "splits",
+        type: "tuple[]",
+        indexed: false,
+        components: [
+          {
+            name: "toAddress",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "lockedBy",
+            type: "address",
+            internalType: "address",
+          },
+        ],
+        internalType: "struct Split[]",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "RoyaltiesSet",
+    type: "event",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+      {
+        name: "royalties",
+        type: "tuple[]",
+        indexed: false,
+        components: [
+          {
+            name: "account",
+            type: "address",
+            internalType: "address payable",
+          },
+          {
+            name: "value",
+            type: "uint96",
+            internalType: "uint96",
+          },
+        ],
+        internalType: "struct Part[]",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "getRaribleV2Royalties",
+    type: "function",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "tuple[]",
+        components: [
+          {
+            name: "account",
+            type: "address",
+            internalType: "address payable",
+          },
+          {
+            name: "value",
+            type: "uint96",
+            internalType: "uint96",
+          },
+        ],
+        internalType: "struct Part[]",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    name: "handleSaleDistribution",
+    type: "function",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "msgSender",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "msgValue",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    name: "lockSplits",
+    type: "function",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setSplits",
+    type: "function",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "splits",
+        type: "tuple[]",
+        components: [
+          {
+            name: "toAddress",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "lockedBy",
+            type: "address",
+            internalType: "address",
+          },
+        ],
+        internalType: "struct Split[]",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
     name: "Approval",
@@ -3890,6 +3633,16 @@ const _abi = [
         type: "uint256",
         internalType: "uint256",
       },
+      {
+        name: "msgSender",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "msgValue",
+        type: "uint256",
+        internalType: "uint256",
+      },
     ],
     outputs: [],
     stateMutability: "payable",
@@ -3988,6 +3741,11 @@ const _abi = [
         name: "minter",
         type: "address",
         internalType: "address",
+      },
+      {
+        name: "msgValue",
+        type: "uint256",
+        internalType: "uint256",
       },
     ],
     outputs: [],
@@ -4246,483 +4004,17 @@ const _abi = [
     outputs: [],
     stateMutability: "payable",
   },
-  {
-    name: "MeemContractInfoSet",
-    type: "event",
-    inputs: [
-      {
-        name: "contractAddress",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "MeemContractInitialized",
-    type: "event",
-    inputs: [
-      {
-        name: "contractAddress",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "MeemContractURISet",
-    type: "event",
-    inputs: [
-      {
-        name: "contractAddress",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "contractURI",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "getContractInfo",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "tuple",
-        components: [
-          {
-            name: "symbol",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "name",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "contractURI",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "maxSupply",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "isMaxSupplyLocked",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "mintPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "isTransferLocked",
-            type: "bool",
-            internalType: "bool",
-          },
-        ],
-        internalType: "struct ContractInfo",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "initialize",
-    type: "function",
-    inputs: [
-      {
-        name: "params",
-        type: "tuple",
-        components: [
-          {
-            name: "symbol",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "name",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "contractURI",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "admins",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "minters",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "maxSupply",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "isMaxSupplyLocked",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "mintPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "isTransferLocked",
-            type: "bool",
-            internalType: "bool",
-          },
-        ],
-        internalType: "struct InitParams",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "reinitialize",
-    type: "function",
-    inputs: [
-      {
-        name: "params",
-        type: "tuple",
-        components: [
-          {
-            name: "symbol",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "name",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "contractURI",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "admins",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "minters",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "maxSupply",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "isMaxSupplyLocked",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "mintPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "isTransferLocked",
-            type: "bool",
-            internalType: "bool",
-          },
-        ],
-        internalType: "struct InitParams",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setContractInfo",
-    type: "function",
-    inputs: [
-      {
-        name: "name",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "symbol",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setContractInfo",
-    type: "function",
-    inputs: [
-      {
-        name: "name",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "symbol",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "newContractURI",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "maxSupply",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setContractInfo",
-    type: "function",
-    inputs: [
-      {
-        name: "name",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "symbol",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "newContractURI",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setContractURI",
-    type: "function",
-    inputs: [
-      {
-        name: "newContractURI",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
 ];
 
-export class MeemProxyV1__factory {
+export class Mycontract__factory {
   static readonly abi = _abi;
-  static createInterface(): MeemProxyV1Interface {
-    return new utils.Interface(_abi) as MeemProxyV1Interface;
+  static createInterface(): MycontractInterface {
+    return new utils.Interface(_abi) as MycontractInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): MeemProxyV1 {
-    return new Contract(address, _abi, signerOrProvider) as MeemProxyV1;
+  ): Mycontract {
+    return new Contract(address, _abi, signerOrProvider) as Mycontract;
   }
 }

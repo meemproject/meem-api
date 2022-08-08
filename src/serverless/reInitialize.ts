@@ -12,7 +12,7 @@ let server: Express.Application
 let request: SuperTest<Test>
 
 export const handle = async (
-	body: MeemAPI.v1.CreateMeemContract.IRequestBody & {
+	body: MeemAPI.v1.ReInitializeMeemContract.IRequestBody & {
 		senderWalletAddress: string
 	},
 	context: AWSLambda.Context

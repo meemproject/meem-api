@@ -29,6 +29,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/login', MeemIdController.login)
 
 	router.getAsync('/me', MeemIdController.getMe)
+
 	router.postAsync(
 		'/identity/discord/authenticate',
 		IdentityController.authenticateWithDiscord
@@ -38,10 +39,16 @@ export default (app: Express, _express: typeof coreExpress) => {
 		IdentityController.getDiscordGuilds
 	)
 
+	router.getAsync('/me/apiKey', MeemIdController.getApiKey)
+
 	router.getAsync('/config', ConfigController.getConfig)
 
 	router.postAsync('/isSlugAvailable', MeemContractController.isSlugAvailable)
 	router.postAsync('/meemContracts', MeemContractController.createMeemContract)
+	router.postAsync(
+		'/meemContracts/:meemContractId',
+		MeemContractController.reInitialize
+	)
 	router.patchAsync(
 		'/meemContracts/:meemContractId',
 		MeemContractController.updateMeemContract
@@ -58,9 +65,9 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/meemContracts/:meemContractId/integrations/:integrationId',
 		MeemContractController.createOrUpdateMeemContractIntegration
 	)
-	router.getAsync('/meems', MeemController.getMeems)
-	router.getAsync('/meems/:tokenId', MeemController.getMeem)
-	router.getAsync('/meems/:tokenId/children', MeemController.getChildMeems)
+	// router.getAsync('/meems', MeemController.getMeems)
+	// router.getAsync('/meems/:tokenId', MeemController.getMeem)
+	// router.getAsync('/meems/:tokenId/children', MeemController.getChildMeems)
 	router.getAsync('/clippings', MeemController.getClippings)
 	router.postAsync('/clippings/status', MeemController.checkClippingStatus)
 	router.postAsync('/meems/mintOriginal', MeemController.mintOriginalMeem)

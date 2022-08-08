@@ -87,6 +87,7 @@ provider:
     TWITTER_INTEGRATION_ID: ${env:TWITTER_INTEGRATION_ID, ''}
     MEEM_BUNDLE_ID: ${env:MEEM_BUNDLE_ID, ''}
     MEEM_PROXY_CONTRACT_ID: ${env:MEEM_PROXY_CONTRACT_ID, ''}
+    LAMBDA_REINITIALIZE_FUNCTION_NAME: ${env:LAMBDA_REINITIALIZE_FUNCTION_NAME, ''}
 
 package:
   excludeDevDependencies: true
@@ -117,6 +118,10 @@ functions:
     memorySize: 512
   createContract:
     handler: build/serverless/createContract.handle
+    timeout: 300
+    memorySize: 512
+  reInitialize:
+    handler: build/serverless/reInitialize.handle
     timeout: 300
     memorySize: 512
   # meemIdUpdate:

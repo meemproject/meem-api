@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import type MeemIdentification from './MeemIdentification'
 
 export default class Twitter extends BaseModel<Twitter> {
 	public static readonly modelName = 'Twitter'
@@ -33,11 +32,5 @@ export default class Twitter extends BaseModel<Twitter> {
 
 	public isDefault!: boolean
 
-	public MeemIdentification!: MeemIdentification | null
-
-	public MeemIdentificationId!: string | null
-
-	public static associate(models: IModels) {
-		this.belongsTo(models.MeemIdentification)
-	}
+	public static associate(_models: IModels) {}
 }

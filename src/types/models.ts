@@ -11,10 +11,6 @@ import MeemContract from '../models/MeemContract'
 import MeemContractGuild from '../models/MeemContractGuild'
 import MeemContractIntegration from '../models/MeemContractIntegration'
 import MeemContractWallet from '../models/MeemContractWallet'
-import MeemIdentification from '../models/MeemIdentification'
-import MeemPass from '../models/MeemPass'
-import MeemProperties from '../models/MeemProperties'
-import Prompt from '../models/Prompt'
 import Reaction from '../models/Reaction'
 import Transfer from '../models/Transfer'
 import Tweet from '../models/Tweet'
@@ -37,10 +33,6 @@ export interface IModels {
 	MeemContractGuild: typeof MeemContractGuild
 	MeemContractIntegration: typeof MeemContractIntegration
 	MeemContractWallet: typeof MeemContractWallet
-	MeemPass: typeof MeemPass
-	MeemProperties: typeof MeemProperties
-	MeemIdentification: typeof MeemIdentification
-	Prompt: typeof Prompt
 	Reaction: typeof Reaction
 	Transfer: typeof Transfer
 	Tweet: typeof Tweet
