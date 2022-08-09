@@ -4,6 +4,7 @@ import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import type MeemContract from './MeemContract'
 import type Transfer from './Transfer'
+import type Wallet from './Wallet'
 
 export default class Meem extends BaseModel<Meem> {
 	public static readonly modelName = 'Meem'
@@ -83,8 +84,6 @@ export default class Meem extends BaseModel<Meem> {
 
 	public tokenURI!: string
 
-	public owner!: string
-
 	public mintedAt!: Date
 
 	public metadata!: MeemAPI.IMeemMetadata
@@ -96,6 +95,10 @@ export default class Meem extends BaseModel<Meem> {
 	public MeemContractId!: string
 
 	public MeemContract!: MeemContract
+
+	public OwnerId!: string
+
+	public Owner!: Wallet
 
 	public Transfers!: Transfer[] | null
 
