@@ -230,8 +230,10 @@ export default class ContractEvent {
 				permission: p.permission,
 				addresses: p.addresses,
 				numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
-				mintEndTimestamp: p.mintEndTimestamp,
-				mintStartTimestamp: p.mintStartTimestamp,
+				mintEndTimestamp: ethers.BigNumber.from(p.mintEndTimestamp).toNumber(),
+				mintStartTimestamp: ethers.BigNumber.from(
+					p.mintStartTimestamp
+				).toNumber(),
 				costWei: ethers.BigNumber.from(p.costWei).toHexString()
 			})),
 			splits: contractInfo.splits.map(s => ({

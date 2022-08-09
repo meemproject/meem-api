@@ -569,15 +569,6 @@ export default class MeemService {
 				address: data.meemContractAddress.toLowerCase()
 			})
 
-			const adminRole = await meemContract.ADMIN_ROLE()
-			const isAdmin = await meemContract.hasRole(adminRole, data.mintedBy)
-
-			// const isAdmin = admins.find(a => a === data.mintedBy)
-
-			if (!isAdmin) {
-				throw new Error('NOT_AUTHORIZED')
-			}
-
 			let { recommendedGwei } = await services.web3.getGasEstimate()
 
 			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
