@@ -379,4 +379,14 @@ export default class ConfigController {
 			status: 'success'
 		})
 	}
+
+	public static async syncContract(req: Request, res: Response) {
+		await services.contractEvents.meemHandleContractInitialized({
+			address: req.query.address as string
+		})
+
+		return res.json({
+			status: 'success'
+		})
+	}
 }

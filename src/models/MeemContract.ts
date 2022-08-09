@@ -59,6 +59,7 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 					'maxSupply',
 					services.web3.toBigNumber(val).toHexString()
 				)
+				this.changed('maxSupply', true)
 			}
 		},
 		mintPermissions: {

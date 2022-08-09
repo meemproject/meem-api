@@ -121,27 +121,28 @@ export default class MeemContractService {
 				}
 			}
 
-			const tx = await meemContract.reinitialize(
-				{
-					...contractInitParams,
-					roles: [
-						...newAdmins.map(a => ({
-							role: config.ADMIN_ROLE,
-							user: a,
-							hasRole: true
-						})),
-						...removeAdmins.map(a => ({
-							role: config.ADMIN_ROLE,
-							user: a,
-							hasRole: false
-						}))
-					]
-				},
-				{
-					gasLimit: config.MINT_GAS_LIMIT,
-					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
-				}
-			)
+			const params = {
+				...contractInitParams,
+				roles: [
+					...newAdmins.map(a => ({
+						role: config.ADMIN_ROLE,
+						user: a,
+						hasRole: true
+					})),
+					...removeAdmins.map(a => ({
+						role: config.ADMIN_ROLE,
+						user: a,
+						hasRole: false
+					}))
+				]
+			}
+
+			log.debug(params)
+
+			const tx = await meemContract.reinitialize(params, {
+				gasLimit: config.MINT_GAS_LIMIT,
+				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+			})
 
 			log.debug(`Reinitialize tx: ${tx.hash}`)
 
