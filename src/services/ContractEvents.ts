@@ -354,7 +354,9 @@ export default class ContractEvent {
 		}
 		if (walletsData.length > 0) {
 			promises.push(
-				orm.models.Wallet.bulkCreate(walletsData, { transaction: t })
+				orm.models.Wallet.bulkCreate(walletsData, {
+					transaction: t
+				})
 			)
 		}
 
