@@ -79,6 +79,12 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 			type: DataTypes.TEXT,
 			allowNull: false,
 			defaultValue: ''
+		},
+		ens: {
+			type: DataTypes.STRING
+		},
+		ensFetchedAt: {
+			type: DataTypes.DATE
 		}
 	}
 
@@ -196,6 +202,10 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 	public splits!: MeemAPI.IMeemSplit[]
 
 	public isTransferrable!: boolean
+
+	public ens!: string | null
+
+	public ensFetchedAt!: Date | null
 
 	public Meems?: Meem[] | null
 

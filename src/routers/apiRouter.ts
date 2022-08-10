@@ -119,7 +119,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/getUserJWT', TestController.testGetUserJWT)
 		router.getAsync('/test/getUserJWT', TestController.testGetUserJWT)
 		router.getAsync('/test/testData', TestController.testData)
-		router.getAsync('/test/testPromptsCron', TestController.testPromptsCron)
+		router.getAsync('/test/testCron', TestController.testCron)
 		router.getAsync('/test/syncContract', TestController.syncContract)
 	}
 }

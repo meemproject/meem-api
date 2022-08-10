@@ -27,6 +27,12 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 		},
 		apiKey: {
 			type: DataTypes.UUID
+		},
+		ens: {
+			type: DataTypes.STRING
+		},
+		ensFetchedAt: {
+			type: DataTypes.DATE
 		}
 	}
 
@@ -37,6 +43,10 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 	public nonce!: string | null
 
 	public apiKey!: string | null
+
+	public ens!: string | null
+
+	public ensFetchedAt!: Date | null
 
 	public MeemContractWalletId!: string | null
 

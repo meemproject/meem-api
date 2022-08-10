@@ -5,6 +5,7 @@ import type { ethers as Ethers } from 'ethers'
 import { Request, Response } from 'express'
 import { DateTime, Duration } from 'luxon'
 import { Op } from 'sequelize'
+import { Constructor } from '../serverless/cron'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ConfigController {
@@ -368,12 +369,12 @@ export default class ConfigController {
 		return res.json({ jwt })
 	}
 
-	public static async testPromptsCron(
-		req: Request,
-		res: Response
-	): Promise<Response> {
-		// await services.prompts.endCurrentPrompt()
-		// await services.prompts.sendNextPrompt()
+	public static async testCron(req: Request, res: Response): Promise<Response> {
+		// eslint-disable-next-line import/no-dynamic-require
+		const cronConstructor = require(`../cron/jobs/${req.query.job}`)
+			.default as Constructor
+		const cronjob = new cronConstructor()
+		await cronjob.run()
 
 		return res.json({
 			status: 'success'
