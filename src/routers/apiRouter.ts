@@ -44,6 +44,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		MeemContractController.updateMeemContract
 	)
 	router.postAsync(
+		'/meemContracts/:meemContractId/safe',
+		MeemContractController.createClubSafe
+	)
+	router.postAsync(
 		'/meemContracts/:meemContractId/integrations/:integrationId',
 		MeemContractController.createOrUpdateMeemContractIntegration
 	)
@@ -118,7 +122,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 			TestController.testGetSubscriptions
 		)
 		router.getAsync('/test/getUserJWT', TestController.testGetUserJWT)
-		router.getAsync('/test/getUserJWT', TestController.testGetUserJWT)
+		router.getAsync('/test/gnosis', TestController.testGnosis)
 		router.getAsync('/test/testData', TestController.testData)
 		router.getAsync('/test/testCron', TestController.testCron)
 		router.getAsync('/test/syncContract', TestController.syncContract)

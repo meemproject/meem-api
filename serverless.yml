@@ -88,6 +88,8 @@ provider:
     MEEM_BUNDLE_ID: ${env:MEEM_BUNDLE_ID, ''}
     MEEM_PROXY_CONTRACT_ID: ${env:MEEM_PROXY_CONTRACT_ID, ''}
     LAMBDA_REINITIALIZE_FUNCTION_NAME: ${env:LAMBDA_REINITIALIZE_FUNCTION_NAME, ''}
+    GNOSIS_MASTER_CONTRACT_ADDRESS: ${env:GNOSIS_MASTER_CONTRACT_ADDRESS, ''}
+    GNOSIS_PROXY_CONTRACT_ADDRESS: ${env:GNOSIS_PROXY_CONTRACT_ADDRESS, ''}
 
 package:
   excludeDevDependencies: true
@@ -122,6 +124,10 @@ functions:
     memorySize: 512
   reInitialize:
     handler: build/serverless/reInitialize.handle
+    timeout: 300
+    memorySize: 512
+  createClubSafe:
+    handler: build/serverless/createClubSafe.handle
     timeout: 300
     memorySize: 512
   # meemIdUpdate:

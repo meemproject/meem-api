@@ -85,6 +85,9 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		},
 		ensFetchedAt: {
 			type: DataTypes.DATE
+		},
+		gnosisSafeAddress: {
+			type: DataTypes.STRING
 		}
 	}
 
@@ -206,6 +209,8 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 	public ens!: string | null
 
 	public ensFetchedAt!: Date | null
+
+	public gnosisSafeAddress!: string | null
 
 	public Meems?: Meem[] | null
 

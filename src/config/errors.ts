@@ -134,6 +134,18 @@ const errors = {
 		reason: 'The item has already been clipped.',
 		friendlyReason: 'The item has already been clipped.'
 	},
+	CLUB_SAFE_ALREADY_EXISTS: {
+		httpCode: 400,
+		status: 'failure',
+		reason: 'The club already has a safe.',
+		friendlyReason: 'The club already has a safe.'
+	},
+	SAFE_CREATE_FAILED: {
+		httpCode: 400,
+		status: 'failure',
+		reason: 'The club safe could not be created.',
+		friendlyReason: 'The club safe could not be created.'
+	},
 	// Contract errors
 	UNKNOWN_CONTRACT_ERROR: {
 		httpCode: 500,
