@@ -370,9 +370,10 @@ export default class ConfigController {
 	}
 
 	public static async testCron(req: Request, res: Response): Promise<Response> {
-		// eslint-disable-next-line import/no-dynamic-require
+		// eslint-disable-next-line
 		const cronConstructor = require(`../cron/jobs/${req.query.job}`)
 			.default as Constructor
+		// eslint-disable-next-line
 		const cronjob = new cronConstructor()
 		await cronjob.run()
 
