@@ -8,7 +8,6 @@ export default class GuildService {
 		owner: string
 		meemContractId: string
 		name: string
-		discordGuildId: string
 	}): Promise<string> {
 		const meemContract = await orm.models.MeemContract.findOne({
 			where: {

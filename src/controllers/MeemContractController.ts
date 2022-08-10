@@ -117,14 +117,13 @@ export default class MeemContractController {
 		}
 
 		const { meemContractId } = req.params
-		const { name, discordGuildId } = req.body
+		const { name } = req.body
 
 		try {
 			const guildId = await services.guild.createGuild({
 				owner: req.wallet.address,
 				meemContractId,
-				name,
-				discordGuildId
+				name
 			})
 
 			return res.json({

@@ -15,7 +15,6 @@ export namespace CreateMeemContractGuild {
 
 	export interface IRequestBody {
 		name: string
-		discordGuildId: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

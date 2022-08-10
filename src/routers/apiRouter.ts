@@ -37,6 +37,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/identity/discord/guilds',
 		IdentityController.getDiscordGuilds
 	)
+	router.postAsync(
+		'/identity/discord/sendButton',
+		IdentityController.sendDiscordJoinButton
+	)
 
 	router.postAsync('/me/refreshENS', MeemIdController.refreshENS)
 	router.getAsync('/me/apiKey', MeemIdController.getApiKey)

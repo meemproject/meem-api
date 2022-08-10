@@ -91,4 +91,37 @@ export default class IdentityController {
 			throw new Error('SERVER_ERROR')
 		}
 	}
+
+	// TODO: Move to discord-specific service
+	public static async sendDiscordJoinButton(
+		req: IRequest<MeemAPI.v1.SendDiscordJoinButton.IDefinition>,
+		res: IResponse<MeemAPI.v1.SendDiscordJoinButton.IResponseBody>
+	): Promise<Response> {
+		const { accessToken, serverId, channelId, title, description, button } =
+			req.body
+		try {
+			if (!accessToken) {
+				throw new Error('NOT_AUTHORIZED')
+			}
+
+			await request.post(`https://api.guild.xyz/v1/discord/sendButton`).send({
+				payload: {
+					channelId,
+					serverId,
+					title: title ?? 'Verify your wallet',
+					description: description ?? 'Join this guild and get your role(s)!',
+					button: button ?? 'Join Guild',
+					authorization: accessToken
+				}
+				// TODO: Need to add signature
+			})
+
+			return res.json({
+				status: 'success'
+			})
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
 }
