@@ -78,9 +78,9 @@ export default class ENSCron extends CronJob {
 			log.debug({ address: item.address, ens })
 			if (ens) {
 				item.ens = ens
-				item.ensFetchedAt = DateTime.now().toJSDate()
-				await item.save()
 			}
+			item.ensFetchedAt = DateTime.now().toJSDate()
+			await item.save()
 			// Limit the number of requests to avoid alchemy rate-limiting
 			await wait(1000)
 		}
