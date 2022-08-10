@@ -4,6 +4,8 @@ import { Validator } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 import _ from 'lodash'
 import slug from 'slug'
+import GnosisSafeABI from '../abis/GnosisSafe.json'
+import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
 import Wallet from '../models/Wallet'
 import { InitParamsStruct, Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
@@ -149,12 +151,11 @@ export default class MeemContractService {
 			await tx.wait()
 
 			return meemContract.address
-		} catch (e) {
+		} catch (e: any) {
 			await sockets?.emitError(
-				config.errors.CONTRACT_UPDATE_FAILED,
+				e?.message ?? config.errors.CONTRACT_UPDATE_FAILED,
 				senderWalletAddress
 			)
-			log.crit(e)
 			throw new Error('CONTRACT_UPDATE_FAILED')
 		}
 	}
@@ -448,6 +449,92 @@ export default class MeemContractService {
 			contractInitParams,
 			senderWallet,
 			cleanAdmins
+		}
+	}
+
+	// Adapted from https://forum.openzeppelin.com/t/creating-gnosis-safes-via-the-api/12031/2
+	public static async createClubSafe(
+		options: MeemAPI.v1.CreateClubSafe.IRequestBody & {
+			meemContractId: string
+			senderWalletAddress: string
+		}
+	) {
+		const { meemContractId, safeOwners, senderWalletAddress } = options
+		try {
+			const meemContract = await orm.models.MeemContract.findOne({
+				where: {
+					id: meemContractId
+				}
+			})
+
+			if (!meemContract) {
+				throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			}
+
+			if (meemContract.gnosisSafeAddress) {
+				throw new Error('CLUB_SAFE_ALREADY_EXISTS')
+			}
+
+			// This is one of the topics emitted when a gnosis safe is created
+			const topic =
+				'0x141df868a6331af528e38c83b7aa03edc19be66e37ae67f9285bf4f8e3c6a1a8'
+
+			const threshold = options.threshold ?? 1
+
+			// gnosisSafeAbi is the Gnosis Safe ABI in JSON format,
+			// you can find an example here: https://github.com/gnosis/safe-deployments/blob/main/src/assets/v1.1.1/gnosis_safe.json#L16
+			const provider = await services.ethers.getProvider()
+			const signer = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+			const proxyContract = new ethers.Contract(
+				config.GNOSIS_PROXY_CONTRACT_ADDRESS,
+				GnosisSafeProxyABI,
+				signer
+			)
+			const gnosisInterface = new ethers.utils.Interface(GnosisSafeABI)
+			const safeSetupData = gnosisInterface.encodeFunctionData('setup', [
+				safeOwners,
+				threshold,
+				'0x0000000000000000000000000000000000000000',
+				'0x',
+				'0x0000000000000000000000000000000000000000',
+				'0x0000000000000000000000000000000000000000',
+				'0',
+				'0x0000000000000000000000000000000000000000'
+			])
+
+			// safeContractFactory is an instance of the "Contract" type from Ethers JS
+			// see https://docs.ethers.io/v5/getting-started/#getting-started--contracts
+			// for more details.
+			// You're going to need the address of a Safe contract factory and the ABI,
+			// which can be found here: https://github.com/gnosis/safe-deployments/blob/main/src/assets/v1.1.1/proxy_factory.json#L16
+			const tx = await proxyContract.createProxy(
+				config.GNOSIS_MASTER_CONTRACT_ADDRESS,
+				safeSetupData
+			)
+
+			await tx.wait()
+
+			const receipt = await provider.getTransactionReceipt(tx.hash)
+
+			// Find the newly created Safe contract address in the transaction receipt
+			for (let i = 0; i < receipt.logs.length; i += 1) {
+				const receiptLog = receipt.logs[i]
+				const foundTopic = receiptLog.topics.find(t => t === topic)
+				if (foundTopic) {
+					log.info(`address: ${receiptLog.address}`)
+					meemContract.gnosisSafeAddress = receiptLog.address
+					break
+				}
+			}
+
+			await meemContract.save()
+		} catch (e: any) {
+			log.crit(e)
+			await sockets?.emitError(
+				e?.message ?? config.errors.SAFE_CREATE_FAILED,
+				senderWalletAddress
+			)
+			throw new Error('SAFE_CREATE_FAILED')
 		}
 	}
 }

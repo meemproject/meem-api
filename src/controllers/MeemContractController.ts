@@ -340,7 +340,50 @@ export default class MeemContractController {
 				.promise()
 		}
 
-		// TODO: Notify via Websockets
+		return res.json({
+			status: 'success'
+		})
+	}
+
+	public static async createClubSafe(
+		req: IRequest<MeemAPI.v1.CreateClubSafe.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateClubSafe.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const { meemContractId } = req.params
+
+		if (config.DISABLE_ASYNC_MINTING) {
+			try {
+				await services.meemContract.createClubSafe({
+					...req.body,
+					meemContractId,
+					senderWalletAddress: req.wallet.address
+				})
+			} catch (e) {
+				log.crit(e)
+				sockets?.emitError(config.errors.MINT_FAILED, req.wallet.address)
+			}
+		} else {
+			const lambda = new AWS.Lambda({
+				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+				region: 'us-east-1'
+			})
+			await lambda
+				.invoke({
+					InvocationType: 'Event',
+					FunctionName: config.LAMBDA_CREATE_CLUB_SAFE_FUNCTION_NAME,
+					Payload: JSON.stringify({
+						...req.body,
+						meemContractId,
+						senderWalletAddress: req.wallet.address
+					})
+				})
+				.promise()
+		}
 
 		return res.json({
 			status: 'success'

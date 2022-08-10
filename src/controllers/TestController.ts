@@ -1,10 +1,12 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { ethers as Ethers } from 'ethers'
+import { ethers, ethers as Ethers } from 'ethers'
 import { Request, Response } from 'express'
 import { DateTime, Duration } from 'luxon'
 import { Op } from 'sequelize'
+import GnosisSafeABI from '../abis/GnosisSafe.json'
+import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
 import { Constructor } from '../serverless/cron'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -389,6 +391,72 @@ export default class ConfigController {
 
 		return res.json({
 			status: 'success'
+		})
+	}
+
+	public static async testGnosis(req: Request, res: Response) {
+		const masterContractAddress = '0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552'
+		const proxyContractAddress = '0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2'
+		const topic =
+			'0x141df868a6331af528e38c83b7aa03edc19be66e37ae67f9285bf4f8e3c6a1a8'
+		const safeOwners: string[] = [
+			'0xbA343C26ad4387345edBB3256e62f4bB73d68a04',
+			'0xde19C037a85A609ec33Fc747bE9Db8809175C3a5'
+		]
+		const threshold = 1
+
+		// gnosisSafeAbi is the Gnosis Safe ABI in JSON format,
+		// you can find an example here: https://github.com/gnosis/safe-deployments/blob/main/src/assets/v1.1.1/gnosis_safe.json#L16
+		const provider = await services.ethers.getProvider()
+		const signer = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const proxyContract = new ethers.Contract(
+			proxyContractAddress,
+			GnosisSafeProxyABI,
+			signer
+		)
+		const gnosisInterface = new ethers.utils.Interface(GnosisSafeABI)
+		const safeSetupData = gnosisInterface.encodeFunctionData('setup', [
+			safeOwners,
+			threshold,
+			'0x0000000000000000000000000000000000000000',
+			'0x',
+			'0x0000000000000000000000000000000000000000',
+			'0x0000000000000000000000000000000000000000',
+			'0',
+			'0x0000000000000000000000000000000000000000'
+		])
+
+		// safeContractFactory is an instance of the "Contract" type from Ethers JS
+		// see https://docs.ethers.io/v5/getting-started/#getting-started--contracts
+		// for more details.
+		// You're going to need the address of a Safe contract factory and the ABI,
+		// which can be found here: https://github.com/gnosis/safe-deployments/blob/main/src/assets/v1.1.1/proxy_factory.json#L16
+		const tx = await proxyContract.createProxy(
+			masterContractAddress,
+			safeSetupData
+		)
+
+		await tx.wait()
+
+		const receipt = await provider.getTransactionReceipt(
+			'0xd5c3e5899aca336f95e1ea40d94d11c27fc45cc9865fb4a0c59225e775578062'
+		)
+
+		// Find the newly created Safe contract address in the transaction receipt
+		for (let i = 0; i < receipt.logs.length; i += 1) {
+			const receiptLog = receipt.logs[i]
+			const foundTopic = receiptLog.topics.find(t => t === topic)
+			if (foundTopic) {
+				log.info(`address: ${receiptLog.address}`)
+				break
+			}
+		}
+
+		console.log(tx)
+
+		return res.json({
+			status: 'success',
+			tx
 		})
 	}
 }
