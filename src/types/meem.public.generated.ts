@@ -379,7 +379,7 @@ export interface IMeemPermission {
 	addresses: string[]
 	/** BigNumber hex string */
 	numTokens: string
-	lockedBy: string
+	// lockedBy: string
 	costWei: string
 	mintStartTimestamp: string
 	mintEndTimestamp: string
@@ -1952,6 +1952,33 @@ export namespace ReInitializeMeemContract {
 		/** Admin token metadata */
 		adminTokenMetadata?: IMeemMetadataLike
 	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace RefreshENS {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/me/refreshENS`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'

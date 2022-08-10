@@ -29,7 +29,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/login', MeemIdController.login)
 
 	router.getAsync('/me', MeemIdController.getMe)
-
 	router.postAsync(
 		'/identity/discord/authenticate',
 		IdentityController.authenticateWithDiscord
@@ -39,6 +38,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 		IdentityController.getDiscordGuilds
 	)
 
+	router.postAsync('/me/refreshENS', MeemIdController.refreshENS)
 	router.getAsync('/me/apiKey', MeemIdController.getApiKey)
 
 	router.getAsync('/config', ConfigController.getConfig)
@@ -142,6 +142,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/getUserJWT', TestController.testGetUserJWT)
 		router.getAsync('/test/getUserJWT', TestController.testGetUserJWT)
 		router.getAsync('/test/testData', TestController.testData)
-		router.getAsync('/test/testPromptsCron', TestController.testPromptsCron)
+		router.getAsync('/test/testCron', TestController.testCron)
+		router.getAsync('/test/syncContract', TestController.syncContract)
 	}
 }

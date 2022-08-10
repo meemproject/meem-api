@@ -230,8 +230,10 @@ export default class ContractEvent {
 				permission: p.permission,
 				addresses: p.addresses,
 				numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
-				mintEndTimestamp: p.mintEndTimestamp,
-				mintStartTimestamp: p.mintStartTimestamp,
+				mintEndTimestamp: ethers.BigNumber.from(p.mintEndTimestamp).toNumber(),
+				mintStartTimestamp: ethers.BigNumber.from(
+					p.mintStartTimestamp
+				).toNumber(),
 				costWei: ethers.BigNumber.from(p.costWei).toHexString()
 			})),
 			splits: contractInfo.splits.map(s => ({
@@ -354,7 +356,9 @@ export default class ContractEvent {
 		}
 		if (walletsData.length > 0) {
 			promises.push(
-				orm.models.Wallet.bulkCreate(walletsData, { transaction: t })
+				orm.models.Wallet.bulkCreate(walletsData, {
+					transaction: t
+				})
 			)
 		}
 
@@ -367,6 +371,9 @@ export default class ContractEvent {
 		}
 
 		await t.commit()
+
+		// Update ENS
+		await services.meemId.updateENS(theMeemContract)
 
 		return theMeemContract
 	}
@@ -733,7 +740,17 @@ export default class ContractEvent {
 			meem = await this.createNewMeem(args.address, tokenId)
 		} else {
 			log.debug(`Updating meem: ${tokenId}`)
-			meem.owner = args.eventData.to
+			let wallet = await orm.models.Wallet.findByAddress<Wallet>(
+				args.eventData.to
+			)
+
+			if (!wallet) {
+				wallet = await orm.models.Wallet.create({
+					address: args.eventData.to
+				})
+			}
+
+			meem.OwnerId = wallet.id
 			await meem.save()
 			// if (!meem.metadata) {
 			// 	await this.updateMeem({ meem })

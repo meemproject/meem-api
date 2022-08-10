@@ -324,7 +324,7 @@ export interface IMeemPermission {
 	addresses: string[]
 	/** BigNumber hex string */
 	numTokens: string
-	lockedBy: string
+	// lockedBy: string
 	costWei: string
 	mintStartTimestamp: string
 	mintEndTimestamp: string

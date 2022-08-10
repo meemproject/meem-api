@@ -50,6 +50,21 @@ export default class AuthController {
 		})
 	}
 
+	public static async refreshENS(
+		req: IRequest<MeemAPI.v1.RefreshENS.IDefinition>,
+		res: IResponse<MeemAPI.v1.RefreshENS.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		await services.meemId.updateENS(req.wallet)
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
 	public static async getApiKey(
 		req: IRequest<MeemAPI.v1.GetApiKey.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetApiKey.IResponseBody>
