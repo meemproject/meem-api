@@ -117,16 +117,47 @@ export default class MeemContractController {
 		}
 
 		const { meemContractId } = req.params
-		const { name } = req.body
+		const { name, discordGuildId } = req.body
 
 		try {
 			const guildId = await services.guild.createGuild({
+				owner: req.wallet.address,
 				meemContractId,
-				name
+				name,
+				discordGuildId
 			})
 
 			return res.json({
 				guildId
+			})
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
+	public static async updateGuildRole(
+		req: IRequest<MeemAPI.v1.UpdateMeemContractGuildRole.IDefinition>,
+		res: IResponse<MeemAPI.v1.UpdateMeemContractGuildRole.IResponseBody>
+	): Promise<any> {
+		if (!req.wallet) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const { meemContractId, guildId, roleId } = req.params
+		const { discordGuildId, gatedChannels } = req.body
+
+		try {
+			const response = await services.guild.updateGuildRole({
+				meemContractId,
+				guildId,
+				roleId: parseInt(roleId, 10),
+				discordGuildId,
+				gatedChannels
+			})
+
+			return res.json({
+				response
 			})
 		} catch (e) {
 			log.crit(e)

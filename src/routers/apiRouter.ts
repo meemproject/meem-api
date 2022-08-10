@@ -62,6 +62,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		MeemContractController.createGuild
 	)
 	router.postAsync(
+		'/meemContracts/:meemContractId/guilds/:guildId/roles/:roleId',
+		MeemContractController.updateGuildRole
+	)
+	router.postAsync(
 		'/meemContracts/:meemContractId/integrations/:integrationId',
 		MeemContractController.createOrUpdateMeemContractIntegration
 	)
