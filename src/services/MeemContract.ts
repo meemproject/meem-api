@@ -453,6 +453,8 @@ export default class MeemContractService {
 	}
 
 	// Adapted from https://forum.openzeppelin.com/t/creating-gnosis-safes-via-the-api/12031/2
+	// Gnosis safe deployments / abi: https://github.com/safe-global/safe-deployments/blob/main/src/assets/v1.3.0/gnosis_safe.json
+	// Gnosis proxy factory deployments / abi: https://github.com/safe-global/safe-deployments/blob/main/src/assets/v1.3.0/proxy_factory.json
 	public static async createClubSafe(
 		options: MeemAPI.v1.CreateClubSafe.IRequestBody & {
 			meemContractId: string
@@ -482,7 +484,6 @@ export default class MeemContractService {
 			const threshold = options.threshold ?? 1
 
 			// gnosisSafeAbi is the Gnosis Safe ABI in JSON format,
-			// you can find an example here: https://github.com/gnosis/safe-deployments/blob/main/src/assets/v1.1.1/gnosis_safe.json#L16
 			const provider = await services.ethers.getProvider()
 			const signer = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 			const proxyContract = new ethers.Contract(
@@ -505,8 +506,6 @@ export default class MeemContractService {
 			// safeContractFactory is an instance of the "Contract" type from Ethers JS
 			// see https://docs.ethers.io/v5/getting-started/#getting-started--contracts
 			// for more details.
-			// You're going to need the address of a Safe contract factory and the ABI,
-			// which can be found here: https://github.com/gnosis/safe-deployments/blob/main/src/assets/v1.1.1/proxy_factory.json#L16
 			const tx = await proxyContract.createProxy(
 				config.GNOSIS_MASTER_CONTRACT_ADDRESS,
 				safeSetupData
