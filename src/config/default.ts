@@ -87,7 +87,7 @@ export default {
 	TWITTER_PROJECT_TOKEN_ID: process.env.TWITTER_PROJECT_TOKEN_ID ?? '',
 	INFURA_ID: process.env.INFURA_ID ?? '',
 	IPFS_CONTENT_GATEWAY_URL:
-		process.env.IPFS_CONTENT_GATEWAY_URL ?? 'https://gateway.pinata.cloud',
+		process.env.IPFS_CONTENT_GATEWAY_URL ?? 'https://meem.mypinata.cloud',
 	GITHUB_KEY: process.env.GITHUB_KEY ?? '',
 	ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY ?? '',
 	DYNAMODB_SOCKETS_TABLE: process.env.DYNAMODB_SOCKETS_TABLE ?? '',
