@@ -1,3 +1,20 @@
+# [1.8.0](https://github.com/meemproject/meem-api-aws/compare/v1.7.4...v1.8.0) (2022-08-11)
+
+
+### Bug Fixes
+
+* timestamp saving ([db95694](https://github.com/meemproject/meem-api-aws/commit/db95694))
+* update owner on transfer ([7b6a79c](https://github.com/meemproject/meem-api-aws/commit/7b6a79c))
+* wrong call in sls endpoint ([1da9cf5](https://github.com/meemproject/meem-api-aws/commit/1da9cf5))
+
+
+### Features
+
+* cron to update ens name ([31bd58f](https://github.com/meemproject/meem-api-aws/commit/31bd58f))
+* emit errors on contract creation ([4adf483](https://github.com/meemproject/meem-api-aws/commit/4adf483))
+* gnosis safe club integration ([57fab4b](https://github.com/meemproject/meem-api-aws/commit/57fab4b))
+* refresh ens and set at login ([c100df8](https://github.com/meemproject/meem-api-aws/commit/c100df8))
+
 ## [1.7.4](https://github.com/meemproject/meem-api-aws/compare/v1.7.3...v1.7.4) (2022-08-01)
 
 ## [1.7.3](https://github.com/meemproject/meem-api-aws/compare/v1.7.2...v1.7.3) (2022-08-01)
