@@ -2,10 +2,11 @@ import { Op, DataTypes } from 'sequelize'
 import ModelWithAddress from '../core/ModelWithAddress'
 import type { IModels } from '../types/models'
 import type MeemContractWallet from './MeemContractWallet'
-import type MeemIdentification from './MeemIdentification'
 
 export default class Wallet extends ModelWithAddress<Wallet> {
 	public static readonly modelName = 'Wallet'
+
+	public static readonly paranoid: boolean = false
 
 	public static get indexes() {
 		return []
@@ -24,10 +25,14 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 		nonce: {
 			type: DataTypes.STRING
 		},
-		isDefault: {
-			type: DataTypes.BOOLEAN,
-			allowNull: false,
-			defaultValue: false
+		apiKey: {
+			type: DataTypes.UUID
+		},
+		ens: {
+			type: DataTypes.STRING
+		},
+		ensFetchedAt: {
+			type: DataTypes.DATE
 		}
 	}
 
@@ -37,18 +42,17 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 
 	public nonce!: string | null
 
-	public isDefault!: boolean
+	public apiKey!: string | null
 
-	public MeemIdentification!: MeemIdentification | null
+	public ens!: string | null
 
-	public MeemIdentificationId!: string | null
+	public ensFetchedAt!: Date | null
 
 	public MeemContractWalletId!: string | null
 
 	public MeemContractWallets!: MeemContractWallet[]
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.MeemIdentification)
 		this.hasMany(models.MeemContractWallet)
 	}
 

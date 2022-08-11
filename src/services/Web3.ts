@@ -156,15 +156,18 @@ export default class Web3 {
 	public static toBigNumber(val: Ethers.BigNumberish): Ethers.BigNumber {
 		const ethers = services.ethers.getInstance()
 		const bn = ethers.BigNumber.from(val.toString())
-		let bigStr = bn.toString()
-		let isNegative = false
-		if (/^-/.test(bigStr)) {
-			bigStr = bigStr.substr(1)
-			isNegative = true
-		}
-		const ebn = ethers.BigNumber.from(`${isNegative ? '-' : ''}0x${bigStr}`)
+		// let bigStr = bn.toString()
+		// let isNegative = false
+		// if (/^-/.test(bigStr)) {
+		// 	bigStr = bigStr.substr(1)
+		// 	isNegative = true
+		// }
+		// const ebn = ethers.BigNumber.from(
+		// 	`${isNegative ? '-' : ''}0x${bn.toHexString()}`
+		// )
 
-		return ebn
+		// return ebn
+		return bn
 	}
 
 	private static getPinataInstance() {

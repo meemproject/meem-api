@@ -1,10 +1,7 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import * as path from 'path'
 import { Validator } from '@meemproject/metadata'
 import type { ethers as Ethers } from 'ethers'
-// import fs from 'fs-extra'
 import _ from 'lodash'
-import { DateTime } from 'luxon'
 import sharp from 'sharp'
 import request from 'superagent'
 import { v4 as uuidv4 } from 'uuid'
@@ -13,9 +10,8 @@ import meemABI from '../abis/Meem.json'
 import errors from '../config/errors'
 import meemAccessListTesting from '../lib/meem-access-testing.json'
 import meemAccessList from '../lib/meem-access.json'
-import type MeemModel from '../models/Meem'
 import { ERC721 } from '../types/ERC721'
-import { MeemProxyV1 } from '../types/Meem'
+import { Mycontract } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 import { MeemMetadataStorageProvider } from '../types/shared/meem.shared'
 
@@ -44,6 +40,7 @@ function handleStringErrorKey(errorKey: string) {
 	}
 
 	return {
+		code: errorKey,
 		status: 'failure',
 		httpCode: 500,
 		reason: err.reason,
@@ -142,7 +139,7 @@ export default class MeemService {
 				// @ts-ignore
 				.connect(global.signer)
 			// const c = await ethers.getContractAt(meemABI, address)
-			return c as MeemProxyV1
+			return c as Mycontract
 		}
 
 		let walletPrivateKey =
@@ -162,7 +159,7 @@ export default class MeemService {
 			address,
 			meemABI,
 			wallet
-		) as unknown as MeemProxyV1
+		) as unknown as Mycontract
 
 		return meemContract
 	}
@@ -449,7 +446,7 @@ export default class MeemService {
 	// 			recommendedGwei = config.MAX_GAS_PRICE_GWEI
 	// 		}
 
-	// 		const mintParams: Parameters<MeemProxyV1['mint']> = [
+	// 		const mintParams: Parameters<Mycontract['mint']> = [
 	// 			{
 	// 				to: data.accountAddress,
 	// 				tokenURI: meemMetadata.tokenURI,
@@ -572,15 +569,6 @@ export default class MeemService {
 				address: data.meemContractAddress.toLowerCase()
 			})
 
-			const adminRole = await meemContract.ADMIN_ROLE()
-			const isAdmin = await meemContract.hasRole(adminRole, data.mintedBy)
-
-			// const isAdmin = admins.find(a => a === data.mintedBy)
-
-			if (!isAdmin) {
-				throw new Error('NOT_AUTHORIZED')
-			}
-
 			let { recommendedGwei } = await services.web3.getGasEstimate()
 
 			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
@@ -595,7 +583,7 @@ export default class MeemService {
 
 			const tokenURI = `ipfs://${result.IpfsHash}`
 
-			const mintParams: Parameters<MeemProxyV1['mint']> = [
+			const mintParams: Parameters<Mycontract['mint']> = [
 				{
 					to: data.to.toLowerCase(),
 					tokenURI,
@@ -901,7 +889,7 @@ export default class MeemService {
 	}
 
 	public static async getMetadata(options: {
-		contract: ERC721 | MeemProxyV1
+		contract: ERC721 | Mycontract
 		tokenId: Ethers.BigNumberish
 	}) {
 		const { contract, tokenId } = options
@@ -1163,66 +1151,66 @@ export default class MeemService {
 	// 	}
 	// }
 
-	public static meemToIMeem(meem: MeemModel): MeemAPI.IMetadataMeem {
-		if (!meem.Properties || !meem.ChildProperties) {
-			log.crit('Meem must include Properties and ChildProperties')
-			throw new Error('SERVER_ERROR')
-		}
-		return {
-			tokenId: meem.tokenId,
-			owner: meem.owner,
-			parentChain: meem.parentChain,
-			parent: meem.parent,
-			parentTokenId: meem.parentTokenId,
-			rootChain: meem.rootChain,
-			root: meem.root,
-			rootTokenId: meem.rootTokenId,
-			generation: meem.generation,
-			properties: {
-				...meem.Properties,
-				mintStartAt: meem.Properties.mintStartAt
-					? Math.floor(meem.Properties.mintStartAt.getTime() / 1000)
-					: -1,
-				mintEndAt: meem.Properties.mintEndAt
-					? Math.floor(meem.Properties.mintEndAt.getTime() / 1000)
-					: -1,
-				transferLockupUntil: meem.Properties.transferLockupUntil
-					? Math.floor(meem.Properties.transferLockupUntil.getTime() / 1000)
-					: -1
-			},
-			childProperties: {
-				...meem.ChildProperties,
-				mintStartAt: meem.ChildProperties.mintStartAt
-					? Math.floor(meem.ChildProperties.mintStartAt.getTime() / 1000)
-					: -1,
-				mintEndAt: meem.ChildProperties.mintEndAt
-					? Math.floor(meem.ChildProperties.mintEndAt.getTime() / 1000)
-					: -1,
-				transferLockupUntil: meem.ChildProperties.transferLockupUntil
-					? Math.floor(
-							meem.ChildProperties.transferLockupUntil.getTime() / 1000
-					  )
-					: -1
-			},
-			mintedAt: DateTime.fromJSDate(meem.mintedAt).toSeconds(),
-			// data: meem.data,
-			uriLockedBy: meem.uriLockedBy,
-			uriSource: meem.uriSource,
-			reactionTypes: meem.reactionTypes,
-			metadata: meem.metadata,
-			mintedBy: meem.mintedBy,
-			meemType: meem.meemType,
-			reactionCounts: meem.reactionCounts,
-			addressReactions: meem.Reactions?.map(r => ({
-				reaction: r.reaction,
-				reactedAt: DateTime.fromJSDate(r.reactedAt).toSeconds(),
-				address: r.address,
-				MeemIdentificationId: r.MeemIdentificationId
-			})),
-			numCopies: meem.numCopies,
-			numRemixes: meem.numRemixes
-		}
-	}
+	// public static meemToIMeem(meem: MeemModel): MeemAPI.IMetadataMeem {
+	// 	if (!meem.Properties || !meem.ChildProperties) {
+	// 		log.crit('Meem must include Properties and ChildProperties')
+	// 		throw new Error('SERVER_ERROR')
+	// 	}
+	// 	return {
+	// 		tokenId: meem.tokenId,
+	// 		owner: meem.owner,
+	// 		parentChain: meem.parentChain,
+	// 		parent: meem.parent,
+	// 		parentTokenId: meem.parentTokenId,
+	// 		rootChain: meem.rootChain,
+	// 		root: meem.root,
+	// 		rootTokenId: meem.rootTokenId,
+	// 		generation: meem.generation,
+	// 		properties: {
+	// 			...meem.Properties,
+	// 			mintStartAt: meem.Properties.mintStartAt
+	// 				? Math.floor(meem.Properties.mintStartAt.getTime() / 1000)
+	// 				: -1,
+	// 			mintEndAt: meem.Properties.mintEndAt
+	// 				? Math.floor(meem.Properties.mintEndAt.getTime() / 1000)
+	// 				: -1,
+	// 			transferLockupUntil: meem.Properties.transferLockupUntil
+	// 				? Math.floor(meem.Properties.transferLockupUntil.getTime() / 1000)
+	// 				: -1
+	// 		},
+	// 		childProperties: {
+	// 			...meem.ChildProperties,
+	// 			mintStartAt: meem.ChildProperties.mintStartAt
+	// 				? Math.floor(meem.ChildProperties.mintStartAt.getTime() / 1000)
+	// 				: -1,
+	// 			mintEndAt: meem.ChildProperties.mintEndAt
+	// 				? Math.floor(meem.ChildProperties.mintEndAt.getTime() / 1000)
+	// 				: -1,
+	// 			transferLockupUntil: meem.ChildProperties.transferLockupUntil
+	// 				? Math.floor(
+	// 						meem.ChildProperties.transferLockupUntil.getTime() / 1000
+	// 				  )
+	// 				: -1
+	// 		},
+	// 		mintedAt: DateTime.fromJSDate(meem.mintedAt).toSeconds(),
+	// 		// data: meem.data,
+	// 		uriLockedBy: meem.uriLockedBy,
+	// 		uriSource: meem.uriSource,
+	// 		reactionTypes: meem.reactionTypes,
+	// 		metadata: meem.metadata,
+	// 		mintedBy: meem.mintedBy,
+	// 		meemType: meem.meemType,
+	// 		reactionCounts: meem.reactionCounts,
+	// 		addressReactions: meem.Reactions?.map(r => ({
+	// 			reaction: r.reaction,
+	// 			reactedAt: DateTime.fromJSDate(r.reactedAt).toSeconds(),
+	// 			address: r.address,
+	// 			MeemIdentificationId: r.MeemIdentificationId
+	// 		})),
+	// 		numCopies: meem.numCopies,
+	// 		numRemixes: meem.numRemixes
+	// 	}
+	// }
 
 	// public static async claimMeem(
 	// 	tokenId: string,

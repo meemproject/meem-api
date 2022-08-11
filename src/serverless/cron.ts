@@ -10,7 +10,7 @@ import CronJob from '../cron/CronJob'
 let app: Express.Application
 let request: SuperTest<Test>
 
-type Constructor = new (...args: any[]) => CronJob
+export type Constructor = new (...args: any[]) => CronJob
 
 export const handle: APIGatewayProxyHandler = async (event, _context) => {
 	// eslint-disable-next-line no-console

@@ -1,5 +1,4 @@
 import { Request, Response } from 'express'
-import MeemIdentification from '../models/MeemIdentification'
 import Wallet from '../models/Wallet'
 import { MeemAPI } from './meem.generated'
 
@@ -34,7 +33,6 @@ export interface IAPIRequestPaginated<TDefinition extends IEndpoint = IEndpoint>
 export interface IAuthenticatedRequest<
 	TDefinition extends IEndpoint = IEndpoint
 > extends IRequest<TDefinition> {
-	// meemId: MeemIdentification
 	wallet: Wallet
 }
 

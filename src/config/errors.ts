@@ -7,6 +7,7 @@ const errors = {
 			'Sorry, something went wrong. Please try again in a few minutes.'
 	},
 	SERVER_ERROR: {
+		code: 'SERVER_ERROR',
 		httpCode: 500,
 		status: 'failure',
 		reason: 'An unknown error occurred in the API.',
@@ -132,6 +133,18 @@ const errors = {
 		status: 'failure',
 		reason: 'The item has already been clipped.',
 		friendlyReason: 'The item has already been clipped.'
+	},
+	CLUB_SAFE_ALREADY_EXISTS: {
+		httpCode: 400,
+		status: 'failure',
+		reason: 'The club already has a safe.',
+		friendlyReason: 'The club already has a safe.'
+	},
+	SAFE_CREATE_FAILED: {
+		httpCode: 400,
+		status: 'failure',
+		reason: 'The club safe could not be created.',
+		friendlyReason: 'The club safe could not be created.'
 	},
 	// Contract errors
 	UNKNOWN_CONTRACT_ERROR: {
@@ -411,6 +424,29 @@ const errors = {
 		status: 'failure',
 		reason: 'One or more of the facets have not been deployed yet.',
 		friendlyReason: 'One or more of the facets have not been deployed yet.'
+	},
+	CONTRACT_CREATION_FAILED: {
+		code: 'CONTRACT_CREATION_FAILED',
+		httpCode: 400,
+		status: 'failure',
+		reason: 'Something went wrong creating the contract.',
+		friendlyReason: 'Something went wrong creating the contract.'
+	},
+	CONTRACT_UPDATE_FAILED: {
+		code: 'CONTRACT_UPDATE_FAILED',
+		httpCode: 400,
+		status: 'failure',
+		reason: 'Something went wrong updating the contract.',
+		friendlyReason: 'Something went wrong updating the contract.'
+	},
+	MINT_FAILED: {
+		code: 'MINT_FAILED',
+		httpCode: 400,
+		status: 'failure',
+		reason:
+			'Something went wrong minting. Check that you have the correct permissions and try again.',
+		friendlyReason:
+			'Something went wrong minting. Check that you have the correct permissions and try again.'
 	}
 }
 

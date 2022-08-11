@@ -1,17 +1,19 @@
+import { IERC721Base__factory } from '@meemproject/meem-contracts/dist/typechain'
 import { MeemContractMetadataLike } from '@meemproject/metadata'
-import { BigNumber } from 'ethers'
+import { ethers } from 'ethers'
 import { DateTime } from 'luxon'
 import { DataTypes } from 'sequelize'
-import { BaseModel } from '../core/BaseModel'
+import ModelWithAddress from '../core/ModelWithAddress'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import type Integration from './Integration'
 import type Meem from './Meem'
-import type MeemProperties from './MeemProperties'
 import type Wallet from './Wallet'
 
-export default class MeemContract extends BaseModel<MeemContract> {
+export default class MeemContract extends ModelWithAddress<MeemContract> {
 	public static readonly modelName = 'MeemContract'
+
+	public static readonly paranoid: boolean = false
 
 	public static get indexes() {
 		return [
@@ -49,48 +51,23 @@ export default class MeemContract extends BaseModel<MeemContract> {
 			allowNull: false,
 			defaultValue: {}
 		},
-		totalOriginalsSupply: {
+		maxSupply: {
 			type: DataTypes.STRING,
 			allowNull: false,
 			set(this: MeemContract, val: any) {
 				this.setDataValue(
-					'totalOriginalsSupply',
+					'maxSupply',
 					services.web3.toBigNumber(val).toHexString()
 				)
+				this.changed('maxSupply', true)
 			}
-		},
-		totalOriginalsSupplyLockedBy: {
-			type: DataTypes.STRING,
-			allowNull: false
 		},
 		mintPermissions: {
 			type: DataTypes.JSONB,
 			allowNull: false
 		},
-		mintPermissionsLockedBy: {
-			type: DataTypes.STRING,
-			allowNull: false
-		},
 		splits: {
 			type: DataTypes.JSONB,
-			allowNull: false
-		},
-		splitsLockedBy: {
-			type: DataTypes.STRING,
-			allowNull: false
-		},
-		originalsPerWallet: {
-			type: DataTypes.STRING,
-			allowNull: false,
-			set(this: MeemContract, val: any) {
-				this.setDataValue(
-					'originalsPerWallet',
-					services.web3.toBigNumber(val).toHexString()
-				)
-			}
-		},
-		originalsPerWalletLockedBy: {
-			type: DataTypes.STRING,
 			allowNull: false
 		},
 		isTransferrable: {
@@ -98,74 +75,113 @@ export default class MeemContract extends BaseModel<MeemContract> {
 			allowNull: false,
 			defaultValue: true
 		},
-		isTransferrableLockedBy: {
-			type: DataTypes.STRING,
-			allowNull: false
-		},
-		mintStartAt: {
-			type: DataTypes.DATE,
-			set(this: MeemContract, val: any) {
-				const bigNumberString = val ?? BigNumber.from(-1).toHexString()
-				const timestamp = services.web3.toBigNumber(bigNumberString).toNumber()
-				if (timestamp < 1) {
-					this.setDataValue('mintStartAt', null)
-				} else {
-					this.setDataValue(
-						'mintStartAt',
-						DateTime.fromSeconds(
-							services.web3.toBigNumber(bigNumberString).toNumber()
-						).toJSDate()
-					)
-				}
-			}
-		},
-		mintEndAt: {
-			type: DataTypes.DATE,
-			set(this: MeemContract, val: any) {
-				const bigNumberString = val ?? BigNumber.from(-1).toHexString()
-				const timestamp = services.web3.toBigNumber(bigNumberString).toNumber()
-				if (timestamp < 1) {
-					this.setDataValue('mintEndAt', null)
-				} else {
-					this.setDataValue(
-						'mintEndAt',
-						DateTime.fromSeconds(
-							services.web3.toBigNumber(bigNumberString).toNumber()
-						).toJSDate()
-					)
-				}
-			}
-		},
-		mintDatesLockedBy: {
-			type: DataTypes.STRING,
-			allowNull: false
-		},
-		transferLockupUntil: {
-			type: DataTypes.DATE,
-			set(this: MeemContract, val: any) {
-				const bigNumberString = val ?? BigNumber.from(-1).toHexString()
-				const timestamp = services.web3.toBigNumber(bigNumberString).toNumber()
-				if (timestamp < 1) {
-					this.setDataValue('transferLockupUntil', null)
-				} else {
-					this.setDataValue(
-						'transferLockupUntil',
-						DateTime.fromSeconds(
-							services.web3.toBigNumber(bigNumberString).toNumber()
-						).toJSDate()
-					)
-				}
-			}
-		},
-		transferLockupUntilLockedBy: {
-			type: DataTypes.STRING,
-			allowNull: false
-		},
 		contractURI: {
 			type: DataTypes.TEXT,
 			allowNull: false,
 			defaultValue: ''
+		},
+		ens: {
+			type: DataTypes.STRING
+		},
+		ensFetchedAt: {
+			type: DataTypes.DATE
+		},
+		gnosisSafeAddress: {
+			type: DataTypes.STRING
 		}
+	}
+
+	public isAdmin(minter: string) {
+		if (!this.Wallets) {
+			throw new Error('WALLET_NOT_FOUND')
+		}
+		// Bypass checks if user has the MINTER_ROLE
+		for (let i = 0; i < this.Wallets.length; i += 1) {
+			if (
+				this.Wallets[i].address.toLowerCase() === minter.toLowerCase() &&
+				this.Wallets[i].MeemContractWallets[0].role === config.ADMIN_ROLE
+			) {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	public async canMint(minter: string) {
+		if (this.isAdmin(minter)) {
+			return true
+		}
+
+		let hasPermission = false
+		let hasCostBeenSet = false
+		let costWei = 0
+		const now = DateTime.local().toSeconds()
+		const provider = await services.ethers.getProvider()
+
+		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+
+		for (let i = 0; i < this.mintPermissions.length; i += 1) {
+			const perm = this.mintPermissions[i]
+
+			if (
+				(+perm.mintStartTimestamp === 0 || now >= +perm.mintStartTimestamp) &&
+				(+perm.mintEndTimestamp === 0 || now <= +perm.mintEndTimestamp)
+			) {
+				if (
+					// Allowed if permission is anyone
+					perm.permission === MeemAPI.Permission.Anyone
+				) {
+					hasPermission = true
+				}
+
+				if (perm.permission === MeemAPI.Permission.Addresses) {
+					// Allowed if to is in the list of approved addresses
+					for (let j = 0; j < perm.addresses.length; j += 1) {
+						if (perm.addresses[j].toLowerCase() === minter.toLowerCase()) {
+							hasPermission = true
+							break
+						}
+					}
+				}
+
+				if (perm.permission === MeemAPI.Permission.Holders) {
+					// Check each address
+					for (let j = 0; j < perm.addresses.length; j += 1) {
+						const erc721Contract = IERC721Base__factory.connect(
+							perm.addresses[j],
+							wallet
+						)
+						// eslint-disable-next-line no-await-in-loop
+						const balance = await erc721Contract.balanceOf(minter)
+
+						if (balance.toNumber() >= +perm.numTokens) {
+							hasPermission = true
+							break
+						}
+					}
+				}
+
+				if (
+					hasPermission &&
+					(!hasCostBeenSet || (hasCostBeenSet && costWei > +perm.costWei))
+				) {
+					costWei = +perm.costWei
+					hasCostBeenSet = true
+				}
+			}
+		}
+
+		if (!hasPermission) {
+			return false
+		}
+
+		// Only allow gasless minting if cost is 0
+		if (costWei > 0) {
+			return false
+		}
+
+		return true
 	}
 
 	public id!: string
@@ -182,49 +198,25 @@ export default class MeemContract extends BaseModel<MeemContract> {
 
 	public metadata!: MeemContractMetadataLike
 
-	public totalOriginalsSupply!: string
-
-	public totalOriginalsSupplyLockedBy!: string
+	public maxSupply!: string
 
 	public mintPermissions!: MeemAPI.IMeemPermission[]
 
-	public mintPermissionsLockedBy!: string
-
 	public splits!: MeemAPI.IMeemSplit[]
-
-	public splitsLockedBy!: string
-
-	public originalsPerWallet!: string
-
-	public originalsPerWalletLockedBy!: string
 
 	public isTransferrable!: boolean
 
-	public isTransferrableLockedBy!: string
+	public ens!: string | null
 
-	public mintStartAt!: Date | null
+	public ensFetchedAt!: Date | null
 
-	public mintEndAt!: Date | null
+	public gnosisSafeAddress!: string | null
 
-	public mintDatesLockedBy!: string
+	public Meems?: Meem[] | null
 
-	public transferLockupUntil!: Date | null
+	public Wallets?: Wallet[] | null
 
-	public transferLockupUntilLockedBy!: string
-
-	public meem?: Meem[] | null
-
-	public DefaultPropertiesId!: string | null
-
-	public DefaultChildPropertiesId!: string | null
-
-	public DefaultProperties!: MeemProperties | null
-
-	public DefaultChildProperties!: MeemProperties | null
-
-	public Wallets!: Wallet[]
-
-	public Integrations!: Integration[]
+	public Integrations?: Integration[] | null
 
 	public static associate(models: IModels) {
 		this.hasMany(models.Meem)
@@ -235,14 +227,6 @@ export default class MeemContract extends BaseModel<MeemContract> {
 
 		this.belongsToMany(models.Integration, {
 			through: models.MeemContractIntegration
-		})
-
-		this.belongsTo(models.MeemProperties, {
-			as: 'DefaultProperties'
-		})
-
-		this.belongsTo(models.MeemProperties, {
-			as: 'DefaultChildProperties'
 		})
 	}
 }

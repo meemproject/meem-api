@@ -1,8 +1,9 @@
 import crypto from 'crypto'
-import jsonwebtoken from 'jsonwebtoken'
+import jsonwebtoken, { SignOptions } from 'jsonwebtoken'
+import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import Twitter from '../models/Twitter'
-import Wallet from '../models/Wallet'
+import type MeemContract from '../models/MeemContract'
+import type Wallet from '../models/Wallet'
 
 export default class MeemIdService {
 	public static async getNonce(options: { address: string }) {
@@ -25,6 +26,16 @@ export default class MeemIdService {
 		return wallet.nonce
 	}
 
+	public static async updateENS(item: Wallet | MeemContract) {
+		const provider = await services.ethers.getProvider({
+			chainId: 1
+		})
+		const ens = await provider.lookupAddress(item.address)
+		item.ens = ens
+		item.ensFetchedAt = DateTime.now().toJSDate()
+		await item.save()
+	}
+
 	public static async login(options: { address?: string; signature?: string }) {
 		const { address, signature } = options
 
@@ -36,6 +47,10 @@ export default class MeemIdService {
 
 		if (!wallet) {
 			throw new Error('LOGIN_FAILED')
+		}
+
+		if (wallet.ensFetchedAt === null) {
+			await this.updateENS(wallet)
 		}
 
 		return {
@@ -72,13 +87,19 @@ export default class MeemIdService {
 		walletAddress: string
 		/** Additional data to encode in the JWT. Do not store sensitive information here. */
 		data?: Record<string, any>
-		expiresIn?: number
+		expiresIn?: number | null
 	}) {
 		const { walletAddress, expiresIn, data } = options
-
-		let exp = config.JWT_EXPIRES_IN
-		if (expiresIn && +expiresIn > 0) {
-			exp = +expiresIn
+		const jwtOptions: SignOptions = {
+			algorithm: 'HS512',
+			jwtid: uuidv4()
+		}
+		if (expiresIn !== null) {
+			let exp = config.JWT_EXPIRES_IN
+			if (expiresIn && +expiresIn > 0) {
+				exp = +expiresIn
+			}
+			jwtOptions.expiresIn = exp
 		}
 		const token = jsonwebtoken.sign(
 			{
@@ -86,11 +107,7 @@ export default class MeemIdService {
 				walletAddress
 			},
 			config.JWT_SECRET,
-			{
-				algorithm: 'HS512',
-				jwtid: uuidv4(),
-				expiresIn: exp
-			}
+			jwtOptions
 		)
 
 		return token
@@ -99,28 +116,5 @@ export default class MeemIdService {
 	public static verifyJWT(token: string): Record<string, any> {
 		const data = jsonwebtoken.verify(token, config.JWT_SECRET)
 		return data as Record<string, any>
-	}
-
-	private static findMeemIdentificationId(options: {
-		twitters?: Twitter[]
-		wallets?: Wallet[]
-	}) {
-		const { twitters, wallets } = options
-		if (twitters) {
-			for (let i = 0; i < twitters.length; i += 1) {
-				if (twitters[i].MeemIdentificationId) {
-					return twitters[i].MeemIdentificationId
-				}
-			}
-		}
-		if (wallets) {
-			for (let i = 0; i < wallets.length; i += 1) {
-				if (wallets[i].MeemIdentificationId) {
-					return wallets[i].MeemIdentificationId
-				}
-			}
-		}
-
-		return null
 	}
 }

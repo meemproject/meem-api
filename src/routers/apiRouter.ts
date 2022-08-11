@@ -28,22 +28,32 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/login', MeemIdController.login)
 
 	router.getAsync('/me', MeemIdController.getMe)
+	router.postAsync('/me/refreshENS', MeemIdController.refreshENS)
+	router.getAsync('/me/apiKey', MeemIdController.getApiKey)
 
 	router.getAsync('/config', ConfigController.getConfig)
 
 	router.postAsync('/isSlugAvailable', MeemContractController.isSlugAvailable)
 	router.postAsync('/meemContracts', MeemContractController.createMeemContract)
+	router.postAsync(
+		'/meemContracts/:meemContractId',
+		MeemContractController.reInitialize
+	)
 	router.patchAsync(
 		'/meemContracts/:meemContractId',
 		MeemContractController.updateMeemContract
 	)
 	router.postAsync(
+		'/meemContracts/:meemContractId/safe',
+		MeemContractController.createClubSafe
+	)
+	router.postAsync(
 		'/meemContracts/:meemContractId/integrations/:integrationId',
 		MeemContractController.createOrUpdateMeemContractIntegration
 	)
-	router.getAsync('/meems', MeemController.getMeems)
-	router.getAsync('/meems/:tokenId', MeemController.getMeem)
-	router.getAsync('/meems/:tokenId/children', MeemController.getChildMeems)
+	// router.getAsync('/meems', MeemController.getMeems)
+	// router.getAsync('/meems/:tokenId', MeemController.getMeem)
+	// router.getAsync('/meems/:tokenId/children', MeemController.getChildMeems)
 	router.getAsync('/clippings', MeemController.getClippings)
 	router.postAsync('/clippings/status', MeemController.checkClippingStatus)
 	router.postAsync('/meems/mintOriginal', MeemController.mintOriginalMeem)
@@ -112,8 +122,9 @@ export default (app: Express, _express: typeof coreExpress) => {
 			TestController.testGetSubscriptions
 		)
 		router.getAsync('/test/getUserJWT', TestController.testGetUserJWT)
-		router.getAsync('/test/getUserJWT', TestController.testGetUserJWT)
+		router.getAsync('/test/gnosis', TestController.testGnosis)
 		router.getAsync('/test/testData', TestController.testData)
-		router.getAsync('/test/testPromptsCron', TestController.testPromptsCron)
+		router.getAsync('/test/testCron', TestController.testCron)
+		router.getAsync('/test/syncContract', TestController.syncContract)
 	}
 }
