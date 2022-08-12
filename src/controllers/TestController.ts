@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { Validator } from '@meemproject/metadata'
 import { ethers, ethers as Ethers } from 'ethers'
 import { Request, Response } from 'express'
 import { DateTime, Duration } from 'luxon'
@@ -391,6 +392,28 @@ export default class ConfigController {
 
 		return res.json({
 			status: 'success'
+		})
+	}
+
+	public static async metadata(req: Request, res: Response) {
+		const contractMetadataValidator = new Validator(
+			'MeemClub_Contract_20220718'
+		)
+		const contractMetadataValidatorResult = contractMetadataValidator.validate({
+			meem_contract_type: 'meem-club',
+			meem_metadata_version: 'MeemClub_Contract_20220718',
+			name: 'metadataaaa',
+			description: 'asdfasdf',
+			image:
+				'data:image/png;base64,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',
+			associations: [],
+			external_url: '',
+			application_instructions: ''
+		})
+
+		return res.json({
+			status: 'success',
+			contractMetadataValidatorResult
 		})
 	}
 
