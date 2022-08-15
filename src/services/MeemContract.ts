@@ -94,7 +94,12 @@ export default class MeemContractService {
 				wallet
 			)
 
-			if (!meemContractInstance.isAdmin(senderWalletAddress)) {
+			const isAdmin = await this.isMeemContractAdmin({
+				meemContractId: meemContractInstance.id,
+				walletAddress: senderWalletAddress
+			})
+
+			if (!isAdmin) {
 				throw new Error('NOT_AUTHORIZED')
 			}
 
@@ -486,7 +491,12 @@ export default class MeemContractService {
 				throw new Error('CLUB_SAFE_ALREADY_EXISTS')
 			}
 
-			if (!meemContract.isAdmin(senderWalletAddress)) {
+			const isAdmin = await this.isMeemContractAdmin({
+				meemContractId: meemContract.id,
+				walletAddress: senderWalletAddress
+			})
+
+			if (!isAdmin) {
 				throw new Error('NOT_AUTHORIZED')
 			}
 
@@ -573,7 +583,8 @@ export default class MeemContractService {
 				orm.models.MeemContract.findOne({
 					where: {
 						id: meemContractId
-					}
+					},
+					include: [orm.models.Wallet]
 				}),
 				orm.models.Bundle.findOne({
 					where: {
@@ -597,7 +608,12 @@ export default class MeemContractService {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
 			}
 
-			if (!meemContract.isAdmin(senderWalletAddress)) {
+			const isAdmin = await this.isMeemContractAdmin({
+				meemContractId: meemContract.id,
+				walletAddress: senderWalletAddress
+			})
+
+			if (!isAdmin) {
 				throw new Error('NOT_AUTHORIZED')
 			}
 
@@ -656,5 +672,33 @@ export default class MeemContractService {
 			)
 			throw new Error('UPGRADE_CLUB_FAILED')
 		}
+	}
+
+	public static async isMeemContractAdmin(options: {
+		meemContractId: string
+		walletAddress: string
+	}) {
+		const { meemContractId, walletAddress } = options
+		const meemContractWallet = await orm.models.MeemContractWallet.findOne({
+			where: {
+				role: config.ADMIN_ROLE,
+				MeemContractId: meemContractId
+			},
+			include: [
+				{
+					model: orm.models.Wallet,
+					where: orm.sequelize.where(
+						orm.sequelize.fn('lower', orm.sequelize.col('address')),
+						walletAddress.toLowerCase()
+					)
+				}
+			]
+		})
+
+		if (meemContractWallet) {
+			return true
+		}
+
+		return false
 	}
 }
