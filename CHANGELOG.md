@@ -1,3 +1,7 @@
+## [1.8.3](https://github.com/meemproject/meem-api-aws/compare/v1.8.2...v1.8.3) (2022-08-12)
+
+## [1.8.2](https://github.com/meemproject/meem-api-aws/compare/v1.8.1...v1.8.2) (2022-08-11)
+
 ## [1.8.1](https://github.com/meemproject/meem-api-aws/compare/v1.8.0...v1.8.1) (2022-08-11)
 
 # [1.8.0](https://github.com/meemproject/meem-api-aws/compare/v1.7.4...v1.8.0) (2022-08-11)
