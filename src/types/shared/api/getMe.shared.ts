@@ -15,6 +15,7 @@ export namespace GetMe {
 	export interface IResponseBody extends IApiResponseBody {
 		walletId: string
 		address: string
+		meemIdentity: any
 	}
 
 	export interface IDefinition {

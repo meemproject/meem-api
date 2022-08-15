@@ -365,7 +365,7 @@ export default class ConfigController {
 	): Promise<Response> {
 		const { walletAddress } = req.query as Record<string, string>
 
-		const jwt = await services.meemIdentity.generateJWT({
+		const jwt = await services.meemId.generateJWT({
 			walletAddress
 		})
 

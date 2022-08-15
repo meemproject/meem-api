@@ -9,7 +9,7 @@ import Ipfs from '../services/Ipfs'
 import Lint from '../services/Lint'
 import Meem from '../services/Meem'
 import MeemContract from '../services/MeemContract'
-import MeemIdentity from '../services/MeemIdentity'
+import MeemId from '../services/MeemId'
 // import Prompts from '../services/Prompts'
 import Puppeteer from '../services/Puppeteer'
 import Scraper from '../services/Scraper'
@@ -30,7 +30,7 @@ declare global {
 		let lint: typeof Lint
 		let meem: typeof Meem
 		let meemContract: typeof MeemContract
-		let meemIdentity: typeof MeemIdentity
+		let meemId: typeof MeemId
 		// let prompts: typeof Prompts
 		let puppeteer: Puppeteer
 		let scraper: typeof Scraper

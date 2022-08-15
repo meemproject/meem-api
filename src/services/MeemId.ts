@@ -4,6 +4,7 @@ import _ from 'lodash'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import type MeemContract from '../models/MeemContract'
+import MeemIdentity from '../models/MeemIdentity'
 import type Wallet from '../models/Wallet'
 
 export default class MeemIdentityService {
@@ -119,11 +120,34 @@ export default class MeemIdentityService {
 		return data as Record<string, any>
 	}
 
+	public static async getMeemIdentityForWallet(
+		wallet: Wallet
+	): Promise<MeemIdentity> {
+		let meemId = await orm.models.MeemIdentity.findOne({
+			include: [
+				{
+					model: orm.models.Wallet,
+					where: {
+						address: wallet.address
+					}
+				}
+			]
+		})
+
+		if (!meemId) {
+			meemId = await this.createOrUpdateMeemIdentity({
+				wallet
+			})
+		}
+
+		return meemId
+	}
+
 	public static async createOrUpdateMeemIdentity(data: {
 		wallet: Wallet
 		profilePicUrl?: string
 		displayName?: string
-	}) {
+	}): Promise<MeemIdentity> {
 		const { wallet, profilePicUrl, displayName } = data
 		try {
 			let meemId = await orm.models.MeemIdentity.findOne({
@@ -156,6 +180,7 @@ export default class MeemIdentityService {
 					isDefault: true
 				})
 			}
+			return meemId
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')

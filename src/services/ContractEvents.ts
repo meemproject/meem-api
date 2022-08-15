@@ -373,7 +373,7 @@ export default class ContractEvent {
 		await t.commit()
 
 		// Update ENS
-		await services.meemIdentity.updateENS(theMeemContract)
+		await services.meemId.updateENS(theMeemContract)
 
 		return theMeemContract
 	}

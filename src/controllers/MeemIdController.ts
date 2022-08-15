@@ -14,7 +14,7 @@ export default class MeemIdController {
 			throw new Error('MISSING_PARAMETERS')
 		}
 		// Generate a nonce and save it for the wallet
-		const nonce = await services.meemIdentity.getNonce({
+		const nonce = await services.meemId.getNonce({
 			address: req.query.address as string
 		})
 
@@ -27,7 +27,7 @@ export default class MeemIdController {
 		req: IRequest<MeemAPI.v1.Login.IDefinition>,
 		res: IResponse<MeemAPI.v1.Login.IResponseBody>
 	): Promise<Response> {
-		const { jwt } = await services.meemIdentity.login({
+		const { jwt } = await services.meemId.login({
 			address: req.body.address,
 			signature: req.body.signature
 		})
@@ -47,7 +47,7 @@ export default class MeemIdController {
 
 		const { profilePicUrl, displayName } = req.body
 
-		await services.meemIdentity.createOrUpdateMeemIdentity({
+		await services.meemId.createOrUpdateMeemIdentity({
 			wallet: req.wallet,
 			profilePicUrl,
 			displayName
@@ -65,10 +65,12 @@ export default class MeemIdController {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
+
+		const meemId = await services.meemId.getMeemIdentityForWallet(req.wallet)
 		return res.json({
 			walletId: req.wallet.id,
-			address: req.wallet.address
-			// TODO: Return MeemIdentity
+			address: req.wallet.address,
+			meemIdentity: meemId
 		})
 	}
 
@@ -80,7 +82,7 @@ export default class MeemIdController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		await services.meemIdentity.updateENS(req.wallet)
+		await services.meemId.updateENS(req.wallet)
 
 		return res.json({
 			status: 'success'
@@ -100,7 +102,7 @@ export default class MeemIdController {
 		await req.wallet.save()
 
 		return res.json({
-			jwt: services.meemIdentity.generateJWT({
+			jwt: services.meemId.generateJWT({
 				walletAddress: req.wallet.address,
 				data: {
 					apiKey: newApiKey
