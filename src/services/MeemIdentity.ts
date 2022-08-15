@@ -1,11 +1,12 @@
 import crypto from 'crypto'
 import jsonwebtoken, { SignOptions } from 'jsonwebtoken'
+import _ from 'lodash'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import type MeemContract from '../models/MeemContract'
 import type Wallet from '../models/Wallet'
 
-export default class MeemIdService {
+export default class MeemIdentityService {
 	public static async getNonce(options: { address: string }) {
 		// Generate a nonce and save it for the wallet
 		const address = options.address.toLowerCase()
@@ -116,5 +117,48 @@ export default class MeemIdService {
 	public static verifyJWT(token: string): Record<string, any> {
 		const data = jsonwebtoken.verify(token, config.JWT_SECRET)
 		return data as Record<string, any>
+	}
+
+	public static async createOrUpdateMeemIdentity(data: {
+		wallet: Wallet
+		profilePicUrl?: string
+		displayName?: string
+	}) {
+		const { wallet, profilePicUrl, displayName } = data
+		try {
+			let meemId = await orm.models.MeemIdentity.findOne({
+				include: [
+					{
+						model: orm.models.Wallet,
+						where: {
+							address: wallet.address
+						}
+					}
+				]
+			})
+
+			if (meemId) {
+				const updates: any = {
+					...(!_.isUndefined(profilePicUrl) && { profilePicUrl }),
+					...(!_.isUndefined(displayName) && { displayName })
+				}
+
+				if (_.keys(updates).length > 0) await meemId.update(updates)
+			} else {
+				meemId = await orm.models.MeemIdentity.create({
+					profilePicUrl: profilePicUrl ?? null,
+					displayName: displayName ?? null
+				})
+
+				await orm.models.MeemIdentityWallet.create({
+					WalletId: wallet.id,
+					MeemIdentityId: meemId.id,
+					isDefault: true
+				})
+			}
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
 	}
 }

@@ -12,7 +12,7 @@ export default (app: Express) => {
 
 		if (jwt) {
 			try {
-				const jwtData = services.meemId.verifyJWT(jwt)
+				const jwtData = services.meemIdentity.verifyJWT(jwt)
 				if (jwtData.walletAddress) {
 					const where: Record<string, any> = {
 						address: jwtData.walletAddress

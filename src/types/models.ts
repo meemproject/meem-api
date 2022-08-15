@@ -16,6 +16,8 @@ import TweetHashtag from '../models/TweetHashtag'
 import Twitter from '../models/Twitter'
 import Wallet from '../models/Wallet'
 import WalletContractInstance from '../models/WalletContractInstance'
+import MeemIdentity from '../models/MeemIdentity'
+import MeemIdentityWallet from '../models/MeemIdentityWallet'
 
 export interface IModels {
 	Bundle: typeof Bundle
@@ -35,6 +37,8 @@ export interface IModels {
 	TweetHashtag: typeof TweetHashtag
 	Twitter: typeof Twitter
 	Wallet: typeof Wallet
+	MeemIdentity: typeof MeemIdentity
+	MeemIdentityWallet: typeof MeemIdentityWallet
 	WalletContractInstance: typeof WalletContractInstance
 }
 
