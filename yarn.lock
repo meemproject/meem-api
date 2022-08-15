@@ -1068,19 +1068,19 @@
     semver "^7.3.5"
     tar "^6.1.11"
 
-"@meemproject/meem-contracts@^0.7.7":
-  version "0.7.7"
-  resolved "https://registry.yarnpkg.com/@meemproject/meem-contracts/-/meem-contracts-0.7.7.tgz#9c715fdc738a18e456d325b9d98d81d1f36fc0f0"
-  integrity sha512-WEkI43BRPFW2C0kXu/9vPAzAaeSgqWPB2dRlkciiGXdc7EIUfYvycHkQaJS6xiLb5llNRvaNFlRcyZ+SQyBK4Q==
+"@meemproject/meem-contracts@^0.7.8":
+  version "0.7.8"
+  resolved "https://registry.yarnpkg.com/@meemproject/meem-contracts/-/meem-contracts-0.7.8.tgz#0d7ea32ee259380c402be4a1d5f209bf220c93d7"
+  integrity sha512-3Zu33BZyC/1RYGXgDnwqMLrNsaxGLhiHq0WafW4lllaqnPMsTE5MWVXgTM5GuEOTkOJyRxNZXZ4aWkOZd1+J0g==
   dependencies:
     "@kengoldfarb/log" "^1.0.5"
     ethers "^5.6.4"
     superagent "^8.0.0"
 
-"@meemproject/metadata@^0.7.7":
-  version "0.7.7"
-  resolved "https://registry.yarnpkg.com/@meemproject/metadata/-/metadata-0.7.7.tgz#0f5ae3758c27820a8fb33a736423f087a821acab"
-  integrity sha512-YO7HcMme1sWVIQhg6Sr5MMhXB8TUrVe2mHtMRpSwlXU+7G4Ak1Yyg7WuiZ1kvnBahrVuJz7NOD1AyNYudOkmrg==
+"@meemproject/metadata@^0.7.8":
+  version "0.7.8"
+  resolved "https://registry.yarnpkg.com/@meemproject/metadata/-/metadata-0.7.8.tgz#f05e070887fa34e29ab9f88b6363958b8b0e1525"
+  integrity sha512-iZXPGAVVzSAUJQk1ScsdQCeP1dr1+KJ03HPG7IDPF8ACP9ackPj4FN4Slogfa8X2o7+t+RvmnlFrnfTkv2l3YA==
   dependencies:
     "@kengoldfarb/log" "^1.0.5"
     json-schema-to-typescript "^11.0.1"
