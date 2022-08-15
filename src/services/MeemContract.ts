@@ -503,12 +503,23 @@ export default class MeemContractService {
 				'0x0000000000000000000000000000000000000000'
 			])
 
+			let { recommendedGwei } = await services.web3.getGasEstimate()
+
+			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
+				// throw new Error('GAS_PRICE_TOO_HIGH')
+				log.warn(`Recommended fee over max: ${recommendedGwei}`)
+				recommendedGwei = config.MAX_GAS_PRICE_GWEI
+			}
+
 			// safeContractFactory is an instance of the "Contract" type from Ethers JS
 			// see https://docs.ethers.io/v5/getting-started/#getting-started--contracts
 			// for more details.
 			const tx = await proxyContract.createProxy(
 				config.GNOSIS_MASTER_CONTRACT_ADDRESS,
-				safeSetupData
+				safeSetupData,
+				{
+					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+				}
 			)
 
 			await tx.wait()
