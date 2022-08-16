@@ -493,13 +493,21 @@ export default class MeemContractService {
 			)
 			const gnosisInterface = new ethers.utils.Interface(GnosisSafeABI)
 			const safeSetupData = gnosisInterface.encodeFunctionData('setup', [
+				// Owners
 				safeOwners,
+				// Threshold of signers
 				threshold,
+				// to
 				'0x0000000000000000000000000000000000000000',
+				// data
 				'0x',
+				// Fallback handler
+				config.GNOSIS_DEFAULT_CALLBACK_HANDLER,
+				// Payment token
 				'0x0000000000000000000000000000000000000000',
-				'0x0000000000000000000000000000000000000000',
+				// Payment
 				'0',
+				// Payment receiver
 				'0x0000000000000000000000000000000000000000'
 			])
 
