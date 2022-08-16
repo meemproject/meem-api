@@ -1,3 +1,16 @@
+## [1.8.7](https://github.com/meemproject/meem-api-aws/compare/v1.8.6...v1.8.7) (2022-08-16)
+
+## [1.8.6](https://github.com/meemproject/meem-api-aws/compare/v1.8.5...v1.8.6) (2022-08-16)
+
+## [1.8.5](https://github.com/meemproject/meem-api-aws/compare/v1.8.4...v1.8.5) (2022-08-15)
+
+
+### Bug Fixes
+
+* set gasPrice to prevent underpriced tx ([78721ca](https://github.com/meemproject/meem-api-aws/commit/78721ca))
+
+## [1.8.4](https://github.com/meemproject/meem-api-aws/compare/v1.8.3...v1.8.4) (2022-08-15)
+
 ## [1.8.3](https://github.com/meemproject/meem-api-aws/compare/v1.8.2...v1.8.3) (2022-08-12)
 
 ## [1.8.2](https://github.com/meemproject/meem-api-aws/compare/v1.8.1...v1.8.2) (2022-08-11)
