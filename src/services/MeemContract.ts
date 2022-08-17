@@ -1,5 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { getCuts, IFacetVersion } from '@meemproject/meem-contracts'
+import {
+	getCuts,
+	IFacetVersion,
+	diamondABI,
+	upgrade
+} from '@meemproject/meem-contracts'
 import { Validator } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 import _ from 'lodash'
@@ -88,6 +93,15 @@ export default class MeemContractService {
 				meemContractInstance.address,
 				wallet
 			)
+
+			const isAdmin = await this.isMeemContractAdmin({
+				meemContractId: meemContractInstance.id,
+				walletAddress: senderWalletAddress
+			})
+
+			if (!isAdmin) {
+				throw new Error('NOT_AUTHORIZED')
+			}
 
 			// Find difference between current admins and new admins
 			const currentAdmins = await orm.models.MeemContractWallet.findAll({
@@ -477,6 +491,15 @@ export default class MeemContractService {
 				throw new Error('CLUB_SAFE_ALREADY_EXISTS')
 			}
 
+			const isAdmin = await this.isMeemContractAdmin({
+				meemContractId: meemContract.id,
+				walletAddress: senderWalletAddress
+			})
+
+			if (!isAdmin) {
+				throw new Error('NOT_AUTHORIZED')
+			}
+
 			// This is one of the topics emitted when a gnosis safe is created
 			const topic =
 				'0x141df868a6331af528e38c83b7aa03edc19be66e37ae67f9285bf4f8e3c6a1a8'
@@ -493,13 +516,21 @@ export default class MeemContractService {
 			)
 			const gnosisInterface = new ethers.utils.Interface(GnosisSafeABI)
 			const safeSetupData = gnosisInterface.encodeFunctionData('setup', [
+				// Owners
 				safeOwners,
+				// Threshold of signers
 				threshold,
+				// to
 				'0x0000000000000000000000000000000000000000',
+				// data
 				'0x',
+				// Fallback handler
+				config.GNOSIS_DEFAULT_CALLBACK_HANDLER,
+				// Payment token
 				'0x0000000000000000000000000000000000000000',
-				'0x0000000000000000000000000000000000000000',
+				// Payment
 				'0',
+				// Payment receiver
 				'0x0000000000000000000000000000000000000000'
 			])
 
@@ -546,5 +577,136 @@ export default class MeemContractService {
 			)
 			throw new Error('SAFE_CREATE_FAILED')
 		}
+	}
+
+	public static async upgradeClub(
+		options: MeemAPI.v1.UpgradeClub.IRequestBody & {
+			meemContractId: string
+			senderWalletAddress: string
+		}
+	) {
+		const { meemContractId, senderWalletAddress } = options
+		try {
+			const [meemContract, bundle] = await Promise.all([
+				orm.models.MeemContract.findOne({
+					where: {
+						id: meemContractId
+					},
+					include: [orm.models.Wallet]
+				}),
+				orm.models.Bundle.findOne({
+					where: {
+						id: config.MEEM_BUNDLE_ID
+					},
+					include: [
+						{
+							model: orm.models.BundleContract,
+							include: [
+								{
+									model: orm.models.Contract,
+									include: [orm.models.ContractInstance]
+								}
+							]
+						}
+					]
+				})
+			])
+
+			if (!meemContract) {
+				throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			}
+
+			const isAdmin = await this.isMeemContractAdmin({
+				meemContractId: meemContract.id,
+				walletAddress: senderWalletAddress
+			})
+
+			if (!isAdmin) {
+				throw new Error('NOT_AUTHORIZED')
+			}
+
+			const fromVersion: IFacetVersion[] = []
+			const toVersion: IFacetVersion[] = []
+
+			const provider = await services.ethers.getProvider()
+			const signer = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+
+			const diamond = new ethers.Contract(
+				meemContract.address,
+				diamondABI,
+				signer
+			)
+
+			const facets = await diamond.facets()
+			facets.forEach((facet: { target: string; selectors: string[] }) => {
+				fromVersion.push({
+					address: facet.target,
+					functionSelectors: facet.selectors
+				})
+			})
+
+			bundle?.BundleContracts?.forEach(bc => {
+				if (
+					!bc.Contract?.ContractInstances ||
+					!bc.Contract?.ContractInstances[0]
+				) {
+					throw new Error('CONTRACT_INSTANCE_NOT_FOUND')
+				}
+				toVersion.push({
+					address: bc.Contract.ContractInstances[0].address,
+					functionSelectors: bc.functionSelectors
+				})
+			})
+
+			const tx = await upgrade({
+				signer,
+				proxyContractAddress: meemContract.address,
+				toVersion,
+				fromVersion
+			})
+
+			log.debug(`Upgrading club ${meemContract.address} w/ tx ${tx?.hash}`)
+
+			// console.log({
+			// 	cuts,
+			// 	fromVersion,
+			// 	toVersion
+			// })
+		} catch (e: any) {
+			log.crit(e)
+			await sockets?.emitError(
+				e?.message ?? config.errors.UPGRADE_CLUB_FAILED,
+				senderWalletAddress
+			)
+			throw new Error('UPGRADE_CLUB_FAILED')
+		}
+	}
+
+	public static async isMeemContractAdmin(options: {
+		meemContractId: string
+		walletAddress: string
+	}) {
+		const { meemContractId, walletAddress } = options
+		const meemContractWallet = await orm.models.MeemContractWallet.findOne({
+			where: {
+				role: config.ADMIN_ROLE,
+				MeemContractId: meemContractId
+			},
+			include: [
+				{
+					model: orm.models.Wallet,
+					where: orm.sequelize.where(
+						orm.sequelize.fn('lower', orm.sequelize.col('address')),
+						walletAddress.toLowerCase()
+					)
+				}
+			]
+		})
+
+		if (meemContractWallet) {
+			return true
+		}
+
+		return false
 	}
 }
