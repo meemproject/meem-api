@@ -54,8 +54,7 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const genericMeemContract = await services.meem.getMeemContract()
-		const adminRole = await genericMeemContract.ADMIN_ROLE()
+		const adminRole = await config.ADMIN_ROLE
 		const meemContract = await orm.models.MeemContract.findOne({
 			where: {
 				id: req.params.meemContractId
@@ -169,8 +168,7 @@ export default class MeemContractController {
 		}
 
 		const integrationMetadata = req.body.metadata ?? {}
-		const genericMeemContract = await services.meem.getMeemContract()
-		const adminRole = await genericMeemContract.ADMIN_ROLE()
+		const adminRole = config.ADMIN_ROLE
 		const meemContract = await orm.models.MeemContract.findOne({
 			where: {
 				id: req.params.meemContractId
