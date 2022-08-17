@@ -28,6 +28,10 @@ export default class MeemIdentity extends BaseModel<MeemIdentity> {
 		profilePicUrl: {
 			type: DataTypes.STRING,
 			allowNull: true
+		},
+		defaultWalletAddress: {
+			type: DataTypes.STRING,
+			allowNull: false
 		}
 	}
 
