@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import jsonwebtoken, { SignOptions } from 'jsonwebtoken'
-import _ from 'lodash'
+import _, { update } from 'lodash'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import type MeemContract from '../models/MeemContract'
@@ -130,6 +130,10 @@ export default class MeemIdentityService {
 					where: {
 						address: wallet.address
 					}
+				},
+				{
+					model: orm.models.Wallet,
+					as: 'DefaultWallet'
 				}
 			]
 		})
@@ -149,6 +153,7 @@ export default class MeemIdentityService {
 		displayName?: string
 		isDefaultWallet?: boolean
 	}): Promise<MeemIdentity> {
+		// TODO: Add ability to add another wallet
 		const { wallet, profilePicUrl, displayName } = data
 		try {
 			let meemId = await orm.models.MeemIdentity.findOne({
@@ -174,29 +179,33 @@ export default class MeemIdentityService {
 
 				if (_.keys(updates).length > 0) await meemId.update(updates)
 			} else {
-				meemId = await orm.models.MeemIdentity.create(
-					{
-						profilePicUrl: profilePicUrl ?? null,
-						displayName: displayName ?? null,
-						DefaultWalletId: wallet.id
-					},
-					{
-						include: [
-							{
-								model: orm.models.Wallet
-							},
-							{
-								model: orm.models.Wallet,
-								as: 'DefaultWallet'
-							}
-						]
-					}
-				)
+				meemId = await orm.models.MeemIdentity.create({
+					profilePicUrl: profilePicUrl ?? null,
+					displayName: displayName ?? null,
+					DefaultWalletId: wallet.id
+				})
 
 				await orm.models.MeemIdentityWallet.create({
 					WalletId: wallet.id,
 					MeemIdentityId: meemId.id
 				})
+
+				const updatedMeemId = await orm.models.MeemIdentity.findOne({
+					include: [
+						{
+							model: orm.models.Wallet,
+							where: {
+								address: wallet.address
+							}
+						},
+						{
+							model: orm.models.Wallet,
+							as: 'DefaultWallet'
+						}
+					]
+				})
+
+				meemId = updatedMeemId ?? meemId
 			}
 
 			return meemId
