@@ -28,10 +28,6 @@ export default class MeemIdentity extends BaseModel<MeemIdentity> {
 		profilePicUrl: {
 			type: DataTypes.STRING,
 			allowNull: true
-		},
-		defaultWalletAddress: {
-			type: DataTypes.STRING,
-			allowNull: false
 		}
 	}
 
@@ -41,11 +37,18 @@ export default class MeemIdentity extends BaseModel<MeemIdentity> {
 
 	public profilePicUrl!: string | null
 
-	public Wallets?: Wallet[]
+	public DefaultWalletId!: string
+
+	public DefaultWallet!: Wallet
+
+	public Wallets!: Wallet[]
 
 	public static associate(models: IModels) {
 		this.belongsToMany(models.Wallet, {
 			through: models.MeemIdentityWallet
+		})
+		this.belongsTo(models.Wallet, {
+			as: 'DefaultWallet'
 		})
 	}
 }

@@ -147,6 +147,7 @@ export default class MeemIdentityService {
 		wallet: Wallet
 		profilePicUrl?: string
 		displayName?: string
+		isDefaultWallet?: boolean
 	}): Promise<MeemIdentity> {
 		const { wallet, profilePicUrl, displayName } = data
 		try {
@@ -157,6 +158,10 @@ export default class MeemIdentityService {
 						where: {
 							address: wallet.address
 						}
+					},
+					{
+						model: orm.models.Wallet,
+						as: 'DefaultWallet'
 					}
 				]
 			})
@@ -169,17 +174,31 @@ export default class MeemIdentityService {
 
 				if (_.keys(updates).length > 0) await meemId.update(updates)
 			} else {
-				meemId = await orm.models.MeemIdentity.create({
-					profilePicUrl: profilePicUrl ?? null,
-					displayName: displayName ?? null
-				})
+				meemId = await orm.models.MeemIdentity.create(
+					{
+						profilePicUrl: profilePicUrl ?? null,
+						displayName: displayName ?? null,
+						DefaultWalletId: wallet.id
+					},
+					{
+						include: [
+							{
+								model: orm.models.Wallet
+							},
+							{
+								model: orm.models.Wallet,
+								as: 'DefaultWallet'
+							}
+						]
+					}
+				)
 
 				await orm.models.MeemIdentityWallet.create({
 					WalletId: wallet.id,
-					MeemIdentityId: meemId.id,
-					isDefault: true
+					MeemIdentityId: meemId.id
 				})
 			}
+
 			return meemId
 		} catch (e) {
 			log.crit(e)

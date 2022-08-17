@@ -21,17 +21,10 @@ export default class MeemIdentityWallet extends BaseModel<MeemIdentityWallet> {
 			type: DataTypes.UUID,
 			defaultValue: DataTypes.UUIDV4,
 			primaryKey: true
-		},
-		isDefault: {
-			type: DataTypes.BOOLEAN,
-			defaultValue: false,
-			allowNull: false
 		}
 	}
 
 	public id!: string
-
-	public isDefault!: boolean
 
 	public WalletId!: string
 

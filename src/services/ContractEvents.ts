@@ -748,6 +748,9 @@ export default class ContractEvent {
 				wallet = await orm.models.Wallet.create({
 					address: args.eventData.to
 				})
+				await services.meemId.createOrUpdateMeemIdentity({
+					wallet
+				})
 			}
 
 			meem.OwnerId = wallet.id
@@ -827,6 +830,9 @@ export default class ContractEvent {
 		if (!wallet) {
 			wallet = await orm.models.Wallet.create({
 				address: meemData.owner
+			})
+			await services.meemId.createOrUpdateMeemIdentity({
+				wallet
 			})
 		}
 
