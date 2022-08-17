@@ -20,9 +20,6 @@ export default {
 		process.env.DAO_WALLET ?? '0x9C5ceC7a99D19a9f1754C202aBA01BBFEDECC561',
 	SERVER_LISTENING: process.env.SERVER_LISTENING !== 'false',
 	SERVER_ADMIN_KEY: process.env.SERVER_ADMIN_KEY ?? 'xGugNAB2PEX4uY4sPF',
-	HARDHAT_MEEM_CONTRACT_WALLET:
-		process.env.HARDHAT_MEEM_CONTRACT_WALLET ??
-		'0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
 	JWT_SECRET:
 		process.env.JWT_SECRET ??
 		'ac741f40d71a2564e08180f5eb1cc9dd28e288ed75b33c34cba2fc18a3c31a64e719835877c7a6db9fdae8054037053172aba56f4dabc5f1b',
@@ -85,7 +82,6 @@ export default {
 	MEEM_PROXY_ADDRESS: process.env.MEEM_PROXY_ADDRESS ?? '',
 	MEEM_ID_PROXY_ADDRESS: process.env.MEEM_ID_PROXY_ADDRESS ?? '',
 	TWITTER_PROJECT_TOKEN_ID: process.env.TWITTER_PROJECT_TOKEN_ID ?? '',
-	INFURA_ID: process.env.INFURA_ID ?? '',
 	IPFS_CONTENT_GATEWAY_URL:
 		process.env.IPFS_CONTENT_GATEWAY_URL ?? 'https://meem.mypinata.cloud',
 	GITHUB_KEY: process.env.GITHUB_KEY ?? '',
@@ -109,21 +105,11 @@ export default {
 	UPGRADE_CLUB_FUNCTION_NAME: process.env.UPGRADE_CLUB_FUNCTION_NAME ?? '',
 	DISABLE_ASYNC_MINTING: process.env.DISABLE_ASYNC_MINTING === 'true',
 	S3_BUCKET: process.env.S3_BUCKET ?? '',
-	JSON_RPC_MAINNET:
-		process.env.JSON_RPC_MAINNET ??
-		'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/eth/mainnet',
-	JSON_RPC_RINKEBY:
-		process.env.JSON_RPC_RINKEBY ??
-		'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/eth/rinkeby',
-	JSON_RPC_POLYGON:
-		process.env.JSON_RPC_POLYGON ??
-		'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/polygon/mainnet',
-	WS_RPC_RINKEBY:
-		process.env.WS_RPC_RINKEBY ??
-		'wss://eth-rinkeby.alchemyapi.io/v2/lcOdvJ5FJvsjTT3ZzyeWSMfpy6ILx-1s',
-	WS_RPC_POLYGON:
-		process.env.WS_RPC_POLYGON ??
-		'wss://polygon-mainnet.g.alchemy.com/v2/xLwwfjFEFLvv_mRhnv7ZW3qM8f3K8MHE',
+	JSON_RPC_MAINNET: process.env.JSON_RPC_MAINNET ?? '',
+	JSON_RPC_RINKEBY: process.env.JSON_RPC_RINKEBY ?? '',
+	JSON_RPC_POLYGON: process.env.JSON_RPC_POLYGON ?? '',
+	WS_RPC_RINKEBY: process.env.WS_RPC_RINKEBY ?? '',
+	WS_RPC_POLYGON: process.env.WS_RPC_POLYGON ?? '',
 	JSON_RPC_HARDHAT: process.env.JSON_RPC_HARDHAT ?? 'http://127.0.0.1:8545',
 	ENABLE_WHITELIST_TEST_DATA: process.env.ENABLE_WHITELIST_TEST_DATA === 'true',
 	MAX_GAS_PRICE_GWEI: process.env.MAX_GAS_PRICE_GWEI

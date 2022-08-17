@@ -142,12 +142,8 @@ export default class MeemService {
 			return c as Mycontract
 		}
 
-		let walletPrivateKey =
+		const walletPrivateKey =
 			options?.walletPrivateKey ?? config.WALLET_PRIVATE_KEY
-
-		if (config.TESTING) {
-			walletPrivateKey = config.HARDHAT_MEEM_CONTRACT_WALLET
-		}
 
 		const provider = await services.ethers.getProvider({
 			chainId
