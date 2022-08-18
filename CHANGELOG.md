@@ -1,3 +1,19 @@
+## [1.9.2](https://github.com/meemproject/meem-api-aws/compare/v1.9.1...v1.9.2) (2022-08-18)
+
+## [1.9.1](https://github.com/meemproject/meem-api-aws/compare/v1.9.0...v1.9.1) (2022-08-17)
+
+# [1.9.0](https://github.com/meemproject/meem-api-aws/compare/v1.8.7...v1.9.0) (2022-08-17)
+
+
+### Bug Fixes
+
+* isAdmin check ([cb89a22](https://github.com/meemproject/meem-api-aws/commit/cb89a22))
+
+
+### Features
+
+* upgrade club ([e6cb934](https://github.com/meemproject/meem-api-aws/commit/e6cb934))
+
 ## [1.8.7](https://github.com/meemproject/meem-api-aws/compare/v1.8.6...v1.8.7) (2022-08-16)
 
 ## [1.8.6](https://github.com/meemproject/meem-api-aws/compare/v1.8.5...v1.8.6) (2022-08-16)
