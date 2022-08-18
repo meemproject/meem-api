@@ -54,7 +54,7 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const adminRole = await config.ADMIN_ROLE
+		const adminRole = config.ADMIN_ROLE
 		const meemContract = await orm.models.MeemContract.findOne({
 			where: {
 				id: req.params.meemContractId
