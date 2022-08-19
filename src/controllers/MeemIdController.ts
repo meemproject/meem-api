@@ -1,9 +1,11 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 // import AWS from 'aws-sdk'
 import { Response } from 'express'
+import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
+import { IMeemIdIntegrationVisibility } from '../types/shared/meem.shared'
 
 export default class MeemIdController {
 	public static async getNonce(
@@ -109,6 +111,124 @@ export default class MeemIdController {
 				},
 				expiresIn: null
 			})
+		})
+	}
+
+	public static async createOrUpdateMeemIdIntegration(
+		req: IRequest<MeemAPI.v1.CreateOrUpdateMeemIdIntegration.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateOrUpdateMeemIdIntegration.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const integrationMetadata = req.body.metadata ?? {}
+		const meemId = await services.meemId.getMeemIdentityForWallet(req.wallet)
+
+		const integration = await orm.models.IdentityIntegration.findOne({
+			where: {
+				id: req.params.integrationId
+			}
+		})
+
+		if (!integration) {
+			throw new Error('INTEGRATION_NOT_FOUND')
+		}
+
+		const existingMeemIdIntegration =
+			await orm.models.MeemIdentityIntegration.findOne({
+				where: {
+					MeemIdentityId: meemId.id,
+					IdentityIntegrationId: integration.id
+				}
+			})
+
+		// Integration Verification
+		// Can allow for third-party endpoint requests to verify information and return custom metadata
+
+		const visibilityTypes = [
+			IMeemIdIntegrationVisibility.Anyone.toString(),
+			IMeemIdIntegrationVisibility.MutualClubMembers.toString(),
+			IMeemIdIntegrationVisibility.JustMe.toString()
+		]
+		switch (integration.id) {
+			case config.TWITTER_IDENTITY_INTEGRATION_ID: {
+				let twitterUsername = req.body.metadata?.twitterUsername
+					? (req.body.metadata?.twitterUsername as string)
+					: null
+				twitterUsername = twitterUsername?.replace(/^@/g, '').trim() ?? null
+				const integrationError = new Error('INTEGRATION_FAILED')
+				integrationError.message = 'Twitter verification failed.'
+
+				if (
+					existingMeemIdIntegration &&
+					existingMeemIdIntegration.metadata?.isVerified &&
+					(!twitterUsername ||
+						twitterUsername ===
+							existingMeemIdIntegration.metadata?.twitterUsername)
+				) {
+					break
+				}
+
+				if (!twitterUsername) {
+					throw integrationError
+				}
+
+				integrationMetadata.isVerified = false
+
+				const verifiedTwitter = await services.twitter.verifyTwitter({
+					twitterUsername,
+					walletAddress: req.wallet.address
+				})
+
+				if (!verifiedTwitter) {
+					throw integrationError
+				}
+
+				integrationMetadata.isVerified = true
+				integrationMetadata.twitterUsername = verifiedTwitter.username
+				integrationMetadata.twitterProfileImageUrl =
+					verifiedTwitter.profile_image_url
+				integrationMetadata.twitterDisplayName = verifiedTwitter.name
+				integrationMetadata.twitterUserId = verifiedTwitter.id
+				integrationMetadata.twitterProfileUrl = `https://twitter.com/${verifiedTwitter.username}`
+
+				break
+			}
+			default:
+				break
+		}
+
+		let meemIdIntegrationVisibility =
+			req.body.visibility ?? IMeemIdIntegrationVisibility.JustMe
+
+		if (!existingMeemIdIntegration) {
+			if (!visibilityTypes.includes(meemIdIntegrationVisibility))
+				meemIdIntegrationVisibility = IMeemIdIntegrationVisibility.JustMe
+			await orm.models.MeemIdentityIntegration.create({
+				MeemIdentityId: meemId.id,
+				IdentityIntegrationId: integration.id,
+				visibility: meemIdIntegrationVisibility,
+				metadata: integrationMetadata
+			})
+		} else {
+			if (
+				!_.isUndefined(req.body.visibility) &&
+				visibilityTypes.includes(meemIdIntegrationVisibility)
+			) {
+				existingMeemIdIntegration.visibility = meemIdIntegrationVisibility
+			}
+
+			if (integrationMetadata) {
+				// TODO: Typecheck metadata
+				existingMeemIdIntegration.metadata = integrationMetadata
+			}
+
+			await existingMeemIdIntegration.save()
+		}
+
+		return res.json({
+			status: 'success'
 		})
 	}
 }

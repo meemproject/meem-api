@@ -31,6 +31,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/me', MeemIdController.createOrUpdateMeemId)
 	router.postAsync('/me/refreshENS', MeemIdController.refreshENS)
 	router.getAsync('/me/apiKey', MeemIdController.getApiKey)
+	router.postAsync(
+		'/me/integrations/:integrationId',
+		MeemIdController.createOrUpdateMeemIdIntegration
+	)
 
 	router.getAsync('/config', ConfigController.getConfig)
 

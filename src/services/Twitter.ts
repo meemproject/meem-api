@@ -3,6 +3,7 @@ import { TwitterApi, UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import Hashtag from '../models/Hashtag'
 import MeemContract from '../models/MeemContract'
+import MeemIdentity from '../models/MeemIdentity'
 import Tweet from '../models/Tweet'
 import Twitter from '../models/Twitter'
 
@@ -41,14 +42,14 @@ export default class TwitterService {
 		return tweets
 	}
 
-	public static async verifyMeemContractTwitter(args: {
+	public static async verifyMeemContractTwitter(data: {
 		twitterUsername: string
 		meemContract: MeemContract
 	}): Promise<UserV2> {
 		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 
 		const twitterUserResult = await client.v2.userByUsername(
-			args.twitterUsername,
+			data.twitterUsername,
 			{
 				'user.fields': ['id', 'username', 'name', 'profile_image_url']
 			}
@@ -56,28 +57,6 @@ export default class TwitterService {
 
 		if (!twitterUserResult) {
 			log.crit('No Twitter user found for username')
-			throw new Error('SERVER_ERROR')
-		}
-
-		let twitter: Twitter | undefined
-		const existingTwitter = await orm.models.Twitter.findOne({
-			where: {
-				twitterId: twitterUserResult.data.id
-			}
-		})
-
-		if (!existingTwitter) {
-			twitter = await orm.models.Twitter.create({
-				id: uuidv4(),
-				twitterId: twitterUserResult.data.id,
-				isDefault: true
-			})
-		} else {
-			twitter = existingTwitter
-		}
-
-		if (!twitter) {
-			log.crit('Twitter not found or created')
 			throw new Error('SERVER_ERROR')
 		}
 
@@ -97,7 +76,7 @@ export default class TwitterService {
 
 			if (clubUrl) {
 				const clubSlug = _.last(clubUrl.expanded_url.split('/'))
-				isClubsTweet = clubSlug?.toLowerCase() === args.meemContract.slug
+				isClubsTweet = clubSlug?.toLowerCase() === data.meemContract.slug
 			}
 
 			return isClubsTweet
@@ -105,6 +84,84 @@ export default class TwitterService {
 
 		if (!clubsTweet) {
 			log.crit('Unable to find verification tweet')
+			throw new Error('SERVER_ERROR')
+		}
+
+		let twitter: Twitter | undefined
+		const existingTwitter = await orm.models.Twitter.findOne({
+			where: {
+				twitterId: twitterUserResult.data.id
+			}
+		})
+
+		if (!existingTwitter) {
+			twitter = await orm.models.Twitter.create({
+				id: uuidv4(),
+				twitterId: twitterUserResult.data.id
+			})
+		} else {
+			twitter = existingTwitter
+		}
+
+		if (!twitter) {
+			log.crit('Twitter not found or created')
+			throw new Error('SERVER_ERROR')
+		}
+
+		return twitterUserResult.data
+	}
+
+	public static async verifyTwitter(data: {
+		twitterUsername: string
+		walletAddress: string
+	}): Promise<UserV2> {
+		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
+		const { twitterUsername, walletAddress } = data
+
+		const twitterUserResult = await client.v2.userByUsername(twitterUsername, {
+			'user.fields': ['id', 'username', 'name', 'profile_image_url']
+		})
+
+		if (!twitterUserResult) {
+			log.crit('No Twitter user found for username')
+			throw new Error('SERVER_ERROR')
+		}
+
+		const usersLatestTweets = await client.v2.userTimeline(
+			twitterUserResult.data.id,
+			{
+				'tweet.fields': ['created_at', 'entities']
+			}
+		)
+
+		const verifiedTweet = usersLatestTweets.data.data.find(tweet => {
+			const isVerifiedTweet = tweet.text.toLowerCase().includes(walletAddress)
+			return isVerifiedTweet
+		})
+
+		if (!verifiedTweet) {
+			log.crit('Unable to find verification tweet')
+			throw new Error('SERVER_ERROR')
+		}
+
+		let twitter: Twitter | undefined
+		const existingTwitter = await orm.models.Twitter.findOne({
+			where: {
+				twitterId: twitterUserResult.data.id
+			}
+		})
+
+		if (!existingTwitter) {
+			twitter = await orm.models.Twitter.create({
+				id: uuidv4(),
+				twitterId: twitterUserResult.data.id
+			})
+		} else {
+			twitter = existingTwitter
+		}
+
+		if (!twitter) {
+			log.crit('Twitter not found or created')
 			throw new Error('SERVER_ERROR')
 		}
 

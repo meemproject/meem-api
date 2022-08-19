@@ -571,6 +571,12 @@ export interface IMeemId {
 	}
 }
 
+export enum IMeemIdIntegrationVisibility {
+	Anyone = 'anyone',
+	MutualClubMembers = 'mutual-club-members',
+	JustMe = 'just-me'
+}
+
 export interface ITransfer {
 	from: string
 	to: string
@@ -987,6 +993,42 @@ export namespace CreateOrUpdateMeemId {
 		profilePicUrl?: string
 		/** Display name of identity */
 		displayName?: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace CreateOrUpdateMeemIdIntegration {
+	export interface IPathParams {
+		/** The integration id to connect or update */
+		integrationId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/me/integrations/${options.integrationId}`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** Set the visibility type of the integration */
+		visibility?: string
+		/** Metadata associated with this integration */
+		metadata?: { [key: string]: unknown }
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
