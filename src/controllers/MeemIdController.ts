@@ -3,6 +3,7 @@
 import { Response } from 'express'
 import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
+import Discord from '../models/Discord'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 import { IMeemIdIntegrationVisibility } from '../types/shared/meem.shared'
@@ -176,7 +177,7 @@ export default class MeemIdController {
 
 				integrationMetadata.isVerified = false
 
-				const verifiedTwitter = await services.twitter.verifyTwitter({
+				const verifiedTwitter = await services.meemId.verifyTwitter({
 					twitterUsername,
 					walletAddress: req.wallet.address
 				})
@@ -192,6 +193,34 @@ export default class MeemIdController {
 				integrationMetadata.twitterDisplayName = verifiedTwitter.name
 				integrationMetadata.twitterUserId = verifiedTwitter.id
 				integrationMetadata.twitterProfileUrl = `https://twitter.com/${verifiedTwitter.username}`
+
+				break
+			}
+			case config.DISCORD_IDENTITY_INTEGRATION_ID: {
+				const discordAuthCode = req.body.metadata?.discordAuthCode
+					? (req.body.metadata?.discordAuthCode as string)
+					: null
+				const integrationError = new Error('INTEGRATION_FAILED')
+				integrationError.message = 'Discord verification failed.'
+
+				if (!discordAuthCode) {
+					throw integrationError
+				}
+
+				integrationMetadata.isVerified = false
+
+				const verifiedDiscord = await services.meemId.verifyDiscord({
+					discordAuthCode
+				})
+
+				if (!verifiedDiscord) {
+					throw integrationError
+				}
+
+				integrationMetadata.isVerified = true
+				integrationMetadata.discordUsername = verifiedDiscord.username
+				integrationMetadata.discordAvatarUrl = `https://cdn.discordapp.com/avatars/${verifiedDiscord.discordId}/${verifiedDiscord.avatar}.png`
+				integrationMetadata.discordUserId = verifiedDiscord.discordId
 
 				break
 			}

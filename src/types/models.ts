@@ -3,6 +3,7 @@ import BundleContract from '../models/BundleContract'
 import Clipping from '../models/Clipping'
 import Contract from '../models/Contract'
 import ContractInstance from '../models/ContractInstance'
+import Discord from '../models/Discord'
 import Hashtag from '../models/Hashtag'
 import IdentityIntegration from '../models/IdentityIntegration'
 import Integration from '../models/Integration'
@@ -27,6 +28,7 @@ export interface IModels {
 	Clipping: typeof Clipping
 	Contract: typeof Contract
 	ContractInstance: typeof ContractInstance
+	Discord: typeof Discord
 	Hashtag: typeof Hashtag
 	Integration: typeof Integration
 	Meem: typeof Meem
