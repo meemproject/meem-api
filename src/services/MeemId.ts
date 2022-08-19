@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import jsonwebtoken, { SignOptions } from 'jsonwebtoken'
-import _, { update } from 'lodash'
+import _ from 'lodash'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import type MeemContract from '../models/MeemContract'

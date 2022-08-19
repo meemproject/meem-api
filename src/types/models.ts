@@ -9,6 +9,8 @@ import Meem from '../models/Meem'
 import MeemContract from '../models/MeemContract'
 import MeemContractIntegration from '../models/MeemContractIntegration'
 import MeemContractWallet from '../models/MeemContractWallet'
+import MeemIdentity from '../models/MeemIdentity'
+import MeemIdentityWallet from '../models/MeemIdentityWallet'
 import Reaction from '../models/Reaction'
 import Transfer from '../models/Transfer'
 import Tweet from '../models/Tweet'
@@ -16,8 +18,6 @@ import TweetHashtag from '../models/TweetHashtag'
 import Twitter from '../models/Twitter'
 import Wallet from '../models/Wallet'
 import WalletContractInstance from '../models/WalletContractInstance'
-import MeemIdentity from '../models/MeemIdentity'
-import MeemIdentityWallet from '../models/MeemIdentityWallet'
 
 export interface IModels {
 	Bundle: typeof Bundle
