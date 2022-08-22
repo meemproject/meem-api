@@ -47,11 +47,11 @@ export default class MeemIdController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { profilePicUrl, displayName } = req.body
+		const { profilePicBase64, displayName } = req.body
 
 		await services.meemId.createOrUpdateMeemIdentity({
 			wallet: req.wallet,
-			profilePicUrl,
+			profilePicBase64,
 			displayName
 		})
 
