@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
-import { MeemAPI } from '../types/meem.public.generated'
 import type { IModels } from '../types/models'
 
 export default class MeemIdentityIntegration extends BaseModel<MeemIdentityIntegration> {

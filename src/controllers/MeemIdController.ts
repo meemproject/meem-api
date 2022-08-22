@@ -3,7 +3,6 @@
 import { Response } from 'express'
 import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
-import Discord from '../models/Discord'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 import { IMeemIdIntegrationVisibility } from '../types/shared/meem.shared'
