@@ -1010,8 +1010,10 @@ export namespace CreateOrUpdateMeemId {
 		/** Signature of wallet address */
 		// signature: string
 
+		/** Profile picture base64 string */
+		profilePicBase64?: string
 		/** Url to profile picture */
-		profilePicUrl?: string
+		// profilePicUrl?: string
 		/** Display name of identity */
 		displayName?: string
 	}

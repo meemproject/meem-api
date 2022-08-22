@@ -1,7 +1,9 @@
 import crypto from 'crypto'
+import { Readable } from 'stream'
 import jsonwebtoken, { SignOptions } from 'jsonwebtoken'
 import _ from 'lodash'
 import { DateTime } from 'luxon'
+import { fs as memfs, vol } from 'memfs'
 import request from 'superagent'
 import { TwitterApi, UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
@@ -153,12 +155,12 @@ export default class MeemIdentityService {
 
 	public static async createOrUpdateMeemIdentity(data: {
 		wallet: Wallet
-		profilePicUrl?: string
+		profilePicBase64?: string
 		displayName?: string
 		isDefaultWallet?: boolean
 	}): Promise<MeemIdentity> {
 		// TODO: Add ability to add another wallet
-		const { wallet, profilePicUrl, displayName } = data
+		const { wallet, profilePicBase64, displayName } = data
 		try {
 			let meemId = await orm.models.MeemIdentity.findOne({
 				include: [
@@ -174,6 +176,27 @@ export default class MeemIdentityService {
 					}
 				]
 			})
+
+			let profilePicUrl: string | undefined
+
+			if (!_.isUndefined(profilePicBase64)) {
+				const base64Data = /^data:image/.test(profilePicBase64)
+					? profilePicBase64.split(',')[1]
+					: profilePicBase64
+				const buff = Buffer.from(base64Data, 'base64')
+				const stream = Readable.from(buff)
+
+				// @ts-ignore
+				stream.path = `${meemId.id}/image.png`
+
+				const imageResponse = await services.web3.saveToPinata({
+					// file: Readable.from(Buffer.from(imgData, 'base64'))
+					// file: buffStream
+					file: stream
+				})
+
+				profilePicUrl = `ipfs://${imageResponse.IpfsHash}`
+			}
 
 			if (meemId) {
 				const updates: any = {

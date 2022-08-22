@@ -82,6 +82,7 @@
 		"jsonwebtoken": "^8.5.1",
 		"lodash": "^4.17.21",
 		"luxon": "^2.0.2",
+		"memfs": "^3.4.7",
 		"multer": "^1.4.4",
 		"pg": "^8.7.1",
 		"sequelize": "^6.9.0",
