@@ -54,6 +54,10 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 
 	public static associate(models: IModels) {
 		this.hasMany(models.MeemContractWallet)
+
+		this.belongsToMany(models.MeemIdentity, {
+			through: models.MeemIdentityWallet
+		})
 	}
 
 	public static async findAllBy(options: {
