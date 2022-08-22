@@ -328,6 +328,7 @@ export interface IMeemPermission {
 	costWei: string
 	mintStartTimestamp: string
 	mintEndTimestamp: string
+	merkleRoot: string
 }
 
 export interface IMeemProperties {

@@ -1,6 +1,6 @@
 import * as path from 'path'
 import { Validator } from '@meemproject/metadata'
-import type { ethers as Ethers } from 'ethers'
+import { ethers, ethers as Ethers } from 'ethers'
 import _ from 'lodash'
 import sharp from 'sharp'
 import request from 'superagent'
@@ -583,7 +583,8 @@ export default class MeemService {
 				{
 					to: data.to.toLowerCase(),
 					tokenURI,
-					tokenType: MeemAPI.MeemType.Original
+					tokenType: MeemAPI.MeemType.Original,
+					proof: []
 				},
 				{
 					gasLimit: config.MINT_GAS_LIMIT,
