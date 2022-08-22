@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface, Sequelize } from 'sequelize'
+import { QueryInterface, Sequelize } from 'sequelize'
 import { tryPromise } from './lib/utils'
 
 export default {
