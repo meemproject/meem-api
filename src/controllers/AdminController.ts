@@ -170,6 +170,61 @@ export default class AdminController {
 		})
 	}
 
+	public static async seedIdentityIntegrations(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		const integrations = [
+			{
+				name: 'Twitter',
+				icon: 'integration-twitter.png',
+				description: 'Verify your Twitter account.'
+			},
+			{
+				name: 'Discord',
+				icon: 'integration-discord.png',
+				description: 'Verify your Discord account.'
+			},
+			{
+				name: 'Email',
+				icon: 'integration-email.png',
+				description: 'Verify your Email.'
+			}
+		]
+
+		await orm.models.IdentityIntegration.sync({ force: true })
+
+		const failedIntegratiosn: any[] = []
+
+		for (let i = 0; i < integrations.length; i += 1) {
+			try {
+				log.debug(`Syncing ${i + 1} / ${integrations.length} integrations`)
+				const existingIntegration =
+					// eslint-disable-next-line no-await-in-loop
+					await orm.models.IdentityIntegration.findOne({
+						where: {
+							name: integrations[i].name
+						}
+					})
+				if (!existingIntegration) {
+					// eslint-disable-next-line no-await-in-loop
+					await orm.models.IdentityIntegration.create(integrations[i])
+				} else {
+					// eslint-disable-next-line no-await-in-loop
+					await existingIntegration.update(integrations[i])
+				}
+			} catch (e) {
+				failedIntegratiosn.push(integrations[i])
+				log.crit(e)
+				log.debug(integrations[i])
+			}
+		}
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
 	public static async syncPins(req: Request, res: Response): Promise<Response> {
 		await services.web3.syncPins()
 

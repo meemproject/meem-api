@@ -517,6 +517,12 @@ export interface IMeemId {
 	}
 }
 
+export enum IMeemIdIntegrationVisibility {
+	Anyone = 'anyone',
+	MutualClubMembers = 'mutual-club-members',
+	JustMe = 'just-me'
+}
+
 export interface ITransfer {
 	from: string
 	to: string

@@ -385,6 +385,9 @@ export default class MeemContractService {
 			senderWallet = await orm.models.Wallet.create({
 				address: senderWalletAddress
 			})
+			await services.meemId.createOrUpdateMeemIdentity({
+				wallet: senderWallet
+			})
 		}
 
 		const symbol = data.symbol ?? slug(data.name)

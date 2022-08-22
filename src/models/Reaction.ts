@@ -13,10 +13,6 @@ export default class Reaction extends BaseModel<Reaction> {
 				fields: ['MeemId']
 			},
 			{
-				name: 'Reaction_MeemIdentificationId',
-				fields: ['MeemIdentificationId']
-			},
-			{
 				name: 'Reaction_reaction',
 				fields: ['reaction']
 			},
