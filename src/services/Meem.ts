@@ -1,6 +1,6 @@
 import * as path from 'path'
 import { Validator } from '@meemproject/metadata'
-import { ethers, ethers as Ethers } from 'ethers'
+import { ethers as Ethers } from 'ethers'
 import _ from 'lodash'
 import sharp from 'sharp'
 import request from 'superagent'

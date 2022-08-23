@@ -501,7 +501,9 @@ export default class TestController {
 		const rootHash = merkleTree.getRoot().toString('hex')
 		const proof = merkleTree.getHexProof(hashedAddress)
 
-		const isVerified = merkleTree.verify(proof, hashedAddress, rootHash)
+		// const isVerified = merkleTree.verify(proof, hashedAddress, rootHash)
+		const tree = new MerkleTree([], keccak256, { sortPairs: true })
+		const isVerified = tree.verify(proof, hashedAddress, rootHash)
 
 		return res.json({
 			status: 'success',

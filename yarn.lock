@@ -1068,10 +1068,10 @@
     semver "^7.3.5"
     tar "^6.1.11"
 
-"@meemproject/meem-contracts@0.7.9-pre-b1dada5.0":
-  version "0.7.9-pre-b1dada5.0"
-  resolved "https://registry.yarnpkg.com/@meemproject/meem-contracts/-/meem-contracts-0.7.9-pre-b1dada5.0.tgz#72f1e9cb8b4a474b9a912e1edf93b4f7fc4943b0"
-  integrity sha512-IwQQwVxq5Yp9DVKyDKSAUzOzrkA0ylWu4N5gRpSGGCwljD41e29ieBQzl7dBTfd6BfTpMyTQuain+QlJbAz6NQ==
+"@meemproject/meem-contracts@^0.7.11":
+  version "0.7.11"
+  resolved "https://registry.yarnpkg.com/@meemproject/meem-contracts/-/meem-contracts-0.7.11.tgz#15541ae91551afff5344a424d9d9c284005b298d"
+  integrity sha512-e2NiNb36KvYWrPgbLZp6VgWlZtugNE4qKlUgkkX0dyylFcTDzIs0eFu+sdj2wI335ZKta2npF7JubZwpv0Wg2A==
   dependencies:
     "@kengoldfarb/log" "^1.0.5"
     "@openzeppelin/contracts" "^4.7.3"
@@ -1080,10 +1080,10 @@
     merkletreejs "^0.2.32"
     superagent "^8.0.0"
 
-"@meemproject/metadata@0.7.9-pre-b1dada5.0":
-  version "0.7.9-pre-b1dada5.0"
-  resolved "https://registry.yarnpkg.com/@meemproject/metadata/-/metadata-0.7.9-pre-b1dada5.0.tgz#0f51a71cb72aab84f7eb65fa2f5f81135fb24413"
-  integrity sha512-fXEkxJdpujfLoU8rQDzprTdyWsQk+n/8oD5FgaLP455N4ogVBM+nnp5XiIex8Xh9iLwySFCZU9n+4SGjd37RxA==
+"@meemproject/metadata@^0.7.11":
+  version "0.7.11"
+  resolved "https://registry.yarnpkg.com/@meemproject/metadata/-/metadata-0.7.11.tgz#3fb4f01a9aab33e1f2c0bede88b4160aaa3cbc57"
+  integrity sha512-gcmAU5EwgN8tj6o8CQmTPnB9X8IGTKXMQeizO3I4WOAG3q+tJaEYFsRo/2WNW4A+sCNRHXK5CoD0e6hGLTSCyA==
   dependencies:
     "@kengoldfarb/log" "^1.0.5"
     json-schema-to-typescript "^11.0.1"
