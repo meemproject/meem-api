@@ -25,9 +25,9 @@ export default class MeemIdentityService {
 			})
 		}
 
-		wallet.nonce = `I'm verifying that I am the owner of wallet: ${
+		wallet.nonce = `Welcome! Sign this message to verify it's really you. This does not cost any gas fees.\n\nWallet: ${
 			options.address
-		}\n\nBy signing this random key:\n${crypto.randomBytes(50).toString('hex')}`
+		}\n\nRandom key:\n${crypto.randomBytes(50).toString('hex')}`
 		await wallet.save()
 
 		return wallet.nonce

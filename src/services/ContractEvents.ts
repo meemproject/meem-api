@@ -218,6 +218,31 @@ export default class ContractEvent {
 			}
 		}
 
+		const mintPermissions = contractInfo.mintPermissions.map(p => ({
+			permission: p.permission,
+			addresses: p.addresses,
+			numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
+			mintEndTimestamp: ethers.BigNumber.from(p.mintEndTimestamp).toNumber(),
+			mintStartTimestamp: ethers.BigNumber.from(
+				p.mintStartTimestamp
+			).toNumber(),
+			costWei: ethers.BigNumber.from(p.costWei).toHexString(),
+			merkleRoot: p.merkleRoot
+		}))
+
+		// Merge addresses by merkle root if we can
+		if (existingMeemContract) {
+			mintPermissions.forEach(mp => {
+				const existingMintPermission =
+					existingMeemContract.mintPermissions.find(
+						emp => emp.merkleRoot === mp.merkleRoot
+					)
+				if (existingMintPermission) {
+					mp.addresses = existingMintPermission.addresses
+				}
+			})
+		}
+
 		const meemContractData = {
 			slug,
 			symbol: contractInfo.symbol,
@@ -226,16 +251,7 @@ export default class ContractEvent {
 			address,
 			metadata,
 			maxSupply: contractInfo.maxSupply,
-			mintPermissions: contractInfo.mintPermissions.map(p => ({
-				permission: p.permission,
-				addresses: p.addresses,
-				numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
-				mintEndTimestamp: ethers.BigNumber.from(p.mintEndTimestamp).toNumber(),
-				mintStartTimestamp: ethers.BigNumber.from(
-					p.mintStartTimestamp
-				).toNumber(),
-				costWei: ethers.BigNumber.from(p.costWei).toHexString()
-			})),
+			mintPermissions,
 			splits: contractInfo.splits.map(s => ({
 				toAddress: s.toAddress,
 				amount: ethers.BigNumber.from(s.amount).toNumber(),

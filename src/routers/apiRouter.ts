@@ -56,6 +56,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/meemContracts/:meemContractId/upgrade',
 		MeemContractController.upgradeClub
 	)
+	router.getAsync(
+		'/meemContracts/:meemContractId/proof',
+		MeemContractController.getMintingProof
+	)
 	router.postAsync(
 		'/meemContracts/:meemContractId/integrations/:integrationId',
 		MeemContractController.createOrUpdateMeemContractIntegration
@@ -136,5 +140,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/testCron', TestController.testCron)
 		router.getAsync('/test/syncContract', TestController.syncContract)
 		router.getAsync('/test/metadata', TestController.metadata)
+		router.getAsync('/test/hash', TestController.testHash)
 	}
 }
