@@ -1,4 +1,4 @@
-import { Log } from '@ethersproject/abstract-provider'
+import type { Log } from '@ethersproject/abstract-provider'
 import { MeemContractMetadataLike } from '@meemproject/metadata'
 import { Contract, ethers, utils } from 'ethers'
 // import { IGunChainReference } from 'gun/types/chain'

@@ -360,7 +360,7 @@ export default class MeemService {
 
 			const tokenURI = `ipfs://${result.IpfsHash}`
 
-			const mintParams: Parameters<Mycontract['mint']> = [
+			const mintParams: Parameters<Mycontract['mintWithProof']> = [
 				{
 					to: data.to.toLowerCase(),
 					tokenURI,

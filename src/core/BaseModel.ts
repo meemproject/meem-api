@@ -4,6 +4,8 @@ import { Sequelize, Model, ModelAttributes, DataTypes } from 'sequelize'
 import { Fn } from 'sequelize/types/lib/utils'
 
 // TODO: Enhancement of strict attribute checking https://sequelize.org/master/manual/typescript.html
+
+// eslint-disable-next-line
 export abstract class BaseModel<T> extends Model {
 	public static hasMany: any // (target: Model<any, any>, options?: AssociationOptionsHasOne): IncludeAssociation;
 
