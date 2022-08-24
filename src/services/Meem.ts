@@ -10,6 +10,7 @@ import meemABI from '../abis/Meem.json'
 import errors from '../config/errors'
 import meemAccessListTesting from '../lib/meem-access-testing.json'
 import meemAccessList from '../lib/meem-access.json'
+import Wallet from '../models/Wallet'
 import { ERC721 } from '../types/ERC721'
 import { Mycontract } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
@@ -334,6 +335,14 @@ export default class MeemService {
 				throw new Error('INVALID_METADATA')
 			}
 
+			const wallet = await orm.models.Wallet.findByAddress<Wallet>(
+				data.mintedBy
+			)
+
+			if (!wallet) {
+				throw new Error('WALLET_NOT_FOUND')
+			}
+
 			const validator = new Validator(data.metadata.meem_metadata_version)
 			const validatorResult = validator.validate(data.metadata)
 
@@ -378,6 +387,12 @@ export default class MeemService {
 			const mintTx = await meemContract.mint(...mintParams)
 
 			log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
+
+			await orm.models.Transaction.create({
+				hash: mintTx.hash,
+				chainId: config.CHAIN_ID,
+				WalletId: wallet.id
+			})
 
 			const receipt = await mintTx.wait()
 
@@ -444,11 +459,18 @@ export default class MeemService {
 				throw new Error('MISSING_CONTRACT_ADDRESS')
 			}
 
-			const meemContract = await orm.models.MeemContract.findOne({
-				where: {
-					id: data.meemContractId
-				}
-			})
+			const [meemContract, wallet] = await Promise.all([
+				orm.models.MeemContract.findOne({
+					where: {
+						id: data.meemContractId
+					}
+				}),
+				orm.models.Wallet.findByAddress<Wallet>(data.mintedBy)
+			])
+
+			if (!wallet) {
+				throw new Error('WALLET_NOT_FOUND')
+			}
 
 			if (!meemContract) {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
@@ -522,6 +544,12 @@ export default class MeemService {
 			const mintTx = await contract.bulkMint(...mintParams)
 
 			log.debug(`Bulk Minting w/ transaction hash: ${mintTx.hash}`)
+
+			await orm.models.Transaction.create({
+				hash: mintTx.hash,
+				chainId: config.CHAIN_ID,
+				WalletId: wallet.id
+			})
 
 			await mintTx.wait()
 		} catch (e) {

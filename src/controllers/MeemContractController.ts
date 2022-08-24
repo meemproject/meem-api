@@ -54,6 +54,8 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
+		await req.wallet.enforceTXLimit()
+
 		const adminRole = config.ADMIN_ROLE
 		const meemContract = await orm.models.MeemContract.findOne({
 			where: {
@@ -121,6 +123,8 @@ export default class MeemContractController {
 		if (!req.body.metadata) {
 			throw new Error('MISSING_PARAMETERS')
 		}
+
+		await req.wallet.enforceTXLimit()
 
 		if (config.DISABLE_ASYNC_MINTING) {
 			try {
@@ -306,6 +310,8 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
+		await req.wallet.enforceTXLimit()
+
 		const { meemContractId } = req.params
 
 		if (config.DISABLE_ASYNC_MINTING) {
@@ -351,6 +357,8 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
+		await req.wallet.enforceTXLimit()
+
 		const { meemContractId } = req.params
 
 		if (config.DISABLE_ASYNC_MINTING) {
@@ -394,6 +402,8 @@ export default class MeemContractController {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
+
+		await req.wallet.enforceTXLimit()
 
 		const { meemContractId } = req.params
 
@@ -467,6 +477,8 @@ export default class MeemContractController {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
+
+		await req.wallet.enforceTXLimit()
 
 		const { meemContractId } = req.params
 
