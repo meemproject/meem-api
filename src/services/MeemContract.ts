@@ -472,7 +472,7 @@ export default class MeemContractService {
 				} else {
 					const perm = {
 						...m,
-						merkleRoot: ''
+						merkleRoot: ethers.utils.formatBytes32String('')
 					}
 					builtMintPermissions.push(perm)
 					fullMintPermissions.push(perm)
