@@ -238,6 +238,7 @@ export default class ContractEvent {
 						emp => emp.merkleRoot === mp.merkleRoot
 					)
 				if (existingMintPermission) {
+					// eslint-disable-next-line no-param-reassign
 					mp.addresses = existingMintPermission.addresses
 				}
 			})

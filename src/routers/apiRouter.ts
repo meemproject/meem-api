@@ -53,6 +53,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		MeemContractController.createClubSafe
 	)
 	router.postAsync(
+		'/meemContracts/:meemContractId/bulkMint',
+		MeemContractController.bulkMint
+	)
+	router.postAsync(
 		'/meemContracts/:meemContractId/upgrade',
 		MeemContractController.upgradeClub
 	)
