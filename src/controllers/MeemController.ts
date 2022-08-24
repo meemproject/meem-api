@@ -81,6 +81,8 @@ export default class MeemController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
+		await req.wallet.enforceTXLimit()
+
 		const meemContract =
 			await orm.models.MeemContract.findByAddress<MeemContract>(
 				req.body.meemContractAddress,

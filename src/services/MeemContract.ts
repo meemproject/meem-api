@@ -79,8 +79,13 @@ export default class MeemContractService {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
 			}
 
-			const { wallet, contractInitParams, cleanAdmins, fullMintPermissions } =
-				await this.prepareInitValues(data)
+			const {
+				wallet,
+				contractInitParams,
+				cleanAdmins,
+				fullMintPermissions,
+				senderWallet
+			} = await this.prepareInitValues(data)
 
 			let { recommendedGwei } = await services.web3.getGasEstimate()
 
@@ -161,6 +166,12 @@ export default class MeemContractService {
 			const tx = await meemContract.reinitialize(params, {
 				gasLimit: config.MINT_GAS_LIMIT,
 				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+			})
+
+			await orm.models.Transaction.create({
+				hash: tx.hash,
+				chainId: config.CHAIN_ID,
+				WalletId: senderWallet.id
 			})
 
 			await meemContractInstance.save()
@@ -254,6 +265,13 @@ export default class MeemContractService {
 			log.debug(
 				`Deploying contract w/ tx: ${proxyContract.deployTransaction.hash}`
 			)
+
+			await orm.models.Transaction.create({
+				hash: proxyContract.deployTransaction.hash,
+				chainId: config.CHAIN_ID,
+				WalletId: senderWallet.id
+			})
+
 			await proxyContract.deployed()
 
 			log.debug(
@@ -314,6 +332,12 @@ export default class MeemContractService {
 			)
 
 			log.debug(`Running diamond cut w/ TX: ${cutTx.hash}`)
+
+			await orm.models.Transaction.create({
+				hash: cutTx.hash,
+				chainId: config.CHAIN_ID,
+				WalletId: senderWallet.id
+			})
 
 			await cutTx.wait()
 
@@ -522,11 +546,18 @@ export default class MeemContractService {
 	) {
 		const { meemContractId, safeOwners, senderWalletAddress } = options
 		try {
-			const meemContract = await orm.models.MeemContract.findOne({
-				where: {
-					id: meemContractId
-				}
-			})
+			const [meemContract, senderWallet] = await Promise.all([
+				orm.models.MeemContract.findOne({
+					where: {
+						id: meemContractId
+					}
+				}),
+				orm.models.Wallet.findByAddress<Wallet>(senderWalletAddress)
+			])
+
+			if (!senderWallet) {
+				throw new Error('WALLET_NOT_FOUND')
+			}
 
 			if (!meemContract) {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
@@ -598,6 +629,12 @@ export default class MeemContractService {
 				}
 			)
 
+			await orm.models.Transaction.create({
+				hash: tx.hash,
+				chainId: config.CHAIN_ID,
+				WalletId: senderWallet.id
+			})
+
 			await tx.wait()
 
 			const receipt = await provider.getTransactionReceipt(tx.hash)
@@ -632,7 +669,7 @@ export default class MeemContractService {
 	) {
 		const { meemContractId, senderWalletAddress } = options
 		try {
-			const [meemContract, bundle] = await Promise.all([
+			const [meemContract, bundle, senderWallet] = await Promise.all([
 				orm.models.MeemContract.findOne({
 					where: {
 						id: meemContractId
@@ -654,11 +691,16 @@ export default class MeemContractService {
 							]
 						}
 					]
-				})
+				}),
+				orm.models.Wallet.findByAddress<Wallet>(senderWalletAddress)
 			])
 
 			if (!meemContract) {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			}
+
+			if (!senderWallet) {
+				throw new Error('WALLET_NOT_FOUND')
 			}
 
 			const isAdmin = await this.isMeemContractAdmin({
@@ -709,6 +751,14 @@ export default class MeemContractService {
 				toVersion,
 				fromVersion
 			})
+
+			if (tx?.hash) {
+				await orm.models.Transaction.create({
+					hash: tx.hash,
+					chainId: config.CHAIN_ID,
+					WalletId: senderWallet.id
+				})
+			}
 
 			log.debug(`Upgrading club ${meemContract.address} w/ tx ${tx?.hash}`)
 

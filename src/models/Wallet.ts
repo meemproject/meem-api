@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import { Op, DataTypes } from 'sequelize'
 import ModelWithAddress from '../core/ModelWithAddress'
 import type { IModels } from '../types/models'
@@ -33,6 +34,11 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 		},
 		ensFetchedAt: {
 			type: DataTypes.DATE
+		},
+		dailyTXLimit: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 5
 		}
 	}
 
@@ -47,6 +53,8 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 	public ens!: string | null
 
 	public ensFetchedAt!: Date | null
+
+	public dailyTXLimit!: number
 
 	public MeemContractWalletId!: string | null
 
@@ -90,5 +98,25 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 		const result = await orm.models.Wallet.findAll(findAll)
 
 		return result
+	}
+
+	public async enforceTXLimit() {
+		// -1 is unlimited transactions
+		if (this.dailyTXLimit === -1) {
+			return
+		}
+
+		const numTransactions = await orm.models.Transaction.count({
+			where: {
+				WalletId: this.id,
+				createdAt: {
+					[Op.gte]: DateTime.now().minus({ hours: 24 }).toJSDate()
+				}
+			}
+		})
+
+		if (numTransactions + 1 > this.dailyTXLimit) {
+			throw new Error('TX_LIMIT_EXCEEDED')
+		}
 	}
 }
