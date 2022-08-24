@@ -1,4 +1,4 @@
-import { Log } from '@ethersproject/abstract-provider'
+import type { Log } from '@ethersproject/abstract-provider'
 import { MeemContractMetadataLike } from '@meemproject/metadata'
 import { Contract, ethers, utils } from 'ethers'
 // import { IGunChainReference } from 'gun/types/chain'
@@ -238,6 +238,7 @@ export default class ContractEvent {
 						emp => emp.merkleRoot === mp.merkleRoot
 					)
 				if (existingMintPermission) {
+					// eslint-disable-next-line no-param-reassign
 					mp.addresses = existingMintPermission.addresses
 				}
 			})

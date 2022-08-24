@@ -102,6 +102,7 @@ export default {
 		process.env.LAMBDA_CREATE_CONTRACT_FUNCTION ?? '',
 	LAMBDA_MEEMID_UPDATE_FUNCTION:
 		process.env.LAMBDA_MEEMID_UPDATE_FUNCTION ?? '',
+	BULK_MINT_FUNCTION_NAME: process.env.BULK_MINT_FUNCTION_NAME ?? '',
 	UPGRADE_CLUB_FUNCTION_NAME: process.env.UPGRADE_CLUB_FUNCTION_NAME ?? '',
 	DISABLE_ASYNC_MINTING: process.env.DISABLE_ASYNC_MINTING === 'true',
 	S3_BUCKET: process.env.S3_BUCKET ?? '',
@@ -151,7 +152,7 @@ export default {
 	ENABLE_URL_SCRAPER: process.env.ENABLE_URL_SCRAPER === 'true',
 	MINT_GAS_LIMIT: process.env.MINT_GAS_LIMIT
 		? process.env.MINT_GAS_LIMIT
-		: '2200000',
+		: '5000000',
 	ENABLE_TWEET_CURATION: process.env.ENABLE_TWEET_CURATION === 'true',
 	ENABLE_GUNDB: process.env.ENABLE_GUNDB === 'true',
 	GUNDB_S3_BUCKET: process.env.GUNDB_S3_BUCKET ?? '',

@@ -38,7 +38,9 @@ export default class MeemIdentityService {
 			chainId: 1
 		})
 		const ens = await provider.lookupAddress(item.address)
+		// eslint-disable-next-line no-param-reassign
 		item.ens = ens
+		// eslint-disable-next-line no-param-reassign
 		item.ensFetchedAt = DateTime.now().toJSDate()
 		await item.save()
 	}

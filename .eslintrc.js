@@ -16,7 +16,6 @@ module.exports = {
 		orm: true
 	},
 	rules: {
-		"no-param-reassign": ["error", { "props": false }],
-		"react/static-property-placement": 0
+
 	}
 }

@@ -459,4 +459,63 @@ export default class MeemContractController {
 			proof
 		})
 	}
+
+	public static async bulkMint(
+		req: IRequest<MeemAPI.v1.BulkMint.IDefinition>,
+		res: IResponse<MeemAPI.v1.BulkMint.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const { meemContractId } = req.params
+
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: meemContractId
+			}
+		})
+
+		if (!meemContract) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		const canMint = await meemContract.canMint(req.wallet.address)
+		if (!canMint) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		if (config.DISABLE_ASYNC_MINTING) {
+			try {
+				await services.meem.bulkMint({
+					...req.body,
+					mintedBy: req.wallet.address,
+					meemContractId
+				})
+			} catch (e) {
+				log.crit(e)
+			}
+		} else {
+			const lambda = new AWS.Lambda({
+				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+				region: 'us-east-1'
+			})
+			await lambda
+				.invoke({
+					InvocationType: 'Event',
+					FunctionName: config.BULK_MINT_FUNCTION_NAME,
+					Payload: JSON.stringify({
+						...req.body,
+						mintedBy: req.wallet.address,
+						meemContractId
+					})
+				})
+				.promise()
+		}
+
+		return res.json({
+			status: 'success'
+		})
+	}
 }

@@ -99,19 +99,39 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		}
 	}
 
-	public isAdmin(minter: string) {
-		if (!this.Wallets) {
-			throw new Error('WALLET_NOT_FOUND')
+	public async isAdmin(minter: string) {
+		const meemContractWallet = await orm.models.MeemContractWallet.findOne({
+			where: {
+				MeemContractId: this.id,
+				role: config.ADMIN_ROLE
+			},
+			include: [
+				{
+					model: orm.models.Wallet,
+					where: orm.sequelize.where(
+						orm.sequelize.fn('lower', orm.sequelize.col('Wallet.address')),
+						minter.toLowerCase()
+					)
+				}
+			]
+		})
+
+		if (meemContractWallet) {
+			return true
 		}
-		// Bypass checks if user has the MINTER_ROLE
-		for (let i = 0; i < this.Wallets.length; i += 1) {
-			if (
-				this.Wallets[i].address.toLowerCase() === minter.toLowerCase() &&
-				this.Wallets[i].MeemContractWallets[0].role === config.ADMIN_ROLE
-			) {
-				return true
-			}
-		}
+
+		// if (!this.Wallets) {
+		// 	throw new Error('WALLET_NOT_FOUND')
+		// }
+		// // Bypass checks if user has the MINTER_ROLE
+		// for (let i = 0; i < this.Wallets.length; i += 1) {
+		// 	if (
+		// 		this.Wallets[i].address.toLowerCase() === minter.toLowerCase() &&
+		// 		this.Wallets[i].MeemContractWallets[0].role === config.ADMIN_ROLE
+		// 	) {
+		// 		return true
+		// 	}
+		// }
 
 		return false
 	}
@@ -193,7 +213,8 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 	}
 
 	public async canMint(minter: string) {
-		if (this.isAdmin(minter)) {
+		const isAdmin = await this.isAdmin(minter)
+		if (isAdmin) {
 			return true
 		}
 
