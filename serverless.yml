@@ -76,7 +76,7 @@ provider:
     LAMBDA_CREATE_CLUB_SAFE_FUNCTION_NAME: ${env:LAMBDA_CREATE_CLUB_SAFE_FUNCTION_NAME, ''}
     UPGRADE_CLUB_FUNCTION_NAME: ${env:UPGRADE_CLUB_FUNCTION_NAME, ''}
     GNOSIS_DEFAULT_CALLBACK_HANDLER: ${env:GNOSIS_DEFAULT_CALLBACK_HANDLER, ''}
-    BULK_MINT_FUNCTION_NAME: ${env:BULK_MINT_FUNCTION_NAME, ''}
+    LAMBDA_BULK_MINT_FUNCTION_NAME: ${env:LAMBDA_BULK_MINT_FUNCTION_NAME, ''}
 
 package:
   excludeDevDependencies: true
@@ -119,6 +119,10 @@ functions:
     memorySize: 512
   upgradeClub:
     handler: build/serverless/upgradeClub.handle
+    timeout: 300
+    memorySize: 512
+  bulkMint:
+    handler: build/serverless/bulkMint.handle
     timeout: 300
     memorySize: 512
   images:

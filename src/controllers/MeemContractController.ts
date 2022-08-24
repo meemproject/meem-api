@@ -504,7 +504,7 @@ export default class MeemContractController {
 			await lambda
 				.invoke({
 					InvocationType: 'Event',
-					FunctionName: config.BULK_MINT_FUNCTION_NAME,
+					FunctionName: config.LAMBDA_BULK_MINT_FUNCTION_NAME,
 					Payload: JSON.stringify({
 						...req.body,
 						mintedBy: req.wallet.address,
