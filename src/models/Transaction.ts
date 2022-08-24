@@ -1,9 +1,9 @@
 import { DataTypes } from 'sequelize'
-import ModelWithAddress from '../core/ModelWithAddress'
+import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
 import type Wallet from './Wallet'
 
-export default class Transaction extends ModelWithAddress<Transaction> {
+export default class Transaction extends BaseModel<Transaction> {
 	public static readonly modelName = 'Transaction'
 
 	public static readonly paranoid: boolean = false
