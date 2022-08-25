@@ -122,7 +122,7 @@ export default class MeemIdController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const integrationMetadata = req.body.metadata ?? {}
+		const integrationMetadata: any = {}
 		const meemId = await services.meemId.getMeemIdentityForWallet(req.wallet)
 
 		const integration = await orm.models.IdentityIntegration.findOne({
