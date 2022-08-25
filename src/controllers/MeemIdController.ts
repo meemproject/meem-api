@@ -199,6 +199,7 @@ export default class MeemIdController {
 				const discordAuthCode = req.body.metadata?.discordAuthCode
 					? (req.body.metadata?.discordAuthCode as string)
 					: null
+				const redirectUri = req.body.metadata?.redirectUri as string | undefined
 				const integrationError = new Error('INTEGRATION_FAILED')
 				integrationError.message = 'Discord verification failed.'
 
@@ -209,7 +210,8 @@ export default class MeemIdController {
 				integrationMetadata.isVerified = false
 
 				const verifiedDiscord = await services.meemId.verifyDiscord({
-					discordAuthCode
+					discordAuthCode,
+					redirectUri
 				})
 
 				if (!verifiedDiscord) {
