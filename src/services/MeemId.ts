@@ -302,15 +302,17 @@ export default class MeemIdentityService {
 
 	public static async verifyDiscord(options: {
 		discordAuthCode: string
+		redirectUri?: string
 	}): Promise<Discord> {
-		const { discordAuthCode } = options
+		const { discordAuthCode, redirectUri } = options
+
 		try {
 			const discordAuthResult = await request
 				.post('https://discord.com/api/oauth2/token')
 				.field('client_id', config.DISCORD_CLIENT_ID)
 				.field('client_secret', config.DISCORD_CLIENT_SECRET)
 				.field('grant_type', 'authorization_code')
-				.field('redirect_uri', config.DISCORD_AUTH_CALLBACK_URL)
+				.field('redirect_uri', redirectUri ?? config.DISCORD_AUTH_CALLBACK_URL)
 				.field('code', discordAuthCode)
 
 			if (!discordAuthResult.body.access_token) {
