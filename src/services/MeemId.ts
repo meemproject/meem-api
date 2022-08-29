@@ -181,22 +181,26 @@ export default class MeemIdentityService {
 			let profilePicUrl: string | undefined
 
 			if (!_.isUndefined(profilePicBase64)) {
-				const base64Data = /^data:image/.test(profilePicBase64)
-					? profilePicBase64.split(',')[1]
-					: profilePicBase64
-				const buff = Buffer.from(base64Data, 'base64')
-				const stream = Readable.from(buff)
+				if (profilePicBase64 !== '') {
+					const base64Data = /^data:image/.test(profilePicBase64)
+						? profilePicBase64.split(',')[1]
+						: profilePicBase64
+					const buff = Buffer.from(base64Data, 'base64')
+					const stream = Readable.from(buff)
 
-				// @ts-ignore
-				stream.path = `${meemId.id}/image.png`
+					// @ts-ignore
+					stream.path = `${meemId.id}/image.png`
 
-				const imageResponse = await services.web3.saveToPinata({
-					// file: Readable.from(Buffer.from(imgData, 'base64'))
-					// file: buffStream
-					file: stream
-				})
+					const imageResponse = await services.web3.saveToPinata({
+						// file: Readable.from(Buffer.from(imgData, 'base64'))
+						// file: buffStream
+						file: stream
+					})
 
-				profilePicUrl = `ipfs://${imageResponse.IpfsHash}`
+					profilePicUrl = `ipfs://${imageResponse.IpfsHash}`
+				} else {
+					profilePicUrl = ''
+				}
 			}
 
 			if (meemId) {
