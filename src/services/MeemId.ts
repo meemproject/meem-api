@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import { Readable } from 'stream'
+import { ManagementClient } from 'auth0'
 import jsonwebtoken, { SignOptions } from 'jsonwebtoken'
 import _ from 'lodash'
 import { DateTime } from 'luxon'
@@ -11,7 +12,6 @@ import type MeemContract from '../models/MeemContract'
 import MeemIdentity from '../models/MeemIdentity'
 import Twitter from '../models/Twitter'
 import type Wallet from '../models/Wallet'
-
 export default class MeemIdentityService {
 	public static async getNonce(options: { address: string }) {
 		// Generate a nonce and save it for the wallet
@@ -352,6 +352,50 @@ export default class MeemIdentityService {
 			}
 
 			return discord
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
+	public static async verifyEmail(options: { email: string }): Promise<string> {
+		const { email } = options
+
+		try {
+			// const auth0 = new ManagementClient({
+			// 	domain: 'dev-meem.us.auth0.com',
+			// 	clientId: config.AUTH0_CLIENT_ID,
+			// 	clientSecret: config.AUTH0_CLIENT_SECRET
+			// })
+
+			// var options = {
+			// 	method: 'POST',
+			// 	url: 'https://YOUR_DOMAIN/passwordless/start',
+			// 	headers: {'content-type': 'application/json'},
+			// 	data: {
+			// 	  client_id: 'YOUR_CLIENT_ID',
+			// 	  client_secret: 'YOUR_CLIENT_SECRET',
+			// 	  connection: 'email',
+			// 	  email: 'USER_EMAIL',
+			// 	  send: 'code'
+			// 	}
+			//   };
+
+			const sendPasswordlessEmailRequest = await request
+				.post(`https://${config.AUTH0_APP_DOMAIN}/passwordless/start`)
+				.send({
+					client_id: config.AUTH0_CLIENT_ID,
+					client_secret: config.AUTH0_CLIENT_SECRET,
+					connection: 'email',
+					email,
+					send: 'link'
+				})
+
+			if (!sendPasswordlessEmailRequest.body) {
+				throw new Error('NOT_AUTHORIZED')
+			}
+
+			return email
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')

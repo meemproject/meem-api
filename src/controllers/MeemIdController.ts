@@ -236,6 +236,41 @@ export default class MeemIdController {
 
 					break
 				}
+				case config.EMAIL_IDENTITY_INTEGRATION_ID: {
+					const email = req.body.metadata?.email
+						? (req.body.metadata?.email as string)
+						: null
+					const integrationError = new Error('INTEGRATION_FAILED')
+					integrationError.message = 'Email verification failed.'
+
+					if (
+						existingMeemIdIntegration &&
+						existingMeemIdIntegration.metadata?.isVerified &&
+						!email
+					) {
+						break
+					}
+
+					if (!email) {
+						throw integrationError
+					}
+
+					integrationMetadata.isVerified = false
+
+					const verifiedTwitter = await services.meemId.verifyTwitter({
+						email,
+						walletAddress: req.wallet.address
+					})
+
+					if (!verifiedTwitter) {
+						throw integrationError
+					}
+
+					integrationMetadata.isVerified = true
+					integrationMetadata.email = email
+
+					break
+				}
 				default:
 					break
 			}
