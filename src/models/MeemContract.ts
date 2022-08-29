@@ -1,7 +1,9 @@
 import { IERC721Base__factory } from '@meemproject/meem-contracts/dist/typechain'
 import { MeemContractMetadataLike } from '@meemproject/metadata'
 import { ethers } from 'ethers'
+import keccak256 from 'keccak256'
 import { DateTime } from 'luxon'
+import MerkleTree from 'merkletreejs'
 import { DataTypes } from 'sequelize'
 import ModelWithAddress from '../core/ModelWithAddress'
 import { MeemAPI } from '../types/meem.generated'
@@ -32,15 +34,18 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		},
 		slug: {
 			type: DataTypes.STRING,
-			allowNull: false
+			allowNull: false,
+			defaultValue: DataTypes.UUIDV4
 		},
 		name: {
 			type: DataTypes.STRING,
-			allowNull: false
+			allowNull: false,
+			defaultValue: ''
 		},
 		symbol: {
 			type: DataTypes.STRING,
-			allowNull: false
+			allowNull: false,
+			defaultValue: ''
 		},
 		address: {
 			type: DataTypes.STRING,
@@ -54,6 +59,7 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		maxSupply: {
 			type: DataTypes.STRING,
 			allowNull: false,
+			defaultValue: 0,
 			set(this: MeemContract, val: any) {
 				this.setDataValue(
 					'maxSupply',
@@ -64,11 +70,13 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		},
 		mintPermissions: {
 			type: DataTypes.JSONB,
-			allowNull: false
+			allowNull: false,
+			defaultValue: []
 		},
 		splits: {
 			type: DataTypes.JSONB,
-			allowNull: false
+			allowNull: false,
+			defaultValue: []
 		},
 		isTransferrable: {
 			type: DataTypes.BOOLEAN,
@@ -91,25 +99,122 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		}
 	}
 
-	public isAdmin(minter: string) {
-		if (!this.Wallets) {
-			throw new Error('WALLET_NOT_FOUND')
+	public async isAdmin(minter: string) {
+		const meemContractWallet = await orm.models.MeemContractWallet.findOne({
+			where: {
+				MeemContractId: this.id,
+				role: config.ADMIN_ROLE
+			},
+			include: [
+				{
+					model: orm.models.Wallet,
+					where: orm.sequelize.where(
+						orm.sequelize.fn('lower', orm.sequelize.col('Wallet.address')),
+						minter.toLowerCase()
+					)
+				}
+			]
+		})
+
+		if (meemContractWallet) {
+			return true
 		}
-		// Bypass checks if user has the MINTER_ROLE
-		for (let i = 0; i < this.Wallets.length; i += 1) {
-			if (
-				this.Wallets[i].address.toLowerCase() === minter.toLowerCase() &&
-				this.Wallets[i].MeemContractWallets[0].role === config.ADMIN_ROLE
-			) {
-				return true
-			}
-		}
+
+		// if (!this.Wallets) {
+		// 	throw new Error('WALLET_NOT_FOUND')
+		// }
+		// // Bypass checks if user has the MINTER_ROLE
+		// for (let i = 0; i < this.Wallets.length; i += 1) {
+		// 	if (
+		// 		this.Wallets[i].address.toLowerCase() === minter.toLowerCase() &&
+		// 		this.Wallets[i].MeemContractWallets[0].role === config.ADMIN_ROLE
+		// 	) {
+		// 		return true
+		// 	}
+		// }
 
 		return false
 	}
 
+	public async getMintingPermission(
+		minter: string
+	): Promise<{ permission?: MeemAPI.IMeemPermission; proof: string[] }> {
+		let hasCostBeenSet = false
+		let costWei = 0
+		const now = DateTime.local().toSeconds()
+		const provider = await services.ethers.getProvider()
+
+		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		let permission: MeemAPI.IMeemPermission | undefined
+		let proof: string[] = []
+
+		for (let i = 0; i < this.mintPermissions.length; i += 1) {
+			const perm = this.mintPermissions[i]
+			let hasIndividualPermission = false
+
+			if (
+				(+perm.mintStartTimestamp === 0 || now >= +perm.mintStartTimestamp) &&
+				(+perm.mintEndTimestamp === 0 || now <= +perm.mintEndTimestamp)
+			) {
+				if (
+					// Allowed if permission is anyone
+					perm.permission === MeemAPI.Permission.Anyone
+				) {
+					hasIndividualPermission = true
+				}
+
+				if (perm.permission === MeemAPI.Permission.Addresses) {
+					// Allowed if to is in the list of approved addresses
+					for (let j = 0; j < perm.addresses.length; j += 1) {
+						if (perm.addresses[j].toLowerCase() === minter.toLowerCase()) {
+							hasIndividualPermission = true
+							break
+						}
+					}
+				}
+
+				if (perm.permission === MeemAPI.Permission.Holders) {
+					// Check each address
+					for (let j = 0; j < perm.addresses.length; j += 1) {
+						const erc721Contract = IERC721Base__factory.connect(
+							perm.addresses[j],
+							wallet
+						)
+						// eslint-disable-next-line no-await-in-loop
+						const balance = await erc721Contract.balanceOf(minter)
+
+						if (balance.toNumber() >= +perm.numTokens) {
+							hasIndividualPermission = true
+							break
+						}
+					}
+				}
+
+				if (
+					hasIndividualPermission &&
+					(!hasCostBeenSet || (hasCostBeenSet && costWei > +perm.costWei))
+				) {
+					costWei = +perm.costWei
+					hasCostBeenSet = true
+					permission = perm
+					const leaves = perm.addresses.map(a =>
+						keccak256(ethers.utils.getAddress(a))
+					)
+					const merkleTree = new MerkleTree(leaves, keccak256, {
+						sortPairs: true
+					})
+					const hashedAddress = keccak256(ethers.utils.getAddress(minter))
+					proof = merkleTree.getHexProof(hashedAddress)
+				}
+			}
+		}
+
+		return { permission, proof }
+	}
+
 	public async canMint(minter: string) {
-		if (this.isAdmin(minter)) {
+		const isAdmin = await this.isAdmin(minter)
+		if (isAdmin) {
 			return true
 		}
 
@@ -123,6 +228,7 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 
 		for (let i = 0; i < this.mintPermissions.length; i += 1) {
 			const perm = this.mintPermissions[i]
+			let hasIndividualPermission = false
 
 			if (
 				(+perm.mintStartTimestamp === 0 || now >= +perm.mintStartTimestamp) &&
@@ -133,6 +239,7 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 					perm.permission === MeemAPI.Permission.Anyone
 				) {
 					hasPermission = true
+					hasIndividualPermission = true
 				}
 
 				if (perm.permission === MeemAPI.Permission.Addresses) {
@@ -140,6 +247,7 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 					for (let j = 0; j < perm.addresses.length; j += 1) {
 						if (perm.addresses[j].toLowerCase() === minter.toLowerCase()) {
 							hasPermission = true
+							hasIndividualPermission = true
 							break
 						}
 					}
@@ -157,13 +265,14 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 
 						if (balance.toNumber() >= +perm.numTokens) {
 							hasPermission = true
+							hasIndividualPermission = true
 							break
 						}
 					}
 				}
 
 				if (
-					hasPermission &&
+					hasIndividualPermission &&
 					(!hasCostBeenSet || (hasCostBeenSet && costWei > +perm.costWei))
 				) {
 					costWei = +perm.costWei

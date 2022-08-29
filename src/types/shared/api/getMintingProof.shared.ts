@@ -1,10 +1,13 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemId } from '../meem.shared'
 
-export namespace GetMe {
-	export interface IPathParams {}
+export namespace GetMintingProof {
+	export interface IPathParams {
+		/** The meem pass id to fetch */
+		meemContractId: string
+	}
 
-	export const path = () => `/api/1.0/me`
+	export const path = (options: IPathParams) =>
+		`/api/1.0/meemContracts/${options.meemContractId}/proof`
 
 	export const method = HttpMethod.Get
 
@@ -13,9 +16,7 @@ export namespace GetMe {
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		walletId: string
-		address: string
-		meemIdentity: any
+		proof: string[]
 	}
 
 	export interface IDefinition {

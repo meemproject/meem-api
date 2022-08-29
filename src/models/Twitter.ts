@@ -18,19 +18,12 @@ export default class Twitter extends BaseModel<Twitter> {
 		twitterId: {
 			type: DataTypes.STRING,
 			allowNull: false
-		},
-		isDefault: {
-			type: DataTypes.BOOLEAN,
-			allowNull: false,
-			defaultValue: false
 		}
 	}
 
 	public id!: string
 
 	public twitterId!: string
-
-	public isDefault!: boolean
 
 	public static associate(_models: IModels) {}
 }

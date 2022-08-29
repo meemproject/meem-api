@@ -42,7 +42,7 @@ export namespace CreateMeemContract {
 		isMaxSupplyLocked?: boolean
 
 		/** Minting permissions */
-		mintPermissions?: IMeemPermission[]
+		mintPermissions?: Omit<IMeemPermission, 'merkleRoot'>[]
 
 		/** Splits for minting / transfers */
 		splits?: IMeemSplit[]
