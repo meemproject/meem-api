@@ -206,6 +206,14 @@ export default class MeemIdController {
 					const integrationError = new Error('INTEGRATION_FAILED')
 					integrationError.message = 'Discord verification failed.'
 
+					if (
+						existingMeemIdIntegration &&
+						existingMeemIdIntegration.metadata?.isVerified &&
+						!discordAuthCode
+					) {
+						break
+					}
+
 					if (!discordAuthCode) {
 						throw integrationError
 					}
@@ -252,9 +260,12 @@ export default class MeemIdController {
 					existingMeemIdIntegration.visibility = meemIdIntegrationVisibility
 				}
 
-				if (integrationMetadata) {
+				if (integrationMetadata && _.keys(integrationMetadata).length > 0) {
 					// TODO: Typecheck metadata
-					existingMeemIdIntegration.metadata = integrationMetadata
+					existingMeemIdIntegration.metadata = {
+						...existingMeemIdIntegration.metadata,
+						...integrationMetadata
+					}
 				}
 
 				await existingMeemIdIntegration.save()
