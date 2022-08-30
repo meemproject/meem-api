@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import { Readable } from 'stream'
-import { ManagementClient } from 'auth0'
+import { ManagementClient, User as Auth0User } from 'auth0'
 import jsonwebtoken, { SignOptions } from 'jsonwebtoken'
 import _ from 'lodash'
 import { DateTime } from 'luxon'
@@ -362,15 +362,18 @@ export default class MeemIdentityService {
 		}
 	}
 
-	public static async verifyEmail(options: { email: string }): Promise<string> {
-		const { email } = options
+	public static async verifyEmail(options: {
+		meemId: MeemIdentity
+		email: string
+	}): Promise<Auth0User> {
+		const { meemId, email } = options
 
 		try {
-			// const auth0 = new ManagementClient({
-			// 	domain: 'dev-meem.us.auth0.com',
-			// 	clientId: config.AUTH0_CLIENT_ID,
-			// 	clientSecret: config.AUTH0_CLIENT_SECRET
-			// })
+			const auth0 = new ManagementClient({
+				domain: 'dev-meem.us.auth0.com',
+				clientId: config.AUTH0_CLIENT_ID,
+				clientSecret: config.AUTH0_CLIENT_SECRET
+			})
 
 			// var options = {
 			// 	method: 'POST',
@@ -385,21 +388,33 @@ export default class MeemIdentityService {
 			// 	}
 			//   };
 
-			const sendPasswordlessEmailRequest = await request
-				.post(`https://${config.AUTH0_APP_DOMAIN}/passwordless/start`)
-				.send({
-					client_id: config.AUTH0_CLIENT_ID,
-					client_secret: config.AUTH0_CLIENT_SECRET,
+			try {
+				const users = await auth0.getUsers({
+					q: `app_metadata.internal_id:"${meemId.id}"`
+				})
+				if (users.length > 0 && users[0].user_id) {
+					if (users[0].email_verified) {
+						return users[0]
+					}
+					await auth0.sendEmailVerification({
+						user_id: users[0].user_id
+					})
+					return users[0]
+				}
+				throw new Error('SERVER_ERROR')
+			} catch (e) {
+				// User doesn't exist?
+				// Make sure user doesn't exist and not some other error
+				const user = await auth0.createUser({
 					connection: 'email',
 					email,
-					send: 'link'
+					verify_email: true,
+					app_metadata: {
+						internal_id: meemId.id
+					}
 				})
-
-			if (!sendPasswordlessEmailRequest.body) {
-				throw new Error('NOT_AUTHORIZED')
+				return user
 			}
-
-			return email
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')

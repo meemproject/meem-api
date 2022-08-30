@@ -256,18 +256,16 @@ export default class MeemIdController {
 					}
 
 					integrationMetadata.isVerified = false
+					integrationMetadata.email =
+						email === existingMeemIdIntegration?.metadata?.email ? email : ''
 
-					const verifiedTwitter = await services.meemId.verifyTwitter({
-						email,
-						walletAddress: req.wallet.address
+					const user = await services.meemId.verifyEmail({
+						meemId,
+						email
 					})
 
-					if (!verifiedTwitter) {
-						throw integrationError
-					}
-
-					integrationMetadata.isVerified = true
-					integrationMetadata.email = email
+					integrationMetadata.isVerified = user.email_verified ?? false
+					integrationMetadata.email = user.email ?? email
 
 					break
 				}
