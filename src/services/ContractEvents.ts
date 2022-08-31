@@ -1,4 +1,4 @@
-import { Log } from '@ethersproject/abstract-provider'
+import type { Log } from '@ethersproject/abstract-provider'
 import { MeemContractMetadataLike } from '@meemproject/metadata'
 import { Contract, ethers, utils } from 'ethers'
 // import { IGunChainReference } from 'gun/types/chain'
@@ -218,6 +218,32 @@ export default class ContractEvent {
 			}
 		}
 
+		const mintPermissions = contractInfo.mintPermissions.map(p => ({
+			permission: p.permission,
+			addresses: p.addresses,
+			numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
+			mintEndTimestamp: ethers.BigNumber.from(p.mintEndTimestamp).toNumber(),
+			mintStartTimestamp: ethers.BigNumber.from(
+				p.mintStartTimestamp
+			).toNumber(),
+			costWei: ethers.BigNumber.from(p.costWei).toHexString(),
+			merkleRoot: p.merkleRoot
+		}))
+
+		// Merge addresses by merkle root if we can
+		if (existingMeemContract) {
+			mintPermissions.forEach(mp => {
+				const existingMintPermission =
+					existingMeemContract.mintPermissions.find(
+						emp => emp.merkleRoot === mp.merkleRoot
+					)
+				if (existingMintPermission) {
+					// eslint-disable-next-line no-param-reassign
+					mp.addresses = existingMintPermission.addresses
+				}
+			})
+		}
+
 		const meemContractData = {
 			slug,
 			symbol: contractInfo.symbol,
@@ -226,16 +252,7 @@ export default class ContractEvent {
 			address,
 			metadata,
 			maxSupply: contractInfo.maxSupply,
-			mintPermissions: contractInfo.mintPermissions.map(p => ({
-				permission: p.permission,
-				addresses: p.addresses,
-				numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
-				mintEndTimestamp: ethers.BigNumber.from(p.mintEndTimestamp).toNumber(),
-				mintStartTimestamp: ethers.BigNumber.from(
-					p.mintStartTimestamp
-				).toNumber(),
-				costWei: ethers.BigNumber.from(p.costWei).toHexString()
-			})),
+			mintPermissions,
 			splits: contractInfo.splits.map(s => ({
 				toAddress: s.toAddress,
 				amount: ethers.BigNumber.from(s.amount).toNumber(),
@@ -748,6 +765,9 @@ export default class ContractEvent {
 				wallet = await orm.models.Wallet.create({
 					address: args.eventData.to
 				})
+				await services.meemId.createOrUpdateMeemIdentity({
+					wallet
+				})
 			}
 
 			meem.OwnerId = wallet.id
@@ -827,6 +847,9 @@ export default class ContractEvent {
 		if (!wallet) {
 			wallet = await orm.models.Wallet.create({
 				address: meemData.owner
+			})
+			await services.meemId.createOrUpdateMeemIdentity({
+				wallet
 			})
 		}
 

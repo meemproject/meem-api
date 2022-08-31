@@ -328,6 +328,7 @@ export interface IMeemPermission {
 	costWei: string
 	mintStartTimestamp: string
 	mintEndTimestamp: string
+	merkleRoot: string
 }
 
 export interface IMeemProperties {
@@ -514,6 +515,12 @@ export interface IMeemId {
 		}
 		isAdmin: boolean
 	}
+}
+
+export enum IMeemIdIntegrationVisibility {
+	Anyone = 'anyone',
+	MutualClubMembers = 'mutual-club-members',
+	JustMe = 'just-me'
 }
 
 export interface ITransfer {

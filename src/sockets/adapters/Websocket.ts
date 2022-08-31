@@ -35,6 +35,7 @@ export default class WebsocketAdapter extends SocketAdapter {
 		)
 		this.wss.on('connection', (socket: IIdentifiedWebsocket) => {
 			const socketId = uuidv4()
+			// eslint-disable-next-line no-param-reassign
 			socket.id = socketId
 
 			socket.on('close', () => {

@@ -383,6 +383,7 @@ export interface IMeemPermission {
 	costWei: string
 	mintStartTimestamp: string
 	mintEndTimestamp: string
+	merkleRoot: string
 }
 
 export interface IMeemProperties {
@@ -571,6 +572,12 @@ export interface IMeemId {
 	}
 }
 
+export enum IMeemIdIntegrationVisibility {
+	Anyone = 'anyone',
+	MutualClubMembers = 'mutual-club-members',
+	JustMe = 'just-me'
+}
+
 export interface ITransfer {
 	from: string
 	to: string
@@ -641,6 +648,45 @@ export interface TweetMeemExtensionProperties {
 }
 
 export namespace v1 {
+
+export namespace BulkMint {
+	export interface IPathParams {
+		/** The meem pass id to fetch */
+		meemContractId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/meemContracts/${options.meemContractId}/bulkMint`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		tokens: {
+			/** Metadata object to be used for the minted Meem */
+			metadata?: IMeemMetadataLike
+
+			/** The address where the Meem will be minted to. */
+			to: string
+		}[]
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
 
 export namespace CheckClippingStatus {
 	export interface IPathParams {}
@@ -850,7 +896,7 @@ export namespace CreateMeemContract {
 		isMaxSupplyLocked?: boolean
 
 		/** Minting permissions */
-		mintPermissions?: IMeemPermission[]
+		mintPermissions?: Omit<IMeemPermission, 'merkleRoot'>[]
 
 		/** Splits for minting / transfers */
 		splits?: IMeemSplit[]
@@ -990,22 +1036,62 @@ export namespace CreateOrUpdateMeemContractIntegration {
 export namespace CreateOrUpdateMeemId {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/meemId`
+	export const path = () => `/api/1.0/me`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
+		// TODO: Add wallet address with signature to Identity. Remove from any other identity
+		// e.g. Identity merge
 		/** Wallet address to add or lookup by */
-		address: string
+		// address: string
 		/** Signature of wallet address */
-		signature: string
+		// signature: string
 
-		/** Twitter account to add or lookup by */
-		twitterAccessToken: string
-		/** Twitter account to add or lookup by */
-		twitterAccessSecret: string
+		/** Profile picture base64 string */
+		profilePicBase64?: string
+		/** Url to profile picture */
+		// profilePicUrl?: string
+		/** Display name of identity */
+		displayName?: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace CreateOrUpdateMeemIdIntegration {
+	export interface IPathParams {
+		/** The integration id to connect or update */
+		integrationId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/me/integrations/${options.integrationId}`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** Set the visibility type of the integration */
+		visibility?: string
+		/** Metadata associated with this integration */
+		metadata?: { [key: string]: unknown }
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -1253,6 +1339,7 @@ export namespace GetMe {
 	export interface IResponseBody extends IApiResponseBody {
 		walletId: string
 		address: string
+		meemIdentity: any
 	}
 
 	export interface IDefinition {
@@ -1465,6 +1552,37 @@ export namespace GetMeems {
 
 	export interface IResponseBody extends IApiPaginatedResponseBody {
 		meems: IMetadataMeem[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetMintingProof {
+	export interface IPathParams {
+		/** The meem pass id to fetch */
+		meemContractId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/meemContracts/${options.meemContractId}/proof`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		proof: string[]
 	}
 
 	export interface IDefinition {

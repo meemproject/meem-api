@@ -152,6 +152,13 @@ const errors = {
 		reason: 'The club could not be upgraded.',
 		friendlyReason: 'The club could not be upgraded.'
 	},
+	TX_LIMIT_EXCEEDED: {
+		httpCode: 400,
+		status: 'failure',
+		reason: "You've hit your transaction limit for the day. Try again later.",
+		friendlyReason:
+			"You've hit your transaction limit for the day. Try again later."
+	},
 	// Contract errors
 	UNKNOWN_CONTRACT_ERROR: {
 		httpCode: 500,

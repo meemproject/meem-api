@@ -28,8 +28,13 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/login', MeemIdController.login)
 
 	router.getAsync('/me', MeemIdController.getMe)
+	router.postAsync('/me', MeemIdController.createOrUpdateMeemId)
 	router.postAsync('/me/refreshENS', MeemIdController.refreshENS)
 	router.getAsync('/me/apiKey', MeemIdController.getApiKey)
+	router.postAsync(
+		'/me/integrations/:integrationId',
+		MeemIdController.createOrUpdateMeemIdIntegration
+	)
 
 	router.getAsync('/config', ConfigController.getConfig)
 
@@ -48,8 +53,16 @@ export default (app: Express, _express: typeof coreExpress) => {
 		MeemContractController.createClubSafe
 	)
 	router.postAsync(
+		'/meemContracts/:meemContractId/bulkMint',
+		MeemContractController.bulkMint
+	)
+	router.postAsync(
 		'/meemContracts/:meemContractId/upgrade',
 		MeemContractController.upgradeClub
+	)
+	router.getAsync(
+		'/meemContracts/:meemContractId/proof',
+		MeemContractController.getMintingProof
 	)
 	router.postAsync(
 		'/meemContracts/:meemContractId/integrations/:integrationId',
@@ -131,5 +144,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/testCron', TestController.testCron)
 		router.getAsync('/test/syncContract', TestController.syncContract)
 		router.getAsync('/test/metadata', TestController.metadata)
+		router.getAsync('/test/hash', TestController.testHash)
 	}
 }

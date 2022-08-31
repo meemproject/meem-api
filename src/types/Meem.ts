@@ -15,6 +15,18 @@ import { FunctionFragment, EventFragment, Result } from '@ethersproject/abi';
 
 
 
+export type SetRoleItemStruct = {
+  user: string;
+  role: BytesLike;
+  hasRole: boolean;
+};
+
+export type SetRoleItemStructOutput = [string, string, boolean] & {
+  user: string;
+  role: string;
+  hasRole: boolean;
+};
+
 export type MeemPermissionStruct = {
   permission: BigNumberish;
   addresses: string[];
@@ -22,6 +34,7 @@ export type MeemPermissionStruct = {
   costWei: BigNumberish;
   mintStartTimestamp: BigNumberish;
   mintEndTimestamp: BigNumberish;
+  merkleRoot: BytesLike;
 };
 
 export type MeemPermissionStructOutput = [
@@ -30,7 +43,8 @@ export type MeemPermissionStructOutput = [
   BigNumber,
   BigNumber,
   BigNumber,
-  BigNumber
+  BigNumber,
+  string
 ] & {
   permission: number;
   addresses: string[];
@@ -38,6 +52,19 @@ export type MeemPermissionStructOutput = [
   costWei: BigNumber;
   mintStartTimestamp: BigNumber;
   mintEndTimestamp: BigNumber;
+  merkleRoot: string;
+};
+
+export type RequireCanMintParamsStruct = {
+  minter: string;
+  to: string;
+  proof: BytesLike[];
+};
+
+export type RequireCanMintParamsStructOutput = [string, string, string[]] & {
+  minter: string;
+  to: string;
+  proof: string[];
 };
 
 export type SplitStruct = {
@@ -50,6 +77,13 @@ export type SplitStructOutput = [string, BigNumber, string] & {
   toAddress: string;
   amount: BigNumber;
   lockedBy: string;
+};
+
+export type PartStruct = { account: string; value: BigNumberish };
+
+export type PartStructOutput = [string, BigNumber] & {
+  account: string;
+  value: BigNumber;
 };
 
 export type ContractInfoStruct = {
@@ -78,18 +112,6 @@ export type ContractInfoStructOutput = [
   mintPermissions: MeemPermissionStructOutput[];
   splits: SplitStructOutput[];
   isTransferLocked: boolean;
-};
-
-export type SetRoleItemStruct = {
-  user: string;
-  role: BytesLike;
-  hasRole: boolean;
-};
-
-export type SetRoleItemStructOutput = [string, string, boolean] & {
-  user: string;
-  role: string;
-  hasRole: boolean;
 };
 
 export type InitParamsStruct = {
@@ -123,11 +145,16 @@ export type InitParamsStructOutput = [
   isTransferLocked: boolean;
 };
 
-export type PartStruct = { account: string; value: BigNumberish };
+export type MintParametersStruct = {
+  to: string;
+  tokenURI: string;
+  tokenType: BigNumberish;
+};
 
-export type PartStructOutput = [string, BigNumber] & {
-  account: string;
-  value: BigNumber;
+export type MintParametersStructOutput = [string, string, number] & {
+  to: string;
+  tokenURI: string;
+  tokenType: number;
 };
 
 export type MeemStruct = {
@@ -144,34 +171,22 @@ export type MeemStructOutput = [string, number, string, BigNumber] & {
   mintedAt: BigNumber;
 };
 
-export type MintParametersStruct = {
+export type MintWithProofParametersStruct = {
   to: string;
   tokenURI: string;
   tokenType: BigNumberish;
+  proof: BytesLike[];
 };
 
-export type MintParametersStructOutput = [string, string, number] & {
-  to: string;
-  tokenURI: string;
-  tokenType: number;
-};
+export type MintWithProofParametersStructOutput = [
+  string,
+  string,
+  number,
+  string[]
+] & { to: string; tokenURI: string; tokenType: number; proof: string[] };
 
 export interface MycontractInterface extends ethers.utils.Interface {
   functions: {
-    "contractURI()": FunctionFragment;
-    "getContractInfo()": FunctionFragment;
-    "initialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256)[],(address,uint256,address)[],bool))": FunctionFragment;
-    "reinitialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256)[],(address,uint256,address)[],bool))": FunctionFragment;
-    "setContractInfo(string,string)": FunctionFragment;
-    "setContractURI(string)": FunctionFragment;
-    "MINTER_ROLE()": FunctionFragment;
-    "maxSupply()": FunctionFragment;
-    "requireCanMint(address,uint256)": FunctionFragment;
-    "requireCanTransfer(address,address,uint256)": FunctionFragment;
-    "setIsTransferrable(bool)": FunctionFragment;
-    "setMaxSupply(uint256)": FunctionFragment;
-    "setMintingPermissions((uint8,address[],uint256,uint256,uint256,uint256)[])": FunctionFragment;
-    "validatePermissions((uint8,address[],uint256,uint256,uint256,uint256)[],(uint8,address[],uint256,uint256,uint256,uint256)[])": FunctionFragment;
     "ADMIN_ROLE()": FunctionFragment;
     "UPGRADER_ROLE()": FunctionFragment;
     "bulkSetRoles((address,bytes32,bool)[])": FunctionFragment;
@@ -181,19 +196,35 @@ export interface MycontractInterface extends ethers.utils.Interface {
     "hasRole(bytes32,address)": FunctionFragment;
     "requireRole(bytes32,address)": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
+    "MINTER_ROLE()": FunctionFragment;
+    "maxSupply()": FunctionFragment;
+    "requireCanMint((address,address,bytes32[]))": FunctionFragment;
+    "requireCanTransfer(address,address,uint256)": FunctionFragment;
+    "setIsTransferrable(bool)": FunctionFragment;
+    "setMaxSupply(uint256)": FunctionFragment;
+    "setMintingPermissions((uint8,address[],uint256,uint256,uint256,uint256,bytes32)[])": FunctionFragment;
+    "validatePermissions((uint8,address[],uint256,uint256,uint256,uint256,bytes32)[],(uint8,address[],uint256,uint256,uint256,uint256,bytes32)[])": FunctionFragment;
     "getRaribleV2Royalties(uint256)": FunctionFragment;
-    "handleSaleDistribution(uint256,address,uint256)": FunctionFragment;
+    "handleSaleDistribution(uint256,address)": FunctionFragment;
     "lockSplits(uint256)": FunctionFragment;
     "setSplits(uint256,(address,uint256,address)[])": FunctionFragment;
+    "contractURI()": FunctionFragment;
+    "getContractInfo()": FunctionFragment;
+    "initialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256,bytes32)[],(address,uint256,address)[],bool))": FunctionFragment;
+    "reinitialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256,bytes32)[],(address,uint256,address)[],bool))": FunctionFragment;
+    "setContractInfo(string,string)": FunctionFragment;
+    "setContractURI(string)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
+    "bulkMint((address,string,uint8)[])": FunctionFragment;
+    "burn(uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "getMeem(uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "mint((address,string,uint8))": FunctionFragment;
+    "mintWithProof((address,string,uint8,bytes32[]))": FunctionFragment;
     "name()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
-    "requireCanMintTo(address)": FunctionFragment;
     "requireTokenAdmin(uint256,address)": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
@@ -206,59 +237,6 @@ export interface MycontractInterface extends ethers.utils.Interface {
     "transferFrom(address,address,uint256)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "contractURI",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getContractInfo",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initialize",
-    values: [InitParamsStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "reinitialize",
-    values: [InitParamsStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setContractInfo",
-    values: [string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setContractURI",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "MINTER_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "maxSupply", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "requireCanMint",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "requireCanTransfer",
-    values: [string, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setIsTransferrable",
-    values: [boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMaxSupply",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMintingPermissions",
-    values: [MeemPermissionStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "validatePermissions",
-    values: [MeemPermissionStruct[], MeemPermissionStruct[]]
-  ): string;
   encodeFunctionData(
     functionFragment: "ADMIN_ROLE",
     values?: undefined
@@ -293,12 +271,41 @@ export interface MycontractInterface extends ethers.utils.Interface {
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "MINTER_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "maxSupply", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "requireCanMint",
+    values: [RequireCanMintParamsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "requireCanTransfer",
+    values: [string, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setIsTransferrable",
+    values: [boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMaxSupply",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMintingPermissions",
+    values: [MeemPermissionStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "validatePermissions",
+    values: [MeemPermissionStruct[], MeemPermissionStruct[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getRaribleV2Royalties",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "handleSaleDistribution",
-    values: [BigNumberish, string, BigNumberish]
+    values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "lockSplits",
@@ -309,10 +316,39 @@ export interface MycontractInterface extends ethers.utils.Interface {
     values: [BigNumberish, SplitStruct[]]
   ): string;
   encodeFunctionData(
+    functionFragment: "contractURI",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getContractInfo",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [InitParamsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reinitialize",
+    values: [InitParamsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setContractInfo",
+    values: [string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setContractURI",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "approve",
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "bulkMint",
+    values: [MintParametersStruct[]]
+  ): string;
+  encodeFunctionData(functionFragment: "burn", values: [BigNumberish]): string;
   encodeFunctionData(
     functionFragment: "getApproved",
     values: [BigNumberish]
@@ -329,14 +365,14 @@ export interface MycontractInterface extends ethers.utils.Interface {
     functionFragment: "mint",
     values: [MintParametersStruct]
   ): string;
+  encodeFunctionData(
+    functionFragment: "mintWithProof",
+    values: [MintWithProofParametersStruct]
+  ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "ownerOf",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "requireCanMintTo",
-    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "requireTokenAdmin",
@@ -376,27 +412,27 @@ export interface MycontractInterface extends ethers.utils.Interface {
     values: [string, string, BigNumberish]
   ): string;
 
+  decodeFunctionResult(functionFragment: "ADMIN_ROLE", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "contractURI",
+    functionFragment: "UPGRADER_ROLE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getContractInfo",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "reinitialize",
+    functionFragment: "bulkSetRoles",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setContractInfo",
+    functionFragment: "canUpgradeContract",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getRoles", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setContractURI",
+    functionFragment: "requireRole",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "MINTER_ROLE",
     data: BytesLike
@@ -426,27 +462,6 @@ export interface MycontractInterface extends ethers.utils.Interface {
     functionFragment: "validatePermissions",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "ADMIN_ROLE", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "UPGRADER_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "bulkSetRoles",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "canUpgradeContract",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getRoles", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "requireRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRaribleV2Royalties",
     data: BytesLike
@@ -457,8 +472,31 @@ export interface MycontractInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "lockSplits", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setSplits", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "contractURI",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getContractInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "reinitialize",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setContractInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setContractURI",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "bulkMint", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getApproved",
     data: BytesLike
@@ -469,12 +507,12 @@ export interface MycontractInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "requireCanMintTo",
+    functionFragment: "mintWithProof",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "requireTokenAdmin",
     data: BytesLike
@@ -511,95 +549,45 @@ export interface MycontractInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
-    "MeemContractInfoSet(address)": EventFragment;
-    "MeemContractInitialized(address)": EventFragment;
-    "MeemContractURISet(address)": EventFragment;
-    "MeemIsTransferrableLocked()": EventFragment;
-    "MeemMaxSupplyLocked()": EventFragment;
-    "MeemMaxSupplySet(uint256)": EventFragment;
-    "MeemMintPermissionsSet(tuple[])": EventFragment;
     "MeemRoleGranted(bytes32,address)": EventFragment;
     "MeemRoleRevoked(bytes32,address)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
     "RoleRevoked(bytes32,address,address)": EventFragment;
     "RoleSet(bytes32,address[],address)": EventFragment;
+    "MeemIsTransferrableLocked()": EventFragment;
+    "MeemMaxSupplyLocked()": EventFragment;
+    "MeemMaxSupplySet(uint256)": EventFragment;
+    "MeemMintPermissionsSet(tuple[])": EventFragment;
     "MeemSplitsSet(uint256,tuple[])": EventFragment;
     "RoyaltiesSet(uint256,tuple[])": EventFragment;
+    "MeemContractInfoSet(address)": EventFragment;
+    "MeemContractInitialized(address)": EventFragment;
+    "MeemContractURISet(address)": EventFragment;
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
     "MeemTransfer(address,address,uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "MeemContractInfoSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemContractInitialized"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemContractURISet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemIsTransferrableLocked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemMaxSupplyLocked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemMaxSupplySet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MeemMintPermissionsSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MeemRoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MeemRoleRevoked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemIsTransferrableLocked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemMaxSupplyLocked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemMaxSupplySet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemMintPermissionsSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MeemSplitsSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoyaltiesSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemContractInfoSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemContractInitialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MeemContractURISet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MeemTransfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
-
-export type MeemContractInfoSetEvent = TypedEvent<
-  [string],
-  { contractAddress: string }
->;
-
-export type MeemContractInfoSetEventFilter =
-  TypedEventFilter<MeemContractInfoSetEvent>;
-
-export type MeemContractInitializedEvent = TypedEvent<
-  [string],
-  { contractAddress: string }
->;
-
-export type MeemContractInitializedEventFilter =
-  TypedEventFilter<MeemContractInitializedEvent>;
-
-export type MeemContractURISetEvent = TypedEvent<
-  [string],
-  { contractAddress: string }
->;
-
-export type MeemContractURISetEventFilter =
-  TypedEventFilter<MeemContractURISetEvent>;
-
-export type MeemIsTransferrableLockedEvent = TypedEvent<[], {}>;
-
-export type MeemIsTransferrableLockedEventFilter =
-  TypedEventFilter<MeemIsTransferrableLockedEvent>;
-
-export type MeemMaxSupplyLockedEvent = TypedEvent<[], {}>;
-
-export type MeemMaxSupplyLockedEventFilter =
-  TypedEventFilter<MeemMaxSupplyLockedEvent>;
-
-export type MeemMaxSupplySetEvent = TypedEvent<
-  [BigNumber],
-  { maxSupply: BigNumber }
->;
-
-export type MeemMaxSupplySetEventFilter =
-  TypedEventFilter<MeemMaxSupplySetEvent>;
-
-export type MeemMintPermissionsSetEvent = TypedEvent<
-  [MeemPermissionStructOutput[]],
-  { mintPermissions: MeemPermissionStructOutput[] }
->;
-
-export type MeemMintPermissionsSetEventFilter =
-  TypedEventFilter<MeemMintPermissionsSetEvent>;
 
 export type MeemRoleGrantedEvent = TypedEvent<
   [string, string],
@@ -636,6 +624,32 @@ export type RoleSetEvent = TypedEvent<
 
 export type RoleSetEventFilter = TypedEventFilter<RoleSetEvent>;
 
+export type MeemIsTransferrableLockedEvent = TypedEvent<[], {}>;
+
+export type MeemIsTransferrableLockedEventFilter =
+  TypedEventFilter<MeemIsTransferrableLockedEvent>;
+
+export type MeemMaxSupplyLockedEvent = TypedEvent<[], {}>;
+
+export type MeemMaxSupplyLockedEventFilter =
+  TypedEventFilter<MeemMaxSupplyLockedEvent>;
+
+export type MeemMaxSupplySetEvent = TypedEvent<
+  [BigNumber],
+  { maxSupply: BigNumber }
+>;
+
+export type MeemMaxSupplySetEventFilter =
+  TypedEventFilter<MeemMaxSupplySetEvent>;
+
+export type MeemMintPermissionsSetEvent = TypedEvent<
+  [MeemPermissionStructOutput[]],
+  { mintPermissions: MeemPermissionStructOutput[] }
+>;
+
+export type MeemMintPermissionsSetEventFilter =
+  TypedEventFilter<MeemMintPermissionsSetEvent>;
+
 export type MeemSplitsSetEvent = TypedEvent<
   [BigNumber, SplitStructOutput[]],
   { tokenId: BigNumber; splits: SplitStructOutput[] }
@@ -649,6 +663,30 @@ export type RoyaltiesSetEvent = TypedEvent<
 >;
 
 export type RoyaltiesSetEventFilter = TypedEventFilter<RoyaltiesSetEvent>;
+
+export type MeemContractInfoSetEvent = TypedEvent<
+  [string],
+  { contractAddress: string }
+>;
+
+export type MeemContractInfoSetEventFilter =
+  TypedEventFilter<MeemContractInfoSetEvent>;
+
+export type MeemContractInitializedEvent = TypedEvent<
+  [string],
+  { contractAddress: string }
+>;
+
+export type MeemContractInitializedEventFilter =
+  TypedEventFilter<MeemContractInitializedEvent>;
+
+export type MeemContractURISetEvent = TypedEvent<
+  [string],
+  { contractAddress: string }
+>;
+
+export type MeemContractURISetEventFilter =
+  TypedEventFilter<MeemContractURISetEvent>;
 
 export type ApprovalEvent = TypedEvent<
   [string, string, BigNumber],
@@ -705,6 +743,123 @@ export interface Mycontract extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    UPGRADER_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    bulkSetRoles(
+      items: SetRoleItemStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    canUpgradeContract(
+      upgrader: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<[string[]]>;
+
+    grantRole(
+      role: BytesLike,
+      user: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    requireRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
+    revokeRole(
+      role: BytesLike,
+      user: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    MINTER_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    maxSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    "requireCanMint((address,address,bytes32[]))"(
+      params: RequireCanMintParamsStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "requireCanMint((address,address,bytes32[]))"(
+      params: RequireCanMintParamsStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setIsTransferrable(
+      isTransferrable: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setMaxSupply(
+      newMaxSupply: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setMintingPermissions(
+      newPermissions: MeemPermissionStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    validatePermissions(
+      basePermissions: MeemPermissionStruct[],
+      overridePermissions: MeemPermissionStruct[],
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
+    getRaribleV2Royalties(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[PartStructOutput[]]>;
+
+    "handleSaleDistribution(uint256,address)"(
+      tokenId: BigNumberish,
+      msgSender: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "handleSaleDistribution(uint256,address)"(
+      tokenId: BigNumberish,
+      msgSender: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    lockSplits(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setSplits(
+      tokenId: BigNumberish,
+      splits: SplitStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     contractURI(overrides?: CallOverrides): Promise<[string]>;
 
     getContractInfo(
@@ -747,127 +902,6 @@ export interface Mycontract extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    MINTER_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    maxSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "requireCanMint(address,uint256)"(
-      minter: string,
-      msgValue: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "requireCanMint(address,uint256)"(
-      minter: string,
-      msgValue: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "requireCanTransfer(address,address,uint256)"(
-      from: string,
-      to: string,
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "requireCanTransfer(address,address,uint256)"(
-      from: string,
-      to: string,
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setIsTransferrable(
-      isTransferrable: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setMaxSupply(
-      newMaxSupply: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setMintingPermissions(
-      newPermissions: MeemPermissionStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    validatePermissions(
-      basePermissions: MeemPermissionStruct[],
-      overridePermissions: MeemPermissionStruct[],
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
-    ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    UPGRADER_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    bulkSetRoles(
-      items: SetRoleItemStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    canUpgradeContract(
-      upgrader: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<[string[]]>;
-
-    grantRole(
-      role: BytesLike,
-      user: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    hasRole(
-      role: BytesLike,
-      user: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    requireRole(
-      role: BytesLike,
-      user: string,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
-    revokeRole(
-      role: BytesLike,
-      user: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    getRaribleV2Royalties(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[PartStructOutput[]]>;
-
-    "handleSaleDistribution(uint256,address,uint256)"(
-      tokenId: BigNumberish,
-      msgSender: string,
-      msgValue: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "handleSaleDistribution(uint256,address,uint256)"(
-      tokenId: BigNumberish,
-      msgSender: string,
-      msgValue: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    lockSplits(
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setSplits(
-      tokenId: BigNumberish,
-      splits: SplitStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     approve(
       operator: string,
       tokenId: BigNumberish,
@@ -875,6 +909,16 @@ export interface Mycontract extends BaseContract {
     ): Promise<ContractTransaction>;
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    bulkMint(
+      bulkParams: MintParametersStruct[],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    burn(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     getApproved(
       tokenId: BigNumberish,
@@ -897,17 +941,17 @@ export interface Mycontract extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    mintWithProof(
+      params: MintWithProofParametersStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     name(overrides?: CallOverrides): Promise<[string]>;
 
     ownerOf(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
-
-    requireCanMintTo(
-      to: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     requireTokenAdmin(
       tokenId: BigNumberish,
@@ -969,97 +1013,6 @@ export interface Mycontract extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  contractURI(overrides?: CallOverrides): Promise<string>;
-
-  getContractInfo(overrides?: CallOverrides): Promise<ContractInfoStructOutput>;
-
-  initialize(
-    params: InitParamsStruct,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  reinitialize(
-    params: InitParamsStruct,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setContractInfo(string,string)"(
-    name: string,
-    symbol: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setContractInfo(string,string,string,uint256)"(
-    name: string,
-    symbol: string,
-    newContractURI: string,
-    maxSupply: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "setContractInfo(string,string,string)"(
-    name: string,
-    symbol: string,
-    newContractURI: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setContractURI(
-    newContractURI: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  MINTER_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "requireCanMint(address,uint256)"(
-    minter: string,
-    msgValue: BigNumberish,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "requireCanMint(address,uint256)"(
-    minter: string,
-    msgValue: BigNumberish,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "requireCanTransfer(address,address,uint256)"(
-    from: string,
-    to: string,
-    tokenId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "requireCanTransfer(address,address,uint256)"(
-    from: string,
-    to: string,
-    tokenId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setIsTransferrable(
-    isTransferrable: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setMaxSupply(
-    newMaxSupply: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setMintingPermissions(
-    newPermissions: MeemPermissionStruct[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  validatePermissions(
-    basePermissions: MeemPermissionStruct[],
-    overridePermissions: MeemPermissionStruct[],
-    overrides?: CallOverrides
-  ): Promise<void>;
-
   ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
   UPGRADER_ROLE(overrides?: CallOverrides): Promise<string>;
@@ -1100,22 +1053,69 @@ export interface Mycontract extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  MINTER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "requireCanMint((address,address,bytes32[]))"(
+    params: RequireCanMintParamsStruct,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "requireCanMint((address,address,bytes32[]))"(
+    params: RequireCanMintParamsStruct,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "requireCanTransfer(address,address,uint256)"(
+    from: string,
+    to: string,
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "requireCanTransfer(address,address,uint256)"(
+    from: string,
+    to: string,
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setIsTransferrable(
+    isTransferrable: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setMaxSupply(
+    newMaxSupply: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setMintingPermissions(
+    newPermissions: MeemPermissionStruct[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  validatePermissions(
+    basePermissions: MeemPermissionStruct[],
+    overridePermissions: MeemPermissionStruct[],
+    overrides?: CallOverrides
+  ): Promise<void>;
+
   getRaribleV2Royalties(
     tokenId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<PartStructOutput[]>;
 
-  "handleSaleDistribution(uint256,address,uint256)"(
+  "handleSaleDistribution(uint256,address)"(
     tokenId: BigNumberish,
     msgSender: string,
-    msgValue: BigNumberish,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  "handleSaleDistribution(uint256,address,uint256)"(
+  "handleSaleDistribution(uint256,address)"(
     tokenId: BigNumberish,
     msgSender: string,
-    msgValue: BigNumberish,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1130,6 +1130,46 @@ export interface Mycontract extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  contractURI(overrides?: CallOverrides): Promise<string>;
+
+  getContractInfo(overrides?: CallOverrides): Promise<ContractInfoStructOutput>;
+
+  initialize(
+    params: InitParamsStruct,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  reinitialize(
+    params: InitParamsStruct,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setContractInfo(string,string)"(
+    name: string,
+    symbol: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setContractInfo(string,string,string,uint256)"(
+    name: string,
+    symbol: string,
+    newContractURI: string,
+    maxSupply: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "setContractInfo(string,string,string)"(
+    name: string,
+    symbol: string,
+    newContractURI: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setContractURI(
+    newContractURI: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   approve(
     operator: string,
     tokenId: BigNumberish,
@@ -1137,6 +1177,16 @@ export interface Mycontract extends BaseContract {
   ): Promise<ContractTransaction>;
 
   balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  bulkMint(
+    bulkParams: MintParametersStruct[],
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  burn(
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   getApproved(
     tokenId: BigNumberish,
@@ -1159,14 +1209,14 @@ export interface Mycontract extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  mintWithProof(
+    params: MintWithProofParametersStruct,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   name(overrides?: CallOverrides): Promise<string>;
 
   ownerOf(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
-  requireCanMintTo(
-    to: string,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   requireTokenAdmin(
     tokenId: BigNumberish,
@@ -1225,6 +1275,120 @@ export interface Mycontract extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    UPGRADER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    bulkSetRoles(
+      items: SetRoleItemStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    canUpgradeContract(
+      upgrader: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<string[]>;
+
+    grantRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    hasRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    requireRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    revokeRole(
+      role: BytesLike,
+      user: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    MINTER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "requireCanMint((address,address,bytes32[]))"(
+      params: RequireCanMintParamsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "requireCanMint((address,address,bytes32[]))"(
+      params: RequireCanMintParamsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setIsTransferrable(
+      isTransferrable: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setMaxSupply(
+      newMaxSupply: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setMintingPermissions(
+      newPermissions: MeemPermissionStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    validatePermissions(
+      basePermissions: MeemPermissionStruct[],
+      overridePermissions: MeemPermissionStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    getRaribleV2Royalties(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PartStructOutput[]>;
+
+    "handleSaleDistribution(uint256,address)"(
+      tokenId: BigNumberish,
+      msgSender: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "handleSaleDistribution(uint256,address)"(
+      tokenId: BigNumberish,
+      msgSender: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    lockSplits(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    setSplits(
+      tokenId: BigNumberish,
+      splits: SplitStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     contractURI(overrides?: CallOverrides): Promise<string>;
 
     getContractInfo(
@@ -1267,124 +1431,6 @@ export interface Mycontract extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    MINTER_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "requireCanMint(address,uint256)"(
-      minter: string,
-      msgValue: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "requireCanMint(address,uint256)"(
-      minter: string,
-      msgValue: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "requireCanTransfer(address,address,uint256)"(
-      from: string,
-      to: string,
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "requireCanTransfer(address,address,uint256)"(
-      from: string,
-      to: string,
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setIsTransferrable(
-      isTransferrable: boolean,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setMaxSupply(
-      newMaxSupply: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setMintingPermissions(
-      newPermissions: MeemPermissionStruct[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    validatePermissions(
-      basePermissions: MeemPermissionStruct[],
-      overridePermissions: MeemPermissionStruct[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    UPGRADER_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    bulkSetRoles(
-      items: SetRoleItemStruct[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    canUpgradeContract(
-      upgrader: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    getRoles(role: BytesLike, overrides?: CallOverrides): Promise<string[]>;
-
-    grantRole(
-      role: BytesLike,
-      user: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    hasRole(
-      role: BytesLike,
-      user: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    requireRole(
-      role: BytesLike,
-      user: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    revokeRole(
-      role: BytesLike,
-      user: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    getRaribleV2Royalties(
-      tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PartStructOutput[]>;
-
-    "handleSaleDistribution(uint256,address,uint256)"(
-      tokenId: BigNumberish,
-      msgSender: string,
-      msgValue: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "handleSaleDistribution(uint256,address,uint256)"(
-      tokenId: BigNumberish,
-      msgSender: string,
-      msgValue: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    lockSplits(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    setSplits(
-      tokenId: BigNumberish,
-      splits: SplitStruct[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     approve(
       operator: string,
       tokenId: BigNumberish,
@@ -1392,6 +1438,13 @@ export interface Mycontract extends BaseContract {
     ): Promise<void>;
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    bulkMint(
+      bulkParams: MintParametersStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    burn(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     getApproved(
       tokenId: BigNumberish,
@@ -1414,11 +1467,14 @@ export interface Mycontract extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    mintWithProof(
+      params: MintWithProofParametersStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     name(overrides?: CallOverrides): Promise<string>;
 
     ownerOf(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
-    requireCanMintTo(to: string, overrides?: CallOverrides): Promise<void>;
 
     requireTokenAdmin(
       tokenId: BigNumberish,
@@ -1478,43 +1534,6 @@ export interface Mycontract extends BaseContract {
   };
 
   filters: {
-    "MeemContractInfoSet(address)"(
-      contractAddress?: string | null
-    ): MeemContractInfoSetEventFilter;
-    MeemContractInfoSet(
-      contractAddress?: string | null
-    ): MeemContractInfoSetEventFilter;
-
-    "MeemContractInitialized(address)"(
-      contractAddress?: string | null
-    ): MeemContractInitializedEventFilter;
-    MeemContractInitialized(
-      contractAddress?: string | null
-    ): MeemContractInitializedEventFilter;
-
-    "MeemContractURISet(address)"(
-      contractAddress?: string | null
-    ): MeemContractURISetEventFilter;
-    MeemContractURISet(
-      contractAddress?: string | null
-    ): MeemContractURISetEventFilter;
-
-    "MeemIsTransferrableLocked()"(): MeemIsTransferrableLockedEventFilter;
-    MeemIsTransferrableLocked(): MeemIsTransferrableLockedEventFilter;
-
-    "MeemMaxSupplyLocked()"(): MeemMaxSupplyLockedEventFilter;
-    MeemMaxSupplyLocked(): MeemMaxSupplyLockedEventFilter;
-
-    "MeemMaxSupplySet(uint256)"(maxSupply?: null): MeemMaxSupplySetEventFilter;
-    MeemMaxSupplySet(maxSupply?: null): MeemMaxSupplySetEventFilter;
-
-    "MeemMintPermissionsSet(tuple[])"(
-      mintPermissions?: null
-    ): MeemMintPermissionsSetEventFilter;
-    MeemMintPermissionsSet(
-      mintPermissions?: null
-    ): MeemMintPermissionsSetEventFilter;
-
     "MeemRoleGranted(bytes32,address)"(
       role?: BytesLike | null,
       user?: string | null
@@ -1566,6 +1585,22 @@ export interface Mycontract extends BaseContract {
       sender?: string | null
     ): RoleSetEventFilter;
 
+    "MeemIsTransferrableLocked()"(): MeemIsTransferrableLockedEventFilter;
+    MeemIsTransferrableLocked(): MeemIsTransferrableLockedEventFilter;
+
+    "MeemMaxSupplyLocked()"(): MeemMaxSupplyLockedEventFilter;
+    MeemMaxSupplyLocked(): MeemMaxSupplyLockedEventFilter;
+
+    "MeemMaxSupplySet(uint256)"(maxSupply?: null): MeemMaxSupplySetEventFilter;
+    MeemMaxSupplySet(maxSupply?: null): MeemMaxSupplySetEventFilter;
+
+    "MeemMintPermissionsSet(tuple[])"(
+      mintPermissions?: null
+    ): MeemMintPermissionsSetEventFilter;
+    MeemMintPermissionsSet(
+      mintPermissions?: null
+    ): MeemMintPermissionsSetEventFilter;
+
     "MeemSplitsSet(uint256,tuple[])"(
       tokenId?: null,
       splits?: null
@@ -1577,6 +1612,27 @@ export interface Mycontract extends BaseContract {
       royalties?: null
     ): RoyaltiesSetEventFilter;
     RoyaltiesSet(tokenId?: null, royalties?: null): RoyaltiesSetEventFilter;
+
+    "MeemContractInfoSet(address)"(
+      contractAddress?: string | null
+    ): MeemContractInfoSetEventFilter;
+    MeemContractInfoSet(
+      contractAddress?: string | null
+    ): MeemContractInfoSetEventFilter;
+
+    "MeemContractInitialized(address)"(
+      contractAddress?: string | null
+    ): MeemContractInitializedEventFilter;
+    MeemContractInitialized(
+      contractAddress?: string | null
+    ): MeemContractInitializedEventFilter;
+
+    "MeemContractURISet(address)"(
+      contractAddress?: string | null
+    ): MeemContractURISetEventFilter;
+    MeemContractURISet(
+      contractAddress?: string | null
+    ): MeemContractURISetEventFilter;
 
     "Approval(address,address,uint256)"(
       owner?: string | null,
@@ -1624,97 +1680,6 @@ export interface Mycontract extends BaseContract {
   };
 
   estimateGas: {
-    contractURI(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getContractInfo(overrides?: CallOverrides): Promise<BigNumber>;
-
-    initialize(
-      params: InitParamsStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    reinitialize(
-      params: InitParamsStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setContractInfo(string,string)"(
-      name: string,
-      symbol: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setContractInfo(string,string,string,uint256)"(
-      name: string,
-      symbol: string,
-      newContractURI: string,
-      maxSupply: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "setContractInfo(string,string,string)"(
-      name: string,
-      symbol: string,
-      newContractURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setContractURI(
-      newContractURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    MINTER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "requireCanMint(address,uint256)"(
-      minter: string,
-      msgValue: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "requireCanMint(address,uint256)"(
-      minter: string,
-      msgValue: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "requireCanTransfer(address,address,uint256)"(
-      from: string,
-      to: string,
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "requireCanTransfer(address,address,uint256)"(
-      from: string,
-      to: string,
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setIsTransferrable(
-      isTransferrable: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setMaxSupply(
-      newMaxSupply: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setMintingPermissions(
-      newPermissions: MeemPermissionStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    validatePermissions(
-      basePermissions: MeemPermissionStruct[],
-      overridePermissions: MeemPermissionStruct[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     UPGRADER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1755,22 +1720,69 @@ export interface Mycontract extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    MINTER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "requireCanMint((address,address,bytes32[]))"(
+      params: RequireCanMintParamsStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "requireCanMint((address,address,bytes32[]))"(
+      params: RequireCanMintParamsStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setIsTransferrable(
+      isTransferrable: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setMaxSupply(
+      newMaxSupply: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setMintingPermissions(
+      newPermissions: MeemPermissionStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    validatePermissions(
+      basePermissions: MeemPermissionStruct[],
+      overridePermissions: MeemPermissionStruct[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getRaribleV2Royalties(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "handleSaleDistribution(uint256,address,uint256)"(
+    "handleSaleDistribution(uint256,address)"(
       tokenId: BigNumberish,
       msgSender: string,
-      msgValue: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    "handleSaleDistribution(uint256,address,uint256)"(
+    "handleSaleDistribution(uint256,address)"(
       tokenId: BigNumberish,
       msgSender: string,
-      msgValue: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1785,6 +1797,46 @@ export interface Mycontract extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    contractURI(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getContractInfo(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      params: InitParamsStruct,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    reinitialize(
+      params: InitParamsStruct,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setContractInfo(string,string)"(
+      name: string,
+      symbol: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setContractInfo(string,string,string,uint256)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
+      maxSupply: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "setContractInfo(string,string,string)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setContractURI(
+      newContractURI: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     approve(
       operator: string,
       tokenId: BigNumberish,
@@ -1792,6 +1844,16 @@ export interface Mycontract extends BaseContract {
     ): Promise<BigNumber>;
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    bulkMint(
+      bulkParams: MintParametersStruct[],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    burn(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     getApproved(
       tokenId: BigNumberish,
@@ -1814,16 +1876,16 @@ export interface Mycontract extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    mintWithProof(
+      params: MintWithProofParametersStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
     ownerOf(
       tokenId: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    requireCanMintTo(
-      to: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     requireTokenAdmin(
@@ -1887,97 +1949,6 @@ export interface Mycontract extends BaseContract {
   };
 
   populateTransaction: {
-    contractURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getContractInfo(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    initialize(
-      params: InitParamsStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    reinitialize(
-      params: InitParamsStruct,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setContractInfo(string,string)"(
-      name: string,
-      symbol: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setContractInfo(string,string,string,uint256)"(
-      name: string,
-      symbol: string,
-      newContractURI: string,
-      maxSupply: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setContractInfo(string,string,string)"(
-      name: string,
-      symbol: string,
-      newContractURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setContractURI(
-      newContractURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    MINTER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    maxSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "requireCanMint(address,uint256)"(
-      minter: string,
-      msgValue: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "requireCanMint(address,uint256)"(
-      minter: string,
-      msgValue: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "requireCanTransfer(address,address,uint256)"(
-      from: string,
-      to: string,
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "requireCanTransfer(address,address,uint256)"(
-      from: string,
-      to: string,
-      tokenId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setIsTransferrable(
-      isTransferrable: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMaxSupply(
-      newMaxSupply: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMintingPermissions(
-      newPermissions: MeemPermissionStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    validatePermissions(
-      basePermissions: MeemPermissionStruct[],
-      overridePermissions: MeemPermissionStruct[],
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     UPGRADER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2021,22 +1992,69 @@ export interface Mycontract extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    MINTER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    maxSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "requireCanMint((address,address,bytes32[]))"(
+      params: RequireCanMintParamsStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "requireCanMint((address,address,bytes32[]))"(
+      params: RequireCanMintParamsStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "requireCanTransfer(address,address,uint256)"(
+      from: string,
+      to: string,
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setIsTransferrable(
+      isTransferrable: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMaxSupply(
+      newMaxSupply: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMintingPermissions(
+      newPermissions: MeemPermissionStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    validatePermissions(
+      basePermissions: MeemPermissionStruct[],
+      overridePermissions: MeemPermissionStruct[],
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getRaribleV2Royalties(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "handleSaleDistribution(uint256,address,uint256)"(
+    "handleSaleDistribution(uint256,address)"(
       tokenId: BigNumberish,
       msgSender: string,
-      msgValue: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    "handleSaleDistribution(uint256,address,uint256)"(
+    "handleSaleDistribution(uint256,address)"(
       tokenId: BigNumberish,
       msgSender: string,
-      msgValue: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2051,6 +2069,46 @@ export interface Mycontract extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    contractURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getContractInfo(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initialize(
+      params: InitParamsStruct,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    reinitialize(
+      params: InitParamsStruct,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setContractInfo(string,string)"(
+      name: string,
+      symbol: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setContractInfo(string,string,string,uint256)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
+      maxSupply: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setContractInfo(string,string,string)"(
+      name: string,
+      symbol: string,
+      newContractURI: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setContractURI(
+      newContractURI: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     approve(
       operator: string,
       tokenId: BigNumberish,
@@ -2060,6 +2118,16 @@ export interface Mycontract extends BaseContract {
     balanceOf(
       account: string,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    bulkMint(
+      bulkParams: MintParametersStruct[],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    burn(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     getApproved(
@@ -2083,16 +2151,16 @@ export interface Mycontract extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    mintWithProof(
+      params: MintWithProofParametersStruct,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     ownerOf(
       tokenId: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    requireCanMintTo(
-      to: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     requireTokenAdmin(
@@ -2208,771 +2276,6 @@ export type GetARGsTypeFromFactory<F> = F extends MinEthersFactory<any, any>
 
 
 const _abi = [
-  {
-    name: "MeemContractInfoSet",
-    type: "event",
-    inputs: [
-      {
-        name: "contractAddress",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "MeemContractInitialized",
-    type: "event",
-    inputs: [
-      {
-        name: "contractAddress",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "MeemContractURISet",
-    type: "event",
-    inputs: [
-      {
-        name: "contractAddress",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "contractURI",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "getContractInfo",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "tuple",
-        components: [
-          {
-            name: "symbol",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "name",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "contractURI",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "maxSupply",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "mintPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "isTransferLocked",
-            type: "bool",
-            internalType: "bool",
-          },
-        ],
-        internalType: "struct ContractInfo",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "initialize",
-    type: "function",
-    inputs: [
-      {
-        name: "params",
-        type: "tuple",
-        components: [
-          {
-            name: "symbol",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "name",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "contractURI",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "roles",
-            type: "tuple[]",
-            components: [
-              {
-                name: "user",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "role",
-                type: "bytes32",
-                internalType: "bytes32",
-              },
-              {
-                name: "hasRole",
-                type: "bool",
-                internalType: "bool",
-              },
-            ],
-            internalType: "struct SetRoleItem[]",
-          },
-          {
-            name: "maxSupply",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "mintPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "isTransferLocked",
-            type: "bool",
-            internalType: "bool",
-          },
-        ],
-        internalType: "struct InitParams",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "reinitialize",
-    type: "function",
-    inputs: [
-      {
-        name: "params",
-        type: "tuple",
-        components: [
-          {
-            name: "symbol",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "name",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "contractURI",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "roles",
-            type: "tuple[]",
-            components: [
-              {
-                name: "user",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "role",
-                type: "bytes32",
-                internalType: "bytes32",
-              },
-              {
-                name: "hasRole",
-                type: "bool",
-                internalType: "bool",
-              },
-            ],
-            internalType: "struct SetRoleItem[]",
-          },
-          {
-            name: "maxSupply",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "mintPermissions",
-            type: "tuple[]",
-            components: [
-              {
-                name: "permission",
-                type: "uint8",
-                internalType: "enum Permission",
-              },
-              {
-                name: "addresses",
-                type: "address[]",
-                internalType: "address[]",
-              },
-              {
-                name: "numTokens",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "costWei",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "mintStartTimestamp",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "mintEndTimestamp",
-                type: "uint256",
-                internalType: "uint256",
-              },
-            ],
-            internalType: "struct MeemPermission[]",
-          },
-          {
-            name: "splits",
-            type: "tuple[]",
-            components: [
-              {
-                name: "toAddress",
-                type: "address",
-                internalType: "address",
-              },
-              {
-                name: "amount",
-                type: "uint256",
-                internalType: "uint256",
-              },
-              {
-                name: "lockedBy",
-                type: "address",
-                internalType: "address",
-              },
-            ],
-            internalType: "struct Split[]",
-          },
-          {
-            name: "isTransferLocked",
-            type: "bool",
-            internalType: "bool",
-          },
-        ],
-        internalType: "struct InitParams",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setContractInfo",
-    type: "function",
-    inputs: [
-      {
-        name: "name",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "symbol",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setContractInfo",
-    type: "function",
-    inputs: [
-      {
-        name: "name",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "symbol",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "newContractURI",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "maxSupply",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setContractInfo",
-    type: "function",
-    inputs: [
-      {
-        name: "name",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "symbol",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "newContractURI",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setContractURI",
-    type: "function",
-    inputs: [
-      {
-        name: "newContractURI",
-        type: "string",
-        internalType: "string",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "MeemIsTransferrableLocked",
-    type: "event",
-    inputs: [],
-    anonymous: false,
-  },
-  {
-    name: "MeemMaxSupplyLocked",
-    type: "event",
-    inputs: [],
-    anonymous: false,
-  },
-  {
-    name: "MeemMaxSupplySet",
-    type: "event",
-    inputs: [
-      {
-        name: "maxSupply",
-        type: "uint256",
-        indexed: false,
-        internalType: "uint256",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "MeemMintPermissionsSet",
-    type: "event",
-    inputs: [
-      {
-        name: "mintPermissions",
-        type: "tuple[]",
-        indexed: false,
-        components: [
-          {
-            name: "permission",
-            type: "uint8",
-            internalType: "enum Permission",
-          },
-          {
-            name: "addresses",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "numTokens",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "costWei",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "mintStartTimestamp",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "mintEndTimestamp",
-            type: "uint256",
-            internalType: "uint256",
-          },
-        ],
-        internalType: "struct MeemPermission[]",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    name: "MINTER_ROLE",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "bytes32",
-        internalType: "bytes32",
-      },
-    ],
-    stateMutability: "pure",
-  },
-  {
-    name: "maxSupply",
-    type: "function",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    name: "requireCanMint",
-    type: "function",
-    inputs: [
-      {
-        name: "minter",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "msgValue",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "payable",
-  },
-  {
-    name: "requireCanTransfer",
-    type: "function",
-    inputs: [
-      {
-        name: "from",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "to",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setIsTransferrable",
-    type: "function",
-    inputs: [
-      {
-        name: "isTransferrable",
-        type: "bool",
-        internalType: "bool",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setMaxSupply",
-    type: "function",
-    inputs: [
-      {
-        name: "newMaxSupply",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "setMintingPermissions",
-    type: "function",
-    inputs: [
-      {
-        name: "newPermissions",
-        type: "tuple[]",
-        components: [
-          {
-            name: "permission",
-            type: "uint8",
-            internalType: "enum Permission",
-          },
-          {
-            name: "addresses",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "numTokens",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "costWei",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "mintStartTimestamp",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "mintEndTimestamp",
-            type: "uint256",
-            internalType: "uint256",
-          },
-        ],
-        internalType: "struct MeemPermission[]",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    name: "validatePermissions",
-    type: "function",
-    inputs: [
-      {
-        name: "basePermissions",
-        type: "tuple[]",
-        components: [
-          {
-            name: "permission",
-            type: "uint8",
-            internalType: "enum Permission",
-          },
-          {
-            name: "addresses",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "numTokens",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "costWei",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "mintStartTimestamp",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "mintEndTimestamp",
-            type: "uint256",
-            internalType: "uint256",
-          },
-        ],
-        internalType: "struct MeemPermission[]",
-      },
-      {
-        name: "overridePermissions",
-        type: "tuple[]",
-        components: [
-          {
-            name: "permission",
-            type: "uint8",
-            internalType: "enum Permission",
-          },
-          {
-            name: "addresses",
-            type: "address[]",
-            internalType: "address[]",
-          },
-          {
-            name: "numTokens",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "costWei",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "mintStartTimestamp",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "mintEndTimestamp",
-            type: "uint256",
-            internalType: "uint256",
-          },
-        ],
-        internalType: "struct MeemPermission[]",
-      },
-    ],
-    outputs: [],
-    stateMutability: "pure",
-  },
   {
     name: "MeemRoleGranted",
     type: "event",
@@ -3259,6 +2562,328 @@ const _abi = [
     stateMutability: "nonpayable",
   },
   {
+    name: "MeemIsTransferrableLocked",
+    type: "event",
+    inputs: [],
+    anonymous: false,
+  },
+  {
+    name: "MeemMaxSupplyLocked",
+    type: "event",
+    inputs: [],
+    anonymous: false,
+  },
+  {
+    name: "MeemMaxSupplySet",
+    type: "event",
+    inputs: [
+      {
+        name: "maxSupply",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "MeemMintPermissionsSet",
+    type: "event",
+    inputs: [
+      {
+        name: "mintPermissions",
+        type: "tuple[]",
+        indexed: false,
+        components: [
+          {
+            name: "permission",
+            type: "uint8",
+            internalType: "enum Permission",
+          },
+          {
+            name: "addresses",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "numTokens",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "costWei",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintStartTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintEndTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "merkleRoot",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
+        internalType: "struct MeemPermission[]",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "MINTER_ROLE",
+    type: "function",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "bytes32",
+        internalType: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+  },
+  {
+    name: "maxSupply",
+    type: "function",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    name: "requireCanMint",
+    type: "function",
+    inputs: [
+      {
+        name: "params",
+        type: "tuple",
+        components: [
+          {
+            name: "minter",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "proof",
+            type: "bytes32[]",
+            internalType: "bytes32[]",
+          },
+        ],
+        internalType: "struct RequireCanMintParams",
+      },
+    ],
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    name: "requireCanTransfer",
+    type: "function",
+    inputs: [
+      {
+        name: "from",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "to",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setIsTransferrable",
+    type: "function",
+    inputs: [
+      {
+        name: "isTransferrable",
+        type: "bool",
+        internalType: "bool",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setMaxSupply",
+    type: "function",
+    inputs: [
+      {
+        name: "newMaxSupply",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setMintingPermissions",
+    type: "function",
+    inputs: [
+      {
+        name: "newPermissions",
+        type: "tuple[]",
+        components: [
+          {
+            name: "permission",
+            type: "uint8",
+            internalType: "enum Permission",
+          },
+          {
+            name: "addresses",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "numTokens",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "costWei",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintStartTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintEndTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "merkleRoot",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
+        internalType: "struct MeemPermission[]",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "validatePermissions",
+    type: "function",
+    inputs: [
+      {
+        name: "basePermissions",
+        type: "tuple[]",
+        components: [
+          {
+            name: "permission",
+            type: "uint8",
+            internalType: "enum Permission",
+          },
+          {
+            name: "addresses",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "numTokens",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "costWei",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintStartTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintEndTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "merkleRoot",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
+        internalType: "struct MeemPermission[]",
+      },
+      {
+        name: "overridePermissions",
+        type: "tuple[]",
+        components: [
+          {
+            name: "permission",
+            type: "uint8",
+            internalType: "enum Permission",
+          },
+          {
+            name: "addresses",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "numTokens",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "costWei",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintStartTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintEndTimestamp",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "merkleRoot",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
+        internalType: "struct MeemPermission[]",
+      },
+    ],
+    outputs: [],
+    stateMutability: "pure",
+  },
+  {
     name: "MeemSplitsSet",
     type: "event",
     inputs: [
@@ -3370,11 +2995,6 @@ const _abi = [
         type: "address",
         internalType: "address",
       },
-      {
-        name: "msgValue",
-        type: "uint256",
-        internalType: "uint256",
-      },
     ],
     outputs: [],
     stateMutability: "payable",
@@ -3422,6 +3042,496 @@ const _abi = [
           },
         ],
         internalType: "struct Split[]",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "MeemContractInfoSet",
+    type: "event",
+    inputs: [
+      {
+        name: "contractAddress",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "MeemContractInitialized",
+    type: "event",
+    inputs: [
+      {
+        name: "contractAddress",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "MeemContractURISet",
+    type: "event",
+    inputs: [
+      {
+        name: "contractAddress",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    name: "contractURI",
+    type: "function",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "string",
+        internalType: "string",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    name: "getContractInfo",
+    type: "function",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "tuple",
+        components: [
+          {
+            name: "symbol",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "name",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "contractURI",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "maxSupply",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintPermissions",
+            type: "tuple[]",
+            components: [
+              {
+                name: "permission",
+                type: "uint8",
+                internalType: "enum Permission",
+              },
+              {
+                name: "addresses",
+                type: "address[]",
+                internalType: "address[]",
+              },
+              {
+                name: "numTokens",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "costWei",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintStartTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintEndTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "merkleRoot",
+                type: "bytes32",
+                internalType: "bytes32",
+              },
+            ],
+            internalType: "struct MeemPermission[]",
+          },
+          {
+            name: "splits",
+            type: "tuple[]",
+            components: [
+              {
+                name: "toAddress",
+                type: "address",
+                internalType: "address",
+              },
+              {
+                name: "amount",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "lockedBy",
+                type: "address",
+                internalType: "address",
+              },
+            ],
+            internalType: "struct Split[]",
+          },
+          {
+            name: "isTransferLocked",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
+        internalType: "struct ContractInfo",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    name: "initialize",
+    type: "function",
+    inputs: [
+      {
+        name: "params",
+        type: "tuple",
+        components: [
+          {
+            name: "symbol",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "name",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "contractURI",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "roles",
+            type: "tuple[]",
+            components: [
+              {
+                name: "user",
+                type: "address",
+                internalType: "address",
+              },
+              {
+                name: "role",
+                type: "bytes32",
+                internalType: "bytes32",
+              },
+              {
+                name: "hasRole",
+                type: "bool",
+                internalType: "bool",
+              },
+            ],
+            internalType: "struct SetRoleItem[]",
+          },
+          {
+            name: "maxSupply",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintPermissions",
+            type: "tuple[]",
+            components: [
+              {
+                name: "permission",
+                type: "uint8",
+                internalType: "enum Permission",
+              },
+              {
+                name: "addresses",
+                type: "address[]",
+                internalType: "address[]",
+              },
+              {
+                name: "numTokens",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "costWei",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintStartTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintEndTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "merkleRoot",
+                type: "bytes32",
+                internalType: "bytes32",
+              },
+            ],
+            internalType: "struct MeemPermission[]",
+          },
+          {
+            name: "splits",
+            type: "tuple[]",
+            components: [
+              {
+                name: "toAddress",
+                type: "address",
+                internalType: "address",
+              },
+              {
+                name: "amount",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "lockedBy",
+                type: "address",
+                internalType: "address",
+              },
+            ],
+            internalType: "struct Split[]",
+          },
+          {
+            name: "isTransferLocked",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
+        internalType: "struct InitParams",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "reinitialize",
+    type: "function",
+    inputs: [
+      {
+        name: "params",
+        type: "tuple",
+        components: [
+          {
+            name: "symbol",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "name",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "contractURI",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "roles",
+            type: "tuple[]",
+            components: [
+              {
+                name: "user",
+                type: "address",
+                internalType: "address",
+              },
+              {
+                name: "role",
+                type: "bytes32",
+                internalType: "bytes32",
+              },
+              {
+                name: "hasRole",
+                type: "bool",
+                internalType: "bool",
+              },
+            ],
+            internalType: "struct SetRoleItem[]",
+          },
+          {
+            name: "maxSupply",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "mintPermissions",
+            type: "tuple[]",
+            components: [
+              {
+                name: "permission",
+                type: "uint8",
+                internalType: "enum Permission",
+              },
+              {
+                name: "addresses",
+                type: "address[]",
+                internalType: "address[]",
+              },
+              {
+                name: "numTokens",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "costWei",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintStartTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "mintEndTimestamp",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "merkleRoot",
+                type: "bytes32",
+                internalType: "bytes32",
+              },
+            ],
+            internalType: "struct MeemPermission[]",
+          },
+          {
+            name: "splits",
+            type: "tuple[]",
+            components: [
+              {
+                name: "toAddress",
+                type: "address",
+                internalType: "address",
+              },
+              {
+                name: "amount",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "lockedBy",
+                type: "address",
+                internalType: "address",
+              },
+            ],
+            internalType: "struct Split[]",
+          },
+          {
+            name: "isTransferLocked",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
+        internalType: "struct InitParams",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setContractInfo",
+    type: "function",
+    inputs: [
+      {
+        name: "name",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "symbol",
+        type: "string",
+        internalType: "string",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setContractInfo",
+    type: "function",
+    inputs: [
+      {
+        name: "name",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "symbol",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "newContractURI",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "maxSupply",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setContractInfo",
+    type: "function",
+    inputs: [
+      {
+        name: "name",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "symbol",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "newContractURI",
+        type: "string",
+        internalType: "string",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "setContractURI",
+    type: "function",
+    inputs: [
+      {
+        name: "newContractURI",
+        type: "string",
+        internalType: "string",
       },
     ],
     outputs: [],
@@ -3565,6 +3675,49 @@ const _abi = [
     stateMutability: "view",
   },
   {
+    name: "bulkMint",
+    type: "function",
+    inputs: [
+      {
+        name: "bulkParams",
+        type: "tuple[]",
+        components: [
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "tokenURI",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "tokenType",
+            type: "uint8",
+            internalType: "enum TokenType",
+          },
+        ],
+        internalType: "struct MintParameters[]",
+      },
+    ],
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    name: "burn",
+    type: "function",
+    inputs: [
+      {
+        name: "tokenId",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
     name: "getApproved",
     type: "function",
     inputs: [
@@ -3638,11 +3791,6 @@ const _abi = [
         type: "address",
         internalType: "address",
       },
-      {
-        name: "msgValue",
-        type: "uint256",
-        internalType: "uint256",
-      },
     ],
     outputs: [],
     stateMutability: "payable",
@@ -3702,6 +3850,41 @@ const _abi = [
     stateMutability: "payable",
   },
   {
+    name: "mintWithProof",
+    type: "function",
+    inputs: [
+      {
+        name: "params",
+        type: "tuple",
+        components: [
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "tokenURI",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "tokenType",
+            type: "uint8",
+            internalType: "enum TokenType",
+          },
+          {
+            name: "proof",
+            type: "bytes32[]",
+            internalType: "bytes32[]",
+          },
+        ],
+        internalType: "struct MintWithProofParameters",
+      },
+    ],
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
     name: "name",
     type: "function",
     inputs: [],
@@ -3738,27 +3921,26 @@ const _abi = [
     type: "function",
     inputs: [
       {
-        name: "minter",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "msgValue",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "payable",
-  },
-  {
-    name: "requireCanMintTo",
-    type: "function",
-    inputs: [
-      {
-        name: "to",
-        type: "address",
-        internalType: "address",
+        name: "params",
+        type: "tuple",
+        components: [
+          {
+            name: "minter",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "proof",
+            type: "bytes32[]",
+            internalType: "bytes32[]",
+          },
+        ],
+        internalType: "struct RequireCanMintParams",
       },
     ],
     outputs: [],

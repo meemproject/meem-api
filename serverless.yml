@@ -76,6 +76,12 @@ provider:
     LAMBDA_CREATE_CLUB_SAFE_FUNCTION_NAME: ${env:LAMBDA_CREATE_CLUB_SAFE_FUNCTION_NAME, ''}
     UPGRADE_CLUB_FUNCTION_NAME: ${env:UPGRADE_CLUB_FUNCTION_NAME, ''}
     GNOSIS_DEFAULT_CALLBACK_HANDLER: ${env:GNOSIS_DEFAULT_CALLBACK_HANDLER, ''}
+    DISCORD_CLIENT_ID: ${env:DISCORD_CLIENT_ID, ''}
+    DISCORD_CLIENT_SECRET: ${env:DISCORD_CLIENT_SECRET, ''}
+    DISCORD_AUTH_CALLBACK_URL: ${env:DISCORD_AUTH_CALLBACK_URL, ''}
+    TWITTER_IDENTITY_INTEGRATION_ID: ${env:TWITTER_IDENTITY_INTEGRATION_ID, ''}
+    DISCORD_IDENTITY_INTEGRATION_ID: ${env:DISCORD_IDENTITY_INTEGRATION_ID, ''}
+    EMAIL_IDENTITY_INTEGRATION_ID: ${env:EMAIL_IDENTITY_INTEGRATION_ID, ''}
 
 package:
   excludeDevDependencies: true
@@ -118,6 +124,10 @@ functions:
     memorySize: 512
   upgradeClub:
     handler: build/serverless/upgradeClub.handle
+    timeout: 300
+    memorySize: 512
+  bulkMint:
+    handler: build/serverless/bulkMint.handle
     timeout: 300
     memorySize: 512
   images:
