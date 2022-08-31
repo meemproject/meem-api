@@ -67,13 +67,13 @@ export default class MeemIdentityService {
 
 		if (accessToken) {
 			const authClient = new AuthenticationClient({
-				domain: 'dev-meem.us.auth0.com',
+				domain: config.AUTH0_APP_DOMAIN,
 				clientId: config.AUTH0_CLIENT_ID,
 				clientSecret: config.AUTH0_CLIENT_SECRET
 			})
 
 			const mgmgtClient = new ManagementClient({
-				domain: 'dev-meem.us.auth0.com',
+				domain: config.AUTH0_APP_DOMAIN,
 				clientId: config.AUTH0_CLIENT_ID,
 				clientSecret: config.AUTH0_CLIENT_SECRET
 			})
@@ -638,13 +638,13 @@ export default class MeemIdentityService {
 
 		try {
 			const mgmgtClient = new ManagementClient({
-				domain: 'dev-meem.us.auth0.com',
+				domain: config.AUTH0_APP_DOMAIN,
 				clientId: config.AUTH0_CLIENT_ID,
 				clientSecret: config.AUTH0_CLIENT_SECRET
 			})
 
 			const authClient = new AuthenticationClient({
-				domain: 'dev-meem.us.auth0.com',
+				domain: config.AUTH0_APP_DOMAIN,
 				clientId: config.AUTH0_CLIENT_ID,
 				clientSecret: config.AUTH0_CLIENT_SECRET
 			})
@@ -661,8 +661,7 @@ export default class MeemIdentityService {
 				await authClient.requestMagicLink({
 					email,
 					authParams: {
-						redirect_uri:
-							'https://rinkeby.clubs.link/authenticate?return=%2Fprofile'
+						redirect_uri: config.AUTH0_VERIFY_EMAIL_CALLBACK_URL
 					}
 				})
 
