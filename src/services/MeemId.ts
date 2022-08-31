@@ -395,9 +395,11 @@ export default class MeemIdentityService {
 					return users[0]
 				}
 
-				await authClient.passwordless?.sendEmail({
+				await authClient.requestMagicLink({
 					email,
-					send: 'link'
+					authParams: {
+						redirect_uri: 'https://rinkeby.clubs.link/profile?verifyEmail=true'
+					}
 				})
 
 				return users[0]
