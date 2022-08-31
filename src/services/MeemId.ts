@@ -1,6 +1,11 @@
 import crypto from 'crypto'
 import { Readable } from 'stream'
-import { ManagementClient, User as Auth0User } from 'auth0'
+import {
+	AuthenticationClient,
+	ManagementClient,
+	PasswordlessAuthenticator,
+	User as Auth0User
+} from 'auth0'
 import jsonwebtoken, { SignOptions } from 'jsonwebtoken'
 import _ from 'lodash'
 import { DateTime } from 'luxon'
@@ -369,43 +374,35 @@ export default class MeemIdentityService {
 		const { meemId, email } = options
 
 		try {
-			const auth0 = new ManagementClient({
+			const mgmgtClient = new ManagementClient({
 				domain: 'dev-meem.us.auth0.com',
 				clientId: config.AUTH0_CLIENT_ID,
 				clientSecret: config.AUTH0_CLIENT_SECRET
 			})
 
-			// var options = {
-			// 	method: 'POST',
-			// 	url: 'https://YOUR_DOMAIN/passwordless/start',
-			// 	headers: {'content-type': 'application/json'},
-			// 	data: {
-			// 	  client_id: 'YOUR_CLIENT_ID',
-			// 	  client_secret: 'YOUR_CLIENT_SECRET',
-			// 	  connection: 'email',
-			// 	  email: 'USER_EMAIL',
-			// 	  send: 'code'
-			// 	}
-			//   };
+			const authClient = new AuthenticationClient({
+				domain: 'dev-meem.us.auth0.com',
+				clientId: config.AUTH0_CLIENT_ID,
+				clientSecret: config.AUTH0_CLIENT_SECRET
+			})
 
-			try {
-				const users = await auth0.getUsers({
-					q: `app_metadata.internal_id:"${meemId.id}"`
-				})
-				if (users.length > 0 && users[0].user_id) {
-					if (users[0].email_verified) {
-						return users[0]
-					}
-					await auth0.sendEmailVerification({
-						user_id: users[0].user_id
-					})
+			const users = await mgmgtClient.getUsers({
+				q: `app_metadata.internal_id:"${meemId.id}"`
+			})
+
+			if (users.length > 0 && users[0].user_id) {
+				if (users[0].email_verified) {
 					return users[0]
 				}
-				throw new Error('SERVER_ERROR')
-			} catch (e) {
-				// User doesn't exist?
-				// Make sure user doesn't exist and not some other error
-				const user = await auth0.createUser({
+
+				await authClient.passwordless?.sendEmail({
+					email,
+					send: 'link'
+				})
+
+				return users[0]
+			} else {
+				const user = await mgmgtClient.createUser({
 					connection: 'email',
 					email,
 					verify_email: true,
