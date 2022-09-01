@@ -372,7 +372,8 @@ export default class MeemIdentityService {
 
 					const user = await services.meemId.verifyEmail({
 						meemId,
-						email
+						email,
+						redirectUri: metadata?.redirectUri
 					})
 
 					integrationMetadata.isVerified = user.email_verified ?? false
@@ -632,8 +633,9 @@ export default class MeemIdentityService {
 	public static async verifyEmail(options: {
 		meemId: MeemIdentity
 		email: string
+		redirectUri?: string
 	}): Promise<Auth0User> {
-		const { meemId, email } = options
+		const { meemId, email, redirectUri } = options
 
 		try {
 			const mgmgtClient = new ManagementClient({
@@ -660,7 +662,7 @@ export default class MeemIdentityService {
 				await authClient.requestMagicLink({
 					email,
 					authParams: {
-						redirect_uri: config.AUTH0_VERIFY_EMAIL_CALLBACK_URL
+						redirect_uri: redirectUri ?? config.AUTH0_VERIFY_EMAIL_CALLBACK_URL
 					}
 				})
 
@@ -669,9 +671,15 @@ export default class MeemIdentityService {
 				const user = await mgmgtClient.createUser({
 					connection: 'email',
 					email,
-					verify_email: true,
+					verify_email: false,
 					app_metadata: {
 						internal_id: meemId.id
+					}
+				})
+				await authClient.requestMagicLink({
+					email,
+					authParams: {
+						redirect_uri: redirectUri ?? config.AUTH0_VERIFY_EMAIL_CALLBACK_URL
 					}
 				})
 				return user
