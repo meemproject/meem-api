@@ -1,11 +1,9 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 // import AWS from 'aws-sdk'
 import { Response } from 'express'
-import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
-import { IMeemIdIntegrationVisibility } from '../types/shared/meem.shared'
 
 export default class MeemIdController {
 	public static async getNonce(

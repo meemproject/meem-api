@@ -3,7 +3,6 @@ import { Readable } from 'stream'
 import {
 	AuthenticationClient,
 	ManagementClient,
-	PasswordlessAuthenticator,
 	User as Auth0User
 } from 'auth0'
 import jsonwebtoken, { SignOptions } from 'jsonwebtoken'
