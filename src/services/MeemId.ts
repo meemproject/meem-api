@@ -671,11 +671,25 @@ export default class MeemIdentityService {
 				const user = await mgmgtClient.createUser({
 					connection: 'email',
 					email,
+					email_verified: true, // Hack to prevent verification email from being automatically sent
 					verify_email: false,
 					app_metadata: {
 						internal_id: meemId.id
 					}
 				})
+
+				if (user.user_id) {
+					// Immediately update email_verified to false after user is created. See note above about hack.
+					await mgmgtClient.updateUser(
+						{
+							id: user.user_id
+						},
+						{
+							email_verified: false
+						}
+					)
+				}
+
 				await authClient.requestMagicLink({
 					email,
 					authParams: {
