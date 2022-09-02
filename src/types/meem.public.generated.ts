@@ -1068,7 +1068,7 @@ export namespace CreateOrUpdateMeemIdIntegration {
 
 	export interface IRequestBody {
 		/** Set the visibility type of the integration */
-		visibility?: string
+		visibility?: IMeemIdIntegrationVisibility
 		/** Metadata associated with this integration */
 		metadata?: { [key: string]: unknown }
 	}
@@ -1815,6 +1815,8 @@ export namespace Login {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
+		/** Login w/ access token provided by Auth0 magic link */
+		accessToken?: string
 		/** Login w/ wallet. Both address and signature must be provided */
 		address?: string
 		/** Login w/ wallet. Both address and signature must be provided */
