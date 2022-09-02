@@ -1,5 +1,6 @@
 import { MeemAPI } from '../../meem.generated'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { IMeemIdIntegrationVisibility } from '../meem.shared'
 
 export namespace CreateOrUpdateMeemIdIntegration {
 	export interface IPathParams {
@@ -16,7 +17,7 @@ export namespace CreateOrUpdateMeemIdIntegration {
 
 	export interface IRequestBody {
 		/** Set the visibility type of the integration */
-		visibility?: string
+		visibility?: IMeemIdIntegrationVisibility
 		/** Metadata associated with this integration */
 		metadata?: { [key: string]: unknown }
 	}

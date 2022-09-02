@@ -1,5 +1,10 @@
 import crypto from 'crypto'
 import { Readable } from 'stream'
+import {
+	AuthenticationClient,
+	ManagementClient,
+	User as Auth0User
+} from 'auth0'
 import jsonwebtoken, { SignOptions } from 'jsonwebtoken'
 import _ from 'lodash'
 import { DateTime } from 'luxon'
@@ -9,9 +14,10 @@ import { v4 as uuidv4 } from 'uuid'
 import Discord from '../models/Discord'
 import type MeemContract from '../models/MeemContract'
 import MeemIdentity from '../models/MeemIdentity'
+import MeemIdentityIntegration from '../models/MeemIdentityIntegration'
 import Twitter from '../models/Twitter'
 import type Wallet from '../models/Wallet'
-
+import { IMeemIdIntegrationVisibility } from '../types/shared/meem.shared'
 export default class MeemIdentityService {
 	public static async getNonce(options: { address: string }) {
 		// Generate a nonce and save it for the wallet
@@ -45,13 +51,82 @@ export default class MeemIdentityService {
 		await item.save()
 	}
 
-	public static async login(options: { address?: string; signature?: string }) {
-		const { address, signature } = options
+	public static async login(options: {
+		accessToken?: string
+		address?: string
+		signature?: string
+	}) {
+		const { accessToken, address, signature } = options
 
 		let wallet: Wallet | undefined
 
 		if (address && signature) {
 			wallet = await this.verifySignature({ address, signature })
+		}
+
+		if (accessToken) {
+			const authClient = new AuthenticationClient({
+				domain: config.AUTH0_APP_DOMAIN,
+				clientId: config.AUTH0_CLIENT_ID,
+				clientSecret: config.AUTH0_CLIENT_SECRET
+			})
+
+			const mgmgtClient = new ManagementClient({
+				domain: config.AUTH0_APP_DOMAIN,
+				clientId: config.AUTH0_CLIENT_ID,
+				clientSecret: config.AUTH0_CLIENT_SECRET
+			})
+
+			try {
+				const userInfo = await authClient.getProfile(accessToken)
+				if (userInfo?.sub) {
+					const user = await mgmgtClient.getUser({
+						id: userInfo.sub
+					})
+					if (user.app_metadata?.internal_id) {
+						const meemId = await orm.models.MeemIdentity.findOne({
+							where: {
+								id: user.app_metadata.internal_id
+							},
+							include: [
+								{
+									model: orm.models.Wallet,
+									as: 'DefaultWallet'
+								}
+							]
+						})
+
+						if (meemId) {
+							wallet = meemId.DefaultWallet
+
+							const userEmailIdentityIntegration =
+								await orm.models.MeemIdentityIntegration.findOne({
+									where: {
+										MeemIdentityId: meemId?.id,
+										IdentityIntegrationId: config.EMAIL_IDENTITY_INTEGRATION_ID
+									}
+								})
+
+							if (
+								!userEmailIdentityIntegration?.metadata?.isVerified &&
+								user.email_verified
+							) {
+								// Update the user's email identity integration to include the verified email
+								await services.meemId.createOrUpdateMeemIdIntegration({
+									meemId,
+									metadata: {
+										email: user.email
+									},
+									integrationId: config.EMAIL_IDENTITY_INTEGRATION_ID,
+									walletAddress: wallet.address
+								})
+							}
+						}
+					}
+				}
+			} catch (e) {
+				throw new Error('LOGIN_FAILED')
+			}
 		}
 
 		if (!wallet) {
@@ -154,6 +229,199 @@ export default class MeemIdentityService {
 		return meemId
 	}
 
+	public static async createOrUpdateMeemIdIntegration(data: {
+		integrationId: string
+		metadata?: any
+		visibility?: IMeemIdIntegrationVisibility
+		meemId: MeemIdentity
+		walletAddress: string
+	}): Promise<MeemIdentityIntegration> {
+		const { integrationId, metadata, visibility, meemId, walletAddress } = data
+		const integrationMetadata: any = {}
+		const integration = await orm.models.IdentityIntegration.findOne({
+			where: {
+				id: integrationId
+			}
+		})
+
+		if (!integration) {
+			throw new Error('INTEGRATION_NOT_FOUND')
+		}
+
+		let identityIntegration: MeemIdentityIntegration
+		try {
+			const existingMeemIdIntegration =
+				await orm.models.MeemIdentityIntegration.findOne({
+					where: {
+						MeemIdentityId: meemId.id,
+						IdentityIntegrationId: integration.id
+					}
+				})
+
+			// Integration Verification
+			// Can allow for third-party endpoint requests to verify information and return custom metadata
+
+			const visibilityTypes = [
+				IMeemIdIntegrationVisibility.Anyone.toString(),
+				IMeemIdIntegrationVisibility.MutualClubMembers.toString(),
+				IMeemIdIntegrationVisibility.JustMe.toString()
+			]
+
+			switch (integration.id) {
+				case config.TWITTER_IDENTITY_INTEGRATION_ID: {
+					let twitterUsername = metadata?.twitterUsername
+						? (metadata?.twitterUsername as string)
+						: null
+					twitterUsername = twitterUsername?.replace(/^@/g, '').trim() ?? null
+					const integrationError = new Error('INTEGRATION_FAILED')
+					integrationError.message = 'Twitter verification failed.'
+
+					if (
+						existingMeemIdIntegration &&
+						existingMeemIdIntegration.metadata?.isVerified &&
+						(!twitterUsername ||
+							twitterUsername ===
+								existingMeemIdIntegration.metadata?.twitterUsername)
+					) {
+						break
+					}
+
+					if (!twitterUsername) {
+						throw integrationError
+					}
+
+					integrationMetadata.isVerified = false
+
+					const verifiedTwitter = await services.meemId.verifyTwitter({
+						twitterUsername,
+						walletAddress
+					})
+
+					if (!verifiedTwitter) {
+						throw integrationError
+					}
+
+					integrationMetadata.isVerified = true
+					integrationMetadata.twitterUsername = verifiedTwitter.username
+					integrationMetadata.twitterProfileImageUrl =
+						verifiedTwitter.profile_image_url
+					integrationMetadata.twitterDisplayName = verifiedTwitter.name
+					integrationMetadata.twitterUserId = verifiedTwitter.id
+					integrationMetadata.twitterProfileUrl = `https://twitter.com/${verifiedTwitter.username}`
+
+					break
+				}
+				case config.DISCORD_IDENTITY_INTEGRATION_ID: {
+					const discordAuthCode = metadata?.discordAuthCode
+						? (metadata?.discordAuthCode as string)
+						: null
+					const redirectUri = metadata?.redirectUri as string | undefined
+					const integrationError = new Error('INTEGRATION_FAILED')
+					integrationError.message = 'Discord verification failed.'
+
+					if (
+						existingMeemIdIntegration &&
+						existingMeemIdIntegration.metadata?.isVerified &&
+						!discordAuthCode
+					) {
+						break
+					}
+
+					if (!discordAuthCode) {
+						throw integrationError
+					}
+
+					integrationMetadata.isVerified = false
+
+					const verifiedDiscord = await services.meemId.verifyDiscord({
+						discordAuthCode,
+						redirectUri
+					})
+
+					if (!verifiedDiscord) {
+						throw integrationError
+					}
+
+					integrationMetadata.isVerified = true
+					integrationMetadata.discordUsername = verifiedDiscord.username
+					integrationMetadata.discordAvatarUrl = `https://cdn.discordapp.com/avatars/${verifiedDiscord.discordId}/${verifiedDiscord.avatar}.png`
+					integrationMetadata.discordUserId = verifiedDiscord.discordId
+
+					break
+				}
+				case config.EMAIL_IDENTITY_INTEGRATION_ID: {
+					const email = metadata?.email ? (metadata?.email as string) : null
+					const integrationError = new Error('INTEGRATION_FAILED')
+					integrationError.message = 'Email verification failed.'
+
+					if (
+						existingMeemIdIntegration &&
+						existingMeemIdIntegration.metadata?.isVerified &&
+						!email
+					) {
+						break
+					}
+
+					if (!email) {
+						throw integrationError
+					}
+
+					integrationMetadata.isVerified = false
+					integrationMetadata.email =
+						email === existingMeemIdIntegration?.metadata?.email ? email : ''
+
+					const user = await services.meemId.verifyEmail({
+						meemId,
+						email,
+						redirectUri: metadata?.redirectUri
+					})
+
+					integrationMetadata.isVerified = user.email_verified ?? false
+					integrationMetadata.email = user.email ?? email
+
+					break
+				}
+				default:
+					break
+			}
+
+			let meemIdIntegrationVisibility =
+				visibility ?? IMeemIdIntegrationVisibility.JustMe
+
+			if (!existingMeemIdIntegration) {
+				if (!visibilityTypes.includes(meemIdIntegrationVisibility))
+					meemIdIntegrationVisibility = IMeemIdIntegrationVisibility.JustMe
+				identityIntegration = await orm.models.MeemIdentityIntegration.create({
+					MeemIdentityId: meemId.id,
+					IdentityIntegrationId: integration.id,
+					visibility: meemIdIntegrationVisibility,
+					metadata: integrationMetadata
+				})
+			} else {
+				identityIntegration = existingMeemIdIntegration
+				if (
+					!_.isUndefined(visibility) &&
+					visibilityTypes.includes(meemIdIntegrationVisibility)
+				) {
+					existingMeemIdIntegration.visibility = meemIdIntegrationVisibility
+				}
+
+				if (integrationMetadata && _.keys(integrationMetadata).length > 0) {
+					// TODO: Typecheck metadata
+					existingMeemIdIntegration.metadata = {
+						...existingMeemIdIntegration.metadata,
+						...integrationMetadata
+					}
+				}
+
+				await existingMeemIdIntegration.save()
+			}
+			return identityIntegration
+		} catch (e) {
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
 	public static async createOrUpdateMeemIdentity(data: {
 		wallet: Wallet
 		profilePicBase64?: string
@@ -181,22 +449,26 @@ export default class MeemIdentityService {
 			let profilePicUrl: string | undefined
 
 			if (!_.isUndefined(profilePicBase64)) {
-				const base64Data = /^data:image/.test(profilePicBase64)
-					? profilePicBase64.split(',')[1]
-					: profilePicBase64
-				const buff = Buffer.from(base64Data, 'base64')
-				const stream = Readable.from(buff)
+				if (profilePicBase64 !== '') {
+					const base64Data = /^data:image/.test(profilePicBase64)
+						? profilePicBase64.split(',')[1]
+						: profilePicBase64
+					const buff = Buffer.from(base64Data, 'base64')
+					const stream = Readable.from(buff)
 
-				// @ts-ignore
-				stream.path = `${meemId.id}/image.png`
+					// @ts-ignore
+					stream.path = `${meemId.id}/image.png`
 
-				const imageResponse = await services.web3.saveToPinata({
-					// file: Readable.from(Buffer.from(imgData, 'base64'))
-					// file: buffStream
-					file: stream
-				})
+					const imageResponse = await services.web3.saveToPinata({
+						// file: Readable.from(Buffer.from(imgData, 'base64'))
+						// file: buffStream
+						file: stream
+					})
 
-				profilePicUrl = `ipfs://${imageResponse.IpfsHash}`
+					profilePicUrl = `ipfs://${imageResponse.IpfsHash}`
+				} else {
+					profilePicUrl = ''
+				}
 			}
 
 			if (meemId) {
@@ -352,6 +624,66 @@ export default class MeemIdentityService {
 			}
 
 			return discord
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
+	public static async verifyEmail(options: {
+		meemId: MeemIdentity
+		email: string
+		redirectUri?: string
+	}): Promise<Auth0User> {
+		const { meemId, email, redirectUri } = options
+
+		try {
+			const mgmgtClient = new ManagementClient({
+				domain: config.AUTH0_APP_DOMAIN,
+				clientId: config.AUTH0_CLIENT_ID,
+				clientSecret: config.AUTH0_CLIENT_SECRET
+			})
+
+			const authClient = new AuthenticationClient({
+				domain: config.AUTH0_APP_DOMAIN,
+				clientId: config.AUTH0_CLIENT_ID,
+				clientSecret: config.AUTH0_CLIENT_SECRET
+			})
+
+			const users = await mgmgtClient.getUsers({
+				q: `app_metadata.internal_id:"${meemId.id}"`
+			})
+
+			if (users.length > 0 && users[0].user_id) {
+				if (users[0].email_verified) {
+					return users[0]
+				}
+
+				await authClient.requestMagicLink({
+					email,
+					authParams: {
+						redirect_uri: redirectUri ?? config.AUTH0_VERIFY_EMAIL_CALLBACK_URL
+					}
+				})
+
+				return users[0]
+			} else {
+				const user = await mgmgtClient.createUser({
+					connection: 'email',
+					email,
+					verify_email: false,
+					app_metadata: {
+						internal_id: meemId.id
+					}
+				})
+				await authClient.requestMagicLink({
+					email,
+					authParams: {
+						redirect_uri: redirectUri ?? config.AUTH0_VERIFY_EMAIL_CALLBACK_URL
+					}
+				})
+				return user
+			}
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')

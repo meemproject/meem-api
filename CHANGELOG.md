@@ -1,3 +1,14 @@
+# [1.10.0](https://github.com/meemproject/meem-api-aws/compare/v1.9.3...v1.10.0) (2022-08-31)
+
+
+### Features
+
+* bulk mint ([1f2fe74](https://github.com/meemproject/meem-api-aws/commit/1f2fe74))
+* support merkle proofs for address verification ([75c77d3](https://github.com/meemproject/meem-api-aws/commit/75c77d3))
+* transaction limits ([df383b9](https://github.com/meemproject/meem-api-aws/commit/df383b9))
+
+## [1.9.3](https://github.com/meemproject/meem-api-aws/compare/v1.9.2...v1.9.3) (2022-08-18)
+
 ## [1.9.2](https://github.com/meemproject/meem-api-aws/compare/v1.9.1...v1.9.2) (2022-08-18)
 
 ## [1.9.1](https://github.com/meemproject/meem-api-aws/compare/v1.9.0...v1.9.1) (2022-08-17)
