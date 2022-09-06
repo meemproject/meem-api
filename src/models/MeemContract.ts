@@ -1,4 +1,4 @@
-import { IERC721Base__factory } from '@meemproject/meem-contracts/dist/typechain'
+import { IERC721Base__factory } from '@meemproject/meem-contracts/dist/typechain/factories/@solidstate/contracts/token/ERC721/base/IERC721Base__factory'
 import { MeemContractMetadataLike } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 import keccak256 from 'keccak256'
