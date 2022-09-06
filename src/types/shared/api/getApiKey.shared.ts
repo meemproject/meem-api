@@ -1,5 +1,4 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemId } from '../meem.shared'
 
 export namespace GetApiKey {
 	export interface IPathParams {}

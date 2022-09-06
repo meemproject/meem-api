@@ -745,11 +745,22 @@ export default class MeemContractService {
 				})
 			})
 
+			let { recommendedGwei } = await services.web3.getGasEstimate()
+
+			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
+				// throw new Error('GAS_PRICE_TOO_HIGH')
+				log.warn(`Recommended fee over max: ${recommendedGwei}`)
+				recommendedGwei = config.MAX_GAS_PRICE_GWEI
+			}
+
 			const tx = await upgrade({
 				signer,
 				proxyContractAddress: meemContract.address,
 				toVersion,
-				fromVersion
+				fromVersion,
+				overrides: {
+					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+				}
 			})
 
 			if (tx?.hash) {
@@ -761,16 +772,10 @@ export default class MeemContractService {
 			}
 
 			log.debug(`Upgrading club ${meemContract.address} w/ tx ${tx?.hash}`)
-
-			// console.log({
-			// 	cuts,
-			// 	fromVersion,
-			// 	toVersion
-			// })
 		} catch (e: any) {
 			log.crit(e)
 			await sockets?.emitError(
-				e?.message ?? config.errors.UPGRADE_CLUB_FAILED,
+				config.errors.UPGRADE_CLUB_FAILED,
 				senderWalletAddress
 			)
 			throw new Error('UPGRADE_CLUB_FAILED')
