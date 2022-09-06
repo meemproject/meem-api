@@ -147,6 +147,7 @@ const errors = {
 		friendlyReason: 'The club safe could not be created.'
 	},
 	UPGRADE_CLUB_FAILED: {
+		code: 'UPGRADE_CLUB_FAILED',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'The club could not be upgraded.',
