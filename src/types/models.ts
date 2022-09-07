@@ -4,7 +4,6 @@ import Clipping from '../models/Clipping'
 import Contract from '../models/Contract'
 import ContractInstance from '../models/ContractInstance'
 import Discord from '../models/Discord'
-import Guild from '../models/Guild'
 import Hashtag from '../models/Hashtag'
 import IdentityIntegration from '../models/IdentityIntegration'
 import Integration from '../models/Integration'
@@ -32,7 +31,6 @@ export interface IModels {
 	Contract: typeof Contract
 	ContractInstance: typeof ContractInstance
 	Discord: typeof Discord
-	Guild: typeof Guild
 	Hashtag: typeof Hashtag
 	Integration: typeof Integration
 	Meem: typeof Meem

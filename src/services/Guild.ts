@@ -1,24 +1,25 @@
 /* eslint-disable no-await-in-loop */
 
-import { Chain, guild, role, user } from '@guildxyz/sdk'
+import {
+	Chain,
+	CreateGuildResponse,
+	GetGuildsResponse,
+	guild,
+	role,
+	user
+} from '@guildxyz/sdk'
 import { Bytes, ethers } from 'ethers'
+import MeemContract from '../models/MeemContract'
+import MeemContractGuild from '../models/MeemContractGuild'
 
 export default class GuildService {
-	public static async createGuild(data: {
-		owner: string
-		meemContractId: string
-		name: string
-	}): Promise<string> {
-		const meemContract = await orm.models.MeemContract.findOne({
-			where: {
-				id: data.meemContractId
-			}
-		})
-
-		if (!meemContract) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
-		}
-
+	public static async createMeemContractGuild(data: {
+		meemContract: MeemContract
+	}): Promise<{
+		meemContractGuild: MeemContractGuild
+		response: CreateGuildResponse
+	}> {
+		const { meemContract } = data
 		const provider = await services.ethers.getProvider()
 		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 
@@ -26,147 +27,158 @@ export default class GuildService {
 			wallet.signMessage(signableMessage)
 
 		try {
-			const clubGuild = await guild.create(
-				wallet.address, // You have to insert your own wallet here
-				sign,
-				{
-					name: data.name,
-					roles: [
-						{
-							name: 'Club Member',
-							logic: 'OR',
-							requirements: [
-								{
-									type: 'ERC20',
-									chain:
-										config.NETWORK === 'rinkeby'
-											? ('RINKEBY' as Chain)
-											: 'POLYGON',
-									address: meemContract.address,
-									data: {
-										minAmount: 1
-									}
+			const response = await guild.create(wallet.address, sign, {
+				name: meemContract.name,
+				roles: [
+					{
+						name: 'Club Member',
+						logic: 'OR',
+						requirements: [
+							{
+								type: 'ERC721',
+								chain:
+									config.NETWORK === 'rinkeby'
+										? ('RINKEBY' as Chain)
+										: 'POLYGON',
+								address: meemContract.address,
+								data: {
+									minAmount: 1
 								}
-							]
-						}
-					]
-				}
-			)
-
-			const meemGuild = await orm.models.Guild.create({
-				guildId: clubGuild.id
+							}
+						]
+					}
+				]
 			})
 
-			await orm.models.MeemContractGuild.create({
-				GuildId: meemGuild.id,
+			const meemContractGuild = await orm.models.MeemContractGuild.create({
+				guildId: response.id,
 				MeemContractId: meemContract.id
 			})
 
-			return meemGuild.id
+			return {
+				meemContractGuild,
+				response
+			}
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')
 		}
 	}
 
-	public static async updateGuildRole(data: {
+	public static async getMeemContractGuild(data: {
 		meemContractId: string
-		guildId: string
-		roleId: number
-		discordGuildId?: string
-		gatedChannels?: string[]
-	}): Promise<any | null> {
-		const meemContract = await orm.models.MeemContract.findOne({
-			where: {
-				id: data.meemContractId
-			}
-		})
-
-		if (!meemContract) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
-		}
-
-		const provider = await services.ethers.getProvider()
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
-
-		const sign = (signableMessage: string | Bytes) =>
-			wallet.signMessage(signableMessage)
-
+	}): Promise<MeemContractGuild | null> {
 		try {
-			if (data.discordGuildId) {
-				const response = await role.update(data.roleId, wallet.address, sign, {
-					rolePlatforms: [
-						{
-							guildPlatform: {
-								platformName: 'DISCORD',
-								platformGuildId: data.discordGuildId, // Discord server's ID
-								isNew: !data.gatedChannels
-							},
-							// Optionally specify the gated channels:
-							...(data.gatedChannels && {
-								platformRoleData: {
-									gatedChannels: data.gatedChannels ?? []
-								}
-							})
-						}
-					]
-				})
-				return response
-			}
-			return null
+			const meemContractGuild = await orm.models.MeemContractGuild.findOne({
+				where: {
+					MeemContractId: data.meemContractId
+				}
+			})
+			return meemContractGuild
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')
 		}
 	}
 
-	public static async getUserGuilds(data: {
-		walletAddress: string
-	}): Promise<any[]> {
-		const guildMemberships =
-			(await user.getMemberships(data.walletAddress)) ?? []
+	// public static async updateGuildRole(data: {
+	// 	meemContractId: string
+	// 	guildId: string
+	// 	roleId: number
+	// 	discordGuildId?: string
+	// 	gatedChannels?: string[]
+	// }): Promise<any | null> {
+	// 	const meemContract = await orm.models.MeemContract.findOne({
+	// 		where: {
+	// 			id: data.meemContractId
+	// 		}
+	// 	})
 
-		const guilds = await Promise.all(
-			guildMemberships?.map(async gm =>
-				orm.models.Guild.findOne({
-					where: {
-						guildId: gm.guildId
-					}
-				})
-			)
-		)
+	// 	if (!meemContract) {
+	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 	}
 
-		return guilds ?? []
-	}
+	// 	const provider = await services.ethers.getProvider()
+	// 	const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 
-	public static async getMeemContractGuilds(data: {
-		meemContractId: string
-	}): Promise<any[]> {
-		const meemContract = await orm.models.MeemContract.findOne({
-			where: {
-				id: data.meemContractId
-			}
-		})
+	// 	const sign = (signableMessage: string | Bytes) =>
+	// 		wallet.signMessage(signableMessage)
 
-		if (!meemContract) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
-		}
+	// 	try {
+	// 		if (data.discordGuildId) {
+	// 			const response = await role.update(data.roleId, wallet.address, sign, {
+	// 				rolePlatforms: [
+	// 					{
+	// 						guildPlatform: {
+	// 							platformName: 'DISCORD',
+	// 							platformGuildId: data.discordGuildId, // Discord server's ID
+	// 							isNew: !data.gatedChannels
+	// 						},
+	// 						// Optionally specify the gated channels:
+	// 						...(data.gatedChannels && {
+	// 							platformRoleData: {
+	// 								gatedChannels: data.gatedChannels ?? []
+	// 							}
+	// 						})
+	// 					}
+	// 				]
+	// 			})
+	// 			return response
+	// 		}
+	// 		return null
+	// 	} catch (e) {
+	// 		log.crit(e)
+	// 		throw new Error('SERVER_ERROR')
+	// 	}
+	// }
 
-		const guilds = await orm.models.Guild.findAll({
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						id: data.meemContractId
-					}
-				}
-			]
-		})
+	// public static async getUserGuilds(data: {
+	// 	walletAddress: string
+	// }): Promise<any[]> {
+	// 	const guildMemberships =
+	// 		(await user.getMemberships(data.walletAddress)) ?? []
 
-		const guildsData = await Promise.all(guilds.map(g => guild.get(g.guildId)))
+	// 	const guilds = await Promise.all(
+	// 		guildMemberships?.map(async gm =>
+	// 			orm.models.Guild.findOne({
+	// 				where: {
+	// 					guildId: gm.guildId
+	// 				}
+	// 			})
+	// 		)
+	// 	)
 
-		return guildsData
-	}
+	// 	return guilds ?? []
+	// }
+
+	// public static async getMeemContractGuilds(data: {
+	// 	meemContractId: string
+	// }): Promise<any[]> {
+	// 	const meemContract = await orm.models.MeemContract.findOne({
+	// 		where: {
+	// 			id: data.meemContractId
+	// 		}
+	// 	})
+
+	// 	if (!meemContract) {
+	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 	}
+
+	// 	const guilds = await orm.models.Guild.findAll({
+	// 		include: [
+	// 			{
+	// 				model: orm.models.MeemContract,
+	// 				where: {
+	// 					id: data.meemContractId
+	// 				}
+	// 			}
+	// 		]
+	// 	})
+
+	// 	const guildsData = await Promise.all(guilds.map(g => guild.get(g.guildId)))
+
+	// 	return guildsData
+	// }
 
 	// public static async getMeemContractGuilds(data: {
 	// 	meemContractId: string
