@@ -10,6 +10,7 @@ import { Validator } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 import _ from 'lodash'
 import slug from 'slug'
+import { v4 as uuidv4 } from 'uuid'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
 import Wallet from '../models/Wallet'
@@ -316,9 +317,20 @@ export default class MeemContractService {
 				selectors: c.functionSelectors
 			}))
 
+			let contractSlug = uuidv4()
+
+			if (data.name) {
+				try {
+					contractSlug = await services.meemContract.generateSlug(data.name)
+				} catch (e) {
+					log.crit('Something went wrong while creating slug', e)
+				}
+			}
+
 			await orm.models.MeemContract.create({
 				address: proxyContract.address,
-				mintPermissions: fullMintPermissions
+				mintPermissions: fullMintPermissions,
+				slug: contractSlug
 			})
 
 			const cutTx = await proxyContract.diamondCut(

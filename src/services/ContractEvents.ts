@@ -214,6 +214,7 @@ export default class ContractEvent {
 			try {
 				slug = await services.meemContract.generateSlug(contractInfo.name)
 			} catch (e) {
+				log.crit('Something went wrong while creating slug', e)
 				slug = uuidv4()
 			}
 		}

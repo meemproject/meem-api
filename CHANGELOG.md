@@ -1,3 +1,12 @@
+## [1.10.2](https://github.com/meemproject/meem-api-aws/compare/v1.10.1...v1.10.2) (2022-09-06)
+
+
+### Bug Fixes
+
+* emit error code on failed upgrade; set gas price in upgrade ([4d6da6d](https://github.com/meemproject/meem-api-aws/commit/4d6da6d))
+
+## [1.10.1](https://github.com/meemproject/meem-api-aws/compare/v1.10.0...v1.10.1) (2022-09-02)
+
 # [1.10.0](https://github.com/meemproject/meem-api-aws/compare/v1.9.3...v1.10.0) (2022-08-31)
 
 
