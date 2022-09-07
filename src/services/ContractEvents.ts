@@ -198,6 +198,8 @@ export default class ContractEvent {
 			return null
 		}
 
+		log.debug('Meem Contract Initialized', contractInfo)
+
 		const existingMeemContract = await orm.models.MeemContract.findOne({
 			where: {
 				address
