@@ -21,11 +21,14 @@ export default class MeemContractService {
 		baseSlug: string,
 		depth?: number
 	): Promise<string> {
+		log.debug('Generating Slug', baseSlug)
 		// TODO: 🚨 Figure out what to do with slugs. Do all contract types need slugs?
 		const theSlug = slug(baseSlug, { lower: true })
 
 		try {
+			log.debug('Checking if slug is available', theSlug)
 			const isAvailable = await this.isSlugAvailable(theSlug)
+			log.debug('Slug is available?', isAvailable)
 			if (isAvailable) {
 				return theSlug
 			}
