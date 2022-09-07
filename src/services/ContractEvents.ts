@@ -198,8 +198,6 @@ export default class ContractEvent {
 			return null
 		}
 
-		log.debug('Meem Contract Initialized', contractInfo)
-
 		const existingMeemContract = await orm.models.MeemContract.findOne({
 			where: {
 				address
@@ -208,17 +206,11 @@ export default class ContractEvent {
 
 		let slug = existingMeemContract?.slug
 
-		log.debug('Existing MeemContract Slug?', slug)
-
 		const metadata = (await services.meem.getErc721Metadata(
 			contractInfo.contractURI
 		)) as MeemContractMetadataLike
 
-		log.debug('Existing Meem Contract or slug?', existingMeemContract?.id, slug)
-
 		if (!existingMeemContract || !slug) {
-			log.debug('Get Slug for Contract', contractInfo.name)
-			log.debug('Verifying Slug', slug)
 			try {
 				slug = await services.meemContract.generateSlug(contractInfo.name)
 			} catch (e) {

@@ -10,6 +10,7 @@ import { Validator } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 import _ from 'lodash'
 import slug from 'slug'
+import { v4 as uuidv4 } from 'uuid'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
 import Wallet from '../models/Wallet'
@@ -21,14 +22,11 @@ export default class MeemContractService {
 		baseSlug: string,
 		depth?: number
 	): Promise<string> {
-		log.debug('Generating Slug', baseSlug)
 		// TODO: 🚨 Figure out what to do with slugs. Do all contract types need slugs?
 		const theSlug = slug(baseSlug, { lower: true })
 
 		try {
-			log.debug('Checking if slug is available', theSlug)
 			const isAvailable = await this.isSlugAvailable(theSlug)
-			log.debug('Slug is available?', isAvailable)
 			if (isAvailable) {
 				return theSlug
 			}
@@ -319,9 +317,20 @@ export default class MeemContractService {
 				selectors: c.functionSelectors
 			}))
 
+			let contractSlug = uuidv4()
+
+			if (data.name) {
+				try {
+					contractSlug = await services.meemContract.generateSlug(data.name)
+				} catch (e) {
+					log.crit('Something went wrong while creating slug', e)
+				}
+			}
+
 			await orm.models.MeemContract.create({
 				address: proxyContract.address,
-				mintPermissions: fullMintPermissions
+				mintPermissions: fullMintPermissions,
+				slug: contractSlug
 			})
 
 			const cutTx = await proxyContract.diamondCut(
