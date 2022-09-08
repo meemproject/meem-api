@@ -44,7 +44,7 @@ export default class MeemIdentity extends BaseModel<MeemIdentity> {
 	public Wallets!: Wallet[]
 
 	public static associate(models: IModels) {
-		this.hasMany(models.Wallet, {
+		this.belongsToMany(models.Wallet, {
 			through: models.MeemIdentityWallet
 		})
 		this.belongsTo(models.Wallet, {
