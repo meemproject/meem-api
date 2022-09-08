@@ -63,7 +63,7 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 	public static associate(models: IModels) {
 		this.hasMany(models.MeemContractWallet)
 
-		this.belongsToMany(models.MeemIdentity, {
+		this.belongsTo(models.MeemIdentity, {
 			through: models.MeemIdentityWallet
 		})
 	}
