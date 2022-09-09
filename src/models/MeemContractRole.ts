@@ -1,6 +1,8 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
+import MeemContractRolePermission from './MeemContractRolePermission'
+import RolePermission from './RolePermission'
 
 export default class MeemContractRole extends BaseModel<MeemContractRole> {
 	public static readonly modelName = 'MeemContractRole'
@@ -28,11 +30,6 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 		guildRoleId: {
 			type: DataTypes.INTEGER,
 			allowNull: true
-		},
-		permissions: {
-			type: DataTypes.JSONB,
-			allowNull: false,
-			defaultValue: {}
 		}
 	}
 
@@ -40,7 +37,7 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 
 	public name!: string
 
-	public permissions!: { [key: string]: unknown }
+	public Permissions!: RolePermission[]
 
 	public guildRoleId!: number | null
 
@@ -49,5 +46,6 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 	public static associate(models: IModels) {
 		this.belongsTo(models.MeemContract)
 		this.belongsTo(models.MeemContractGuild)
+		this.belongsToMany(models.RolePermission)
 	}
 }
