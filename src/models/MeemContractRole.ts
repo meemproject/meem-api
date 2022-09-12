@@ -46,6 +46,8 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 	public static associate(models: IModels) {
 		this.belongsTo(models.MeemContract)
 		this.belongsTo(models.MeemContractGuild)
-		this.belongsToMany(models.RolePermission)
+		this.belongsToMany(models.RolePermission, {
+			through: models.MeemContractRolePermission
+		})
 	}
 }
