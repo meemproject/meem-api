@@ -12,6 +12,7 @@ import MeemContract from '../models/MeemContract'
 import MeemContractGuild from '../models/MeemContractGuild'
 import MeemContractIntegration from '../models/MeemContractIntegration'
 import MeemContractRole from '../models/MeemContractRole'
+import MeemContractRolePermission from '../models/MeemContractRolePermission'
 import MeemContractWallet from '../models/MeemContractWallet'
 import MeemIdentity from '../models/MeemIdentity'
 import MeemIdentityIntegration from '../models/MeemIdentityIntegration'
@@ -41,6 +42,7 @@ export interface IModels {
 	MeemIdentityIntegration: typeof MeemIdentityIntegration
 	MeemContractGuild: typeof MeemContractGuild
 	MeemContractRole: typeof MeemContractRole
+	MeemContractRolePermission: typeof MeemContractRolePermission
 	RolePermission: typeof RolePermission
 	MeemContractIntegration: typeof MeemContractIntegration
 	MeemContractWallet: typeof MeemContractWallet

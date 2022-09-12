@@ -11,12 +11,14 @@ import {
 import { Bytes, ethers } from 'ethers'
 import MeemContract from '../models/MeemContract'
 import MeemContractGuild from '../models/MeemContractGuild'
+import MeemContractRole from '../models/MeemContractRole'
 
 export default class GuildService {
 	public static async createMeemContractGuild(data: {
 		meemContract: MeemContract
 	}): Promise<{
 		meemContractGuild: MeemContractGuild
+		meemContractRole: MeemContractRole
 		response: CreateGuildResponse
 	}> {
 		const { meemContract } = data
@@ -55,8 +57,14 @@ export default class GuildService {
 				MeemContractId: meemContract.id
 			})
 
+			const meemContractRole = await orm.models.MeemContractRole.create({
+				guildRoleId: response.id,
+				name: 'Club Member'
+			})
+
 			return {
 				meemContractGuild,
+				meemContractRole,
 				response
 			}
 		} catch (e) {
