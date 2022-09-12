@@ -530,4 +530,59 @@ export default class MeemContractController {
 			status: 'success'
 		})
 	}
+
+	public static async getMeemContractRoles(
+		req: IRequest<MeemAPI.v1.GetMeemContractRoles.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetMeemContractRoles.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		if (!req.body.name) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		if (!req.body.metadata) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		await req.wallet.enforceTXLimit()
+
+		if (config.DISABLE_ASYNC_MINTING) {
+			try {
+				await services.meemContract.createMeemContract({
+					...req.body,
+					senderWalletAddress: req.wallet.address
+				})
+			} catch (e) {
+				log.crit(e)
+				sockets?.emitError(
+					config.errors.CONTRACT_CREATION_FAILED,
+					req.wallet.address
+				)
+			}
+		} else {
+			const lambda = new AWS.Lambda({
+				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+				region: 'us-east-1'
+			})
+
+			await lambda
+				.invoke({
+					InvocationType: 'Event',
+					FunctionName: config.LAMBDA_CREATE_CONTRACT_FUNCTION,
+					Payload: JSON.stringify({
+						...req.body,
+						senderWalletAddress: req.wallet.address
+					})
+				})
+				.promise()
+		}
+
+		return res.json({
+			status: 'success'
+		})
+	}
 }
