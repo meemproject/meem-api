@@ -37,7 +37,7 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 
 	public name!: string
 
-	public Permissions!: RolePermission[]
+	public RolePermissions!: RolePermission[] | null
 
 	public guildRoleId!: number | null
 

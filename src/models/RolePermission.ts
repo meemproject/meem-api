@@ -1,8 +1,6 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 
-type RolePermissionType = 'admin' | 'club' | 'integration'
-
 export default class RolePermission extends BaseModel<RolePermission> {
 	public static readonly modelName = 'RolePermission'
 
@@ -25,11 +23,6 @@ export default class RolePermission extends BaseModel<RolePermission> {
 			type: DataTypes.STRING,
 			allowNull: false,
 			defaultValue: ''
-		},
-		type: {
-			type: DataTypes.STRING,
-			allowNull: false,
-			defaultValue: ''
 		}
 	}
 
@@ -38,8 +31,6 @@ export default class RolePermission extends BaseModel<RolePermission> {
 	public name!: string
 
 	public description!: string
-
-	public type!: RolePermissionType
 
 	public static associate() {}
 }
