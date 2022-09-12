@@ -1,6 +1,6 @@
 {
 	"name": "@meemproject/meem-api",
-	"version": "1.10.3",
+	"version": "1.10.4",
 	"description": "Meem API",
 	"main": "build/server.js",
 	"engines": {
