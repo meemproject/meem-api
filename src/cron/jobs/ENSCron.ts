@@ -36,7 +36,7 @@ export default class ENSCron extends CronJob {
 						},
 						{
 							ensFetchedAt: {
-								[Op.gt]: DateTime.now()
+								[Op.lt]: DateTime.now()
 									.plus({
 										days: 7
 									})
@@ -56,7 +56,7 @@ export default class ENSCron extends CronJob {
 						},
 						{
 							ensFetchedAt: {
-								[Op.gt]: DateTime.now()
+								[Op.lt]: DateTime.now()
 									.plus({
 										days: 7
 									})
