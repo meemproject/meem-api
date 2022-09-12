@@ -5,7 +5,6 @@ import Cron from 'cron'
 import { ethers } from 'ethers'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
-import { wait } from '../../lib/utils'
 import Wallet from '../../models/Wallet'
 import CronJob from '../CronJob'
 
