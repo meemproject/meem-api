@@ -10,6 +10,7 @@ import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import type Integration from './Integration'
 import type Meem from './Meem'
+import MeemContractRole from './MeemContractRole'
 import type Wallet from './Wallet'
 
 export default class MeemContract extends ModelWithAddress<MeemContract> {
@@ -325,6 +326,8 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 
 	public Wallets?: Wallet[] | null
 
+	public MeemContractRoles?: MeemContractRole[] | null
+
 	public Integrations?: Integration[] | null
 
 	public static associate(models: IModels) {
@@ -337,5 +340,7 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		this.belongsToMany(models.Integration, {
 			through: models.MeemContractIntegration
 		})
+
+		this.hasMany(models.MeemContractRole)
 	}
 }

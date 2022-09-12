@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import { role as guildRole } from '@guildxyz/sdk'
 import {
 	getCuts,
 	IFacetVersion,
@@ -820,5 +821,39 @@ export default class MeemContractService {
 		}
 
 		return false
+	}
+
+	public static async getMeemContractRoles(options: {
+		meemContractId: string
+	}): Promise<any[]> {
+		const { meemContractId } = options
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: meemContractId
+			},
+			include: [
+				{
+					model: orm.models.MeemContractRole
+				}
+			]
+		})
+
+		const meemContractRoles = meemContract?.MeemContractRoles ?? []
+
+		if (!meemContract) {
+			throw new Error('SERVER_ERROR')
+		}
+
+		const roles = await Promise.all(
+			meemContractRoles.map(async mcRole => {
+				let role = {}
+				if (mcRole.guildRoleId) {
+					role = await guildRole.get(mcRole.guildRoleId)
+				}
+				return role
+			})
+		)
+
+		return roles
 	}
 }

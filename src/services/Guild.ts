@@ -18,8 +18,7 @@ export default class GuildService {
 		meemContract: MeemContract
 	}): Promise<{
 		meemContractGuild: MeemContractGuild
-		meemContractRole: MeemContractRole
-		response: CreateGuildResponse
+		meemContractRoles: MeemContractRole[]
 	}> {
 		const { meemContract } = data
 		const provider = await services.ethers.getProvider()
@@ -29,11 +28,11 @@ export default class GuildService {
 			wallet.signMessage(signableMessage)
 
 		try {
-			const response = await guild.create(wallet.address, sign, {
+			const createGuildResponse = await guild.create(wallet.address, sign, {
 				name: meemContract.name,
 				roles: [
 					{
-						name: 'Club Member',
+						name: `${meemContract.name} Token Holder`,
 						logic: 'OR',
 						requirements: [
 							{
@@ -53,19 +52,27 @@ export default class GuildService {
 			})
 
 			const meemContractGuild = await orm.models.MeemContractGuild.create({
-				guildId: response.id,
+				guildId: createGuildResponse.id,
 				MeemContractId: meemContract.id
 			})
 
-			const meemContractRole = await orm.models.MeemContractRole.create({
-				guildRoleId: response.id,
-				name: 'Club Member'
-			})
+			const guildResponse = await guild.get(createGuildResponse.id)
+
+			const meemContractRoles = await Promise.all(
+				guildResponse.roles.map(async guildRole => {
+					const meemContractRole = await orm.models.MeemContractRole.create({
+						guildRoleId: guildRole.id,
+						name: `${meemContract.name} Token Holder`,
+						MeemContractId: meemContract.id,
+						MeemContractGuildId: meemContractGuild.id
+					})
+					return meemContractRole
+				})
+			)
 
 			return {
 				meemContractGuild,
-				meemContractRole,
-				response
+				meemContractRoles
 			}
 		} catch (e) {
 			log.crit(e)
