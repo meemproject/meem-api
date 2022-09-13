@@ -14,6 +14,7 @@ import slug from 'slug'
 import { v4 as uuidv4 } from 'uuid'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
+import RolePermission from '../models/RolePermission'
 import Wallet from '../models/Wallet'
 import { InitParamsStruct, Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
@@ -833,7 +834,16 @@ export default class MeemContractService {
 			},
 			include: [
 				{
-					model: orm.models.MeemContractRole
+					model: orm.models.MeemContractRole,
+					include: [
+						{
+							model: orm.models.RolePermission,
+							attributes: ['id'],
+							through: {
+								attributes: []
+							}
+						}
+					]
 				}
 			]
 		})
@@ -846,9 +856,18 @@ export default class MeemContractService {
 
 		const roles = await Promise.all(
 			meemContractRoles.map(async mcRole => {
-				let role = {}
+				const role: any = mcRole.toJSON()
+
+				role.permissions = role.RolePermissions.map(
+					(rp: RolePermission) => rp.id
+				)
+
+				delete role.RolePermissions
+
 				if (mcRole.guildRoleId) {
-					role = await guildRole.get(mcRole.guildRoleId)
+					const guildRoleResponse = await guildRole.get(mcRole.guildRoleId)
+
+					role.guildRole = guildRoleResponse
 				}
 				return role
 			})

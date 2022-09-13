@@ -62,7 +62,7 @@ export default class GuildService {
 				guildResponse.roles.map(async guildRole => {
 					const meemContractRole = await orm.models.MeemContractRole.create({
 						guildRoleId: guildRole.id,
-						name: `${meemContract.name} Token Holder`,
+						name: guildRole.name,
 						MeemContractId: meemContract.id,
 						MeemContractGuildId: meemContractGuild.id
 					})

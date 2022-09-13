@@ -10,8 +10,8 @@ export default class RolePermission extends BaseModel<RolePermission> {
 
 	public static readonly attributes = {
 		id: {
-			type: DataTypes.UUID,
-			defaultValue: DataTypes.UUIDV4,
+			type: DataTypes.STRING,
+			allowNull: false,
 			primaryKey: true
 		},
 		name: {

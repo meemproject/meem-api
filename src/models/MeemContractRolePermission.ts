@@ -1,16 +1,17 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import RolePermission from './RolePermission'
 
 export default class MeemContractRolePermission extends BaseModel<MeemContractRolePermission> {
 	public static readonly modelName = 'MeemContractRolePermission'
 
+	public static readonly paranoid: boolean = false
+
 	public static get indexes() {
 		return [
 			{
-				name: 'MeemContractRolePermission_MeemContractId',
-				fields: ['MeemContractId']
+				name: 'MeemContractRolePermission_MeemContractRoleId',
+				fields: ['MeemContractRoleId']
 			},
 			{
 				name: 'MeemContractRolePermission_RolePermissionId',
@@ -29,12 +30,12 @@ export default class MeemContractRolePermission extends BaseModel<MeemContractRo
 
 	public id!: string
 
-	public MeemContractId!: string
+	public MeemContractRoleId!: string
 
 	public RolePermissionId!: string
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.MeemContract)
+		this.belongsTo(models.MeemContractRole)
 		this.belongsTo(models.RolePermission)
 	}
 }

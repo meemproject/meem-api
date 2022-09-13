@@ -531,6 +531,130 @@ export default class MeemContractController {
 		})
 	}
 
+	public static async updateMeemContractRole(
+		req: IRequest<MeemAPI.v1.UpdateMeemContractRole.IDefinition>,
+		res: IResponse<MeemAPI.v1.UpdateMeemContractRole.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		// TODO: Check if the user has permission to update and not just admin contract role
+		const adminRole = config.ADMIN_ROLE
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: req.params.meemContractId
+			},
+			include: [
+				{
+					model: orm.models.Wallet,
+					where: {
+						address: req.wallet.address
+					},
+					through: {
+						where: {
+							role: adminRole
+						}
+					}
+				},
+				{
+					model: orm.models.Integration
+				}
+			]
+		})
+
+		if (!meemContract) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		if (meemContract.Wallets && meemContract.Wallets.length < 1) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const meemContractRole = await orm.models.MeemContractRole.findOne({
+			where: {
+				id: req.params.meemContractRoleId
+			},
+			include: [
+				{
+					model: orm.models.RolePermission
+				}
+			]
+		})
+
+		if (!meemContractRole) {
+			throw new Error('MEEM_CONTRACT_ROLE_NOT_FOUND')
+		}
+
+		const promises: Promise<any>[] = []
+
+		if (
+			!_.isUndefined(req.body.permissions) &&
+			_.isArray(req.body.permissions)
+		) {
+			const permissions = req.body.permissions
+			const roleIdsToAdd =
+				permissions.filter(pid => {
+					const existingPermission = meemContractRole.RolePermissions?.find(
+						rp => rp.id === pid
+					)
+					return !existingPermission
+				}) ?? []
+			const rolesToRemove: string[] =
+				meemContractRole.RolePermissions?.filter(rp => {
+					const existingPermission = permissions.find(pid => rp.id === pid)
+					return !existingPermission
+				})?.map((rp: any) => {
+					return rp.MeemContractRolePermission.id as string
+				}) ?? []
+
+			const t = await orm.sequelize.transaction()
+
+			if (rolesToRemove.length > 0) {
+				promises.push(
+					orm.models.MeemContractRolePermission.destroy({
+						where: {
+							id: rolesToRemove
+						},
+						transaction: t
+					})
+				)
+			}
+
+			if (roleIdsToAdd.length > 0) {
+				const meemContractRolePermissionsData: {
+					MeemContractRoleId: string
+					RolePermissionId: string
+				}[] = roleIdsToAdd.map(rid => {
+					return {
+						MeemContractRoleId: meemContractRole.id,
+						RolePermissionId: rid
+					}
+				})
+				promises.push(
+					orm.models.MeemContractRolePermission.bulkCreate(
+						meemContractRolePermissionsData,
+						{
+							transaction: t
+						}
+					)
+				)
+			}
+
+			try {
+				await Promise.all(promises)
+				await t.commit()
+			} catch (e) {
+				log.crit(e)
+				throw new Error('SERVER_ERROR')
+			}
+		}
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
 	public static async getMeemContractRoles(
 		req: IRequest<MeemAPI.v1.GetMeemContractRoles.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeemContractRoles.IResponseBody>
