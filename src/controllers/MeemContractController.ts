@@ -1,5 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
+import { user as guildUser } from '@guildxyz/sdk'
 import AWS from 'aws-sdk'
+import { Bytes, ethers } from 'ethers'
 import { Response } from 'express'
 import _ from 'lodash'
 import { IRequest, IResponse } from '../types/app'
@@ -578,6 +580,9 @@ export default class MeemContractController {
 			include: [
 				{
 					model: orm.models.RolePermission
+				},
+				{
+					model: orm.models.MeemContractGuild
 				}
 			]
 		})
@@ -586,12 +591,12 @@ export default class MeemContractController {
 			throw new Error('MEEM_CONTRACT_ROLE_NOT_FOUND')
 		}
 
-		const promises: Promise<any>[] = []
-
 		if (
 			!_.isUndefined(req.body.permissions) &&
 			_.isArray(req.body.permissions)
 		) {
+			const promises: Promise<any>[] = []
+			const t = await orm.sequelize.transaction()
 			const permissions = req.body.permissions
 			const roleIdsToAdd =
 				permissions.filter(pid => {
@@ -607,8 +612,6 @@ export default class MeemContractController {
 				})?.map((rp: any) => {
 					return rp.MeemContractRolePermission.id as string
 				}) ?? []
-
-			const t = await orm.sequelize.transaction()
 
 			if (rolesToRemove.length > 0) {
 				promises.push(
@@ -643,6 +646,35 @@ export default class MeemContractController {
 
 			try {
 				await Promise.all(promises)
+				await t.commit()
+			} catch (e) {
+				log.crit(e)
+				throw new Error('SERVER_ERROR')
+			}
+		}
+
+		if (
+			!_.isUndefined(req.body.members) &&
+			_.isArray(req.body.members) &&
+			meemContractRole.MeemContractGuild
+		) {
+			const guildId = meemContractRole.MeemContractGuild.guildId
+			const members = req.body.members.map(m => m.toLowerCase())
+			const promises: Promise<any>[] = []
+			const t = await orm.sequelize.transaction()
+
+			const provider = await services.ethers.getProvider()
+			const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+
+			const sign = (signableMessage: string | Bytes) =>
+				wallet.signMessage(signableMessage)
+
+			members.forEach(m => {
+				promises.push(guildUser.join(guildId, m, sign))
+			})
+
+			try {
+				const response = await Promise.all(promises)
 				await t.commit()
 			} catch (e) {
 				log.crit(e)

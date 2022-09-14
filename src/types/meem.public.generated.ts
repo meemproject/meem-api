@@ -2301,6 +2301,8 @@ export namespace UpdateMeemContractRole {
 	export interface IRequestBody {
 		/** Array of ids for permissions */
 		permissions?: string[]
+		/** Wallet addresses of members */
+		members?: string[]
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
+import MeemContractGuild from './MeemContractGuild'
 import RolePermission from './RolePermission'
 
 export default class MeemContractRole extends BaseModel<MeemContractRole> {
@@ -41,6 +42,8 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 	public RolePermissions!: RolePermission[] | null
 
 	public MeemContractId!: string | null
+
+	public MeemContractGuild!: MeemContractGuild | null
 
 	public MeemContractGuildId!: string | null
 

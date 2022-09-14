@@ -826,8 +826,9 @@ export default class MeemContractService {
 
 	public static async getMeemContractRoles(options: {
 		meemContractId: string
+		meemContractRoleId?: string
 	}): Promise<any[]> {
-		const { meemContractId } = options
+		const { meemContractId, meemContractRoleId } = options
 		const meemContract = await orm.models.MeemContract.findOne({
 			where: {
 				id: meemContractId
@@ -835,6 +836,11 @@ export default class MeemContractService {
 			include: [
 				{
 					model: orm.models.MeemContractRole,
+					...(meemContractRoleId && {
+						where: {
+							id: meemContractRoleId
+						}
+					}),
 					include: [
 						{
 							model: orm.models.RolePermission,
