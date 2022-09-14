@@ -72,75 +72,16 @@ export default class AdminController {
 		})
 	}
 
-	public static async seedIntegrations(
+	public static async syncIntegrations(
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		const integrations = [
-			{
-				name: 'Twitter',
-				icon: 'integration-twitter.png',
-				description: "Add a link to your Club's Twitter account."
-			},
-			{
-				name: 'Discord',
-				icon: 'integration-discord.png',
-				description: 'Add a link to invite Club members to your Discord server.'
-			},
-			{
-				name: 'Guild',
-				icon: 'integration-guild.png',
-				description: 'Create a Guild for your Club.',
-				guideUrl:
-					'https://meemproject.notion.site/Guild-7c6f030bd5b4485998899d521fc3694a'
-			},
-			{
-				name: 'SlikSafe',
-				icon: 'integration-sliksafe.png',
-				description: 'File storage and backup for Club members.',
-				guideUrl:
-					'https://meemproject.notion.site/Sliksafe-9ee759f735ac4f9cb52b5d849292188c'
-			},
-			{
-				name: 'Tellie',
-				icon: 'integration-tellie.png',
-				description: 'Website builder for your Club.',
-				guideUrl:
-					'https://meemproject.notion.site/Tellie-5c176f1036ef4fe3b993b0137eec15a8'
-			},
-			{
-				name: 'Clarity',
-				icon: 'integration-clarity.png',
-				description: 'Manage contributions and rewards for Club members.',
-				guideUrl:
-					'https://meemproject.notion.site/Clarity-b144c6bc1eae4e08b3af870ac87ce60d'
-			},
-			{
-				name: 'Gnosis',
-				icon: 'integration-gnosis.png',
-				description: 'Manage Club funds in a secure way.',
-				guideUrl:
-					'https://meemproject.notion.site/Gnosis-af38757b9faf486f9900a5ea8f4a805d'
-			},
-			{
-				name: 'Myco',
-				icon: 'integration-myco.png',
-				description: 'Turn your Club into a legal entity.',
-				guideUrl:
-					'https://meemproject.notion.site/Myco-5425597cd8ca413fa070bc55bf1428f8'
-			},
-			{
-				name: 'Orca',
-				icon: 'integration-orca.png',
-				description: 'Organize working groups for your Club',
-				guideUrl:
-					'https://meemproject.notion.site/Orca-a67a9137657643609c3ae54183505ecf'
-			}
-		]
+		// eslint-disable-next-line
+		const integrations = require('../lib/integrations.json')
 
 		await orm.models.Integration.sync({ force: true })
 
-		const failedIntegratiosn: any[] = []
+		const failedIntegrations: any[] = []
 
 		for (let i = 0; i < integrations.length; i += 1) {
 			try {
@@ -159,7 +100,7 @@ export default class AdminController {
 					await existingIntegration.update(integrations[i])
 				}
 			} catch (e) {
-				failedIntegratiosn.push(integrations[i])
+				failedIntegrations.push(integrations[i])
 				log.crit(e)
 				log.debug(integrations[i])
 			}
