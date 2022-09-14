@@ -94,6 +94,9 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		ensFetchedAt: {
 			type: DataTypes.DATE
 		},
+		ownerFetchedAt: {
+			type: DataTypes.DATE
+		},
 		gnosisSafeAddress: {
 			type: DataTypes.STRING
 		}
@@ -119,19 +122,6 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		if (meemContractWallet) {
 			return true
 		}
-
-		// if (!this.Wallets) {
-		// 	throw new Error('WALLET_NOT_FOUND')
-		// }
-		// // Bypass checks if user has the MINTER_ROLE
-		// for (let i = 0; i < this.Wallets.length; i += 1) {
-		// 	if (
-		// 		this.Wallets[i].address.toLowerCase() === minter.toLowerCase() &&
-		// 		this.Wallets[i].MeemContractWallets[0].role === config.ADMIN_ROLE
-		// 	) {
-		// 		return true
-		// 	}
-		// }
 
 		return false
 	}
@@ -319,7 +309,13 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 
 	public ensFetchedAt!: Date | null
 
+	public ownerFetchedAt!: Date | null
+
 	public gnosisSafeAddress!: string | null
+
+	public OwnerId!: string | null
+
+	public Owner!: Wallet | null
 
 	public Meems?: Meem[] | null
 
@@ -336,6 +332,10 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 
 		this.belongsToMany(models.Integration, {
 			through: models.MeemContractIntegration
+		})
+
+		this.belongsTo(models.Wallet, {
+			as: 'Owner'
 		})
 	}
 }

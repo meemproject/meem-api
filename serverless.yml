@@ -199,6 +199,11 @@ functions:
           enabled: true
           input:
             job: ENSCron
+      - schedule:
+          rate: rate(5 minutes)
+          enabled: true
+          input:
+            job: MeemContractCron
 
 
 plugins:
