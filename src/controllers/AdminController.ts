@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import integrations from '../lib/integrations'
 
 export default class AdminController {
 	public static async runMigrations(
@@ -76,9 +77,6 @@ export default class AdminController {
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		// eslint-disable-next-line
-		const integrations = require('../lib/integrations.json')
-
 		await orm.models.Integration.sync({ force: true })
 
 		const failedIntegrations: any[] = []
