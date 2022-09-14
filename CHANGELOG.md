@@ -1,3 +1,15 @@
+# [1.11.0](https://github.com/meemproject/meem-api-aws/compare/v1.10.4...v1.11.0) (2022-09-14)
+
+
+### Bug Fixes
+
+* cron calculation ([e00a884](https://github.com/meemproject/meem-api-aws/commit/e00a884))
+
+
+### Features
+
+* track MeemContract owner ([122b481](https://github.com/meemproject/meem-api-aws/commit/122b481))
+
 ## [1.10.4](https://github.com/meemproject/meem-api-aws/compare/v1.10.3...v1.10.4) (2022-09-12)
 
 ## [1.10.3](https://github.com/meemproject/meem-api-aws/compare/v1.10.2...v1.10.3) (2022-09-07)
