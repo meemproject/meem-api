@@ -5,7 +5,7 @@ import {
 	CreateGuildResponse,
 	GetGuildsResponse,
 	guild,
-	role,
+	role as guildRole,
 	user
 } from '@guildxyz/sdk'
 import { Bytes, ethers } from 'ethers'
@@ -90,6 +90,52 @@ export default class GuildService {
 				}
 			})
 			return meemContractGuild
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
+	public static async createMeemContractGuildRole(data: {
+		name: string
+		meemContract: MeemContract
+		meemContractGuild: MeemContractGuild
+		members: string[]
+	}): Promise<MeemContractRole> {
+		const { name, meemContract, meemContractGuild, members } = data
+		const provider = await services.ethers.getProvider()
+		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+
+		const sign = (signableMessage: string | Bytes) =>
+			wallet.signMessage(signableMessage)
+
+		try {
+			const createGuildRoleResponse = await guildRole.create(
+				wallet.address,
+				sign,
+				{
+					guildId: meemContractGuild.guildId,
+					name,
+					logic: 'OR',
+					requirements: [
+						{
+							type: 'ALLOWLIST',
+							data: {
+								addresses: members
+							}
+						}
+					]
+				}
+			)
+
+			const meemContractRole = await orm.models.MeemContractRole.create({
+				guildRoleId: createGuildRoleResponse.id,
+				name,
+				MeemContractId: meemContract.id,
+				MeemContractGuildId: meemContractGuild.id
+			})
+
+			return meemContractRole
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')
