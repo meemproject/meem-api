@@ -113,7 +113,7 @@ export default class AdminController {
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		const integrations = [
+		const identityIntegrations = [
 			{
 				name: 'Twitter',
 				icon: 'integration-twitter.png',
@@ -135,27 +135,29 @@ export default class AdminController {
 
 		const failedIntegratiosn: any[] = []
 
-		for (let i = 0; i < integrations.length; i += 1) {
+		for (let i = 0; i < identityIntegrations.length; i += 1) {
 			try {
-				log.debug(`Syncing ${i + 1} / ${integrations.length} integrations`)
+				log.debug(
+					`Syncing ${i + 1} / ${identityIntegrations.length} integrations`
+				)
 				const existingIntegration =
 					// eslint-disable-next-line no-await-in-loop
 					await orm.models.IdentityIntegration.findOne({
 						where: {
-							name: integrations[i].name
+							name: identityIntegrations[i].name
 						}
 					})
 				if (!existingIntegration) {
 					// eslint-disable-next-line no-await-in-loop
-					await orm.models.IdentityIntegration.create(integrations[i])
+					await orm.models.IdentityIntegration.create(identityIntegrations[i])
 				} else {
 					// eslint-disable-next-line no-await-in-loop
-					await existingIntegration.update(integrations[i])
+					await existingIntegration.update(identityIntegrations[i])
 				}
 			} catch (e) {
-				failedIntegratiosn.push(integrations[i])
+				failedIntegratiosn.push(identityIntegrations[i])
 				log.crit(e)
-				log.debug(integrations[i])
+				log.debug(identityIntegrations[i])
 			}
 		}
 
