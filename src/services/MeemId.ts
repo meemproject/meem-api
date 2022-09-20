@@ -655,8 +655,20 @@ export default class MeemIdentityService {
 			})
 
 			if (users.length > 0 && users[0].user_id) {
-				if (users[0].email_verified) {
+				if (users[0].email_verified && users[0].email === email) {
 					return users[0]
+				}
+
+				if (users[0].email !== email) {
+					await mgmgtClient.updateUser(
+						{
+							id: users[0].user_id
+						},
+						{
+							email,
+							email_verified: false
+						}
+					)
 				}
 
 				await authClient.requestMagicLink({
