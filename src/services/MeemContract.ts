@@ -171,7 +171,7 @@ export default class MeemContractService {
 
 			await orm.models.Transaction.create({
 				hash: tx.hash,
-				chainId: config.CHAIN_ID,
+				chainId: meemContractInstance.chainId,
 				WalletId: senderWallet.id
 			})
 
@@ -197,8 +197,13 @@ export default class MeemContractService {
 			senderWalletAddress: string
 		}
 	): Promise<string> {
-		const { shouldMintAdminTokens, adminTokenMetadata, senderWalletAddress } =
-			data
+		const {
+			shouldMintAdminTokens,
+			adminTokenMetadata,
+			senderWalletAddress,
+			chainId
+		} = data
+
 		try {
 			const [dbContract, bundle] = await Promise.all([
 				orm.models.Contract.findOne({
@@ -269,7 +274,7 @@ export default class MeemContractService {
 
 			await orm.models.Transaction.create({
 				hash: proxyContract.deployTransaction.hash,
-				chainId: config.CHAIN_ID,
+				chainId,
 				WalletId: senderWallet.id
 			})
 
@@ -330,7 +335,8 @@ export default class MeemContractService {
 			await orm.models.MeemContract.create({
 				address: proxyContract.address,
 				mintPermissions: fullMintPermissions,
-				slug: contractSlug
+				slug: contractSlug,
+				chainId
 			})
 
 			const cutTx = await proxyContract.diamondCut(
@@ -347,7 +353,7 @@ export default class MeemContractService {
 
 			await orm.models.Transaction.create({
 				hash: cutTx.hash,
-				chainId: config.CHAIN_ID,
+				chainId,
 				WalletId: senderWallet.id
 			})
 
@@ -368,7 +374,8 @@ export default class MeemContractService {
 							meemContractAddress: meemContract.address,
 							to: cleanAdmins[i].user.toLowerCase(),
 							metadata: adminTokenMetadata,
-							mintedBy: wallet.address
+							mintedBy: wallet.address,
+							chainId
 						})
 					}
 				}
@@ -556,7 +563,7 @@ export default class MeemContractService {
 			senderWalletAddress: string
 		}
 	) {
-		const { meemContractId, safeOwners, senderWalletAddress } = options
+		const { meemContractId, safeOwners, senderWalletAddress, chainId } = options
 		try {
 			const [meemContract, senderWallet] = await Promise.all([
 				orm.models.MeemContract.findOne({
@@ -595,7 +602,7 @@ export default class MeemContractService {
 			const threshold = options.threshold ?? 1
 
 			// gnosisSafeAbi is the Gnosis Safe ABI in JSON format,
-			const provider = await services.ethers.getProvider()
+			const provider = await services.ethers.getProvider({ chainId })
 			const signer = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 			const proxyContract = new ethers.Contract(
 				config.GNOSIS_PROXY_CONTRACT_ADDRESS,
@@ -643,7 +650,7 @@ export default class MeemContractService {
 
 			await orm.models.Transaction.create({
 				hash: tx.hash,
-				chainId: config.CHAIN_ID,
+				chainId,
 				WalletId: senderWallet.id
 			})
 
@@ -778,7 +785,7 @@ export default class MeemContractService {
 			if (tx?.hash) {
 				await orm.models.Transaction.create({
 					hash: tx.hash,
-					chainId: config.CHAIN_ID,
+					chainId: meemContract.chainId,
 					WalletId: senderWallet.id
 				})
 			}

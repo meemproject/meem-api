@@ -73,7 +73,9 @@ export default {
 	SERVERLESS_LOG_FULL_REQUEST: process.env.SERVERLESS_LOG_FULL_REQUEST,
 	APP_AWS_ACCESS_KEY_ID: process.env.APP_AWS_ACCESS_KEY_ID ?? '',
 	APP_AWS_SECRET_ACCESS_KEY: process.env.APP_AWS_SECRET_ACCESS_KEY ?? '',
-	CHAIN_ID: process.env.CHAIN_ID ? +process.env.CHAIN_ID : 4,
+	CHAIN_IDS: process.env.CHAIN_IDS
+		? process.env.CHAIN_IDS.split(',').map(cid => +cid.trim())
+		: [5],
 	NETWORK: process.env.NETWORK
 		? (process.env.NETWORK as MeemAPI.NetworkName)
 		: ('' as MeemAPI.NetworkName),
@@ -112,6 +114,7 @@ export default {
 	JSON_RPC_POLYGON: process.env.JSON_RPC_POLYGON ?? '',
 	WS_RPC_RINKEBY: process.env.WS_RPC_RINKEBY ?? '',
 	WS_RPC_POLYGON: process.env.WS_RPC_POLYGON ?? '',
+	WS_RPC_GOERLI: process.env.WS_RPC_GOERLI ?? '',
 	JSON_RPC_HARDHAT: process.env.JSON_RPC_HARDHAT ?? 'http://127.0.0.1:8545',
 	ENABLE_WHITELIST_TEST_DATA: process.env.ENABLE_WHITELIST_TEST_DATA === 'true',
 	MAX_GAS_PRICE_GWEI: process.env.MAX_GAS_PRICE_GWEI

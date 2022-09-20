@@ -17,6 +17,8 @@ export namespace CreateClubSafe {
 		/** The owners of the safe */
 		safeOwners: string[]
 
+		chainId: number
+
 		/** The number of signatures required */
 		threshold?: number
 	}

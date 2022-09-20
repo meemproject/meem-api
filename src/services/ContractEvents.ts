@@ -179,10 +179,12 @@ export default class ContractEvent {
 
 	public static async meemHandleContractInitialized(args: {
 		address: string
+		chainId: number
 	}): Promise<MeemContract | null> {
-		const { address } = args
+		const { address, chainId } = args
 		const meemContract = (await services.meem.getMeemContract({
-			address
+			address,
+			chainId
 		})) as unknown as Mycontract
 
 		let contractInfo: ContractInfoStruct

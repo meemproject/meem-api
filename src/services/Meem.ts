@@ -352,7 +352,8 @@ export default class MeemService {
 			}
 
 			const meemContract = await this.getMeemContract({
-				address: data.meemContractAddress.toLowerCase()
+				address: data.meemContractAddress.toLowerCase(),
+				chainId: data.chainId
 			})
 
 			let { recommendedGwei } = await services.web3.getGasEstimate()
@@ -390,7 +391,7 @@ export default class MeemService {
 
 			await orm.models.Transaction.create({
 				hash: mintTx.hash,
-				chainId: config.CHAIN_ID,
+				chainId: meemContract.chainId,
 				WalletId: wallet.id
 			})
 
@@ -547,7 +548,7 @@ export default class MeemService {
 
 			await orm.models.Transaction.create({
 				hash: mintTx.hash,
-				chainId: config.CHAIN_ID,
+				chainId: meemContract.chainId,
 				WalletId: wallet.id
 			})
 
