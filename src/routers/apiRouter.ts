@@ -64,6 +64,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/meemContracts/:meemContractId/proof',
 		MeemContractController.getMintingProof
 	)
+	router.postAsync(
+		'/meemContracts/:meemContractId/joinGuild',
+		MeemContractController.joinMeemContractGuild
+	)
 	router.getAsync(
 		'/meemContracts/:meemContractId/roles',
 		MeemContractController.getMeemContractRoles

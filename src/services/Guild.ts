@@ -110,6 +110,7 @@ export default class GuildService {
 			wallet.signMessage(signableMessage)
 
 		try {
+			// TODO: Meem Contract Tokens
 			const createGuildRoleResponse = await guildRole.create(
 				wallet.address,
 				sign,
@@ -142,56 +143,48 @@ export default class GuildService {
 		}
 	}
 
-	// public static async updateGuildRole(data: {
-	// 	meemContractId: string
-	// 	guildId: string
-	// 	roleId: number
-	// 	discordGuildId?: string
-	// 	gatedChannels?: string[]
-	// }): Promise<any | null> {
-	// 	const meemContract = await orm.models.MeemContract.findOne({
-	// 		where: {
-	// 			id: data.meemContractId
-	// 		}
-	// 	})
+	public static async updateMeemContractGuildRole(data: {
+		name?: string
+		meemContractRole: MeemContractRole
+		members: string[]
+	}): Promise<MeemContractRole> {
+		const { name, meemContractRole, members } = data
+		const provider = await services.ethers.getProvider()
+		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 
-	// 	if (!meemContract) {
-	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
-	// 	}
+		if (!meemContractRole.guildRoleId) {
+			log.crit('Guild role Id not set')
+			throw new Error('SERVER_ERROR')
+		}
 
-	// 	const provider = await services.ethers.getProvider()
-	// 	const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const guildRoleId = meemContractRole.guildRoleId
 
-	// 	const sign = (signableMessage: string | Bytes) =>
-	// 		wallet.signMessage(signableMessage)
+		const sign = (signableMessage: string | Bytes) =>
+			wallet.signMessage(signableMessage)
 
-	// 	try {
-	// 		if (data.discordGuildId) {
-	// 			const response = await role.update(data.roleId, wallet.address, sign, {
-	// 				rolePlatforms: [
-	// 					{
-	// 						guildPlatform: {
-	// 							platformName: 'DISCORD',
-	// 							platformGuildId: data.discordGuildId, // Discord server's ID
-	// 							isNew: !data.gatedChannels
-	// 						},
-	// 						// Optionally specify the gated channels:
-	// 						...(data.gatedChannels && {
-	// 							platformRoleData: {
-	// 								gatedChannels: data.gatedChannels ?? []
-	// 							}
-	// 						})
-	// 					}
-	// 				]
-	// 			})
-	// 			return response
-	// 		}
-	// 		return null
-	// 	} catch (e) {
-	// 		log.crit(e)
-	// 		throw new Error('SERVER_ERROR')
-	// 	}
-	// }
+		try {
+			// TODO: Meem Contract Tokens
+			const existingGuildRole = await guildRole.get(guildRoleId)
+			await guildRole.update(guildRoleId, wallet.address, sign, {
+				name: name ?? existingGuildRole.name,
+				logic: 'OR',
+				requirements: [
+					{
+						type: 'ALLOWLIST',
+						data: {
+							addresses: members
+						}
+					}
+				]
+			})
+
+			return meemContractRole
+		} catch (e) {
+			// TODO: Re-create guild role if no longer exists?
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
 
 	// public static async getUserGuilds(data: {
 	// 	walletAddress: string

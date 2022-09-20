@@ -229,6 +229,41 @@ export default class MeemIdentityService {
 		return meemId
 	}
 
+	public static async getMeemIdentityForAddress(
+		address: string
+	): Promise<MeemIdentity> {
+		let meemId = await orm.models.MeemIdentity.findOne({
+			include: [
+				{
+					model: orm.models.Wallet,
+					where: {
+						address
+					},
+					attributes: ['id', 'address', 'ens'],
+					through: {
+						attributes: []
+					}
+				},
+				{
+					model: orm.models.Wallet,
+					as: 'DefaultWallet',
+					attributes: ['id', 'address', 'ens']
+				}
+			]
+		})
+
+		if (!meemId) {
+			const wallet = await orm.models.Wallet.create({
+				address
+			})
+			meemId = await this.createOrUpdateMeemIdentity({
+				wallet
+			})
+		}
+
+		return meemId
+	}
+
 	public static async createOrUpdateMeemIdIntegration(data: {
 		integrationId: string
 		metadata?: any

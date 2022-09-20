@@ -876,22 +876,9 @@ export default class MeemContractService {
 					role.guildRole = guildRoleResponse
 
 					role.members = await Promise.all(
-						(role.guildRole?.members ?? []).map((m: string[]) => {
-							return orm.models.MeemIdentity.findOne({
-								include: [
-									{
-										model: orm.models.Wallet,
-										where: {
-											address: m
-										}
-									},
-									{
-										model: orm.models.Wallet,
-										as: 'DefaultWallet'
-									}
-								]
-							})
-						})
+						(role.guildRole?.members ?? []).map((m: string) =>
+							services.meemId.getMeemIdentityForAddress(m)
+						)
 					)
 				}
 				return role

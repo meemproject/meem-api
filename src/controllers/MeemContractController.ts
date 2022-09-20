@@ -4,6 +4,7 @@ import AWS from 'aws-sdk'
 import { Bytes, ethers } from 'ethers'
 import { Response } from 'express'
 import _ from 'lodash'
+import request from 'superagent'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -760,24 +761,13 @@ export default class MeemContractController {
 			_.isArray(req.body.members) &&
 			meemContractRole.MeemContractGuild
 		) {
-			const guildId = meemContractRole.MeemContractGuild.guildId
 			const members = req.body.members.map(m => m.toLowerCase())
-			const promises: Promise<any>[] = []
-			const t = await orm.sequelize.transaction()
-
-			const provider = await services.ethers.getProvider()
-			const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
-
-			const sign = (signableMessage: string | Bytes) =>
-				wallet.signMessage(signableMessage)
-
-			members.forEach(m => {
-				promises.push(guild.getUserAccess(guildId, m))
-			})
 
 			try {
-				const response = await Promise.all(promises)
-				await t.commit()
+				await services.guild.updateMeemContractGuildRole({
+					meemContractRole,
+					members
+				})
 			} catch (e) {
 				log.crit(e)
 				throw new Error('SERVER_ERROR')
@@ -808,5 +798,81 @@ export default class MeemContractController {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')
 		}
+	}
+
+	public static async getJoinMessage(
+		req: IRequest<any>,
+		res: IResponse<any>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: req.params.meemContractId
+			},
+			include: [
+				{
+					model: orm.models.MeemContractGuild
+				}
+			]
+		})
+
+		if (!meemContract || !meemContract.MeemContractGuild) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		// TODO: Get the join message and send to client to sign
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
+	public static async joinMeemContractGuild(
+		req: IRequest<any>,
+		res: IResponse<any>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: req.params.meemContractId
+			},
+			include: [
+				{
+					model: orm.models.MeemContractGuild
+				}
+			]
+		})
+
+		if (!meemContract || !meemContract.MeemContractGuild) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		try {
+			const response = await request
+				.post(`https://api.guild.xyz/v1/user/join`)
+				.send({
+					payload: req.body.payload,
+					params: req.body.params,
+					sig: req.body.sig
+				})
+			// const signingAddress = ethers.utils.verifyMessage(
+			// 	req.body.message,
+			// 	req.body.sig
+			// )
+			log.debug('SIGNED BY', signingAddress)
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+
+		return res.json({
+			status: 'success'
+		})
 	}
 }
