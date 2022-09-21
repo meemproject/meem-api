@@ -39,9 +39,9 @@ provider:
     LAMBDA_CREATE_CONTRACT_FUNCTION: ${env:LAMBDA_CREATE_CONTRACT_FUNCTION, ''}
     LAMBDA_MEEMID_UPDATE_FUNCTION: ${env:LAMBDA_MEEMID_UPDATE_FUNCTION, ''}
     S3_BUCKET: ${env:S3_BUCKET, ''}
-    JSON_RPC_MAINNET: ${env:JSON_RPC_MAINNET, 'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/eth/mainnet'}
-    JSON_RPC_RINKEBY: ${env:JSON_RPC_RINKEBY, 'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/eth/rinkeby'}
-    JSON_RPC_POLYGON: ${env:JSON_RPC_POLYGON, 'https://speedy-nodes-nyc.moralis.io/47bc53fc4b72dbd2d8582fea/polygon/mainnet'}
+    JSON_RPC_MAINNET: ${env:JSON_RPC_MAINNET, ''}
+    JSON_RPC_RINKEBY: ${env:JSON_RPC_RINKEBY, ''}
+    JSON_RPC_POLYGON: ${env:JSON_RPC_POLYGON, ''}
     MAX_GAS_PRICE_GWEI: ${env:MAX_GAS_PRICE_GWEI, '50'}
     MIN_GASE_PRICE_GWEI: ${env:MIN_GASE_PRICE_GWEI, '31'}
     GAS_ESTIMATE_THRESHOLD_GWEI: ${env:GAS_ESTIMATE_THRESHOLD_GWEI, '10'}
@@ -56,13 +56,10 @@ provider:
     ENABLE_VERBOSE_ERRORS: ${env:ENABLE_VERBOSE_ERRORS, 'false'}
     TWITTER_WALLET_PRIVATE_KEY: ${env:TWITTER_WALLET_PRIVATE_KEY, ''}
     TWITTER_PROJECT_TOKEN_ID: ${env:TWITTER_PROJECT_TOKEN_ID, ''}
-    DAO_WALLET: ${env:DAO_WALLET, ''}
-    MEEM_WALLET_ADDRESS: ${env:MEEM_WALLET_ADDRESS, '0xde19C037a85A609ec33Fc747bE9Db8809175C3a5'}
     DEFAULT_PAGINATION_LIMIT: ${env:DEFAULT_PAGINATION_LIMIT, '20'}
     MINT_GAS_LIMIT: ${env:MINT_GAS_LIMIT, '4500000'}
-    ENABLE_TWEET_CURATION: ${env:ENABLE_TWEET_CURATION, 'false'}
-    WS_RPC_RINKEBY: ${env:WS_RPC_RINKEBY, 'wss://eth-rinkeby.alchemyapi.io/v2/lcOdvJ5FJvsjTT3ZzyeWSMfpy6ILx-1s'}
-    WS_RPC_POLYGON: ${env:WS_RPC_POLYGON, 'wss://polygon-mainnet.g.alchemy.com/v2/xLwwfjFEFLvv_mRhnv7ZW3qM8f3K8MHE'}
+    WS_RPC_RINKEBY: ${env:WS_RPC_RINKEBY, ''}
+    WS_RPC_POLYGON: ${env:WS_RPC_POLYGON, ''}
     IPFS_CONTENT_GATEWAY_URL: ${env:IPFS_CONTENT_GATEWAY_URL, 'https://gateway.pinata.cloud'}
     PINATA_API_KEY: ${env:PINATA_API_KEY, ''}
     PINATA_API_SECRET: ${env:PINATA_API_SECRET, ''}
