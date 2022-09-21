@@ -24,16 +24,21 @@ import { MeemSplitsSetEvent, MeemTransferEvent } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ProviderListener {
-	private provider?: providers.Provider
+	private providers: providers.Provider[] = []
 
 	private hasSetupListners = false
 
 	public async start() {
 		// const meemContract = await services.meem.getMeemContract()
 		// meemContract.filters.Crea
-		this.provider = await services.ethers.getProvider({
-			chainId: config.CHAIN_ID
-		})
+		for (let i = 0; i < config.CHAIN_IDS.length; i++) {
+			const chainId = config.CHAIN_IDS[i]
+			const provider = await services.ethers.getProvider({
+				chainId
+			})
+			this.providers.push(provider)
+		}
+
 		this.setupListners()
 			.then(() => {})
 			.catch(e => {
@@ -43,7 +48,7 @@ export default class ProviderListener {
 
 	private async setupListners() {
 		try {
-			if (!this.provider) {
+			if (!this.providers) {
 				log.crit("ProviderListener can't listen. Provider not defined")
 				return
 			}
@@ -152,197 +157,206 @@ export default class ProviderListener {
 
 			const topics = [Object.values(eventIds)]
 
-			this.provider.on(
-				{
-					topics
-				},
-				async rawLog => {
-					try {
-						/*
-						TODO: Handle log - get transaction, find the contract address, add the contract address to our DB of contracts that we listen for
-						log = {
-							blockNumber: 10583485,
-							blockHash: '0x7a918ddd1c5ff6ef5ddd72a789452d86da85a91a1824529e2ac6c94e09d3dcbf',
-							transactionIndex: 49,
-							removed: false,
-							address: '0x3FC5cDffD74d9EeebAcB2A7dd94714023662abbf',
-							data: '0x0000000000000000000000003fc5cdffd74d9eeebacb2a7dd94714023662abbf',
-							topics: [
-							  '0x273c08f8f7c609a33a4029ada1508fb7e43c5e434c66274c739d21dc1bb8171f'
-							],
-							transactionHash: '0x272cafd2ad24cbf36af4a1c2b8756e9ebb83b928640b41ef1021e3dbd853930f',
-							logIndex: 87
+			for (let i = 0; i < this.providers.length; i++) {
+				const provider = this.providers[i]
+				provider.on(
+					{
+						topics
+					},
+					// eslint-disable-next-line @typescript-eslint/no-loop-func
+					async rawLog => {
+						try {
+							/*
+							TODO: Handle log - get transaction, find the contract address, add the contract address to our DB of contracts that we listen for
+							log = {
+								blockNumber: 10583485,
+								blockHash: '0x7a918ddd1c5ff6ef5ddd72a789452d86da85a91a1824529e2ac6c94e09d3dcbf',
+								transactionIndex: 49,
+								removed: false,
+								address: '0x3FC5cDffD74d9EeebAcB2A7dd94714023662abbf',
+								data: '0x0000000000000000000000003fc5cdffd74d9eeebacb2a7dd94714023662abbf',
+								topics: [
+								  '0x273c08f8f7c609a33a4029ada1508fb7e43c5e434c66274c739d21dc1bb8171f'
+								],
+								transactionHash: '0x272cafd2ad24cbf36af4a1c2b8756e9ebb83b928640b41ef1021e3dbd853930f',
+								logIndex: 87
+							}
+							*/
+
+							const block = await provider.getBlock(rawLog.blockHash)
+
+							const parsedLog = genericMeemContract.interface.parseLog({
+								data: rawLog.data,
+								topics: rawLog.topics
+							})
+
+							const network = await provider.getNetwork()
+
+							log.debug(parsedLog)
+
+							const eventData = parsedLog.args
+
+							switch (parsedLog.topic) {
+								case eventIds.MeemContractInitialized: {
+									await services.contractEvents.meemHandleContractInitialized({
+										address: rawLog.address,
+										chainId: network.chainId
+									})
+									break
+								}
+								case eventIds.MeemTransfer: {
+									await services.contractEvents.meemHandleTransfer({
+										address: rawLog.address,
+										transactionHash: rawLog.transactionHash,
+										transactionTimestamp:
+											block?.timestamp || DateTime.now().toSeconds(),
+										eventData: eventData as MeemTransferEvent['args'],
+										chainId: network.chainId
+									})
+									break
+								}
+								// case eventIds.MeemPropertiesSet: {
+								// 	await services.contractEvents.meemHandlePropertiesSet({
+								// 		address: rawLog.address,
+								// 		eventData
+								// 	})
+								// 	break
+								// }
+								case eventIds.MeemSplitsSet: {
+									await services.contractEvents.meemHandleSplitsSet({
+										address: rawLog.address,
+										eventData: eventData as MeemSplitsSetEvent['args'],
+										chainId: network.chainId
+									})
+									break
+								}
+								// case eventIds.MeemTotalCopiesSet: {
+								// 	await services.contractEvents.meemHandleTotalCopiesSet({
+								// 		address: rawLog.address,
+								// 		eventData
+								// 	})
+								// 	break
+								// }
+								// case eventIds.MeemTotalCopiesLocked: {
+								// 	await services.contractEvents.meemHandleTotalCopiesLocked({
+								// 		address: rawLog.address,
+								// 		eventData
+								// 	})
+								// 	break
+								// }
+								// case eventIds.MeemCopiesPerWalletLocked: {
+								// 	await services.contractEvents.meemHandleCopiesPerWalletLocked({
+								// 		address: rawLog.address,
+								// 		eventData
+								// 	})
+								// 	break
+								// }
+								// case eventIds.MeemCopiesPerWalletSet: {
+								// 	await services.contractEvents.meemHandleCopiesPerWalletSet({
+								// 		address: rawLog.address,
+								// 		eventData
+								// 	})
+								// 	break
+								// }
+								// case eventIds.MeemTotalRemixesLocked: {
+								// 	await services.contractEvents.meemHandleTotalRemixesLocked({
+								// 		address: rawLog.address,
+								// 		eventData
+								// 	})
+								// 	break
+								// }
+								// case eventIds.MeemTotalRemixesSet: {
+								// 	await services.contractEvents.meemHandleTotalRemixesSet({
+								// 		address: rawLog.address,
+								// 		eventData
+								// 	})
+								// 	break
+								// }
+								// case eventIds.MeemRemixesPerWalletLocked: {
+								// 	await services.contractEvents.meemHandleRemixesPerWalletLocked({
+								// 		address: rawLog.address,
+								// 		eventData
+								// 	})
+								// 	break
+								// }
+								// case eventIds.MeemRemixesPerWalletSet: {
+								// 	await services.contractEvents.meemHandleRemixesPerWalletSet({
+								// 		address: rawLog.address,
+								// 		eventData
+								// 	})
+								// 	break
+								// }
+								// case eventIds.MeemTokenReactionAdded: {
+								// 	await services.contractEvents.meemHandleTokenReactionAdded({
+								// 		address: rawLog.address,
+								// 		transactionTimestamp:
+								// 			block?.timestamp || DateTime.now().toSeconds(),
+								// 		eventData
+								// 	})
+								// 	break
+								// }
+								// case eventIds.MeemTokenReactionRemoved: {
+								// 	await services.contractEvents.meemHandleTokenReactionRemoved({
+								// 		address: rawLog.address,
+								// 		eventData
+								// 	})
+								// 	break
+								// }
+								// case eventIds.MeemTokenReactionTypesSet: {
+								// 	await services.contractEvents.meemHandleTokenReactionTypesSet({
+								// 		address: rawLog.address,
+								// 		eventData
+								// 	})
+								// 	break
+								// }
+								// case eventIds.MeemClipped: {
+								// 	await services.contractEvents.meemHandleTokenClipped({
+								// 		address: rawLog.address,
+								// 		transactionTimestamp:
+								// 			block?.timestamp || DateTime.now().toSeconds(),
+								// 		eventData
+								// 	})
+								// 	break
+								// }
+								// case eventIds.MeemUnClipped: {
+								// 	await services.contractEvents.meemHandleTokenUnClipped({
+								// 		address: rawLog.address,
+								// 		eventData
+								// 	})
+								// 	break
+								// }
+								default:
+									break
+							}
+
+							/*
+								Handle parsed data
+
+							  parsedLog = {
+								eventFragment: {
+								  name: 'MeemContractInitialized',
+								  anonymous: false,
+								  inputs: [Array],
+								  type: 'event',
+								  _isFragment: true,
+								  constructor: [Function],
+								  format: [Function (anonymous)]
+								},
+								name: 'MeemContractInitialized',
+								signature: 'MeemContractInitialized(address)',
+								topic: '0x273c08f8f7c609a33a4029ada1508fb7e43c5e434c66274c739d21dc1bb8171f',
+								args: [
+								  '0x3FC5cDffD74d9EeebAcB2A7dd94714023662abbf',
+								  contractAddress: '0x3FC5cDffD74d9EeebAcB2A7dd94714023662abbf'
+								]
+							  }
+							*/
+						} catch (e) {
+							log.crit(e)
 						}
-						*/
-
-						const block = await this.provider?.getBlock(rawLog.blockHash)
-
-						const parsedLog = genericMeemContract.interface.parseLog({
-							data: rawLog.data,
-							topics: rawLog.topics
-						})
-
-						log.debug(parsedLog)
-
-						const eventData = parsedLog.args
-
-						switch (parsedLog.topic) {
-							case eventIds.MeemContractInitialized: {
-								await services.contractEvents.meemHandleContractInitialized({
-									address: rawLog.address
-								})
-								break
-							}
-							case eventIds.MeemTransfer: {
-								await services.contractEvents.meemHandleTransfer({
-									address: rawLog.address,
-									transactionHash: rawLog.transactionHash,
-									transactionTimestamp:
-										block?.timestamp || DateTime.now().toSeconds(),
-									eventData: eventData as MeemTransferEvent['args']
-								})
-								break
-							}
-							// case eventIds.MeemPropertiesSet: {
-							// 	await services.contractEvents.meemHandlePropertiesSet({
-							// 		address: rawLog.address,
-							// 		eventData
-							// 	})
-							// 	break
-							// }
-							case eventIds.MeemSplitsSet: {
-								await services.contractEvents.meemHandleSplitsSet({
-									address: rawLog.address,
-									eventData: eventData as MeemSplitsSetEvent['args']
-								})
-								break
-							}
-							// case eventIds.MeemTotalCopiesSet: {
-							// 	await services.contractEvents.meemHandleTotalCopiesSet({
-							// 		address: rawLog.address,
-							// 		eventData
-							// 	})
-							// 	break
-							// }
-							// case eventIds.MeemTotalCopiesLocked: {
-							// 	await services.contractEvents.meemHandleTotalCopiesLocked({
-							// 		address: rawLog.address,
-							// 		eventData
-							// 	})
-							// 	break
-							// }
-							// case eventIds.MeemCopiesPerWalletLocked: {
-							// 	await services.contractEvents.meemHandleCopiesPerWalletLocked({
-							// 		address: rawLog.address,
-							// 		eventData
-							// 	})
-							// 	break
-							// }
-							// case eventIds.MeemCopiesPerWalletSet: {
-							// 	await services.contractEvents.meemHandleCopiesPerWalletSet({
-							// 		address: rawLog.address,
-							// 		eventData
-							// 	})
-							// 	break
-							// }
-							// case eventIds.MeemTotalRemixesLocked: {
-							// 	await services.contractEvents.meemHandleTotalRemixesLocked({
-							// 		address: rawLog.address,
-							// 		eventData
-							// 	})
-							// 	break
-							// }
-							// case eventIds.MeemTotalRemixesSet: {
-							// 	await services.contractEvents.meemHandleTotalRemixesSet({
-							// 		address: rawLog.address,
-							// 		eventData
-							// 	})
-							// 	break
-							// }
-							// case eventIds.MeemRemixesPerWalletLocked: {
-							// 	await services.contractEvents.meemHandleRemixesPerWalletLocked({
-							// 		address: rawLog.address,
-							// 		eventData
-							// 	})
-							// 	break
-							// }
-							// case eventIds.MeemRemixesPerWalletSet: {
-							// 	await services.contractEvents.meemHandleRemixesPerWalletSet({
-							// 		address: rawLog.address,
-							// 		eventData
-							// 	})
-							// 	break
-							// }
-							// case eventIds.MeemTokenReactionAdded: {
-							// 	await services.contractEvents.meemHandleTokenReactionAdded({
-							// 		address: rawLog.address,
-							// 		transactionTimestamp:
-							// 			block?.timestamp || DateTime.now().toSeconds(),
-							// 		eventData
-							// 	})
-							// 	break
-							// }
-							// case eventIds.MeemTokenReactionRemoved: {
-							// 	await services.contractEvents.meemHandleTokenReactionRemoved({
-							// 		address: rawLog.address,
-							// 		eventData
-							// 	})
-							// 	break
-							// }
-							// case eventIds.MeemTokenReactionTypesSet: {
-							// 	await services.contractEvents.meemHandleTokenReactionTypesSet({
-							// 		address: rawLog.address,
-							// 		eventData
-							// 	})
-							// 	break
-							// }
-							// case eventIds.MeemClipped: {
-							// 	await services.contractEvents.meemHandleTokenClipped({
-							// 		address: rawLog.address,
-							// 		transactionTimestamp:
-							// 			block?.timestamp || DateTime.now().toSeconds(),
-							// 		eventData
-							// 	})
-							// 	break
-							// }
-							// case eventIds.MeemUnClipped: {
-							// 	await services.contractEvents.meemHandleTokenUnClipped({
-							// 		address: rawLog.address,
-							// 		eventData
-							// 	})
-							// 	break
-							// }
-							default:
-								break
-						}
-
-						/*
-							Handle parsed data
-
-						  parsedLog = {
-							eventFragment: {
-							  name: 'MeemContractInitialized',
-							  anonymous: false,
-							  inputs: [Array],
-							  type: 'event',
-							  _isFragment: true,
-							  constructor: [Function],
-							  format: [Function (anonymous)]
-							},
-							name: 'MeemContractInitialized',
-							signature: 'MeemContractInitialized(address)',
-							topic: '0x273c08f8f7c609a33a4029ada1508fb7e43c5e434c66274c739d21dc1bb8171f',
-							args: [
-							  '0x3FC5cDffD74d9EeebAcB2A7dd94714023662abbf',
-							  contractAddress: '0x3FC5cDffD74d9EeebAcB2A7dd94714023662abbf'
-							]
-						  }
-						*/
-					} catch (e) {
-						log.crit(e)
 					}
-				}
-			)
+				)
+			}
 
 			this.hasSetupListners = true
 			log.info('ProviderListener set up')

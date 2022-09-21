@@ -125,15 +125,15 @@ export default class MeemService {
 	}
 
 	/** Get a Meem contract instance */
-	public static async getMeemContract(options?: {
-		address?: string
+	public static async getMeemContract(options: {
+		address: string
+		chainId: number
 		walletPrivateKey?: string
-		chainId?: number
 	}) {
-		const chainId = options?.chainId
+		const { chainId, address } = options
 
 		const ethers = services.ethers.getInstance()
-		const address = options?.address || config.MEEM_PROXY_ADDRESS
+
 		if (config.TESTING) {
 			// @ts-ignore
 			const c = (await ethers.getContractAt(meemABI, address))
@@ -352,10 +352,13 @@ export default class MeemService {
 			}
 
 			const meemContract = await this.getMeemContract({
-				address: data.meemContractAddress.toLowerCase()
+				address: data.meemContractAddress.toLowerCase(),
+				chainId: data.chainId
 			})
 
-			let { recommendedGwei } = await services.web3.getGasEstimate()
+			let { recommendedGwei } = await services.web3.getGasEstimate({
+				chainId: data.chainId
+			})
 
 			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
 				// throw new Error('GAS_PRICE_TOO_HIGH')
@@ -390,7 +393,7 @@ export default class MeemService {
 
 			await orm.models.Transaction.create({
 				hash: mintTx.hash,
-				chainId: config.CHAIN_ID,
+				chainId: data.chainId,
 				WalletId: wallet.id
 			})
 
@@ -516,10 +519,13 @@ export default class MeemService {
 			}
 
 			const contract = await this.getMeemContract({
-				address: meemContract.address
+				address: meemContract.address,
+				chainId: meemContract.chainId
 			})
 
-			let { recommendedGwei } = await services.web3.getGasEstimate()
+			let { recommendedGwei } = await services.web3.getGasEstimate({
+				chainId: meemContract.chainId
+			})
 
 			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
 				// throw new Error('GAS_PRICE_TOO_HIGH')
@@ -547,7 +553,7 @@ export default class MeemService {
 
 			await orm.models.Transaction.create({
 				hash: mintTx.hash,
-				chainId: config.CHAIN_ID,
+				chainId: meemContract.chainId,
 				WalletId: wallet.id
 			})
 
@@ -624,10 +630,11 @@ export default class MeemService {
 
 	public static async getContractInfo(options: {
 		contractAddress: string
+		chainId: number
 		tokenId: Ethers.BigNumberish
 		networkName: MeemAPI.NetworkName
 	}) {
-		const { contractAddress, tokenId, networkName } = options
+		const { contractAddress, tokenId, networkName, chainId } = options
 		const isMeemToken =
 			contractAddress.toLowerCase() === config.MEEM_PROXY_ADDRESS.toLowerCase()
 
@@ -655,7 +662,10 @@ export default class MeemService {
 		let rootContractMetadata = parentContractMetadata
 
 		if (isMeemToken) {
-			const meemContract = await this.getMeemContract()
+			const meemContract = await this.getMeemContract({
+				address: contractAddress,
+				chainId
+			})
 			// const meem = await meemContract.getMeem(tokenId)
 			// rootTokenAddress = meem.root
 			// rootTokenId = meem.rootTokenId

@@ -140,7 +140,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		)
 		router.getAsync('/test/getUserJWT', TestController.testGetUserJWT)
 		router.getAsync('/test/gnosis', TestController.testGnosis)
-		router.getAsync('/test/testData', TestController.testData)
 		router.getAsync('/test/testCron', TestController.testCron)
 		router.getAsync('/test/syncContract', TestController.syncContract)
 		router.getAsync('/test/metadata', TestController.metadata)

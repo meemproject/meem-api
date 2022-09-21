@@ -788,6 +788,8 @@ export namespace CreateClubSafe {
 		/** The owners of the safe */
 		safeOwners: string[]
 
+		chainId: number
+
 		/** The number of signatures required */
 		threshold?: number
 	}
@@ -855,6 +857,9 @@ export namespace CreateMeemContract {
 	export interface IRequestBody {
 		/** Contract metadata */
 		metadata: IMeemContractMetadataLike
+
+		/** The chain id */
+		chainId: number
 
 		/** The symbol for the token. If omitted, will use a slug of the name */
 		symbol?: string
@@ -1787,6 +1792,8 @@ export namespace IsSlugAvailable {
 	export interface IRequestBody {
 		/** New slug */
 		slug: string
+
+		chainId: number
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -1908,6 +1915,9 @@ export namespace MintOriginalMeem {
 	export interface IRequestBody {
 		/** The address of the Meem contract to mint token */
 		meemContractAddress: string
+
+		/** The chain id */
+		chainId: number
 
 		/** Metadata object to be used for the minted Meem */
 		metadata?: IMeemMetadataLike

@@ -46,11 +46,21 @@ export default class MeemContractCron extends CronJob {
 			limit: 20
 		})
 
-		const provider = await services.ethers.getProvider()
-		const signer = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const providers: Record<number, ethers.providers.Provider> = {}
 
 		for (let i = 0; i < meemContracts.length; i++) {
 			const meemContract = meemContracts[i]
+
+			if (!providers[meemContract.chainId]) {
+				providers[meemContract.chainId] = await services.ethers.getProvider({
+					chainId: meemContract.chainId
+				})
+			}
+
+			const signer = new ethers.Wallet(
+				config.WALLET_PRIVATE_KEY,
+				providers[meemContract.chainId]
+			)
 
 			const instance = new ethers.Contract(
 				meemContract.address,

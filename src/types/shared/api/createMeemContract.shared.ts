@@ -23,6 +23,9 @@ export namespace CreateMeemContract {
 		/** Contract metadata */
 		metadata: IMeemContractMetadataLike
 
+		/** The chain id */
+		chainId: number
+
 		/** The symbol for the token. If omitted, will use a slug of the name */
 		symbol?: string
 

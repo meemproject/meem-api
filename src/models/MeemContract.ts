@@ -99,6 +99,11 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		},
 		gnosisSafeAddress: {
 			type: DataTypes.STRING
+		},
+		chainId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 137
 		}
 	}
 
@@ -132,7 +137,9 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		let hasCostBeenSet = false
 		let costWei = 0
 		const now = DateTime.local().toSeconds()
-		const provider = await services.ethers.getProvider()
+		const provider = await services.ethers.getProvider({
+			chainId: this.chainId
+		})
 
 		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 		let permission: MeemAPI.IMeemPermission | undefined
@@ -212,7 +219,9 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		let hasCostBeenSet = false
 		let costWei = 0
 		const now = DateTime.local().toSeconds()
-		const provider = await services.ethers.getProvider()
+		const provider = await services.ethers.getProvider({
+			chainId: this.chainId
+		})
 
 		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 
@@ -312,6 +321,8 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 	public ownerFetchedAt!: Date | null
 
 	public gnosisSafeAddress!: string | null
+
+	public chainId!: number
 
 	public OwnerId!: string | null
 

@@ -53,7 +53,7 @@ export default class Web3 {
 		return result
 	}
 
-	public static async getGasEstimate(options?: { chainId?: string }): Promise<{
+	public static async getGasEstimate(options: { chainId: number }): Promise<{
 		avgGwei?: number
 		distribution?: Record<number, number>
 		blockInfo?: {
@@ -72,7 +72,7 @@ export default class Web3 {
 			const ethers = services.ethers.getInstance()
 
 			const provider = await services.ethers.getProvider({
-				chainId: options?.chainId
+				chainId: options.chainId
 			})
 
 			// const lastBlock = await provider.getBlockWithTransactions(blockInfo.block)

@@ -19,10 +19,10 @@ export default class EthersService {
 		return this.ethers
 	}
 
-	public async getProvider(options?: { chainId?: BigNumberish }) {
+	public async getProvider(options: { chainId: BigNumberish }) {
 		const { ethers } = await import('ethers')
 
-		const chainId = ethers.BigNumber.from(options?.chainId ?? config.CHAIN_ID)
+		const chainId = ethers.BigNumber.from(options.chainId)
 
 		let provider: Ethers.providers.Provider
 		switch (chainId.toNumber()) {
@@ -38,9 +38,33 @@ export default class EthersService {
 				)
 				break
 
+			case 5:
+				provider = new ReconnectingWebSocketProvider(config.WS_RPC_GOERLI, 5)
+				break
+
 			case 137:
-				// provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_POLYGON)
 				provider = new ReconnectingWebSocketProvider(config.WS_RPC_POLYGON, 137)
+				break
+
+			case 80001:
+				provider = new ReconnectingWebSocketProvider(
+					config.WS_RPC_MUMBAI,
+					80001
+				)
+				break
+
+			case 421613:
+				provider = new ReconnectingWebSocketProvider(
+					config.WS_RPC_ARBITRUM_GOERLI,
+					421613
+				)
+				break
+
+			case 420:
+				provider = new ReconnectingWebSocketProvider(
+					config.WS_RPC_OPTIMISM_GOERLI,
+					420
+				)
 				break
 
 			case 31337:
