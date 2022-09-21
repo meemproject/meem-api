@@ -27,9 +27,10 @@ export default class MeemContractController {
 			})
 		}
 
-		const isSlugAvailable = await services.meemContract.isSlugAvailable(
-			req.body.slug
-		)
+		const isSlugAvailable = await services.meemContract.isSlugAvailable({
+			slugToCheck: req.body.slug,
+			chainId: req.body.chainId
+		})
 
 		return res.json({
 			isSlugAvailable
@@ -88,14 +89,18 @@ export default class MeemContractController {
 		}
 
 		if (req.body.slug && req.body.slug !== meemContract.slug) {
-			const isAvailable = await services.meemContract.isSlugAvailable(
-				req.body.slug
-			)
+			const isAvailable = await services.meemContract.isSlugAvailable({
+				slugToCheck: req.body.slug,
+				chainId: meemContract.chainId
+			})
 			if (!isAvailable) {
 				throw new Error('SLUG_UNAVAILABLE')
 			}
 
-			const slug = await services.meemContract.generateSlug(req.body.slug)
+			const slug = await services.meemContract.generateSlug({
+				baseSlug: req.body.slug,
+				chainId: meemContract.chainId
+			})
 
 			if (req.body.slug !== slug) {
 				throw new Error('INVALID_SLUG')

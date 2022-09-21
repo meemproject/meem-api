@@ -689,9 +689,23 @@ export default class MeemIdentityService {
 				q: `app_metadata.internal_id:"${meemId.id}"`
 			})
 
-			if (users.length > 0 && users[0].user_id) {
-				if (users[0].email_verified) {
+			let user = users[0] ?? null
+
+			if (user && user.user_id) {
+				if (users[0].email_verified && users[0].email === email) {
 					return users[0]
+				}
+
+				if (user.email !== email) {
+					user = await mgmgtClient.updateUser(
+						{
+							id: user.user_id
+						},
+						{
+							email,
+							email_verified: false
+						}
+					)
 				}
 
 				await authClient.requestMagicLink({
@@ -701,9 +715,9 @@ export default class MeemIdentityService {
 					}
 				})
 
-				return users[0]
+				return user
 			} else {
-				let user = await mgmgtClient.createUser({
+				user = await mgmgtClient.createUser({
 					connection: 'email',
 					email,
 					email_verified: true, // Hack to prevent verification email from being automatically sent

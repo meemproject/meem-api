@@ -21,6 +21,9 @@ export namespace MintOriginalMeem {
 		/** The address of the Meem contract to mint token */
 		meemContractAddress: string
 
+		/** The chain id */
+		chainId: number
+
 		/** Metadata object to be used for the minted Meem */
 		metadata?: IMeemMetadataLike
 
