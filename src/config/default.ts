@@ -115,6 +115,9 @@ export default {
 	WS_RPC_RINKEBY: process.env.WS_RPC_RINKEBY ?? '',
 	WS_RPC_POLYGON: process.env.WS_RPC_POLYGON ?? '',
 	WS_RPC_GOERLI: process.env.WS_RPC_GOERLI ?? '',
+	WS_RPC_ARBITRUM_GOERLI: process.env.WS_RPC_ARBITRUM_GOERLI ?? '',
+	WS_RPC_OPTIMISM_GOERLI: process.env.WS_RPC_OPTIMISM_GOERLI ?? '',
+	WS_RPC_MUMBAI: process.env.WS_RPC_MUMBAI ?? '',
 	JSON_RPC_HARDHAT: process.env.JSON_RPC_HARDHAT ?? 'http://127.0.0.1:8545',
 	ENABLE_WHITELIST_TEST_DATA: process.env.ENABLE_WHITELIST_TEST_DATA === 'true',
 	MAX_GAS_PRICE_GWEI: process.env.MAX_GAS_PRICE_GWEI

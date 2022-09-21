@@ -1813,6 +1813,8 @@ export namespace IsSlugAvailable {
 	export interface IRequestBody {
 		/** New slug */
 		slug: string
+
+		chainId: number
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

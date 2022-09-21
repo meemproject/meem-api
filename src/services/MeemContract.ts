@@ -18,15 +18,20 @@ import { InitParamsStruct, Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class MeemContractService {
-	public static async generateSlug(
-		baseSlug: string,
+	public static async generateSlug(options: {
+		baseSlug: string
+		chainId: number
 		depth?: number
-	): Promise<string> {
+	}): Promise<string> {
+		const { baseSlug, chainId, depth } = options
 		// TODO: 🚨 Figure out what to do with slugs. Do all contract types need slugs?
 		const theSlug = slug(baseSlug, { lower: true })
 
 		try {
-			const isAvailable = await this.isSlugAvailable(theSlug)
+			const isAvailable = await this.isSlugAvailable({
+				slugToCheck: theSlug,
+				chainId
+			})
 			if (isAvailable) {
 				return theSlug
 			}
@@ -45,7 +50,11 @@ export default class MeemContractService {
 			const rand = Math.floor(Math.random() * 10000) + 1
 			const randStr = Math.random().toString(36).substring(3)
 			const newSlug = `${randStr}-${theSlug}-${rand}`
-			const finalSlug = await this.generateSlug(newSlug, newDepth)
+			const finalSlug = await this.generateSlug({
+				baseSlug: newSlug,
+				chainId,
+				depth: newDepth
+			})
 			return finalSlug
 		} catch (e) {
 			log.crit(e)
@@ -53,10 +62,15 @@ export default class MeemContractService {
 		}
 	}
 
-	public static async isSlugAvailable(slugToCheck: string): Promise<boolean> {
+	public static async isSlugAvailable(options: {
+		slugToCheck: string
+		chainId: number
+	}): Promise<boolean> {
+		const { slugToCheck, chainId } = options
 		const existingSlug = await orm.models.MeemContract.findOne({
 			where: {
-				slug: slugToCheck
+				slug: slugToCheck,
+				chainId
 			}
 		})
 		return !existingSlug
@@ -86,9 +100,14 @@ export default class MeemContractService {
 				cleanAdmins,
 				fullMintPermissions,
 				senderWallet
-			} = await this.prepareInitValues(data)
+			} = await this.prepareInitValues({
+				...data,
+				chainId: meemContractInstance.chainId
+			})
 
-			let { recommendedGwei } = await services.web3.getGasEstimate()
+			let { recommendedGwei } = await services.web3.getGasEstimate({
+				chainId: meemContractInstance.chainId
+			})
 
 			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
 				// throw new Error('GAS_PRICE_TOO_HIGH')
@@ -221,7 +240,14 @@ export default class MeemContractService {
 							include: [
 								{
 									model: orm.models.Contract,
-									include: [orm.models.ContractInstance]
+									include: [
+										{
+											model: orm.models.ContractInstance,
+											where: {
+												chainId
+											}
+										}
+									]
 								}
 							]
 						}
@@ -243,7 +269,7 @@ export default class MeemContractService {
 				contractInitParams,
 				cleanAdmins,
 				fullMintPermissions
-			} = await this.prepareInitValues(data)
+			} = await this.prepareInitValues({ ...data, chainId })
 
 			const proxyContractFactory = new ethers.ContractFactory(
 				dbContract.abi,
@@ -253,7 +279,9 @@ export default class MeemContractService {
 				wallet
 			)
 
-			let { recommendedGwei } = await services.web3.getGasEstimate()
+			let { recommendedGwei } = await services.web3.getGasEstimate({
+				chainId
+			})
 
 			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
 				// throw new Error('GAS_PRICE_TOO_HIGH')
@@ -326,7 +354,10 @@ export default class MeemContractService {
 
 			if (data.name) {
 				try {
-					contractSlug = await services.meemContract.generateSlug(data.name)
+					contractSlug = await services.meemContract.generateSlug({
+						baseSlug: data.name,
+						chainId
+					})
 				} catch (e) {
 					log.crit('Something went wrong while creating slug', e)
 				}
@@ -399,6 +430,7 @@ export default class MeemContractService {
 			| MeemAPI.v1.CreateMeemContract.IRequestBody
 			| MeemAPI.v1.ReInitializeMeemContract.IRequestBody
 		) & {
+			chainId: number
 			senderWalletAddress: string
 		}
 	) {
@@ -419,7 +451,8 @@ export default class MeemContractService {
 			splits,
 			isTransferLocked,
 			adminTokenMetadata,
-			senderWalletAddress
+			senderWalletAddress,
+			chainId
 		} = data
 		let senderWallet = await orm.models.Wallet.findByAddress<Wallet>(
 			senderWalletAddress
@@ -474,7 +507,9 @@ export default class MeemContractService {
 			}
 		}
 
-		const provider = await services.ethers.getProvider()
+		const provider = await services.ethers.getProvider({
+			chainId
+		})
 
 		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 
@@ -629,7 +664,9 @@ export default class MeemContractService {
 				'0x0000000000000000000000000000000000000000'
 			])
 
-			let { recommendedGwei } = await services.web3.getGasEstimate()
+			let { recommendedGwei } = await services.web3.getGasEstimate({
+				chainId
+			})
 
 			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
 				// throw new Error('GAS_PRICE_TOO_HIGH')
@@ -688,29 +725,14 @@ export default class MeemContractService {
 	) {
 		const { meemContractId, senderWalletAddress } = options
 		try {
-			const [meemContract, bundle, senderWallet] = await Promise.all([
+			const [meemContract, senderWallet] = await Promise.all([
 				orm.models.MeemContract.findOne({
 					where: {
 						id: meemContractId
 					},
 					include: [orm.models.Wallet]
 				}),
-				orm.models.Bundle.findOne({
-					where: {
-						id: config.MEEM_BUNDLE_ID
-					},
-					include: [
-						{
-							model: orm.models.BundleContract,
-							include: [
-								{
-									model: orm.models.Contract,
-									include: [orm.models.ContractInstance]
-								}
-							]
-						}
-					]
-				}),
+
 				orm.models.Wallet.findByAddress<Wallet>(senderWalletAddress)
 			])
 
@@ -722,10 +744,35 @@ export default class MeemContractService {
 				throw new Error('WALLET_NOT_FOUND')
 			}
 
-			const isAdmin = await this.isMeemContractAdmin({
-				meemContractId: meemContract.id,
-				walletAddress: senderWalletAddress
-			})
+			const [bundle, isAdmin] = await Promise.all([
+				orm.models.Bundle.findOne({
+					where: {
+						id: config.MEEM_BUNDLE_ID
+					},
+					include: [
+						{
+							model: orm.models.BundleContract,
+							include: [
+								{
+									model: orm.models.Contract,
+									include: [
+										{
+											model: orm.models.ContractInstance,
+											where: {
+												chainId: meemContract.chainId
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				}),
+				this.isMeemContractAdmin({
+					meemContractId: meemContract.id,
+					walletAddress: senderWalletAddress
+				})
+			])
 
 			if (!isAdmin) {
 				throw new Error('NOT_AUTHORIZED')
@@ -734,7 +781,9 @@ export default class MeemContractService {
 			const fromVersion: IFacetVersion[] = []
 			const toVersion: IFacetVersion[] = []
 
-			const provider = await services.ethers.getProvider()
+			const provider = await services.ethers.getProvider({
+				chainId: meemContract.chainId
+			})
 			const signer = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 
 			const diamond = new ethers.Contract(
@@ -764,7 +813,9 @@ export default class MeemContractService {
 				})
 			})
 
-			let { recommendedGwei } = await services.web3.getGasEstimate()
+			let { recommendedGwei } = await services.web3.getGasEstimate({
+				chainId: meemContract.chainId
+			})
 
 			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
 				// throw new Error('GAS_PRICE_TOO_HIGH')

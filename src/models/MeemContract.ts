@@ -137,7 +137,9 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		let hasCostBeenSet = false
 		let costWei = 0
 		const now = DateTime.local().toSeconds()
-		const provider = await services.ethers.getProvider()
+		const provider = await services.ethers.getProvider({
+			chainId: this.chainId
+		})
 
 		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 		let permission: MeemAPI.IMeemPermission | undefined
@@ -217,7 +219,9 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		let hasCostBeenSet = false
 		let costWei = 0
 		const now = DateTime.local().toSeconds()
-		const provider = await services.ethers.getProvider()
+		const provider = await services.ethers.getProvider({
+			chainId: this.chainId
+		})
 
 		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 

@@ -1,12 +1,11 @@
-import type { Log } from '@ethersproject/abstract-provider'
 import { MeemContractMetadataLike } from '@meemproject/metadata'
-import { Contract, ethers, utils } from 'ethers'
+import { ethers } from 'ethers'
 // import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
 import { v4 as uuidv4 } from 'uuid'
-import meemABI from '../abis/Meem.json'
-import { wait } from '../lib/utils'
+// import meemABI from '../abis/Meem.json'
+// import { wait } from '../lib/utils'
 import Meem from '../models/Meem'
 import MeemContract from '../models/MeemContract'
 import Wallet from '../models/Wallet'
@@ -83,99 +82,99 @@ export default class ContractEvent {
 	// 	}
 	// }
 
-	public static async meemContractSync(specificEvents?: Log[]) {
-		log.debug('Syncing MeemContracts...')
-		const provider = await services.ethers.getProvider()
-		const logs =
-			specificEvents ??
-			(await provider.getLogs({
-				fromBlock: 0,
-				toBlock: 'latest',
-				topics: [[utils.id('MeemContractInitialized(address)')]]
-			}))
+	// public static async meemContractSync(specificEvents?: Log[]) {
+	// 	log.debug('Syncing MeemContracts...')
+	// 	const provider = await services.ethers.getProvider()
+	// 	const logs =
+	// 		specificEvents ??
+	// 		(await provider.getLogs({
+	// 			fromBlock: 0,
+	// 			toBlock: 'latest',
+	// 			topics: [[utils.id('MeemContractInitialized(address)')]]
+	// 		}))
 
-		log.debug(`Syncing ${logs.length} initialized events`)
+	// 	log.debug(`Syncing ${logs.length} initialized events`)
 
-		const failedEvents: Log[] = []
+	// 	const failedEvents: Log[] = []
 
-		for (let i = 0; i < logs.length; i += 1) {
-			try {
-				log.debug(`Syncing ${i + 1} / ${logs.length} events`)
+	// 	for (let i = 0; i < logs.length; i += 1) {
+	// 		try {
+	// 			log.debug(`Syncing ${i + 1} / ${logs.length} events`)
 
-				// eslint-disable-next-line no-await-in-loop
-				await this.meemHandleContractInitialized({
-					address: logs[i].address
-				})
-				// eslint-disable-next-line no-await-in-loop
-				await wait(500)
-			} catch (e) {
-				failedEvents.push(logs[i])
-				log.crit(e)
-				log.debug(logs[i])
-			}
-		}
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			await this.meemHandleContractInitialized({
+	// 				address: logs[i].address
+	// 			})
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			await wait(500)
+	// 		} catch (e) {
+	// 			failedEvents.push(logs[i])
+	// 			log.crit(e)
+	// 			log.debug(logs[i])
+	// 		}
+	// 	}
 
-		if (failedEvents.length > 0) {
-			log.debug(`Completed with ${failedEvents.length} failed events`)
-			// log.debug(`Retrying ${failedEvents.length} events`)
-			// await this.meemContractSync(failedEvents)
-		}
-	}
+	// 	if (failedEvents.length > 0) {
+	// 		log.debug(`Completed with ${failedEvents.length} failed events`)
+	// 		// log.debug(`Retrying ${failedEvents.length} events`)
+	// 		// await this.meemContractSync(failedEvents)
+	// 	}
+	// }
 
-	public static async meemSync(specificEvents?: Log[]) {
-		log.debug('Syncing meems...')
-		const provider = await services.ethers.getProvider()
+	// public static async meemSync(specificEvents?: Log[]) {
+	// 	log.debug('Syncing meems...')
+	// 	const provider = await services.ethers.getProvider()
 
-		const genericMeemContract = new Contract(
-			MeemAPI.zeroAddress,
-			meemABI
-		) as unknown as Mycontract
+	// 	const genericMeemContract = new Contract(
+	// 		MeemAPI.zeroAddress,
+	// 		meemABI
+	// 	) as unknown as Mycontract
 
-		const logs =
-			specificEvents ??
-			(await provider.getLogs({
-				fromBlock: 0,
-				toBlock: 'latest',
-				topics: [[utils.id('MeemTransfer(address,address,uint256)')]]
-			}))
+	// 	const logs =
+	// 		specificEvents ??
+	// 		(await provider.getLogs({
+	// 			fromBlock: 0,
+	// 			toBlock: 'latest',
+	// 			topics: [[utils.id('MeemTransfer(address,address,uint256)')]]
+	// 		}))
 
-		const failedEvents: Log[] = []
+	// 	const failedEvents: Log[] = []
 
-		for (let i = 0; i < logs.length; i += 1) {
-			try {
-				log.debug(`Syncing ${i + 1} / ${logs.length} events`)
+	// 	for (let i = 0; i < logs.length; i += 1) {
+	// 		try {
+	// 			log.debug(`Syncing ${i + 1} / ${logs.length} events`)
 
-				const parsedLog = genericMeemContract.interface.parseLog({
-					data: logs[i].data,
-					topics: logs[i].topics
-				})
+	// 			const parsedLog = genericMeemContract.interface.parseLog({
+	// 				data: logs[i].data,
+	// 				topics: logs[i].topics
+	// 			})
 
-				const eventData = parsedLog.args as MeemTransferEvent['args']
+	// 			const eventData = parsedLog.args as MeemTransferEvent['args']
 
-				// eslint-disable-next-line no-await-in-loop
-				const block = await provider.getBlock(logs[i].blockHash)
-				// eslint-disable-next-line no-await-in-loop
-				await this.meemHandleTransfer({
-					address: logs[i].address,
-					transactionHash: logs[i].transactionHash,
-					transactionTimestamp: block.timestamp,
-					eventData
-				})
-				// eslint-disable-next-line no-await-in-loop
-				await wait(500)
-			} catch (e) {
-				failedEvents.push(logs[i])
-				log.crit(e)
-				log.debug(logs[i])
-			}
-		}
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			const block = await provider.getBlock(logs[i].blockHash)
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			await this.meemHandleTransfer({
+	// 				address: logs[i].address,
+	// 				transactionHash: logs[i].transactionHash,
+	// 				transactionTimestamp: block.timestamp,
+	// 				eventData
+	// 			})
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			await wait(500)
+	// 		} catch (e) {
+	// 			failedEvents.push(logs[i])
+	// 			log.crit(e)
+	// 			log.debug(logs[i])
+	// 		}
+	// 	}
 
-		if (failedEvents.length > 0) {
-			log.debug(`Completed with ${failedEvents.length} failed events`)
-			// log.debug(`Retrying ${failedEvents.length} events`)
-			// await this.meemSync(failedEvents)
-		}
-	}
+	// 	if (failedEvents.length > 0) {
+	// 		log.debug(`Completed with ${failedEvents.length} failed events`)
+	// 		// log.debug(`Retrying ${failedEvents.length} events`)
+	// 		// await this.meemSync(failedEvents)
+	// 	}
+	// }
 
 	public static async meemHandleContractInitialized(args: {
 		address: string
@@ -214,7 +213,10 @@ export default class ContractEvent {
 
 		if (!existingMeemContract || !slug) {
 			try {
-				slug = await services.meemContract.generateSlug(contractInfo.name)
+				slug = await services.meemContract.generateSlug({
+					baseSlug: contractInfo.name,
+					chainId
+				})
 			} catch (e) {
 				log.crit('Something went wrong while creating slug', e)
 				slug = uuidv4()
@@ -401,6 +403,7 @@ export default class ContractEvent {
 	public static async meemHandleSplitsSet(_args: {
 		address: string
 		eventData: MeemSplitsSetEvent['args']
+		chainId: number
 	}) {
 		// const tokenId = args.eventData.tokenId.toHexString()
 		// const { splits } = args.eventData
@@ -739,8 +742,10 @@ export default class ContractEvent {
 		transactionHash: string
 		transactionTimestamp: number
 		eventData: MeemTransferEvent['args']
+		chainId: number
 	}) {
 		const tokenId = args.eventData.tokenId.toHexString()
+		const { chainId } = args
 		let meem = await orm.models.Meem.findOne({
 			where: {
 				tokenId
@@ -757,7 +762,11 @@ export default class ContractEvent {
 
 		if (!meem) {
 			log.debug(`Creating new meem: ${tokenId}`)
-			meem = await this.createNewMeem(args.address, tokenId)
+			meem = await this.createNewMeem({
+				address: args.address,
+				tokenId,
+				chainId
+			})
 		} else {
 			log.debug(`Updating meem: ${tokenId}`)
 			let wallet = await orm.models.Wallet.findByAddress<Wallet>(
@@ -814,9 +823,15 @@ export default class ContractEvent {
 		// }
 	}
 
-	public static async createNewMeem(address: string, tokenId: string) {
+	public static async createNewMeem(options: {
+		address: string
+		tokenId: string
+		chainId: number
+	}) {
+		const { address, tokenId, chainId } = options
 		const meemContract = await services.meem.getMeemContract({
-			address
+			address,
+			chainId
 		})
 
 		log.debug(`Fetching meem from contract: ${tokenId}`)
@@ -840,7 +855,8 @@ export default class ContractEvent {
 
 		if (!meemContractData) {
 			meemContractData = await this.meemHandleContractInitialized({
-				address
+				address,
+				chainId
 			})
 			if (!meemContractData) {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
