@@ -32,12 +32,19 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 		guildRoleId: {
 			type: DataTypes.INTEGER,
 			allowNull: true
+		},
+		isAdminRole: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false,
+			allowNull: false
 		}
 	}
 
 	public id!: string
 
 	public name!: string
+
+	public isAdminRole!: boolean
 
 	public guildRoleId!: number | null
 
