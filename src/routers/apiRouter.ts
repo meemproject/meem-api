@@ -80,6 +80,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/meemContracts/:meemContractId/roles',
 		MeemContractController.getMeemContractRoles
 	)
+	router.getAsync(
+		'/meemContracts/:meemContractId/roles/:meemContractRoleId',
+		MeemContractController.getMeemContractRole
+	)
 	router.postAsync(
 		'/meemContracts/:meemContractId/roles',
 		MeemContractController.createMeemContractRole

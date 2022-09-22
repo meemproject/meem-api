@@ -850,6 +850,28 @@ export default class MeemContractController {
 		}
 	}
 
+	public static async getMeemContractRole(
+		req: IRequest<MeemAPI.v1.GetMeemContractRole.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetMeemContractRole.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		try {
+			const roles = await services.meemContract.getMeemContractRoles({
+				meemContractId: req.params.meemContractId,
+				meemContractRoleId: req.params.meemContractRoleId
+			})
+			return res.json({
+				role: roles[0]
+			})
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
 	public static async getJoinMessage(
 		req: IRequest<any>,
 		res: IResponse<any>

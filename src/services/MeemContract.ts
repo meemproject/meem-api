@@ -937,11 +937,13 @@ export default class MeemContractService {
 
 					role.guildRole = guildRoleResponse
 
-					role.members = await Promise.all(
-						(role.guildRole?.members ?? []).map((m: string) =>
-							services.meemId.getMeemIdentityForAddress(m)
+					if (meemContractRoleId) {
+						role.members = await Promise.all(
+							(role.guildRole?.members ?? []).map((m: string) =>
+								services.meemId.getMeemIdentityForAddress(m)
+							)
 						)
-					)
+					}
 				}
 				return role
 			})
