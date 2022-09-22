@@ -400,7 +400,7 @@ export default class ContractEvent {
 
 		if (!meemContractGuild) {
 			await services.guild.createMeemContractGuild({
-				meemContract: theMeemContract
+				meemContractId: theMeemContract.id
 			})
 		}
 

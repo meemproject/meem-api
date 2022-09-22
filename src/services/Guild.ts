@@ -1,13 +1,7 @@
 /* eslint-disable no-await-in-loop */
 
-import {
-	Chain,
-	CreateGuildResponse,
-	GetGuildsResponse,
-	guild,
-	role as guildRole,
-	user
-} from '@guildxyz/sdk'
+import { Chain, guild, role as guildRole } from '@guildxyz/sdk'
+// eslint-disable-next-line import/named
 import { Bytes, ethers } from 'ethers'
 import MeemContract from '../models/MeemContract'
 import MeemContractGuild from '../models/MeemContractGuild'
@@ -256,7 +250,9 @@ export default class GuildService {
 		members: string[]
 	}): Promise<MeemContractRole> {
 		const { name, meemContract, meemContractGuild, members } = data
-		const provider = await services.ethers.getProvider()
+		const provider = await services.ethers.getProvider({
+			chainId: meemContract.chainId
+		})
 		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
@@ -298,19 +294,41 @@ export default class GuildService {
 
 	public static async updateMeemContractGuildRole(data: {
 		name?: string
-		meemContractRole: MeemContractRole
+		meemContractId: string
+		guildRoleId: number
 		members: string[]
 	}): Promise<MeemContractRole> {
-		const { name, meemContractRole, members } = data
-		const provider = await services.ethers.getProvider()
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const { name, meemContractId, guildRoleId, members } = data
 
-		if (!meemContractRole.guildRoleId) {
-			log.crit('Guild role Id not set')
-			throw new Error('SERVER_ERROR')
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: meemContractId
+			},
+			include: [
+				{
+					model: orm.models.MeemContractGuild,
+					include: [
+						{
+							model: orm.models.MeemContractRole
+						}
+					]
+				}
+			]
+		})
+
+		const meemContractRole = meemContract?.MeemContractRoles?.find(
+			r => r.guildRoleId === guildRoleId
+		)
+
+		if (!meemContract || !meemContractRole) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		const guildRoleId = meemContractRole.guildRoleId
+		const provider = await services.ethers.getProvider({
+			chainId: meemContract.chainId
+		})
+
+		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)

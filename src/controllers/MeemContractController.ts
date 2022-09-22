@@ -1,7 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { user as guildUser, guild } from '@guildxyz/sdk'
 import AWS from 'aws-sdk'
-import { Bytes, ethers } from 'ethers'
 import { Response } from 'express'
 import _ from 'lodash'
 import request from 'superagent'
@@ -810,13 +808,14 @@ export default class MeemContractController {
 		if (
 			!_.isUndefined(req.body.members) &&
 			_.isArray(req.body.members) &&
-			meemContractRole.MeemContractGuild
+			meemContractRole.guildRoleId
 		) {
 			const members = req.body.members.map(m => m.toLowerCase())
 
 			try {
 				await services.guild.updateMeemContractGuildRole({
-					meemContractRole,
+					guildRoleId: meemContractRole.guildRoleId,
+					meemContractId: meemContract.id,
 					members
 				})
 			} catch (e) {
@@ -905,18 +904,11 @@ export default class MeemContractController {
 		}
 
 		try {
-			const response = await request
-				.post(`https://api.guild.xyz/v1/user/join`)
-				.send({
-					payload: req.body.payload,
-					params: req.body.params,
-					sig: req.body.sig
-				})
-			// const signingAddress = ethers.utils.verifyMessage(
-			// 	req.body.message,
-			// 	req.body.sig
-			// )
-			log.debug('SIGNED BY', signingAddress)
+			await request.post(`https://api.guild.xyz/v1/user/join`).send({
+				payload: req.body.payload,
+				params: req.body.params,
+				sig: req.body.sig
+			})
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')
