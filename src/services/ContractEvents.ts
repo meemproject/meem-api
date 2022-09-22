@@ -271,8 +271,9 @@ export default class ContractEvent {
 		let theMeemContract: MeemContract
 
 		if (!existingMeemContract) {
-			theMeemContract = await orm.models.MeemContract.create(meemContractData, {
-				transaction: t
+			theMeemContract = await orm.models.MeemContract.create(meemContractData)
+			await services.guild.createMeemContractGuild({
+				meemContractId: theMeemContract.id
 			})
 		} else {
 			theMeemContract = await existingMeemContract.update(meemContractData)
@@ -393,16 +394,6 @@ export default class ContractEvent {
 		}
 
 		await t.commit()
-
-		const meemContractGuild = await services.guild.getMeemContractGuild({
-			meemContractId: theMeemContract.id
-		})
-
-		if (!meemContractGuild) {
-			await services.guild.createMeemContractGuild({
-				meemContractId: theMeemContract.id
-			})
-		}
 
 		// Update ENS
 		await services.meemId.updateENS(theMeemContract)
