@@ -1,9 +1,12 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
+import MeemContractRole from './MeemContractRole'
 
 export default class MeemContractGuild extends BaseModel<MeemContractGuild> {
 	public static readonly modelName = 'MeemContractGuild'
+
+	public static readonly paranoid = false
 
 	public static get indexes() {
 		return [
@@ -32,7 +35,10 @@ export default class MeemContractGuild extends BaseModel<MeemContractGuild> {
 
 	public MeemContractId!: string
 
+	public MeemContractRoles!: MeemContractRole[] | null
+
 	public static associate(models: IModels) {
 		this.belongsTo(models.MeemContract)
+		this.hasMany(models.MeemContractRole)
 	}
 }

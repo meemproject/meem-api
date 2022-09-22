@@ -365,7 +365,7 @@ export default class MeemContractService {
 				}
 			}
 
-			await orm.models.MeemContract.create({
+			const meemContractInstance = await orm.models.MeemContract.create({
 				address: proxyContract.address,
 				mintPermissions: fullMintPermissions,
 				slug: contractSlug,
@@ -391,6 +391,10 @@ export default class MeemContractService {
 			})
 
 			await cutTx.wait()
+
+			await services.guild.createMeemContractGuild({
+				meemContractId: meemContractInstance.id
+			})
 
 			if (shouldMintAdminTokens && adminTokenMetadata) {
 				log.debug(`Minting admin tokens.`, cleanAdmins)

@@ -539,6 +539,52 @@ export default class MeemContractController {
 		})
 	}
 
+	public static async createMeemContractGuild(
+		req: IRequest<any>,
+		res: IResponse<any>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const { meemContractId } = req.params
+
+		if (!meemContractId) {
+			throw new Error('SERVER_ERROR')
+		}
+
+		const meemContractGuild = await services.guild.createMeemContractGuild({
+			meemContractId: meemContractId as string
+		})
+
+		return res.json({
+			meemContractGuild
+		})
+	}
+
+	public static async deleteMeemContractGuild(
+		req: IRequest<any>,
+		res: IResponse<any>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const { meemContractId } = req.params
+
+		if (!meemContractId) {
+			throw new Error('SERVER_ERROR')
+		}
+
+		const meemContractGuild = await services.guild.deleteMeemContractGuild({
+			meemContractId: meemContractId as string
+		})
+
+		return res.json({
+			meemContractGuild
+		})
+	}
+
 	public static async createMeemContractRole(
 		req: IRequest<MeemAPI.v1.CreateMeemContractRole.IDefinition>,
 		res: IResponse<MeemAPI.v1.CreateMeemContractRole.IResponseBody>

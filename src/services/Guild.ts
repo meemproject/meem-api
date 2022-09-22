@@ -15,24 +15,78 @@ import MeemContractRole from '../models/MeemContractRole'
 
 export default class GuildService {
 	public static async createMeemContractGuild(data: {
-		meemContract: MeemContract
+		meemContractId: string
 	}): Promise<{
 		meemContractGuild: MeemContractGuild
 		meemContractRoles: MeemContractRole[]
 	}> {
-		const { meemContract } = data
-		const provider = await services.ethers.getProvider()
+		const { meemContractId } = data
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: meemContractId
+			},
+			include: [
+				{
+					model: orm.models.MeemContractGuild,
+					include: [
+						{
+							model: orm.models.MeemContractRole
+						}
+					]
+				}
+			]
+		})
+
+		if (!meemContract) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		if (meemContract.MeemContractGuild) {
+			return {
+				meemContractGuild: meemContract.MeemContractGuild,
+				meemContractRoles:
+					meemContract.MeemContractGuild?.MeemContractRoles ?? []
+			}
+		}
+
+		const provider = await services.ethers.getProvider({
+			chainId: meemContract.chainId
+		})
 		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
+
+		const adminWallets = await orm.models.MeemContractWallet.findAll({
+			where: {
+				MeemContractId: meemContract.id,
+				role: config.ADMIN_ROLE
+			},
+			include: [orm.models.Wallet]
+		})
+
+		const adminAddresses = adminWallets
+			.map(aw => aw.Wallet?.address ?? '')
+			.filter(a => a !== '' && a !== wallet.address.toLowerCase())
 
 		try {
 			const createGuildResponse = await guild.create(wallet.address, sign, {
 				name: meemContract.name,
 				roles: [
 					{
-						name: `${meemContract.name} Token Holder`,
+						name: `${meemContract.name} Admin`,
+						logic: 'OR',
+						requirements: [
+							{
+								type: 'ALLOWLIST',
+								data: {
+									addresses: adminAddresses
+								}
+							}
+						]
+					},
+					{
+						name: `${meemContract.name} Member`,
 						logic: 'OR',
 						requirements: [
 							{
@@ -59,13 +113,34 @@ export default class GuildService {
 			const guildResponse = await guild.get(createGuildResponse.id)
 
 			const meemContractRoles = await Promise.all(
-				guildResponse.roles.map(async guildRole => {
+				guildResponse.roles.map(async role => {
 					const meemContractRole = await orm.models.MeemContractRole.create({
-						guildRoleId: guildRole.id,
-						name: guildRole.name,
+						guildRoleId: role.id,
+						name: role.name,
 						MeemContractId: meemContract.id,
 						MeemContractGuildId: meemContractGuild.id
 					})
+
+					if (role.name.toLowerCase().includes('admin')) {
+						const meemContractRolePermissionsData: {
+							MeemContractRoleId: string
+							RolePermissionId: string
+						}[] = [
+							'clubs.admin.editProfile',
+							'clubs.admin.manageMembershipSettings',
+							'clubs.admin.manageRoles'
+						].map(rid => {
+							return {
+								MeemContractRoleId: meemContractRole.id,
+								RolePermissionId: rid
+							}
+						})
+
+						await orm.models.MeemContractRolePermission.bulkCreate(
+							meemContractRolePermissionsData
+						)
+					}
+
 					return meemContractRole
 				})
 			)
@@ -74,6 +149,84 @@ export default class GuildService {
 				meemContractGuild,
 				meemContractRoles
 			}
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
+	public static async deleteMeemContractGuild(data: {
+		meemContractId: string
+	}): Promise<void> {
+		const { meemContractId } = data
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: meemContractId
+			},
+			include: [
+				{
+					model: orm.models.MeemContractGuild,
+					include: [
+						{
+							model: orm.models.MeemContractRole,
+							include: [
+								{
+									model: orm.models.RolePermission
+								}
+							]
+						}
+					]
+				}
+			]
+		})
+
+		if (!meemContract || !meemContract.MeemContractGuild) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		const provider = await services.ethers.getProvider({
+			chainId: meemContract.chainId
+		})
+		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+
+		const sign = (signableMessage: string | Bytes) =>
+			wallet.signMessage(signableMessage)
+
+		try {
+			await guild.delete(
+				meemContract.MeemContractGuild.guildId,
+				wallet.address,
+				sign,
+				true
+			)
+
+			const promises: Promise<any>[] = []
+			const t = await orm.sequelize.transaction()
+
+			promises.push(
+				orm.models.MeemContractRole.destroy({
+					where: {
+						id: meemContract.MeemContractGuild.MeemContractRoles?.map(
+							role => role.id
+						)
+					},
+					transaction: t
+				})
+			)
+
+			promises.push(
+				orm.models.MeemContractGuild.destroy({
+					where: {
+						id: meemContract.MeemContractGuild.id
+					},
+					transaction: t
+				})
+			)
+
+			await Promise.all(promises)
+			await t.commit()
+
+			return
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')

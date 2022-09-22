@@ -30,6 +30,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	// 	AdminController.syncDbMeemIdsToContract
 	// )
 	router.getAsync('/syncIntegrations', AdminController.syncIntegrations)
+	router.getAsync('/syncPermissions', AdminController.syncPermissions)
 	router.getAsync(
 		'/seedIdentityIntegrations',
 		AdminController.seedIdentityIntegrations

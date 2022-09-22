@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
-import integrations from '../lib/integrations'
+import integrationsData from '../lib/integrations'
+import permissionsData from '../lib/permissions'
 
 export default class AdminController {
 	public static async runMigrations(
@@ -81,28 +82,75 @@ export default class AdminController {
 
 		const failedIntegrations: any[] = []
 
-		for (let i = 0; i < integrations.length; i += 1) {
+		for (let i = 0; i < integrationsData.length; i += 1) {
 			try {
-				log.debug(`Syncing ${i + 1} / ${integrations.length} integrations`)
+				log.debug(`Syncing ${i + 1} / ${integrationsData.length} integrations`)
 				// eslint-disable-next-line no-await-in-loop
 				const existingIntegration = await orm.models.Integration.findOne({
 					where: {
-						name: integrations[i].name
+						name: integrationsData[i].name
 					}
 				})
 				if (!existingIntegration) {
 					// eslint-disable-next-line no-await-in-loop
-					await orm.models.Integration.create(integrations[i])
+					await orm.models.Integration.create(integrationsData[i])
 				} else {
 					// eslint-disable-next-line no-await-in-loop
-					await existingIntegration.update(integrations[i])
+					await existingIntegration.update(integrationsData[i])
 				}
 			} catch (e) {
-				failedIntegrations.push(integrations[i])
+				failedIntegrations.push(integrationsData[i])
 				log.crit(e)
-				log.debug(integrations[i])
+				log.debug(integrationsData[i])
 			}
 		}
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
+	public static async syncPermissions(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		await orm.models.RolePermission.sync({ force: true })
+
+		const failedPermissions: any[] = []
+
+		for (let i = 0; i < permissionsData.length; i += 1) {
+			try {
+				log.debug(`Syncing ${i + 1} / ${permissionsData.length} permissions`)
+				// eslint-disable-next-line no-await-in-loop
+				const existingPermission = await orm.models.RolePermission.findOne({
+					where: {
+						id: permissionsData[i].id
+					}
+				})
+				if (!existingPermission) {
+					// eslint-disable-next-line no-await-in-loop
+					await orm.models.RolePermission.create(permissionsData[i])
+				} else {
+					// eslint-disable-next-line no-await-in-loop
+					await existingPermission.update(permissionsData[i])
+				}
+			} catch (e) {
+				failedPermissions.push(permissionsData[i])
+				log.crit(e)
+				log.debug(permissionsData[i])
+			}
+		}
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
+	public static async createMeemContractRoles(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		// TODO
 
 		return res.json({
 			status: 'success'

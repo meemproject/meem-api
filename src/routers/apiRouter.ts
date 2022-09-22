@@ -65,6 +65,14 @@ export default (app: Express, _express: typeof coreExpress) => {
 		MeemContractController.getMintingProof
 	)
 	router.postAsync(
+		'/meemContracts/:meemContractId/guild',
+		MeemContractController.createMeemContractGuild
+	)
+	router.deleteAsync(
+		'/meemContracts/:meemContractId/guild',
+		MeemContractController.deleteMeemContractGuild
+	)
+	router.postAsync(
 		'/meemContracts/:meemContractId/joinGuild',
 		MeemContractController.joinMeemContractGuild
 	)

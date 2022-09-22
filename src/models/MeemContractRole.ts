@@ -7,6 +7,8 @@ import RolePermission from './RolePermission'
 export default class MeemContractRole extends BaseModel<MeemContractRole> {
 	public static readonly modelName = 'MeemContractRole'
 
+	public static readonly paranoid = false
+
 	public static get indexes() {
 		return [
 			{
