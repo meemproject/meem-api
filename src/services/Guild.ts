@@ -8,6 +8,31 @@ import MeemContractGuild from '../models/MeemContractGuild'
 import MeemContractRole from '../models/MeemContractRole'
 
 export default class GuildService {
+	public static getGuildChain(chainId: number): Chain {
+		switch (chainId) {
+			case 1:
+				return 'ETHEREUM'
+				break
+			case 4:
+				return 'RINKEBY' as Chain
+				break
+			case 5:
+				return 'GOERLI'
+				break
+			case 137:
+				return 'POLYGON'
+				break
+			case 420:
+				return 'OPTIMISM'
+				break
+			case 421613:
+				return 'ARBITRUM'
+				break
+			default:
+				return 'POLYGON'
+		}
+	}
+
 	public static async createMeemContractGuild(data: {
 		meemContractId: string
 	}): Promise<{
@@ -85,10 +110,7 @@ export default class GuildService {
 						requirements: [
 							{
 								type: 'ERC721',
-								chain:
-									config.NETWORK === 'rinkeby'
-										? ('RINKEBY' as Chain)
-										: 'POLYGON',
+								chain: this.getGuildChain(meemContract.chainId),
 								address: meemContract.address,
 								data: {
 									minAmount: 1
