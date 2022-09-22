@@ -369,6 +369,7 @@ export default class MeemContractService {
 				address: proxyContract.address,
 				mintPermissions: fullMintPermissions,
 				slug: contractSlug,
+				name: data.name,
 				chainId
 			})
 
@@ -393,7 +394,8 @@ export default class MeemContractService {
 			await cutTx.wait()
 
 			await services.guild.createMeemContractGuild({
-				meemContractId: meemContractInstance.id
+				meemContractId: meemContractInstance.id,
+				adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
 			})
 
 			if (shouldMintAdminTokens && adminTokenMetadata) {

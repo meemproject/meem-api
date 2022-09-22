@@ -35,11 +35,14 @@ export default class GuildService {
 
 	public static async createMeemContractGuild(data: {
 		meemContractId: string
+		adminAddresses?: string[]
 	}): Promise<{
 		meemContractGuild: MeemContractGuild
 		meemContractRoles: MeemContractRole[]
 	}> {
 		const { meemContractId } = data
+		let adminAddresses = data.adminAddresses
+
 		const meemContract = await orm.models.MeemContract.findOne({
 			where: {
 				id: meemContractId
@@ -76,41 +79,34 @@ export default class GuildService {
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
 
-		const adminWallets = await orm.models.MeemContractWallet.findAll({
-			where: {
-				MeemContractId: meemContract.id,
-				role: config.ADMIN_ROLE
-			},
-			include: [orm.models.Wallet]
-		})
+		if (!adminAddresses) {
+			const adminWallets = await orm.models.MeemContractWallet.findAll({
+				where: {
+					MeemContractId: meemContract.id,
+					role: config.ADMIN_ROLE
+				},
+				include: [orm.models.Wallet]
+			})
 
-		const adminAddresses = adminWallets
-			.map(aw => aw.Wallet?.address ?? '')
-			.filter(a => a !== '' && a !== wallet.address.toLowerCase())
+			adminAddresses = adminWallets.map(aw => aw.Wallet?.address ?? '')
+		}
+
+		adminAddresses = adminAddresses.filter(
+			a => a !== '' && a !== wallet.address.toLowerCase()
+		)
 
 		try {
+			const guildChain = this.getGuildChain(meemContract.chainId)
 			const createGuildResponse = await guild.create(wallet.address, sign, {
 				name: meemContract.name,
 				roles: [
 					{
-						name: `${meemContract.name} Admin`,
-						logic: 'OR',
-						requirements: [
-							{
-								type: 'ALLOWLIST',
-								data: {
-									addresses: adminAddresses
-								}
-							}
-						]
-					},
-					{
-						name: `${meemContract.name} Member`,
+						name: `Club Member`,
 						logic: 'OR',
 						requirements: [
 							{
 								type: 'ERC721',
-								chain: this.getGuildChain(meemContract.chainId),
+								chain: guildChain,
 								address: meemContract.address,
 								data: {
 									minAmount: 1
@@ -137,29 +133,55 @@ export default class GuildService {
 						MeemContractGuildId: meemContractGuild.id
 					})
 
-					if (role.name.toLowerCase().includes('admin')) {
-						const meemContractRolePermissionsData: {
-							MeemContractRoleId: string
-							RolePermissionId: string
-						}[] = [
-							'clubs.admin.editProfile',
-							'clubs.admin.manageMembershipSettings',
-							'clubs.admin.manageRoles'
-						].map(rid => {
-							return {
-								MeemContractRoleId: meemContractRole.id,
-								RolePermissionId: rid
-							}
-						})
-
-						await orm.models.MeemContractRolePermission.bulkCreate(
-							meemContractRolePermissionsData
-						)
-					}
-
 					return meemContractRole
 				})
 			)
+
+			const createAdminGuildRoleResponse = await guildRole.create(
+				wallet.address,
+				sign,
+				{
+					guildId: meemContractGuild.guildId,
+					name: `Club Admin`,
+					logic: 'OR',
+					requirements: [
+						{
+							type: 'ALLOWLIST',
+							data: {
+								addresses: adminAddresses
+							}
+						}
+					]
+				}
+			)
+
+			const meemContractAdminRole = await orm.models.MeemContractRole.create({
+				guildRoleId: createAdminGuildRoleResponse.id,
+				name: createAdminGuildRoleResponse.name,
+				MeemContractId: meemContract.id,
+				MeemContractGuildId: meemContractGuild.id,
+				isAdminRole: true
+			})
+
+			const meemContractRolePermissionsData: {
+				MeemContractRoleId: string
+				RolePermissionId: string
+			}[] = [
+				'clubs.admin.editProfile',
+				'clubs.admin.manageMembershipSettings',
+				'clubs.admin.manageRoles'
+			].map(rid => {
+				return {
+					MeemContractRoleId: meemContractAdminRole.id,
+					RolePermissionId: rid
+				}
+			})
+
+			await orm.models.MeemContractRolePermission.bulkCreate(
+				meemContractRolePermissionsData
+			)
+
+			meemContractRoles.push(meemContractAdminRole)
 
 			return {
 				meemContractGuild,
