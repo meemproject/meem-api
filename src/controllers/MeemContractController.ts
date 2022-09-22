@@ -2,6 +2,7 @@
 import AWS from 'aws-sdk'
 import { Response } from 'express'
 import _ from 'lodash'
+import request from 'superagent'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -529,6 +530,388 @@ export default class MeemContractController {
 					})
 				})
 				.promise()
+		}
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
+	public static async createMeemContractGuild(
+		req: IRequest<any>,
+		res: IResponse<any>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const { meemContractId } = req.params
+
+		if (!meemContractId) {
+			throw new Error('SERVER_ERROR')
+		}
+
+		const meemContractGuild = await services.guild.createMeemContractGuild({
+			meemContractId: meemContractId as string
+		})
+
+		return res.json({
+			meemContractGuild
+		})
+	}
+
+	public static async deleteMeemContractGuild(
+		req: IRequest<any>,
+		res: IResponse<any>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const { meemContractId } = req.params
+
+		if (!meemContractId) {
+			throw new Error('SERVER_ERROR')
+		}
+
+		const meemContractGuild = await services.guild.deleteMeemContractGuild({
+			meemContractId: meemContractId as string
+		})
+
+		return res.json({
+			meemContractGuild
+		})
+	}
+
+	public static async createMeemContractRole(
+		req: IRequest<MeemAPI.v1.CreateMeemContractRole.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateMeemContractRole.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const { name, permissions, members } = req.body
+
+		// TODO: Check if the user has permission to update and not just admin contract role
+		const adminRole = config.ADMIN_ROLE
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: req.params.meemContractId
+			},
+			include: [
+				{
+					model: orm.models.Wallet,
+					where: {
+						address: req.wallet.address
+					},
+					through: {
+						where: {
+							role: adminRole
+						}
+					}
+				},
+				{
+					model: orm.models.MeemContractGuild
+				}
+			]
+		})
+
+		if (!meemContract) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		if (meemContract.Wallets && meemContract.Wallets.length < 1) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		if (!meemContract.MeemContractGuild) {
+			throw new Error('MEEM_CONTRACT_GUILD_NOT_FOUND')
+		}
+
+		const meemContractRole = await services.guild.createMeemContractGuildRole({
+			name,
+			meemContract,
+			meemContractGuild: meemContract.MeemContractGuild,
+			members: members ?? []
+		})
+
+		if (!meemContractRole) {
+			throw new Error('MEEM_CONTRACT_ROLE_NOT_FOUND')
+		}
+
+		if (!_.isUndefined(permissions) && _.isArray(permissions)) {
+			const promises: Promise<any>[] = []
+			const t = await orm.sequelize.transaction()
+			const roleIdsToAdd =
+				permissions.filter(pid => {
+					const existingPermission = meemContractRole.RolePermissions?.find(
+						rp => rp.id === pid
+					)
+					return !existingPermission
+				}) ?? []
+
+			if (roleIdsToAdd.length > 0) {
+				const meemContractRolePermissionsData: {
+					MeemContractRoleId: string
+					RolePermissionId: string
+				}[] = roleIdsToAdd.map(rid => {
+					return {
+						MeemContractRoleId: meemContractRole.id,
+						RolePermissionId: rid
+					}
+				})
+				promises.push(
+					orm.models.MeemContractRolePermission.bulkCreate(
+						meemContractRolePermissionsData,
+						{
+							transaction: t
+						}
+					)
+				)
+			}
+
+			try {
+				await Promise.all(promises)
+				await t.commit()
+			} catch (e) {
+				log.crit(e)
+				throw new Error('SERVER_ERROR')
+			}
+		}
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
+	public static async updateMeemContractRole(
+		req: IRequest<MeemAPI.v1.UpdateMeemContractRole.IDefinition>,
+		res: IResponse<MeemAPI.v1.UpdateMeemContractRole.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		// TODO: Check if the user has permission to update and not just admin contract role
+		const adminRole = config.ADMIN_ROLE
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: req.params.meemContractId
+			},
+			include: [
+				{
+					model: orm.models.Wallet,
+					where: {
+						address: req.wallet.address
+					},
+					through: {
+						where: {
+							role: adminRole
+						}
+					}
+				},
+				{
+					model: orm.models.Integration
+				}
+			]
+		})
+
+		if (!meemContract) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		if (meemContract.Wallets && meemContract.Wallets.length < 1) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const meemContractRole = await orm.models.MeemContractRole.findOne({
+			where: {
+				id: req.params.meemContractRoleId
+			},
+			include: [
+				{
+					model: orm.models.RolePermission
+				},
+				{
+					model: orm.models.MeemContractGuild
+				}
+			]
+		})
+
+		if (!meemContractRole) {
+			throw new Error('MEEM_CONTRACT_ROLE_NOT_FOUND')
+		}
+
+		if (
+			!_.isUndefined(req.body.permissions) &&
+			_.isArray(req.body.permissions)
+		) {
+			const promises: Promise<any>[] = []
+			const t = await orm.sequelize.transaction()
+			const permissions = req.body.permissions
+			const roleIdsToAdd =
+				permissions.filter(pid => {
+					const existingPermission = meemContractRole.RolePermissions?.find(
+						rp => rp.id === pid
+					)
+					return !existingPermission
+				}) ?? []
+			const rolesToRemove: string[] =
+				meemContractRole.RolePermissions?.filter(rp => {
+					const existingPermission = permissions.find(pid => rp.id === pid)
+					return !existingPermission
+				})?.map((rp: any) => {
+					return rp.MeemContractRolePermission.id as string
+				}) ?? []
+
+			if (rolesToRemove.length > 0) {
+				promises.push(
+					orm.models.MeemContractRolePermission.destroy({
+						where: {
+							id: rolesToRemove
+						},
+						transaction: t
+					})
+				)
+			}
+
+			if (roleIdsToAdd.length > 0) {
+				const meemContractRolePermissionsData: {
+					MeemContractRoleId: string
+					RolePermissionId: string
+				}[] = roleIdsToAdd.map(rid => {
+					return {
+						MeemContractRoleId: meemContractRole.id,
+						RolePermissionId: rid
+					}
+				})
+				promises.push(
+					orm.models.MeemContractRolePermission.bulkCreate(
+						meemContractRolePermissionsData,
+						{
+							transaction: t
+						}
+					)
+				)
+			}
+
+			try {
+				await Promise.all(promises)
+				await t.commit()
+			} catch (e) {
+				log.crit(e)
+				throw new Error('SERVER_ERROR')
+			}
+		}
+
+		if (
+			!_.isUndefined(req.body.members) &&
+			_.isArray(req.body.members) &&
+			meemContractRole.guildRoleId
+		) {
+			const members = req.body.members.map(m => m.toLowerCase())
+
+			try {
+				await services.guild.updateMeemContractGuildRole({
+					guildRoleId: meemContractRole.guildRoleId,
+					meemContractId: meemContract.id,
+					members
+				})
+			} catch (e) {
+				log.crit(e)
+				throw new Error('SERVER_ERROR')
+			}
+		}
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
+	public static async getMeemContractRoles(
+		req: IRequest<MeemAPI.v1.GetMeemContractRoles.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetMeemContractRoles.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		try {
+			const roles = await services.meemContract.getMeemContractRoles({
+				meemContractId: req.params.meemContractId
+			})
+			return res.json({
+				roles
+			})
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
+	public static async getJoinMessage(
+		req: IRequest<any>,
+		res: IResponse<any>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: req.params.meemContractId
+			},
+			include: [
+				{
+					model: orm.models.MeemContractGuild
+				}
+			]
+		})
+
+		if (!meemContract || !meemContract.MeemContractGuild) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		// TODO: Get the join message and send to client to sign
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
+	public static async joinMeemContractGuild(
+		req: IRequest<any>,
+		res: IResponse<any>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: req.params.meemContractId
+			},
+			include: [
+				{
+					model: orm.models.MeemContractGuild
+				}
+			]
+		})
+
+		if (!meemContract || !meemContract.MeemContractGuild) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		try {
+			await request.post(`https://api.guild.xyz/v1/user/join`).send({
+				payload: req.body.payload,
+				params: req.body.params,
+				sig: req.body.sig
+			})
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
 		}
 
 		return res.json({

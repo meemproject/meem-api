@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import { role as guildRole } from '@guildxyz/sdk'
 import {
 	getCuts,
 	IFacetVersion,
@@ -13,6 +14,7 @@ import slug from 'slug'
 import { v4 as uuidv4 } from 'uuid'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
+import RolePermission from '../models/RolePermission'
 import Wallet from '../models/Wallet'
 import { InitParamsStruct, Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
@@ -363,7 +365,7 @@ export default class MeemContractService {
 				}
 			}
 
-			await orm.models.MeemContract.create({
+			const meemContractInstance = await orm.models.MeemContract.create({
 				address: proxyContract.address,
 				mintPermissions: fullMintPermissions,
 				slug: contractSlug,
@@ -389,6 +391,10 @@ export default class MeemContractService {
 			})
 
 			await cutTx.wait()
+
+			await services.guild.createMeemContractGuild({
+				meemContractId: meemContractInstance.id
+			})
 
 			if (shouldMintAdminTokens && adminTokenMetadata) {
 				log.debug(`Minting admin tokens.`, cleanAdmins)
@@ -878,5 +884,69 @@ export default class MeemContractService {
 		}
 
 		return false
+	}
+
+	public static async getMeemContractRoles(options: {
+		meemContractId: string
+		meemContractRoleId?: string
+	}): Promise<any[]> {
+		const { meemContractId, meemContractRoleId } = options
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: meemContractId
+			},
+			include: [
+				{
+					model: orm.models.MeemContractRole,
+					...(meemContractRoleId && {
+						where: {
+							id: meemContractRoleId
+						}
+					}),
+					include: [
+						{
+							model: orm.models.RolePermission,
+							attributes: ['id'],
+							through: {
+								attributes: []
+							}
+						}
+					]
+				}
+			]
+		})
+
+		const meemContractRoles = meemContract?.MeemContractRoles ?? []
+
+		if (!meemContract) {
+			throw new Error('SERVER_ERROR')
+		}
+
+		const roles = await Promise.all(
+			meemContractRoles.map(async mcRole => {
+				const role: any = mcRole.toJSON()
+
+				role.permissions = role.RolePermissions.map(
+					(rp: RolePermission) => rp.id
+				)
+
+				delete role.RolePermissions
+
+				if (mcRole.guildRoleId) {
+					const guildRoleResponse = await guildRole.get(mcRole.guildRoleId)
+
+					role.guildRole = guildRoleResponse
+
+					role.members = await Promise.all(
+						(role.guildRole?.members ?? []).map((m: string) =>
+							services.meemId.getMeemIdentityForAddress(m)
+						)
+					)
+				}
+				return role
+			})
+		)
+
+		return roles
 	}
 }

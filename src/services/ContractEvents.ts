@@ -394,6 +394,16 @@ export default class ContractEvent {
 
 		await t.commit()
 
+		const meemContractGuild = await services.guild.getMeemContractGuild({
+			meemContractId: theMeemContract.id
+		})
+
+		if (!meemContractGuild) {
+			await services.guild.createMeemContractGuild({
+				meemContractId: theMeemContract.id
+			})
+		}
+
 		// Update ENS
 		await services.meemId.updateENS(theMeemContract)
 

@@ -5,6 +5,7 @@ import ContractEvents from '../services/ContractEvents'
 import Db from '../services/Db'
 import Ethers from '../services/Ethers'
 import Git from '../services/Git'
+import Guild from '../services/Guild'
 import Ipfs from '../services/Ipfs'
 import Lint from '../services/Lint'
 import Meem from '../services/Meem'
@@ -25,6 +26,7 @@ declare global {
 		let contractEvents: typeof ContractEvents
 		let db: typeof Db
 		let ethers: Ethers
+		let guild: typeof Guild
 		let git: typeof Git
 		let ipfs: typeof Ipfs
 		let lint: typeof Lint

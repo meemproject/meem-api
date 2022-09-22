@@ -64,6 +64,30 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/meemContracts/:meemContractId/proof',
 		MeemContractController.getMintingProof
 	)
+	// router.postAsync(
+	// 	'/meemContracts/:meemContractId/guild',
+	// 	MeemContractController.createMeemContractGuild
+	// )
+	// router.deleteAsync(
+	// 	'/meemContracts/:meemContractId/guild',
+	// 	MeemContractController.deleteMeemContractGuild
+	// )
+	router.postAsync(
+		'/meemContracts/:meemContractId/joinGuild',
+		MeemContractController.joinMeemContractGuild
+	)
+	router.getAsync(
+		'/meemContracts/:meemContractId/roles',
+		MeemContractController.getMeemContractRoles
+	)
+	router.postAsync(
+		'/meemContracts/:meemContractId/roles',
+		MeemContractController.createMeemContractRole
+	)
+	router.postAsync(
+		'/meemContracts/:meemContractId/roles/:meemContractRoleId',
+		MeemContractController.updateMeemContractRole
+	)
 	router.postAsync(
 		'/meemContracts/:meemContractId/integrations/:integrationId',
 		MeemContractController.createOrUpdateMeemContractIntegration
