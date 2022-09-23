@@ -139,6 +139,7 @@ export default class MeemContractService {
 			// Find difference between current admins and new admins
 			const currentAdmins = await meemContract.getRoles(config.ADMIN_ROLE)
 
+			const keepAdmins: string[] = []
 			const newAdmins: string[] = []
 			const removeAdmins: string[] = []
 
@@ -157,7 +158,9 @@ export default class MeemContractService {
 				const keepAdmin = cleanAdmins.find(
 					a => a.user.toLowerCase() === currentAdmins[i].toLowerCase()
 				)
-				if (!keepAdmin) {
+				if (keepAdmin) {
+					keepAdmins.push(currentAdmins[i])
+				} else {
 					removeAdmins.push(currentAdmins[i])
 				}
 			}
@@ -165,7 +168,7 @@ export default class MeemContractService {
 			const params = {
 				...contractInitParams,
 				roles: [
-					...currentAdmins.map(a => ({
+					...keepAdmins.map(a => ({
 						role: config.ADMIN_ROLE,
 						user: a,
 						hasRole: true
