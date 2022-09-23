@@ -39,19 +39,6 @@ export default class MeemContractController {
 		req: IRequest<MeemAPI.v1.UpdateMeemContract.IDefinition>,
 		res: IResponse<MeemAPI.v1.UpdateMeemContract.IResponseBody>
 	): Promise<Response> {
-		// TODO: 🚨 refactor this to work with any contract type
-		// TODO: Remove hard-coded wallet
-		// const walletAddress = '0xa6567b5c1730faad90a62bf3dfc4e8fddd7f1ab1'
-		// const wallet = await orm.models.Wallet.findOne({
-		// 	where: {
-		// 		address: walletAddress
-		// 	}
-		// })
-
-		// if (!wallet) {
-		// 	throw new Error('USER_NOT_LOGGED_IN')
-		// }
-
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
@@ -693,28 +680,23 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
+		const { meemContractId } = req.params
+
 		// TODO: Check if the user has permission to update and not just admin contract role
-		const adminRole = config.ADMIN_ROLE
+
+		const isAdmin = await services.meemContract.isMeemContractAdmin({
+			meemContractId,
+			walletAddress: req.wallet.address
+		})
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
 		const meemContract = await orm.models.MeemContract.findOne({
 			where: {
 				id: req.params.meemContractId
-			},
-			include: [
-				{
-					model: orm.models.Wallet,
-					where: {
-						address: req.wallet.address
-					},
-					through: {
-						where: {
-							role: adminRole
-						}
-					}
-				},
-				{
-					model: orm.models.Integration
-				}
-			]
+			}
 		})
 
 		if (!meemContract) {
@@ -813,11 +795,19 @@ export default class MeemContractController {
 			const members = req.body.members.map(m => m.toLowerCase())
 
 			try {
-				await services.guild.updateMeemContractGuildRole({
-					guildRoleId: meemContractRole.guildRoleId,
-					meemContractId: meemContract.id,
-					members
-				})
+				if (meemContractRole.isAdminRole) {
+					await services.meemContract.updateMeemContractAdmins({
+						meemContractId: meemContract.id,
+						admins: members,
+						senderWallet: req.wallet
+					})
+				} else {
+					await services.guild.updateMeemContractGuildRole({
+						guildRoleId: meemContractRole.guildRoleId,
+						meemContractId: meemContract.id,
+						members
+					})
+				}
 			} catch (e) {
 				log.crit(e)
 				throw new Error('SERVER_ERROR')

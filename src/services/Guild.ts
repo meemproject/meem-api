@@ -360,9 +360,10 @@ export default class GuildService {
 			]
 		})
 
-		const meemContractRole = meemContract?.MeemContractRoles?.find(
-			r => r.guildRoleId === guildRoleId
-		)
+		const meemContractRole =
+			meemContract?.MeemContractGuild?.MeemContractRoles?.find(
+				r => r.guildRoleId === guildRoleId
+			)
 
 		if (!meemContract || !meemContractRole) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
