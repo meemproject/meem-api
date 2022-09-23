@@ -18,6 +18,7 @@ import RolePermission from '../models/RolePermission'
 import Wallet from '../models/Wallet'
 import { InitParamsStruct, Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
+import { IMeemContractRole } from '../types/shared/meem.shared'
 
 export default class MeemContractService {
 	public static async generateSlug(options: {
@@ -891,7 +892,7 @@ export default class MeemContractService {
 	public static async getMeemContractRoles(options: {
 		meemContractId: string
 		meemContractRoleId?: string
-	}): Promise<any[]> {
+	}): Promise<IMeemContractRole[]> {
 		const { meemContractId, meemContractRoleId } = options
 		const meemContract = await orm.models.MeemContract.findOne({
 			where: {
@@ -924,7 +925,7 @@ export default class MeemContractService {
 			throw new Error('SERVER_ERROR')
 		}
 
-		const roles = await Promise.all(
+		const roles: IMeemContractRole[] = await Promise.all(
 			meemContractRoles.map(async mcRole => {
 				const role: any = mcRole.toJSON()
 
@@ -940,7 +941,7 @@ export default class MeemContractService {
 					role.guildRole = guildRoleResponse
 
 					if (meemContractRoleId) {
-						role.members = await Promise.all(
+						role.memberMeemIds = await Promise.all(
 							(role.guildRole?.members ?? []).map((m: string) =>
 								services.meemId.getMeemIdentityForAddress(m)
 							)

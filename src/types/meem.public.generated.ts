@@ -626,6 +626,40 @@ export enum ContractType {
 	DiamondFacet = 'diamondFacet'
 }
 
+export interface IMeemIdentity {
+	id: string
+	displayName: string
+	profilePicUrl: string
+	DefaultWalletId: string
+	Wallets: {
+		id: string
+		address: string
+		ens: string
+	}[]
+	DefaultWallet: {
+		id: string
+		address: string
+		ens: string
+	}
+}
+export interface IMeemContractRole {
+	id: string
+	name: string
+	guildRoleId?: number
+	isAdminRole: boolean
+	MeemContractId: string
+	MeemContractGuildId?: string
+	permissions: string[]
+	guildRole: {
+		id: number
+		name: string
+		description: string
+		imageUrl: string | null
+		members: string[]
+	}
+	memberMeemIds: IMeemIdentity[]
+}
+
 export namespace v1 {
 
 export namespace BulkMint {
@@ -1463,7 +1497,7 @@ export namespace GetMeemContractRole {
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		role: any
+		role: IMeemContractRole
 	}
 
 	export interface IDefinition {

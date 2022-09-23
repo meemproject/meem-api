@@ -39,19 +39,6 @@ export default class MeemContractController {
 		req: IRequest<MeemAPI.v1.UpdateMeemContract.IDefinition>,
 		res: IResponse<MeemAPI.v1.UpdateMeemContract.IResponseBody>
 	): Promise<Response> {
-		// TODO: 🚨 refactor this to work with any contract type
-		// TODO: Remove hard-coded wallet
-		// const walletAddress = '0xa6567b5c1730faad90a62bf3dfc4e8fddd7f1ab1'
-		// const wallet = await orm.models.Wallet.findOne({
-		// 	where: {
-		// 		address: walletAddress
-		// 	}
-		// })
-
-		// if (!wallet) {
-		// 	throw new Error('USER_NOT_LOGGED_IN')
-		// }
-
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}

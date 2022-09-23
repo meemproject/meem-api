@@ -44,6 +44,8 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 
 	public name!: string
 
+	// TODO: Add description and image?
+
 	public isAdminRole!: boolean
 
 	public guildRoleId!: number | null
