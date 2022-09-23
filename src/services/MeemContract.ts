@@ -138,13 +138,7 @@ export default class MeemContractService {
 			}
 
 			// Find difference between current admins and new admins
-			const currentAdmins = await orm.models.MeemContractWallet.findAll({
-				where: {
-					MeemContractId: meemContractInstance.id,
-					role: config.ADMIN_ROLE
-				},
-				include: [orm.models.Wallet]
-			})
+			const currentAdmins = await meemContract.getRoles(config.ADMIN_ROLE)
 
 			const newAdmins: string[] = []
 			const removeAdmins: string[] = []
@@ -153,7 +147,7 @@ export default class MeemContractService {
 				// TODO: Bulk minting
 
 				const currentAdmin = currentAdmins.find(
-					a => a.Wallet?.address.toLowerCase() === cleanAdmins[i].user
+					a => a.toLowerCase() === cleanAdmins[i].user
 				)
 				if (!currentAdmin) {
 					newAdmins.push(cleanAdmins[i].user)
@@ -161,19 +155,22 @@ export default class MeemContractService {
 			}
 
 			for (let i = 0; i < currentAdmins.length; i += 1) {
-				const newAdmin = cleanAdmins.find(
-					a =>
-						a.user.toLowerCase() ===
-						currentAdmins[i].Wallet?.address.toLowerCase()
+				const keepAdmin = cleanAdmins.find(
+					a => a.user.toLowerCase() === currentAdmins[i].toLowerCase()
 				)
-				if (!newAdmin) {
-					removeAdmins.push(cleanAdmins[i].user)
+				if (!keepAdmin) {
+					removeAdmins.push(currentAdmins[i])
 				}
 			}
 
 			const params = {
 				...contractInitParams,
 				roles: [
+					...currentAdmins.map(a => ({
+						role: config.ADMIN_ROLE,
+						user: a,
+						hasRole: true
+					})),
 					...newAdmins.map(a => ({
 						role: config.ADMIN_ROLE,
 						user: a,
@@ -207,6 +204,18 @@ export default class MeemContractService {
 			log.debug(`Reinitialize tx: ${tx.hash}`)
 
 			await tx.wait()
+
+			try {
+				const updatedAdmins = await meemContract.getRoles(config.ADMIN_ROLE)
+				await services.meemContract.updateMeemContractAdmins({
+					meemContractId: meemContractInstance.id,
+					admins: updatedAdmins.map(a => a.toLowerCase()),
+					senderWallet,
+					skipContractUpdate: true
+				})
+			} catch (e) {
+				log.crit(e)
+			}
 
 			return meemContract.address
 		} catch (e: any) {
@@ -964,8 +973,9 @@ export default class MeemContractService {
 		meemContractId: string
 		admins: string[]
 		senderWallet: Wallet
+		skipContractUpdate?: boolean
 	}): Promise<void> {
-		const { meemContractId, admins, senderWallet } = options
+		const { meemContractId, admins, senderWallet, skipContractUpdate } = options
 
 		const isAdmin = await this.isMeemContractAdmin({
 			meemContractId,
@@ -1062,24 +1072,22 @@ export default class MeemContractService {
 			}))
 		]
 
-		if (roles.length === 0) {
-			return
+		if (!skipContractUpdate && roles.length > 0) {
+			const tx = await meemSmartContract.bulkSetRoles(roles, {
+				gasLimit: config.MINT_GAS_LIMIT,
+				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+			})
+
+			await orm.models.Transaction.create({
+				hash: tx.hash,
+				chainId: meemContract.chainId,
+				WalletId: senderWallet.id
+			})
+
+			await tx.wait()
+
+			log.debug(`bulkSetRoles tx: ${tx.hash}`)
 		}
-
-		const tx = await meemSmartContract.bulkSetRoles(roles, {
-			gasLimit: config.MINT_GAS_LIMIT,
-			gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
-		})
-
-		await orm.models.Transaction.create({
-			hash: tx.hash,
-			chainId: meemContract.chainId,
-			WalletId: senderWallet.id
-		})
-
-		await tx.wait()
-
-		log.debug(`bulkSetRoles tx: ${tx.hash}`)
 
 		await services.guild.updateMeemContractGuildRole({
 			meemContractId,
