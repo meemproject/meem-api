@@ -10,7 +10,6 @@ import {
 import { Validator } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 import _ from 'lodash'
-import { Op } from 'sequelize'
 import slug from 'slug'
 import { v4 as uuidv4 } from 'uuid'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
@@ -211,7 +210,7 @@ export default class MeemContractService {
 					meemContractId: meemContractInstance.id,
 					admins: updatedAdmins.map(a => a.toLowerCase()),
 					senderWallet,
-					skipContractUpdate: true
+					shouldSkipContractUpdate: true
 				})
 			} catch (e) {
 				log.crit(e)
@@ -973,9 +972,10 @@ export default class MeemContractService {
 		meemContractId: string
 		admins: string[]
 		senderWallet: Wallet
-		skipContractUpdate?: boolean
+		shouldSkipContractUpdate?: boolean
 	}): Promise<void> {
-		const { meemContractId, admins, senderWallet, skipContractUpdate } = options
+		const { meemContractId, admins, senderWallet, shouldSkipContractUpdate } =
+			options
 
 		const isAdmin = await this.isMeemContractAdmin({
 			meemContractId,
@@ -1072,7 +1072,7 @@ export default class MeemContractService {
 			}))
 		]
 
-		if (!skipContractUpdate && roles.length > 0) {
+		if (!shouldSkipContractUpdate && roles.length > 0) {
 			const tx = await meemSmartContract.bulkSetRoles(roles, {
 				gasLimit: config.MINT_GAS_LIMIT,
 				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
