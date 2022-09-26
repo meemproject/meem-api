@@ -1380,6 +1380,46 @@ export namespace GetIPFSFile {
 
 
 
+export namespace GetJoinGuildMessage {
+	export interface IPathParams {
+		/** The MeemContract id */
+		meemContractId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/meemContracts/${options.meemContractId}/getJoinGuildMessage`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		message: string
+		params: {
+			chainId: string
+			msg: string
+			method: number
+			addr: string
+			nonce: string
+			hash: string
+			ts: string
+		}
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
 export namespace GetMe {
 	export interface IPathParams {}
 
@@ -1841,6 +1881,38 @@ export namespace GetUrlScreenshot {
 
 
 
+export namespace GetUserMeemContractRolesAccess {
+	export interface IPathParams {
+		/** The MeemContract id */
+		meemContractId: string
+	}
+
+	export const path = () =>
+		`/api/1.0/meemContracts/:meemContractId/roles/access`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		hasRolesAccess: boolean
+		roles: IMeemContractRole[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
 /** Get whitelisted NFT contracts */
 export namespace GetWhitelist {
 	export interface IPathParams {}
@@ -1934,6 +2006,49 @@ export namespace IsSlugAvailable {
 
 	export interface IResponseBody extends IApiResponseBody {
 		isSlugAvailable: boolean
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace JoinGuild {
+	export interface IPathParams {
+		/** The MeemContract id */
+		meemContractId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/meemContracts/${options.meemContractId}/joinGuild`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		message: string
+		params: {
+			chainId: string
+			msg: string
+			method: number
+			addr: string
+			nonce: string
+			hash: string
+			ts: string
+		}
+		sig: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
 	}
 
 	export interface IDefinition {

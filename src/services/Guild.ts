@@ -101,7 +101,7 @@ export default class GuildService {
 				name: meemContract.name,
 				roles: [
 					{
-						name: `Club Member`,
+						name: `Token Holder`,
 						logic: 'OR',
 						requirements: [
 							{
@@ -142,8 +142,8 @@ export default class GuildService {
 				sign,
 				{
 					guildId: meemContractGuild.guildId,
-					name: `Club Admin`,
-					logic: 'OR',
+					name: `Admin`,
+					logic: 'AND',
 					requirements: [
 						{
 							type: 'ALLOWLIST',
@@ -304,18 +304,27 @@ export default class GuildService {
 
 		try {
 			// TODO: Meem Contract Tokens
+			const guildChain = this.getGuildChain(meemContract.chainId)
 			const createGuildRoleResponse = await guildRole.create(
 				wallet.address,
 				sign,
 				{
 					guildId: meemContractGuild.guildId,
 					name,
-					logic: 'OR',
+					logic: 'AND',
 					requirements: [
 						{
 							type: 'ALLOWLIST',
 							data: {
 								addresses: members
+							}
+						},
+						{
+							type: 'ERC721',
+							chain: guildChain,
+							address: meemContract.address,
+							data: {
+								minAmount: 1
 							}
 						}
 					]
