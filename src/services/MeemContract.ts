@@ -1147,11 +1147,6 @@ export default class MeemContractService {
 			chainId: meemContract.chainId
 		})) as unknown as Mycontract
 
-		const currentAdmins = await meemSmartContract.getRoles(config.ADMIN_ROLE)
-
-		const newAdmins: string[] = []
-		const removeAdmins: string[] = []
-
 		const provider = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
@@ -1168,39 +1163,8 @@ export default class MeemContractService {
 			hasRole: true
 		}))
 
-		for (let i = 0; i < cleanAdmins.length; i += 1) {
-			const currentAdmin = currentAdmins.find(
-				a => a.toLowerCase() === cleanAdmins[i].user
-			)
-			if (!currentAdmin) {
-				newAdmins.push(cleanAdmins[i].user)
-			}
-		}
-
-		for (let i = 0; i < currentAdmins.length; i += 1) {
-			const keepAdmin = cleanAdmins.find(
-				a => a.user.toLowerCase() === currentAdmins[i].toLowerCase()
-			)
-			if (!keepAdmin) {
-				removeAdmins.push(currentAdmins[i])
-			}
-		}
-
-		const roles = [
-			...newAdmins.map(a => ({
-				role: config.ADMIN_ROLE,
-				user: a,
-				hasRole: true
-			})),
-			...removeAdmins.map(a => ({
-				role: config.ADMIN_ROLE,
-				user: a,
-				hasRole: false
-			}))
-		]
-
-		if (!shouldSkipContractUpdate && roles.length > 0) {
-			const tx = await meemSmartContract.bulkSetRoles(roles, {
+		if (!shouldSkipContractUpdate && cleanAdmins.length > 0) {
+			const tx = await meemSmartContract.bulkSetRoles(cleanAdmins, {
 				gasLimit: config.MINT_GAS_LIMIT,
 				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
 			})
