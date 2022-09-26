@@ -136,16 +136,11 @@ export default class MeemContractService {
 				throw new Error('NOT_AUTHORIZED')
 			}
 
-			const params = {
-				...contractInitParams,
-				roles: cleanAdmins
-			}
-
 			meemContractInstance.mintPermissions = fullMintPermissions
 
-			log.debug(params)
+			log.debug(contractInitParams)
 
-			const tx = await meemContract.reinitialize(params, {
+			const tx = await meemContract.reinitialize(contractInitParams, {
 				gasLimit: config.MINT_GAS_LIMIT,
 				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
 			})
