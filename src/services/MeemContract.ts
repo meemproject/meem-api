@@ -101,16 +101,11 @@ export default class MeemContractService {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
 			}
 
-			const {
-				wallet,
-				contractInitParams,
-				cleanAdmins,
-				fullMintPermissions,
-				senderWallet
-			} = await this.prepareInitValues({
-				...data,
-				chainId: meemContractInstance.chainId
-			})
+			const { wallet, contractInitParams, fullMintPermissions, senderWallet } =
+				await this.prepareInitValues({
+					...data,
+					chainId: meemContractInstance.chainId
+				})
 
 			let { recommendedGwei } = await services.web3.getGasEstimate({
 				chainId: meemContractInstance.chainId
