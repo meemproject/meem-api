@@ -842,7 +842,7 @@ export default class MeemContractController {
 		}
 	}
 
-	public static async getUserMeemContractRole(
+	public static async getMeemContractRole(
 		req: IRequest<MeemAPI.v1.GetMeemContractRole.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeemContractRole.IResponseBody>
 	): Promise<Response> {
