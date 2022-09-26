@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { role as guildRole } from '@guildxyz/sdk'
+import { guild, role as guildRole } from '@guildxyz/sdk'
 import {
 	getCuts,
 	IFacetVersion,
@@ -969,6 +969,130 @@ export default class MeemContractService {
 		)
 
 		return roles
+	}
+
+	public static async getUserMeemContractRolesAccess(options: {
+		meemContractId: string
+		walletAddress: string
+		meemContractRoleId?: string
+	}): Promise<{
+		hasRolesAccess: boolean
+		roles: IMeemContractRole[]
+	}> {
+		const { meemContractId, walletAddress, meemContractRoleId } = options
+		const meemIdentity = await orm.models.MeemIdentity.findOne({
+			include: [
+				{
+					model: orm.models.Wallet,
+					where: {
+						address: walletAddress
+					},
+					attributes: ['id', 'address', 'ens'],
+					through: {
+						attributes: []
+					}
+				},
+				{
+					model: orm.models.Wallet,
+					as: 'DefaultWallet',
+					attributes: ['id', 'address', 'ens']
+				}
+			]
+		})
+
+		if (!meemIdentity) {
+			log.crit('MeemIdentity not found')
+			throw new Error('SERVER_ERROR')
+		}
+
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: meemContractId
+			},
+			include: [
+				{
+					model: orm.models.MeemContractGuild
+				},
+				{
+					model: orm.models.MeemContractRole,
+					...(meemContractRoleId && {
+						where: {
+							id: meemContractRoleId
+						}
+					}),
+					include: [
+						{
+							model: orm.models.RolePermission,
+							attributes: ['id'],
+							through: {
+								attributes: []
+							}
+						}
+					]
+				}
+			]
+		})
+
+		const meemContractRoles = meemContract?.MeemContractRoles ?? []
+
+		if (!meemContract || !meemContract.MeemContractGuild) {
+			throw new Error('SERVER_ERROR')
+		}
+
+		const guildUserMembershipResponse = await guild.getUserMemberships(
+			meemContract.MeemContractGuild.guildId,
+			walletAddress
+		)
+
+		const rolesIdsWithAccess = guildUserMembershipResponse
+			.filter(r => r.access)
+			.map(r => r.roleId)
+
+		if (rolesIdsWithAccess.length < 1) {
+			return {
+				hasRolesAccess: false,
+				roles: []
+			}
+		}
+
+		let roles: IMeemContractRole[] = await Promise.all(
+			meemContractRoles.map(async mcRole => {
+				const role: any = mcRole.toJSON()
+
+				role.permissions = role.RolePermissions.map(
+					(rp: RolePermission) => rp.id
+				)
+
+				delete role.RolePermissions
+
+				if (mcRole.guildRoleId) {
+					const guildRoleResponse = await guildRole.get(mcRole.guildRoleId)
+
+					role.guildRole = guildRoleResponse
+
+					if (meemContractRoleId) {
+						role.memberMeemIds = await Promise.all(
+							(role.guildRole?.members ?? []).map((m: string) =>
+								services.meemId.getMeemIdentityForAddress(m)
+							)
+						)
+					}
+				}
+				return role
+			})
+		)
+
+		roles = roles.filter((r: IMeemContractRole) => {
+			if (!r.guildRoleId && !r.guildRole) {
+				return false
+			}
+			return r.guildRole.members.includes(walletAddress)
+		})
+
+		return {
+			hasRolesAccess: true,
+			roles
+		}
 	}
 
 	public static async updateMeemContractAdmins(options: {
