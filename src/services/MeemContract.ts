@@ -136,54 +136,9 @@ export default class MeemContractService {
 				throw new Error('NOT_AUTHORIZED')
 			}
 
-			// Find difference between current admins and new admins
-			const currentAdmins = await meemContract.getRoles(config.ADMIN_ROLE)
-
-			const keepAdmins: string[] = []
-			const newAdmins: string[] = []
-			const removeAdmins: string[] = []
-
-			for (let i = 0; i < cleanAdmins.length; i += 1) {
-				// TODO: Bulk minting
-
-				const currentAdmin = currentAdmins.find(
-					a => a.toLowerCase() === cleanAdmins[i].user
-				)
-				if (!currentAdmin) {
-					newAdmins.push(cleanAdmins[i].user)
-				}
-			}
-
-			for (let i = 0; i < currentAdmins.length; i += 1) {
-				const keepAdmin = cleanAdmins.find(
-					a => a.user.toLowerCase() === currentAdmins[i].toLowerCase()
-				)
-				if (keepAdmin) {
-					keepAdmins.push(currentAdmins[i])
-				} else {
-					removeAdmins.push(currentAdmins[i])
-				}
-			}
-
 			const params = {
 				...contractInitParams,
-				roles: [
-					...keepAdmins.map(a => ({
-						role: config.ADMIN_ROLE,
-						user: a,
-						hasRole: true
-					})),
-					...newAdmins.map(a => ({
-						role: config.ADMIN_ROLE,
-						user: a,
-						hasRole: true
-					})),
-					...removeAdmins.map(a => ({
-						role: config.ADMIN_ROLE,
-						user: a,
-						hasRole: false
-					}))
-				]
+				roles: cleanAdmins
 			}
 
 			meemContractInstance.mintPermissions = fullMintPermissions
@@ -1132,21 +1087,6 @@ export default class MeemContractService {
 			throw new Error('SERVER_ERROR')
 		}
 
-		let { recommendedGwei } = await services.web3.getGasEstimate({
-			chainId: meemContract.chainId
-		})
-
-		if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
-			// throw new Error('GAS_PRICE_TOO_HIGH')
-			log.warn(`Recommended fee over max: ${recommendedGwei}`)
-			recommendedGwei = config.MAX_GAS_PRICE_GWEI
-		}
-
-		const meemSmartContract = (await services.meem.getMeemContract({
-			address: meemContract.address,
-			chainId: meemContract.chainId
-		})) as unknown as Mycontract
-
 		const provider = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
@@ -1164,6 +1104,21 @@ export default class MeemContractService {
 		}))
 
 		if (!shouldSkipContractUpdate && cleanAdmins.length > 0) {
+			const meemSmartContract = (await services.meem.getMeemContract({
+				address: meemContract.address,
+				chainId: meemContract.chainId
+			})) as unknown as Mycontract
+
+			let { recommendedGwei } = await services.web3.getGasEstimate({
+				chainId: meemContract.chainId
+			})
+
+			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
+				// throw new Error('GAS_PRICE_TOO_HIGH')
+				log.warn(`Recommended fee over max: ${recommendedGwei}`)
+				recommendedGwei = config.MAX_GAS_PRICE_GWEI
+			}
+
 			const tx = await meemSmartContract.bulkSetRoles(cleanAdmins, {
 				gasLimit: config.MINT_GAS_LIMIT,
 				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
