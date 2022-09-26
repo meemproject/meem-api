@@ -1,5 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
+import { randomBytes } from 'crypto'
 import AWS from 'aws-sdk'
+import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
 import { Response } from 'express'
 import _ from 'lodash'
 import request from 'superagent'
@@ -862,7 +864,7 @@ export default class MeemContractController {
 		}
 	}
 
-	public static async getJoinMessage(
+	public static async getJoinGuildMessage(
 		req: IRequest<any>,
 		res: IResponse<any>
 	): Promise<Response> {
@@ -885,10 +887,28 @@ export default class MeemContractController {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		// TODO: Get the join message and send to client to sign
+		const payload = {
+			guildId: meemContract.MeemContractGuild.guildId,
+			platforms: []
+		}
+		const msg = 'Please sign this message.'
+		const chainId = undefined // services.guild.getGuildChain(meemContract.chainId)
+		const addr = req.wallet.address
+		const method = 1 // Guild method for authentication
+		const nonce = randomBytes(32).toString('base64')
+		const hash =
+			Object.keys(payload).length > 0
+				? keccak256(toUtf8Bytes(JSON.stringify(payload)))
+				: undefined
+		const ts = Date.now().toString()
+
+		const messageToSign = `${msg}\n\nAddress: ${addr}\nMethod: ${method}${
+			chainId ? `\nChainId: ${chainId}` : ''
+		}${hash ? `\nHash: ${hash}` : ''}\nNonce: ${nonce}\nTimestamp: ${ts}`
 
 		return res.json({
-			status: 'success'
+			message: messageToSign,
+			params: { chainId, msg, method, addr, nonce, hash, ts }
 		})
 	}
 
@@ -916,11 +936,18 @@ export default class MeemContractController {
 		}
 
 		try {
-			await request.post(`https://api.guild.xyz/v1/user/join`).send({
-				payload: req.body.payload,
-				params: req.body.params,
-				sig: req.body.sig
-			})
+			const response = await request
+				.post(`https://api.guild.xyz/v1/user/join`)
+				.send({
+					payload: {
+						guildId: meemContract.MeemContractGuild.guildId,
+						platforms: []
+					},
+					params: req.body.params,
+					sig: req.body.sig
+				})
+
+			log.debug(response.body)
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')
