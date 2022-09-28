@@ -886,8 +886,8 @@ export default class MeemContractController {
 	}
 
 	public static async getJoinGuildMessage(
-		req: IRequest<any>,
-		res: IResponse<any>
+		req: IRequest<MeemAPI.v1.GetJoinGuildMessage.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetJoinGuildMessage.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
@@ -934,8 +934,8 @@ export default class MeemContractController {
 	}
 
 	public static async joinMeemContractGuild(
-		req: IRequest<any>,
-		res: IResponse<any>
+		req: IRequest<MeemAPI.v1.JoinGuild.IDefinition>,
+		res: IResponse<MeemAPI.v1.JoinGuild.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
@@ -967,6 +967,42 @@ export default class MeemContractController {
 					params: req.body.params,
 					sig: req.body.sig
 				})
+
+			if (req.body.mintToken) {
+				if (config.DISABLE_ASYNC_MINTING) {
+					try {
+						await services.meem.mintOriginalMeem({
+							meemContractAddress: meemContract.address,
+							to: req.wallet.address.toLowerCase(),
+							metadata: meemContract.metadata,
+							mintedBy: req.wallet.address.toLowerCase(),
+							chainId: meemContract.chainId
+						})
+					} catch (e) {
+						log.crit(e)
+						sockets?.emitError(config.errors.MINT_FAILED, req.wallet.address)
+					}
+				} else {
+					const lambda = new AWS.Lambda({
+						accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+						secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+						region: 'us-east-1'
+					})
+					await lambda
+						.invoke({
+							InvocationType: 'Event',
+							FunctionName: config.LAMBDA_MINT_ORIGINAL_FUNCTION,
+							Payload: JSON.stringify({
+								meemContractAddress: meemContract.address,
+								to: req.wallet.address.toLowerCase(),
+								metadata: meemContract.metadata,
+								mintedBy: req.wallet.address.toLowerCase(),
+								chainId: meemContract.chainId
+							})
+						})
+						.promise()
+				}
+			}
 
 			log.debug(response.body)
 		} catch (e) {
