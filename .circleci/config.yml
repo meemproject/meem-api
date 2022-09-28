@@ -7,7 +7,7 @@ orbs:
 jobs:
   deploy_sls_dev:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
       - run: cp .yarnclean.ci .yarnclean
@@ -16,7 +16,7 @@ jobs:
       - run: yarn deploy:dev
   deploy_sls_stage:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
       - run: cp .yarnclean.ci .yarnclean
@@ -25,7 +25,7 @@ jobs:
       - run: yarn deploy:staging
   deploy_sls_prod:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
       - run: cp .yarnclean.ci .yarnclean
@@ -34,7 +34,7 @@ jobs:
       - run: yarn deploy:production
   test:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
       - run: yarn install --frozen-lockfile
@@ -42,7 +42,7 @@ jobs:
       - run: yarn run test
   release:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
       - run: yarn install --frozen-lockfile
