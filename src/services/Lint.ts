@@ -14,7 +14,7 @@ export default class LintService {
 		const { stdout } = await services.child.executeCommand('node', {
 			args: [
 				'-e',
-				`"try { const ESLint = require('eslint');const cli = new ESLint.CLIEngine({fix: true,cwd: '${process.cwd()}'});const result=cli.executeOnFiles(['${pattern}']);console.log(JSON.stringify(result)); } catch(err) { console.log(err.toString()); }"`
+				`"try { const { ESLint } = require('eslint');const cli = new ESLint({fix: true,cwd: '${process.cwd()}'});const result=cli.lintFiles(['${pattern}']);console.log(JSON.stringify(result)); } catch(err) { console.log(err.toString()); }"`
 			]
 		})
 

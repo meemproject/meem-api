@@ -21,7 +21,8 @@
 		"moduleResolution": "node",
 		"sourceMap": true,
 		"outDir": "build",
-		"baseUrl": "."
+		"baseUrl": ".",
+		"skipLibCheck": true
 	},
 	"include": [
 		"src/**/*"

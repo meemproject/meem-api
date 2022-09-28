@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable guard-for-in */
 import { Sequelize, Model, ModelAttributes, DataTypes } from 'sequelize'
-import { Fn } from 'sequelize/types/lib/utils'
+import { Fn } from 'sequelize/types/utils'
 
 // TODO: Enhancement of strict attribute checking https://sequelize.org/master/manual/typescript.html
 
