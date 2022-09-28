@@ -113,6 +113,7 @@
 		"@types/cron": "^2.0.0",
 		"@types/dotenv": "^8.2.0",
 		"@types/express": "^4.17.14",
+		"@types/faker": "^5",
 		"@types/fs-extra": "^9.0.13",
 		"@types/json2csv": "^5.0.3",
 		"@types/jsonwebtoken": "^8.5.9",
