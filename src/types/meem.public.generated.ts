@@ -1887,8 +1887,8 @@ export namespace GetUserMeemContractRolesAccess {
 		meemContractId: string
 	}
 
-	export const path = () =>
-		`/api/1.0/meemContracts/:meemContractId/roles/access`
+	export const path = (options: IPathParams) =>
+		`/api/1.0/meemContracts/${options.meemContractId}/roles/access`
 
 	export const method = HttpMethod.Get
 

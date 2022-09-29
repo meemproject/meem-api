@@ -956,6 +956,22 @@ export default class MeemContractController {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
+		// If user does not have a token, mint it before joining guild or request will fail.
+		if (req.body.mintToken) {
+			try {
+				await services.meem.mintOriginalMeem({
+					meemContractAddress: meemContract.address,
+					to: req.wallet.address.toLowerCase(),
+					metadata: meemContract.metadata,
+					mintedBy: req.wallet.address.toLowerCase(),
+					chainId: meemContract.chainId
+				})
+			} catch (e) {
+				log.crit(e)
+				sockets?.emitError(config.errors.MINT_FAILED, req.wallet.address)
+			}
+		}
+
 		try {
 			const response = await request
 				.post(`https://api.guild.xyz/v1/user/join`)
@@ -967,42 +983,6 @@ export default class MeemContractController {
 					params: req.body.params,
 					sig: req.body.sig
 				})
-
-			if (req.body.mintToken) {
-				if (config.DISABLE_ASYNC_MINTING) {
-					try {
-						await services.meem.mintOriginalMeem({
-							meemContractAddress: meemContract.address,
-							to: req.wallet.address.toLowerCase(),
-							metadata: meemContract.metadata,
-							mintedBy: req.wallet.address.toLowerCase(),
-							chainId: meemContract.chainId
-						})
-					} catch (e) {
-						log.crit(e)
-						sockets?.emitError(config.errors.MINT_FAILED, req.wallet.address)
-					}
-				} else {
-					const lambda = new AWS.Lambda({
-						accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-						secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-						region: 'us-east-1'
-					})
-					await lambda
-						.invoke({
-							InvocationType: 'Event',
-							FunctionName: config.LAMBDA_MINT_ORIGINAL_FUNCTION,
-							Payload: JSON.stringify({
-								meemContractAddress: meemContract.address,
-								to: req.wallet.address.toLowerCase(),
-								metadata: meemContract.metadata,
-								mintedBy: req.wallet.address.toLowerCase(),
-								chainId: meemContract.chainId
-							})
-						})
-						.promise()
-				}
-			}
 
 			log.debug(response.body)
 		} catch (e) {
