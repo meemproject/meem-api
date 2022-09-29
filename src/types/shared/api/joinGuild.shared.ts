@@ -16,15 +16,16 @@ export namespace JoinGuild {
 	export interface IRequestBody {
 		message: string
 		params: {
-			chainId: string
+			chainId?: string
 			msg: string
 			method: number
 			addr: string
 			nonce: string
-			hash: string
+			hash?: string
 			ts: string
 		}
 		sig: string
+		mintToken?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

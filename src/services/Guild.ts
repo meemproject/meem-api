@@ -99,6 +99,7 @@ export default class GuildService {
 			const guildChain = this.getGuildChain(meemContract.chainId)
 			const createGuildResponse = await guild.create(wallet.address, sign, {
 				name: meemContract.name,
+				description: `MeemContract Guild Details - Contract Address: ${meemContract.address} | Chain ID: ${meemContract.chainId}`,
 				roles: [
 					{
 						name: `Token Holder`,
