@@ -350,7 +350,7 @@ export default class GuildService {
 		name?: string
 		meemContractId: string
 		guildRoleId: number
-		members: string[]
+		members?: string[]
 	}): Promise<MeemContractRole> {
 		const { name, meemContractId, guildRoleId, members } = data
 
@@ -390,19 +390,32 @@ export default class GuildService {
 
 		try {
 			// TODO: Meem Contract Tokens
+			// TODO: If this is a token-based role do not update members
 			const existingGuildRole = await guildRole.get(guildRoleId)
+			const isAllowListRole = existingGuildRole.requirements.find(
+				r => r.type === 'ALLOWLIST'
+			)
 			await guildRole.update(guildRoleId, wallet.address, sign, {
 				name: name ?? existingGuildRole.name,
-				logic: 'OR',
-				requirements: [
-					{
-						type: 'ALLOWLIST',
-						data: {
-							addresses: members
-						}
-					}
-				]
+				logic: members ? 'OR' : existingGuildRole.logic,
+				requirements:
+					isAllowListRole && members
+						? [
+								{
+									type: 'ALLOWLIST',
+									data: {
+										addresses: members
+									}
+								}
+						  ]
+						: existingGuildRole.requirements
 			})
+
+			if (name) {
+				await meemContractRole.update({
+					name
+				})
+			}
 
 			return meemContractRole
 		} catch (e) {
