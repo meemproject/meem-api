@@ -355,11 +355,6 @@ export default class MeemContractService {
 
 			await cutTx.wait()
 
-			await services.guild.createMeemContractGuild({
-				meemContractId: meemContractInstance.id,
-				adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
-			})
-
 			if (shouldMintAdminTokens && adminTokenMetadata) {
 				log.debug(`Minting admin tokens.`, cleanAdmins)
 
@@ -383,6 +378,11 @@ export default class MeemContractService {
 
 				log.debug(`Finished minting admin tokens.`)
 			}
+
+			await services.guild.createMeemContractGuild({
+				meemContractId: meemContractInstance.id,
+				adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
+			})
 
 			return meemContract.address
 		} catch (e) {
