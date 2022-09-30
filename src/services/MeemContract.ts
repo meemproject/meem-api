@@ -1045,7 +1045,7 @@ export default class MeemContractService {
 		admins: string[]
 		senderWallet: Wallet
 		shouldSkipContractUpdate?: boolean
-	}): Promise<void> {
+	}): Promise<string[]> {
 		const { meemContractId, admins, senderWallet, shouldSkipContractUpdate } =
 			options
 
@@ -1125,14 +1125,6 @@ export default class MeemContractService {
 			log.debug(`bulkSetRoles tx: ${tx.hash}`)
 		}
 
-		await services.guild.updateMeemContractGuildRole({
-			meemContractId,
-			guildRoleId: meemContractAdminRole.guildRoleId,
-			members: cleanAdmins
-				.map(c => c.user)
-				.filter(a => a !== wallet.address.toLowerCase())
-		})
-
-		return
+		return cleanAdmins.map(a => a.user)
 	}
 }

@@ -2550,6 +2550,8 @@ export namespace UpdateMeemContractRole {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
+		/** Name of the role */
+		name?: string
 		/** Array of ids for permissions */
 		permissions?: string[]
 		/** Wallet addresses of members */

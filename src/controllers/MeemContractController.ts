@@ -790,23 +790,30 @@ export default class MeemContractController {
 		}
 
 		if (
-			!_.isUndefined(req.body.members) &&
-			_.isArray(req.body.members) &&
+			(!_.isUndefined(req.body.name) ||
+				(!_.isUndefined(req.body.members) && _.isArray(req.body.members))) &&
 			meemContractRole.guildRoleId
 		) {
-			const members = req.body.members.map(m => m.toLowerCase())
+			const members = req.body.members?.map(m => m.toLowerCase())
 
 			try {
-				if (meemContractRole.isAdminRole) {
-					await services.meemContract.updateMeemContractAdmins({
+				if (meemContractRole.isAdminRole && members) {
+					const admins = await services.meemContract.updateMeemContractAdmins({
 						meemContractId: meemContract.id,
 						admins: members,
 						senderWallet: req.wallet
+					})
+					await services.guild.updateMeemContractGuildRole({
+						guildRoleId: meemContractRole.guildRoleId,
+						meemContractId: meemContract.id,
+						name: req.body.name,
+						members: admins
 					})
 				} else {
 					await services.guild.updateMeemContractGuildRole({
 						guildRoleId: meemContractRole.guildRoleId,
 						meemContractId: meemContract.id,
+						name: req.body.name,
 						members
 					})
 				}
