@@ -100,6 +100,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/meemContracts/:meemContractId/roles/:meemContractRoleId',
 		MeemContractController.updateMeemContractRole
 	)
+	router.deleteAsync(
+		'/meemContracts/:meemContractId/roles/:meemContractRoleId',
+		MeemContractController.deleteMeemContractRole
+	)
 	router.postAsync(
 		'/meemContracts/:meemContractId/integrations/:integrationId',
 		MeemContractController.createOrUpdateMeemContractIntegration
