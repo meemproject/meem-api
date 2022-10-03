@@ -29,11 +29,26 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 			allowNull: false,
 			defaultValue: ''
 		},
+		description: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
+		},
+		imageUrl: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
+		},
 		guildRoleId: {
 			type: DataTypes.INTEGER,
 			allowNull: true
 		},
 		isAdminRole: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false,
+			allowNull: false
+		},
+		isDefaultRole: {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false,
 			allowNull: false
@@ -44,9 +59,13 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 
 	public name!: string
 
-	// TODO: Add description and image?
+	public imageUrl!: string
+
+	public description!: string
 
 	public isAdminRole!: boolean
+
+	public isDefaultRole!: boolean
 
 	public guildRoleId!: number | null
 

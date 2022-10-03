@@ -131,7 +131,8 @@ export default class GuildService {
 						guildRoleId: role.id,
 						name: role.name,
 						MeemContractId: meemContract.id,
-						MeemContractGuildId: meemContractGuild.id
+						MeemContractGuildId: meemContractGuild.id,
+						isDefaultRole: true
 					})
 
 					return meemContractRole
@@ -161,7 +162,8 @@ export default class GuildService {
 				name: createAdminGuildRoleResponse.name,
 				MeemContractId: meemContract.id,
 				MeemContractGuildId: meemContractGuild.id,
-				isAdminRole: true
+				isAdminRole: true,
+				isDefaultRole: true
 			})
 
 			const meemContractRolePermissionsData: {
