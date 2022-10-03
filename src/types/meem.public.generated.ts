@@ -2244,13 +2244,13 @@ export namespace ReInitializeMeemContract {
 
 	export interface IRequestBody {
 		/** Contract metadata */
-		metadata: IMeemContractMetadataLike
+		metadata?: IMeemContractMetadataLike
 
 		/** The symbol for the token. If omitted, will use a slug of the name */
 		symbol?: string
 
 		/** The name of the token */
-		name: string
+		name?: string
 
 		/** Contract admins */
 		admins?: string[]
@@ -2259,7 +2259,7 @@ export namespace ReInitializeMeemContract {
 		minters?: string[]
 
 		/** The max number of tokens */
-		maxSupply: string
+		maxSupply?: string
 
 		/** Minting permissions */
 		mintPermissions?: IMeemPermission[]

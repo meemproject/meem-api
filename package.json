@@ -55,8 +55,7 @@
 		"fetchMeemMarketABI": "tsnd --transpile-only src/scripts/fetchMeemMarketABI.ts",
 		"fetchMeemContracts": "tsnd --transpile-only src/scripts/fetchMeemContracts.ts",
 		"fetchMeemIdContracts": "tsnd --transpile-only src/scripts/fetchMeemIdContracts.ts",
-		"fetchContracts": "yarn fetchMeemContracts && yarn fetchMeemIdContracts",
-		"build:sol": "hardhat compile"
+		"fetchContracts": "yarn fetchMeemContracts && yarn fetchMeemIdContracts"
 	},
 	"dependencies": {
 		"@ethersproject/abstract-provider": "^5.7.0",

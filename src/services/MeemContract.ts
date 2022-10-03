@@ -14,12 +14,15 @@ import slug from 'slug'
 import { v4 as uuidv4 } from 'uuid'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
+import type MeemContract from '../models/MeemContract'
+import MeemContractWallet from '../models/MeemContractWallet'
 import RolePermission from '../models/RolePermission'
 import Wallet from '../models/Wallet'
 import {
 	InitParamsStruct,
 	Mycontract,
-	Mycontract__factory
+	Mycontract__factory,
+	SetRoleItemStruct
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 import { IMeemContractRole } from '../types/shared/meem.shared'
@@ -104,7 +107,8 @@ export default class MeemContractService {
 			const { wallet, contractInitParams, fullMintPermissions, senderWallet } =
 				await this.prepareInitValues({
 					...data,
-					chainId: meemContractInstance.chainId
+					chainId: meemContractInstance.chainId,
+					meemContract: meemContractInstance
 				})
 
 			let { recommendedGwei } = await services.web3.getGasEstimate({
@@ -308,6 +312,8 @@ export default class MeemContractService {
 				contractInitParams
 			])
 
+			log.debug(contractInitParams)
+
 			const facetCuts = cuts.map(c => ({
 				target: c.facetAddress,
 				action: c.action,
@@ -395,13 +401,15 @@ export default class MeemContractService {
 		}
 	}
 
-	private static async prepareInitValues(
-		data: (
-			| MeemAPI.v1.CreateMeemContract.IRequestBody
-			| MeemAPI.v1.ReInitializeMeemContract.IRequestBody
-		) & {
+	public static async prepareInitValues(
+		data: Omit<
+			MeemAPI.v1.ReInitializeMeemContract.IRequestBody,
+			'merkleRoot' | 'mintPermissions'
+		> & {
+			mintPermissions?: Omit<MeemAPI.IMeemPermission, 'merkleRoot'>[]
 			chainId: number
 			senderWalletAddress: string
+			meemContract?: MeemContract
 		}
 	) {
 		// TODO: Abstract this to allow new types of contract metadata e.g. clubs, other project types
@@ -414,16 +422,15 @@ export default class MeemContractService {
 		// TODO: 🚨 Validate all properties!
 
 		const {
-			metadata,
-			name,
-			maxSupply,
 			mintPermissions,
 			splits,
 			isTransferLocked,
 			adminTokenMetadata,
 			senderWalletAddress,
-			chainId
+			chainId,
+			meemContract
 		} = data
+
 		let senderWallet = await orm.models.Wallet.findByAddress<Wallet>(
 			senderWalletAddress
 		)
@@ -436,7 +443,30 @@ export default class MeemContractService {
 			})
 		}
 
-		const symbol = data.symbol ?? slug(data.name)
+		let { metadata, symbol, name, maxSupply } = data
+
+		if (!symbol && !meemContract && name) {
+			symbol = slug(name, { lower: true })
+		} else if (meemContract) {
+			symbol = meemContract.symbol
+		}
+
+		if (!name && meemContract) {
+			name = meemContract.name
+		}
+
+		if (!maxSupply && meemContract) {
+			maxSupply = meemContract.maxSupply
+		}
+
+		if (!symbol || !name || !maxSupply) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		if (!metadata && meemContract) {
+			metadata = meemContract.metadata
+		}
+
 		const admins = data.admins ?? []
 		const minters = data.minters ?? []
 
@@ -486,12 +516,33 @@ export default class MeemContractService {
 		const result = await services.web3.saveToPinata({ json: metadata })
 		const uri = `ipfs://${result.IpfsHash}`
 
+		const meemContractAdmins: MeemContractWallet[] = []
+		const meemContractMinters: MeemContractWallet[] = []
+		let meemContractWallets: MeemContractWallet[] = []
+
+		if (meemContract) {
+			meemContractWallets = await orm.models.MeemContractWallet.findAll({
+				where: {
+					MeemContractId: meemContract.id
+				},
+				include: [orm.models.Wallet]
+			})
+
+			meemContractWallets.forEach(w => {
+				if (w.role === config.ADMIN_ROLE) {
+					meemContractAdmins.push(w)
+				} else if (w.role === config.MINTER_ROLE) {
+					meemContractMinters.push(w)
+				}
+			})
+		}
+
 		const cleanAdmins = _.uniqBy(
 			[...admins, wallet.address.toLowerCase()],
 			a => a && a.toLowerCase()
 		).map(a => ({
 			role: config.ADMIN_ROLE,
-			user: a.toLowerCase(),
+			user: ethers.utils.getAddress(a),
 			hasRole: true
 		}))
 
@@ -500,10 +551,62 @@ export default class MeemContractService {
 			a => a && a.toLowerCase()
 		).map(a => ({
 			role: config.MINTER_ROLE,
-			user: a,
+			user: ethers.utils.getAddress(a),
 			hasRole: true
 		}))
 
+		const meemContractWalletIdsToRemove: string[] = []
+		const roles: SetRoleItemStruct[] = []
+
+		// Find roles to remove
+		meemContractWallets.forEach(meemContractWallet => {
+			let foundItem: SetRoleItemStruct | undefined
+
+			if (meemContractWallet.role === config.ADMIN_ROLE) {
+				foundItem = cleanAdmins.find(
+					c =>
+						c.user.toLowerCase() ===
+						meemContractWallet.Wallet?.address.toLowerCase()
+				)
+			} else if (meemContractWallet.role === config.MINTER_ROLE) {
+				foundItem = cleanMinters.find(
+					c =>
+						c.user.toLowerCase() ===
+						meemContractWallet.Wallet?.address.toLowerCase()
+				)
+			}
+
+			if (!foundItem && meemContractWallet.Wallet) {
+				roles.push({
+					role: meemContractWallet.role,
+					user: meemContractWallet.Wallet.address,
+					hasRole: false
+				})
+
+				meemContractWalletIdsToRemove.push(meemContractWallet.id)
+			}
+		})
+
+		// Find roles to add
+		cleanAdmins.forEach(adminItem => {
+			const existingAdmin = meemContractAdmins.find(
+				a => a.Wallet?.address.toLowerCase() === adminItem.user.toLowerCase()
+			)
+			if (!existingAdmin) {
+				roles.push(adminItem)
+			}
+		})
+
+		cleanMinters.forEach(minterItem => {
+			const existingAdmin = meemContractMinters.find(
+				a => a.Wallet?.address.toLowerCase() === minterItem.user.toLowerCase()
+			)
+			if (!existingAdmin) {
+				roles.push(minterItem)
+			}
+		})
+
+		// Build mint permissions
 		const builtMintPermissions: MeemAPI.IMeemPermission[] = []
 		const fullMintPermissions: MeemAPI.IMeemPermission[] = []
 
@@ -533,8 +636,7 @@ export default class MeemContractService {
 			name,
 			contractURI: uri,
 			roles: [
-				...cleanAdmins,
-				...cleanMinters,
+				...roles,
 				// Give ourselves the upgrader role by default
 				{
 					role: config.UPGRADER_ROLE,
