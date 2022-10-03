@@ -61,7 +61,7 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		maxSupply: {
 			type: DataTypes.STRING,
 			allowNull: false,
-			defaultValue: 0,
+			defaultValue: '0x0',
 			set(this: MeemContract, val: any) {
 				this.setDataValue(
 					'maxSupply',

@@ -312,6 +312,8 @@ export default class MeemContractService {
 				contractInitParams
 			])
 
+			log.debug(contractInitParams)
+
 			const facetCuts = cuts.map(c => ({
 				target: c.facetAddress,
 				action: c.action,
@@ -399,11 +401,12 @@ export default class MeemContractService {
 		}
 	}
 
-	private static async prepareInitValues(
-		data: (
-			| MeemAPI.v1.CreateMeemContract.IRequestBody
-			| MeemAPI.v1.ReInitializeMeemContract.IRequestBody
-		) & {
+	public static async prepareInitValues(
+		data: Omit<
+			MeemAPI.v1.ReInitializeMeemContract.IRequestBody,
+			'merkleRoot' | 'mintPermissions'
+		> & {
+			mintPermissions?: Omit<MeemAPI.IMeemPermission, 'merkleRoot'>[]
 			chainId: number
 			senderWalletAddress: string
 			meemContract?: MeemContract
@@ -419,9 +422,6 @@ export default class MeemContractService {
 		// TODO: 🚨 Validate all properties!
 
 		const {
-			metadata,
-			name,
-			maxSupply,
 			mintPermissions,
 			splits,
 			isTransferLocked,
@@ -430,6 +430,7 @@ export default class MeemContractService {
 			chainId,
 			meemContract
 		} = data
+
 		let senderWallet = await orm.models.Wallet.findByAddress<Wallet>(
 			senderWalletAddress
 		)
@@ -442,7 +443,30 @@ export default class MeemContractService {
 			})
 		}
 
-		const symbol = data.symbol ?? slug(data.name)
+		let { metadata, symbol, name, maxSupply } = data
+
+		if (!symbol && !meemContract && name) {
+			symbol = slug(name, { lower: true })
+		} else if (meemContract) {
+			symbol = meemContract.symbol
+		}
+
+		if (!name && meemContract) {
+			name = meemContract.name
+		}
+
+		if (!maxSupply && meemContract) {
+			maxSupply = meemContract.maxSupply
+		}
+
+		if (!symbol || !name || !maxSupply) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		if (!metadata && meemContract) {
+			metadata = meemContract.metadata
+		}
+
 		const admins = data.admins ?? []
 		const minters = data.minters ?? []
 
@@ -492,8 +516,8 @@ export default class MeemContractService {
 		const result = await services.web3.saveToPinata({ json: metadata })
 		const uri = `ipfs://${result.IpfsHash}`
 
-		let meemContractAdmins: MeemContractWallet[] = []
-		let meemContractMinters: MeemContractWallet[] = []
+		const meemContractAdmins: MeemContractWallet[] = []
+		const meemContractMinters: MeemContractWallet[] = []
 		let meemContractWallets: MeemContractWallet[] = []
 
 		if (meemContract) {
@@ -539,10 +563,17 @@ export default class MeemContractService {
 			let foundItem: SetRoleItemStruct | undefined
 
 			if (meemContractWallet.role === config.ADMIN_ROLE) {
-				foundItem = cleanAdmins.find(c => c.user.toLowerCase() === meemContractWallet.Wallet?.address.toLowerCase())
-
+				foundItem = cleanAdmins.find(
+					c =>
+						c.user.toLowerCase() ===
+						meemContractWallet.Wallet?.address.toLowerCase()
+				)
 			} else if (meemContractWallet.role === config.MINTER_ROLE) {
-				foundItem = cleanMinters.find(c => c.user.toLowerCase() === meemContractWallet.Wallet?.address.toLowerCase())
+				foundItem = cleanMinters.find(
+					c =>
+						c.user.toLowerCase() ===
+						meemContractWallet.Wallet?.address.toLowerCase()
+				)
 			}
 
 			if (!foundItem && meemContractWallet.Wallet) {
@@ -558,14 +589,18 @@ export default class MeemContractService {
 
 		// Find roles to add
 		cleanAdmins.forEach(adminItem => {
-			const existingAdmin = meemContractAdmins.find(a => a.Wallet?.address.toLowerCase() === adminItem.user.toLowerCase())
+			const existingAdmin = meemContractAdmins.find(
+				a => a.Wallet?.address.toLowerCase() === adminItem.user.toLowerCase()
+			)
 			if (!existingAdmin) {
 				roles.push(adminItem)
 			}
 		})
 
 		cleanMinters.forEach(minterItem => {
-			const existingAdmin = meemContractMinters.find(a => a.Wallet?.address.toLowerCase() === minterItem.user.toLowerCase())
+			const existingAdmin = meemContractMinters.find(
+				a => a.Wallet?.address.toLowerCase() === minterItem.user.toLowerCase()
+			)
 			if (!existingAdmin) {
 				roles.push(minterItem)
 			}
@@ -601,8 +636,7 @@ export default class MeemContractService {
 			name,
 			contractURI: uri,
 			roles: [
-				...cleanAdmins,
-				...cleanMinters,
+				...roles,
 				// Give ourselves the upgrader role by default
 				{
 					role: config.UPGRADER_ROLE,
