@@ -425,6 +425,56 @@ export default class GuildService {
 		}
 	}
 
+	public static async deleteMeemContractGuildRole(data: {
+		meemContractId: string
+		guildRoleId: number
+	}): Promise<void> {
+		const { meemContractId, guildRoleId } = data
+
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: meemContractId
+			},
+			include: [
+				{
+					model: orm.models.MeemContractGuild,
+					include: [
+						{
+							model: orm.models.MeemContractRole
+						}
+					]
+				}
+			]
+		})
+
+		const meemContractRole =
+			meemContract?.MeemContractGuild?.MeemContractRoles?.find(
+				r => r.guildRoleId === guildRoleId
+			)
+
+		if (!meemContract || !meemContractRole) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		const provider = await services.ethers.getProvider({
+			chainId: meemContract.chainId
+		})
+
+		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+
+		const sign = (signableMessage: string | Bytes) =>
+			wallet.signMessage(signableMessage)
+
+		try {
+			await guildRole.delete(guildRoleId, wallet.address, sign)
+
+			return
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
 	// public static async getUserGuilds(data: {
 	// 	walletAddress: string
 	// }): Promise<any[]> {

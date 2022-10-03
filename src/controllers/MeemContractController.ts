@@ -828,6 +828,100 @@ export default class MeemContractController {
 		})
 	}
 
+	public static async deleteMeemContractRole(
+		req: IRequest<MeemAPI.v1.DeleteMeemContractRole.IDefinition>,
+		res: IResponse<MeemAPI.v1.DeleteMeemContractRole.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const { meemContractId } = req.params
+
+		// TODO: Check if the user has permission to delete and not just admin contract role
+
+		const isAdmin = await services.meemContract.isMeemContractAdmin({
+			meemContractId,
+			walletAddress: req.wallet.address
+		})
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const meemContract = await orm.models.MeemContract.findOne({
+			where: {
+				id: req.params.meemContractId
+			}
+		})
+
+		if (!meemContract) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		if (meemContract.Wallets && meemContract.Wallets.length < 1) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const meemContractRole = await orm.models.MeemContractRole.findOne({
+			where: {
+				id: req.params.meemContractRoleId
+			},
+			include: [
+				{
+					model: orm.models.RolePermission
+				},
+				{
+					model: orm.models.MeemContractGuild
+				}
+			]
+		})
+
+		if (!meemContractRole) {
+			throw new Error('MEEM_CONTRACT_ROLE_NOT_FOUND')
+		}
+
+		const promises: Promise<any>[] = []
+		const t = await orm.sequelize.transaction()
+
+		if (meemContractRole?.guildRoleId) {
+			await services.guild.deleteMeemContractGuildRole({
+				guildRoleId: meemContractRole.guildRoleId,
+				meemContractId: meemContract.id
+			})
+		}
+
+		promises.push(
+			orm.models.MeemContractRolePermission.destroy({
+				where: {
+					MeemContractRoleId: meemContractRole.id
+				},
+				transaction: t
+			})
+		)
+
+		promises.push(
+			orm.models.MeemContractRole.destroy({
+				where: {
+					id: meemContractRole.id
+				},
+				transaction: t
+			})
+		)
+
+		try {
+			await Promise.all(promises)
+			await t.commit()
+
+			return res.json({
+				status: 'success'
+			})
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
 	public static async getMeemContractRoles(
 		req: IRequest<MeemAPI.v1.GetMeemContractRoles.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetMeemContractRoles.IResponseBody>
