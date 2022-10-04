@@ -3,6 +3,7 @@
 import { Chain, guild, role as guildRole } from '@guildxyz/sdk'
 // eslint-disable-next-line import/named
 import { Bytes, ethers } from 'ethers'
+import _ from 'lodash'
 import MeemContract from '../models/MeemContract'
 import MeemContractGuild from '../models/MeemContractGuild'
 import MeemContractRole from '../models/MeemContractRole'
@@ -353,8 +354,20 @@ export default class GuildService {
 		meemContractId: string
 		guildRoleId: number
 		members?: string[]
+		guildRoleData?: {
+			rolePlatforms?: {
+				guildPlatform: {
+					platformName: string
+					platformGuildId: string
+					isNew: boolean
+				}
+				platformRoleData?: {
+					[key: string]: string
+				}
+			}[]
+		}
 	}): Promise<MeemContractRole> {
-		const { name, meemContractId, guildRoleId, members } = data
+		const { name, meemContractId, guildRoleId, members, guildRoleData } = data
 
 		const meemContract = await orm.models.MeemContract.findOne({
 			where: {
@@ -381,6 +394,14 @@ export default class GuildService {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
+		if (
+			_.isUndefined(name) &&
+			_.isUndefined(members) &&
+			_.isUndefined(guildRoleData)
+		) {
+			return meemContractRole
+		}
+
 		const provider = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
@@ -400,6 +421,9 @@ export default class GuildService {
 			await guildRole.update(guildRoleId, wallet.address, sign, {
 				name: name ?? existingGuildRole.name,
 				logic: members ? 'OR' : existingGuildRole.logic,
+				...(guildRoleData?.rolePlatforms && {
+					rolePlatforms: guildRoleData.rolePlatforms
+				}),
 				requirements:
 					isAllowListRole && members
 						? [

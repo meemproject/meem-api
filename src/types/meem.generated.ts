@@ -2568,6 +2568,10 @@ export namespace UpdateMeemContract {
 
 
 export namespace UpdateMeemContractRole {
+	export interface DiscordRoleIntegrationData {
+		discordServerId: string
+		discordGatedChannels: string[]
+	}
 	export interface IPathParams {
 		/** The meem contract id to fetch */
 		meemContractId: string
@@ -2589,6 +2593,11 @@ export namespace UpdateMeemContractRole {
 		permissions?: string[]
 		/** Wallet addresses of members */
 		members?: string[]
+		/** Role integration data */
+		roleIntegrationsData?: (
+			| DiscordRoleIntegrationData
+			| { [key: string]: any }
+		)[]
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

@@ -3,6 +3,7 @@
 import Child from '../services/Child'
 import ContractEvents from '../services/ContractEvents'
 import Db from '../services/Db'
+import Discord from '../services/Discord'
 import Ethers from '../services/Ethers'
 import Git from '../services/Git'
 import Guild from '../services/Guild'
@@ -10,6 +11,7 @@ import Ipfs from '../services/Ipfs'
 import Lint from '../services/Lint'
 import Meem from '../services/Meem'
 import MeemContract from '../services/MeemContract'
+import MeemContractRole from '../services/MeemContractRole'
 import MeemId from '../services/MeemId'
 // import Prompts from '../services/Prompts'
 import Puppeteer from '../services/Puppeteer'
@@ -25,6 +27,7 @@ declare global {
 		let child: typeof Child
 		let contractEvents: typeof ContractEvents
 		let db: typeof Db
+		let discord: typeof Discord
 		let ethers: Ethers
 		let guild: typeof Guild
 		let git: typeof Git
@@ -32,6 +35,7 @@ declare global {
 		let lint: typeof Lint
 		let meem: typeof Meem
 		let meemContract: typeof MeemContract
+		let meemContractRole: typeof MeemContractRole
 		let meemId: typeof MeemId
 		// let prompts: typeof Prompts
 		let puppeteer: Puppeteer
