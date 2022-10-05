@@ -1,5 +1,6 @@
 import Bundle from '../models/Bundle'
 import BundleContract from '../models/BundleContract'
+import ChainNonce from '../models/ChainNonce'
 import Clipping from '../models/Clipping'
 import Contract from '../models/Contract'
 import ContractInstance from '../models/ContractInstance'
@@ -30,6 +31,7 @@ import WalletContractInstance from '../models/WalletContractInstance'
 export interface IModels {
 	Bundle: typeof Bundle
 	BundleContract: typeof BundleContract
+	ChainNonce: typeof ChainNonce
 	Clipping: typeof Clipping
 	Contract: typeof Contract
 	ContractInstance: typeof ContractInstance

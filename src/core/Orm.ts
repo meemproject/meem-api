@@ -1,3 +1,4 @@
+import { createHash } from 'crypto'
 import path from 'path'
 import globby from 'globby'
 import pg from 'pg'
@@ -5,29 +6,33 @@ import { Sequelize, SyncOptions } from 'sequelize'
 import Umzug from 'umzug'
 import { AppModel, IModels } from '../types/models'
 
+function strToKey(str: string) {
+	const buf = createHash('sha256').update(str).digest()
+	return [buf.readInt32LE(0), buf.readInt32LE(4)]
+}
+
+function sleep(time: number) {
+	return new Promise(resolve => setTimeout(resolve, time))
+}
+
 export default class ORM {
 	// @ts-ignore
 	public sequelize: Sequelize & typeof Sequelize
 
 	public models!: IModels
 
+	public client!: pg.Client
+
+	public databaseId!: number
+
 	public async init() {
 		const models: {
 			[modelName: string]: AppModel
 		} = {}
 
-		// if (/^sqlite:/.test(this.uri)) {
-		// 	// Sequelize doesn't parse sqlite strings properly in edge cases: https://github.com/sequelize/sequelize/issues/9691
-		// 	// @ts-ignore
-		// 	this.sequelize = new Sequelize({
-		// 		...options,
-		// 		dialect: 'sqlite',
-		// 		storage: this.uri.replace('sqlite:', '')
-		// 	})
-		// } else {
-		// 	// @ts-ignore
-		// 	this.sequelize = new Sequelize(this.uri, options)
-		// }
+		this.client = new pg.Client(config.DATABASE_URL)
+		await this.client.connect()
+		this.databaseId = await this.initTable()
 
 		this.sequelize = new Sequelize(config.DATABASE_URL, {
 			// eslint-disable-next-line no-console
@@ -66,28 +71,6 @@ export default class ORM {
 			}
 		})
 		await Promise.all(promises)
-		// fs.readdirSync(this.files)
-		// 	.filter(file => {
-		// 		return file.indexOf('.') !== 0 && file !== 'index.js'
-		// 	})
-		// 	.forEach(file => {
-		// 		if (file.match(/^[^_].*\.(ts|js)$/)) {
-		// 			// import each model DOCS: http://sequelize.readthedocs.org/en/latest/api/sequelize/#importpath-model
-		// 			log.trace(`Importing Model ---- ${file}`)
-		// 			try {
-		// 				// const model = sequelize.import(path.resolve(this.files, file))
-		// 				// models[model.name] = model
-		// 				const filepath = path.resolve(this.files, file)
-		// 				// @ts-ignore
-		// 				const model = require(filepath).default // eslint-disable-line
-		// 				// @ts-ignore
-		// 				models[model.name] = model.initialize(this.sequelize)
-		// 			} catch (e) {
-		// 				log.crit(`Error Importing Model ${file}`)
-		// 				log.crit(e)
-		// 			}
-		// 		}
-		// 	})
 
 		if (Object.keys(models).length === 0) {
 			log.warn('---- Warning: No models were detected for the ORM -----')
@@ -217,5 +200,78 @@ export default class ORM {
 			log.crit('Error running migrations!')
 			log.crit(e)
 		}
+	}
+
+	public async acquireLock(key: string) {
+		if (config.TESTING) {
+			return true
+		}
+		const [classid, objid] = strToKey(key)
+
+		// Check in session lock
+		for (let i = 0; i < config.PG_LOCK_RETRY_COUNT; i++) {
+			const time = +new Date()
+			while (+new Date() - time < config.PG_LOCK_TIMEOUT) {
+				const res = await this.client.query(
+					`
+                    SELECT
+                        CASE count(*) WHEN 0 THEN (SELECT pg_try_advisory_lock($1, $2))
+                                    ELSE FALSE
+                        END as pg_try_advisory_lock
+                    FROM
+                        pg_locks
+                    WHERE
+                        pid = (
+                            SELECT
+                                pg_backend_pid()
+                            )
+                        AND locktype = 'advisory'
+                        AND classid = $1 AND objid = $2
+                        AND "database" = $3;
+                `,
+					[classid, objid, this.databaseId]
+				)
+				if (res.rows[0].pg_try_advisory_lock == true) return true
+
+				await sleep(100)
+			}
+		}
+
+		throw Error('Cannot acquire lock')
+	}
+
+	public async releaseLock(key: string): Promise<boolean> {
+		if (config.TESTING) {
+			return true
+		}
+		const [classid, objid] = strToKey(key)
+
+		const res = await this.client.query(
+			`
+            SELECT pg_advisory_unlock($1, $2);
+        `,
+			[classid, objid]
+		)
+
+		return res.rows[0].pg_advisory_unlock
+	}
+
+	private async initTable(): Promise<number> {
+		const matches = config.DATABASE_URL.match(/\/([a-zA-Z0-9]+)$/)
+		const dbName = matches && matches[1]
+
+		if (!matches) {
+			throw new Error('Invalid db url')
+		}
+
+		const res = await this.client.query(
+			`
+			SELECT oid from pg_database WHERE datname=$1;
+		`,
+			[dbName]
+		)
+		if (res.rowCount == 0) throw Error('Table does not exists!!')
+
+		return res.rows[0].oid
 	}
 }

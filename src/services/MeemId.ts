@@ -140,6 +140,13 @@ export default class MeemIdentityService {
 		return {
 			jwt: this.generateJWT({
 				walletAddress: wallet?.address ?? ''
+				// data:
+				// 	'https://hasura.io/jwt/claims': {
+				// 		'x-hasura-allowed-roles': ['user'],
+				// 		'x-hasura-default-role': 'user',
+				// 		'x-hasura-wallet-id': wallet.id
+				// 	}
+				// }
 			})
 		}
 	}

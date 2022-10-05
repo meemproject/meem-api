@@ -356,16 +356,6 @@ export default class MeemService {
 				chainId: data.chainId
 			})
 
-			let { recommendedGwei } = await services.web3.getGasEstimate({
-				chainId: data.chainId
-			})
-
-			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
-				// throw new Error('GAS_PRICE_TOO_HIGH')
-				log.warn(`Recommended fee over max: ${recommendedGwei}`)
-				recommendedGwei = config.MAX_GAS_PRICE_GWEI
-			}
-
 			const result = await services.web3.saveToPinata({
 				json: data.metadata
 			})
@@ -378,16 +368,17 @@ export default class MeemService {
 					tokenURI,
 					tokenType: MeemAPI.MeemType.Original,
 					proof: []
-				},
-				{
-					gasLimit: config.MINT_GAS_LIMIT,
-					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
 				}
 			]
 
 			log.debug('Minting meem w/ params', { mintParams })
 
-			const mintTx = await meemContract.mint(...mintParams)
+			// const mintTx = await meemContract.mint(...mintParams)
+			const mintTx = await services.ethers.runTransaction({
+				chainId: data.chainId,
+				fn: meemContract.mint.bind(meemContract),
+				params: mintParams
+			})
 
 			log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
 
@@ -523,31 +514,22 @@ export default class MeemService {
 				chainId: meemContract.chainId
 			})
 
-			let { recommendedGwei } = await services.web3.getGasEstimate({
-				chainId: meemContract.chainId
-			})
-
-			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
-				// throw new Error('GAS_PRICE_TOO_HIGH')
-				log.warn(`Recommended fee over max: ${recommendedGwei}`)
-				recommendedGwei = config.MAX_GAS_PRICE_GWEI
-			}
-
 			const mintParams: Parameters<Mycontract['bulkMint']> = [
 				builtData.map(item => ({
 					to: item.to,
 					tokenType: MeemAPI.MeemType.Original,
 					tokenURI: item.ipfs as string
-				})),
-				{
-					gasLimit: config.MINT_GAS_LIMIT,
-					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
-				}
+				}))
 			]
 
 			log.debug('Bulk Minting meem w/ params', { mintParams })
 
-			const mintTx = await contract.bulkMint(...mintParams)
+			const mintTx = await services.ethers.runTransaction({
+				chainId: meemContract.chainId,
+				fn: contract.bulkMint.bind(contract),
+				params: mintParams,
+				gasLimit: config.MINT_GAS_LIMIT
+			})
 
 			log.debug(`Bulk Minting w/ transaction hash: ${mintTx.hash}`)
 

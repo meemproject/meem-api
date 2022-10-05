@@ -192,5 +192,12 @@ export default {
 	AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID ?? '',
 	AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET ?? '',
 	AUTH0_VERIFY_EMAIL_CALLBACK_URL:
-		process.env.AUTH0_VERIFY_EMAIL_CALLBACK_URL ?? ''
+		process.env.AUTH0_VERIFY_EMAIL_CALLBACK_URL ?? '',
+	PG_LOCK_RETRY_COUNT: process.env.PG_LOCK_RETRY_COUNT
+		? +process.env.PG_LOCK_RETRY_COUNT
+		: 3,
+	PG_LOCK_TIMEOUT: process.env.PG_LOCK_TIMEOUT
+		? +process.env.PG_LOCK_TIMEOUT
+		: 10000,
+	WALLET_LOCK_KEY: process.env.WALLET_LOCK_KEY ?? 'apiWallet'
 }
