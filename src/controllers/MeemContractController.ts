@@ -683,6 +683,7 @@ export default class MeemContractController {
 		}
 
 		const { meemContractId } = req.params
+		const { roleIntegrationsData } = req.body
 
 		// TODO: Check if the user has permission to update and not just admin contract role
 
@@ -703,10 +704,6 @@ export default class MeemContractController {
 
 		if (!meemContract) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
-		}
-
-		if (meemContract.Wallets && meemContract.Wallets.length < 1) {
-			throw new Error('NOT_AUTHORIZED')
 		}
 
 		const meemContractRole = await orm.models.MeemContractRole.findOne({
@@ -789,38 +786,50 @@ export default class MeemContractController {
 			}
 		}
 
-		if (
-			(!_.isUndefined(req.body.name) ||
-				(!_.isUndefined(req.body.members) && _.isArray(req.body.members))) &&
-			meemContractRole.guildRoleId
-		) {
-			const members = req.body.members?.map(m => m.toLowerCase())
+		let members = req.body.members?.map(m => m.toLowerCase())
 
-			try {
-				if (meemContractRole.isAdminRole && members) {
-					const admins = await services.meemContract.updateMeemContractAdmins({
-						meemContractId: meemContract.id,
-						admins: members,
-						senderWallet: req.wallet
-					})
-					await services.guild.updateMeemContractGuildRole({
-						guildRoleId: meemContractRole.guildRoleId,
-						meemContractId: meemContract.id,
-						name: req.body.name,
-						members: admins
-					})
-				} else {
-					await services.guild.updateMeemContractGuildRole({
-						guildRoleId: meemContractRole.guildRoleId,
-						meemContractId: meemContract.id,
-						name: req.body.name,
-						members
-					})
-				}
-			} catch (e) {
-				log.crit(e)
-				throw new Error('SERVER_ERROR')
+		try {
+			if (meemContractRole.isAdminRole && members) {
+				members = await services.meemContract.updateMeemContractAdmins({
+					meemContractId: meemContract.id,
+					admins: members,
+					senderWallet: req.wallet
+				})
 			}
+			if (meemContractRole.guildRoleId) {
+				let guildRoleData
+				const guildRoleDiscordIntegrationData = roleIntegrationsData?.find(
+					(d: any) => d.discordServerId && d.discordGatedChannels
+				)
+				if (guildRoleDiscordIntegrationData) {
+					guildRoleData = {
+						rolePlatforms: [
+							{
+								guildPlatform: {
+									platformName: 'DISCORD',
+									platformGuildId:
+										guildRoleDiscordIntegrationData.discordServerId,
+									isNew: true
+								},
+								platformRoleData: {
+									gatedChannels:
+										guildRoleDiscordIntegrationData.discordGatedChannels
+								}
+							}
+						]
+					}
+				}
+				await services.guild.updateMeemContractGuildRole({
+					guildRoleId: meemContractRole.guildRoleId,
+					meemContractId: meemContract.id,
+					name: req.body.name,
+					members,
+					guildRoleData
+				})
+			}
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
 		}
 
 		return res.json({

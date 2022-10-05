@@ -2,6 +2,7 @@ import coreExpress, { Express } from 'express'
 import multer from 'multer'
 import ConfigController from '../controllers/ConfigController'
 import ContractController from '../controllers/ContractController'
+import DiscordController from '../controllers/DiscordController'
 import MeemContractController from '../controllers/MeemContractController'
 import MeemController from '../controllers/MeemController'
 import MeemIdController from '../controllers/MeemIdController'
@@ -71,6 +72,12 @@ export default (app: Express, _express: typeof coreExpress) => {
 	// router.deleteAsync(
 	// 	'/meemContracts/:meemContractId/guild',
 	// 	MeemContractController.deleteMeemContractGuild
+	// )
+	router.postAsync('/discord/authenticate', DiscordController.authenticate)
+	router.getAsync('/discord/servers', DiscordController.getGuilds)
+	// router.postAsync(
+	// 	'/discord/sendButton',
+	// 	MeemIdController.sendDiscordJoinButton
 	// )
 	router.getAsync(
 		'/meemContracts/:meemContractId/roles/access',
