@@ -1,10 +1,4 @@
-import { Chain, guild, role as guildRole } from '@guildxyz/sdk'
-// eslint-disable-next-line import/named
-import { Bytes, ethers } from 'ethers'
 import request from 'superagent'
-import MeemContract from '../models/MeemContract'
-import MeemContractGuild from '../models/MeemContractGuild'
-import MeemContractRole from '../models/MeemContractRole'
 
 export default class DiscordService {
 	public static async authenticate(data: {

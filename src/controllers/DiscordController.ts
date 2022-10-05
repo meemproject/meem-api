@@ -1,13 +1,5 @@
-import { randomBytes } from 'crypto'
-// eslint-disable-next-line import/no-extraneous-dependencies
-import AWS from 'aws-sdk'
-import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
 import { Response } from 'express'
-import { truncate } from 'fs-extra'
-import _ from 'lodash'
-import request from 'superagent'
 import { IRequest, IResponse } from '../types/app'
-import { MeemAPI } from '../types/meem.generated'
 
 export default class DiscordController {
 	public static async authenticate(
