@@ -604,3 +604,37 @@ export interface IMeemContractRole {
 	}
 	memberMeemIds: IMeemIdentity[]
 }
+
+export interface IDiscordServer {
+	id: string
+	name: string
+	icon: string
+	owner: boolean
+	guildData: {
+		serverIcon: string
+		serverName: string
+		serverId: string
+		categories: {
+			id: string
+			name: string
+			channels: {
+				id: string
+				name: string
+				roles: any[]
+			}[]
+		}[]
+		roles: {
+			guild: string
+			icon: string | null
+			unicodeEmoji: string | null
+			id: string
+			name: string
+		}[]
+		isAdmin: boolean
+		membersWithoutRole: number
+		channels: {
+			id: string
+			name: string
+		}[]
+	}
+}
