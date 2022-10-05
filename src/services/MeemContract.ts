@@ -4,7 +4,6 @@ import {
 	getCuts,
 	IFacetVersion,
 	diamondABI,
-	upgrade,
 	getMerkleInfo
 } from '@meemproject/meem-contracts'
 import { Validator } from '@meemproject/metadata'
@@ -14,6 +13,7 @@ import slug from 'slug'
 import { v4 as uuidv4 } from 'uuid'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
+import IDiamondCut from '../lib/IDiamondCut'
 import type MeemContract from '../models/MeemContract'
 import MeemContractWallet from '../models/MeemContractWallet'
 import RolePermission from '../models/RolePermission'
@@ -111,16 +111,6 @@ export default class MeemContractService {
 					meemContract: meemContractInstance
 				})
 
-			let { recommendedGwei } = await services.web3.getGasEstimate({
-				chainId: meemContractInstance.chainId
-			})
-
-			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
-				// throw new Error('GAS_PRICE_TOO_HIGH')
-				log.warn(`Recommended fee over max: ${recommendedGwei}`)
-				recommendedGwei = config.MAX_GAS_PRICE_GWEI
-			}
-
 			const meemContract = Mycontract__factory.connect(
 				meemContractInstance.address,
 				wallet
@@ -139,9 +129,11 @@ export default class MeemContractService {
 
 			log.debug(contractInitParams)
 
-			const tx = await meemContract.reinitialize(contractInitParams, {
-				gasLimit: config.MINT_GAS_LIMIT,
-				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+			const tx = await services.ethers.runTransaction({
+				chainId: meemContractInstance.chainId,
+				fn: meemContract.reinitialize.bind(meemContract),
+				params: [contractInitParams],
+				gasLimit: config.MINT_GAS_LIMIT
 			})
 
 			await orm.models.Transaction.create({
@@ -247,23 +239,12 @@ export default class MeemContractService {
 				wallet
 			)
 
-			let { recommendedGwei } = await services.web3.getGasEstimate({
-				chainId
+			const proxyContract = await services.ethers.runTransaction({
+				chainId,
+				fn: proxyContractFactory.deploy.bind(proxyContractFactory),
+				params: [senderWallet.address, [senderWallet.address, wallet.address]]
 			})
 
-			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
-				// throw new Error('GAS_PRICE_TOO_HIGH')
-				log.warn(`Recommended fee over max: ${recommendedGwei}`)
-				recommendedGwei = config.MAX_GAS_PRICE_GWEI
-			}
-
-			const proxyContract = (await proxyContractFactory.deploy(
-				senderWallet.address,
-				[senderWallet.address, wallet.address],
-				{
-					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
-				}
-			)) as any
 			log.debug(
 				`Deploying contract w/ tx: ${proxyContract.deployTransaction.hash}`
 			)
@@ -341,15 +322,12 @@ export default class MeemContractService {
 				chainId
 			})
 
-			const cutTx = await proxyContract.diamondCut(
-				facetCuts,
-				proxyContract.address,
-				functionCall,
-				{
-					gasLimit: config.MINT_GAS_LIMIT,
-					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
-				}
-			)
+			const cutTx = await services.ethers.runTransaction({
+				chainId,
+				fn: proxyContract.diamondCut.bind(proxyContract),
+				params: [facetCuts, proxyContract.address, functionCall],
+				gasLimit: config.MINT_GAS_LIMIT
+			})
 
 			log.debug(`Running diamond cut w/ TX: ${cutTx.hash}`)
 
@@ -385,10 +363,14 @@ export default class MeemContractService {
 				log.debug(`Finished minting admin tokens.`)
 			}
 
-			await services.guild.createMeemContractGuild({
-				meemContractId: meemContractInstance.id,
-				adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
-			})
+			try {
+				await services.guild.createMeemContractGuild({
+					meemContractId: meemContractInstance.id,
+					adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
+				})
+			} catch (e) {
+				log.crit('Failed to create Guild', e)
+			}
 
 			return meemContract.address
 		} catch (e) {
@@ -507,13 +489,13 @@ export default class MeemContractService {
 			}
 		}
 
+		const result = await services.web3.saveToPinata({ json: metadata })
 		const provider = await services.ethers.getProvider({
 			chainId
 		})
 
 		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 
-		const result = await services.web3.saveToPinata({ json: metadata })
 		const uri = `ipfs://${result.IpfsHash}`
 
 		const meemContractAdmins: MeemContractWallet[] = []
@@ -709,7 +691,9 @@ export default class MeemContractService {
 			const threshold = options.threshold ?? 1
 
 			// gnosisSafeAbi is the Gnosis Safe ABI in JSON format,
-			const provider = await services.ethers.getProvider({ chainId })
+			const provider = await services.ethers.getProvider({
+				chainId
+			})
 			const signer = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 			const proxyContract = new ethers.Contract(
 				config.GNOSIS_PROXY_CONTRACT_ADDRESS,
@@ -736,32 +720,20 @@ export default class MeemContractService {
 				'0x0000000000000000000000000000000000000000'
 			])
 
-			let { recommendedGwei } = await services.web3.getGasEstimate({
-				chainId
+			const tx = await services.ethers.runTransaction({
+				chainId,
+				fn: proxyContract.createProxy.bind(proxyContract),
+				params: [config.GNOSIS_MASTER_CONTRACT_ADDRESS, safeSetupData],
+				gasLimit: config.MINT_GAS_LIMIT
 			})
-
-			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
-				// throw new Error('GAS_PRICE_TOO_HIGH')
-				log.warn(`Recommended fee over max: ${recommendedGwei}`)
-				recommendedGwei = config.MAX_GAS_PRICE_GWEI
-			}
-
-			// safeContractFactory is an instance of the "Contract" type from Ethers JS
-			// see https://docs.ethers.io/v5/getting-started/#getting-started--contracts
-			// for more details.
-			const tx = await proxyContract.createProxy(
-				config.GNOSIS_MASTER_CONTRACT_ADDRESS,
-				safeSetupData,
-				{
-					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
-				}
-			)
 
 			await orm.models.Transaction.create({
 				hash: tx.hash,
 				chainId,
 				WalletId: senderWallet.id
 			})
+
+			// await services.ethers.releaseLock(chainId)
 
 			await tx.wait()
 
@@ -780,9 +752,10 @@ export default class MeemContractService {
 
 			await meemContract.save()
 		} catch (e: any) {
+			// await services.ethers.releaseLock(chainId)
 			log.crit(e)
 			await sockets?.emitError(
-				e?.message ?? config.errors.SAFE_CREATE_FAILED,
+				config.errors.SAFE_CREATE_FAILED,
 				senderWalletAddress
 			)
 			throw new Error('SAFE_CREATE_FAILED')
@@ -884,25 +857,35 @@ export default class MeemContractService {
 					functionSelectors: bc.functionSelectors
 				})
 			})
-
-			let { recommendedGwei } = await services.web3.getGasEstimate({
-				chainId: meemContract.chainId
-			})
-
-			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
-				// throw new Error('GAS_PRICE_TOO_HIGH')
-				log.warn(`Recommended fee over max: ${recommendedGwei}`)
-				recommendedGwei = config.MAX_GAS_PRICE_GWEI
-			}
-
-			const tx = await upgrade({
-				signer,
+			// const tx = await upgrade({
+			// 	signer,
+			// 	proxyContractAddress: meemContract.address,
+			// 	toVersion,
+			// 	fromVersion,
+			// 	overrides: {
+			// 		gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+			// 	}
+			// })
+			const cuts = getCuts({
 				proxyContractAddress: meemContract.address,
 				toVersion,
-				fromVersion,
-				overrides: {
-					gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
-				}
+				fromVersion
+			})
+
+			if (cuts.length === 0) {
+				throw new Error('CONTRACT_ALREADY_UP_TO_DATE')
+			}
+
+			const diamondCut = new ethers.Contract(
+				meemContract.address,
+				IDiamondCut.abi,
+				signer
+			)
+
+			const tx = await services.ethers.runTransaction({
+				chainId: meemContract.chainId,
+				fn: diamondCut.diamondCut.bind(diamondCut),
+				params: [cuts, ethers.constants.AddressZero, '0x']
 			})
 
 			if (tx?.hash) {
@@ -1201,19 +1184,11 @@ export default class MeemContractService {
 				chainId: meemContract.chainId
 			})) as unknown as Mycontract
 
-			let { recommendedGwei } = await services.web3.getGasEstimate({
-				chainId: meemContract.chainId
-			})
-
-			if (recommendedGwei > config.MAX_GAS_PRICE_GWEI) {
-				// throw new Error('GAS_PRICE_TOO_HIGH')
-				log.warn(`Recommended fee over max: ${recommendedGwei}`)
-				recommendedGwei = config.MAX_GAS_PRICE_GWEI
-			}
-
-			const tx = await meemSmartContract.bulkSetRoles(cleanAdmins, {
-				gasLimit: config.MINT_GAS_LIMIT,
-				gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+			const tx = await services.ethers.runTransaction({
+				chainId: meemContract.chainId,
+				fn: meemSmartContract.bulkSetRoles.bind(meemSmartContract),
+				params: [cleanAdmins],
+				gasLimit: config.MINT_GAS_LIMIT
 			})
 
 			await orm.models.Transaction.create({

@@ -25,7 +25,7 @@ class ContractInitTests extends BaseTest {
 			slug: 'test',
 			symbol: 'TEST',
 			name: 'test',
-			chainId: 4,
+			chainId: 5,
 			metadata
 		})
 
@@ -55,7 +55,7 @@ class ContractInitTests extends BaseTest {
 		let result = await services.meemContract.prepareInitValues({
 			admins: ['0x0000000000000000000000000000000000000001'],
 			minters: [],
-			chainId: 4,
+			chainId: 5,
 			senderWalletAddress: '0xa44296DE313Fbc49bEFDa83b22E408A27182CFb7',
 			meemContract
 		})
@@ -80,7 +80,7 @@ class ContractInitTests extends BaseTest {
 				'0x0000000000000000000000000000000000000002'
 			],
 			minters: [],
-			chainId: 4,
+			chainId: 5,
 			senderWalletAddress: '0xa44296DE313Fbc49bEFDa83b22E408A27182CFb7',
 			meemContract
 		})
@@ -104,7 +104,7 @@ class ContractInitTests extends BaseTest {
 		result = await services.meemContract.prepareInitValues({
 			admins: ['0x0000000000000000000000000000000000000002'],
 			minters: [],
-			chainId: 4,
+			chainId: 5,
 			senderWalletAddress: '0xa44296DE313Fbc49bEFDa83b22E408A27182CFb7',
 			meemContract
 		})

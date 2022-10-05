@@ -308,4 +308,12 @@ export default class TestController {
 			proof
 		})
 	}
+
+	public static async releaseLock(req: Request, res: Response) {
+		await services.ethers.releaseLock(+(req.query.chainId as string))
+
+		return res.json({
+			status: 'success'
+		})
+	}
 }
