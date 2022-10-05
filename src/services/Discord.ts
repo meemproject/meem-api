@@ -82,7 +82,7 @@ export default class DiscordService {
 						})
 					return {
 						...g,
-						serverData: guildDataResult.body
+						guildData: guildDataResult.body
 					}
 				})
 			)

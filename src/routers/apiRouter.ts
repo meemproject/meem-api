@@ -74,7 +74,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	// 	MeemContractController.deleteMeemContractGuild
 	// )
 	router.postAsync('/discord/authenticate', DiscordController.authenticate)
-	router.getAsync('/discord/guilds', DiscordController.getGuilds)
+	router.getAsync('/discord/servers', DiscordController.getGuilds)
 	// router.postAsync(
 	// 	'/discord/sendButton',
 	// 	MeemIdController.sendDiscordJoinButton

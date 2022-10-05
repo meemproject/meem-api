@@ -19,13 +19,13 @@ export default class DiscordController {
 		}
 
 		try {
-			const accessToken = await services.discord.authenticate({
+			const authData = await services.discord.authenticate({
 				authCode: req.body.authCode,
 				redirectUri: req.body.redirectUri
 			})
 
 			return res.json({
-				accessToken
+				...authData
 			})
 		} catch (e) {
 			log.crit(e)
@@ -42,12 +42,12 @@ export default class DiscordController {
 		}
 
 		try {
-			const accessToken = await services.discord.getDiscordGuilds({
+			const discordServersResponse = await services.discord.getDiscordGuilds({
 				accessToken: req.query.accessToken
 			})
 
 			return res.json({
-				accessToken
+				discordServers: discordServersResponse
 			})
 		} catch (e) {
 			log.crit(e)
