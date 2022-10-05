@@ -179,7 +179,7 @@ export default class AdminController {
 			}
 		]
 
-		await orm.models.IdentityIntegration.sync({ force: true })
+		// await orm.models.IdentityIntegration.sync({ force: true })
 
 		const failedIntegratiosn: any[] = []
 

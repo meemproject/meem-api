@@ -184,5 +184,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/syncContract', TestController.syncContract)
 		router.getAsync('/test/metadata', TestController.metadata)
 		router.getAsync('/test/hash', TestController.testHash)
+		router.getAsync('/test/releaseLock', TestController.releaseLock)
 	}
 }

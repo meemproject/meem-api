@@ -69,8 +69,8 @@ export const chains = [
 		]
 	},
 	{
-		name: 'Görli',
-		title: 'Ethereum Testnet Görli',
+		name: 'Göerli',
+		title: 'Ethereum Testnet Göerli',
 		chain: 'ETH',
 		network: 'testnet',
 		rpc: ['https://rpc.goerli.mudit.blog/'],
@@ -79,7 +79,7 @@ export const chains = [
 			'https://goerli-faucet.slock.it?address=${ADDRESS}',
 			'https://faucet.goerli.mudit.blog'
 		],
-		nativeCurrency: { name: 'Görli Ether', symbol: 'GOR', decimals: 18 },
+		nativeCurrency: { name: 'Göerli Ether', symbol: 'GOR', decimals: 18 },
 		infoURL: 'https://goerli.net/#about',
 		shortName: 'gor',
 		chainId: 5,
@@ -292,7 +292,7 @@ export const chains = [
 		chain: 'ETH',
 		rpc: ['https://goerli.optimism.io/'],
 		faucets: [],
-		nativeCurrency: { name: 'Görli Ether', symbol: 'GOR', decimals: 18 },
+		nativeCurrency: { name: 'Göerli Ether', symbol: 'GOR', decimals: 18 },
 		infoURL: 'https://optimism.io',
 		shortName: 'ogor',
 		chainId: 420,

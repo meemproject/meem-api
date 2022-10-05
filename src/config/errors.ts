@@ -142,6 +142,7 @@ const errors = {
 	},
 	SAFE_CREATE_FAILED: {
 		httpCode: 400,
+		code: 'SAFE_CREATE_FAILED',
 		status: 'failure',
 		reason: 'The club safe could not be created.',
 		friendlyReason: 'The club safe could not be created.'
