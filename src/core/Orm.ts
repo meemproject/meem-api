@@ -30,9 +30,11 @@ export default class ORM {
 			[modelName: string]: AppModel
 		} = {}
 
-		this.client = new pg.Client(config.DATABASE_URL)
-		await this.client.connect()
-		this.databaseId = await this.initTable()
+		if (!config.TESTING) {
+			this.client = new pg.Client(config.DATABASE_URL)
+			await this.client.connect()
+			this.databaseId = await this.initTable()
+		}
 
 		this.sequelize = new Sequelize(config.DATABASE_URL, {
 			// eslint-disable-next-line no-console
