@@ -826,6 +826,32 @@ export default class MeemContractController {
 					members,
 					guildRoleData
 				})
+
+				if (guildRoleDiscordIntegrationData?.discordAccessToken) {
+					const discordServerResult = await request
+						.post(`https://api.guild.xyz/v1/discord/server/${g.id}`)
+						.send({
+							payload: {
+								authorization:
+									guildRoleDiscordIntegrationData.discordAccessToken
+							}
+						})
+					const meemContractRoleDiscordIntegrationDataIndex =
+						meemContractRole.integrationsMetadata?.findIndex(
+							i => !!i.discordServerData
+						)
+					if (meemContractRoleDiscordIntegrationDataIndex) {
+						meemContractRole.integrationsMetadata[
+							meemContractRoleDiscordIntegrationDataIndex
+						] = {
+							discordServerData: discordServerResult.body
+						}
+					} else {
+						meemContractRole.integrationsMetadata.push({
+							discordServerData: discordServerResult.body
+						})
+					}
+				}
 			}
 		} catch (e) {
 			log.crit(e)

@@ -52,6 +52,11 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false,
 			allowNull: false
+		},
+		integrationsMetadata: {
+			type: DataTypes.JSONB,
+			allowNull: false,
+			defaultValue: []
 		}
 	}
 
@@ -62,6 +67,8 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 	public imageUrl!: string
 
 	public description!: string
+
+	public integrationsMetadata!: { [key: string]: any }[]
 
 	public isAdminRole!: boolean
 
