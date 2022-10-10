@@ -798,10 +798,26 @@ export default class MeemContractController {
 			}
 			if (meemContractRole.guildRoleId) {
 				let guildRoleData
+				let discordServerData
+				const integrationsMetadata = meemContractRole.integrationsMetadata
+				const meemContractRoleDiscordIntegrationDataIndex =
+					integrationsMetadata?.findIndex(i => !!i.discordServerData)
 				const guildRoleDiscordIntegrationData = roleIntegrationsData?.find(
 					(d: any) => d.discordServerId && d.discordGatedChannels
 				)
 				if (guildRoleDiscordIntegrationData) {
+					const discordServerResult = await request
+						.post(
+							`https://api.guild.xyz/v1/discord/server/${guildRoleDiscordIntegrationData.discordServerId}`
+						)
+						.send({
+							payload: {
+								authorization:
+									guildRoleDiscordIntegrationData.discordAccessToken
+							}
+						})
+					discordServerData = discordServerResult.body
+					// TODO: This creates a new role on discord no matter if isNew set to true or false
 					guildRoleData = {
 						rolePlatforms: [
 							{
@@ -809,7 +825,7 @@ export default class MeemContractController {
 									platformName: 'DISCORD',
 									platformGuildId:
 										guildRoleDiscordIntegrationData.discordServerId,
-									isNew: true
+									isNew: meemContractRoleDiscordIntegrationDataIndex < 0
 								},
 								platformRoleData: {
 									gatedChannels:
@@ -826,6 +842,24 @@ export default class MeemContractController {
 					members,
 					guildRoleData
 				})
+
+				if (guildRoleDiscordIntegrationData?.discordAccessToken) {
+					if (meemContractRoleDiscordIntegrationDataIndex > -1) {
+						integrationsMetadata[meemContractRoleDiscordIntegrationDataIndex] =
+							{
+								discordServerData
+							}
+					} else {
+						integrationsMetadata.push({
+							discordServerData
+						})
+					}
+
+					meemContractRole.integrationsMetadata = integrationsMetadata
+					meemContractRole.changed('integrationsMetadata', true)
+
+					await meemContractRole.save()
+				}
 			}
 		} catch (e) {
 			log.crit(e)

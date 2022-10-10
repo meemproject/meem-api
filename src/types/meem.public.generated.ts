@@ -2651,6 +2651,7 @@ export namespace UpdateMeemContractRole {
 	export interface DiscordRoleIntegrationData {
 		discordServerId: string
 		discordGatedChannels: string[]
+		discordAccessToken: string
 	}
 	export interface IPathParams {
 		/** The meem contract id to fetch */
