@@ -50,37 +50,41 @@ export default class MeemContractCron extends CronJob {
 
 		for (let i = 0; i < meemContracts.length; i++) {
 			const meemContract = meemContracts[i]
+			try {
+				if (!providers[meemContract.chainId]) {
+					providers[meemContract.chainId] = await services.ethers.getProvider({
+						chainId: meemContract.chainId
+					})
+				}
 
-			if (!providers[meemContract.chainId]) {
-				providers[meemContract.chainId] = await services.ethers.getProvider({
-					chainId: meemContract.chainId
-				})
+				const signer = new ethers.Wallet(
+					config.WALLET_PRIVATE_KEY,
+					providers[meemContract.chainId]
+				)
+
+				const instance = new ethers.Contract(
+					meemContract.address,
+					diamondABI,
+					signer
+				)
+
+				const owner = await instance.owner()
+
+				// Find wallet
+				let wallet = await orm.models.Wallet.findByAddress<Wallet>(owner)
+
+				if (!wallet) {
+					wallet = orm.models.Wallet.build({
+						owner
+					})
+				}
+				if (wallet.id !== meemContract.OwnerId) {
+					meemContract.OwnerId = wallet.id
+				}
+			} catch (e) {
+				log.warn(e)
 			}
 
-			const signer = new ethers.Wallet(
-				config.WALLET_PRIVATE_KEY,
-				providers[meemContract.chainId]
-			)
-
-			const instance = new ethers.Contract(
-				meemContract.address,
-				diamondABI,
-				signer
-			)
-
-			const owner = await instance.owner()
-
-			// Find wallet
-			let wallet = await orm.models.Wallet.findByAddress<Wallet>(owner)
-
-			if (!wallet) {
-				wallet = orm.models.Wallet.build({
-					owner
-				})
-			}
-			if (wallet.id !== meemContract.OwnerId) {
-				meemContract.OwnerId = wallet.id
-			}
 			meemContract.ownerFetchedAt = new Date()
 			await meemContract.save()
 		}
