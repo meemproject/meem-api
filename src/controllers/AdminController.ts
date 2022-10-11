@@ -78,8 +78,6 @@ export default class AdminController {
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		await orm.models.Integration.sync({ force: true })
-
 		const failedIntegrations: any[] = []
 
 		for (let i = 0; i < integrationsData.length; i += 1) {
@@ -114,7 +112,7 @@ export default class AdminController {
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		await orm.models.RolePermission.sync({ force: true })
+		// await orm.models.RolePermission.sync({ force: true })
 
 		const failedPermissions: any[] = []
 
