@@ -580,26 +580,30 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { name, permissions, members } = req.body
+		const {
+			name,
+			permissions,
+			isTokenBasedRole,
+			isTokenTransferrable,
+			members
+		} = req.body
 
 		// TODO: Check if the user has permission to update and not just admin contract role
-		const adminRole = config.ADMIN_ROLE
+
+		const isAdmin = await services.meemContract.isMeemContractAdmin({
+			meemContractId: req.params.meemContractId,
+			walletAddress: req.wallet.address
+		})
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
 		const meemContract = await orm.models.MeemContract.findOne({
 			where: {
 				id: req.params.meemContractId
 			},
 			include: [
-				{
-					model: orm.models.Wallet,
-					where: {
-						address: req.wallet.address
-					},
-					through: {
-						where: {
-							role: adminRole
-						}
-					}
-				},
 				{
 					model: orm.models.MeemContractGuild
 				}
@@ -610,10 +614,6 @@ export default class MeemContractController {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		if (meemContract.Wallets && meemContract.Wallets.length < 1) {
-			throw new Error('NOT_AUTHORIZED')
-		}
-
 		if (!meemContract.MeemContractGuild) {
 			throw new Error('MEEM_CONTRACT_GUILD_NOT_FOUND')
 		}
@@ -622,52 +622,12 @@ export default class MeemContractController {
 			name,
 			meemContract,
 			meemContractGuild: meemContract.MeemContractGuild,
-			members: members ?? []
+			permissions,
+			members: members ?? [],
+			isTokenBasedRole,
+			isTokenTransferrable,
+			senderWalletAddress: req.wallet.address
 		})
-
-		if (!meemContractRole) {
-			throw new Error('MEEM_CONTRACT_ROLE_NOT_FOUND')
-		}
-
-		if (!_.isUndefined(permissions) && _.isArray(permissions)) {
-			const promises: Promise<any>[] = []
-			const t = await orm.sequelize.transaction()
-			const roleIdsToAdd =
-				permissions.filter(pid => {
-					const existingPermission = meemContractRole.RolePermissions?.find(
-						rp => rp.id === pid
-					)
-					return !existingPermission
-				}) ?? []
-
-			if (roleIdsToAdd.length > 0) {
-				const meemContractRolePermissionsData: {
-					MeemContractRoleId: string
-					RolePermissionId: string
-				}[] = roleIdsToAdd.map(rid => {
-					return {
-						MeemContractRoleId: meemContractRole.id,
-						RolePermissionId: rid
-					}
-				})
-				promises.push(
-					orm.models.MeemContractRolePermission.bulkCreate(
-						meemContractRolePermissionsData,
-						{
-							transaction: t
-						}
-					)
-				)
-			}
-
-			try {
-				await Promise.all(promises)
-				await t.commit()
-			} catch (e) {
-				log.crit(e)
-				throw new Error('SERVER_ERROR')
-			}
-		}
 
 		return res.json({
 			status: 'success'
@@ -900,10 +860,6 @@ export default class MeemContractController {
 
 		if (!meemContract) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
-		}
-
-		if (meemContract.Wallets && meemContract.Wallets.length < 1) {
-			throw new Error('NOT_AUTHORIZED')
 		}
 
 		const meemContractRole = await orm.models.MeemContractRole.findOne({

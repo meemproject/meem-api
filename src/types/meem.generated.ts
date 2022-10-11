@@ -1010,11 +1010,14 @@ export namespace CreateMeemContract {
 		/** Whether tokens can be transferred */
 		isTransferLocked?: boolean
 
-		/** If true, will mint a token to the admin wallet addresses  */
-		shouldMintAdminTokens?: boolean
+		/** If true, will mint a token to the admin wallet addresses and any addresses in the members parameter  */
+		shouldMintTokens?: boolean
 
-		/** Admin token metadata */
-		adminTokenMetadata?: IMeemMetadataLike
+		/** Members to mint tokens to */
+		members?: string[]
+
+		/** Token metadata */
+		tokenMetadata?: IMeemMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -1052,6 +1055,10 @@ export namespace CreateMeemContractRole {
 		permissions?: string[]
 		/** Wallet addresses of members */
 		members?: string[]
+		/** Whether the role should be token-based (true) or off-chain (false) */
+		isTokenBasedRole: boolean
+		/** If the role is token-based, is the token transferrable to other wallets */
+		isTokenTransferrable: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -2393,10 +2400,10 @@ export namespace ReInitializeMeemContract {
 		isTransferLocked?: boolean
 
 		/** If true, will mint a token to the admin wallet addresses  */
-		shouldMintAdminTokens?: boolean
+		shouldMintTokens?: boolean
 
 		/** Admin token metadata */
-		adminTokenMetadata?: IMeemMetadataLike
+		tokenMetadata?: IMeemMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

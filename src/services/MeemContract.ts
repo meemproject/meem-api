@@ -177,8 +177,9 @@ export default class MeemContractService {
 		}
 	): Promise<string> {
 		const {
-			shouldMintAdminTokens,
-			adminTokenMetadata,
+			shouldMintTokens,
+			tokenMetadata,
+			members,
 			senderWalletAddress,
 			chainId
 		} = data
@@ -339,35 +340,38 @@ export default class MeemContractService {
 
 			await cutTx.wait()
 
-			if (shouldMintAdminTokens && adminTokenMetadata) {
-				log.debug(`Minting admin tokens.`, cleanAdmins)
+			if (shouldMintTokens && tokenMetadata) {
+				log.debug(`Minting admin/member tokens.`, cleanAdmins)
+				const addresses = [...cleanAdmins.map(a => a.user), ...(members ?? [])]
 
-				for (let i = 0; i < cleanAdmins.length; i += 1) {
+				for (let i = 0; i < addresses.length; i += 1) {
 					// TODO: Bulk minting
 
 					// Don't mint a token to our API wallet
-					if (
-						cleanAdmins[i].user.toLowerCase() !== wallet.address.toLowerCase()
-					) {
+					if (addresses[i].toLowerCase() !== wallet.address.toLowerCase()) {
 						// eslint-disable-next-line no-await-in-loop
 						await services.meem.mintOriginalMeem({
 							meemContractAddress: meemContract.address,
-							to: cleanAdmins[i].user.toLowerCase(),
-							metadata: adminTokenMetadata,
+							to: addresses[i].toLowerCase(),
+							metadata: tokenMetadata,
 							mintedBy: wallet.address,
 							chainId
 						})
 					}
 				}
 
-				log.debug(`Finished minting admin tokens.`)
+				log.debug(`Finished minting admin/member tokens.`)
 			}
 
 			try {
-				await services.guild.createMeemContractGuild({
-					meemContractId: meemContractInstance.id,
-					adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
-				})
+				if (data.metadata.meem_contract_type === 'meem-club') {
+					await services.guild.createMeemContractGuild({
+						meemContractId: meemContractInstance.id,
+						adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
+					})
+				} else if (data.metadata.meem_contract_type === 'meem-club-role') {
+					// TODO: create the guild role
+				}
 			} catch (e) {
 				log.crit('Failed to create Guild', e)
 			}
@@ -407,7 +411,7 @@ export default class MeemContractService {
 			mintPermissions,
 			splits,
 			isTransferLocked,
-			adminTokenMetadata,
+			tokenMetadata,
 			senderWalletAddress,
 			chainId,
 			meemContract
@@ -469,19 +473,16 @@ export default class MeemContractService {
 			throw new Error('INVALID_METADATA')
 		}
 
-		if (
-			data.shouldMintAdminTokens &&
-			!adminTokenMetadata?.meem_metadata_version
-		) {
+		if (data.shouldMintTokens && !tokenMetadata?.meem_metadata_version) {
 			throw new Error('INVALID_METADATA')
 		}
 
-		if (data.shouldMintAdminTokens && adminTokenMetadata) {
+		if (data.shouldMintTokens && tokenMetadata) {
 			const tokenMetadataValidator = new Validator(
-				adminTokenMetadata.meem_metadata_version
+				tokenMetadata.meem_metadata_version
 			)
 			const tokenMetadataValidatorResult =
-				tokenMetadataValidator.validate(adminTokenMetadata)
+				tokenMetadataValidator.validate(tokenMetadata)
 
 			if (!tokenMetadataValidatorResult.valid) {
 				log.crit(tokenMetadataValidatorResult.errors.map((e: any) => e.message))

@@ -1,12 +1,13 @@
-/* eslint-disable no-await-in-loop */
-
 import { Chain, guild, role as guildRole } from '@guildxyz/sdk'
+// eslint-disable-next-line import/no-extraneous-dependencies
+import AWS from 'aws-sdk'
 // eslint-disable-next-line import/named
 import { Bytes, ethers } from 'ethers'
 import _ from 'lodash'
 import MeemContract from '../models/MeemContract'
 import MeemContractGuild from '../models/MeemContractGuild'
 import MeemContractRole from '../models/MeemContractRole'
+import { Mycontract__factory } from '../types/Meem'
 
 export default class GuildService {
 	public static getGuildChain(chainId: number): Chain {
@@ -295,9 +296,22 @@ export default class GuildService {
 		name: string
 		meemContract: MeemContract
 		meemContractGuild: MeemContractGuild
+		permissions?: string[]
+		isTokenBasedRole: boolean
+		isTokenTransferrable?: boolean
 		members: string[]
-	}): Promise<MeemContractRole> {
-		const { name, meemContract, meemContractGuild, members } = data
+		senderWalletAddress: string
+	}): Promise<void> {
+		const {
+			name,
+			meemContract,
+			meemContractGuild,
+			permissions,
+			isTokenBasedRole,
+			isTokenTransferrable,
+			members,
+			senderWalletAddress
+		} = data
 		const provider = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
@@ -307,42 +321,159 @@ export default class GuildService {
 			wallet.signMessage(signableMessage)
 
 		try {
-			// TODO: Meem Contract Tokens
-			const guildChain = this.getGuildChain(meemContract.chainId)
-			const createGuildRoleResponse = await guildRole.create(
-				wallet.address,
-				sign,
-				{
-					guildId: meemContractGuild.guildId,
-					name,
-					logic: 'AND',
-					requirements: [
-						{
-							type: 'ALLOWLIST',
-							data: {
-								addresses: members
+			if (isTokenBasedRole) {
+				const baseContract = Mycontract__factory.connect(
+					meemContract.address,
+					wallet
+				)
+				const admins = await baseContract.getRoles(config.ADMIN_ROLE)
+				const roleContractData = {
+					chainId: meemContract.chainId,
+					shouldMintTokens: true,
+					metadata: {
+						meem_contract_type: 'meem-club-role',
+						meem_metadata_version: 'MeemClubRole_Contract_20220718',
+						name: `${meemContract.name ?? ''} - ${name}`,
+						description: name,
+						image: '',
+						associations: [
+							{
+								meem_contract_type: 'meem-club',
+								address: meemContract.address
 							}
-						},
-						{
-							type: 'ERC721',
-							chain: guildChain,
-							address: meemContract.address,
-							data: {
-								minAmount: 1
-							}
-						}
-					]
+						],
+						external_url: ''
+					},
+					name: `${meemContract.name ?? ''} - ${name}`,
+					admins,
+					members,
+					minters: admins,
+					maxSupply: '0',
+					// TODO: What do we want mintPermissions to be?
+					mintPermissions: meemContract.mintPermissions,
+					splits: [],
+					isTransferLocked: !isTokenTransferrable,
+					tokenMetadata: {
+						meem_metadata_version: 'MeemClubRole_Token_20220718',
+						description: name,
+						name: `${meemContract.name ?? ''} - ${name}`,
+						// TODO: Token image?
+						image: '',
+						associations: [],
+						external_url: ''
+					}
 				}
-			)
 
-			const meemContractRole = await orm.models.MeemContractRole.create({
-				guildRoleId: createGuildRoleResponse.id,
-				name,
-				MeemContractId: meemContract.id,
-				MeemContractGuildId: meemContractGuild.id
-			})
+				// log.debug(JSON.stringify(data))
+				log.debug(roleContractData)
 
-			return meemContractRole
+				if (config.DISABLE_ASYNC_MINTING) {
+					try {
+						const roleMeemContractAddresss =
+							await services.meemContract.createMeemContract({
+								...roleContractData,
+								senderWalletAddress
+							})
+					} catch (e) {
+						log.crit(e)
+						sockets?.emitError(
+							config.errors.CONTRACT_CREATION_FAILED,
+							senderWalletAddress
+						)
+					}
+				} else {
+					const lambda = new AWS.Lambda({
+						accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+						secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+						region: 'us-east-1'
+					})
+
+					await lambda
+						.invoke({
+							InvocationType: 'Event',
+							FunctionName: config.LAMBDA_CREATE_CONTRACT_FUNCTION,
+							Payload: JSON.stringify({
+								...roleContractData,
+								senderWalletAddress
+							})
+						})
+						.promise()
+				}
+			} else {
+				const guildChain = this.getGuildChain(meemContract.chainId)
+				const createGuildRoleResponse = await guildRole.create(
+					wallet.address,
+					sign,
+					{
+						guildId: meemContractGuild.guildId,
+						name,
+						logic: 'AND',
+						requirements: [
+							{
+								type: 'ALLOWLIST',
+								data: {
+									addresses: members
+								}
+							},
+							{
+								type: 'ERC721',
+								chain: guildChain,
+								address: meemContract.address,
+								data: {
+									minAmount: 1
+								}
+							}
+						]
+					}
+				)
+
+				const meemContractRole = await orm.models.MeemContractRole.create({
+					guildRoleId: createGuildRoleResponse.id,
+					name,
+					MeemContractId: meemContract.id,
+					MeemContractGuildId: meemContractGuild.id
+				})
+
+				if (!_.isUndefined(permissions) && _.isArray(permissions)) {
+					const promises: Promise<any>[] = []
+					const t = await orm.sequelize.transaction()
+					const roleIdsToAdd =
+						permissions.filter(pid => {
+							const existingPermission = meemContractRole.RolePermissions?.find(
+								rp => rp.id === pid
+							)
+							return !existingPermission
+						}) ?? []
+
+					if (roleIdsToAdd.length > 0) {
+						const meemContractRolePermissionsData: {
+							MeemContractRoleId: string
+							RolePermissionId: string
+						}[] = roleIdsToAdd.map(rid => {
+							return {
+								MeemContractRoleId: meemContractRole.id,
+								RolePermissionId: rid
+							}
+						})
+						promises.push(
+							orm.models.MeemContractRolePermission.bulkCreate(
+								meemContractRolePermissionsData,
+								{
+									transaction: t
+								}
+							)
+						)
+					}
+
+					try {
+						await Promise.all(promises)
+						await t.commit()
+					} catch (e) {
+						log.crit(e)
+						throw new Error('SERVER_ERROR')
+					}
+				}
+			}
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')
