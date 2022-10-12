@@ -133,7 +133,7 @@ export default class MeemContractService {
 				chainId: meemContractInstance.chainId,
 				fn: meemContract.reinitialize.bind(meemContract),
 				params: [contractInitParams],
-				gasLimit: config.MINT_GAS_LIMIT
+				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
 
 			await orm.models.Transaction.create({
@@ -242,7 +242,8 @@ export default class MeemContractService {
 			const proxyContract = await services.ethers.runTransaction({
 				chainId,
 				fn: proxyContractFactory.deploy.bind(proxyContractFactory),
-				params: [senderWallet.address, [senderWallet.address, wallet.address]]
+				params: [senderWallet.address, [senderWallet.address, wallet.address]],
+				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
 
 			log.debug(
@@ -326,7 +327,7 @@ export default class MeemContractService {
 				chainId,
 				fn: proxyContract.diamondCut.bind(proxyContract),
 				params: [facetCuts, proxyContract.address, functionCall],
-				gasLimit: config.MINT_GAS_LIMIT
+				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
 
 			log.debug(`Running diamond cut w/ TX: ${cutTx.hash}`)
@@ -724,7 +725,7 @@ export default class MeemContractService {
 				chainId,
 				fn: proxyContract.createProxy.bind(proxyContract),
 				params: [config.GNOSIS_MASTER_CONTRACT_ADDRESS, safeSetupData],
-				gasLimit: config.MINT_GAS_LIMIT
+				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
 
 			await orm.models.Transaction.create({
@@ -885,7 +886,8 @@ export default class MeemContractService {
 			const tx = await services.ethers.runTransaction({
 				chainId: meemContract.chainId,
 				fn: diamondCut.diamondCut.bind(diamondCut),
-				params: [cuts, ethers.constants.AddressZero, '0x']
+				params: [cuts, ethers.constants.AddressZero, '0x'],
+				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
 
 			if (tx?.hash) {
@@ -1188,7 +1190,7 @@ export default class MeemContractService {
 				chainId: meemContract.chainId,
 				fn: meemSmartContract.bulkSetRoles.bind(meemSmartContract),
 				params: [cleanAdmins],
-				gasLimit: config.MINT_GAS_LIMIT
+				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
 
 			await orm.models.Transaction.create({
