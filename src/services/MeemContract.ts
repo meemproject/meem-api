@@ -7,7 +7,7 @@ import {
 	getMerkleInfo
 } from '@meemproject/meem-contracts'
 import { Validator } from '@meemproject/metadata'
-import { ethers } from 'ethers'
+import { Bytes, ethers } from 'ethers'
 import _ from 'lodash'
 import slug from 'slug'
 import { v4 as uuidv4 } from 'uuid'
@@ -15,6 +15,7 @@ import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
 import IDiamondCut from '../lib/IDiamondCut'
 import type MeemContract from '../models/MeemContract'
+import MeemContractGuild from '../models/MeemContractGuild'
 import MeemContractWallet from '../models/MeemContractWallet'
 import RolePermission from '../models/RolePermission'
 import Wallet from '../models/Wallet'
@@ -174,8 +175,15 @@ export default class MeemContractService {
 	public static async createMeemContract(
 		data: MeemAPI.v1.CreateMeemContract.IRequestBody & {
 			senderWalletAddress: string
+			meemContractRoleData?: {
+				name: string
+				meemContract: MeemContract
+				meemContractGuild: MeemContractGuild
+				permissions?: string[]
+				isAdminRole?: boolean
+			}
 		}
-	): Promise<string> {
+	): Promise<MeemContract> {
 		const {
 			shouldMintTokens,
 			tokenMetadata,
@@ -364,19 +372,100 @@ export default class MeemContractService {
 			}
 
 			try {
+				// TODO: pass createRoles property to contract instead of meem-club
 				if (data.metadata.meem_contract_type === 'meem-club') {
 					await services.guild.createMeemContractGuild({
 						meemContractId: meemContractInstance.id,
 						adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
 					})
-				} else if (data.metadata.meem_contract_type === 'meem-club-role') {
-					// TODO: create the guild role
+				} else if (data.meemContractRoleData) {
+					const {
+						name: roleName,
+						meemContract: parentMeemContract,
+						meemContractGuild,
+						permissions,
+						isAdminRole
+					} = data.meemContractRoleData
+					const sign = (signableMessage: string | Bytes) =>
+						wallet.signMessage(signableMessage)
+					const createGuildRoleResponse = await guildRole.create(
+						wallet.address,
+						sign,
+						{
+							guildId: meemContractGuild.guildId,
+							name: roleName,
+							logic: 'AND',
+							requirements: [
+								{
+									type: 'ERC721',
+									chain: services.guild.getGuildChain(
+										meemContractInstance.chainId
+									),
+									address: meemContract.address,
+									data: {
+										minAmount: 1
+									}
+								}
+							]
+						}
+					)
+
+					const meemContractRole = await orm.models.MeemContractRole.create({
+						guildRoleId: createGuildRoleResponse.id,
+						name: roleName,
+						MeemContractId: parentMeemContract.id,
+						MeemContractGuildId: meemContractGuild.id,
+						tokenAddress: meemContract.address,
+						isAdminRole: isAdminRole ?? false
+					})
+
+					if (!_.isUndefined(permissions) && _.isArray(permissions)) {
+						const promises: Promise<any>[] = []
+						const t = await orm.sequelize.transaction()
+						const roleIdsToAdd =
+							permissions.filter(pid => {
+								const existingPermission =
+									meemContractRole.RolePermissions?.find(rp => rp.id === pid)
+								return !existingPermission
+							}) ?? []
+
+						if (roleIdsToAdd.length > 0) {
+							const meemContractRolePermissionsData: {
+								MeemContractRoleId: string
+								RolePermissionId: string
+							}[] = roleIdsToAdd.map(rid => {
+								return {
+									MeemContractRoleId: meemContractRole.id,
+									RolePermissionId: rid
+								}
+							})
+							promises.push(
+								orm.models.MeemContractRolePermission.bulkCreate(
+									meemContractRolePermissionsData,
+									{
+										transaction: t
+									}
+								)
+							)
+						}
+
+						try {
+							await Promise.all(promises)
+							await t.commit()
+							if (isAdminRole) {
+								await meemContract.setAdminContract(meemContract.address)
+							}
+						} catch (e) {
+							log.crit(e)
+							throw new Error('SERVER_ERROR')
+						}
+					}
 				}
 			} catch (e) {
 				log.crit('Failed to create Guild', e)
 			}
 
-			return meemContract.address
+			return meemContractInstance
 		} catch (e) {
 			await sockets?.emitError(
 				config.errors.CONTRACT_CREATION_FAILED,

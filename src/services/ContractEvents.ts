@@ -280,7 +280,7 @@ export default class ContractEvent {
 			} else if (
 				theMeemContract.metadata.meem_contract_type === 'meem-club-role'
 			) {
-				// TODO: create the guild role
+				// TODO: create the guild role?
 			}
 		} else {
 			theMeemContract = await existingMeemContract.update(meemContractData)

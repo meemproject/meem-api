@@ -34,6 +34,11 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 			allowNull: false,
 			defaultValue: ''
 		},
+		tokenAddress: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
+		},
 		imageUrl: {
 			type: DataTypes.STRING,
 			allowNull: false,
@@ -68,6 +73,8 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 
 	public description!: string
 
+	public tokenAddress!: string | null
+
 	public integrationsMetadata!: { [key: string]: any }[]
 
 	public isAdminRole!: boolean
@@ -80,19 +87,12 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 
 	public MeemContractId!: string | null
 
-	public RoleMeemContractId!: string | null
-
-	public RoleMeemContract!: string | null
-
 	public MeemContractGuild!: MeemContractGuild | null
 
 	public MeemContractGuildId!: string | null
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.MeemContract)
-		this.belongsTo(models.MeemContract, {
-			as: 'RoleMeemContract'
-		})
 		this.belongsTo(models.MeemContractGuild)
 		this.belongsToMany(models.RolePermission, {
 			through: models.MeemContractRolePermission

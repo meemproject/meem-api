@@ -141,54 +141,27 @@ export default class GuildService {
 				})
 			)
 
-			const createAdminGuildRoleResponse = await guildRole.create(
-				wallet.address,
-				sign,
-				{
-					guildId: meemContractGuild.guildId,
-					name: `Admin`,
-					logic: 'AND',
-					requirements: [
-						{
-							type: 'ALLOWLIST',
-							data: {
-								addresses: adminAddresses
-							}
-						}
-					]
-				}
-			)
-
-			const meemContractAdminRole = await orm.models.MeemContractRole.create({
-				guildRoleId: createAdminGuildRoleResponse.id,
-				name: createAdminGuildRoleResponse.name,
-				MeemContractId: meemContract.id,
-				MeemContractGuildId: meemContractGuild.id,
-				isAdminRole: true,
-				isDefaultRole: true
+			const adminRole = await this.createMeemContractGuildRole({
+				name: 'Admin',
+				meemContract,
+				meemContractGuild,
+				permissions: [
+					'clubs.admin.editProfile',
+					'clubs.admin.manageMembershipSettings',
+					'clubs.admin.manageRoles',
+					'clubs.apps.manageApps',
+					'clubs.apps.viewApps'
+				],
+				isTokenBasedRole: true,
+				isTokenTransferrable: false,
+				members: adminAddresses,
+				senderWalletAddress: wallet.address,
+				isAdminRole: true
 			})
 
-			const meemContractRolePermissionsData: {
-				MeemContractRoleId: string
-				RolePermissionId: string
-			}[] = [
-				'clubs.admin.editProfile',
-				'clubs.admin.manageMembershipSettings',
-				'clubs.admin.manageRoles',
-				'clubs.apps.manageApps',
-				'clubs.apps.viewApps'
-			].map(rid => {
-				return {
-					MeemContractRoleId: meemContractAdminRole.id,
-					RolePermissionId: rid
-				}
-			})
-
-			await orm.models.MeemContractRolePermission.bulkCreate(
-				meemContractRolePermissionsData
-			)
-
-			meemContractRoles.push(meemContractAdminRole)
+			if (adminRole) {
+				meemContractRoles.push(adminRole)
+			}
 
 			return {
 				meemContractGuild,
@@ -303,7 +276,8 @@ export default class GuildService {
 		isTokenTransferrable?: boolean
 		members: string[]
 		senderWalletAddress: string
-	}): Promise<void> {
+		isAdminRole?: boolean
+	}): Promise<MeemContractRole | void> {
 		const {
 			name,
 			meemContract,
@@ -312,7 +286,8 @@ export default class GuildService {
 			isTokenBasedRole,
 			isTokenTransferrable,
 			members,
-			senderWalletAddress
+			senderWalletAddress,
+			isAdminRole
 		} = data
 		const provider = await services.ethers.getProvider({
 			chainId: meemContract.chainId
@@ -371,11 +346,17 @@ export default class GuildService {
 
 				if (config.DISABLE_ASYNC_MINTING) {
 					try {
-						const roleMeemContractAddresss =
-							await services.meemContract.createMeemContract({
-								...roleContractData,
-								senderWalletAddress
-							})
+						await services.meemContract.createMeemContract({
+							...roleContractData,
+							senderWalletAddress,
+							meemContractRoleData: {
+								name,
+								meemContract,
+								meemContractGuild,
+								permissions,
+								isAdminRole
+							}
+						})
 					} catch (e) {
 						log.crit(e)
 						sockets?.emitError(

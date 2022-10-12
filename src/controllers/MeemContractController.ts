@@ -618,7 +618,7 @@ export default class MeemContractController {
 			throw new Error('MEEM_CONTRACT_GUILD_NOT_FOUND')
 		}
 
-		const meemContractRole = await services.guild.createMeemContractGuildRole({
+		await services.guild.createMeemContractGuildRole({
 			name,
 			meemContract,
 			meemContractGuild: meemContract.MeemContractGuild,
