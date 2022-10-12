@@ -174,7 +174,9 @@ export default class GuildService {
 			}[] = [
 				'clubs.admin.editProfile',
 				'clubs.admin.manageMembershipSettings',
-				'clubs.admin.manageRoles'
+				'clubs.admin.manageRoles',
+				'clubs.apps.manageApps',
+				'clubs.apps.viewApps'
 			].map(rid => {
 				return {
 					MeemContractRoleId: meemContractAdminRole.id,
