@@ -1,6 +1,6 @@
 import * as path from 'path'
 import { Validator } from '@meemproject/metadata'
-import { ethers, ethers as Ethers } from 'ethers'
+import { ethers as Ethers } from 'ethers'
 import _ from 'lodash'
 import sharp from 'sharp'
 import request from 'superagent'
@@ -378,7 +378,7 @@ export default class MeemService {
 				chainId: data.chainId,
 				fn: meemContract.mint.bind(meemContract),
 				params: mintParams,
-				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
+				gasLimit: Ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
 
 			log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
@@ -529,7 +529,7 @@ export default class MeemService {
 				chainId: meemContract.chainId,
 				fn: contract.bulkMint.bind(contract),
 				params: mintParams,
-				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
+				gasLimit: Ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
 
 			log.debug(`Bulk Minting w/ transaction hash: ${mintTx.hash}`)
