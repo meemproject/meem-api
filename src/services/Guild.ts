@@ -4,9 +4,11 @@ import AWS from 'aws-sdk'
 // eslint-disable-next-line import/named
 import { Bytes, ethers } from 'ethers'
 import _ from 'lodash'
+import { Op } from 'sequelize'
 import MeemContract from '../models/MeemContract'
 import MeemContractGuild from '../models/MeemContractGuild'
 import MeemContractRole from '../models/MeemContractRole'
+import Wallet from '../models/Wallet'
 import { Mycontract__factory } from '../types/Meem'
 
 export default class GuildService {
@@ -526,35 +528,98 @@ export default class GuildService {
 			wallet.signMessage(signableMessage)
 
 		try {
-			// TODO: Meem Contract Tokens
-			// TODO: If this is a token-based role do not update members
 			const existingGuildRole = await guildRole.get(guildRoleId)
-			const isAllowListRole = existingGuildRole.requirements.find(
+			const requirements = existingGuildRole.requirements
+			const allowListRoleIndex = requirements.findIndex(
 				r => r.type === 'ALLOWLIST'
 			)
-			await guildRole.update(guildRoleId, wallet.address, sign, {
-				name: name ?? existingGuildRole.name,
-				logic: members ? 'OR' : existingGuildRole.logic,
-				...(guildRoleData?.rolePlatforms && {
-					rolePlatforms: guildRoleData.rolePlatforms
-				}),
-				requirements:
-					isAllowListRole && members
-						? [
-								{
-									type: 'ALLOWLIST',
-									data: {
-										addresses: members
-									}
-								}
-						  ]
-						: existingGuildRole.requirements
-			})
+
+			if (allowListRoleIndex > -1 && members) {
+				requirements[allowListRoleIndex] = {
+					type: 'ALLOWLIST',
+					data: {
+						addresses: members
+					}
+				}
+			}
+
+			if ((allowListRoleIndex > -1 && members) || name || guildRoleData) {
+				const rolePlatforms:
+					| {
+							guildPlatform: {
+								platformName: string
+								platformGuildId: string
+								isNew: boolean
+							}
+							platformRoleData?: {
+								[key: string]: string
+							}
+					  }[]
+					| undefined = guildRoleData?.rolePlatforms
+					? guildRoleData.rolePlatforms
+					: existingGuildRole.rolePlatforms?.map(rp => {
+							return {
+								guildPlatform: {
+									platformGuildId: rp.guildPlatform.platformGuildId,
+									platformName: rp.guildPlatform.platformName,
+									isNew: false
+								},
+								platformRoleData: rp.platformRoleData
+							}
+					  })
+
+				await guildRole.update(guildRoleId, wallet.address, sign, {
+					name: name ?? existingGuildRole.name,
+					logic: existingGuildRole.logic,
+					rolePlatforms,
+					requirements
+				})
+			}
 
 			if (name) {
 				await meemContractRole.update({
 					name
 				})
+			}
+
+			if (members && meemContractRole.tokenAddress) {
+				const roleContract = Mycontract__factory.connect(
+					meemContract.address,
+					wallet
+				)
+
+				const memberWalletsResponse = await Promise.all(
+					members.map(async m =>
+						orm.models.Wallet.findOne({
+							where: {
+								address: m
+							}
+						})
+					)
+				)
+
+				const removeMemberIds: string[] = []
+
+				memberWalletsResponse.forEach(w => {
+					if (w !== null && !members.includes(w.address)) {
+						removeMemberIds.push(w.id)
+					}
+				})
+
+				const memberMeemsToRemove = await orm.models.Meem.findAll({
+					where: {
+						MeemContractId: meemContract.id,
+						OwnerId: {
+							[Op.in]: removeMemberIds
+						}
+					}
+				})
+
+				for (let i = 0; i < memberMeemsToRemove.length; i += 1) {
+					await roleContract.burn(memberMeemsToRemove[i].tokenId)
+				}
+
+				log.debug(`Finished minting admin/member tokens.`)
 			}
 
 			return meemContractRole
