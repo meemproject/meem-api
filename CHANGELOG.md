@@ -1,3 +1,7 @@
+## [1.11.4](https://github.com/meemproject/meem-api-aws/compare/v1.11.3...v1.11.4) (2022-10-11)
+
+## [1.11.3](https://github.com/meemproject/meem-api-aws/compare/v1.11.2...v1.11.3) (2022-09-21)
+
 ## [1.11.2](https://github.com/meemproject/meem-api-aws/compare/v1.11.1...v1.11.2) (2022-09-14)
 
 ## [1.11.1](https://github.com/meemproject/meem-api-aws/compare/v1.11.0...v1.11.1) (2022-09-14)

@@ -137,26 +137,6 @@ export default class MeemIdentityService {
 			await this.updateENS(wallet)
 		}
 
-		const meems = await orm.models.Meem.findAll({
-			attributes: [
-				[
-					orm.sequelize.fn('distinct', orm.sequelize.col('MeemContractId')),
-					'MeemContractId'
-				]
-			],
-			where: {
-				OwnerId: wallet.id
-			}
-		})
-
-		const cleanMeemContractIds: string[] = []
-
-		meems.forEach(m => {
-			if (m.MeemContractId) {
-				cleanMeemContractIds.push(`"${m.MeemContractId}"`)
-			}
-		})
-
 		return {
 			jwt: this.generateJWT({
 				walletAddress: wallet?.address ?? '',
@@ -164,10 +144,7 @@ export default class MeemIdentityService {
 					'https://hasura.io/jwt/claims': {
 						'x-hasura-allowed-roles': ['anonymous', 'user', 'mutualClubMember'],
 						'x-hasura-default-role': 'user',
-						'x-hasura-wallet-id': wallet.id,
-						'x-hasura-holds-meem-contract-ids': `{${cleanMeemContractIds.join(
-							','
-						)}}`
+						'x-hasura-wallet-id': wallet.id
 					}
 				}
 			})
