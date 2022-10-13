@@ -164,13 +164,15 @@ export default class EthersService {
 			const provider = await this.getProvider({ chainId })
 			const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
 
-			const providerNonce =
-				(await provider.getTransactionCount(wallet.address)) - 1
+			const providerTxCount = await provider.getTransactionCount(wallet.address)
+
+			const providerNonce = providerTxCount - 1
+
 			if (providerNonce > nonce) {
 				nonce = providerNonce
 			}
 
-			const newNonce = nonce + 1
+			const newNonce = providerTxCount > 0 ? nonce + 1 : 0
 
 			let { recommendedGwei } = await services.web3.getGasEstimate({
 				chainId

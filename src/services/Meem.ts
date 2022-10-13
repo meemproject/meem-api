@@ -335,12 +335,12 @@ export default class MeemService {
 				throw new Error('INVALID_METADATA')
 			}
 
-			const wallet = await orm.models.Wallet.findByAddress<Wallet>(
-				data.mintedBy
-			)
+			let wallet = await orm.models.Wallet.findByAddress<Wallet>(data.mintedBy)
 
 			if (!wallet) {
-				throw new Error('WALLET_NOT_FOUND')
+				wallet = await orm.models.Wallet.create({
+					address: data.mintedBy
+				})
 			}
 
 			const validator = new Validator(data.metadata.meem_metadata_version)
