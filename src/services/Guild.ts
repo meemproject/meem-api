@@ -4,12 +4,10 @@ import AWS from 'aws-sdk'
 // eslint-disable-next-line import/named
 import { Bytes, ethers } from 'ethers'
 import _ from 'lodash'
-import { Op } from 'sequelize'
 import Meem from '../models/Meem'
 import MeemContract from '../models/MeemContract'
 import MeemContractGuild from '../models/MeemContractGuild'
 import MeemContractRole from '../models/MeemContractRole'
-import Wallet from '../models/Wallet'
 import { Mycontract__factory } from '../types/Meem'
 
 export default class GuildService {

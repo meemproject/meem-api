@@ -8,6 +8,7 @@ import {
 } from '@meemproject/meem-contracts'
 import { Validator } from '@meemproject/metadata'
 import AWS from 'aws-sdk'
+// eslint-disable-next-line import/named
 import { Bytes, ethers } from 'ethers'
 import _ from 'lodash'
 import slug from 'slug'
