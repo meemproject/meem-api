@@ -7,6 +7,7 @@ import {
 	getMerkleInfo
 } from '@meemproject/meem-contracts'
 import { Validator } from '@meemproject/metadata'
+import AWS from 'aws-sdk'
 import { Bytes, ethers } from 'ethers'
 import _ from 'lodash'
 import slug from 'slug'
@@ -353,20 +354,40 @@ export default class MeemContractService {
 				log.debug(`Minting admin/member tokens.`, cleanAdmins)
 				const addresses = [...cleanAdmins.map(a => a.user), ...(members ?? [])]
 
-				for (let i = 0; i < addresses.length; i += 1) {
-					// TODO: Bulk minting
-
-					// Don't mint a token to our API wallet
-					if (addresses[i].toLowerCase() !== wallet.address.toLowerCase()) {
-						// eslint-disable-next-line no-await-in-loop
-						await services.meem.mintOriginalMeem({
-							meemContractAddress: meemContract.address,
-							to: addresses[i].toLowerCase(),
-							metadata: tokenMetadata,
-							mintedBy: wallet.address,
-							chainId
-						})
+				const tokens = addresses.map(a => {
+					return {
+						to: a,
+						metadata: tokenMetadata
 					}
+				})
+
+				if (config.DISABLE_ASYNC_MINTING) {
+					try {
+						await services.meem.bulkMint({
+							tokens,
+							mintedBy: senderWalletAddress,
+							meemContractId: meemContractInstance.id
+						})
+					} catch (e) {
+						log.crit(e)
+					}
+				} else {
+					const lambda = new AWS.Lambda({
+						accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+						secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+						region: 'us-east-1'
+					})
+					await lambda
+						.invoke({
+							InvocationType: 'Event',
+							FunctionName: config.LAMBDA_BULK_MINT_FUNCTION_NAME,
+							Payload: JSON.stringify({
+								tokens,
+								mintedBy: senderWalletAddress,
+								meemContractId: meemContractInstance.id
+							})
+						})
+						.promise()
 				}
 
 				log.debug(`Finished minting admin/member tokens.`)

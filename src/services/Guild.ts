@@ -5,6 +5,7 @@ import AWS from 'aws-sdk'
 import { Bytes, ethers } from 'ethers'
 import _ from 'lodash'
 import { Op } from 'sequelize'
+import Meem from '../models/Meem'
 import MeemContract from '../models/MeemContract'
 import MeemContractGuild from '../models/MeemContractGuild'
 import MeemContractRole from '../models/MeemContractRole'
@@ -482,8 +483,16 @@ export default class GuildService {
 				}
 			}[]
 		}
+		senderWalletAddress: string
 	}): Promise<MeemContractRole> {
-		const { name, meemContractId, guildRoleId, members, guildRoleData } = data
+		const {
+			name,
+			meemContractId,
+			guildRoleId,
+			members,
+			guildRoleData,
+			senderWalletAddress
+		} = data
 
 		const meemContract = await orm.models.MeemContract.findOne({
 			where: {
@@ -583,43 +592,118 @@ export default class GuildService {
 			}
 
 			if (members && meemContractRole.tokenAddress) {
-				const roleContract = Mycontract__factory.connect(
-					meemContract.address,
-					wallet
-				)
+				const roleMeemContract = await orm.models.MeemContract.findOne({
+					where: {
+						address: meemContractRole.tokenAddress
+					}
+				})
+				// TODO: Allow other contracts besides Meem
+				if (roleMeemContract) {
+					const memberMeems = await orm.models.Meem.findAll({
+						where: {
+							MeemContractId: roleMeemContract.id
+						},
+						include: [
+							{
+								model: orm.models.Wallet,
+								as: 'Owner'
+							}
+						]
+					})
 
-				const memberWalletsResponse = await Promise.all(
-					members.map(async m =>
-						orm.models.Wallet.findOne({
-							where: {
-								address: m
+					const removeMemberMeems: Meem[] = []
+
+					memberMeems.forEach(meem => {
+						if (meem.Owner !== null) {
+							if (
+								members.findIndex(
+									m => m.toLowerCase() === meem.Owner.address.toLowerCase()
+								) < 0
+							) {
+								removeMemberMeems.push(meem)
+							}
+						}
+					})
+
+					if (removeMemberMeems.length > 0) {
+						// const roleContract = Mycontract__factory.connect(
+						// 	roleMeemContract.address,
+						// 	wallet
+						// )
+
+						log.debug(
+							'BURN MEMBER TOKENS',
+							removeMemberMeems.map(m => m.id)
+						)
+
+						// for (let i = 0; i < removeMemberMeems.length; i += 1) {
+						// 	await roleContract.burn(removeMemberMeems[i].tokenId)
+						// }
+					}
+
+					const membersToAdd: string[] = members.filter((m: string) => {
+						const existingMemberIndex = memberMeems.findIndex(
+							meem => meem.Owner?.address.toLowerCase() === m.toLowerCase()
+						)
+						return existingMemberIndex < 0
+					})
+
+					log.debug('ADD MEMBERS', membersToAdd)
+
+					// TODO: Do we need this to be async?
+					// Need to get token metadata
+					if (membersToAdd.length > 0) {
+						const roleTokenMetadata = {
+							meem_metadata_version: 'MeemClubRole_Token_20220718',
+							name: `${meemContract.name ?? ''} - ${
+								name ?? meemContractRole.name
+							}`,
+							description: name ?? meemContractRole.name,
+							image: '',
+							associations: [
+								{
+									meem_contract_type: 'meem-club',
+									address: meemContract.address
+								}
+							],
+							external_url: ''
+						}
+						const tokens = membersToAdd.map(a => {
+							return {
+								to: a,
+								metadata: roleTokenMetadata
 							}
 						})
-					)
-				)
-
-				const removeMemberIds: string[] = []
-
-				memberWalletsResponse.forEach(w => {
-					if (w !== null && !members.includes(w.address)) {
-						removeMemberIds.push(w.id)
-					}
-				})
-
-				const memberMeemsToRemove = await orm.models.Meem.findAll({
-					where: {
-						MeemContractId: meemContract.id,
-						OwnerId: {
-							[Op.in]: removeMemberIds
+						if (config.DISABLE_ASYNC_MINTING) {
+							try {
+								await services.meem.bulkMint({
+									tokens,
+									mintedBy: senderWalletAddress,
+									meemContractId: meemContract.id
+								})
+							} catch (e) {
+								log.crit(e)
+							}
+						} else {
+							const lambda = new AWS.Lambda({
+								accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+								secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+								region: 'us-east-1'
+							})
+							await lambda
+								.invoke({
+									InvocationType: 'Event',
+									FunctionName: config.LAMBDA_BULK_MINT_FUNCTION_NAME,
+									Payload: JSON.stringify({
+										tokens,
+										mintedBy: senderWalletAddress,
+										meemContractId: meemContract.id
+									})
+								})
+								.promise()
 						}
 					}
-				})
-
-				for (let i = 0; i < memberMeemsToRemove.length; i += 1) {
-					await roleContract.burn(memberMeemsToRemove[i].tokenId)
 				}
-
-				log.debug(`Finished minting admin/member tokens.`)
 			}
 
 			return meemContractRole

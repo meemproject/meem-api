@@ -147,7 +147,8 @@ export default class MeemContractRoleService {
 				meemContractId: meemContract.id,
 				name: updatedName,
 				members: updatedMembers,
-				guildRoleData
+				guildRoleData,
+				senderWalletAddress: senderWallet.address
 			})
 		}
 

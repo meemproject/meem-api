@@ -800,7 +800,8 @@ export default class MeemContractController {
 					meemContractId: meemContract.id,
 					name: req.body.name,
 					members,
-					guildRoleData
+					guildRoleData,
+					senderWalletAddress: req.wallet.address
 				})
 
 				if (guildRoleDiscordIntegrationData?.discordAccessToken) {
