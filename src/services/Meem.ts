@@ -335,12 +335,12 @@ export default class MeemService {
 				throw new Error('INVALID_METADATA')
 			}
 
-			const wallet = await orm.models.Wallet.findByAddress<Wallet>(
-				data.mintedBy
-			)
+			let wallet = await orm.models.Wallet.findByAddress<Wallet>(data.mintedBy)
 
 			if (!wallet) {
-				throw new Error('WALLET_NOT_FOUND')
+				wallet = await orm.models.Wallet.create({
+					address: data.mintedBy
+				})
 			}
 
 			const validator = new Validator(data.metadata.meem_metadata_version)
@@ -377,7 +377,8 @@ export default class MeemService {
 			const mintTx = await services.ethers.runTransaction({
 				chainId: data.chainId,
 				fn: meemContract.mint.bind(meemContract),
-				params: mintParams
+				params: mintParams,
+				gasLimit: Ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
 
 			log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
@@ -528,7 +529,7 @@ export default class MeemService {
 				chainId: meemContract.chainId,
 				fn: contract.bulkMint.bind(contract),
 				params: mintParams,
-				gasLimit: config.MINT_GAS_LIMIT
+				gasLimit: Ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
 
 			log.debug(`Bulk Minting w/ transaction hash: ${mintTx.hash}`)
