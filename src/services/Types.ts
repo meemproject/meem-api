@@ -210,6 +210,8 @@ export default class TypesService {
 			})
 		}
 
+		abi = _.uniqWith(abi, _.isEqual)
+
 		// const tmpFile = path.join(os.tmpdir(), `${uuidv4()}.json`)
 		const tmpFile = path.join(os.tmpdir(), `${name}.json`)
 		const outDir = path.join(os.tmpdir(), uuidv4())
