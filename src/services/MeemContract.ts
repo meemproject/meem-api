@@ -909,6 +909,8 @@ export default class MeemContractService {
 				})
 			}
 
+			await tx.wait()
+
 			log.debug(`Upgrading club ${meemContract.address} w/ tx ${tx?.hash}`)
 		} catch (e: any) {
 			log.crit(e)
