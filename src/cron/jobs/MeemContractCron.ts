@@ -5,6 +5,7 @@ import Cron from 'cron'
 import { ethers } from 'ethers'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
+import { wait } from '../../lib/utils'
 import Wallet from '../../models/Wallet'
 import CronJob from '../CronJob'
 
@@ -87,6 +88,7 @@ export default class MeemContractCron extends CronJob {
 
 			meemContract.ownerFetchedAt = new Date()
 			await meemContract.save()
+			await wait(1000)
 		}
 	}
 }
