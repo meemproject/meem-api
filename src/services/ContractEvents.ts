@@ -263,7 +263,8 @@ export default class ContractEvent {
 				amount: ethers.BigNumber.from(s.amount).toNumber(),
 				lockedBy: s.lockedBy
 			})),
-			isTransferrable: !contractInfo.isTransferLocked
+			isTransferrable: !contractInfo.isTransferLocked,
+			chainId
 		}
 
 		const t = await orm.sequelize.transaction()
