@@ -201,7 +201,6 @@ export interface MycontractInterface extends utils.Interface {
     "setAdminContract(address)": FunctionFragment;
     "getRaribleV2Royalties(uint256)": FunctionFragment;
     "handleSaleDistribution(uint256,address)": FunctionFragment;
-    "handleSaleDistribution(uint256,address)": FunctionFragment;
     "lockSplits(uint256)": FunctionFragment;
     "setSplits(uint256,(address,uint256,address)[])": FunctionFragment;
     "contractURI()": FunctionFragment;
@@ -225,8 +224,6 @@ export interface MycontractInterface extends utils.Interface {
     "name()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
     "requireCanMint((address,address,bytes32[]))": FunctionFragment;
-    "requireCanMint((address,address,bytes32[]))": FunctionFragment;
-    "requireCanTransfer(address,address,address,uint256)": FunctionFragment;
     "requireCanTransfer(address,address,address,uint256)": FunctionFragment;
     "requireTokenAdmin(uint256,address)": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
@@ -262,8 +259,7 @@ export interface MycontractInterface extends utils.Interface {
       | "revokeRole"
       | "setAdminContract"
       | "getRaribleV2Royalties"
-      | "handleSaleDistribution(uint256,address)"
-      | "handleSaleDistribution(uint256,address)"
+      | "handleSaleDistribution"
       | "lockSplits"
       | "setSplits"
       | "contractURI"
@@ -286,10 +282,8 @@ export interface MycontractInterface extends utils.Interface {
       | "mintWithProof"
       | "name"
       | "ownerOf"
-      | "requireCanMint((address,address,bytes32[]))"
-      | "requireCanMint((address,address,bytes32[]))"
-      | "requireCanTransfer(address,address,address,uint256)"
-      | "requireCanTransfer(address,address,address,uint256)"
+      | "requireCanMint"
+      | "requireCanTransfer"
       | "requireTokenAdmin"
       | "safeTransferFrom(address,address,uint256)"
       | "safeTransferFrom(address,address,uint256,bytes)"
@@ -362,11 +356,7 @@ export interface MycontractInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "handleSaleDistribution(uint256,address)",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "handleSaleDistribution(uint256,address)",
+    functionFragment: "handleSaleDistribution",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -464,24 +454,11 @@ export interface MycontractInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "requireCanMint((address,address,bytes32[]))",
+    functionFragment: "requireCanMint",
     values: [RequireCanMintParamsStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "requireCanMint((address,address,bytes32[]))",
-    values: [RequireCanMintParamsStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "requireCanTransfer(address,address,address,uint256)",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "requireCanTransfer(address,address,address,uint256)",
+    functionFragment: "requireCanTransfer",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
@@ -603,11 +580,7 @@ export interface MycontractInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "handleSaleDistribution(uint256,address)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "handleSaleDistribution(uint256,address)",
+    functionFragment: "handleSaleDistribution",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "lockSplits", data: BytesLike): Result;
@@ -663,19 +636,11 @@ export interface MycontractInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "requireCanMint((address,address,bytes32[]))",
+    functionFragment: "requireCanMint",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "requireCanMint((address,address,bytes32[]))",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "requireCanTransfer(address,address,address,uint256)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "requireCanTransfer(address,address,address,uint256)",
+    functionFragment: "requireCanTransfer",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1028,13 +993,7 @@ export interface Mycontract extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[PartStructOutput[]]>;
 
-    "handleSaleDistribution(uint256,address)"(
-      tokenId: PromiseOrValue<BigNumberish>,
-      msgSender: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "handleSaleDistribution(uint256,address)"(
+    handleSaleDistribution(
       tokenId: PromiseOrValue<BigNumberish>,
       msgSender: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -1152,25 +1111,12 @@ export interface Mycontract extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    "requireCanMint((address,address,bytes32[]))"(
+    requireCanMint(
       params: RequireCanMintParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "requireCanMint((address,address,bytes32[]))"(
-      params: RequireCanMintParamsStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "requireCanTransfer(address,address,address,uint256)"(
-      msgSender: PromiseOrValue<string>,
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "requireCanTransfer(address,address,address,uint256)"(
+    requireCanTransfer(
       msgSender: PromiseOrValue<string>,
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
@@ -1324,13 +1270,7 @@ export interface Mycontract extends BaseContract {
     overrides?: CallOverrides
   ): Promise<PartStructOutput[]>;
 
-  "handleSaleDistribution(uint256,address)"(
-    tokenId: PromiseOrValue<BigNumberish>,
-    msgSender: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "handleSaleDistribution(uint256,address)"(
+  handleSaleDistribution(
     tokenId: PromiseOrValue<BigNumberish>,
     msgSender: PromiseOrValue<string>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -1446,25 +1386,12 @@ export interface Mycontract extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  "requireCanMint((address,address,bytes32[]))"(
+  requireCanMint(
     params: RequireCanMintParamsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "requireCanMint((address,address,bytes32[]))"(
-    params: RequireCanMintParamsStruct,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "requireCanTransfer(address,address,address,uint256)"(
-    msgSender: PromiseOrValue<string>,
-    from: PromiseOrValue<string>,
-    to: PromiseOrValue<string>,
-    tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "requireCanTransfer(address,address,address,uint256)"(
+  requireCanTransfer(
     msgSender: PromiseOrValue<string>,
     from: PromiseOrValue<string>,
     to: PromiseOrValue<string>,
@@ -1618,13 +1545,7 @@ export interface Mycontract extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PartStructOutput[]>;
 
-    "handleSaleDistribution(uint256,address)"(
-      tokenId: PromiseOrValue<BigNumberish>,
-      msgSender: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "handleSaleDistribution(uint256,address)"(
+    handleSaleDistribution(
       tokenId: PromiseOrValue<BigNumberish>,
       msgSender: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1742,25 +1663,12 @@ export interface Mycontract extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "requireCanMint((address,address,bytes32[]))"(
+    requireCanMint(
       params: RequireCanMintParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "requireCanMint((address,address,bytes32[]))"(
-      params: RequireCanMintParamsStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "requireCanTransfer(address,address,address,uint256)"(
-      msgSender: PromiseOrValue<string>,
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "requireCanTransfer(address,address,address,uint256)"(
+    requireCanTransfer(
       msgSender: PromiseOrValue<string>,
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
@@ -2032,13 +1940,7 @@ export interface Mycontract extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "handleSaleDistribution(uint256,address)"(
-      tokenId: PromiseOrValue<BigNumberish>,
-      msgSender: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "handleSaleDistribution(uint256,address)"(
+    handleSaleDistribution(
       tokenId: PromiseOrValue<BigNumberish>,
       msgSender: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -2154,25 +2056,12 @@ export interface Mycontract extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "requireCanMint((address,address,bytes32[]))"(
+    requireCanMint(
       params: RequireCanMintParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "requireCanMint((address,address,bytes32[]))"(
-      params: RequireCanMintParamsStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "requireCanTransfer(address,address,address,uint256)"(
-      msgSender: PromiseOrValue<string>,
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "requireCanTransfer(address,address,address,uint256)"(
+    requireCanTransfer(
       msgSender: PromiseOrValue<string>,
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
@@ -2327,13 +2216,7 @@ export interface Mycontract extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "handleSaleDistribution(uint256,address)"(
-      tokenId: PromiseOrValue<BigNumberish>,
-      msgSender: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "handleSaleDistribution(uint256,address)"(
+    handleSaleDistribution(
       tokenId: PromiseOrValue<BigNumberish>,
       msgSender: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -2449,25 +2332,12 @@ export interface Mycontract extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "requireCanMint((address,address,bytes32[]))"(
+    requireCanMint(
       params: RequireCanMintParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "requireCanMint((address,address,bytes32[]))"(
-      params: RequireCanMintParamsStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "requireCanTransfer(address,address,address,uint256)"(
-      msgSender: PromiseOrValue<string>,
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "requireCanTransfer(address,address,address,uint256)"(
+    requireCanTransfer(
       msgSender: PromiseOrValue<string>,
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
@@ -3796,24 +3666,6 @@ const _abi = [
     stateMutability: "view",
   },
   {
-    name: "handleSaleDistribution",
-    type: "function",
-    inputs: [
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "msgSender",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [],
-    stateMutability: "payable",
-  },
-  {
     name: "isApprovedForAll",
     type: "function",
     inputs: [
@@ -4303,64 +4155,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-  },
-  {
-    name: "requireCanMint",
-    type: "function",
-    inputs: [
-      {
-        name: "params",
-        type: "tuple",
-        components: [
-          {
-            name: "minter",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "to",
-            type: "address",
-            internalType: "address",
-          },
-          {
-            name: "proof",
-            type: "bytes32[]",
-            internalType: "bytes32[]",
-          },
-        ],
-        internalType: "struct RequireCanMintParams",
-      },
-    ],
-    outputs: [],
-    stateMutability: "payable",
-  },
-  {
-    name: "requireCanTransfer",
-    type: "function",
-    inputs: [
-      {
-        name: "msgSender",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "from",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "to",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "tokenId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
   },
   {
     name: "setIsTransferrable",
