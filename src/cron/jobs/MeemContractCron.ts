@@ -87,6 +87,7 @@ export default class MeemContractCron extends CronJob {
 
 			meemContract.ownerFetchedAt = new Date()
 			await meemContract.save()
+			await wait(1000)
 		}
 	}
 }
