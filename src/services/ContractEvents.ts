@@ -209,13 +209,13 @@ export default class ContractEvent {
 		let slug = existingMeemContract?.slug
 
 		const metadata = (await services.meem.getErc721Metadata(
-			contractInfo.contractURI
+			contractInfo.contractURI as string
 		)) as MeemContractMetadataLike
 
 		if (!existingMeemContract || !slug) {
 			try {
 				slug = await services.meemContract.generateSlug({
-					baseSlug: contractInfo.name,
+					baseSlug: contractInfo.name as string,
 					chainId
 				})
 			} catch (e) {
