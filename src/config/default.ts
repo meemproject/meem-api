@@ -199,5 +199,8 @@ export default {
 	PG_LOCK_TIMEOUT: process.env.PG_LOCK_TIMEOUT
 		? +process.env.PG_LOCK_TIMEOUT
 		: 10000,
-	WALLET_LOCK_KEY: process.env.WALLET_LOCK_KEY ?? 'apiWallet'
+	WALLET_LOCK_KEY: process.env.WALLET_LOCK_KEY ?? 'apiWallet',
+	ARBITRUM_GAS_MULTIPLIER: process.env.ARBITRUM_GAS_MULTIPLIER
+		? +process.env.ARBITRUM_GAS_MULTIPLIER
+		: 6
 }

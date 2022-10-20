@@ -190,8 +190,20 @@ export default class EthersService {
 			}
 
 			if (gasLimit) {
-				overrides.gasLimit = gasLimit
+				overrides.gasLimit =
+					chainId === 421613
+						? ethers.BigNumber.from(gasLimit).mul(
+								config.ARBITRUM_GAS_MULTIPLIER
+						  )
+						: gasLimit
+			} else if (chainId === 421613) {
+				// Add additional gas for arbitrum
+				overrides.gasLimit = ethers.BigNumber.from(config.MINT_GAS_LIMIT).mul(
+					config.ARBITRUM_GAS_MULTIPLIER
+				)
 			}
+
+			log.debug(overrides)
 
 			const result = await fn(...params, overrides)
 
