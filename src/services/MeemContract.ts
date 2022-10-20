@@ -239,6 +239,17 @@ export default class MeemContractService {
 				wallet
 			)
 
+			// const provider = await services.ethers.getProvider({ chainId })
+
+			// const gasLimit = await provider.estimateGas(
+			// 	proxyContractFactory.getDeployTransaction(senderWallet.address, [
+			// 		senderWallet.address,
+			// 		wallet.address
+			// 	]).data
+			// )
+
+			// log.debug({ providerEstimatedGasLimit: gasLimit })
+
 			const proxyContract = await services.ethers.runTransaction({
 				chainId,
 				fn: proxyContractFactory.deploy.bind(proxyContractFactory),
