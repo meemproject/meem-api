@@ -106,6 +106,9 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 			defaultValue: 137
+		},
+		adminContractAddress: {
+			type: DataTypes.STRING
 		}
 	}
 
@@ -325,6 +328,8 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 	public gnosisSafeAddress!: string | null
 
 	public chainId!: number
+
+	public adminContractAddress!: string | null
 
 	public OwnerId!: string | null
 

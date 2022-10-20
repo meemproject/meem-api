@@ -15,7 +15,8 @@ import {
 	MeemSplitsSetEvent,
 	MeemTransferEvent,
 	SplitStructOutput,
-	Mycontract
+	Mycontract,
+	MeemAdminContractSetEvent
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -434,6 +435,31 @@ export default class ContractEvent {
 		// 	prop.splits = this.meemSplitsDataToModelData(splits)
 		// 	await prop.save()
 		// }
+	}
+
+	public static async meemHandleAdminContractSet(args: {
+		address: string
+		eventData: MeemAdminContractSetEvent['args']
+		chainId: number
+	}) {
+		const { address, eventData, chainId } = args
+		let meemContract =
+			await orm.models.MeemContract.findByAddress<MeemContract>(address)
+
+		if (!meemContract) {
+			meemContract = await this.meemHandleContractInitialized({
+				address,
+				chainId
+			})
+		}
+
+		if (!meemContract) {
+			log.crit('Unable to find or create MeemContract')
+			return
+		}
+
+		meemContract.adminContractAddress = eventData.adminContract
+		await meemContract.save()
 	}
 
 	// public static async meemHandlePropertiesSet(args: {

@@ -704,10 +704,10 @@
     semver "^7.3.5"
     tar "^6.1.11"
 
-"@meemproject/meem-contracts@^0.8":
-  version "0.8.6"
-  resolved "https://registry.yarnpkg.com/@meemproject/meem-contracts/-/meem-contracts-0.8.6.tgz#2e36985f639e1f62cdc49117c9d331ef839dc45a"
-  integrity sha512-03CJTKFpwcyyn8Oj659kHyY86WzvKlvQePx93nhVqmVeqoHWCz+4m8KX2MaIzuyeYIAV97ebn9oYfOXSzIVybA==
+"@meemproject/meem-contracts@^0.9.4":
+  version "0.9.4"
+  resolved "https://registry.yarnpkg.com/@meemproject/meem-contracts/-/meem-contracts-0.9.4.tgz#ec940b5f36dfdb2769fbe6545771c7f45fb288b3"
+  integrity sha512-VeaJJvPu25KuLKCMvIasr4NEDSsO6nO3v+rtEgOMvfvVRbLiZa0e1rXiltUlybQ/sUg/4PgojrOZuXIDYgwD+w==
   dependencies:
     "@kengoldfarb/log" "^1.0.5"
     "@openzeppelin/contracts" "^4.7.3"
@@ -716,10 +716,10 @@
     merkletreejs "^0.2.32"
     superagent "^8.0.0"
 
-"@meemproject/metadata@^0.8":
-  version "0.8.6"
-  resolved "https://registry.yarnpkg.com/@meemproject/metadata/-/metadata-0.8.6.tgz#acd8c676693b097010c42d28d07ba124071bd54e"
-  integrity sha512-GAlIgT1w4mOunpeiPnkY/jkpg8YrCUviAxs1X8vtDC20BOnAD6HW6njuSIYLVWQJZ4lG0FLEZRjMPSQi8GrLuA==
+"@meemproject/metadata@^0.9.4":
+  version "0.9.4"
+  resolved "https://registry.yarnpkg.com/@meemproject/metadata/-/metadata-0.9.4.tgz#4dd98c4481ca33a702154d4f6081d2b1b9444160"
+  integrity sha512-b27rJ2Ab99K4mgvWMznuU0KN1/rhMHj9nb8byB6E3/ujwn0jKKszpLFpMqY23nh+af4g2js4jnoJL+u0CL5cuw==
   dependencies:
     "@kengoldfarb/log" "^1.0.5"
     json-schema-to-typescript "^11.0.1"

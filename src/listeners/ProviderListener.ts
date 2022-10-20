@@ -2,7 +2,11 @@
 import { Contract, providers, utils } from 'ethers'
 import { DateTime } from 'luxon'
 import meemABI from '../abis/Meem.json'
-import { MeemSplitsSetEvent, MeemTransferEvent } from '../types/Meem'
+import {
+	MeemAdminContractSetEvent,
+	MeemSplitsSetEvent,
+	MeemTransferEvent
+} from '../types/Meem'
 // import {
 // 	MeemClippedEventObject,
 // 	MeemCopiesPerWalletLockedEventObject,
@@ -88,7 +92,8 @@ export default class ProviderListener {
 				MeemContractURISet: utils.id('MeemContractURISet(address)'),
 				MeemMaxSupplyLocked: utils.id('MeemMaxSupplyLocked(uint256)'),
 				MeemMaxSupplySet: utils.id('MeemMaxSupplySet(uint256)'),
-				MeemMintPermissionsSet: utils.id('MeemMintPermissionsSet(tuple[])')
+				MeemMintPermissionsSet: utils.id('MeemMintPermissionsSet(tuple[])'),
+				MeemAdminContractSet: utils.id('MeemAdminContractSet(address)')
 				// MeemContractInitialized: utils.id('MeemContractInitialized(address)'),
 				// MeemTransfer: utils.id('MeemTransfer(address,address,uint256)'),
 				// MeemPropertiesSet: utils.id('MeemPropertiesSet(uint256,uint8,tuple)'),
@@ -226,6 +231,15 @@ export default class ProviderListener {
 									await services.contractEvents.meemHandleSplitsSet({
 										address: rawLog.address,
 										eventData: eventData as MeemSplitsSetEvent['args'],
+										chainId: network.chainId
+									})
+									break
+								}
+
+								case eventIds.MeemAdminContractSet: {
+									await services.contractEvents.meemHandleAdminContractSet({
+										address: rawLog.address,
+										eventData: eventData as MeemAdminContractSetEvent['args'],
 										chainId: network.chainId
 									})
 									break
