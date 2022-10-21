@@ -58,7 +58,6 @@
 		"fetchContracts": "yarn fetchMeemContracts && yarn fetchMeemIdContracts"
 	},
 	"dependencies": {
-		"@alch/alchemy-web3": "^1.4.6",
 		"@ethersproject/abstract-provider": "^5.7.0",
 		"@guildxyz/sdk": "^1.1.1",
 		"@kengoldfarb/log": "^1.0.3",
