@@ -1,14 +1,14 @@
 /* eslint-disable global-require */
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable import/no-extraneous-dependencies */
+import { Alchemy, Network, Wallet } from 'alchemy-sdk'
 import { ethers } from 'ethers'
-import { chains } from '../lib/chains'
-import { ReconnectingWebSocketProvider } from '../lib/ReconnectingWebsocketProvider'
 
 export default class EthersService {
 	public static shouldInitialize = true
 
-	private providers: Record<number, ethers.providers.Provider> = {}
+	// private providers: Record<number, ethers.providers.Provider> = {}
+	private providers: Record<number, Alchemy> = {}
 
 	private ethers: typeof ethers
 
@@ -21,83 +21,109 @@ export default class EthersService {
 		return this.ethers
 	}
 
-	public async getProvider(options: { chainId: ethers.BigNumberish }) {
+	public async lookupAddress(address: string) {
+		try {
+			const provider = new ethers.providers.JsonRpcProvider(
+				config.JSON_RPC_MAINNET
+			)
+
+			const resolvedAddress = await provider.lookupAddress(address)
+
+			return resolvedAddress
+		} catch (e) {
+			log.debug(e)
+		}
+
+		return null
+	}
+
+	public async getProvider(options: {
+		chainId: ethers.BigNumberish
+	}): Promise<Alchemy> {
 		const chainId = ethers.BigNumber.from(options.chainId)
 		const chainIdNum = chainId.toNumber()
-
-		let provider: ethers.providers.Provider
 
 		if (this.providers[chainIdNum]) {
 			return this.providers[chainIdNum]
 		}
 
+		let alchemyProvider: Alchemy
+
 		switch (chainIdNum) {
-			case 1:
-				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_MAINNET)
+			case 1: {
+				alchemyProvider = new Alchemy({
+					apiKey: config.ALCHEMY_API_KEY_MAINNET
+				})
 				break
+			}
 
-			case 4:
-				// provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_RINKEBY)
-				provider = new ReconnectingWebSocketProvider(
-					config.WS_RPC_RINKEBY,
-					'rinkeby'
-				)
+			case 5: {
+				alchemyProvider = new Alchemy({
+					apiKey: config.ALCHEMY_API_KEY_GOERLI,
+					network: Network.ETH_GOERLI
+				})
 				break
+			}
 
-			case 5:
-				provider = new ReconnectingWebSocketProvider(config.WS_RPC_GOERLI, 5)
+			case 137: {
+				alchemyProvider = new Alchemy({
+					apiKey: config.ALCHEMY_API_KEY_POLYGON,
+					network: Network.MATIC_MAINNET
+				})
 				break
+			}
 
-			case 137:
-				provider = new ReconnectingWebSocketProvider(config.WS_RPC_POLYGON, 137)
+			case 80001: {
+				alchemyProvider = new Alchemy({
+					apiKey: config.ALCHEMY_API_KEY_MUMBAI,
+					network: Network.MATIC_MUMBAI
+				})
 				break
+			}
 
-			case 80001:
-				provider = new ReconnectingWebSocketProvider(
-					config.WS_RPC_MUMBAI,
-					80001
-				)
+			case 421613: {
+				alchemyProvider = new Alchemy({
+					apiKey: config.ALCHEMY_API_KEY_ARBITRUM_GOERLI,
+					network: Network.ARB_GOERLI
+				})
 				break
+			}
 
-			case 421613:
-				provider = new ReconnectingWebSocketProvider(
-					config.WS_RPC_ARBITRUM_GOERLI,
-					421613
-				)
+			case 420: {
+				alchemyProvider = new Alchemy({
+					apiKey: config.ALCHEMY_API_KEY_OPTIMISM_GOERLI,
+					network: Network.OPT_GOERLI
+				})
 				break
-
-			case 420:
-				provider = new ReconnectingWebSocketProvider(
-					config.WS_RPC_OPTIMISM_GOERLI,
-					420
-				)
-				break
+			}
 
 			case 31337:
-				provider = new ethers.providers.JsonRpcProvider(config.JSON_RPC_HARDHAT)
+				alchemyProvider = new Alchemy({ url: config.JSON_RPC_HARDHAT })
 				break
 
 			default: {
-				const chain = chains.find(c => c.chainId === options?.chainId)
+				// const chain = chains.find(c => c.chainId === options?.chainId)
 
-				if (!chain) {
-					throw new Error('INVALID_NETWORK')
-				}
-				const wsRPCUrl = chain.rpc.find(r => /^wss/.test(r))
-				if (wsRPCUrl) {
-					provider = new ReconnectingWebSocketProvider(wsRPCUrl, chain.chainId)
-				} else {
-					provider = new ethers.providers.JsonRpcProvider(
-						chain.rpc[0],
-						chain.chainId
-					)
-				}
+				// if (!chain) {
+				// 	throw new Error('INVALID_NETWORK')
+				// }
+				// const wsRPCUrl = chain.rpc.find(r => /^wss/.test(r))
+				// if (wsRPCUrl) {
+				// 	provider = new ReconnectingWebSocketProvider(wsRPCUrl, chain.chainId)
+				// } else {
+				// 	provider = new ethers.providers.JsonRpcProvider(
+				// 		chain.rpc[0],
+				// 		chain.chainId
+				// 	)
+				// }
+				throw new Error('INVALID_NETWORK')
 			}
 		}
 
-		this.providers[chainIdNum] = provider
+		// this.providers[chainIdNum] = provider
+		this.providers[chainIdNum] = alchemyProvider
 
-		return provider
+		return alchemyProvider
 	}
 
 	public getSelectors(abi: any[]): string[] {
@@ -162,9 +188,12 @@ export default class EthersService {
 			}
 
 			const provider = await this.getProvider({ chainId })
-			const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+			const wallet = new Wallet(config.WALLET_PRIVATE_KEY, provider)
 
-			const providerTxCount = await provider.getTransactionCount(wallet.address)
+			const providerTxCount = await provider.core.getTransactionCount(
+				wallet.address,
+				'latest'
+			)
 
 			const providerNonce = providerTxCount - 1
 
