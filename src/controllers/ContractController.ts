@@ -68,7 +68,7 @@ export default class ContractController {
 
 		// Fetch bytecode and compare against db
 		// const provider = await services.ethers.getProvider()
-		const bytecode = await provider.getCode(address)
+		const bytecode = await provider.core.getCode(address)
 
 		const [contract, walletContractInstance] = await Promise.all([
 			orm.models.Contract.findOne({

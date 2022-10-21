@@ -750,16 +750,18 @@ export default class MeemContractService {
 
 			await tx.wait()
 
-			const receipt = await provider.getTransactionReceipt(tx.hash)
+			const receipt = await provider.core.getTransactionReceipt(tx.hash)
 
-			// Find the newly created Safe contract address in the transaction receipt
-			for (let i = 0; i < receipt.logs.length; i += 1) {
-				const receiptLog = receipt.logs[i]
-				const foundTopic = receiptLog.topics.find(t => t === topic)
-				if (foundTopic) {
-					log.info(`address: ${receiptLog.address}`)
-					meemContract.gnosisSafeAddress = receiptLog.address
-					break
+			if (receipt) {
+				// Find the newly created Safe contract address in the transaction receipt
+				for (let i = 0; i < receipt.logs.length; i += 1) {
+					const receiptLog = receipt.logs[i]
+					const foundTopic = receiptLog.topics.find(t => t === topic)
+					if (foundTopic) {
+						log.info(`address: ${receiptLog.address}`)
+						meemContract.gnosisSafeAddress = receiptLog.address
+						break
+					}
 				}
 			}
 

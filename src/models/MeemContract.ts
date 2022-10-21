@@ -229,7 +229,7 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 			chainId: this.chainId
 		})
 
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		for (let i = 0; i < this.mintPermissions.length; i += 1) {
 			const perm = this.mintPermissions[i]
