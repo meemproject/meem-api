@@ -34,7 +34,7 @@ export default class MeemContractCron extends CronJob {
 					},
 					{
 						ownerFetchedAt: {
-							[Op.lt]: DateTime.now()
+							[Op.gt]: DateTime.now()
 								.plus({
 									days: 7
 								})

@@ -36,7 +36,7 @@ export default class ENSCron extends CronJob {
 						},
 						{
 							ensFetchedAt: {
-								[Op.lt]: DateTime.now()
+								[Op.gt]: DateTime.now()
 									.plus({
 										days: 7
 									})
@@ -56,7 +56,7 @@ export default class ENSCron extends CronJob {
 						},
 						{
 							ensFetchedAt: {
-								[Op.lt]: DateTime.now()
+								[Op.gt]: DateTime.now()
 									.plus({
 										days: 7
 									})
@@ -74,10 +74,14 @@ export default class ENSCron extends CronJob {
 
 		for (let i = 0; i < itemsToCheck.length; i += 1) {
 			const item = itemsToCheck[i]
-			const ens = await provider.lookupAddress(item.address)
-			log.debug({ address: item.address, ens })
-			if (ens) {
-				item.ens = ens
+			try {
+				const ens = await provider.lookupAddress(item.address)
+				log.debug({ address: item.address, ens })
+				if (ens) {
+					item.ens = ens
+				}
+			} catch (e) {
+				log.warn(e)
 			}
 			item.ensFetchedAt = DateTime.now().toJSDate()
 			await item.save()

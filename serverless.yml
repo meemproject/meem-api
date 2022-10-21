@@ -88,6 +88,7 @@ provider:
     WS_RPC_ARBITRUM_GOERLI: ${env:WS_RPC_ARBITRUM_GOERLI, ''}
     WS_RPC_OPTIMISM_GOERLI: ${env:WS_RPC_OPTIMISM_GOERLI, ''}
     WS_RPC_MUMBAI: ${env:WS_RPC_MUMBAI, ''}
+    ARBITRUM_GAS_MULTIPLIER: ${env:ARBITRUM_GAS_MULTIPLIER, ''}
 
 package:
   excludeDevDependencies: true
