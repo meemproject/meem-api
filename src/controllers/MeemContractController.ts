@@ -835,6 +835,7 @@ export default class MeemContractController {
 						]
 					}
 				}
+
 				await services.guild.updateMeemContractGuildRole({
 					guildRoleId: meemContractRole.guildRoleId,
 					meemContractId: meemContract.id,
@@ -844,6 +845,19 @@ export default class MeemContractController {
 				})
 
 				if (guildRoleDiscordIntegrationData?.discordAccessToken) {
+					const updatedDiscordServerResult = await request
+						.post(
+							`https://api.guild.xyz/v1/discord/server/${guildRoleDiscordIntegrationData.discordServerId}`
+						)
+						.send({
+							payload: {
+								authorization:
+									guildRoleDiscordIntegrationData.discordAccessToken
+							}
+						})
+
+					discordServerData = updatedDiscordServerResult.body
+
 					if (meemContractRoleDiscordIntegrationDataIndex > -1) {
 						integrationsMetadata[meemContractRoleDiscordIntegrationDataIndex] =
 							{
