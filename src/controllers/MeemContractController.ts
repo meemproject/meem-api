@@ -979,9 +979,9 @@ export default class MeemContractController {
 		}
 	}
 
-	public static async getMeemContractRoles(
-		req: IRequest<MeemAPI.v1.GetMeemContractRoles.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetMeemContractRoles.IResponseBody>
+	public static async getMeemContractGuild(
+		req: IRequest<MeemAPI.v1.GetMeemContractGuild.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetMeemContractGuild.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
@@ -1000,11 +1000,28 @@ export default class MeemContractController {
 				  }
 				: null
 
+			return res.json({
+				guild
+			})
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
+	public static async getMeemContractRoles(
+		req: IRequest<MeemAPI.v1.GetMeemContractRoles.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetMeemContractRoles.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		try {
 			const roles = await services.meemContract.getMeemContractRoles({
 				meemContractId: req.params.meemContractId
 			})
 			return res.json({
-				guild,
 				roles
 			})
 		} catch (e) {
@@ -1022,24 +1039,11 @@ export default class MeemContractController {
 		}
 
 		try {
-			const guildResponse = await services.guild.getMeemContractGuild({
-				meemContractId: req.params.meemContractId
-			})
-
-			const guild = guildResponse
-				? {
-						id: guildResponse.id,
-						name: guildResponse.name,
-						guildPlatforms: guildResponse.guildPlatforms
-				  }
-				: null
-
 			const roles = await services.meemContract.getMeemContractRoles({
 				meemContractId: req.params.meemContractId,
 				meemContractRoleId: req.params.meemContractRoleId
 			})
 			return res.json({
-				guild,
 				role: roles[0]
 			})
 		} catch (e) {
