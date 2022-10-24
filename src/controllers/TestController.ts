@@ -2,6 +2,7 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Validator } from '@meemproject/metadata'
+import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import { ethers, ethers as Ethers } from 'ethers'
 import { Request, Response } from 'express'
 import keccak256 from 'keccak256'
@@ -228,7 +229,7 @@ export default class TestController {
 		const provider = await services.ethers.getProvider({
 			chainId: +(req.query.chainId as string) as number
 		})
-		const signer = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const signer = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 		const proxyContract = new ethers.Contract(
 			proxyContractAddress,
 			GnosisSafeProxyABI,
@@ -258,17 +259,19 @@ export default class TestController {
 
 		await tx.wait()
 
-		const receipt = await provider.getTransactionReceipt(
+		const receipt = await provider.core.getTransactionReceipt(
 			'0xd5c3e5899aca336f95e1ea40d94d11c27fc45cc9865fb4a0c59225e775578062'
 		)
 
-		// Find the newly created Safe contract address in the transaction receipt
-		for (let i = 0; i < receipt.logs.length; i += 1) {
-			const receiptLog = receipt.logs[i]
-			const foundTopic = receiptLog.topics.find(t => t === topic)
-			if (foundTopic) {
-				log.info(`address: ${receiptLog.address}`)
-				break
+		if (receipt) {
+			// Find the newly created Safe contract address in the transaction receipt
+			for (let i = 0; i < receipt.logs.length; i += 1) {
+				const receiptLog = receipt.logs[i]
+				const foundTopic = receiptLog.topics.find(t => t === topic)
+				if (foundTopic) {
+					log.info(`address: ${receiptLog.address}`)
+					break
+				}
 			}
 		}
 

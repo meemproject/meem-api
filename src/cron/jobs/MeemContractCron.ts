@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-await-in-loop */
 import { diamondABI } from '@meemproject/meem-contracts'
+import { Alchemy, Wallet as AlchemyWallet } from 'alchemy-sdk'
 import Cron from 'cron'
 import { ethers } from 'ethers'
 import { DateTime } from 'luxon'
@@ -47,7 +48,7 @@ export default class MeemContractCron extends CronJob {
 			limit: 20
 		})
 
-		const providers: Record<number, ethers.providers.Provider> = {}
+		const providers: Record<number, Alchemy> = {}
 
 		for (let i = 0; i < meemContracts.length; i++) {
 			const meemContract = meemContracts[i]
@@ -58,7 +59,7 @@ export default class MeemContractCron extends CronJob {
 					})
 				}
 
-				const signer = new ethers.Wallet(
+				const signer = new AlchemyWallet(
 					config.WALLET_PRIVATE_KEY,
 					providers[meemContract.chainId]
 				)

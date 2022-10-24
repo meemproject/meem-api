@@ -1,8 +1,8 @@
 /* eslint-disable no-await-in-loop */
 
 import { Chain, guild, role as guildRole } from '@guildxyz/sdk'
-// eslint-disable-next-line import/named
-import { Bytes, ethers } from 'ethers'
+import { Wallet as AlchemyWallet } from 'alchemy-sdk'
+import type { Bytes } from 'ethers'
 import _ from 'lodash'
 import MeemContract from '../models/MeemContract'
 import MeemContractGuild from '../models/MeemContractGuild'
@@ -75,7 +75,7 @@ export default class GuildService {
 		const provider = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -231,7 +231,7 @@ export default class GuildService {
 		const provider = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -303,7 +303,7 @@ export default class GuildService {
 		const provider = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -408,7 +408,7 @@ export default class GuildService {
 			chainId: meemContract.chainId
 		})
 
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -488,7 +488,7 @@ export default class GuildService {
 			chainId: meemContract.chainId
 		})
 
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)

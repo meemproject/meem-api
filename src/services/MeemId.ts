@@ -40,10 +40,7 @@ export default class MeemIdentityService {
 	}
 
 	public static async updateENS(item: Wallet | MeemContract) {
-		const provider = await services.ethers.getProvider({
-			chainId: 1
-		})
-		const ens = await provider.lookupAddress(item.address)
+		const ens = await services.ethers.lookupAddress(item.address)
 		// eslint-disable-next-line no-param-reassign
 		item.ens = ens
 		// eslint-disable-next-line no-param-reassign

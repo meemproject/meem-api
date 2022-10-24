@@ -7,6 +7,7 @@ import {
 	getMerkleInfo
 } from '@meemproject/meem-contracts'
 import { Validator } from '@meemproject/metadata'
+import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import { ethers } from 'ethers'
 import _ from 'lodash'
 import slug from 'slug'
@@ -506,7 +507,7 @@ export default class MeemContractService {
 			chainId
 		})
 
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const uri = `ipfs://${result.IpfsHash}`
 
@@ -706,7 +707,7 @@ export default class MeemContractService {
 			const provider = await services.ethers.getProvider({
 				chainId
 			})
-			const signer = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+			const signer = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 			const proxyContract = new ethers.Contract(
 				config.GNOSIS_PROXY_CONTRACT_ADDRESS,
 				GnosisSafeProxyABI,
@@ -749,16 +750,18 @@ export default class MeemContractService {
 
 			await tx.wait()
 
-			const receipt = await provider.getTransactionReceipt(tx.hash)
+			const receipt = await provider.core.getTransactionReceipt(tx.hash)
 
-			// Find the newly created Safe contract address in the transaction receipt
-			for (let i = 0; i < receipt.logs.length; i += 1) {
-				const receiptLog = receipt.logs[i]
-				const foundTopic = receiptLog.topics.find(t => t === topic)
-				if (foundTopic) {
-					log.info(`address: ${receiptLog.address}`)
-					meemContract.gnosisSafeAddress = receiptLog.address
-					break
+			if (receipt) {
+				// Find the newly created Safe contract address in the transaction receipt
+				for (let i = 0; i < receipt.logs.length; i += 1) {
+					const receiptLog = receipt.logs[i]
+					const foundTopic = receiptLog.topics.find(t => t === topic)
+					if (foundTopic) {
+						log.info(`address: ${receiptLog.address}`)
+						meemContract.gnosisSafeAddress = receiptLog.address
+						break
+					}
 				}
 			}
 
@@ -841,7 +844,7 @@ export default class MeemContractService {
 			const provider = await services.ethers.getProvider({
 				chainId: meemContract.chainId
 			})
-			const signer = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+			const signer = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 			const diamond = new ethers.Contract(
 				meemContract.address,
@@ -1181,7 +1184,7 @@ export default class MeemContractService {
 			chainId: meemContract.chainId
 		})
 
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		// TODO: Allow removal of Meem address
 		const cleanAdmins = _.uniqBy(
