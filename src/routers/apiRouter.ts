@@ -92,6 +92,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		MeemContractController.joinMeemContractGuild
 	)
 	router.getAsync(
+		'/meemContracts/:meemContractId/guild',
+		MeemContractController.getMeemContractGuild
+	)
+	router.getAsync(
 		'/meemContracts/:meemContractId/roles',
 		MeemContractController.getMeemContractRoles
 	)
