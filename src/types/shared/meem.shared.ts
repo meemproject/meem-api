@@ -603,8 +603,10 @@ export interface IMeemContractRole {
 		members: string[]
 		rolePlatforms: {
 			guildPlatform: {
+				platformGuildId: string
 				invite: string
 				platform: {
+					id: number
 					name: 'DISCORD'
 				}
 			}
