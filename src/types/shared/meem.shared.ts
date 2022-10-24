@@ -604,7 +604,7 @@ export interface IMeemContractRole {
 		rolePlatforms: {
 			guildPlatform: {
 				platformGuildId: string
-				invite: string
+				invite?: string
 				platform: {
 					id: number
 					name: 'DISCORD'
@@ -615,6 +615,18 @@ export interface IMeemContractRole {
 	memberMeemIds: IMeemIdentity[]
 }
 
+export interface IGuild {
+	id: number
+	name: string
+	guildPlatforms: {
+		id: number
+		platformId: number
+		platformGuildId: string
+		platformGuildData?: any
+		platformGuildName?: string
+		invite?: string
+	}[]
+}
 export interface IDiscordServer {
 	id: string
 	name: string

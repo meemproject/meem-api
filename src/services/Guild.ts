@@ -1,6 +1,11 @@
 /* eslint-disable no-await-in-loop */
 
-import { Chain, guild, role as guildRole } from '@guildxyz/sdk'
+import {
+	Chain,
+	GetGuildResponse,
+	guild,
+	role as guildRole
+} from '@guildxyz/sdk'
 import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import type { Bytes } from 'ethers'
 import _ from 'lodash'
@@ -279,14 +284,18 @@ export default class GuildService {
 
 	public static async getMeemContractGuild(data: {
 		meemContractId: string
-	}): Promise<MeemContractGuild | null> {
+	}): Promise<GetGuildResponse | null> {
 		try {
 			const meemContractGuild = await orm.models.MeemContractGuild.findOne({
 				where: {
 					MeemContractId: data.meemContractId
 				}
 			})
-			return meemContractGuild
+			if (!meemContractGuild) {
+				return null
+			}
+			const guildResponse = await guild.get(meemContractGuild.guildId)
+			return guildResponse
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')

@@ -1,5 +1,5 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemContractRole } from '../meem.shared'
+import { IGuild, IMeemContractRole } from '../meem.shared'
 
 export namespace GetMeemContractRole {
 	export interface IPathParams {
@@ -19,6 +19,7 @@ export namespace GetMeemContractRole {
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
+		guild: IGuild | null
 		role: IMeemContractRole
 	}
 
