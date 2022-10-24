@@ -988,10 +988,23 @@ export default class MeemContractController {
 		}
 
 		try {
+			const guildResponse = await services.guild.getMeemContractGuild({
+				meemContractId: req.params.meemContractId
+			})
+
+			const guild = guildResponse
+				? {
+						id: guildResponse.id,
+						name: guildResponse.name,
+						guildPlatforms: guildResponse.guildPlatforms
+				  }
+				: null
+
 			const roles = await services.meemContract.getMeemContractRoles({
 				meemContractId: req.params.meemContractId
 			})
 			return res.json({
+				guild,
 				roles
 			})
 		} catch (e) {
@@ -1009,11 +1022,24 @@ export default class MeemContractController {
 		}
 
 		try {
+			const guildResponse = await services.guild.getMeemContractGuild({
+				meemContractId: req.params.meemContractId
+			})
+
+			const guild = guildResponse
+				? {
+						id: guildResponse.id,
+						name: guildResponse.name,
+						guildPlatforms: guildResponse.guildPlatforms
+				  }
+				: null
+
 			const roles = await services.meemContract.getMeemContractRoles({
 				meemContractId: req.params.meemContractId,
 				meemContractRoleId: req.params.meemContractRoleId
 			})
 			return res.json({
+				guild,
 				role: roles[0]
 			})
 		} catch (e) {
