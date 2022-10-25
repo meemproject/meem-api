@@ -795,6 +795,7 @@ export default class MeemContractController {
 						]
 					}
 				}
+
 				await services.guild.updateMeemContractGuildRole({
 					guildRoleId: meemContractRole.guildRoleId,
 					meemContractId: meemContract.id,
@@ -805,6 +806,19 @@ export default class MeemContractController {
 				})
 
 				if (guildRoleDiscordIntegrationData?.discordAccessToken) {
+					const updatedDiscordServerResult = await request
+						.post(
+							`https://api.guild.xyz/v1/discord/server/${guildRoleDiscordIntegrationData.discordServerId}`
+						)
+						.send({
+							payload: {
+								authorization:
+									guildRoleDiscordIntegrationData.discordAccessToken
+							}
+						})
+
+					discordServerData = updatedDiscordServerResult.body
+
 					if (meemContractRoleDiscordIntegrationDataIndex > -1) {
 						integrationsMetadata[meemContractRoleDiscordIntegrationDataIndex] =
 							{
@@ -915,6 +929,58 @@ export default class MeemContractController {
 
 			return res.json({
 				status: 'success'
+			})
+		} catch (e) {
+			log.crit(e)
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
+	public static async getMeemContractGuild(
+		req: IRequest<MeemAPI.v1.GetMeemContractGuild.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetMeemContractGuild.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		try {
+			const guildResponse = await services.guild.getMeemContractGuild({
+				meemContractId: req.params.meemContractId
+			})
+
+			let guildPlatforms: any = guildResponse?.guildPlatforms
+
+			if (guildPlatforms) {
+				guildPlatforms = await Promise.all(
+					guildPlatforms.map(async (gp: any) => {
+						const gpData = gp
+
+						if (gpData.platformId === 1) {
+							const discordDataResponse = await request.post(
+								`https://api.guild.xyz/v1/discord/server/${gp.platformGuildId}`
+							)
+							gpData.platformGuildData = {
+								...gpData.platformGuildData,
+								...discordDataResponse.body
+							}
+						}
+
+						return gpData
+					})
+				)
+			}
+
+			const guild = guildResponse
+				? {
+						id: guildResponse.id,
+						name: guildResponse.name,
+						guildPlatforms
+				  }
+				: null
+
+			return res.json({
+				guild
 			})
 		} catch (e) {
 			log.crit(e)

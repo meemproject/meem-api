@@ -1,8 +1,13 @@
 // import { Meem } from '@meemproject/meem-contracts'
-import { Contract, providers, utils } from 'ethers'
+import { Alchemy } from 'alchemy-sdk'
+import { Contract, utils } from 'ethers'
 import { DateTime } from 'luxon'
 import meemABI from '../abis/Meem.json'
-import { MeemSplitsSetEvent, MeemTransferEvent } from '../types/Meem'
+import {
+	MeemAdminContractSetEvent,
+	MeemSplitsSetEvent,
+	MeemTransferEvent
+} from '../types/Meem'
 // import {
 // 	MeemClippedEventObject,
 // 	MeemCopiesPerWalletLockedEventObject,
@@ -24,7 +29,8 @@ import { MeemSplitsSetEvent, MeemTransferEvent } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class ProviderListener {
-	private providers: providers.Provider[] = []
+	// private providers: providers.Provider[] = []
+	private providers: Alchemy[] = []
 
 	private hasSetupListners = false
 
@@ -88,7 +94,8 @@ export default class ProviderListener {
 				MeemContractURISet: utils.id('MeemContractURISet(address)'),
 				MeemMaxSupplyLocked: utils.id('MeemMaxSupplyLocked(uint256)'),
 				MeemMaxSupplySet: utils.id('MeemMaxSupplySet(uint256)'),
-				MeemMintPermissionsSet: utils.id('MeemMintPermissionsSet(tuple[])')
+				MeemMintPermissionsSet: utils.id('MeemMintPermissionsSet(tuple[])'),
+				MeemAdminContractSet: utils.id('MeemAdminContractSet(address)')
 				// MeemContractInitialized: utils.id('MeemContractInitialized(address)'),
 				// MeemTransfer: utils.id('MeemTransfer(address,address,uint256)'),
 				// MeemPropertiesSet: utils.id('MeemPropertiesSet(uint256,uint8,tuple)'),
@@ -159,7 +166,7 @@ export default class ProviderListener {
 
 			for (let i = 0; i < this.providers.length; i++) {
 				const provider = this.providers[i]
-				provider.on(
+				provider.ws.on(
 					{
 						topics
 					},
@@ -183,14 +190,14 @@ export default class ProviderListener {
 							}
 							*/
 
-							const block = await provider.getBlock(rawLog.blockHash)
+							const block = await provider.core.getBlock(rawLog.blockHash)
 
 							const parsedLog = genericMeemContract.interface.parseLog({
 								data: rawLog.data,
 								topics: rawLog.topics
 							})
 
-							const network = await provider.getNetwork()
+							const network = await provider.core.getNetwork()
 
 							log.debug(parsedLog)
 
@@ -226,6 +233,15 @@ export default class ProviderListener {
 									await services.contractEvents.meemHandleSplitsSet({
 										address: rawLog.address,
 										eventData: eventData as MeemSplitsSetEvent['args'],
+										chainId: network.chainId
+									})
+									break
+								}
+
+								case eventIds.MeemAdminContractSet: {
+									await services.contractEvents.meemHandleAdminContractSet({
+										address: rawLog.address,
+										eventData: eventData as MeemAdminContractSetEvent['args'],
 										chainId: network.chainId
 									})
 									break

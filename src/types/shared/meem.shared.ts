@@ -601,16 +601,39 @@ export interface IMeemContractRole {
 		description: string
 		imageUrl: string | null
 		members: string[]
+		rolePlatforms: {
+			guildPlatform: {
+				platformGuildId: string
+				invite?: string
+				platform: {
+					id: number
+					name: 'DISCORD'
+				}
+			}
+		}[]
 	}
 	memberMeemIds: IMeemIdentity[]
 }
 
+export interface IGuild {
+	id: number
+	name: string
+	guildPlatforms: {
+		id: number
+		platformId: number
+		platformGuildId: string
+		platformGuildData?: any
+		platformGuildName?: string
+		invite?: string
+	}[]
+}
 export interface IDiscordServer {
 	id: string
 	name: string
 	icon: string
 	owner: boolean
 	guildData: {
+		connectedGuildId: number
 		serverIcon: string
 		serverName: string
 		serverId: string

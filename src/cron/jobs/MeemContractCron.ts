@@ -1,10 +1,12 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-await-in-loop */
 import { diamondABI } from '@meemproject/meem-contracts'
+import { Alchemy, Wallet as AlchemyWallet } from 'alchemy-sdk'
 import Cron from 'cron'
 import { ethers } from 'ethers'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
+import { wait } from '../../lib/utils'
 import Wallet from '../../models/Wallet'
 import CronJob from '../CronJob'
 
@@ -33,7 +35,7 @@ export default class MeemContractCron extends CronJob {
 					},
 					{
 						ownerFetchedAt: {
-							[Op.lt]: DateTime.now()
+							[Op.gt]: DateTime.now()
 								.plus({
 									days: 7
 								})
@@ -46,7 +48,7 @@ export default class MeemContractCron extends CronJob {
 			limit: 20
 		})
 
-		const providers: Record<number, ethers.providers.Provider> = {}
+		const providers: Record<number, Alchemy> = {}
 
 		for (let i = 0; i < meemContracts.length; i++) {
 			const meemContract = meemContracts[i]
@@ -57,7 +59,7 @@ export default class MeemContractCron extends CronJob {
 					})
 				}
 
-				const signer = new ethers.Wallet(
+				const signer = new AlchemyWallet(
 					config.WALLET_PRIVATE_KEY,
 					providers[meemContract.chainId]
 				)
@@ -87,6 +89,7 @@ export default class MeemContractCron extends CronJob {
 
 			meemContract.ownerFetchedAt = new Date()
 			await meemContract.save()
+			await wait(1000)
 		}
 	}
 }

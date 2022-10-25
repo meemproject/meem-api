@@ -1,8 +1,13 @@
-import { Chain, guild, role as guildRole } from '@guildxyz/sdk'
+import {
+	Chain,
+	GetGuildResponse,
+	guild,
+	role as guildRole
+} from '@guildxyz/sdk'
+import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
-// eslint-disable-next-line import/named
-import { Bytes, ethers } from 'ethers'
+import type { Bytes } from 'ethers'
 import _ from 'lodash'
 import Meem from '../models/Meem'
 import MeemContract from '../models/MeemContract'
@@ -77,7 +82,7 @@ export default class GuildService {
 		const provider = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -206,7 +211,7 @@ export default class GuildService {
 		const provider = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -254,14 +259,18 @@ export default class GuildService {
 
 	public static async getMeemContractGuild(data: {
 		meemContractId: string
-	}): Promise<MeemContractGuild | null> {
+	}): Promise<GetGuildResponse | null> {
 		try {
 			const meemContractGuild = await orm.models.MeemContractGuild.findOne({
 				where: {
 					MeemContractId: data.meemContractId
 				}
 			})
-			return meemContractGuild
+			if (!meemContractGuild) {
+				return null
+			}
+			const guildResponse = await guild.get(meemContractGuild.guildId)
+			return guildResponse
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')
@@ -293,7 +302,7 @@ export default class GuildService {
 		const provider = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -529,7 +538,7 @@ export default class GuildService {
 			chainId: meemContract.chainId
 		})
 
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -747,7 +756,7 @@ export default class GuildService {
 			chainId: meemContract.chainId
 		})
 
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)

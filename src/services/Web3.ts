@@ -76,7 +76,7 @@ export default class Web3 {
 			})
 
 			// const lastBlock = await provider.getBlockWithTransactions(blockInfo.block)
-			const lastBlock = await provider.getBlockWithTransactions('latest')
+			const lastBlock = await provider.core.getBlockWithTransactions('latest')
 
 			let gasPrices: Ethers.BigNumber[] = []
 

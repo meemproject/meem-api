@@ -1,5 +1,6 @@
 import { IERC721Base__factory } from '@meemproject/meem-contracts/dist/typechain/factories/@solidstate/contracts/token/ERC721/base/IERC721Base__factory'
 import { MeemContractMetadataLike } from '@meemproject/metadata'
+import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import { ethers } from 'ethers'
 import keccak256 from 'keccak256'
 import { DateTime } from 'luxon'
@@ -106,6 +107,9 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 			defaultValue: 137
+		},
+		adminContractAddress: {
+			type: DataTypes.STRING
 		}
 	}
 
@@ -143,7 +147,7 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 			chainId: this.chainId
 		})
 
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 		let permission: MeemAPI.IMeemPermission | undefined
 		let proof: string[] = []
 
@@ -225,7 +229,7 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 			chainId: this.chainId
 		})
 
-		const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		for (let i = 0; i < this.mintPermissions.length; i += 1) {
 			const perm = this.mintPermissions[i]
@@ -325,6 +329,8 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 	public gnosisSafeAddress!: string | null
 
 	public chainId!: number
+
+	public adminContractAddress!: string | null
 
 	public OwnerId!: string | null
 
