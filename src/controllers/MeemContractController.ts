@@ -996,7 +996,7 @@ export default class MeemContractController {
 
 			if (guildPlatforms) {
 				guildPlatforms = await Promise.all(
-					guildPlatforms.map(async gp => {
+					guildPlatforms.map(async (gp: any) => {
 						const gpData = gp
 
 						if (gpData.platformId === 1) {
