@@ -688,6 +688,7 @@ export interface IDiscordServer {
 	icon: string
 	owner: boolean
 	guildData: {
+		connectedGuildId: number
 		serverIcon: string
 		serverName: string
 		serverId: string
