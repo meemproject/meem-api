@@ -488,7 +488,11 @@ export default class MeemContractService {
 							await Promise.all(promises)
 							await t.commit()
 							if (isAdminRole) {
-								await meemContract.setAdminContract(meemContract.address)
+								const parentContract = Mycontract__factory.connect(
+									parentMeemContract.address,
+									wallet
+								)
+								await parentContract.setAdminContract(meemContract.address)
 							}
 						} catch (e) {
 							log.crit(e)
