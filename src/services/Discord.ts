@@ -68,13 +68,7 @@ export default class DiscordService {
 			const guildsWithData = await Promise.all(
 				guilds.map(async (g: any) => {
 					const [guildDataResult, platformDataResult] = await Promise.all([
-						request
-							.post(`https://api.guild.xyz/v1/discord/server/${g.id}`)
-							.send({
-								payload: {
-									authorization: accessToken
-								}
-							}),
+						request.post(`https://api.guild.xyz/v1/discord/server/${g.id}`),
 						request.get(
 							`https://api.guild.xyz/v1/guild/platform/DISCORD/${g.id}`
 						)

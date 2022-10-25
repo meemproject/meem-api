@@ -992,11 +992,33 @@ export default class MeemContractController {
 				meemContractId: req.params.meemContractId
 			})
 
+			let guildPlatforms: any = guildResponse?.guildPlatforms
+
+			if (guildPlatforms) {
+				guildPlatforms = await Promise.all(
+					guildPlatforms.map(async gp => {
+						const gpData = gp
+
+						if (gpData.platformId === 1) {
+							const discordDataResponse = await request.post(
+								`https://api.guild.xyz/v1/discord/server/${gp.platformGuildId}`
+							)
+							gpData.platformGuildData = {
+								...gpData.platformGuildData,
+								...discordDataResponse.body
+							}
+						}
+
+						return gpData
+					})
+				)
+			}
+
 			const guild = guildResponse
 				? {
 						id: guildResponse.id,
 						name: guildResponse.name,
-						guildPlatforms: guildResponse.guildPlatforms
+						guildPlatforms
 				  }
 				: null
 
