@@ -20,6 +20,10 @@ export namespace CreateMeemContractRole {
 		permissions?: string[]
 		/** Wallet addresses of members */
 		members?: string[]
+		/** Whether the role should be token-based (true) or off-chain (false) */
+		isTokenBasedRole: boolean
+		/** If the role is token-based, is the token transferrable to other wallets */
+		isTokenTransferrable: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

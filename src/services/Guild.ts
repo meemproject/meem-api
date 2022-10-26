@@ -1,5 +1,3 @@
-/* eslint-disable no-await-in-loop */
-
 import {
 	Chain,
 	GetGuildResponse,
@@ -7,11 +5,15 @@ import {
 	role as guildRole
 } from '@guildxyz/sdk'
 import { Wallet as AlchemyWallet } from 'alchemy-sdk'
+// eslint-disable-next-line import/no-extraneous-dependencies
+import AWS from 'aws-sdk'
 import type { Bytes } from 'ethers'
 import _ from 'lodash'
+import Meem from '../models/Meem'
 import MeemContract from '../models/MeemContract'
 import MeemContractGuild from '../models/MeemContractGuild'
 import MeemContractRole from '../models/MeemContractRole'
+import { Mycontract__factory } from '../types/Meem'
 
 export default class GuildService {
 	public static getGuildChain(chainId: number): Chain {
@@ -145,54 +147,27 @@ export default class GuildService {
 				})
 			)
 
-			const createAdminGuildRoleResponse = await guildRole.create(
-				wallet.address,
-				sign,
-				{
-					guildId: meemContractGuild.guildId,
-					name: `Admin`,
-					logic: 'AND',
-					requirements: [
-						{
-							type: 'ALLOWLIST',
-							data: {
-								addresses: adminAddresses
-							}
-						}
-					]
-				}
-			)
-
-			const meemContractAdminRole = await orm.models.MeemContractRole.create({
-				guildRoleId: createAdminGuildRoleResponse.id,
-				name: createAdminGuildRoleResponse.name,
-				MeemContractId: meemContract.id,
-				MeemContractGuildId: meemContractGuild.id,
-				isAdminRole: true,
-				isDefaultRole: true
+			const adminRole = await this.createMeemContractGuildRole({
+				name: 'Admin',
+				meemContract,
+				meemContractGuild,
+				permissions: [
+					'clubs.admin.editProfile',
+					'clubs.admin.manageMembershipSettings',
+					'clubs.admin.manageRoles',
+					'clubs.apps.manageApps',
+					'clubs.apps.viewApps'
+				],
+				isTokenBasedRole: true,
+				isTokenTransferrable: false,
+				members: adminAddresses,
+				senderWalletAddress: wallet.address,
+				isAdminRole: true
 			})
 
-			const meemContractRolePermissionsData: {
-				MeemContractRoleId: string
-				RolePermissionId: string
-			}[] = [
-				'clubs.admin.editProfile',
-				'clubs.admin.manageMembershipSettings',
-				'clubs.admin.manageRoles',
-				'clubs.apps.manageApps',
-				'clubs.apps.viewApps'
-			].map(rid => {
-				return {
-					MeemContractRoleId: meemContractAdminRole.id,
-					RolePermissionId: rid
-				}
-			})
-
-			await orm.models.MeemContractRolePermission.bulkCreate(
-				meemContractRolePermissionsData
-			)
-
-			meemContractRoles.push(meemContractAdminRole)
+			if (adminRole) {
+				meemContractRoles.push(adminRole)
+			}
 
 			return {
 				meemContractGuild,
@@ -306,9 +281,24 @@ export default class GuildService {
 		name: string
 		meemContract: MeemContract
 		meemContractGuild: MeemContractGuild
+		permissions?: string[]
+		isTokenBasedRole: boolean
+		isTokenTransferrable?: boolean
 		members: string[]
-	}): Promise<MeemContractRole> {
-		const { name, meemContract, meemContractGuild, members } = data
+		senderWalletAddress: string
+		isAdminRole?: boolean
+	}): Promise<MeemContractRole | void> {
+		const {
+			name,
+			meemContract,
+			meemContractGuild,
+			permissions,
+			isTokenBasedRole,
+			isTokenTransferrable,
+			members,
+			senderWalletAddress,
+			isAdminRole
+		} = data
 		const provider = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
@@ -318,42 +308,165 @@ export default class GuildService {
 			wallet.signMessage(signableMessage)
 
 		try {
-			// TODO: Meem Contract Tokens
-			const guildChain = this.getGuildChain(meemContract.chainId)
-			const createGuildRoleResponse = await guildRole.create(
-				wallet.address,
-				sign,
-				{
-					guildId: meemContractGuild.guildId,
-					name,
-					logic: 'AND',
-					requirements: [
-						{
-							type: 'ALLOWLIST',
-							data: {
-								addresses: members
+			if (isTokenBasedRole) {
+				const baseContract = Mycontract__factory.connect(
+					meemContract.address,
+					wallet
+				)
+				const admins = await baseContract.getRoles(config.ADMIN_ROLE)
+				const roleContractData = {
+					chainId: meemContract.chainId,
+					shouldMintTokens: true,
+					metadata: {
+						meem_contract_type: 'meem-club-role',
+						meem_metadata_version: 'MeemClubRole_Contract_20220718',
+						name: `${meemContract.name ?? ''} - ${name}`,
+						description: name,
+						image: '',
+						associations: [
+							{
+								meem_contract_type: 'meem-club',
+								address: meemContract.address
 							}
-						},
-						{
-							type: 'ERC721',
-							chain: guildChain,
-							address: meemContract.address,
-							data: {
-								minAmount: 1
-							}
-						}
-					]
+						],
+						external_url: ''
+					},
+					name: `${meemContract.name ?? ''} - ${name}`,
+					admins,
+					members,
+					minters: admins,
+					maxSupply: '0',
+					// TODO: What do we want mintPermissions to be?
+					mintPermissions: meemContract.mintPermissions,
+					splits: [],
+					isTransferLocked: !isTokenTransferrable,
+					tokenMetadata: {
+						meem_metadata_version: 'MeemClubRole_Token_20220718',
+						description: name,
+						name: `${meemContract.name ?? ''} - ${name}`,
+						// TODO: Token image?
+						image: '',
+						associations: [],
+						external_url: ''
+					}
 				}
-			)
 
-			const meemContractRole = await orm.models.MeemContractRole.create({
-				guildRoleId: createGuildRoleResponse.id,
-				name,
-				MeemContractId: meemContract.id,
-				MeemContractGuildId: meemContractGuild.id
-			})
+				// log.debug(JSON.stringify(data))
+				log.debug(roleContractData)
 
-			return meemContractRole
+				if (config.DISABLE_ASYNC_MINTING) {
+					try {
+						await services.meemContract.createMeemContract({
+							...roleContractData,
+							senderWalletAddress,
+							meemContractRoleData: {
+								name,
+								meemContract,
+								meemContractGuild,
+								permissions,
+								isAdminRole
+							}
+						})
+					} catch (e) {
+						log.crit(e)
+						sockets?.emitError(
+							config.errors.CONTRACT_CREATION_FAILED,
+							senderWalletAddress
+						)
+					}
+				} else {
+					const lambda = new AWS.Lambda({
+						accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+						secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+						region: 'us-east-1'
+					})
+
+					await lambda
+						.invoke({
+							InvocationType: 'Event',
+							FunctionName: config.LAMBDA_CREATE_CONTRACT_FUNCTION,
+							Payload: JSON.stringify({
+								...roleContractData,
+								senderWalletAddress
+							})
+						})
+						.promise()
+				}
+			} else {
+				const guildChain = this.getGuildChain(meemContract.chainId)
+				const createGuildRoleResponse = await guildRole.create(
+					wallet.address,
+					sign,
+					{
+						guildId: meemContractGuild.guildId,
+						name,
+						logic: 'AND',
+						requirements: [
+							{
+								type: 'ALLOWLIST',
+								data: {
+									addresses: members
+								}
+							},
+							{
+								type: 'ERC721',
+								chain: guildChain,
+								address: meemContract.address,
+								data: {
+									minAmount: 1
+								}
+							}
+						]
+					}
+				)
+
+				const meemContractRole = await orm.models.MeemContractRole.create({
+					guildRoleId: createGuildRoleResponse.id,
+					name,
+					MeemContractId: meemContract.id,
+					MeemContractGuildId: meemContractGuild.id
+				})
+
+				if (!_.isUndefined(permissions) && _.isArray(permissions)) {
+					const promises: Promise<any>[] = []
+					const t = await orm.sequelize.transaction()
+					const roleIdsToAdd =
+						permissions.filter(pid => {
+							const existingPermission = meemContractRole.RolePermissions?.find(
+								rp => rp.id === pid
+							)
+							return !existingPermission
+						}) ?? []
+
+					if (roleIdsToAdd.length > 0) {
+						const meemContractRolePermissionsData: {
+							MeemContractRoleId: string
+							RolePermissionId: string
+						}[] = roleIdsToAdd.map(rid => {
+							return {
+								MeemContractRoleId: meemContractRole.id,
+								RolePermissionId: rid
+							}
+						})
+						promises.push(
+							orm.models.MeemContractRolePermission.bulkCreate(
+								meemContractRolePermissionsData,
+								{
+									transaction: t
+								}
+							)
+						)
+					}
+
+					try {
+						await Promise.all(promises)
+						await t.commit()
+					} catch (e) {
+						log.crit(e)
+						throw new Error('SERVER_ERROR')
+					}
+				}
+			}
 		} catch (e) {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')
@@ -377,8 +490,16 @@ export default class GuildService {
 				}
 			}[]
 		}
+		senderWalletAddress: string
 	}): Promise<MeemContractRole> {
-		const { name, meemContractId, guildRoleId, members, guildRoleData } = data
+		const {
+			name,
+			meemContractId,
+			guildRoleId,
+			members,
+			guildRoleData,
+			senderWalletAddress
+		} = data
 
 		const meemContract = await orm.models.MeemContract.findOne({
 			where: {
@@ -423,35 +544,173 @@ export default class GuildService {
 			wallet.signMessage(signableMessage)
 
 		try {
-			// TODO: Meem Contract Tokens
-			// TODO: If this is a token-based role do not update members
 			const existingGuildRole = await guildRole.get(guildRoleId)
-			const isAllowListRole = existingGuildRole.requirements.find(
+			const requirements = existingGuildRole.requirements
+			const allowListRoleIndex = requirements.findIndex(
 				r => r.type === 'ALLOWLIST'
 			)
-			await guildRole.update(guildRoleId, wallet.address, sign, {
-				name: name ?? existingGuildRole.name,
-				logic: members ? 'OR' : existingGuildRole.logic,
-				...(guildRoleData?.rolePlatforms && {
-					rolePlatforms: guildRoleData.rolePlatforms
-				}),
-				requirements:
-					isAllowListRole && members
-						? [
-								{
-									type: 'ALLOWLIST',
-									data: {
-										addresses: members
-									}
-								}
-						  ]
-						: existingGuildRole.requirements
-			})
+
+			if (allowListRoleIndex > -1 && members) {
+				requirements[allowListRoleIndex] = {
+					type: 'ALLOWLIST',
+					data: {
+						addresses: members
+					}
+				}
+			}
+
+			if ((allowListRoleIndex > -1 && members) || name || guildRoleData) {
+				const rolePlatforms:
+					| {
+							guildPlatform: {
+								platformName: string
+								platformGuildId: string
+								isNew: boolean
+							}
+							platformRoleData?: {
+								[key: string]: string
+							}
+					  }[]
+					| undefined = guildRoleData?.rolePlatforms
+					? guildRoleData.rolePlatforms
+					: existingGuildRole.rolePlatforms?.map(rp => {
+							return {
+								guildPlatform: {
+									platformGuildId: rp.guildPlatform.platformGuildId,
+									platformName: rp.guildPlatform.platformName,
+									isNew: false
+								},
+								platformRoleData: rp.platformRoleData
+							}
+					  })
+
+				await guildRole.update(guildRoleId, wallet.address, sign, {
+					name: name ?? existingGuildRole.name,
+					logic: existingGuildRole.logic,
+					rolePlatforms,
+					requirements
+				})
+			}
 
 			if (name) {
 				await meemContractRole.update({
 					name
 				})
+			}
+
+			if (members && meemContractRole.tokenAddress) {
+				const roleMeemContract = await orm.models.MeemContract.findOne({
+					where: {
+						address: meemContractRole.tokenAddress
+					}
+				})
+				// TODO: Allow other contracts besides Meem
+				if (roleMeemContract) {
+					const memberMeems = await orm.models.Meem.findAll({
+						where: {
+							MeemContractId: roleMeemContract.id
+						},
+						include: [
+							{
+								model: orm.models.Wallet,
+								as: 'Owner'
+							}
+						]
+					})
+
+					const removeMemberMeems: Meem[] = []
+
+					memberMeems.forEach(meem => {
+						if (meem.Owner !== null) {
+							if (
+								members.findIndex(
+									m => m.toLowerCase() === meem.Owner.address.toLowerCase()
+								) < 0
+							) {
+								removeMemberMeems.push(meem)
+							}
+						}
+					})
+
+					if (removeMemberMeems.length > 0) {
+						// const roleContract = Mycontract__factory.connect(
+						// 	roleMeemContract.address,
+						// 	wallet
+						// )
+
+						log.debug(
+							'BURN MEMBER TOKENS',
+							removeMemberMeems.map(m => m.id)
+						)
+
+						// for (let i = 0; i < removeMemberMeems.length; i += 1) {
+						// 	await roleContract.burn(removeMemberMeems[i].tokenId)
+						// }
+					}
+
+					const membersToAdd: string[] = members.filter((m: string) => {
+						const existingMemberIndex = memberMeems.findIndex(
+							meem => meem.Owner?.address.toLowerCase() === m.toLowerCase()
+						)
+						return existingMemberIndex < 0
+					})
+
+					log.debug('ADD MEMBERS', membersToAdd)
+
+					// TODO: Do we need this to be async?
+					// Need to get token metadata
+					if (membersToAdd.length > 0) {
+						const roleTokenMetadata = {
+							meem_metadata_version: 'MeemClubRole_Token_20220718',
+							name: `${meemContract.name ?? ''} - ${
+								name ?? meemContractRole.name
+							}`,
+							description: name ?? meemContractRole.name,
+							image: '',
+							associations: [
+								{
+									meem_contract_type: 'meem-club',
+									address: meemContract.address
+								}
+							],
+							external_url: ''
+						}
+						const tokens = membersToAdd.map(a => {
+							return {
+								to: a,
+								metadata: roleTokenMetadata
+							}
+						})
+						if (config.DISABLE_ASYNC_MINTING) {
+							try {
+								await services.meem.bulkMint({
+									tokens,
+									mintedBy: senderWalletAddress,
+									meemContractId: meemContract.id
+								})
+							} catch (e) {
+								log.crit(e)
+							}
+						} else {
+							const lambda = new AWS.Lambda({
+								accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+								secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+								region: 'us-east-1'
+							})
+							await lambda
+								.invoke({
+									InvocationType: 'Event',
+									FunctionName: config.LAMBDA_BULK_MINT_FUNCTION_NAME,
+									Payload: JSON.stringify({
+										tokens,
+										mintedBy: senderWalletAddress,
+										meemContractId: meemContract.id
+									})
+								})
+								.promise()
+						}
+					}
+				}
 			}
 
 			return meemContractRole

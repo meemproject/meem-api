@@ -34,6 +34,11 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 			allowNull: false,
 			defaultValue: ''
 		},
+		tokenAddress: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
+		},
 		imageUrl: {
 			type: DataTypes.STRING,
 			allowNull: false,
@@ -67,6 +72,8 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 	public imageUrl!: string
 
 	public description!: string
+
+	public tokenAddress!: string | null
 
 	public integrationsMetadata!: { [key: string]: any }[]
 

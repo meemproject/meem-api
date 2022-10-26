@@ -213,6 +213,7 @@ export default class ContractEvent {
 		)) as MeemContractMetadataLike
 
 		if (!existingMeemContract || !slug) {
+			// TODO: pretty slug
 			try {
 				slug = await services.meemContract.generateSlug({
 					baseSlug: contractInfo.name as string,
@@ -274,9 +275,15 @@ export default class ContractEvent {
 
 		if (!existingMeemContract) {
 			theMeemContract = await orm.models.MeemContract.create(meemContractData)
-			await services.guild.createMeemContractGuild({
-				meemContractId: theMeemContract.id
-			})
+			if (theMeemContract.metadata.meem_contract_type === 'meem-club') {
+				await services.guild.createMeemContractGuild({
+					meemContractId: theMeemContract.id
+				})
+			} else if (
+				theMeemContract.metadata.meem_contract_type === 'meem-club-role'
+			) {
+				// TODO: create the guild role? this shouldn't happen.
+			}
 		} else {
 			theMeemContract = await existingMeemContract.update(meemContractData)
 		}

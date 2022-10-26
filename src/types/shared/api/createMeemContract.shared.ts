@@ -53,11 +53,14 @@ export namespace CreateMeemContract {
 		/** Whether tokens can be transferred */
 		isTransferLocked?: boolean
 
-		/** If true, will mint a token to the admin wallet addresses  */
-		shouldMintAdminTokens?: boolean
+		/** If true, will mint a token to the admin wallet addresses and any addresses in the members parameter  */
+		shouldMintTokens?: boolean
 
-		/** Admin token metadata */
-		adminTokenMetadata?: IMeemMetadataLike
+		/** Members to mint tokens to */
+		members?: string[]
+
+		/** Token metadata */
+		tokenMetadata?: IMeemMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

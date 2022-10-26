@@ -8,7 +8,9 @@ import {
 } from '@meemproject/meem-contracts'
 import { Validator } from '@meemproject/metadata'
 import { Wallet as AlchemyWallet } from 'alchemy-sdk'
-import { ethers } from 'ethers'
+import AWS from 'aws-sdk'
+// eslint-disable-next-line import/named
+import { Bytes, ethers } from 'ethers'
 import _ from 'lodash'
 import slug from 'slug'
 import { v4 as uuidv4 } from 'uuid'
@@ -16,6 +18,7 @@ import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
 import IDiamondCut from '../lib/IDiamondCut'
 import type MeemContract from '../models/MeemContract'
+import MeemContractGuild from '../models/MeemContractGuild'
 import MeemContractWallet from '../models/MeemContractWallet'
 import RolePermission from '../models/RolePermission'
 import Wallet from '../models/Wallet'
@@ -175,11 +178,19 @@ export default class MeemContractService {
 	public static async createMeemContract(
 		data: MeemAPI.v1.CreateMeemContract.IRequestBody & {
 			senderWalletAddress: string
+			meemContractRoleData?: {
+				name: string
+				meemContract: MeemContract
+				meemContractGuild: MeemContractGuild
+				permissions?: string[]
+				isAdminRole?: boolean
+			}
 		}
-	): Promise<string> {
+	): Promise<MeemContract> {
 		const {
-			shouldMintAdminTokens,
-			adminTokenMetadata,
+			shouldMintTokens,
+			tokenMetadata,
+			members,
 			senderWalletAddress,
 			chainId
 		} = data
@@ -352,40 +363,148 @@ export default class MeemContractService {
 
 			await cutTx.wait()
 
-			if (shouldMintAdminTokens && adminTokenMetadata) {
-				log.debug(`Minting admin tokens.`, cleanAdmins)
+			if (shouldMintTokens && tokenMetadata) {
+				log.debug(`Minting admin/member tokens.`, cleanAdmins)
+				const addresses = [...cleanAdmins.map(a => a.user), ...(members ?? [])]
 
-				for (let i = 0; i < cleanAdmins.length; i += 1) {
-					// TODO: Bulk minting
-
-					// Don't mint a token to our API wallet
-					if (
-						cleanAdmins[i].user.toLowerCase() !== wallet.address.toLowerCase()
-					) {
-						// eslint-disable-next-line no-await-in-loop
-						await services.meem.mintOriginalMeem({
-							meemContractAddress: meemContract.address,
-							to: cleanAdmins[i].user.toLowerCase(),
-							metadata: adminTokenMetadata,
-							mintedBy: wallet.address,
-							chainId
-						})
+				const tokens = addresses.map(a => {
+					return {
+						to: a,
+						metadata: tokenMetadata
 					}
+				})
+
+				if (config.DISABLE_ASYNC_MINTING) {
+					try {
+						await services.meem.bulkMint({
+							tokens,
+							mintedBy: senderWalletAddress,
+							meemContractId: meemContractInstance.id
+						})
+					} catch (e) {
+						log.crit(e)
+					}
+				} else {
+					const lambda = new AWS.Lambda({
+						accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+						secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+						region: 'us-east-1'
+					})
+					await lambda
+						.invoke({
+							InvocationType: 'Event',
+							FunctionName: config.LAMBDA_BULK_MINT_FUNCTION_NAME,
+							Payload: JSON.stringify({
+								tokens,
+								mintedBy: senderWalletAddress,
+								meemContractId: meemContractInstance.id
+							})
+						})
+						.promise()
 				}
 
-				log.debug(`Finished minting admin tokens.`)
+				log.debug(`Finished minting admin/member tokens.`)
 			}
 
 			try {
-				await services.guild.createMeemContractGuild({
-					meemContractId: meemContractInstance.id,
-					adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
-				})
+				// TODO: pass createRoles property to contract instead of meem-club
+				if (data.metadata.meem_contract_type === 'meem-club') {
+					await services.guild.createMeemContractGuild({
+						meemContractId: meemContractInstance.id,
+						adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
+					})
+				} else if (data.meemContractRoleData) {
+					const {
+						name: roleName,
+						meemContract: parentMeemContract,
+						meemContractGuild,
+						permissions,
+						isAdminRole
+					} = data.meemContractRoleData
+					const sign = (signableMessage: string | Bytes) =>
+						wallet.signMessage(signableMessage)
+					const createGuildRoleResponse = await guildRole.create(
+						wallet.address,
+						sign,
+						{
+							guildId: meemContractGuild.guildId,
+							name: roleName,
+							logic: 'AND',
+							requirements: [
+								{
+									type: 'ERC721',
+									chain: services.guild.getGuildChain(
+										meemContractInstance.chainId
+									),
+									address: meemContract.address,
+									data: {
+										minAmount: 1
+									}
+								}
+							]
+						}
+					)
+
+					const meemContractRole = await orm.models.MeemContractRole.create({
+						guildRoleId: createGuildRoleResponse.id,
+						name: roleName,
+						MeemContractId: parentMeemContract.id,
+						MeemContractGuildId: meemContractGuild.id,
+						tokenAddress: meemContract.address,
+						isAdminRole: isAdminRole ?? false
+					})
+
+					if (!_.isUndefined(permissions) && _.isArray(permissions)) {
+						const promises: Promise<any>[] = []
+						const t = await orm.sequelize.transaction()
+						const roleIdsToAdd =
+							permissions.filter(pid => {
+								const existingPermission =
+									meemContractRole.RolePermissions?.find(rp => rp.id === pid)
+								return !existingPermission
+							}) ?? []
+
+						if (roleIdsToAdd.length > 0) {
+							const meemContractRolePermissionsData: {
+								MeemContractRoleId: string
+								RolePermissionId: string
+							}[] = roleIdsToAdd.map(rid => {
+								return {
+									MeemContractRoleId: meemContractRole.id,
+									RolePermissionId: rid
+								}
+							})
+							promises.push(
+								orm.models.MeemContractRolePermission.bulkCreate(
+									meemContractRolePermissionsData,
+									{
+										transaction: t
+									}
+								)
+							)
+						}
+
+						try {
+							await Promise.all(promises)
+							await t.commit()
+							if (isAdminRole) {
+								const parentContract = Mycontract__factory.connect(
+									parentMeemContract.address,
+									wallet
+								)
+								await parentContract.setAdminContract(meemContract.address)
+							}
+						} catch (e) {
+							log.crit(e)
+							throw new Error('SERVER_ERROR')
+						}
+					}
+				}
 			} catch (e) {
 				log.crit('Failed to create Guild', e)
 			}
 
-			return meemContract.address
+			return meemContractInstance
 		} catch (e) {
 			await sockets?.emitError(
 				config.errors.CONTRACT_CREATION_FAILED,
@@ -420,7 +539,7 @@ export default class MeemContractService {
 			mintPermissions,
 			splits,
 			isTransferLocked,
-			adminTokenMetadata,
+			tokenMetadata,
 			senderWalletAddress,
 			chainId,
 			meemContract
@@ -482,19 +601,16 @@ export default class MeemContractService {
 			throw new Error('INVALID_METADATA')
 		}
 
-		if (
-			data.shouldMintAdminTokens &&
-			!adminTokenMetadata?.meem_metadata_version
-		) {
+		if (data.shouldMintTokens && !tokenMetadata?.meem_metadata_version) {
 			throw new Error('INVALID_METADATA')
 		}
 
-		if (data.shouldMintAdminTokens && adminTokenMetadata) {
+		if (data.shouldMintTokens && tokenMetadata) {
 			const tokenMetadataValidator = new Validator(
-				adminTokenMetadata.meem_metadata_version
+				tokenMetadata.meem_metadata_version
 			)
 			const tokenMetadataValidatorResult =
-				tokenMetadataValidator.validate(adminTokenMetadata)
+				tokenMetadataValidator.validate(tokenMetadata)
 
 			if (!tokenMetadataValidatorResult.valid) {
 				log.crit(tokenMetadataValidatorResult.errors.map((e: any) => e.message))

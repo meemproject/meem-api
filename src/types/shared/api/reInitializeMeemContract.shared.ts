@@ -51,10 +51,10 @@ export namespace ReInitializeMeemContract {
 		isTransferLocked?: boolean
 
 		/** If true, will mint a token to the admin wallet addresses  */
-		shouldMintAdminTokens?: boolean
+		shouldMintTokens?: boolean
 
 		/** Admin token metadata */
-		adminTokenMetadata?: IMeemMetadataLike
+		tokenMetadata?: IMeemMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
