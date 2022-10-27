@@ -39,6 +39,11 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 			allowNull: false,
 			defaultValue: ''
 		},
+		isTokenTransferrable: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false,
+			allowNull: false
+		},
 		imageUrl: {
 			type: DataTypes.STRING,
 			allowNull: false,
@@ -80,6 +85,8 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 	public isAdminRole!: boolean
 
 	public isDefaultRole!: boolean
+
+	public isTokenTransferrable!: boolean
 
 	public guildRoleId!: number | null
 

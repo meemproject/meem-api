@@ -451,7 +451,8 @@ export default class MeemContractService {
 						MeemContractId: parentMeemContract.id,
 						MeemContractGuildId: meemContractGuild.id,
 						tokenAddress: meemContract.address,
-						isAdminRole: isAdminRole ?? false
+						isAdminRole: isAdminRole ?? false,
+						isTokenTransferrable: meemContractInstance.isTransferrable
 					})
 
 					if (!_.isUndefined(permissions) && _.isArray(permissions)) {
