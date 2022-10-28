@@ -763,7 +763,7 @@ export default class MeemContractController {
 				const meemContractRoleDiscordIntegrationDataIndex =
 					integrationsMetadata?.findIndex(i => !!i.discordServerData)
 				const guildRoleDiscordIntegrationData = roleIntegrationsData?.find(
-					(d: any) => d.discordServerId && d.discordGatedChannels
+					(d: any) => d.discordServerId
 				)
 				if (guildRoleDiscordIntegrationData) {
 					const discordServerResult = await request
@@ -789,7 +789,7 @@ export default class MeemContractController {
 								},
 								platformRoleData: {
 									gatedChannels:
-										guildRoleDiscordIntegrationData.discordGatedChannels
+										guildRoleDiscordIntegrationData.discordGatedChannels ?? []
 								}
 							}
 						]
