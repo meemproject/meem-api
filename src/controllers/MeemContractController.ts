@@ -1,13 +1,14 @@
 import { randomBytes } from 'crypto'
 // eslint-disable-next-line import/no-extraneous-dependencies
+import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import AWS from 'aws-sdk'
 import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
 import { Response } from 'express'
 import _ from 'lodash'
 import request from 'superagent'
 import { IRequest, IResponse } from '../types/app'
+import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
-
 export default class MeemContractController {
 	public static async isSlugAvailable(
 		req: IRequest<MeemAPI.v1.IsSlugAvailable.IDefinition>,
@@ -834,6 +835,53 @@ export default class MeemContractController {
 					meemContractRole.changed('integrationsMetadata', true)
 
 					await meemContractRole.save()
+				}
+			}
+
+			if (
+				!_.isUndefined(req.body.isTokenTransferrable) &&
+				meemContractRole.tokenAddress
+			) {
+				const roleMeemContract = await orm.models.MeemContract.findOne({
+					where: {
+						address: meemContractRole.tokenAddress
+					}
+				})
+
+				if (
+					roleMeemContract &&
+					roleMeemContract.isTransferrable !== req.body.isTokenTransferrable
+				) {
+					// TODO: Verify that admins who hold admin token can update the role contract
+					if (config.DISABLE_ASYNC_MINTING) {
+						try {
+							await services.meemContract.updateMeemContract({
+								isTransferLocked: !req.body.isTokenTransferrable,
+								meemContractId: roleMeemContract.id,
+								senderWalletAddress: req.wallet.address
+							})
+						} catch (e) {
+							log.crit(e)
+							sockets?.emitError(config.errors.MINT_FAILED, req.wallet.address)
+						}
+					} else {
+						const lambda = new AWS.Lambda({
+							accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+							secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+							region: 'us-east-1'
+						})
+						await lambda
+							.invoke({
+								InvocationType: 'Event',
+								FunctionName: config.LAMBDA_REINITIALIZE_FUNCTION_NAME,
+								Payload: JSON.stringify({
+									isTransferLocked: !req.body.isTokenTransferrable,
+									meemContractId: roleMeemContract.id,
+									senderWalletAddress: req.wallet.address
+								})
+							})
+							.promise()
+					}
 				}
 			}
 		} catch (e) {

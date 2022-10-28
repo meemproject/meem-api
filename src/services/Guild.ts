@@ -140,8 +140,7 @@ export default class GuildService {
 						name: role.name,
 						MeemContractId: meemContract.id,
 						MeemContractGuildId: meemContractGuild.id,
-						isDefaultRole: true,
-						isTokenTransferrable: meemContract.isTransferrable
+						isDefaultRole: true
 					})
 
 					return meemContractRole

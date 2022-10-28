@@ -343,6 +343,7 @@ export default class MeemContractService {
 				mintPermissions: fullMintPermissions,
 				slug: contractSlug,
 				name: data.name,
+				isTransferrable: !data.isTransferLocked,
 				chainId
 			})
 
@@ -450,9 +451,9 @@ export default class MeemContractService {
 						name: roleName,
 						MeemContractId: parentMeemContract.id,
 						MeemContractGuildId: meemContractGuild.id,
+						RoleMeemContractId: meemContractInstance.id,
 						tokenAddress: meemContract.address,
-						isAdminRole: isAdminRole ?? false,
-						isTokenTransferrable: meemContractInstance.isTransferrable
+						isAdminRole: isAdminRole ?? false
 					})
 
 					if (!_.isUndefined(permissions) && _.isArray(permissions)) {
