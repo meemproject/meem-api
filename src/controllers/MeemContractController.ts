@@ -1,11 +1,14 @@
 import { randomBytes } from 'crypto'
 // eslint-disable-next-line import/no-extraneous-dependencies
+import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import AWS from 'aws-sdk'
+import { ethers } from 'ethers'
 import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
 import { Response } from 'express'
 import _ from 'lodash'
 import request from 'superagent'
 import { IRequest, IResponse } from '../types/app'
+import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 export default class MeemContractController {
 	public static async isSlugAvailable(
@@ -850,10 +853,41 @@ export default class MeemContractController {
 					roleMeemContract &&
 					roleMeemContract.isTransferrable !== req.body.isTokenTransferrable
 				) {
+					const provider = await services.ethers.getProvider({
+						chainId: meemContract.chainId
+					})
+					const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
+
+					const roleSmartContract = Mycontract__factory.connect(
+						meemContract.address,
+						wallet
+					)
+
+					const contractInfo = await roleSmartContract.getContractInfo()
+					const mintPermissions = contractInfo.mintPermissions.map(p => ({
+						permission: p.permission,
+						addresses: p.addresses,
+						numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
+						mintEndTimestamp: ethers.BigNumber.from(
+							p.mintEndTimestamp
+						).toHexString(),
+						mintStartTimestamp: ethers.BigNumber.from(
+							p.mintStartTimestamp
+						).toHexString(),
+						costWei: ethers.BigNumber.from(p.costWei).toHexString(),
+						merkleRoot: p.merkleRoot
+					}))
+
+					const roleContractAdmins = await roleSmartContract.getRoles(
+						config.ADMIN_ROLE
+					)
+
 					// TODO: Verify that admins who hold admin token can update the role contract
 					if (config.DISABLE_ASYNC_MINTING) {
 						try {
 							await services.meemContract.updateMeemContract({
+								admins: roleContractAdmins,
+								mintPermissions,
 								isTransferLocked: !req.body.isTokenTransferrable,
 								meemContractId: roleMeemContract.id,
 								senderWalletAddress: req.wallet.address
@@ -873,6 +907,7 @@ export default class MeemContractController {
 								InvocationType: 'Event',
 								FunctionName: config.LAMBDA_REINITIALIZE_FUNCTION_NAME,
 								Payload: JSON.stringify({
+									mintPermissions,
 									isTransferLocked: !req.body.isTokenTransferrable,
 									meemContractId: roleMeemContract.id,
 									senderWalletAddress: req.wallet.address
