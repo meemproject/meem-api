@@ -1,13 +1,15 @@
 import { randomBytes } from 'crypto'
+import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
+import { ethers } from 'ethers'
 import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
 import { Response } from 'express'
 import _ from 'lodash'
 import request from 'superagent'
 import { IRequest, IResponse } from '../types/app'
+import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
-
 export default class MeemContractController {
 	public static async isSlugAvailable(
 		req: IRequest<MeemAPI.v1.IsSlugAvailable.IDefinition>,
@@ -834,6 +836,85 @@ export default class MeemContractController {
 					meemContractRole.changed('integrationsMetadata', true)
 
 					await meemContractRole.save()
+				}
+			}
+
+			if (
+				!_.isUndefined(req.body.isTokenTransferrable) &&
+				meemContractRole.tokenAddress
+			) {
+				const roleMeemContract = await orm.models.MeemContract.findOne({
+					where: {
+						address: meemContractRole.tokenAddress
+					}
+				})
+
+				if (
+					roleMeemContract &&
+					roleMeemContract.isTransferrable !== req.body.isTokenTransferrable
+				) {
+					const provider = await services.ethers.getProvider({
+						chainId: meemContract.chainId
+					})
+					const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
+
+					const roleSmartContract = Mycontract__factory.connect(
+						meemContract.address,
+						wallet
+					)
+
+					const contractInfo = await roleSmartContract.getContractInfo()
+					const mintPermissions = contractInfo.mintPermissions.map(p => ({
+						permission: p.permission,
+						addresses: p.addresses,
+						numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
+						mintEndTimestamp: ethers.BigNumber.from(
+							p.mintEndTimestamp
+						).toHexString(),
+						mintStartTimestamp: ethers.BigNumber.from(
+							p.mintStartTimestamp
+						).toHexString(),
+						costWei: ethers.BigNumber.from(p.costWei).toHexString(),
+						merkleRoot: p.merkleRoot
+					}))
+
+					const roleContractAdmins = await roleSmartContract.getRoles(
+						config.ADMIN_ROLE
+					)
+
+					// TODO: Verify that admins who hold admin token can update the role contract
+					if (config.DISABLE_ASYNC_MINTING) {
+						try {
+							await services.meemContract.updateMeemContract({
+								admins: roleContractAdmins,
+								mintPermissions,
+								isTransferLocked: !req.body.isTokenTransferrable,
+								meemContractId: roleMeemContract.id,
+								senderWalletAddress: req.wallet.address
+							})
+						} catch (e) {
+							log.crit(e)
+							sockets?.emitError(config.errors.MINT_FAILED, req.wallet.address)
+						}
+					} else {
+						const lambda = new AWS.Lambda({
+							accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+							secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+							region: 'us-east-1'
+						})
+						await lambda
+							.invoke({
+								InvocationType: 'Event',
+								FunctionName: config.LAMBDA_REINITIALIZE_FUNCTION_NAME,
+								Payload: JSON.stringify({
+									mintPermissions,
+									isTransferLocked: !req.body.isTokenTransferrable,
+									meemContractId: roleMeemContract.id,
+									senderWalletAddress: req.wallet.address
+								})
+							})
+							.promise()
+					}
 				}
 			}
 		} catch (e) {

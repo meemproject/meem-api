@@ -2734,6 +2734,8 @@ export namespace UpdateMeemContractRole {
 		permissions?: string[]
 		/** Wallet addresses of members */
 		members?: string[]
+		/** If the role is token-based, is the token transferrable to other wallets */
+		isTokenTransferrable?: boolean
 		/** Role integration data */
 		roleIntegrationsData?: (
 			| DiscordRoleIntegrationData

@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
+import MeemContract from './MeemContract'
 import MeemContractGuild from './MeemContractGuild'
 import RolePermission from './RolePermission'
 
@@ -38,11 +39,6 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 			type: DataTypes.STRING,
 			allowNull: false,
 			defaultValue: ''
-		},
-		isTokenTransferrable: {
-			type: DataTypes.BOOLEAN,
-			defaultValue: false,
-			allowNull: false
 		},
 		imageUrl: {
 			type: DataTypes.STRING,
@@ -86,8 +82,6 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 
 	public isDefaultRole!: boolean
 
-	public isTokenTransferrable!: boolean
-
 	public guildRoleId!: number | null
 
 	public RolePermissions!: RolePermission[] | null
@@ -98,11 +92,18 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 
 	public MeemContractGuildId!: string | null
 
+	public RoleMeemContractId!: string | null
+
+	public RoleMeemContract!: MeemContract | null
+
 	public static associate(models: IModels) {
 		this.belongsTo(models.MeemContract)
 		this.belongsTo(models.MeemContractGuild)
 		this.belongsToMany(models.RolePermission, {
 			through: models.MeemContractRolePermission
+		})
+		this.belongsTo(models.MeemContract, {
+			as: 'RoleMeemContract'
 		})
 	}
 }
