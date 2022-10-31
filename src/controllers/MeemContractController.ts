@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto'
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Wallet as AlchemyWallet } from 'alchemy-sdk'
+// eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
 import { ethers } from 'ethers'
 import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
