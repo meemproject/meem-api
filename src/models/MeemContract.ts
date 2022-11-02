@@ -40,6 +40,11 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 			allowNull: false,
 			defaultValue: DataTypes.UUIDV4
 		},
+		type: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
+		},
 		name: {
 			type: DataTypes.STRING,
 			allowNull: false,
@@ -303,6 +308,8 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 	public name!: string
 
 	public slug!: string
+
+	public type!: string
 
 	public symbol!: string
 
