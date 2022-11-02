@@ -255,6 +255,7 @@ export default class ContractEvent {
 			slug,
 			symbol: contractInfo.symbol,
 			name: contractInfo.name,
+			type: metadata.meem_contract_type,
 			contractURI: contractInfo.contractURI,
 			address,
 			metadata,

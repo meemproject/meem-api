@@ -343,6 +343,7 @@ export default class MeemContractService {
 				mintPermissions: fullMintPermissions,
 				slug: contractSlug,
 				name: data.name,
+				type: data.metadata.meem_contract_type ?? '',
 				isTransferrable: !data.isTransferLocked,
 				chainId
 			})
