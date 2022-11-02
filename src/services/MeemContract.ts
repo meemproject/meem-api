@@ -152,18 +152,6 @@ export default class MeemContractService {
 
 			await tx.wait()
 
-			try {
-				const updatedAdmins = await meemContract.getRoles(config.ADMIN_ROLE)
-				await services.meemContract.updateMeemContractAdmins({
-					meemContractId: meemContractInstance.id,
-					admins: updatedAdmins.map(a => a.toLowerCase()),
-					senderWallet,
-					shouldSkipContractUpdate: true
-				})
-			} catch (e) {
-				log.crit(e)
-			}
-
 			return meemContract.address
 		} catch (e: any) {
 			log.crit(e)
@@ -1265,10 +1253,8 @@ export default class MeemContractService {
 		meemContractId: string
 		admins: string[]
 		senderWallet: Wallet
-		shouldSkipContractUpdate?: boolean
 	}): Promise<string[]> {
-		const { meemContractId, admins, senderWallet, shouldSkipContractUpdate } =
-			options
+		const { meemContractId, admins, senderWallet } = options
 
 		const isAdmin = await this.isMeemContractAdmin({
 			meemContractId,
@@ -1314,7 +1300,7 @@ export default class MeemContractService {
 			hasRole: true
 		}))
 
-		if (!shouldSkipContractUpdate && cleanAdmins.length > 0) {
+		if (cleanAdmins.length > 0) {
 			const meemSmartContract = (await services.meem.getMeemContract({
 				address: meemContract.address,
 				chainId: meemContract.chainId
