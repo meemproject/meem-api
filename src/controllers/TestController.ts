@@ -319,4 +319,13 @@ export default class TestController {
 			status: 'success'
 		})
 	}
+
+	public static async mintPKP(req: Request, res: Response) {
+		const tx = await services.lit.mintPKP()
+
+		return res.json({
+			status: 'success',
+			tx
+		})
+	}
 }

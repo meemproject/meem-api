@@ -960,6 +960,7 @@ export default class MeemContractService {
 			const provider = await services.ethers.getProvider({
 				chainId: meemContract.chainId
 			})
+
 			const signer = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 			const diamond = new ethers.Contract(

@@ -9,6 +9,7 @@ import Git from '../services/Git'
 import Guild from '../services/Guild'
 import Ipfs from '../services/Ipfs'
 import Lint from '../services/Lint'
+import Lit from '../services/Lit'
 import Meem from '../services/Meem'
 import MeemContract from '../services/MeemContract'
 import MeemContractRole from '../services/MeemContractRole'
@@ -33,6 +34,7 @@ declare global {
 		let git: typeof Git
 		let ipfs: typeof Ipfs
 		let lint: typeof Lint
+		let lit: typeof Lit
 		let meem: typeof Meem
 		let meemContract: typeof MeemContract
 		let meemContractRole: typeof MeemContractRole

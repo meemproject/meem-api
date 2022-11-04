@@ -89,6 +89,13 @@ export default class EthersService {
 				break
 			}
 
+			case 42220: {
+				alchemyProvider = new Alchemy({
+					url: config.JSON_RPC_CELO
+				})
+				break
+			}
+
 			case 420: {
 				alchemyProvider = new Alchemy({
 					apiKey: config.ALCHEMY_API_KEY_OPTIMISM_GOERLI,
