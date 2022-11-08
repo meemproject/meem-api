@@ -879,116 +879,6 @@ export namespace ClaimMeem {
 
 
 
-export namespace CreateBundle {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/bundles`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		name: string
-		description: string
-		// contractIds: string[]
-		contracts: {
-			id: string
-			functionSelectors: string[]
-		}[]
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		bundleId: string
-		types: string
-		abi: Record<string, any>[]
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-/** Create Meem Image */
-export namespace CreateClubSafe {
-	export interface IPathParams {
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/safe`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The owners of the safe */
-		safeOwners: string[]
-
-		chainId: number
-
-		/** The number of signatures required */
-		threshold?: number
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace CreateContract {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/contracts`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		name: string
-		description: string
-		contractType: ContractType
-		abi: any[]
-		bytecode: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-		contractId: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
 /** Create Meem Image */
 export namespace CreateAgreement {
 	export interface IPathParams {}
@@ -1086,6 +976,116 @@ export namespace CreateAgreementRole {
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace CreateBundle {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/bundles`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		name: string
+		description: string
+		// contractIds: string[]
+		contracts: {
+			id: string
+			functionSelectors: string[]
+		}[]
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		bundleId: string
+		types: string
+		abi: Record<string, any>[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+/** Create Meem Image */
+export namespace CreateClubSafe {
+	export interface IPathParams {
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/safe`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The owners of the safe */
+		safeOwners: string[]
+
+		chainId: number
+
+		/** The number of signatures required */
+		threshold?: number
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace CreateContract {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/contracts`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		name: string
+		description: string
+		contractType: ContractType
+		abi: any[]
+		bytecode: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+		contractId: string
 	}
 
 	export interface IDefinition {
@@ -1362,6 +1362,101 @@ export namespace GetAccessList {
 
 	export interface IResponseBody extends IApiResponseBody {
 		access: IAccessList
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetAgreementGuild {
+	export interface IPathParams {
+		/** The Agreement id of the guild to fetch */
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/guild`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		guild: IGuild | null
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetAgreementRole {
+	export interface IPathParams {
+		/** The Agreement id to fetch roles of */
+		agreementId: string
+		/** The Agreement Role id to fetch roles of */
+		agreementRoleId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		role: IAgreementRole
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetAgreementRoles {
+	export interface IPathParams {
+		/** The Agreement id to fetch roles of */
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/roles`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		roles: any[]
 	}
 
 	export interface IDefinition {
@@ -1690,101 +1785,6 @@ export namespace GetMeemClippings {
 		clippings: IClippingExtended[]
 
 		totalItems: number
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetAgreementGuild {
-	export interface IPathParams {
-		/** The Agreement id of the guild to fetch */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/guild`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		guild: IGuild | null
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetAgreementRole {
-	export interface IPathParams {
-		/** The Agreement id to fetch roles of */
-		agreementId: string
-		/** The Agreement Role id to fetch roles of */
-		agreementRoleId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		role: IAgreementRole
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetAgreementRoles {
-	export interface IPathParams {
-		/** The Agreement id to fetch roles of */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/roles`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		roles: any[]
 	}
 
 	export interface IDefinition {
@@ -2623,77 +2623,6 @@ export namespace UntrackContractInstance {
 
 
 
-export namespace UpdateBundle {
-	export interface IPathParams {
-		bundleId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/bundles/${options.bundleId}`
-
-	export const method = HttpMethod.Put
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		name: string
-		description: string
-		contracts: {
-			id: string
-			functionSelectors: string[]
-		}[]
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		types: string
-		abi: Record<string, any>[]
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace UpdateWalletContractInstance {
-	export interface IPathParams {
-		contractInstanceId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/walletContractInstances/${options.contractInstanceId}`
-
-	export const method = HttpMethod.Patch
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		note: string
-		name: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
 export namespace UpdateAgreement {
 	export interface IPathParams {
 		/** The meem pass id to fetch */
@@ -2762,6 +2691,77 @@ export namespace UpdateAgreementRole {
 			| DiscordRoleIntegrationData
 			| { [key: string]: any }
 		)[]
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace UpdateBundle {
+	export interface IPathParams {
+		bundleId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/bundles/${options.bundleId}`
+
+	export const method = HttpMethod.Put
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		name: string
+		description: string
+		contracts: {
+			id: string
+			functionSelectors: string[]
+		}[]
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		types: string
+		abi: Record<string, any>[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace UpdateWalletContractInstance {
+	export interface IPathParams {
+		contractInstanceId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/walletContractInstances/${options.contractInstanceId}`
+
+	export const method = HttpMethod.Patch
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		note: string
+		name: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

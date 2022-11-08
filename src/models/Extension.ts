@@ -2,17 +2,17 @@ import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
 
-export default class Integration extends BaseModel<Integration> {
-	public static readonly modelName = 'Integration'
+export default class Extension extends BaseModel<Extension> {
+	public static readonly modelName = 'Extension'
 
 	public static get indexes() {
 		return [
 			{
-				name: 'Integration_createdAt',
+				name: 'Extension_createdAt',
 				fields: ['createdAt']
 			},
 			{
-				name: 'Integration_name',
+				name: 'Extension_name',
 				fields: ['name']
 			}
 		]

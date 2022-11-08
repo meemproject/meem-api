@@ -11,7 +11,7 @@ import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import AgreementGuild from './AgreementGuild'
 import AgreementRole from './AgreementRole'
-import type Integration from './Integration'
+import type Extension from './Extension'
 import type Meem from './Meem'
 import type Wallet from './Wallet'
 
@@ -351,7 +351,7 @@ export default class Agreement extends ModelWithAddress<Agreement> {
 
 	public AgreementRoles?: AgreementRole[] | null
 
-	public Integrations?: Integration[] | null
+	public Extensions?: Extension[] | null
 
 	public static associate(models: IModels) {
 		this.hasMany(models.Meem)
@@ -360,7 +360,7 @@ export default class Agreement extends ModelWithAddress<Agreement> {
 			through: models.AgreementWallet
 		})
 
-		this.belongsToMany(models.Integration, {
+		this.belongsToMany(models.Extension, {
 			through: models.AgreementExtension
 		})
 

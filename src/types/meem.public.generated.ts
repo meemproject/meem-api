@@ -279,7 +279,7 @@ export interface IMeemMetadataLike {
 	meem_metadata_version: string
 	[key: string]: any
 }
-export interface IAgreementMetadataLike {
+export interface IMeemContractMetadataLike {
 	meem_contract_type: string
 	meem_metadata_version: string
 	[key: string]: any
@@ -759,7 +759,7 @@ export namespace BulkMint {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}/bulkMint`
+		`/api/1.0/agreements/${options.agreementId}/bulkMint`
 
 	export const method = HttpMethod.Post
 
@@ -858,121 +858,11 @@ export namespace ClaimMeem {
 
 
 
-export namespace CreateBundle {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/bundles`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		name: string
-		description: string
-		// contractIds: string[]
-		contracts: {
-			id: string
-			functionSelectors: string[]
-		}[]
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		bundleId: string
-		types: string
-		abi: Record<string, any>[]
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-/** Create Meem Image */
-export namespace CreateClubSafe {
-	export interface IPathParams {
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}/safe`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The owners of the safe */
-		safeOwners: string[]
-
-		chainId: number
-
-		/** The number of signatures required */
-		threshold?: number
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace CreateContract {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/contracts`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		name: string
-		description: string
-		contractType: ContractType
-		abi: any[]
-		bytecode: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-		contractId: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
 /** Create Meem Image */
 export namespace CreateAgreement {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/meemContracts`
+	export const path = () => `/api/1.0/agreements`
 
 	export const method = HttpMethod.Post
 
@@ -980,7 +870,7 @@ export namespace CreateAgreement {
 
 	export interface IRequestBody {
 		/** Contract metadata */
-		metadata: IAgreementMetadataLike
+		metadata: IMeemContractMetadataLike
 
 		/** The chain id */
 		chainId: number
@@ -1045,7 +935,7 @@ export namespace CreateAgreementRole {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}/roles`
+		`/api/1.0/agreements/${options.agreementId}/roles`
 
 	export const method = HttpMethod.Post
 
@@ -1065,6 +955,116 @@ export namespace CreateAgreementRole {
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace CreateBundle {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/bundles`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		name: string
+		description: string
+		// contractIds: string[]
+		contracts: {
+			id: string
+			functionSelectors: string[]
+		}[]
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		bundleId: string
+		types: string
+		abi: Record<string, any>[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+/** Create Meem Image */
+export namespace CreateClubSafe {
+	export interface IPathParams {
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/safe`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The owners of the safe */
+		safeOwners: string[]
+
+		chainId: number
+
+		/** The number of signatures required */
+		threshold?: number
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace CreateContract {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/contracts`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		name: string
+		description: string
+		contractType: ContractType
+		abi: any[]
+		bytecode: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+		contractId: string
 	}
 
 	export interface IDefinition {
@@ -1154,7 +1154,7 @@ export namespace CreateOrUpdateAgreementExtension {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}/integrations/${options.integrationId}`
+		`/api/1.0/agreements/${options.agreementId}/integrations/${options.integrationId}`
 
 	export const method = HttpMethod.Post
 
@@ -1267,11 +1267,11 @@ export namespace DeleteAgreementRole {
 		/** The meem contract id to fetch */
 		agreementId: string
 		/** The AgreementRole id to update */
-		meemContractRoleId: string
+		agreementRoleId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}/roles/${options.meemContractRoleId}`
+		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}`
 
 	export const method = HttpMethod.Delete
 
@@ -1341,6 +1341,101 @@ export namespace GetAccessList {
 
 	export interface IResponseBody extends IApiResponseBody {
 		access: IAccessList
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetAgreementGuild {
+	export interface IPathParams {
+		/** The Agreement id of the guild to fetch */
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/guild`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		guild: IGuild | null
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetAgreementRole {
+	export interface IPathParams {
+		/** The Agreement id to fetch roles of */
+		agreementId: string
+		/** The Agreement Role id to fetch roles of */
+		agreementRoleId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		role: IAgreementRole
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetAgreementRoles {
+	export interface IPathParams {
+		/** The Agreement id to fetch roles of */
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/roles`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		roles: any[]
 	}
 
 	export interface IDefinition {
@@ -1551,7 +1646,7 @@ export namespace GetJoinGuildMessage {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}/getJoinGuildMessage`
+		`/api/1.0/agreements/${options.agreementId}/getJoinGuildMessage`
 
 	export const method = HttpMethod.Get
 
@@ -1669,101 +1764,6 @@ export namespace GetMeemClippings {
 		clippings: IClippingExtended[]
 
 		totalItems: number
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetAgreementGuild {
-	export interface IPathParams {
-		/** The Agreement id of the guild to fetch */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}/guild`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		guild: IGuild | null
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetAgreementRole {
-	export interface IPathParams {
-		/** The Agreement id to fetch roles of */
-		agreementId: string
-		/** The Agreement Role id to fetch roles of */
-		meemContractRoleId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}/roles/${options.meemContractRoleId}`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		role: IAgreementRole
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetAgreementRoles {
-	export interface IPathParams {
-		/** The Agreement id to fetch roles of */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}/roles`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		roles: any[]
 	}
 
 	export interface IDefinition {
@@ -1927,7 +1927,7 @@ export namespace GetMintingProof {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}/proof`
+		`/api/1.0/agreements/${options.agreementId}/proof`
 
 	export const method = HttpMethod.Get
 
@@ -2082,7 +2082,7 @@ export namespace GetUserAgreementRolesAccess {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}/roles/access`
+		`/api/1.0/agreements/${options.agreementId}/roles/access`
 
 	export const method = HttpMethod.Get
 
@@ -2221,7 +2221,7 @@ export namespace JoinGuild {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}/joinGuild`
+		`/api/1.0/agreements/${options.agreementId}/joinGuild`
 
 	export const method = HttpMethod.Post
 
@@ -2360,7 +2360,7 @@ export namespace MintOriginalMeem {
 
 	export interface IRequestBody {
 		/** The address of the Meem contract to mint token */
-		meemContractAddress: string
+		agreementAddress: string
 
 		/** The chain id */
 		chainId: number
@@ -2397,7 +2397,7 @@ export namespace ReInitializeAgreement {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}`
+		`/api/1.0/agreements/${options.agreementId}`
 
 	export const method = HttpMethod.Post
 
@@ -2405,7 +2405,7 @@ export namespace ReInitializeAgreement {
 
 	export interface IRequestBody {
 		/** Contract metadata */
-		metadata?: IAgreementMetadataLike
+		metadata?: IMeemContractMetadataLike
 
 		/** The symbol for the token. If omitted, will use a slug of the name */
 		symbol?: string
@@ -2602,6 +2602,92 @@ export namespace UntrackContractInstance {
 
 
 
+export namespace UpdateAgreement {
+	export interface IPathParams {
+		/** The meem pass id to fetch */
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}`
+
+	export const method = HttpMethod.Patch
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** New slug */
+		slug: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace UpdateAgreementRole {
+	export interface DiscordRoleIntegrationData {
+		discordServerId: string
+		discordGatedChannels: string[]
+		discordAccessToken: string
+	}
+	export interface IPathParams {
+		/** The meem contract id to fetch */
+		agreementId: string
+		/** The AgreementRole id to update */
+		agreementRoleId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** Name of the role */
+		name?: string
+		/** Array of ids for permissions */
+		permissions?: string[]
+		/** Wallet addresses of members */
+		members?: string[]
+		/** If the role is token-based, is the token transferrable to other wallets */
+		isTokenTransferrable?: boolean
+		/** Role integration data */
+		roleIntegrationsData?: (
+			| DiscordRoleIntegrationData
+			| { [key: string]: any }
+		)[]
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
 export namespace UpdateBundle {
 	export interface IPathParams {
 		bundleId: string
@@ -2655,92 +2741,6 @@ export namespace UpdateWalletContractInstance {
 	export interface IRequestBody {
 		note: string
 		name: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace UpdateAgreement {
-	export interface IPathParams {
-		/** The meem pass id to fetch */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}`
-
-	export const method = HttpMethod.Patch
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** New slug */
-		slug: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace UpdateAgreementRole {
-	export interface DiscordRoleIntegrationData {
-		discordServerId: string
-		discordGatedChannels: string[]
-		discordAccessToken: string
-	}
-	export interface IPathParams {
-		/** The meem contract id to fetch */
-		agreementId: string
-		/** The AgreementRole id to update */
-		meemContractRoleId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}/roles/${options.meemContractRoleId}`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** Name of the role */
-		name?: string
-		/** Array of ids for permissions */
-		permissions?: string[]
-		/** Wallet addresses of members */
-		members?: string[]
-		/** If the role is token-based, is the token transferrable to other wallets */
-		isTokenTransferrable?: boolean
-		/** Role integration data */
-		roleIntegrationsData?: (
-			| DiscordRoleIntegrationData
-			| { [key: string]: any }
-		)[]
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -2863,7 +2863,7 @@ export namespace UpgradeClub {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.agreementId}/upgrade`
+		`/api/1.0/agreements/${options.agreementId}/upgrade`
 
 	export const method = HttpMethod.Post
 

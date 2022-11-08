@@ -47,7 +47,7 @@ export default class AgreementExtension extends BaseModel<AgreementExtension> {
 	public metadata!: MeemAPI.IAgreementExtensionMetadata
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.Integration)
+		this.belongsTo(models.Extension)
 
 		this.belongsTo(models.Agreement)
 	}

@@ -113,7 +113,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 		AgreementController.deleteAgreementRole
 	)
 	router.postAsync(
-		'/agreements/:agreementId/integrations/:integrationId',
+		'/agreements/:agreementId/extensions/:extensionId',
 		AgreementController.createOrUpdateAgreementExtension
 	)
 	// router.getAsync('/meems', MeemController.getMeems)
