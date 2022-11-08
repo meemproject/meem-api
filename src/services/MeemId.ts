@@ -212,7 +212,7 @@ export default class MeemIdentityService {
 	}) {
 		const { walletAddress, expiresIn, data } = options
 		const jwtOptions: SignOptions = {
-			algorithm: 'HS512',
+			algorithm: 'RS512',
 			jwtid: uuidv4()
 		}
 		if (expiresIn !== null) {
@@ -227,7 +227,7 @@ export default class MeemIdentityService {
 				...data,
 				walletAddress
 			},
-			config.JWT_SECRET,
+			config.JWT_RSA_PRIVATE_KEY,
 			jwtOptions
 		)
 
@@ -235,7 +235,9 @@ export default class MeemIdentityService {
 	}
 
 	public static verifyJWT(token: string): Record<string, any> {
-		const data = jsonwebtoken.verify(token, config.JWT_SECRET)
+		const data = jsonwebtoken.verify(token, config.JWT_RSA_PUBLIC_KEY, {
+			algorithms: ['RS512']
+		})
 		return data as Record<string, any>
 	}
 

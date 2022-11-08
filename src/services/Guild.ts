@@ -79,10 +79,9 @@ export default class GuildService {
 			}
 		}
 
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -208,10 +207,9 @@ export default class GuildService {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -299,10 +297,9 @@ export default class GuildService {
 			senderWalletAddress,
 			isAdminRole
 		} = data
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -534,11 +531,9 @@ export default class GuildService {
 			return meemContractRole
 		}
 
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
-
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -752,11 +747,9 @@ export default class GuildService {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
-
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)

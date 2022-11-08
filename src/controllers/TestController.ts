@@ -226,14 +226,14 @@ export default class TestController {
 
 		// gnosisSafeAbi is the Gnosis Safe ABI in JSON format,
 		// you can find an example here: https://github.com/gnosis/safe-deployments/blob/main/src/assets/v1.1.1/gnosis_safe.json#L16
-		const provider = await services.ethers.getProvider({
+		const { provider, wallet } = await services.ethers.getProvider({
 			chainId: +(req.query.chainId as string) as number
 		})
-		const signer = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
+
 		const proxyContract = new ethers.Contract(
 			proxyContractAddress,
 			GnosisSafeProxyABI,
-			signer
+			wallet
 		)
 		const gnosisInterface = new ethers.utils.Interface(GnosisSafeABI)
 		const safeSetupData = gnosisInterface.encodeFunctionData('setup', [
@@ -317,6 +317,15 @@ export default class TestController {
 
 		return res.json({
 			status: 'success'
+		})
+	}
+
+	public static async mintPKP(req: Request, res: Response) {
+		const tx = await services.lit.mintPKP()
+
+		return res.json({
+			status: 'success',
+			tx
 		})
 	}
 }

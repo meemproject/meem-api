@@ -61,13 +61,14 @@ export default class ContractController {
 
 		// Check if this contract already exists in the db
 		// eslint-disable-next-line prefer-const
-		let [contractInstance, provider] = await Promise.all([
+		let [contractInstance, alchemy] = await Promise.all([
 			orm.models.ContractInstance.findByAddress<ContractInstance>(address),
 			services.ethers.getProvider({ chainId })
 		])
 
+		const provider = alchemy.provider
+
 		// Fetch bytecode and compare against db
-		// const provider = await services.ethers.getProvider()
 		const bytecode = await provider.core.getCode(address)
 
 		const [contract, walletContractInstance] = await Promise.all([

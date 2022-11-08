@@ -7,7 +7,6 @@ import {
 	getMerkleInfo
 } from '@meemproject/meem-contracts'
 import { Validator } from '@meemproject/metadata'
-import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import AWS from 'aws-sdk'
 // eslint-disable-next-line import/named
 import { Bytes, ethers } from 'ethers'
@@ -238,17 +237,6 @@ export default class MeemContractService {
 				},
 				wallet
 			)
-
-			// const provider = await services.ethers.getProvider({ chainId })
-
-			// const gasLimit = await provider.estimateGas(
-			// 	proxyContractFactory.getDeployTransaction(senderWallet.address, [
-			// 		senderWallet.address,
-			// 		wallet.address
-			// 	]).data
-			// )
-
-			// log.debug({ providerEstimatedGasLimit: gasLimit })
 
 			const proxyContract = await services.ethers.runTransaction({
 				chainId,
@@ -610,11 +598,9 @@ export default class MeemContractService {
 		}
 
 		const result = await services.web3.saveToPinata({ json: metadata })
-		const provider = await services.ethers.getProvider({
+		const { provider, wallet } = await services.ethers.getProvider({
 			chainId
 		})
-
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const uri = `ipfs://${result.IpfsHash}`
 
@@ -811,14 +797,13 @@ export default class MeemContractService {
 			const threshold = options.threshold ?? 1
 
 			// gnosisSafeAbi is the Gnosis Safe ABI in JSON format,
-			const provider = await services.ethers.getProvider({
+			const { provider, wallet } = await services.ethers.getProvider({
 				chainId
 			})
-			const signer = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 			const proxyContract = new ethers.Contract(
 				config.GNOSIS_PROXY_CONTRACT_ADDRESS,
 				GnosisSafeProxyABI,
-				signer
+				wallet
 			)
 			const gnosisInterface = new ethers.utils.Interface(GnosisSafeABI)
 			const safeSetupData = gnosisInterface.encodeFunctionData('setup', [
@@ -948,15 +933,14 @@ export default class MeemContractService {
 			const fromVersion: IFacetVersion[] = []
 			const toVersion: IFacetVersion[] = []
 
-			const provider = await services.ethers.getProvider({
+			const { wallet } = await services.ethers.getProvider({
 				chainId: meemContract.chainId
 			})
-			const signer = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 			const diamond = new ethers.Contract(
 				meemContract.address,
 				diamondABI,
-				signer
+				wallet
 			)
 
 			const facets = await diamond.facets()
@@ -1001,7 +985,7 @@ export default class MeemContractService {
 			const diamondCut = new ethers.Contract(
 				meemContract.address,
 				IDiamondCut.abi,
-				signer
+				wallet
 			)
 
 			const tx = await services.ethers.runTransaction({
@@ -1285,11 +1269,9 @@ export default class MeemContractService {
 			throw new Error('SERVER_ERROR')
 		}
 
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: meemContract.chainId
 		})
-
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		// TODO: Allow removal of Meem address
 		const cleanAdmins = _.uniqBy(
