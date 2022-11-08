@@ -8,7 +8,7 @@ export default class EthersService {
 	public static shouldInitialize = true
 
 	// private providers: Record<number, ethers.providers.Provider> = {}
-	private providers: Record<number, Alchemy> = {}
+	private providers: Record<number, { provider: Alchemy; wallet: Wallet }> = {}
 
 	private ethers: typeof ethers
 
@@ -37,9 +37,7 @@ export default class EthersService {
 		return null
 	}
 
-	public async getProvider(options: {
-		chainId: ethers.BigNumberish
-	}): Promise<Alchemy> {
+	public async getProvider(options: { chainId: ethers.BigNumberish }) {
 		const chainId = ethers.BigNumber.from(options.chainId)
 		const chainIdNum = chainId.toNumber()
 
@@ -128,9 +126,11 @@ export default class EthersService {
 		}
 
 		// this.providers[chainIdNum] = provider
-		this.providers[chainIdNum] = alchemyProvider
+		const wallet = new Wallet(config.WALLET_PRIVATE_KEY, alchemyProvider)
 
-		return alchemyProvider
+		this.providers[chainIdNum] = { provider: alchemyProvider, wallet }
+
+		return { provider: alchemyProvider, wallet }
 	}
 
 	public getSelectors(abi: any[]): string[] {

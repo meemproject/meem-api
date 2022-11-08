@@ -1,6 +1,5 @@
 import { IERC721Base__factory } from '@meemproject/meem-contracts/dist/typechain/factories/@solidstate/contracts/token/ERC721/base/IERC721Base__factory'
 import { MeemContractMetadataLike } from '@meemproject/metadata'
-import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import { ethers } from 'ethers'
 import keccak256 from 'keccak256'
 import { DateTime } from 'luxon'
@@ -143,11 +142,10 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		let hasCostBeenSet = false
 		let costWei = 0
 		const now = DateTime.local().toSeconds()
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: this.chainId
 		})
 
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 		let permission: MeemAPI.IMeemPermission | undefined
 		let proof: string[] = []
 
@@ -225,11 +223,9 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		let hasCostBeenSet = false
 		let costWei = 0
 		const now = DateTime.local().toSeconds()
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: this.chainId
 		})
-
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		for (let i = 0; i < this.mintPermissions.length; i += 1) {
 			const perm = this.mintPermissions[i]

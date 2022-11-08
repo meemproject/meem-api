@@ -1,6 +1,5 @@
 import * as path from 'path'
 import { Validator } from '@meemproject/metadata'
-import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import { ethers as Ethers } from 'ethers'
 import _ from 'lodash'
 import sharp from 'sharp'
@@ -58,13 +57,11 @@ export default class MeemService {
 	}) {
 		const ethers = services.ethers.getInstance()
 		const { networkName, address } = options
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: MeemAPI.networkNameToChain(
 				networkName ?? MeemAPI.NetworkName.Mainnet
 			)
 		})
-
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const contract = new ethers.Contract(address, ERC721ABI, wallet) as ERC721
 
@@ -144,14 +141,9 @@ export default class MeemService {
 			return c as Mycontract
 		}
 
-		const walletPrivateKey =
-			options?.walletPrivateKey ?? config.WALLET_PRIVATE_KEY
-
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId
 		})
-
-		const wallet = new AlchemyWallet(walletPrivateKey, provider)
 
 		const meemContract = new ethers.Contract(
 			address,

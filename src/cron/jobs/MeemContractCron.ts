@@ -54,9 +54,10 @@ export default class MeemContractCron extends CronJob {
 			const meemContract = meemContracts[i]
 			try {
 				if (!providers[meemContract.chainId]) {
-					providers[meemContract.chainId] = await services.ethers.getProvider({
+					const { provider } = await services.ethers.getProvider({
 						chainId: meemContract.chainId
 					})
+					providers[meemContract.chainId] = provider
 				}
 
 				const signer = new AlchemyWallet(
