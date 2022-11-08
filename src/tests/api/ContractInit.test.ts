@@ -19,7 +19,7 @@ class ContractInitTests extends BaseTest {
 			application_instructions: []
 		}
 
-		const meemContract = await orm.models.MeemContract.create({
+		const agreement = await orm.models.Agreement.create({
 			address: '0xEFDa83b22E408A27182CFb7a44296DE313Fbc49b',
 			mintPermissions: [],
 			slug: 'test',
@@ -44,20 +44,20 @@ class ContractInitTests extends BaseTest {
 			}
 		])
 
-		await orm.models.MeemContractWallet.bulkCreate([
+		await orm.models.AgreementWallet.bulkCreate([
 			{
 				role: config.ADMIN_ROLE,
-				MeemContractId: meemContract.id,
+				AgreementId: agreement.id,
 				WalletId: wallets[0].id
 			}
 		])
 
-		let result = await services.meemContract.prepareInitValues({
+		let result = await services.agreement.prepareInitValues({
 			admins: ['0x0000000000000000000000000000000000000001'],
 			minters: [],
 			chainId: 5,
 			senderWalletAddress: '0xa44296DE313Fbc49bEFDa83b22E408A27182CFb7',
-			meemContract
+			agreement
 		})
 
 		const apiAdmin = result.contractInitParams.roles.find(
@@ -74,7 +74,7 @@ class ContractInitTests extends BaseTest {
 		assert.isOk(apiUpgrader)
 		assert.isOk(apiMinter)
 
-		result = await services.meemContract.prepareInitValues({
+		result = await services.agreement.prepareInitValues({
 			admins: [
 				'0x0000000000000000000000000000000000000001',
 				'0x0000000000000000000000000000000000000002'
@@ -82,7 +82,7 @@ class ContractInitTests extends BaseTest {
 			minters: [],
 			chainId: 5,
 			senderWalletAddress: '0xa44296DE313Fbc49bEFDa83b22E408A27182CFb7',
-			meemContract
+			agreement
 		})
 
 		const user2Admin = result.contractInitParams.roles.find(
@@ -101,12 +101,12 @@ class ContractInitTests extends BaseTest {
 
 		assert.isTrue(result.cleanAdmins[1].hasRole)
 
-		result = await services.meemContract.prepareInitValues({
+		result = await services.agreement.prepareInitValues({
 			admins: ['0x0000000000000000000000000000000000000002'],
 			minters: [],
 			chainId: 5,
 			senderWalletAddress: '0xa44296DE313Fbc49bEFDa83b22E408A27182CFb7',
-			meemContract
+			agreement
 		})
 
 		const user1Admin = result.contractInitParams.roles.find(

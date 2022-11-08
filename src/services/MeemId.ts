@@ -11,8 +11,8 @@ import { DateTime } from 'luxon'
 import request from 'superagent'
 import { TwitterApi, UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
+import type Agreement from '../models/Agreement'
 import Discord from '../models/Discord'
-import type MeemContract from '../models/MeemContract'
 import MeemIdentity from '../models/MeemIdentity'
 import MeemIdentityIntegration from '../models/MeemIdentityIntegration'
 import Twitter from '../models/Twitter'
@@ -39,7 +39,7 @@ export default class MeemIdentityService {
 		return wallet.nonce
 	}
 
-	public static async updateENS(item: Wallet | MeemContract) {
+	public static async updateENS(item: Wallet | Agreement) {
 		const ens = await services.ethers.lookupAddress(item.address)
 		// eslint-disable-next-line no-param-reassign
 		item.ens = ens

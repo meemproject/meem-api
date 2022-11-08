@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
 import sharp from 'sharp'
 import TwitterApi from 'twitter-api-v2'
-import MeemContract from '../models/MeemContract'
+import Agreement from '../models/Agreement'
 import {
 	IAPIRequestPaginated,
 	IAuthenticatedRequest,
@@ -83,17 +83,16 @@ export default class MeemController {
 
 		await req.wallet.enforceTXLimit()
 
-		const meemContract =
-			await orm.models.MeemContract.findByAddress<MeemContract>(
-				req.body.meemContractAddress,
-				[{ model: orm.models.Wallet, include: [orm.models.MeemContractWallet] }]
-			)
+		const agreement = await orm.models.Agreement.findByAddress<Agreement>(
+			req.body.agreementAddress,
+			[{ model: orm.models.Wallet, include: [orm.models.AgreementWallet] }]
+		)
 
-		if (!meemContract) {
+		if (!agreement) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		const canMint = await meemContract.canMint(req.wallet.address)
+		const canMint = await agreement.canMint(req.wallet.address)
 
 		if (!canMint) {
 			throw new Error('MINTING_ACCESS_DENIED')

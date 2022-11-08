@@ -57,8 +57,8 @@ export default class Integration extends BaseModel<Integration> {
 	public guideUrl!: string
 
 	public static associate(models: IModels) {
-		this.belongsToMany(models.MeemContract, {
-			through: models.MeemContractIntegration
+		this.belongsToMany(models.Agreement, {
+			through: models.AgreementExtension
 		})
 	}
 }

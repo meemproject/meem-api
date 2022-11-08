@@ -2,12 +2,12 @@ import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
 export namespace JoinGuild {
 	export interface IPathParams {
-		/** The MeemContract id */
-		meemContractId: string
+		/** The Agreement id */
+		agreementId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.meemContractId}/joinGuild`
+		`/api/1.0/agreements/${options.agreementId}/joinGuild`
 
 	export const method = HttpMethod.Post
 

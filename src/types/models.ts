@@ -1,3 +1,9 @@
+import Agreement from '../models/Agreement'
+import AgreementIntegration from '../models/AgreementExtension'
+import AgreementGuild from '../models/AgreementGuild'
+import AgreementRole from '../models/AgreementRole'
+import AgreementRolePermission from '../models/AgreementRolePermission'
+import AgreementWallet from '../models/AgreementWallet'
 import Bundle from '../models/Bundle'
 import BundleContract from '../models/BundleContract'
 import ChainNonce from '../models/ChainNonce'
@@ -9,12 +15,6 @@ import Hashtag from '../models/Hashtag'
 import IdentityIntegration from '../models/IdentityIntegration'
 import Integration from '../models/Integration'
 import Meem from '../models/Meem'
-import MeemContract from '../models/MeemContract'
-import MeemContractGuild from '../models/MeemContractGuild'
-import MeemContractIntegration from '../models/MeemContractIntegration'
-import MeemContractRole from '../models/MeemContractRole'
-import MeemContractRolePermission from '../models/MeemContractRolePermission'
-import MeemContractWallet from '../models/MeemContractWallet'
 import MeemIdentity from '../models/MeemIdentity'
 import MeemIdentityIntegration from '../models/MeemIdentityIntegration'
 import MeemIdentityWallet from '../models/MeemIdentityWallet'
@@ -39,15 +39,15 @@ export interface IModels {
 	Hashtag: typeof Hashtag
 	Integration: typeof Integration
 	Meem: typeof Meem
-	MeemContract: typeof MeemContract
+	Agreement: typeof Agreement
 	IdentityIntegration: typeof IdentityIntegration
 	MeemIdentityIntegration: typeof MeemIdentityIntegration
-	MeemContractGuild: typeof MeemContractGuild
-	MeemContractRole: typeof MeemContractRole
-	MeemContractRolePermission: typeof MeemContractRolePermission
+	AgreementGuild: typeof AgreementGuild
+	AgreementRole: typeof AgreementRole
+	AgreementRolePermission: typeof AgreementRolePermission
 	RolePermission: typeof RolePermission
-	MeemContractIntegration: typeof MeemContractIntegration
-	MeemContractWallet: typeof MeemContractWallet
+	AgreementIntegration: typeof AgreementIntegration
+	AgreementWallet: typeof AgreementWallet
 	Reaction: typeof Reaction
 	Transaction: typeof Transaction
 	Transfer: typeof Transfer

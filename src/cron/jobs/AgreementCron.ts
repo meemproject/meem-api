@@ -27,7 +27,7 @@ export default class MeemContractCron extends CronJob {
 		log.info('Running MeemContractCron!')
 		log.info(new Date())
 
-		const meemContracts = await orm.models.MeemContract.findAll({
+		const agreements = await orm.models.Agreement.findAll({
 			where: {
 				[Op.or]: [
 					{
@@ -50,22 +50,22 @@ export default class MeemContractCron extends CronJob {
 
 		const providers: Record<number, Alchemy> = {}
 
-		for (let i = 0; i < meemContracts.length; i++) {
-			const meemContract = meemContracts[i]
+		for (let i = 0; i < agreements.length; i++) {
+			const agreement = agreements[i]
 			try {
-				if (!providers[meemContract.chainId]) {
-					providers[meemContract.chainId] = await services.ethers.getProvider({
-						chainId: meemContract.chainId
+				if (!providers[agreement.chainId]) {
+					providers[agreement.chainId] = await services.ethers.getProvider({
+						chainId: agreement.chainId
 					})
 				}
 
 				const signer = new AlchemyWallet(
 					config.WALLET_PRIVATE_KEY,
-					providers[meemContract.chainId]
+					providers[agreement.chainId]
 				)
 
 				const instance = new ethers.Contract(
-					meemContract.address,
+					agreement.address,
 					diamondABI,
 					signer
 				)
@@ -80,15 +80,15 @@ export default class MeemContractCron extends CronJob {
 						owner
 					})
 				}
-				if (wallet.id !== meemContract.OwnerId) {
-					meemContract.OwnerId = wallet.id
+				if (wallet.id !== agreement.OwnerId) {
+					agreement.OwnerId = wallet.id
 				}
 			} catch (e) {
 				log.warn(e)
 			}
 
-			meemContract.ownerFetchedAt = new Date()
-			await meemContract.save()
+			agreement.ownerFetchedAt = new Date()
+			await agreement.save()
 			await wait(1000)
 		}
 	}

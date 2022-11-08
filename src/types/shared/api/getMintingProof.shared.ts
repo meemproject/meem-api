@@ -3,11 +3,11 @@ import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 export namespace GetMintingProof {
 	export interface IPathParams {
 		/** The meem pass id to fetch */
-		meemContractId: string
+		agreementId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.meemContractId}/proof`
+		`/api/1.0/agreements/${options.agreementId}/proof`
 
 	export const method = HttpMethod.Get
 

@@ -1,18 +1,18 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import MeemContractRole from './MeemContractRole'
+import AgreementRole from './AgreementRole'
 
-export default class MeemContractGuild extends BaseModel<MeemContractGuild> {
-	public static readonly modelName = 'MeemContractGuild'
+export default class AgreementGuild extends BaseModel<AgreementGuild> {
+	public static readonly modelName = 'AgreementGuild'
 
 	public static readonly paranoid = false
 
 	public static get indexes() {
 		return [
 			{
-				name: 'MeemContractGuild_MeemContractId',
-				fields: ['MeemContractId']
+				name: 'AgreementGuild_AgreementId',
+				fields: ['AgreementId']
 			}
 		]
 	}
@@ -33,12 +33,12 @@ export default class MeemContractGuild extends BaseModel<MeemContractGuild> {
 
 	public guildId!: number
 
-	public MeemContractId!: string
+	public AgreementId!: string
 
-	public MeemContractRoles!: MeemContractRole[] | null
+	public AgreementRoles!: AgreementRole[] | null
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.MeemContract)
-		this.hasMany(models.MeemContractRole)
+		this.belongsTo(models.Agreement)
+		this.hasMany(models.AgreementRole)
 	}
 }

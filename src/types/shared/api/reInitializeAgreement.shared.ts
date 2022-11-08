@@ -1,19 +1,22 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 import {
 	IMeemProperties,
-	IMeemContractBaseProperties,
-	IMeemContractMetadataLike,
+	IAgreementBaseProperties,
+	IAgreementMetadataLike,
 	IMeemMetadataLike,
-	IMeemContractInitParams,
+	IAgreementInitParams,
 	IMeemPermission,
 	IMeemSplit
 } from '../meem.shared'
 
 /** Create Meem Image */
-export namespace CreateMeemContract {
-	export interface IPathParams {}
+export namespace ReInitializeAgreement {
+	export interface IPathParams {
+		agreementId: string
+	}
 
-	export const path = () => `/api/1.0/meemContracts`
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}`
 
 	export const method = HttpMethod.Post
 
@@ -21,16 +24,13 @@ export namespace CreateMeemContract {
 
 	export interface IRequestBody {
 		/** Contract metadata */
-		metadata: IMeemContractMetadataLike
-
-		/** The chain id */
-		chainId: number
+		metadata?: IAgreementMetadataLike
 
 		/** The symbol for the token. If omitted, will use a slug of the name */
 		symbol?: string
 
 		/** The name of the token */
-		name: string
+		name?: string
 
 		/** Contract admins */
 		admins?: string[]
@@ -39,13 +39,10 @@ export namespace CreateMeemContract {
 		minters?: string[]
 
 		/** The max number of tokens */
-		maxSupply: string
-
-		/** Whether the max supply is locked */
-		isMaxSupplyLocked?: boolean
+		maxSupply?: string
 
 		/** Minting permissions */
-		mintPermissions?: Omit<IMeemPermission, 'merkleRoot'>[]
+		mintPermissions?: IMeemPermission[]
 
 		/** Splits for minting / transfers */
 		splits?: IMeemSplit[]
@@ -53,13 +50,10 @@ export namespace CreateMeemContract {
 		/** Whether tokens can be transferred */
 		isTransferLocked?: boolean
 
-		/** If true, will mint a token to the admin wallet addresses and any addresses in the members parameter  */
+		/** If true, will mint a token to the admin wallet addresses  */
 		shouldMintTokens?: boolean
 
-		/** Members to mint tokens to */
-		members?: string[]
-
-		/** Token metadata */
+		/** Admin token metadata */
 		tokenMetadata?: IMeemMetadataLike
 	}
 

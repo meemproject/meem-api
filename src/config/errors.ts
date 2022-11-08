@@ -345,7 +345,7 @@ const errors = {
 		friendlyReason: 'Unverified Meems can not be remixed.'
 	},
 	MEEM_CONTRACT_NOT_FOUND: {
-		contractErrorCode: 'MeemContractNotFound',
+		contractErrorCode: 'AgreementNotFound',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'The Meem contract could not be found.',

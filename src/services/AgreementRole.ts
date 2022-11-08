@@ -1,28 +1,28 @@
 import _ from 'lodash'
-import MeemContractRole from '../models/MeemContractRole'
+import AgreementRole from '../models/AgreementRole'
 import Wallet from '../models/Wallet'
 
-export default class MeemContractRoleService {
+export default class AgreementRoleService {
 	public static async updateRole(data: {
 		senderWallet: Wallet
-		meemContractId: string
-		meemContractRoleId: string
+		agreementId: string
+		agreementRoleId: string
 		name?: string
 		permissions?: string[]
 		members?: string[]
 		guildRoleData?: any
-	}): Promise<MeemContractRole> {
+	}): Promise<AgreementRole> {
 		const {
 			senderWallet,
-			meemContractId,
-			meemContractRoleId,
+			agreementId,
+			agreementRoleId,
 			name,
 			permissions: rolePermissions,
 			members: roleMembers,
 			guildRoleData
 		} = data
-		const isAdmin = await services.meemContract.isMeemContractAdmin({
-			meemContractId,
+		const isAdmin = await services.agreement.isAgreementAdmin({
+			agreementId,
 			walletAddress: senderWallet.address
 		})
 
@@ -30,31 +30,31 @@ export default class MeemContractRoleService {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		const meemContract = await orm.models.MeemContract.findOne({
+		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: meemContractId
+				id: agreementId
 			}
 		})
 
-		if (!meemContract) {
+		if (!agreement) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		const meemContractRole = await orm.models.MeemContractRole.findOne({
+		const agreementRole = await orm.models.AgreementRole.findOne({
 			where: {
-				id: meemContractRoleId
+				id: agreementRoleId
 			},
 			include: [
 				{
 					model: orm.models.RolePermission
 				},
 				{
-					model: orm.models.MeemContractGuild
+					model: orm.models.AgreementGuild
 				}
 			]
 		})
 
-		if (!meemContractRole) {
+		if (!agreementRole) {
 			throw new Error('MEEM_CONTRACT_ROLE_NOT_FOUND')
 		}
 
@@ -64,22 +64,22 @@ export default class MeemContractRoleService {
 			const permissions = rolePermissions
 			const roleIdsToAdd =
 				permissions.filter(pid => {
-					const existingPermission = meemContractRole.RolePermissions?.find(
+					const existingPermission = agreementRole.RolePermissions?.find(
 						rp => rp.id === pid
 					)
 					return !existingPermission
 				}) ?? []
 			const rolesToRemove: string[] =
-				meemContractRole.RolePermissions?.filter(rp => {
+				agreementRole.RolePermissions?.filter(rp => {
 					const existingPermission = permissions.find(pid => rp.id === pid)
 					return !existingPermission
 				})?.map((rp: any) => {
-					return rp.MeemContractRolePermission.id as string
+					return rp.AgreementRolePermission.id as string
 				}) ?? []
 
 			if (rolesToRemove.length > 0) {
 				promises.push(
-					orm.models.MeemContractRolePermission.destroy({
+					orm.models.AgreementRolePermission.destroy({
 						where: {
 							id: rolesToRemove
 						},
@@ -89,18 +89,18 @@ export default class MeemContractRoleService {
 			}
 
 			if (roleIdsToAdd.length > 0) {
-				const meemContractRolePermissionsData: {
-					MeemContractRoleId: string
+				const agreementRolePermissionsData: {
+					AgreementRoleId: string
 					RolePermissionId: string
 				}[] = roleIdsToAdd.map(rid => {
 					return {
-						MeemContractRoleId: meemContractRole.id,
+						AgreementRoleId: agreementRole.id,
 						RolePermissionId: rid
 					}
 				})
 				promises.push(
-					orm.models.MeemContractRolePermission.bulkCreate(
-						meemContractRolePermissionsData,
+					orm.models.AgreementRolePermission.bulkCreate(
+						agreementRolePermissionsData,
 						{
 							transaction: t
 						}
@@ -121,15 +121,15 @@ export default class MeemContractRoleService {
 		let updatedMembers = roleMembers?.map(m => m.toLowerCase())
 
 		if (
-			meemContractRole.isAdminRole &&
+			agreementRole.isAdminRole &&
 			!_.isUndefined(updatedMembers) &&
 			_.isArray(updatedMembers) &&
-			meemContractRole.guildRoleId
+			agreementRole.guildRoleId
 		) {
 			try {
-				if (meemContractRole.isAdminRole && updatedMembers) {
-					const admins = await services.meemContract.updateMeemContractAdmins({
-						meemContractId: meemContract.id,
+				if (agreementRole.isAdminRole && updatedMembers) {
+					const admins = await services.agreement.updateAgreementAdmins({
+						agreementId: agreement.id,
 						admins: updatedMembers,
 						senderWallet
 					})
@@ -141,10 +141,10 @@ export default class MeemContractRoleService {
 			}
 		}
 
-		if (meemContractRole.guildRoleId) {
-			await services.guild.updateMeemContractGuildRole({
-				guildRoleId: meemContractRole.guildRoleId,
-				meemContractId: meemContract.id,
+		if (agreementRole.guildRoleId) {
+			await services.guild.updateAgreementGuildRole({
+				guildRoleId: agreementRole.guildRoleId,
+				agreementId: agreement.id,
 				name: updatedName,
 				members: updatedMembers,
 				guildRoleData,
@@ -152,6 +152,6 @@ export default class MeemContractRoleService {
 			})
 		}
 
-		return meemContractRole
+		return agreementRole
 	}
 }

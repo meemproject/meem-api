@@ -1,20 +1,20 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import MeemContract from './MeemContract'
-import MeemContractGuild from './MeemContractGuild'
+import Agreement from './Agreement'
+import AgreementGuild from './AgreementGuild'
 import RolePermission from './RolePermission'
 
-export default class MeemContractRole extends BaseModel<MeemContractRole> {
-	public static readonly modelName = 'MeemContractRole'
+export default class AgreementRole extends BaseModel<AgreementRole> {
+	public static readonly modelName = 'AgreementRole'
 
 	public static readonly paranoid = false
 
 	public static get indexes() {
 		return [
 			{
-				name: 'MeemContractRole_MeemContractId',
-				fields: ['MeemContractId']
+				name: 'AgreementRole_AgreementId',
+				fields: ['AgreementId']
 			}
 		]
 	}
@@ -86,24 +86,24 @@ export default class MeemContractRole extends BaseModel<MeemContractRole> {
 
 	public RolePermissions!: RolePermission[] | null
 
-	public MeemContractId!: string | null
+	public AgreementId!: string | null
 
-	public MeemContractGuild!: MeemContractGuild | null
+	public AgreementGuild!: AgreementGuild | null
 
-	public MeemContractGuildId!: string | null
+	public AgreementGuildId!: string | null
 
-	public RoleMeemContractId!: string | null
+	public RoleAgreementId!: string | null
 
-	public RoleMeemContract!: MeemContract | null
+	public RoleAgreement!: Agreement | null
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.MeemContract)
-		this.belongsTo(models.MeemContractGuild)
+		this.belongsTo(models.Agreement)
+		this.belongsTo(models.AgreementGuild)
 		this.belongsToMany(models.RolePermission, {
-			through: models.MeemContractRolePermission
+			through: models.AgreementRolePermission
 		})
-		this.belongsTo(models.MeemContract, {
-			as: 'RoleMeemContract'
+		this.belongsTo(models.Agreement, {
+			as: 'RoleAgreement'
 		})
 	}
 }

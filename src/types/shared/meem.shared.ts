@@ -203,7 +203,7 @@ export interface IMeemMetadataProperties {
 	parent_token_metadata?: Record<string, any> | null
 }
 
-export interface IMeemContractAssociation {
+export interface IAgreementAssociation {
 	meem_contract_type: string
 	address: string
 	tokenIds?: string[]
@@ -217,14 +217,14 @@ export interface IMeemMetadata {
 	meem_id?: string
 	meem_properties?: IMeemMetadataProperties
 	extension_properties?: Record<string, any>
-	associations?: IMeemContractAssociation[]
+	associations?: IAgreementAssociation[]
 }
 
 export interface IMeemMetadataLike {
 	meem_metadata_version: string
 	[key: string]: any
 }
-export interface IMeemContractMetadataLike {
+export interface IAgreementMetadataLike {
 	meem_contract_type: string
 	meem_metadata_version: string
 	[key: string]: any
@@ -359,7 +359,7 @@ export interface IMeemProperties {
 	transferLockupUntilLockedBy: string
 }
 
-export interface IMeemContractBaseProperties {
+export interface IAgreementBaseProperties {
 	/** BigNumber hex string */
 	totalOriginalsSupply: string
 	totalOriginalsSupplyLockedBy: string
@@ -379,7 +379,7 @@ export interface IMeemContractBaseProperties {
 	transferLockupUntilLockedBy: string
 }
 
-export interface IMeemContractInitParams {
+export interface IAgreementInitParams {
 	symbol?: string
 	name: string
 	contractURI: string
@@ -452,7 +452,7 @@ export interface IERC721Metadata {
 	description?: string
 }
 
-export interface IMeemContractIntegrationMetadata {
+export interface IAgreementIntegrationMetadata {
 	externalUrl?: string
 	[key: string]: unknown
 }
@@ -587,13 +587,13 @@ export interface IMeemIdentity {
 		ens: string
 	}
 }
-export interface IMeemContractRole {
+export interface IAgreementRole {
 	id: string
 	name: string
 	guildRoleId?: number
 	isAdminRole: boolean
-	MeemContractId: string
-	MeemContractGuildId?: string
+	AgreementId: string
+	AgreementGuildId?: string
 	permissions: string[]
 	guildRole: {
 		id: number

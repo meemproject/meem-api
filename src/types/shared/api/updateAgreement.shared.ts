@@ -1,13 +1,13 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
-export namespace UpdateMeemContract {
+export namespace UpdateAgreement {
 	export interface IPathParams {
 		/** The meem pass id to fetch */
-		meemContractId: string
+		agreementId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.meemContractId}`
+		`/api/1.0/agreements/${options.agreementId}`
 
 	export const method = HttpMethod.Patch
 

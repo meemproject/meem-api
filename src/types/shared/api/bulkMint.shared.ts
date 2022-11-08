@@ -4,11 +4,11 @@ import { IMeemMetadataLike } from '../meem.shared'
 export namespace BulkMint {
 	export interface IPathParams {
 		/** The meem pass id to fetch */
-		meemContractId: string
+		agreementId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.meemContractId}/bulkMint`
+		`/api/1.0/agreements/${options.agreementId}/bulkMint`
 
 	export const method = HttpMethod.Post
 

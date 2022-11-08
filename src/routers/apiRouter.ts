@@ -1,9 +1,9 @@
 import coreExpress, { Express } from 'express'
 import multer from 'multer'
+import AgreementController from '../controllers/AgreementController'
 import ConfigController from '../controllers/ConfigController'
 import ContractController from '../controllers/ContractController'
 import DiscordController from '../controllers/DiscordController'
-import MeemContractController from '../controllers/MeemContractController'
 import MeemController from '../controllers/MeemController'
 import MeemIdController from '../controllers/MeemIdController'
 // import NFTController from '../controllers/NFTController'
@@ -39,39 +39,36 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	router.getAsync('/config', ConfigController.getConfig)
 
-	router.postAsync('/isSlugAvailable', MeemContractController.isSlugAvailable)
-	router.postAsync('/meemContracts', MeemContractController.createMeemContract)
-	router.postAsync(
-		'/meemContracts/:meemContractId',
-		MeemContractController.reInitialize
-	)
+	router.postAsync('/isSlugAvailable', AgreementController.isSlugAvailable)
+	router.postAsync('/agreements', AgreementController.createAgreement)
+	router.postAsync('/agreements/:agreementId', AgreementController.reInitialize)
 	router.patchAsync(
-		'/meemContracts/:meemContractId',
-		MeemContractController.updateMeemContract
+		'/agreements/:agreementId',
+		AgreementController.updateAgreement
 	)
 	router.postAsync(
-		'/meemContracts/:meemContractId/safe',
-		MeemContractController.createClubSafe
+		'/agreements/:agreementId/safe',
+		AgreementController.createClubSafe
 	)
 	router.postAsync(
-		'/meemContracts/:meemContractId/bulkMint',
-		MeemContractController.bulkMint
+		'/agreements/:agreementId/bulkMint',
+		AgreementController.bulkMint
 	)
 	router.postAsync(
-		'/meemContracts/:meemContractId/upgrade',
-		MeemContractController.upgradeClub
+		'/agreements/:agreementId/upgrade',
+		AgreementController.upgradeClub
 	)
 	router.getAsync(
-		'/meemContracts/:meemContractId/proof',
-		MeemContractController.getMintingProof
+		'/agreements/:agreementId/proof',
+		AgreementController.getMintingProof
 	)
 	// router.postAsync(
-	// 	'/meemContracts/:meemContractId/guild',
-	// 	MeemContractController.createMeemContractGuild
+	// 	'/agreements/:agreementId/guild',
+	// 	AgreementController.createAgreementGuild
 	// )
 	// router.deleteAsync(
-	// 	'/meemContracts/:meemContractId/guild',
-	// 	MeemContractController.deleteMeemContractGuild
+	// 	'/agreements/:agreementId/guild',
+	// 	AgreementController.deleteAgreementGuild
 	// )
 	router.postAsync('/discord/authenticate', DiscordController.authenticate)
 	router.getAsync('/discord/servers', DiscordController.getGuilds)
@@ -80,44 +77,44 @@ export default (app: Express, _express: typeof coreExpress) => {
 	// 	MeemIdController.sendDiscordJoinButton
 	// )
 	router.getAsync(
-		'/meemContracts/:meemContractId/roles/access',
-		MeemContractController.getUserMeemContractRolesAccess
+		'/agreements/:agreementId/roles/access',
+		AgreementController.getUserAgreementRolesAccess
 	)
 	router.getAsync(
-		'/meemContracts/:meemContractId/getJoinGuildMessage',
-		MeemContractController.getJoinGuildMessage
+		'/agreements/:agreementId/getJoinGuildMessage',
+		AgreementController.getJoinGuildMessage
 	)
 	router.postAsync(
-		'/meemContracts/:meemContractId/joinGuild',
-		MeemContractController.joinMeemContractGuild
+		'/agreements/:agreementId/joinGuild',
+		AgreementController.joinAgreementGuild
 	)
 	router.getAsync(
-		'/meemContracts/:meemContractId/guild',
-		MeemContractController.getMeemContractGuild
+		'/agreements/:agreementId/guild',
+		AgreementController.getAgreementGuild
 	)
 	router.getAsync(
-		'/meemContracts/:meemContractId/roles',
-		MeemContractController.getMeemContractRoles
+		'/agreements/:agreementId/roles',
+		AgreementController.getAgreementRoles
 	)
 	router.getAsync(
-		'/meemContracts/:meemContractId/roles/:meemContractRoleId',
-		MeemContractController.getMeemContractRole
+		'/agreements/:agreementId/roles/:agreementRoleId',
+		AgreementController.getAgreementRole
 	)
 	router.postAsync(
-		'/meemContracts/:meemContractId/roles',
-		MeemContractController.createMeemContractRole
+		'/agreements/:agreementId/roles',
+		AgreementController.createAgreementRole
 	)
 	router.postAsync(
-		'/meemContracts/:meemContractId/roles/:meemContractRoleId',
-		MeemContractController.updateMeemContractRole
+		'/agreements/:agreementId/roles/:agreementRoleId',
+		AgreementController.updateAgreementRole
 	)
 	router.deleteAsync(
-		'/meemContracts/:meemContractId/roles/:meemContractRoleId',
-		MeemContractController.deleteMeemContractRole
+		'/agreements/:agreementId/roles/:agreementRoleId',
+		AgreementController.deleteAgreementRole
 	)
 	router.postAsync(
-		'/meemContracts/:meemContractId/integrations/:integrationId',
-		MeemContractController.createOrUpdateMeemContractIntegration
+		'/agreements/:agreementId/integrations/:integrationId',
+		AgreementController.createOrUpdateAgreementIntegration
 	)
 	// router.getAsync('/meems', MeemController.getMeems)
 	// router.getAsync('/meems/:tokenId', MeemController.getMeem)

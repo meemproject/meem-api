@@ -19,7 +19,7 @@ export namespace MintOriginalMeem {
 
 	export interface IRequestBody {
 		/** The address of the Meem contract to mint token */
-		meemContractAddress: string
+		agreementAddress: string
 
 		/** The chain id */
 		chainId: number

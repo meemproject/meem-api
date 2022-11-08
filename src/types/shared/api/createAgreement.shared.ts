@@ -1,22 +1,19 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 import {
 	IMeemProperties,
-	IMeemContractBaseProperties,
-	IMeemContractMetadataLike,
+	IAgreementBaseProperties,
+	IAgreementMetadataLike,
 	IMeemMetadataLike,
-	IMeemContractInitParams,
+	IAgreementInitParams,
 	IMeemPermission,
 	IMeemSplit
 } from '../meem.shared'
 
 /** Create Meem Image */
-export namespace ReInitializeMeemContract {
-	export interface IPathParams {
-		meemContractId: string
-	}
+export namespace CreateAgreement {
+	export interface IPathParams {}
 
-	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.meemContractId}`
+	export const path = () => `/api/1.0/agreements`
 
 	export const method = HttpMethod.Post
 
@@ -24,13 +21,16 @@ export namespace ReInitializeMeemContract {
 
 	export interface IRequestBody {
 		/** Contract metadata */
-		metadata?: IMeemContractMetadataLike
+		metadata: IAgreementMetadataLike
+
+		/** The chain id */
+		chainId: number
 
 		/** The symbol for the token. If omitted, will use a slug of the name */
 		symbol?: string
 
 		/** The name of the token */
-		name?: string
+		name: string
 
 		/** Contract admins */
 		admins?: string[]
@@ -39,10 +39,13 @@ export namespace ReInitializeMeemContract {
 		minters?: string[]
 
 		/** The max number of tokens */
-		maxSupply?: string
+		maxSupply: string
+
+		/** Whether the max supply is locked */
+		isMaxSupplyLocked?: boolean
 
 		/** Minting permissions */
-		mintPermissions?: IMeemPermission[]
+		mintPermissions?: Omit<IMeemPermission, 'merkleRoot'>[]
 
 		/** Splits for minting / transfers */
 		splits?: IMeemSplit[]
@@ -50,10 +53,13 @@ export namespace ReInitializeMeemContract {
 		/** Whether tokens can be transferred */
 		isTransferLocked?: boolean
 
-		/** If true, will mint a token to the admin wallet addresses  */
+		/** If true, will mint a token to the admin wallet addresses and any addresses in the members parameter  */
 		shouldMintTokens?: boolean
 
-		/** Admin token metadata */
+		/** Members to mint tokens to */
+		members?: string[]
+
+		/** Token metadata */
 		tokenMetadata?: IMeemMetadataLike
 	}
 

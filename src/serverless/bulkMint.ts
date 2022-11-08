@@ -14,7 +14,7 @@ let request: SuperTest<Test>
 export const handle = async (
 	body: MeemAPI.v1.BulkMint.IRequestBody & {
 		mintedBy: string
-		meemContractId: string
+		agreementId: string
 	},
 	context: AWSLambda.Context
 ) => {

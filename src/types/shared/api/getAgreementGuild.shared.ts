@@ -1,14 +1,14 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IGuild, IMeemContractRole } from '../meem.shared'
+import { IGuild, IAgreementRole } from '../meem.shared'
 
-export namespace GetMeemContractGuild {
+export namespace GetAgreementGuild {
 	export interface IPathParams {
-		/** The MeemContract id of the guild to fetch */
-		meemContractId: string
+		/** The Agreement id of the guild to fetch */
+		agreementId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.meemContractId}/guild`
+		`/api/1.0/agreements/${options.agreementId}/guild`
 
 	export const method = HttpMethod.Get
 

@@ -1,7 +1,7 @@
 import { MeemAPI } from '../../meem.generated'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
-export namespace UpdateMeemContractRole {
+export namespace UpdateAgreementRole {
 	export interface DiscordRoleIntegrationData {
 		discordServerId: string
 		discordGatedChannels: string[]
@@ -9,13 +9,13 @@ export namespace UpdateMeemContractRole {
 	}
 	export interface IPathParams {
 		/** The meem contract id to fetch */
-		meemContractId: string
-		/** The MeemContractRole id to update */
-		meemContractRoleId: string
+		agreementId: string
+		/** The AgreementRole id to update */
+		agreementRoleId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.meemContractId}/roles/${options.meemContractRoleId}`
+		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}`
 
 	export const method = HttpMethod.Post
 

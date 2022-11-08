@@ -1,5 +1,5 @@
 import { IERC721Base__factory } from '@meemproject/meem-contracts/dist/typechain/factories/@solidstate/contracts/token/ERC721/base/IERC721Base__factory'
-import { MeemContractMetadataLike } from '@meemproject/metadata'
+import { AgreementMetadataLike } from '@meemproject/metadata'
 import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import { ethers } from 'ethers'
 import keccak256 from 'keccak256'
@@ -11,19 +11,19 @@ import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import type Integration from './Integration'
 import type Meem from './Meem'
-import MeemContractGuild from './MeemContractGuild'
-import MeemContractRole from './MeemContractRole'
+import AgreementGuild from './AgreementGuild'
+import AgreementRole from './AgreementRole'
 import type Wallet from './Wallet'
 
-export default class MeemContract extends ModelWithAddress<MeemContract> {
-	public static readonly modelName = 'MeemContract'
+export default class Agreement extends ModelWithAddress<Agreement> {
+	public static readonly modelName = 'Agreement'
 
 	public static readonly paranoid: boolean = false
 
 	public static get indexes() {
 		return [
 			{
-				name: 'MeemContract_createdAt',
+				name: 'Agreement_createdAt',
 				fields: ['createdAt']
 			}
 		]
@@ -68,7 +68,7 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 			type: DataTypes.STRING,
 			allowNull: false,
 			defaultValue: '0x0',
-			set(this: MeemContract, val: any) {
+			set(this: Agreement, val: any) {
 				this.setDataValue(
 					'maxSupply',
 					services.web3.toBigNumber(val).toHexString()
@@ -119,9 +119,9 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 	}
 
 	public async isAdmin(minter: string) {
-		const meemContractWallet = await orm.models.MeemContractWallet.findOne({
+		const agreementWallet = await orm.models.AgreementWallet.findOne({
 			where: {
-				MeemContractId: this.id,
+				AgreementId: this.id,
 				role: config.ADMIN_ROLE
 			},
 			include: [
@@ -135,7 +135,7 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 			]
 		})
 
-		if (meemContractWallet) {
+		if (agreementWallet) {
 			return true
 		}
 
@@ -317,7 +317,7 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 
 	public address!: string
 
-	public metadata!: MeemContractMetadataLike
+	public metadata!: AgreementMetadataLike
 
 	public maxSupply!: string
 
@@ -347,9 +347,9 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 
 	public Wallets?: Wallet[] | null
 
-	public MeemContractGuild?: MeemContractGuild | null
+	public AgreementGuild?: AgreementGuild | null
 
-	public MeemContractRoles?: MeemContractRole[] | null
+	public AgreementRoles?: AgreementRole[] | null
 
 	public Integrations?: Integration[] | null
 
@@ -357,15 +357,15 @@ export default class MeemContract extends ModelWithAddress<MeemContract> {
 		this.hasMany(models.Meem)
 
 		this.belongsToMany(models.Wallet, {
-			through: models.MeemContractWallet
+			through: models.AgreementWallet
 		})
 
 		this.belongsToMany(models.Integration, {
-			through: models.MeemContractIntegration
+			through: models.AgreementExtension
 		})
 
-		this.hasOne(models.MeemContractGuild)
-		this.hasMany(models.MeemContractRole)
+		this.hasOne(models.AgreementGuild)
+		this.hasMany(models.AgreementRole)
 		this.belongsTo(models.Wallet, {
 			as: 'Owner'
 		})

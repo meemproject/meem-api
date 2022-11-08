@@ -17,9 +17,9 @@ import { v4 as uuidv4 } from 'uuid'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
 import IDiamondCut from '../lib/IDiamondCut'
-import type MeemContract from '../models/MeemContract'
-import MeemContractGuild from '../models/MeemContractGuild'
-import MeemContractWallet from '../models/MeemContractWallet'
+import type Agreement from '../models/Agreement'
+import AgreementGuild from '../models/AgreementGuild'
+import AgreementWallet from '../models/AgreementWallet'
 import RolePermission from '../models/RolePermission'
 import Wallet from '../models/Wallet'
 import {
@@ -29,9 +29,9 @@ import {
 	SetRoleItemStruct
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
-import { IMeemContractRole } from '../types/shared/meem.shared'
+import { IAgreementRole } from '../types/shared/meem.shared'
 
-export default class MeemContractService {
+export default class AgreementService {
 	public static async generateSlug(options: {
 		baseSlug: string
 		chainId: number
@@ -81,7 +81,7 @@ export default class MeemContractService {
 		chainId: number
 	}): Promise<boolean> {
 		const { slugToCheck, chainId } = options
-		const existingSlug = await orm.models.MeemContract.findOne({
+		const existingSlug = await orm.models.Agreement.findOne({
 			where: {
 				slug: slugToCheck,
 				chainId
@@ -90,38 +90,38 @@ export default class MeemContractService {
 		return !existingSlug
 	}
 
-	public static async updateMeemContract(
-		data: MeemAPI.v1.ReInitializeMeemContract.IRequestBody & {
+	public static async updateAgreement(
+		data: MeemAPI.v1.ReInitializeAgreement.IRequestBody & {
 			senderWalletAddress: string
-			meemContractId: string
+			agreementId: string
 		}
 	): Promise<string> {
-		const { senderWalletAddress, meemContractId } = data
+		const { senderWalletAddress, agreementId } = data
 		try {
-			const meemContractInstance = await orm.models.MeemContract.findOne({
+			const agreementInstance = await orm.models.Agreement.findOne({
 				where: {
-					id: meemContractId
+					id: agreementId
 				}
 			})
 
-			if (!meemContractInstance) {
+			if (!agreementInstance) {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
 			}
 
 			const { wallet, contractInitParams, fullMintPermissions, senderWallet } =
 				await this.prepareInitValues({
 					...data,
-					chainId: meemContractInstance.chainId,
-					meemContract: meemContractInstance
+					chainId: agreementInstance.chainId,
+					agreement: agreementInstance
 				})
 
-			const meemContract = Mycontract__factory.connect(
-				meemContractInstance.address,
+			const agreement = Mycontract__factory.connect(
+				agreementInstance.address,
 				wallet
 			)
 
-			const isAdmin = await this.isMeemContractAdmin({
-				meemContractId: meemContractInstance.id,
+			const isAdmin = await this.isAgreementAdmin({
+				agreementId: agreementInstance.id,
 				walletAddress: senderWalletAddress
 			})
 
@@ -129,30 +129,30 @@ export default class MeemContractService {
 				throw new Error('NOT_AUTHORIZED')
 			}
 
-			meemContractInstance.mintPermissions = fullMintPermissions
+			agreementInstance.mintPermissions = fullMintPermissions
 
 			log.debug(contractInitParams)
 
 			const tx = await services.ethers.runTransaction({
-				chainId: meemContractInstance.chainId,
-				fn: meemContract.reinitialize.bind(meemContract),
+				chainId: agreementInstance.chainId,
+				fn: agreement.reinitialize.bind(agreement),
 				params: [contractInitParams],
 				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
 
 			await orm.models.Transaction.create({
 				hash: tx.hash,
-				chainId: meemContractInstance.chainId,
+				chainId: agreementInstance.chainId,
 				WalletId: senderWallet.id
 			})
 
-			await meemContractInstance.save()
+			await agreementInstance.save()
 
 			log.debug(`Reinitialize tx: ${tx.hash}`)
 
 			await tx.wait()
 
-			return meemContract.address
+			return agreement.address
 		} catch (e: any) {
 			log.crit(e)
 			await sockets?.emitError(
@@ -163,18 +163,18 @@ export default class MeemContractService {
 		}
 	}
 
-	public static async createMeemContract(
-		data: MeemAPI.v1.CreateMeemContract.IRequestBody & {
+	public static async createAgreement(
+		data: MeemAPI.v1.CreateAgreement.IRequestBody & {
 			senderWalletAddress: string
-			meemContractRoleData?: {
+			agreementRoleData?: {
 				name: string
-				meemContract: MeemContract
-				meemContractGuild: MeemContractGuild
+				agreement: Agreement
+				agreementGuild: AgreementGuild
 				permissions?: string[]
 				isAdminRole?: boolean
 			}
 		}
-	): Promise<MeemContract> {
+	): Promise<Agreement> {
 		const {
 			shouldMintTokens,
 			tokenMetadata,
@@ -273,7 +273,7 @@ export default class MeemContractService {
 				`Deployed proxy at ${proxyContract.address} w/ tx: ${proxyContract.deployTransaction.hash}`
 			)
 
-			const meemContract = Mycontract__factory.connect(
+			const agreement = Mycontract__factory.connect(
 				proxyContract.address,
 				wallet
 			)
@@ -317,7 +317,7 @@ export default class MeemContractService {
 
 			if (data.name) {
 				try {
-					contractSlug = await services.meemContract.generateSlug({
+					contractSlug = await services.agreement.generateSlug({
 						baseSlug: data.name,
 						chainId
 					})
@@ -326,7 +326,7 @@ export default class MeemContractService {
 				}
 			}
 
-			const meemContractInstance = await orm.models.MeemContract.create({
+			const agreementInstance = await orm.models.Agreement.create({
 				address: proxyContract.address,
 				mintPermissions: fullMintPermissions,
 				slug: contractSlug,
@@ -369,7 +369,7 @@ export default class MeemContractService {
 						await services.meem.bulkMint({
 							tokens,
 							mintedBy: senderWalletAddress,
-							meemContractId: meemContractInstance.id
+							agreementId: agreementInstance.id
 						})
 					} catch (e) {
 						log.crit(e)
@@ -387,7 +387,7 @@ export default class MeemContractService {
 							Payload: JSON.stringify({
 								tokens,
 								mintedBy: senderWalletAddress,
-								meemContractId: meemContractInstance.id
+								agreementId: agreementInstance.id
 							})
 						})
 						.promise()
@@ -399,34 +399,34 @@ export default class MeemContractService {
 			try {
 				// TODO: pass createRoles property to contract instead of meem-club
 				if (data.metadata.meem_contract_type === 'meem-club') {
-					await services.guild.createMeemContractGuild({
-						meemContractId: meemContractInstance.id,
+					await services.guild.createAgreementGuild({
+						agreementId: agreementInstance.id,
 						adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
 					})
-				} else if (data.meemContractRoleData) {
+				} else if (data.agreementRoleData) {
 					const {
 						name: roleName,
-						meemContract: parentMeemContract,
-						meemContractGuild,
+						agreement: parentAgreement,
+						agreementGuild,
 						permissions,
 						isAdminRole
-					} = data.meemContractRoleData
+					} = data.agreementRoleData
 					const sign = (signableMessage: string | Bytes) =>
 						wallet.signMessage(signableMessage)
 					const createGuildRoleResponse = await guildRole.create(
 						wallet.address,
 						sign,
 						{
-							guildId: meemContractGuild.guildId,
+							guildId: agreementGuild.guildId,
 							name: roleName,
 							logic: 'AND',
 							requirements: [
 								{
 									type: 'ERC721',
 									chain: services.guild.getGuildChain(
-										meemContractInstance.chainId
+										agreementInstance.chainId
 									),
-									address: meemContract.address,
+									address: agreement.address,
 									data: {
 										minAmount: 1
 									}
@@ -435,13 +435,13 @@ export default class MeemContractService {
 						}
 					)
 
-					const meemContractRole = await orm.models.MeemContractRole.create({
+					const agreementRole = await orm.models.AgreementRole.create({
 						guildRoleId: createGuildRoleResponse.id,
 						name: roleName,
-						MeemContractId: parentMeemContract.id,
-						MeemContractGuildId: meemContractGuild.id,
-						RoleMeemContractId: meemContractInstance.id,
-						tokenAddress: meemContract.address,
+						AgreementId: parentAgreement.id,
+						AgreementGuildId: agreementGuild.id,
+						RoleAgreementId: agreementInstance.id,
+						tokenAddress: agreement.address,
 						isAdminRole: isAdminRole ?? false
 					})
 
@@ -451,23 +451,23 @@ export default class MeemContractService {
 						const roleIdsToAdd =
 							permissions.filter(pid => {
 								const existingPermission =
-									meemContractRole.RolePermissions?.find(rp => rp.id === pid)
+									agreementRole.RolePermissions?.find(rp => rp.id === pid)
 								return !existingPermission
 							}) ?? []
 
 						if (roleIdsToAdd.length > 0) {
-							const meemContractRolePermissionsData: {
-								MeemContractRoleId: string
+							const agreementRolePermissionsData: {
+								AgreementRoleId: string
 								RolePermissionId: string
 							}[] = roleIdsToAdd.map(rid => {
 								return {
-									MeemContractRoleId: meemContractRole.id,
+									AgreementRoleId: agreementRole.id,
 									RolePermissionId: rid
 								}
 							})
 							promises.push(
-								orm.models.MeemContractRolePermission.bulkCreate(
-									meemContractRolePermissionsData,
+								orm.models.AgreementRolePermission.bulkCreate(
+									agreementRolePermissionsData,
 									{
 										transaction: t
 									}
@@ -480,10 +480,10 @@ export default class MeemContractService {
 							await t.commit()
 							if (isAdminRole) {
 								const parentContract = Mycontract__factory.connect(
-									parentMeemContract.address,
+									parentAgreement.address,
 									wallet
 								)
-								await parentContract.setAdminContract(meemContract.address)
+								await parentContract.setAdminContract(agreement.address)
 							}
 						} catch (e) {
 							log.crit(e)
@@ -495,7 +495,7 @@ export default class MeemContractService {
 				log.crit('Failed to create Guild', e)
 			}
 
-			return meemContractInstance
+			return agreementInstance
 		} catch (e) {
 			await sockets?.emitError(
 				config.errors.CONTRACT_CREATION_FAILED,
@@ -508,13 +508,13 @@ export default class MeemContractService {
 
 	public static async prepareInitValues(
 		data: Omit<
-			MeemAPI.v1.ReInitializeMeemContract.IRequestBody,
+			MeemAPI.v1.ReInitializeAgreement.IRequestBody,
 			'merkleRoot' | 'mintPermissions'
 		> & {
 			mintPermissions?: Omit<MeemAPI.IMeemPermission, 'merkleRoot'>[]
 			chainId: number
 			senderWalletAddress: string
-			meemContract?: MeemContract
+			agreement?: Agreement
 		}
 	) {
 		// TODO: Abstract this to allow new types of contract metadata e.g. clubs, other project types
@@ -533,7 +533,7 @@ export default class MeemContractService {
 			tokenMetadata,
 			senderWalletAddress,
 			chainId,
-			meemContract
+			agreement
 		} = data
 
 		let senderWallet = await orm.models.Wallet.findByAddress<Wallet>(
@@ -550,26 +550,26 @@ export default class MeemContractService {
 
 		let { metadata, symbol, name, maxSupply } = data
 
-		if (!symbol && !meemContract && name) {
+		if (!symbol && !agreement && name) {
 			symbol = slug(name, { lower: true })
-		} else if (meemContract) {
-			symbol = meemContract.symbol
+		} else if (agreement) {
+			symbol = agreement.symbol
 		}
 
-		if (!name && meemContract) {
-			name = meemContract.name
+		if (!name && agreement) {
+			name = agreement.name
 		}
 
-		if (!maxSupply && meemContract) {
-			maxSupply = meemContract.maxSupply
+		if (!maxSupply && agreement) {
+			maxSupply = agreement.maxSupply
 		}
 
 		if (!symbol || !name || !maxSupply) {
 			throw new Error('MISSING_PARAMETERS')
 		}
 
-		if (!metadata && meemContract) {
-			metadata = meemContract.metadata
+		if (!metadata && agreement) {
+			metadata = agreement.metadata
 		}
 
 		const admins = data.admins ?? []
@@ -618,23 +618,23 @@ export default class MeemContractService {
 
 		const uri = `ipfs://${result.IpfsHash}`
 
-		const meemContractAdmins: MeemContractWallet[] = []
-		const meemContractMinters: MeemContractWallet[] = []
-		let meemContractWallets: MeemContractWallet[] = []
+		const agreementAdmins: AgreementWallet[] = []
+		const agreementMinters: AgreementWallet[] = []
+		let agreementWallets: AgreementWallet[] = []
 
-		if (meemContract) {
-			meemContractWallets = await orm.models.MeemContractWallet.findAll({
+		if (agreement) {
+			agreementWallets = await orm.models.AgreementWallet.findAll({
 				where: {
-					MeemContractId: meemContract.id
+					AgreementId: agreement.id
 				},
 				include: [orm.models.Wallet]
 			})
 
-			meemContractWallets.forEach(w => {
+			agreementWallets.forEach(w => {
 				if (w.role === config.ADMIN_ROLE) {
-					meemContractAdmins.push(w)
+					agreementAdmins.push(w)
 				} else if (w.role === config.MINTER_ROLE) {
-					meemContractMinters.push(w)
+					agreementMinters.push(w)
 				}
 			})
 		}
@@ -657,41 +657,41 @@ export default class MeemContractService {
 			hasRole: true
 		}))
 
-		const meemContractWalletIdsToRemove: string[] = []
+		const agreementWalletIdsToRemove: string[] = []
 		const roles: SetRoleItemStruct[] = []
 
 		// Find roles to remove
-		meemContractWallets.forEach(meemContractWallet => {
+		agreementWallets.forEach(agreementWallet => {
 			let foundItem: SetRoleItemStruct | undefined
 
-			if (meemContractWallet.role === config.ADMIN_ROLE) {
+			if (agreementWallet.role === config.ADMIN_ROLE) {
 				foundItem = cleanAdmins.find(
 					c =>
 						c.user.toLowerCase() ===
-						meemContractWallet.Wallet?.address.toLowerCase()
+						agreementWallet.Wallet?.address.toLowerCase()
 				)
-			} else if (meemContractWallet.role === config.MINTER_ROLE) {
+			} else if (agreementWallet.role === config.MINTER_ROLE) {
 				foundItem = cleanMinters.find(
 					c =>
 						c.user.toLowerCase() ===
-						meemContractWallet.Wallet?.address.toLowerCase()
+						agreementWallet.Wallet?.address.toLowerCase()
 				)
 			}
 
-			if (!foundItem && meemContractWallet.Wallet) {
+			if (!foundItem && agreementWallet.Wallet) {
 				roles.push({
-					role: meemContractWallet.role,
-					user: meemContractWallet.Wallet.address,
+					role: agreementWallet.role,
+					user: agreementWallet.Wallet.address,
 					hasRole: false
 				})
 
-				meemContractWalletIdsToRemove.push(meemContractWallet.id)
+				agreementWalletIdsToRemove.push(agreementWallet.id)
 			}
 		})
 
 		// Find roles to add
 		cleanAdmins.forEach(adminItem => {
-			const existingAdmin = meemContractAdmins.find(
+			const existingAdmin = agreementAdmins.find(
 				a => a.Wallet?.address.toLowerCase() === adminItem.user.toLowerCase()
 			)
 			if (!existingAdmin) {
@@ -700,7 +700,7 @@ export default class MeemContractService {
 		})
 
 		cleanMinters.forEach(minterItem => {
-			const existingAdmin = meemContractMinters.find(
+			const existingAdmin = agreementMinters.find(
 				a => a.Wallet?.address.toLowerCase() === minterItem.user.toLowerCase()
 			)
 			if (!existingAdmin) {
@@ -768,16 +768,16 @@ export default class MeemContractService {
 	// Gnosis proxy factory deployments / abi: https://github.com/safe-global/safe-deployments/blob/main/src/assets/v1.3.0/proxy_factory.json
 	public static async createClubSafe(
 		options: MeemAPI.v1.CreateClubSafe.IRequestBody & {
-			meemContractId: string
+			agreementId: string
 			senderWalletAddress: string
 		}
 	) {
-		const { meemContractId, safeOwners, senderWalletAddress, chainId } = options
+		const { agreementId, safeOwners, senderWalletAddress, chainId } = options
 		try {
-			const [meemContract, senderWallet] = await Promise.all([
-				orm.models.MeemContract.findOne({
+			const [agreement, senderWallet] = await Promise.all([
+				orm.models.Agreement.findOne({
 					where: {
-						id: meemContractId
+						id: agreementId
 					}
 				}),
 				orm.models.Wallet.findByAddress<Wallet>(senderWalletAddress)
@@ -787,16 +787,16 @@ export default class MeemContractService {
 				throw new Error('WALLET_NOT_FOUND')
 			}
 
-			if (!meemContract) {
+			if (!agreement) {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
 			}
 
-			if (meemContract.gnosisSafeAddress) {
+			if (agreement.gnosisSafeAddress) {
 				throw new Error('CLUB_SAFE_ALREADY_EXISTS')
 			}
 
-			const isAdmin = await this.isMeemContractAdmin({
-				meemContractId: meemContract.id,
+			const isAdmin = await this.isAgreementAdmin({
+				agreementId: agreement.id,
 				walletAddress: senderWalletAddress
 			})
 
@@ -866,13 +866,13 @@ export default class MeemContractService {
 					const foundTopic = receiptLog.topics.find(t => t === topic)
 					if (foundTopic) {
 						log.info(`address: ${receiptLog.address}`)
-						meemContract.gnosisSafeAddress = receiptLog.address
+						agreement.gnosisSafeAddress = receiptLog.address
 						break
 					}
 				}
 			}
 
-			await meemContract.save()
+			await agreement.save()
 		} catch (e: any) {
 			// await services.ethers.releaseLock(chainId)
 			log.crit(e)
@@ -886,16 +886,16 @@ export default class MeemContractService {
 
 	public static async upgradeClub(
 		options: MeemAPI.v1.UpgradeClub.IRequestBody & {
-			meemContractId: string
+			agreementId: string
 			senderWalletAddress: string
 		}
 	) {
-		const { meemContractId, senderWalletAddress } = options
+		const { agreementId, senderWalletAddress } = options
 		try {
-			const [meemContract, senderWallet] = await Promise.all([
-				orm.models.MeemContract.findOne({
+			const [agreement, senderWallet] = await Promise.all([
+				orm.models.Agreement.findOne({
 					where: {
-						id: meemContractId
+						id: agreementId
 					},
 					include: [orm.models.Wallet]
 				}),
@@ -903,7 +903,7 @@ export default class MeemContractService {
 				orm.models.Wallet.findByAddress<Wallet>(senderWalletAddress)
 			])
 
-			if (!meemContract) {
+			if (!agreement) {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
 			}
 
@@ -926,7 +926,7 @@ export default class MeemContractService {
 										{
 											model: orm.models.ContractInstance,
 											where: {
-												chainId: meemContract.chainId
+												chainId: agreement.chainId
 											}
 										}
 									]
@@ -935,8 +935,8 @@ export default class MeemContractService {
 						}
 					]
 				}),
-				this.isMeemContractAdmin({
-					meemContractId: meemContract.id,
+				this.isAgreementAdmin({
+					agreementId: agreement.id,
 					walletAddress: senderWalletAddress
 				})
 			])
@@ -949,12 +949,12 @@ export default class MeemContractService {
 			const toVersion: IFacetVersion[] = []
 
 			const provider = await services.ethers.getProvider({
-				chainId: meemContract.chainId
+				chainId: agreement.chainId
 			})
 			const signer = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 			const diamond = new ethers.Contract(
-				meemContract.address,
+				agreement.address,
 				diamondABI,
 				signer
 			)
@@ -981,7 +981,7 @@ export default class MeemContractService {
 			})
 			// const tx = await upgrade({
 			// 	signer,
-			// 	proxyContractAddress: meemContract.address,
+			// 	proxyContractAddress: agreement.address,
 			// 	toVersion,
 			// 	fromVersion,
 			// 	overrides: {
@@ -989,7 +989,7 @@ export default class MeemContractService {
 			// 	}
 			// })
 			const cuts = getCuts({
-				proxyContractAddress: meemContract.address,
+				proxyContractAddress: agreement.address,
 				toVersion,
 				fromVersion
 			})
@@ -999,13 +999,13 @@ export default class MeemContractService {
 			}
 
 			const diamondCut = new ethers.Contract(
-				meemContract.address,
+				agreement.address,
 				IDiamondCut.abi,
 				signer
 			)
 
 			const tx = await services.ethers.runTransaction({
-				chainId: meemContract.chainId,
+				chainId: agreement.chainId,
 				fn: diamondCut.diamondCut.bind(diamondCut),
 				params: [cuts, ethers.constants.AddressZero, '0x'],
 				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
@@ -1014,14 +1014,14 @@ export default class MeemContractService {
 			if (tx?.hash) {
 				await orm.models.Transaction.create({
 					hash: tx.hash,
-					chainId: meemContract.chainId,
+					chainId: agreement.chainId,
 					WalletId: senderWallet.id
 				})
 			}
 
 			await tx.wait()
 
-			log.debug(`Upgrading club ${meemContract.address} w/ tx ${tx?.hash}`)
+			log.debug(`Upgrading club ${agreement.address} w/ tx ${tx?.hash}`)
 		} catch (e: any) {
 			log.crit(e)
 			await sockets?.emitError(
@@ -1032,15 +1032,15 @@ export default class MeemContractService {
 		}
 	}
 
-	public static async isMeemContractAdmin(options: {
-		meemContractId: string
+	public static async isAgreementAdmin(options: {
+		agreementId: string
 		walletAddress: string
 	}) {
-		const { meemContractId, walletAddress } = options
-		const meemContractWallet = await orm.models.MeemContractWallet.findOne({
+		const { agreementId, walletAddress } = options
+		const agreementWallet = await orm.models.AgreementWallet.findOne({
 			where: {
 				role: config.ADMIN_ROLE,
-				MeemContractId: meemContractId
+				AgreementId: agreementId
 			},
 			include: [
 				{
@@ -1053,28 +1053,28 @@ export default class MeemContractService {
 			]
 		})
 
-		if (meemContractWallet) {
+		if (agreementWallet) {
 			return true
 		}
 
 		return false
 	}
 
-	public static async getMeemContractRoles(options: {
-		meemContractId: string
-		meemContractRoleId?: string
-	}): Promise<IMeemContractRole[]> {
-		const { meemContractId, meemContractRoleId } = options
-		const meemContract = await orm.models.MeemContract.findOne({
+	public static async getAgreementRoles(options: {
+		agreementId: string
+		agreementRoleId?: string
+	}): Promise<IAgreementRole[]> {
+		const { agreementId, agreementRoleId } = options
+		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: meemContractId
+				id: agreementId
 			},
 			include: [
 				{
-					model: orm.models.MeemContractRole,
-					...(meemContractRoleId && {
+					model: orm.models.AgreementRole,
+					...(agreementRoleId && {
 						where: {
-							id: meemContractRoleId
+							id: agreementRoleId
 						}
 					}),
 					include: [
@@ -1090,14 +1090,14 @@ export default class MeemContractService {
 			]
 		})
 
-		const meemContractRoles = meemContract?.MeemContractRoles ?? []
+		const agreementRoles = agreement?.AgreementRoles ?? []
 
-		if (!meemContract) {
+		if (!agreement) {
 			throw new Error('SERVER_ERROR')
 		}
 
-		const roles: IMeemContractRole[] = await Promise.all(
-			meemContractRoles.map(async mcRole => {
+		const roles: IAgreementRole[] = await Promise.all(
+			agreementRoles.map(async mcRole => {
 				const role: any = mcRole.toJSON()
 
 				role.permissions = role.RolePermissions.map(
@@ -1111,7 +1111,7 @@ export default class MeemContractService {
 
 					role.guildRole = guildRoleResponse
 
-					if (meemContractRoleId) {
+					if (agreementRoleId) {
 						role.memberMeemIds = await Promise.all(
 							(role.guildRole?.members ?? []).map((m: string) =>
 								services.meemId.getMeemIdentityForAddress(m)
@@ -1126,15 +1126,15 @@ export default class MeemContractService {
 		return roles
 	}
 
-	public static async getUserMeemContractRolesAccess(options: {
-		meemContractId: string
+	public static async getUserAgreementRolesAccess(options: {
+		agreementId: string
 		walletAddress: string
-		meemContractRoleId?: string
+		agreementRoleId?: string
 	}): Promise<{
 		hasRolesAccess: boolean
-		roles: IMeemContractRole[]
+		roles: IAgreementRole[]
 	}> {
-		const { meemContractId, walletAddress, meemContractRoleId } = options
+		const { agreementId, walletAddress, agreementRoleId } = options
 		const meemIdentity = await orm.models.MeemIdentity.findOne({
 			include: [
 				{
@@ -1160,19 +1160,19 @@ export default class MeemContractService {
 			throw new Error('SERVER_ERROR')
 		}
 
-		const meemContract = await orm.models.MeemContract.findOne({
+		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: meemContractId
+				id: agreementId
 			},
 			include: [
 				{
-					model: orm.models.MeemContractGuild
+					model: orm.models.AgreementGuild
 				},
 				{
-					model: orm.models.MeemContractRole,
-					...(meemContractRoleId && {
+					model: orm.models.AgreementRole,
+					...(agreementRoleId && {
 						where: {
-							id: meemContractRoleId
+							id: agreementRoleId
 						}
 					}),
 					include: [
@@ -1188,14 +1188,14 @@ export default class MeemContractService {
 			]
 		})
 
-		const meemContractRoles = meemContract?.MeemContractRoles ?? []
+		const agreementRoles = agreement?.AgreementRoles ?? []
 
-		if (!meemContract || !meemContract.MeemContractGuild) {
+		if (!agreement || !agreement.AgreementGuild) {
 			throw new Error('SERVER_ERROR')
 		}
 
 		const guildUserMembershipResponse = await guild.getUserMemberships(
-			meemContract.MeemContractGuild.guildId,
+			agreement.AgreementGuild.guildId,
 			walletAddress
 		)
 
@@ -1210,8 +1210,8 @@ export default class MeemContractService {
 			}
 		}
 
-		let roles: IMeemContractRole[] = await Promise.all(
-			meemContractRoles.map(async mcRole => {
+		let roles: IAgreementRole[] = await Promise.all(
+			agreementRoles.map(async mcRole => {
 				const role: any = mcRole.toJSON()
 
 				role.permissions = role.RolePermissions.map(
@@ -1225,7 +1225,7 @@ export default class MeemContractService {
 
 					role.guildRole = guildRoleResponse
 
-					if (meemContractRoleId) {
+					if (agreementRoleId) {
 						role.memberMeemIds = await Promise.all(
 							(role.guildRole?.members ?? []).map((m: string) =>
 								services.meemId.getMeemIdentityForAddress(m)
@@ -1237,7 +1237,7 @@ export default class MeemContractService {
 			})
 		)
 
-		roles = roles.filter((r: IMeemContractRole) => {
+		roles = roles.filter((r: IAgreementRole) => {
 			if (!r.guildRoleId && !r.guildRole) {
 				return false
 			}
@@ -1250,15 +1250,15 @@ export default class MeemContractService {
 		}
 	}
 
-	public static async updateMeemContractAdmins(options: {
-		meemContractId: string
+	public static async updateAgreementAdmins(options: {
+		agreementId: string
 		admins: string[]
 		senderWallet: Wallet
 	}): Promise<string[]> {
-		const { meemContractId, admins, senderWallet } = options
+		const { agreementId, admins, senderWallet } = options
 
-		const isAdmin = await this.isMeemContractAdmin({
-			meemContractId,
+		const isAdmin = await this.isAgreementAdmin({
+			agreementId,
 			walletAddress: senderWallet.address
 		})
 
@@ -1266,27 +1266,27 @@ export default class MeemContractService {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		const meemContract = await orm.models.MeemContract.findOne({
+		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: meemContractId
+				id: agreementId
 			},
 			include: [
 				{
-					model: orm.models.MeemContractRole
+					model: orm.models.AgreementRole
 				}
 			]
 		})
 
-		const meemContractAdminRole = (meemContract?.MeemContractRoles ?? []).find(
+		const agreementAdminRole = (agreement?.AgreementRoles ?? []).find(
 			r => r.isAdminRole
 		)
 
-		if (!meemContract || !meemContractAdminRole?.guildRoleId) {
+		if (!agreement || !agreementAdminRole?.guildRoleId) {
 			throw new Error('SERVER_ERROR')
 		}
 
 		const provider = await services.ethers.getProvider({
-			chainId: meemContract.chainId
+			chainId: agreement.chainId
 		})
 
 		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
@@ -1302,13 +1302,13 @@ export default class MeemContractService {
 		}))
 
 		if (cleanAdmins.length > 0) {
-			const meemSmartContract = (await services.meem.getMeemContract({
-				address: meemContract.address,
-				chainId: meemContract.chainId
+			const meemSmartContract = (await services.meem.getAgreement({
+				address: agreement.address,
+				chainId: agreement.chainId
 			})) as unknown as Mycontract
 
 			const tx = await services.ethers.runTransaction({
-				chainId: meemContract.chainId,
+				chainId: agreement.chainId,
 				fn: meemSmartContract.bulkSetRoles.bind(meemSmartContract),
 				params: [cleanAdmins],
 				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
@@ -1316,7 +1316,7 @@ export default class MeemContractService {
 
 			await orm.models.Transaction.create({
 				hash: tx.hash,
-				chainId: meemContract.chainId,
+				chainId: agreement.chainId,
 				WalletId: senderWallet.id
 			})
 

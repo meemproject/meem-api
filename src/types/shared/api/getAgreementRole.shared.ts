@@ -1,14 +1,16 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemContractRole, IMeemId } from '../meem.shared'
+import { IAgreementRole } from '../meem.shared'
 
-export namespace GetUserMeemContractRolesAccess {
+export namespace GetAgreementRole {
 	export interface IPathParams {
-		/** The MeemContract id */
-		meemContractId: string
+		/** The Agreement id to fetch roles of */
+		agreementId: string
+		/** The Agreement Role id to fetch roles of */
+		agreementRoleId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.meemContractId}/roles/access`
+		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}`
 
 	export const method = HttpMethod.Get
 
@@ -17,8 +19,7 @@ export namespace GetUserMeemContractRolesAccess {
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		hasRolesAccess: boolean
-		roles: IMeemContractRole[]
+		role: IAgreementRole
 	}
 
 	export interface IDefinition {

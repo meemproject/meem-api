@@ -1,25 +1,22 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
-/** Create Meem Image */
-export namespace UpgradeClub {
+export namespace GetAgreementRoles {
 	export interface IPathParams {
+		/** The Agreement id to fetch roles of */
 		agreementId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/upgrade`
+		`/api/1.0/agreements/${options.agreementId}/roles`
 
-	export const method = HttpMethod.Post
+	export const method = HttpMethod.Get
 
 	export interface IQueryParams {}
 
-	export interface IRequestBody {
-		/** Specify the bundle id to upgrade to. Defaults to latest Clubs bundle */
-		bundleId?: string
-	}
+	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		roles: any[]
 	}
 
 	export interface IDefinition {

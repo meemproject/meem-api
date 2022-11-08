@@ -1,25 +1,25 @@
+import { MeemAPI } from '../../meem.generated'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemContractRole } from '../meem.shared'
 
-export namespace GetMeemContractRole {
+export namespace DeleteAgreementRole {
 	export interface IPathParams {
-		/** The MeemContract id to fetch roles of */
-		meemContractId: string
-		/** The MeemContract Role id to fetch roles of */
-		meemContractRoleId: string
+		/** The meem contract id to fetch */
+		agreementId: string
+		/** The AgreementRole id to update */
+		agreementRoleId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.meemContractId}/roles/${options.meemContractRoleId}`
+		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}`
 
-	export const method = HttpMethod.Get
+	export const method = HttpMethod.Delete
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		role: IMeemContractRole
+		status: 'success'
 	}
 
 	export interface IDefinition {

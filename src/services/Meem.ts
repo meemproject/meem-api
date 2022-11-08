@@ -126,7 +126,7 @@ export default class MeemService {
 	}
 
 	/** Get a Meem contract instance */
-	public static async getMeemContract(options: {
+	public static async getAgreement(options: {
 		address: string
 		chainId: number
 		walletPrivateKey?: string
@@ -153,13 +153,13 @@ export default class MeemService {
 
 		const wallet = new AlchemyWallet(walletPrivateKey, provider)
 
-		const meemContract = new ethers.Contract(
+		const agreement = new ethers.Contract(
 			address,
 			meemABI,
 			wallet
 		) as unknown as Mycontract
 
-		return meemContract
+		return agreement
 	}
 
 	public static meemInterface() {
@@ -324,7 +324,7 @@ export default class MeemService {
 		transactionHash: string
 	}> {
 		try {
-			if (!data.meemContractAddress) {
+			if (!data.agreementAddress) {
 				throw new Error('MISSING_CONTRACT_ADDRESS')
 			}
 
@@ -352,8 +352,8 @@ export default class MeemService {
 				throw new Error('INVALID_METADATA')
 			}
 
-			const meemContract = await this.getMeemContract({
-				address: data.meemContractAddress.toLowerCase(),
+			const agreement = await this.getAgreement({
+				address: data.agreementAddress.toLowerCase(),
 				chainId: data.chainId
 			})
 
@@ -374,10 +374,10 @@ export default class MeemService {
 
 			log.debug('Minting meem w/ params', { mintParams })
 
-			// const mintTx = await meemContract.mint(...mintParams)
+			// const mintTx = await agreement.mint(...mintParams)
 			const mintTx = await services.ethers.runTransaction({
 				chainId: data.chainId,
-				fn: meemContract.mint.bind(meemContract),
+				fn: agreement.mint.bind(agreement),
 				params: mintParams,
 				gasLimit: Ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
@@ -447,18 +447,18 @@ export default class MeemService {
 	public static async bulkMint(
 		data: MeemAPI.v1.BulkMint.IRequestBody & {
 			mintedBy: string
-			meemContractId: string
+			agreementId: string
 		}
 	) {
 		try {
-			if (!data.meemContractId) {
+			if (!data.agreementId) {
 				throw new Error('MISSING_CONTRACT_ADDRESS')
 			}
 
-			const [meemContract, wallet] = await Promise.all([
-				orm.models.MeemContract.findOne({
+			const [agreement, wallet] = await Promise.all([
+				orm.models.Agreement.findOne({
 					where: {
-						id: data.meemContractId
+						id: data.agreementId
 					}
 				}),
 				orm.models.Wallet.findByAddress<Wallet>(data.mintedBy)
@@ -468,7 +468,7 @@ export default class MeemService {
 				throw new Error('WALLET_NOT_FOUND')
 			}
 
-			if (!meemContract) {
+			if (!agreement) {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
 			}
 
@@ -511,9 +511,9 @@ export default class MeemService {
 				item.ipfs = `ipfs://${result.IpfsHash}`
 			}
 
-			const contract = await this.getMeemContract({
-				address: meemContract.address,
-				chainId: meemContract.chainId
+			const contract = await this.getAgreement({
+				address: agreement.address,
+				chainId: agreement.chainId
 			})
 
 			const mintParams: Parameters<Mycontract['bulkMint']> = [
@@ -527,7 +527,7 @@ export default class MeemService {
 			log.debug('Bulk Minting meem w/ params', { mintParams })
 
 			const mintTx = await services.ethers.runTransaction({
-				chainId: meemContract.chainId,
+				chainId: agreement.chainId,
 				fn: contract.bulkMint.bind(contract),
 				params: mintParams,
 				gasLimit: Ethers.BigNumber.from(config.MINT_GAS_LIMIT)
@@ -537,7 +537,7 @@ export default class MeemService {
 
 			await orm.models.Transaction.create({
 				hash: mintTx.hash,
-				chainId: meemContract.chainId,
+				chainId: agreement.chainId,
 				WalletId: wallet.id
 			})
 
@@ -646,16 +646,16 @@ export default class MeemService {
 		let rootContractMetadata = parentContractMetadata
 
 		if (isMeemToken) {
-			const meemContract = await this.getMeemContract({
+			const agreement = await this.getAgreement({
 				address: contractAddress,
 				chainId
 			})
-			// const meem = await meemContract.getMeem(tokenId)
+			// const meem = await agreement.getMeem(tokenId)
 			// rootTokenAddress = meem.root
 			// rootTokenId = meem.rootTokenId
 
 			const meemInfo = await this.getMetadata({
-				contract: meemContract,
+				contract: agreement,
 				tokenId
 			})
 

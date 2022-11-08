@@ -2,7 +2,7 @@ import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
-import type MeemContract from './MeemContract'
+import type Agreement from './Agreement'
 import type Transfer from './Transfer'
 import type Wallet from './Wallet'
 
@@ -30,8 +30,8 @@ export default class Meem extends BaseModel<Meem> {
 				fields: ['mintedBy']
 			},
 			{
-				name: 'Meem_MeemContractId',
-				fields: ['MeemContractId']
+				name: 'Meem_AgreementId',
+				fields: ['AgreementId']
 			}
 		]
 	}
@@ -92,9 +92,9 @@ export default class Meem extends BaseModel<Meem> {
 
 	public mintedBy!: string
 
-	public MeemContractId!: string
+	public AgreementId!: string
 
-	public MeemContract!: MeemContract
+	public Agreement!: Agreement
 
 	public OwnerId!: string
 
@@ -103,7 +103,7 @@ export default class Meem extends BaseModel<Meem> {
 	public Transfers!: Transfer[] | null
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.MeemContract)
+		this.belongsTo(models.Agreement)
 
 		this.hasMany(models.Transfer)
 

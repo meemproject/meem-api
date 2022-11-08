@@ -12,7 +12,7 @@ let server: Express.Application
 let request: SuperTest<Test>
 
 export const handle = async (
-	body: MeemAPI.v1.CreateMeemContract.IRequestBody & {
+	body: MeemAPI.v1.CreateAgreement.IRequestBody & {
 		senderWalletAddress: string
 	},
 	context: AWSLambda.Context
@@ -45,7 +45,7 @@ export const handle = async (
 			log.crit('AWS_WEBSOCKET_GATEWAY_URL is not set')
 		}
 
-		await services.meemContract.createMeemContract(body)
+		await services.agreement.createAgreement(body)
 	} catch (e: any) {
 		log.crit(e)
 	}

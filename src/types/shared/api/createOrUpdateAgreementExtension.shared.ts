@@ -1,16 +1,16 @@
 import { MeemAPI } from '../../meem.generated'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
-export namespace CreateOrUpdateMeemContractIntegration {
+export namespace CreateOrUpdateAgreementIntegration {
 	export interface IPathParams {
 		/** The meem contract id to fetch */
-		meemContractId: string
+		agreementId: string
 		/** The integration id to connect or update */
 		integrationId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.meemContractId}/integrations/${options.integrationId}`
+		`/api/1.0/agreements/${options.agreementId}/integrations/${options.integrationId}`
 
 	export const method = HttpMethod.Post
 
@@ -22,7 +22,7 @@ export namespace CreateOrUpdateMeemContractIntegration {
 		/** Is the integration publicly displayed on club */
 		isPublic?: boolean
 		/** Metadata associated with this integration */
-		metadata?: MeemAPI.IMeemContractIntegrationMetadata
+		metadata?: MeemAPI.IAgreementIntegrationMetadata
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

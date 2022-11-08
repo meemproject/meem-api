@@ -10,7 +10,7 @@ import request from 'superagent'
 import { IRequest, IResponse } from '../types/app'
 import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
-export default class MeemContractController {
+export default class AgreementController {
 	public static async isSlugAvailable(
 		req: IRequest<MeemAPI.v1.IsSlugAvailable.IDefinition>,
 		res: IResponse<MeemAPI.v1.IsSlugAvailable.IResponseBody>
@@ -29,7 +29,7 @@ export default class MeemContractController {
 			})
 		}
 
-		const isSlugAvailable = await services.meemContract.isSlugAvailable({
+		const isSlugAvailable = await services.agreement.isSlugAvailable({
 			slugToCheck: req.body.slug,
 			chainId: req.body.chainId
 		})
@@ -39,9 +39,9 @@ export default class MeemContractController {
 		})
 	}
 
-	public static async updateMeemContract(
-		req: IRequest<MeemAPI.v1.UpdateMeemContract.IDefinition>,
-		res: IResponse<MeemAPI.v1.UpdateMeemContract.IResponseBody>
+	public static async updateAgreement(
+		req: IRequest<MeemAPI.v1.UpdateAgreement.IDefinition>,
+		res: IResponse<MeemAPI.v1.UpdateAgreement.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
@@ -50,9 +50,9 @@ export default class MeemContractController {
 		await req.wallet.enforceTXLimit()
 
 		const adminRole = config.ADMIN_ROLE
-		const meemContract = await orm.models.MeemContract.findOne({
+		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: req.params.meemContractId
+				id: req.params.agreementId
 			},
 			include: [
 				{
@@ -69,45 +69,45 @@ export default class MeemContractController {
 			]
 		})
 
-		if (!meemContract) {
+		if (!agreement) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		if (meemContract.Wallets && meemContract.Wallets.length < 1) {
+		if (agreement.Wallets && agreement.Wallets.length < 1) {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		if (req.body.slug && req.body.slug !== meemContract.slug) {
-			const isAvailable = await services.meemContract.isSlugAvailable({
+		if (req.body.slug && req.body.slug !== agreement.slug) {
+			const isAvailable = await services.agreement.isSlugAvailable({
 				slugToCheck: req.body.slug,
-				chainId: meemContract.chainId
+				chainId: agreement.chainId
 			})
 			if (!isAvailable) {
 				throw new Error('SLUG_UNAVAILABLE')
 			}
 
-			const slug = await services.meemContract.generateSlug({
+			const slug = await services.agreement.generateSlug({
 				baseSlug: req.body.slug,
-				chainId: meemContract.chainId
+				chainId: agreement.chainId
 			})
 
 			if (req.body.slug !== slug) {
 				throw new Error('INVALID_SLUG')
 			}
 
-			meemContract.slug = slug
+			agreement.slug = slug
 		}
 
-		await meemContract.save()
+		await agreement.save()
 
 		return res.json({
 			status: 'success'
 		})
 	}
 
-	public static async createMeemContract(
-		req: IRequest<MeemAPI.v1.CreateMeemContract.IDefinition>,
-		res: IResponse<MeemAPI.v1.CreateMeemContract.IResponseBody>
+	public static async createAgreement(
+		req: IRequest<MeemAPI.v1.CreateAgreement.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateAgreement.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
@@ -125,7 +125,7 @@ export default class MeemContractController {
 
 		if (config.DISABLE_ASYNC_MINTING) {
 			try {
-				await services.meemContract.createMeemContract({
+				await services.agreement.createAgreement({
 					...req.body,
 					senderWalletAddress: req.wallet.address
 				})
@@ -160,9 +160,9 @@ export default class MeemContractController {
 		})
 	}
 
-	public static async createOrUpdateMeemContractIntegration(
-		req: IRequest<MeemAPI.v1.CreateOrUpdateMeemContractIntegration.IDefinition>,
-		res: IResponse<MeemAPI.v1.CreateOrUpdateMeemContractIntegration.IResponseBody>
+	public static async createOrUpdateAgreementIntegration(
+		req: IRequest<MeemAPI.v1.CreateOrUpdateAgreementIntegration.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateOrUpdateAgreementIntegration.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
@@ -170,9 +170,9 @@ export default class MeemContractController {
 
 		const integrationMetadata = req.body.metadata ?? {}
 		const adminRole = config.ADMIN_ROLE
-		const meemContract = await orm.models.MeemContract.findOne({
+		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: req.params.meemContractId
+				id: req.params.agreementId
 			},
 			include: [
 				{
@@ -192,11 +192,11 @@ export default class MeemContractController {
 			]
 		})
 
-		if (!meemContract) {
+		if (!agreement) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		if (meemContract.Wallets && meemContract.Wallets.length < 1) {
+		if (agreement.Wallets && agreement.Wallets.length < 1) {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
@@ -210,10 +210,10 @@ export default class MeemContractController {
 			throw new Error('INTEGRATION_NOT_FOUND')
 		}
 
-		const existingMeemContractIntegration =
-			await orm.models.MeemContractIntegration.findOne({
+		const existingAgreementIntegration =
+			await orm.models.AgreementIntegration.findOne({
 				where: {
-					MeemContractId: meemContract.id,
+					AgreementId: agreement.id,
 					IntegrationId: integration.id
 				}
 			})
@@ -230,11 +230,11 @@ export default class MeemContractController {
 				integrationError.message = 'Twitter verification failed.'
 
 				if (
-					existingMeemContractIntegration &&
-					existingMeemContractIntegration.metadata?.isVerified &&
+					existingAgreementIntegration &&
+					existingAgreementIntegration.metadata?.isVerified &&
 					(!twitterUsername ||
 						twitterUsername ===
-							existingMeemContractIntegration.metadata?.twitterUsername)
+							existingAgreementIntegration.metadata?.twitterUsername)
 				) {
 					break
 				}
@@ -245,11 +245,10 @@ export default class MeemContractController {
 
 				integrationMetadata.isVerified = false
 
-				const verifiedTwitter =
-					await services.twitter.verifyMeemContractTwitter({
-						twitterUsername,
-						meemContract
-					})
+				const verifiedTwitter = await services.twitter.verifyAgreementTwitter({
+					twitterUsername,
+					agreement
+				})
 
 				if (!verifiedTwitter) {
 					throw integrationError
@@ -269,9 +268,9 @@ export default class MeemContractController {
 				break
 		}
 
-		if (!existingMeemContractIntegration) {
-			await orm.models.MeemContractIntegration.create({
-				MeemContractId: meemContract.id,
+		if (!existingAgreementIntegration) {
+			await orm.models.AgreementIntegration.create({
+				AgreementId: agreement.id,
 				IntegrationId: integration.id,
 				isEnabled: req.body.isEnabled ?? true,
 				isPublic: req.body.isPublic ?? true,
@@ -279,19 +278,19 @@ export default class MeemContractController {
 			})
 		} else {
 			if (!_.isUndefined(req.body.isEnabled)) {
-				existingMeemContractIntegration.isEnabled = req.body.isEnabled
+				existingAgreementIntegration.isEnabled = req.body.isEnabled
 			}
 
 			if (!_.isUndefined(req.body.isPublic)) {
-				existingMeemContractIntegration.isPublic = req.body.isPublic
+				existingAgreementIntegration.isPublic = req.body.isPublic
 			}
 
 			if (integrationMetadata) {
 				// TODO: Typecheck metadata
-				existingMeemContractIntegration.metadata = integrationMetadata
+				existingAgreementIntegration.metadata = integrationMetadata
 			}
 
-			await existingMeemContractIntegration.save()
+			await existingAgreementIntegration.save()
 		}
 
 		return res.json({
@@ -300,8 +299,8 @@ export default class MeemContractController {
 	}
 
 	public static async reInitialize(
-		req: IRequest<MeemAPI.v1.ReInitializeMeemContract.IDefinition>,
-		res: IResponse<MeemAPI.v1.ReInitializeMeemContract.IResponseBody>
+		req: IRequest<MeemAPI.v1.ReInitializeAgreement.IDefinition>,
+		res: IResponse<MeemAPI.v1.ReInitializeAgreement.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
@@ -309,13 +308,13 @@ export default class MeemContractController {
 
 		await req.wallet.enforceTXLimit()
 
-		const { meemContractId } = req.params
+		const { agreementId } = req.params
 
 		if (config.DISABLE_ASYNC_MINTING) {
 			try {
-				await services.meemContract.updateMeemContract({
+				await services.agreement.updateAgreement({
 					...req.body,
-					meemContractId,
+					agreementId,
 					senderWalletAddress: req.wallet.address
 				})
 			} catch (e) {
@@ -334,7 +333,7 @@ export default class MeemContractController {
 					FunctionName: config.LAMBDA_REINITIALIZE_FUNCTION_NAME,
 					Payload: JSON.stringify({
 						...req.body,
-						meemContractId,
+						agreementId,
 						senderWalletAddress: req.wallet.address
 					})
 				})
@@ -356,13 +355,13 @@ export default class MeemContractController {
 
 		await req.wallet.enforceTXLimit()
 
-		const { meemContractId } = req.params
+		const { agreementId } = req.params
 
 		if (config.DISABLE_ASYNC_MINTING) {
 			try {
-				await services.meemContract.createClubSafe({
+				await services.agreement.createClubSafe({
 					...req.body,
-					meemContractId,
+					agreementId,
 					senderWalletAddress: req.wallet.address
 				})
 			} catch (e) {
@@ -380,7 +379,7 @@ export default class MeemContractController {
 					FunctionName: config.LAMBDA_CREATE_CLUB_SAFE_FUNCTION_NAME,
 					Payload: JSON.stringify({
 						...req.body,
-						meemContractId,
+						agreementId,
 						senderWalletAddress: req.wallet.address
 					})
 				})
@@ -402,13 +401,13 @@ export default class MeemContractController {
 
 		await req.wallet.enforceTXLimit()
 
-		const { meemContractId } = req.params
+		const { agreementId } = req.params
 
 		if (config.DISABLE_ASYNC_MINTING) {
 			try {
-				await services.meemContract.upgradeClub({
+				await services.agreement.upgradeClub({
 					...req.body,
-					meemContractId,
+					agreementId,
 					senderWalletAddress: req.wallet.address
 				})
 			} catch (e) {
@@ -426,7 +425,7 @@ export default class MeemContractController {
 					FunctionName: config.UPGRADE_CLUB_FUNCTION_NAME,
 					Payload: JSON.stringify({
 						...req.body,
-						meemContractId,
+						agreementId,
 						senderWalletAddress: req.wallet.address
 					})
 				})
@@ -446,21 +445,19 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { meemContractId } = req.params
+		const { agreementId } = req.params
 
-		const meemContract = await orm.models.MeemContract.findOne({
+		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: meemContractId
+				id: agreementId
 			}
 		})
 
-		if (!meemContract) {
+		if (!agreement) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		const { proof } = await meemContract.getMintingPermission(
-			req.wallet.address
-		)
+		const { proof } = await agreement.getMintingPermission(req.wallet.address)
 
 		return res.json({
 			proof
@@ -477,19 +474,19 @@ export default class MeemContractController {
 
 		await req.wallet.enforceTXLimit()
 
-		const { meemContractId } = req.params
+		const { agreementId } = req.params
 
-		const meemContract = await orm.models.MeemContract.findOne({
+		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: meemContractId
+				id: agreementId
 			}
 		})
 
-		if (!meemContract) {
+		if (!agreement) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		const canMint = await meemContract.canMint(req.wallet.address)
+		const canMint = await agreement.canMint(req.wallet.address)
 		if (!canMint) {
 			throw new Error('NOT_AUTHORIZED')
 		}
@@ -499,7 +496,7 @@ export default class MeemContractController {
 				await services.meem.bulkMint({
 					...req.body,
 					mintedBy: req.wallet.address,
-					meemContractId
+					agreementId
 				})
 			} catch (e) {
 				log.crit(e)
@@ -517,7 +514,7 @@ export default class MeemContractController {
 					Payload: JSON.stringify({
 						...req.body,
 						mintedBy: req.wallet.address,
-						meemContractId
+						agreementId
 					})
 				})
 				.promise()
@@ -528,7 +525,7 @@ export default class MeemContractController {
 		})
 	}
 
-	public static async createMeemContractGuild(
+	public static async createAgreementGuild(
 		req: IRequest<any>,
 		res: IResponse<any>
 	): Promise<Response> {
@@ -536,22 +533,22 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { meemContractId } = req.params
+		const { agreementId } = req.params
 
-		if (!meemContractId) {
+		if (!agreementId) {
 			throw new Error('SERVER_ERROR')
 		}
 
-		const meemContractGuild = await services.guild.createMeemContractGuild({
-			meemContractId: meemContractId as string
+		const agreementGuild = await services.guild.createAgreementGuild({
+			agreementId: agreementId as string
 		})
 
 		return res.json({
-			meemContractGuild
+			agreementGuild
 		})
 	}
 
-	public static async deleteMeemContractGuild(
+	public static async deleteAgreementGuild(
 		req: IRequest<any>,
 		res: IResponse<any>
 	): Promise<Response> {
@@ -559,24 +556,24 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { meemContractId } = req.params
+		const { agreementId } = req.params
 
-		if (!meemContractId) {
+		if (!agreementId) {
 			throw new Error('SERVER_ERROR')
 		}
 
-		const meemContractGuild = await services.guild.deleteMeemContractGuild({
-			meemContractId: meemContractId as string
+		const agreementGuild = await services.guild.deleteAgreementGuild({
+			agreementId: agreementId as string
 		})
 
 		return res.json({
-			meemContractGuild
+			agreementGuild
 		})
 	}
 
-	public static async createMeemContractRole(
-		req: IRequest<MeemAPI.v1.CreateMeemContractRole.IDefinition>,
-		res: IResponse<MeemAPI.v1.CreateMeemContractRole.IResponseBody>
+	public static async createAgreementRole(
+		req: IRequest<MeemAPI.v1.CreateAgreementRole.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateAgreementRole.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
@@ -592,8 +589,8 @@ export default class MeemContractController {
 
 		// TODO: Check if the user has permission to update and not just admin contract role
 
-		const isAdmin = await services.meemContract.isMeemContractAdmin({
-			meemContractId: req.params.meemContractId,
+		const isAdmin = await services.agreement.isAgreementAdmin({
+			agreementId: req.params.agreementId,
 			walletAddress: req.wallet.address
 		})
 
@@ -601,29 +598,29 @@ export default class MeemContractController {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		const meemContract = await orm.models.MeemContract.findOne({
+		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: req.params.meemContractId
+				id: req.params.agreementId
 			},
 			include: [
 				{
-					model: orm.models.MeemContractGuild
+					model: orm.models.AgreementGuild
 				}
 			]
 		})
 
-		if (!meemContract) {
+		if (!agreement) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		if (!meemContract.MeemContractGuild) {
+		if (!agreement.AgreementGuild) {
 			throw new Error('MEEM_CONTRACT_GUILD_NOT_FOUND')
 		}
 
-		await services.guild.createMeemContractGuildRole({
+		await services.guild.createAgreementGuildRole({
 			name,
-			meemContract,
-			meemContractGuild: meemContract.MeemContractGuild,
+			agreement,
+			agreementGuild: agreement.AgreementGuild,
 			permissions,
 			members: members ?? [],
 			isTokenBasedRole,
@@ -636,21 +633,21 @@ export default class MeemContractController {
 		})
 	}
 
-	public static async updateMeemContractRole(
-		req: IRequest<MeemAPI.v1.UpdateMeemContractRole.IDefinition>,
-		res: IResponse<MeemAPI.v1.UpdateMeemContractRole.IResponseBody>
+	public static async updateAgreementRole(
+		req: IRequest<MeemAPI.v1.UpdateAgreementRole.IDefinition>,
+		res: IResponse<MeemAPI.v1.UpdateAgreementRole.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { meemContractId } = req.params
+		const { agreementId } = req.params
 		const { roleIntegrationsData } = req.body
 
 		// TODO: Check if the user has permission to update and not just admin contract role
 
-		const isAdmin = await services.meemContract.isMeemContractAdmin({
-			meemContractId,
+		const isAdmin = await services.agreement.isAgreementAdmin({
+			agreementId,
 			walletAddress: req.wallet.address
 		})
 
@@ -658,31 +655,31 @@ export default class MeemContractController {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		const meemContract = await orm.models.MeemContract.findOne({
+		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: req.params.meemContractId
+				id: req.params.agreementId
 			}
 		})
 
-		if (!meemContract) {
+		if (!agreement) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		const meemContractRole = await orm.models.MeemContractRole.findOne({
+		const agreementRole = await orm.models.AgreementRole.findOne({
 			where: {
-				id: req.params.meemContractRoleId
+				id: req.params.agreementRoleId
 			},
 			include: [
 				{
 					model: orm.models.RolePermission
 				},
 				{
-					model: orm.models.MeemContractGuild
+					model: orm.models.AgreementGuild
 				}
 			]
 		})
 
-		if (!meemContractRole) {
+		if (!agreementRole) {
 			throw new Error('MEEM_CONTRACT_ROLE_NOT_FOUND')
 		}
 
@@ -695,22 +692,22 @@ export default class MeemContractController {
 			const permissions = req.body.permissions
 			const roleIdsToAdd =
 				permissions.filter(pid => {
-					const existingPermission = meemContractRole.RolePermissions?.find(
+					const existingPermission = agreementRole.RolePermissions?.find(
 						rp => rp.id === pid
 					)
 					return !existingPermission
 				}) ?? []
 			const rolesToRemove: string[] =
-				meemContractRole.RolePermissions?.filter(rp => {
+				agreementRole.RolePermissions?.filter(rp => {
 					const existingPermission = permissions.find(pid => rp.id === pid)
 					return !existingPermission
 				})?.map((rp: any) => {
-					return rp.MeemContractRolePermission.id as string
+					return rp.AgreementRolePermission.id as string
 				}) ?? []
 
 			if (rolesToRemove.length > 0) {
 				promises.push(
-					orm.models.MeemContractRolePermission.destroy({
+					orm.models.AgreementRolePermission.destroy({
 						where: {
 							id: rolesToRemove
 						},
@@ -720,18 +717,18 @@ export default class MeemContractController {
 			}
 
 			if (roleIdsToAdd.length > 0) {
-				const meemContractRolePermissionsData: {
-					MeemContractRoleId: string
+				const agreementRolePermissionsData: {
+					AgreementRoleId: string
 					RolePermissionId: string
 				}[] = roleIdsToAdd.map(rid => {
 					return {
-						MeemContractRoleId: meemContractRole.id,
+						AgreementRoleId: agreementRole.id,
 						RolePermissionId: rid
 					}
 				})
 				promises.push(
-					orm.models.MeemContractRolePermission.bulkCreate(
-						meemContractRolePermissionsData,
+					orm.models.AgreementRolePermission.bulkCreate(
+						agreementRolePermissionsData,
 						{
 							transaction: t
 						}
@@ -751,18 +748,18 @@ export default class MeemContractController {
 		let members = req.body.members?.map(m => m.toLowerCase())
 
 		try {
-			if (meemContractRole.isAdminRole && members) {
-				members = await services.meemContract.updateMeemContractAdmins({
-					meemContractId: meemContract.id,
+			if (agreementRole.isAdminRole && members) {
+				members = await services.agreement.updateAgreementAdmins({
+					agreementId: agreement.id,
 					admins: members,
 					senderWallet: req.wallet
 				})
 			}
-			if (meemContractRole.guildRoleId) {
+			if (agreementRole.guildRoleId) {
 				let guildRoleData
 				let discordServerData
-				const integrationsMetadata = meemContractRole.integrationsMetadata
-				const meemContractRoleDiscordIntegrationDataIndex =
+				const integrationsMetadata = agreementRole.integrationsMetadata
+				const agreementRoleDiscordIntegrationDataIndex =
 					integrationsMetadata?.findIndex(i => !!i.discordServerData)
 				const guildRoleDiscordIntegrationData = roleIntegrationsData?.find(
 					(d: any) => d.discordServerId
@@ -787,7 +784,7 @@ export default class MeemContractController {
 									platformName: 'DISCORD',
 									platformGuildId:
 										guildRoleDiscordIntegrationData.discordServerId,
-									isNew: meemContractRoleDiscordIntegrationDataIndex < 0
+									isNew: agreementRoleDiscordIntegrationDataIndex < 0
 								},
 								platformRoleData: {
 									gatedChannels:
@@ -798,9 +795,9 @@ export default class MeemContractController {
 					}
 				}
 
-				await services.guild.updateMeemContractGuildRole({
-					guildRoleId: meemContractRole.guildRoleId,
-					meemContractId: meemContract.id,
+				await services.guild.updateAgreementGuildRole({
+					guildRoleId: agreementRole.guildRoleId,
+					agreementId: agreement.id,
 					name: req.body.name,
 					members,
 					guildRoleData,
@@ -821,8 +818,8 @@ export default class MeemContractController {
 
 					discordServerData = updatedDiscordServerResult.body
 
-					if (meemContractRoleDiscordIntegrationDataIndex > -1) {
-						integrationsMetadata[meemContractRoleDiscordIntegrationDataIndex] =
+					if (agreementRoleDiscordIntegrationDataIndex > -1) {
+						integrationsMetadata[agreementRoleDiscordIntegrationDataIndex] =
 							{
 								discordServerData
 							}
@@ -832,34 +829,34 @@ export default class MeemContractController {
 						})
 					}
 
-					meemContractRole.integrationsMetadata = integrationsMetadata
-					meemContractRole.changed('integrationsMetadata', true)
+					agreementRole.integrationsMetadata = integrationsMetadata
+					agreementRole.changed('integrationsMetadata', true)
 
-					await meemContractRole.save()
+					await agreementRole.save()
 				}
 			}
 
 			if (
 				!_.isUndefined(req.body.isTokenTransferrable) &&
-				meemContractRole.tokenAddress
+				agreementRole.tokenAddress
 			) {
-				const roleMeemContract = await orm.models.MeemContract.findOne({
+				const roleAgreement = await orm.models.Agreement.findOne({
 					where: {
-						address: meemContractRole.tokenAddress
+						address: agreementRole.tokenAddress
 					}
 				})
 
 				if (
-					roleMeemContract &&
-					roleMeemContract.isTransferrable !== req.body.isTokenTransferrable
+					roleAgreement &&
+					roleAgreement.isTransferrable !== req.body.isTokenTransferrable
 				) {
 					const provider = await services.ethers.getProvider({
-						chainId: meemContract.chainId
+						chainId: agreement.chainId
 					})
 					const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 					const roleSmartContract = Mycontract__factory.connect(
-						meemContract.address,
+						agreement.address,
 						wallet
 					)
 
@@ -885,11 +882,11 @@ export default class MeemContractController {
 					// TODO: Verify that admins who hold admin token can update the role contract
 					if (config.DISABLE_ASYNC_MINTING) {
 						try {
-							await services.meemContract.updateMeemContract({
+							await services.agreement.updateAgreement({
 								admins: roleContractAdmins,
 								mintPermissions,
 								isTransferLocked: !req.body.isTokenTransferrable,
-								meemContractId: roleMeemContract.id,
+								agreementId: roleAgreement.id,
 								senderWalletAddress: req.wallet.address
 							})
 						} catch (e) {
@@ -909,7 +906,7 @@ export default class MeemContractController {
 								Payload: JSON.stringify({
 									mintPermissions,
 									isTransferLocked: !req.body.isTokenTransferrable,
-									meemContractId: roleMeemContract.id,
+									agreementId: roleAgreement.id,
 									senderWalletAddress: req.wallet.address
 								})
 							})
@@ -927,20 +924,20 @@ export default class MeemContractController {
 		})
 	}
 
-	public static async deleteMeemContractRole(
-		req: IRequest<MeemAPI.v1.DeleteMeemContractRole.IDefinition>,
-		res: IResponse<MeemAPI.v1.DeleteMeemContractRole.IResponseBody>
+	public static async deleteAgreementRole(
+		req: IRequest<MeemAPI.v1.DeleteAgreementRole.IDefinition>,
+		res: IResponse<MeemAPI.v1.DeleteAgreementRole.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { meemContractId } = req.params
+		const { agreementId } = req.params
 
 		// TODO: Check if the user has permission to delete and not just admin contract role
 
-		const isAdmin = await services.meemContract.isMeemContractAdmin({
-			meemContractId,
+		const isAdmin = await services.agreement.isAgreementAdmin({
+			agreementId,
 			walletAddress: req.wallet.address
 		})
 
@@ -948,57 +945,57 @@ export default class MeemContractController {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		const meemContract = await orm.models.MeemContract.findOne({
+		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: req.params.meemContractId
+				id: req.params.agreementId
 			}
 		})
 
-		if (!meemContract) {
+		if (!agreement) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		const meemContractRole = await orm.models.MeemContractRole.findOne({
+		const agreementRole = await orm.models.AgreementRole.findOne({
 			where: {
-				id: req.params.meemContractRoleId
+				id: req.params.agreementRoleId
 			},
 			include: [
 				{
 					model: orm.models.RolePermission
 				},
 				{
-					model: orm.models.MeemContractGuild
+					model: orm.models.AgreementGuild
 				}
 			]
 		})
 
-		if (!meemContractRole) {
+		if (!agreementRole) {
 			throw new Error('MEEM_CONTRACT_ROLE_NOT_FOUND')
 		}
 
 		const promises: Promise<any>[] = []
 		const t = await orm.sequelize.transaction()
 
-		if (meemContractRole?.guildRoleId) {
-			await services.guild.deleteMeemContractGuildRole({
-				guildRoleId: meemContractRole.guildRoleId,
-				meemContractId: meemContract.id
+		if (agreementRole?.guildRoleId) {
+			await services.guild.deleteAgreementGuildRole({
+				guildRoleId: agreementRole.guildRoleId,
+				agreementId: agreement.id
 			})
 		}
 
 		promises.push(
-			orm.models.MeemContractRolePermission.destroy({
+			orm.models.AgreementRolePermission.destroy({
 				where: {
-					MeemContractRoleId: meemContractRole.id
+					AgreementRoleId: agreementRole.id
 				},
 				transaction: t
 			})
 		)
 
 		promises.push(
-			orm.models.MeemContractRole.destroy({
+			orm.models.AgreementRole.destroy({
 				where: {
-					id: meemContractRole.id
+					id: agreementRole.id
 				},
 				transaction: t
 			})
@@ -1017,17 +1014,17 @@ export default class MeemContractController {
 		}
 	}
 
-	public static async getMeemContractGuild(
-		req: IRequest<MeemAPI.v1.GetMeemContractGuild.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetMeemContractGuild.IResponseBody>
+	public static async getAgreementGuild(
+		req: IRequest<MeemAPI.v1.GetAgreementGuild.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetAgreementGuild.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
 		try {
-			const guildResponse = await services.guild.getMeemContractGuild({
-				meemContractId: req.params.meemContractId
+			const guildResponse = await services.guild.getAgreementGuild({
+				agreementId: req.params.agreementId
 			})
 
 			let guildPlatforms: any = guildResponse?.guildPlatforms
@@ -1069,17 +1066,17 @@ export default class MeemContractController {
 		}
 	}
 
-	public static async getMeemContractRoles(
-		req: IRequest<MeemAPI.v1.GetMeemContractRoles.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetMeemContractRoles.IResponseBody>
+	public static async getAgreementRoles(
+		req: IRequest<MeemAPI.v1.GetAgreementRoles.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetAgreementRoles.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
 		try {
-			const roles = await services.meemContract.getMeemContractRoles({
-				meemContractId: req.params.meemContractId
+			const roles = await services.agreement.getAgreementRoles({
+				agreementId: req.params.agreementId
 			})
 			return res.json({
 				roles
@@ -1090,18 +1087,18 @@ export default class MeemContractController {
 		}
 	}
 
-	public static async getMeemContractRole(
-		req: IRequest<MeemAPI.v1.GetMeemContractRole.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetMeemContractRole.IResponseBody>
+	public static async getAgreementRole(
+		req: IRequest<MeemAPI.v1.GetAgreementRole.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetAgreementRole.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
 		try {
-			const roles = await services.meemContract.getMeemContractRoles({
-				meemContractId: req.params.meemContractId,
-				meemContractRoleId: req.params.meemContractRoleId
+			const roles = await services.agreement.getAgreementRoles({
+				agreementId: req.params.agreementId,
+				agreementRoleId: req.params.agreementRoleId
 			})
 			return res.json({
 				role: roles[0]
@@ -1112,9 +1109,9 @@ export default class MeemContractController {
 		}
 	}
 
-	public static async getUserMeemContractRolesAccess(
-		req: IRequest<MeemAPI.v1.GetUserMeemContractRolesAccess.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetUserMeemContractRolesAccess.IResponseBody>
+	public static async getUserAgreementRolesAccess(
+		req: IRequest<MeemAPI.v1.GetUserAgreementRolesAccess.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetUserAgreementRolesAccess.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
@@ -1122,8 +1119,8 @@ export default class MeemContractController {
 
 		try {
 			const rolesAccess =
-				await services.meemContract.getUserMeemContractRolesAccess({
-					meemContractId: req.params.meemContractId,
+				await services.agreement.getUserAgreementRolesAccess({
+					agreementId: req.params.agreementId,
 					walletAddress: req.wallet.address
 				})
 			return res.json(rolesAccess)
@@ -1141,27 +1138,27 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const meemContract = await orm.models.MeemContract.findOne({
+		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: req.params.meemContractId
+				id: req.params.agreementId
 			},
 			include: [
 				{
-					model: orm.models.MeemContractGuild
+					model: orm.models.AgreementGuild
 				}
 			]
 		})
 
-		if (!meemContract || !meemContract.MeemContractGuild) {
+		if (!agreement || !agreement.AgreementGuild) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
 		const payload = {
-			guildId: meemContract.MeemContractGuild.guildId,
+			guildId: agreement.AgreementGuild.guildId,
 			platforms: []
 		}
 		const msg = 'Please sign this message.'
-		const chainId = undefined // services.guild.getGuildChain(meemContract.chainId)
+		const chainId = undefined // services.guild.getGuildChain(agreement.chainId)
 		const addr = req.wallet.address
 		const method = 1 // Guild method for authentication
 		const nonce = randomBytes(32).toString('base64')
@@ -1181,7 +1178,7 @@ export default class MeemContractController {
 		})
 	}
 
-	public static async joinMeemContractGuild(
+	public static async joinAgreementGuild(
 		req: IRequest<MeemAPI.v1.JoinGuild.IDefinition>,
 		res: IResponse<MeemAPI.v1.JoinGuild.IResponseBody>
 	): Promise<Response> {
@@ -1189,18 +1186,18 @@ export default class MeemContractController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const meemContract = await orm.models.MeemContract.findOne({
+		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: req.params.meemContractId
+				id: req.params.agreementId
 			},
 			include: [
 				{
-					model: orm.models.MeemContractGuild
+					model: orm.models.AgreementGuild
 				}
 			]
 		})
 
-		if (!meemContract || !meemContract.MeemContractGuild) {
+		if (!agreement || !agreement.AgreementGuild) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
@@ -1208,11 +1205,11 @@ export default class MeemContractController {
 		if (req.body.mintToken) {
 			try {
 				await services.meem.mintOriginalMeem({
-					meemContractAddress: meemContract.address,
+					agreementAddress: agreement.address,
 					to: req.wallet.address.toLowerCase(),
-					metadata: meemContract.metadata,
+					metadata: agreement.metadata,
 					mintedBy: req.wallet.address.toLowerCase(),
-					chainId: meemContract.chainId
+					chainId: agreement.chainId
 				})
 			} catch (e) {
 				log.crit(e)
@@ -1225,7 +1222,7 @@ export default class MeemContractController {
 				.post(`https://api.guild.xyz/v1/user/join`)
 				.send({
 					payload: {
-						guildId: meemContract.MeemContractGuild.guildId,
+						guildId: agreement.AgreementGuild.guildId,
 						platforms: []
 					},
 					params: req.body.params,

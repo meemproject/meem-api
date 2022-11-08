@@ -22,11 +22,11 @@ export default class AdminController {
 		})
 	}
 
-	public static async meemContractSync(
+	public static async agreementSync(
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		// await services.contractEvents.meemContractSync()
+		// await services.contractEvents.agreementSync()
 
 		return res.json({
 			status: 'success'
@@ -144,7 +144,7 @@ export default class AdminController {
 		})
 	}
 
-	public static async createMeemContractRoles(
+	public static async createAgreementRoles(
 		req: Request,
 		res: Response
 	): Promise<Response> {

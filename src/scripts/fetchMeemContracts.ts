@@ -4,7 +4,7 @@ import path from 'path'
 import fs from 'fs-extra'
 import request from 'superagent'
 
-async function fetchMeemContracts() {
+async function fetchAgreements() {
 	const { body } = await request
 		.get(
 			'https://api.github.com/repos/meemproject/meem-contracts/git/trees/master?recursive=1'
@@ -42,7 +42,7 @@ async function fetchMeemContracts() {
 	// await fs.writeFile(path.join(process.cwd(), 'src', 'abis', 'Meem.json'), text)
 }
 
-fetchMeemContracts()
+fetchAgreements()
 	.then(() => {
 		console.log(`Meem Contracts downloaded`)
 	})

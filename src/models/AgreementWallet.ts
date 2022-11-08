@@ -1,16 +1,16 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import type MeemContract from './MeemContract'
+import type Agreement from './Agreement'
 import type Wallet from './Wallet'
 
-export default class MeemContractWallet extends BaseModel<MeemContractWallet> {
-	public static readonly modelName = 'MeemContractWallet'
+export default class AgreementWallet extends BaseModel<AgreementWallet> {
+	public static readonly modelName = 'AgreementWallet'
 
 	public static get indexes() {
 		return [
 			{
-				name: 'MeemContractWallet_createdAt',
+				name: 'AgreementWallet_createdAt',
 				fields: ['createdAt']
 			}
 		]
@@ -34,15 +34,15 @@ export default class MeemContractWallet extends BaseModel<MeemContractWallet> {
 
 	public WalletId!: string
 
-	public MeemContractId!: string
+	public AgreementId!: string
 
 	public Wallet!: Wallet | null
 
-	public MeemContract!: MeemContract | null
+	public Agreement!: Agreement | null
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.Wallet)
 
-		this.belongsTo(models.MeemContract)
+		this.belongsTo(models.Agreement)
 	}
 }
