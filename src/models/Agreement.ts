@@ -1,5 +1,5 @@
 import { IERC721Base__factory } from '@meemproject/meem-contracts/dist/typechain/factories/@solidstate/contracts/token/ERC721/base/IERC721Base__factory'
-import { AgreementMetadataLike } from '@meemproject/metadata'
+import { MeemContractMetadataLike } from '@meemproject/metadata'
 import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import { ethers } from 'ethers'
 import keccak256 from 'keccak256'
@@ -9,10 +9,10 @@ import { DataTypes } from 'sequelize'
 import ModelWithAddress from '../core/ModelWithAddress'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
-import type Integration from './Integration'
-import type Meem from './Meem'
 import AgreementGuild from './AgreementGuild'
 import AgreementRole from './AgreementRole'
+import type Integration from './Integration'
+import type Meem from './Meem'
 import type Wallet from './Wallet'
 
 export default class Agreement extends ModelWithAddress<Agreement> {
@@ -317,7 +317,7 @@ export default class Agreement extends ModelWithAddress<Agreement> {
 
 	public address!: string
 
-	public metadata!: AgreementMetadataLike
+	public metadata!: MeemContractMetadataLike
 
 	public maxSupply!: string
 

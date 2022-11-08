@@ -1,5 +1,5 @@
 import Agreement from '../models/Agreement'
-import AgreementIntegration from '../models/AgreementExtension'
+import AgreementExtension from '../models/AgreementExtension'
 import AgreementGuild from '../models/AgreementGuild'
 import AgreementRole from '../models/AgreementRole'
 import AgreementRolePermission from '../models/AgreementRolePermission'
@@ -46,7 +46,7 @@ export interface IModels {
 	AgreementRole: typeof AgreementRole
 	AgreementRolePermission: typeof AgreementRolePermission
 	RolePermission: typeof RolePermission
-	AgreementIntegration: typeof AgreementIntegration
+	AgreementExtension: typeof AgreementExtension
 	AgreementWallet: typeof AgreementWallet
 	Reaction: typeof Reaction
 	Transaction: typeof Transaction

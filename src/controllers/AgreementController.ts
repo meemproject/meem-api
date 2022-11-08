@@ -160,9 +160,9 @@ export default class AgreementController {
 		})
 	}
 
-	public static async createOrUpdateAgreementIntegration(
-		req: IRequest<MeemAPI.v1.CreateOrUpdateAgreementIntegration.IDefinition>,
-		res: IResponse<MeemAPI.v1.CreateOrUpdateAgreementIntegration.IResponseBody>
+	public static async createOrUpdateAgreementExtension(
+		req: IRequest<MeemAPI.v1.CreateOrUpdateAgreementExtension.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateOrUpdateAgreementExtension.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
@@ -210,8 +210,8 @@ export default class AgreementController {
 			throw new Error('INTEGRATION_NOT_FOUND')
 		}
 
-		const existingAgreementIntegration =
-			await orm.models.AgreementIntegration.findOne({
+		const existingAgreementExtension =
+			await orm.models.AgreementExtension.findOne({
 				where: {
 					AgreementId: agreement.id,
 					IntegrationId: integration.id
@@ -230,11 +230,11 @@ export default class AgreementController {
 				integrationError.message = 'Twitter verification failed.'
 
 				if (
-					existingAgreementIntegration &&
-					existingAgreementIntegration.metadata?.isVerified &&
+					existingAgreementExtension &&
+					existingAgreementExtension.metadata?.isVerified &&
 					(!twitterUsername ||
 						twitterUsername ===
-							existingAgreementIntegration.metadata?.twitterUsername)
+							existingAgreementExtension.metadata?.twitterUsername)
 				) {
 					break
 				}
@@ -268,8 +268,8 @@ export default class AgreementController {
 				break
 		}
 
-		if (!existingAgreementIntegration) {
-			await orm.models.AgreementIntegration.create({
+		if (!existingAgreementExtension) {
+			await orm.models.AgreementExtension.create({
 				AgreementId: agreement.id,
 				IntegrationId: integration.id,
 				isEnabled: req.body.isEnabled ?? true,
@@ -278,19 +278,19 @@ export default class AgreementController {
 			})
 		} else {
 			if (!_.isUndefined(req.body.isEnabled)) {
-				existingAgreementIntegration.isEnabled = req.body.isEnabled
+				existingAgreementExtension.isEnabled = req.body.isEnabled
 			}
 
 			if (!_.isUndefined(req.body.isPublic)) {
-				existingAgreementIntegration.isPublic = req.body.isPublic
+				existingAgreementExtension.isPublic = req.body.isPublic
 			}
 
 			if (integrationMetadata) {
 				// TODO: Typecheck metadata
-				existingAgreementIntegration.metadata = integrationMetadata
+				existingAgreementExtension.metadata = integrationMetadata
 			}
 
-			await existingAgreementIntegration.save()
+			await existingAgreementExtension.save()
 		}
 
 		return res.json({
@@ -819,10 +819,9 @@ export default class AgreementController {
 					discordServerData = updatedDiscordServerResult.body
 
 					if (agreementRoleDiscordIntegrationDataIndex > -1) {
-						integrationsMetadata[agreementRoleDiscordIntegrationDataIndex] =
-							{
-								discordServerData
-							}
+						integrationsMetadata[agreementRoleDiscordIntegrationDataIndex] = {
+							discordServerData
+						}
 					} else {
 						integrationsMetadata.push({
 							discordServerData
@@ -1118,11 +1117,10 @@ export default class AgreementController {
 		}
 
 		try {
-			const rolesAccess =
-				await services.agreement.getUserAgreementRolesAccess({
-					agreementId: req.params.agreementId,
-					walletAddress: req.wallet.address
-				})
+			const rolesAccess = await services.agreement.getUserAgreementRolesAccess({
+				agreementId: req.params.agreementId,
+				walletAddress: req.wallet.address
+			})
 			return res.json(rolesAccess)
 		} catch (e) {
 			log.crit(e)

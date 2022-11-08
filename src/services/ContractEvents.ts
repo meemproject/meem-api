@@ -1,4 +1,4 @@
-import { AgreementMetadataLike } from '@meemproject/metadata'
+import { MeemContractMetadataLike } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 // import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
@@ -210,7 +210,7 @@ export default class ContractEvent {
 
 		const metadata = (await services.meem.getErc721Metadata(
 			contractInfo.contractURI as string
-		)) as AgreementMetadataLike
+		)) as MeemContractMetadataLike
 
 		if (!existingAgreement || !slug) {
 			// TODO: pretty slug
@@ -447,9 +447,7 @@ export default class ContractEvent {
 		chainId: number
 	}) {
 		const { address, eventData, chainId } = args
-		let agreement = await orm.models.Agreement.findByAddress<Agreement>(
-			address
-		)
+		let agreement = await orm.models.Agreement.findByAddress<Agreement>(address)
 
 		if (!agreement) {
 			agreement = await this.meemHandleContractInitialized({

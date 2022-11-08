@@ -114,7 +114,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	)
 	router.postAsync(
 		'/agreements/:agreementId/integrations/:integrationId',
-		AgreementController.createOrUpdateAgreementIntegration
+		AgreementController.createOrUpdateAgreementExtension
 	)
 	// router.getAsync('/meems', MeemController.getMeems)
 	// router.getAsync('/meems/:tokenId', MeemController.getMeem)

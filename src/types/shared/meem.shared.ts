@@ -224,7 +224,7 @@ export interface IMeemMetadataLike {
 	meem_metadata_version: string
 	[key: string]: any
 }
-export interface IAgreementMetadataLike {
+export interface IMeemContractMetadataLike {
 	meem_contract_type: string
 	meem_metadata_version: string
 	[key: string]: any
@@ -452,7 +452,7 @@ export interface IERC721Metadata {
 	description?: string
 }
 
-export interface IAgreementIntegrationMetadata {
+export interface IAgreementExtensionMetadata {
 	externalUrl?: string
 	[key: string]: unknown
 }

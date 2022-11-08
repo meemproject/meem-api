@@ -450,8 +450,9 @@ export default class AgreementService {
 						const t = await orm.sequelize.transaction()
 						const roleIdsToAdd =
 							permissions.filter(pid => {
-								const existingPermission =
-									agreementRole.RolePermissions?.find(rp => rp.id === pid)
+								const existingPermission = agreementRole.RolePermissions?.find(
+									rp => rp.id === pid
+								)
 								return !existingPermission
 							}) ?? []
 
@@ -953,11 +954,7 @@ export default class AgreementService {
 			})
 			const signer = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
-			const diamond = new ethers.Contract(
-				agreement.address,
-				diamondABI,
-				signer
-			)
+			const diamond = new ethers.Contract(agreement.address, diamondABI, signer)
 
 			const facets = await diamond.facets()
 			facets.forEach((facet: { target: string; selectors: string[] }) => {

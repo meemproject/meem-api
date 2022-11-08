@@ -658,9 +658,7 @@ export default class GuildService {
 					if (membersToAdd.length > 0) {
 						const roleTokenMetadata = {
 							meem_metadata_version: 'MeemClubRole_Token_20220718',
-							name: `${agreement.name ?? ''} - ${
-								name ?? agreementRole.name
-							}`,
+							name: `${agreement.name ?? ''} - ${name ?? agreementRole.name}`,
 							description: name ?? agreementRole.name,
 							image: '',
 							associations: [

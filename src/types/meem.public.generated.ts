@@ -258,7 +258,7 @@ export interface IMeemMetadataProperties {
 	parent_token_metadata?: Record<string, any> | null
 }
 
-export interface IMeemContractAssociation {
+export interface IAgreementAssociation {
 	meem_contract_type: string
 	address: string
 	tokenIds?: string[]
@@ -272,14 +272,14 @@ export interface IMeemMetadata {
 	meem_id?: string
 	meem_properties?: IMeemMetadataProperties
 	extension_properties?: Record<string, any>
-	associations?: IMeemContractAssociation[]
+	associations?: IAgreementAssociation[]
 }
 
 export interface IMeemMetadataLike {
 	meem_metadata_version: string
 	[key: string]: any
 }
-export interface IMeemContractMetadataLike {
+export interface IAgreementMetadataLike {
 	meem_contract_type: string
 	meem_metadata_version: string
 	[key: string]: any
@@ -414,7 +414,7 @@ export interface IMeemProperties {
 	transferLockupUntilLockedBy: string
 }
 
-export interface IMeemContractBaseProperties {
+export interface IAgreementBaseProperties {
 	/** BigNumber hex string */
 	totalOriginalsSupply: string
 	totalOriginalsSupplyLockedBy: string
@@ -434,7 +434,7 @@ export interface IMeemContractBaseProperties {
 	transferLockupUntilLockedBy: string
 }
 
-export interface IMeemContractInitParams {
+export interface IAgreementInitParams {
 	symbol?: string
 	name: string
 	contractURI: string
@@ -507,7 +507,7 @@ export interface IERC721Metadata {
 	description?: string
 }
 
-export interface IMeemContractIntegrationMetadata {
+export interface IAgreementExtensionMetadata {
 	externalUrl?: string
 	[key: string]: unknown
 }
@@ -642,13 +642,13 @@ export interface IMeemIdentity {
 		ens: string
 	}
 }
-export interface IMeemContractRole {
+export interface IAgreementRole {
 	id: string
 	name: string
 	guildRoleId?: number
 	isAdminRole: boolean
 	AgreementId: string
-	MeemContractGuildId?: string
+	AgreementGuildId?: string
 	permissions: string[]
 	guildRole: {
 		id: number
@@ -969,7 +969,7 @@ export namespace CreateContract {
 
 
 /** Create Meem Image */
-export namespace CreateMeemContract {
+export namespace CreateAgreement {
 	export interface IPathParams {}
 
 	export const path = () => `/api/1.0/meemContracts`
@@ -980,7 +980,7 @@ export namespace CreateMeemContract {
 
 	export interface IRequestBody {
 		/** Contract metadata */
-		metadata: IMeemContractMetadataLike
+		metadata: IAgreementMetadataLike
 
 		/** The chain id */
 		chainId: number
@@ -1038,7 +1038,7 @@ export namespace CreateMeemContract {
 
 
 
-export namespace CreateMeemContractRole {
+export namespace CreateAgreementRole {
 	export interface IPathParams {
 		/** The meem contract id to fetch */
 		agreementId: string
@@ -1145,7 +1145,7 @@ export namespace CreateMeemProject {
 
 
 
-export namespace CreateOrUpdateMeemContractIntegration {
+export namespace CreateOrUpdateAgreementExtension {
 	export interface IPathParams {
 		/** The meem contract id to fetch */
 		agreementId: string
@@ -1166,7 +1166,7 @@ export namespace CreateOrUpdateMeemContractIntegration {
 		/** Is the integration publicly displayed on club */
 		isPublic?: boolean
 		/** Metadata associated with this integration */
-		metadata?: MeemAPI.IMeemContractIntegrationMetadata
+		metadata?: MeemAPI.IAgreementExtensionMetadata
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -1262,11 +1262,11 @@ export namespace CreateOrUpdateMeemIdIntegration {
 
 
 
-export namespace DeleteMeemContractRole {
+export namespace DeleteAgreementRole {
 	export interface IPathParams {
 		/** The meem contract id to fetch */
 		agreementId: string
-		/** The MeemContractRole id to update */
+		/** The AgreementRole id to update */
 		meemContractRoleId: string
 	}
 
@@ -1546,7 +1546,7 @@ export namespace GetIPFSFile {
 
 export namespace GetJoinGuildMessage {
 	export interface IPathParams {
-		/** The MeemContract id */
+		/** The Agreement id */
 		agreementId: string
 	}
 
@@ -1683,9 +1683,9 @@ export namespace GetMeemClippings {
 
 
 
-export namespace GetMeemContractGuild {
+export namespace GetAgreementGuild {
 	export interface IPathParams {
-		/** The MeemContract id of the guild to fetch */
+		/** The Agreement id of the guild to fetch */
 		agreementId: string
 	}
 
@@ -1714,11 +1714,11 @@ export namespace GetMeemContractGuild {
 
 
 
-export namespace GetMeemContractRole {
+export namespace GetAgreementRole {
 	export interface IPathParams {
-		/** The MeemContract id to fetch roles of */
+		/** The Agreement id to fetch roles of */
 		agreementId: string
-		/** The MeemContract Role id to fetch roles of */
+		/** The Agreement Role id to fetch roles of */
 		meemContractRoleId: string
 	}
 
@@ -1732,7 +1732,7 @@ export namespace GetMeemContractRole {
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		role: IMeemContractRole
+		role: IAgreementRole
 	}
 
 	export interface IDefinition {
@@ -1747,9 +1747,9 @@ export namespace GetMeemContractRole {
 
 
 
-export namespace GetMeemContractRoles {
+export namespace GetAgreementRoles {
 	export interface IPathParams {
-		/** The MeemContract id to fetch roles of */
+		/** The Agreement id to fetch roles of */
 		agreementId: string
 	}
 
@@ -2075,9 +2075,9 @@ export namespace GetUrlScreenshot {
 
 
 
-export namespace GetUserMeemContractRolesAccess {
+export namespace GetUserAgreementRolesAccess {
 	export interface IPathParams {
-		/** The MeemContract id */
+		/** The Agreement id */
 		agreementId: string
 	}
 
@@ -2092,7 +2092,7 @@ export namespace GetUserMeemContractRolesAccess {
 
 	export interface IResponseBody extends IApiResponseBody {
 		hasRolesAccess: boolean
-		roles: IMeemContractRole[]
+		roles: IAgreementRole[]
 	}
 
 	export interface IDefinition {
@@ -2216,7 +2216,7 @@ export namespace IsSlugAvailable {
 
 export namespace JoinGuild {
 	export interface IPathParams {
-		/** The MeemContract id */
+		/** The Agreement id */
 		agreementId: string
 	}
 
@@ -2391,7 +2391,7 @@ export namespace MintOriginalMeem {
 
 
 /** Create Meem Image */
-export namespace ReInitializeMeemContract {
+export namespace ReInitializeAgreement {
 	export interface IPathParams {
 		agreementId: string
 	}
@@ -2405,7 +2405,7 @@ export namespace ReInitializeMeemContract {
 
 	export interface IRequestBody {
 		/** Contract metadata */
-		metadata?: IMeemContractMetadataLike
+		metadata?: IAgreementMetadataLike
 
 		/** The symbol for the token. If omitted, will use a slug of the name */
 		symbol?: string
@@ -2673,7 +2673,7 @@ export namespace UpdateWalletContractInstance {
 
 
 
-export namespace UpdateMeemContract {
+export namespace UpdateAgreement {
 	export interface IPathParams {
 		/** The meem pass id to fetch */
 		agreementId: string
@@ -2707,7 +2707,7 @@ export namespace UpdateMeemContract {
 
 
 
-export namespace UpdateMeemContractRole {
+export namespace UpdateAgreementRole {
 	export interface DiscordRoleIntegrationData {
 		discordServerId: string
 		discordGatedChannels: string[]
@@ -2716,7 +2716,7 @@ export namespace UpdateMeemContractRole {
 	export interface IPathParams {
 		/** The meem contract id to fetch */
 		agreementId: string
-		/** The MeemContractRole id to update */
+		/** The AgreementRole id to update */
 		meemContractRoleId: string
 	}
 

@@ -2,7 +2,7 @@ import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 import {
 	IMeemProperties,
 	IAgreementBaseProperties,
-	IAgreementMetadataLike,
+	IMeemContractMetadataLike,
 	IMeemMetadataLike,
 	IAgreementInitParams,
 	IMeemPermission,
@@ -24,7 +24,7 @@ export namespace ReInitializeAgreement {
 
 	export interface IRequestBody {
 		/** Contract metadata */
-		metadata?: IAgreementMetadataLike
+		metadata?: IMeemContractMetadataLike
 
 		/** The symbol for the token. If omitted, will use a slug of the name */
 		symbol?: string

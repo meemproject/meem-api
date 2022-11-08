@@ -1,7 +1,7 @@
 import { MeemAPI } from '../../meem.generated'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
-export namespace CreateOrUpdateAgreementIntegration {
+export namespace CreateOrUpdateAgreementExtension {
 	export interface IPathParams {
 		/** The meem contract id to fetch */
 		agreementId: string
@@ -22,7 +22,7 @@ export namespace CreateOrUpdateAgreementIntegration {
 		/** Is the integration publicly displayed on club */
 		isPublic?: boolean
 		/** Metadata associated with this integration */
-		metadata?: MeemAPI.IAgreementIntegrationMetadata
+		metadata?: MeemAPI.IAgreementExtensionMetadata
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

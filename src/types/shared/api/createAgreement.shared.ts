@@ -2,7 +2,7 @@ import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 import {
 	IMeemProperties,
 	IAgreementBaseProperties,
-	IAgreementMetadataLike,
+	IMeemContractMetadataLike,
 	IMeemMetadataLike,
 	IAgreementInitParams,
 	IMeemPermission,
@@ -21,7 +21,7 @@ export namespace CreateAgreement {
 
 	export interface IRequestBody {
 		/** Contract metadata */
-		metadata: IAgreementMetadataLike
+		metadata: IMeemContractMetadataLike
 
 		/** The chain id */
 		chainId: number
