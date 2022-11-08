@@ -272,10 +272,10 @@ export default class MeemService {
 			imageBase64: string
 			collectionName?: string
 			meemId?: string
-			extensionProperties?: MeemAPI.IMeemMetadata['extension_properties']
+			extensionProperties?: MeemAPI.ITokenMetadata['extension_properties']
 		},
 		storageProvider?: MeemMetadataStorageProvider
-	): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
+	): Promise<{ metadata: MeemAPI.ITokenMetadata; tokenURI: string }> {
 		const {
 			name,
 			description,
@@ -298,12 +298,6 @@ export default class MeemService {
 		}
 
 		switch (storageProvider) {
-			case MeemMetadataStorageProvider.Git:
-				return services.git.saveMeemMetadata({
-					imageBase64,
-					metadata,
-					meemId: id
-				})
 			default:
 				return services.web3.saveMeemMetadata({
 					imageBase64,
@@ -474,7 +468,7 @@ export default class MeemService {
 
 			const builtData: {
 				to: string
-				metadata: MeemAPI.IMeemMetadataLike
+				metadata: MeemAPI.ITokenMetadataLike
 				ipfs?: string
 			}[] = []
 

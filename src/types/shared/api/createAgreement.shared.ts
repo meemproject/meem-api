@@ -3,7 +3,7 @@ import {
 	IMeemProperties,
 	IAgreementBaseProperties,
 	IMeemContractMetadataLike,
-	IMeemMetadataLike,
+	ITokenMetadataLike,
 	IAgreementInitParams,
 	IMeemPermission,
 	IMeemSplit
@@ -60,7 +60,7 @@ export namespace CreateAgreement {
 		members?: string[]
 
 		/** Token metadata */
-		tokenMetadata?: IMeemMetadataLike
+		tokenMetadata?: ITokenMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

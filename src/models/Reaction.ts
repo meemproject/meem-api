@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import type Meem from './Meem'
+import type Meem from './Token'
 
 export default class Reaction extends BaseModel<Reaction> {
 	public static readonly modelName = 'Reaction'
@@ -60,6 +60,6 @@ export default class Reaction extends BaseModel<Reaction> {
 	public Meem!: Meem | null
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.Meem)
+		this.belongsTo(models.Token)
 	}
 }

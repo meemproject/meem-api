@@ -12,7 +12,7 @@ import type { IModels } from '../types/models'
 import AgreementGuild from './AgreementGuild'
 import AgreementRole from './AgreementRole'
 import type Extension from './Extension'
-import type Meem from './Meem'
+import type Meem from './Token'
 import type Wallet from './Wallet'
 
 export default class Agreement extends ModelWithAddress<Agreement> {
@@ -354,7 +354,7 @@ export default class Agreement extends ModelWithAddress<Agreement> {
 	public Extensions?: Extension[] | null
 
 	public static associate(models: IModels) {
-		this.hasMany(models.Meem)
+		this.hasMany(models.Token)
 
 		this.belongsToMany(models.Wallet, {
 			through: models.AgreementWallet

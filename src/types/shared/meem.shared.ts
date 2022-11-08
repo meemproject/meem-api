@@ -192,7 +192,7 @@ export interface IMeemSplit {
 	lockedBy: string
 }
 
-export interface IMeemMetadataProperties {
+export interface ITokenMetadataProperties {
 	root_token_uri?: string | null
 	root_token_address?: string | null
 	root_token_id?: string | null
@@ -208,19 +208,19 @@ export interface IAgreementAssociation {
 	address: string
 	tokenIds?: string[]
 }
-export interface IMeemMetadata {
+export interface ITokenMetadata {
 	name: string
 	description: string
 	external_url: string
 	image: string
 	image_original?: string
 	meem_id?: string
-	meem_properties?: IMeemMetadataProperties
+	meem_properties?: ITokenMetadataProperties
 	extension_properties?: Record<string, any>
 	associations?: IAgreementAssociation[]
 }
 
-export interface IMeemMetadataLike {
+export interface ITokenMetadataLike {
 	meem_metadata_version: string
 	[key: string]: any
 }
@@ -313,7 +313,7 @@ export interface ICreateMeemMetadata {
 	meem_id?: string
 
 	/** Additional meem properties. For trusted minters only. */
-	meem_properties?: IMeemMetadataProperties
+	meem_properties?: ITokenMetadataProperties
 
 	/** Extension properties. For trusted minters only. */
 	extension_properties?: Record<string, any>
@@ -437,7 +437,7 @@ export interface IMetadataMeem extends IMeem {
 	numCopies: number
 	numRemixes: number
 	addressReactions?: IReaction[]
-	metadata: IMeemMetadata
+	metadata: ITokenMetadata
 	defaultTwitterUser?: {
 		id: string
 		username: string

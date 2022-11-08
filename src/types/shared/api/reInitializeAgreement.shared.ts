@@ -3,7 +3,7 @@ import {
 	IMeemProperties,
 	IAgreementBaseProperties,
 	IMeemContractMetadataLike,
-	IMeemMetadataLike,
+	ITokenMetadataLike,
 	IAgreementInitParams,
 	IMeemPermission,
 	IMeemSplit
@@ -54,7 +54,7 @@ export namespace ReInitializeAgreement {
 		shouldMintTokens?: boolean
 
 		/** Admin token metadata */
-		tokenMetadata?: IMeemMetadataLike
+		tokenMetadata?: ITokenMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import Meem from './Meem'
+import Token from './Token'
 
 export default class Tweet extends BaseModel<Tweet> {
 	public static readonly modelName = 'Tweet'
@@ -13,8 +13,8 @@ export default class Tweet extends BaseModel<Tweet> {
 				fields: ['tweetId']
 			},
 			{
-				name: 'Tweet_MeemId',
-				fields: ['MeemId']
+				name: 'Tweet_TokenId',
+				fields: ['TokenId']
 			}
 		]
 	}
@@ -69,12 +69,12 @@ export default class Tweet extends BaseModel<Tweet> {
 	/** The twitter conversation ID of the tweet */
 	public conversationId!: string
 
-	public MeemId!: string | null
+	public TokenId!: string | null
 
-	public Meem!: Meem | null
+	public Token!: Token | null
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.Meem)
+		this.belongsTo(models.Token)
 		this.belongsToMany(models.Hashtag, {
 			through: models.TweetHashtag
 		})

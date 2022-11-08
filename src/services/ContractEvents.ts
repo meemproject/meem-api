@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 // import meemABI from '../abis/Meem.json'
 // import { wait } from '../lib/utils'
 import Agreement from '../models/Agreement'
-import Meem from '../models/Meem'
+import Meem from '../models/Token'
 import Wallet from '../models/Wallet'
 import {
 	ContractInfoStruct,
@@ -414,7 +414,7 @@ export default class ContractEvent {
 	}) {
 		// const tokenId = args.eventData.tokenId.toHexString()
 		// const { splits } = args.eventData
-		// const meem = await orm.models.Meem.findOne({
+		// const meem = await orm.models.Token.findOne({
 		// 	where: {
 		// 		tokenId
 		// 	},
@@ -471,7 +471,7 @@ export default class ContractEvent {
 	// }) {
 	// 	const tokenId = args.eventData.tokenId.toHexString()
 	// 	const { propertyType, props } = args.eventData
-	// 	const meem = await orm.models.Meem.findOne({
+	// 	const meem = await orm.models.Token.findOne({
 	// 		where: {
 	// 			tokenId
 	// 		},
@@ -508,7 +508,7 @@ export default class ContractEvent {
 	// }) {
 	// 	const tokenId = args.eventData.tokenId.toHexString()
 	// 	const { propertyType, permissionType, permission } = args.eventData
-	// 	const meem = await orm.models.Meem.findOne({
+	// 	const meem = await orm.models.Token.findOne({
 	// 		where: {
 	// 			tokenId
 	// 		},
@@ -570,7 +570,7 @@ export default class ContractEvent {
 
 	// 	const [wallet, meem] = await Promise.all([
 	// 		orm.models.Wallet.findByAddress<Wallet>(addy) as unknown as Wallet | null,
-	// 		orm.models.Meem.findOne({
+	// 		orm.models.Token.findOne({
 	// 			where: {
 	// 				tokenId
 	// 			},
@@ -612,7 +612,7 @@ export default class ContractEvent {
 	// 	const tokenId = args.eventData.tokenId.toHexString()
 	// 	const { addy } = args.eventData
 
-	// 	const meem = await orm.models.Meem.findOne({
+	// 	const meem = await orm.models.Token.findOne({
 	// 		where: {
 	// 			tokenId
 	// 		},
@@ -648,7 +648,7 @@ export default class ContractEvent {
 	// 	log.debug(`Adding "${reaction}" reaction for ${addy} on token ${tokenId}`)
 
 	// 	const [meem, wallet] = await Promise.all([
-	// 		orm.models.Meem.findOne({
+	// 		orm.models.Token.findOne({
 	// 			where: {
 	// 				tokenId
 	// 			},
@@ -704,7 +704,7 @@ export default class ContractEvent {
 
 	// 	log.debug(`Removing "${reaction}" reaction for ${addy} on token ${tokenId}`)
 
-	// 	const meem = await orm.models.Meem.findOne({
+	// 	const meem = await orm.models.Token.findOne({
 	// 		where: {
 	// 			tokenId
 	// 		},
@@ -746,7 +746,7 @@ export default class ContractEvent {
 
 	// 	log.debug(`Reaction types set for token ${tokenId}`)
 
-	// 	const meem = await orm.models.Meem.findOne({
+	// 	const meem = await orm.models.Token.findOne({
 	// 		where: {
 	// 			tokenId
 	// 		},
@@ -777,7 +777,7 @@ export default class ContractEvent {
 	}) {
 		const tokenId = args.eventData.tokenId.toHexString()
 		const { chainId } = args
-		let meem = await orm.models.Meem.findOne({
+		let meem = await orm.models.Token.findOne({
 			where: {
 				tokenId
 			},
@@ -905,7 +905,7 @@ export default class ContractEvent {
 
 		const metadata = (await services.meem.getErc721Metadata(
 			tokenURI
-		)) as MeemAPI.IMeemMetadata
+		)) as MeemAPI.ITokenMetadata
 
 		const data: Record<string, any> = {
 			id: uuidv4(),
@@ -923,7 +923,7 @@ export default class ContractEvent {
 		const t = await orm.sequelize.transaction()
 
 		const createUpdatePromises: Promise<any>[] = [
-			orm.models.Meem.create(data, { transaction: t })
+			orm.models.Token.create(data, { transaction: t })
 		]
 
 		const [meem] = (await Promise.all(createUpdatePromises)) as [Meem]
@@ -999,7 +999,7 @@ export default class ContractEvent {
 
 	// 	const metadata = (await services.meem.getErc721Metadata(
 	// 		tokenURI
-	// 	)) as MeemAPI.IMeemMetadata
+	// 	)) as MeemAPI.ITokenMetadata
 
 	// 	// meem.data = meemData.data
 	// 	meem.metadata = metadata

@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import Meem from './Meem'
+import Token from './Token'
 
 export default class Clipping extends BaseModel<Clipping> {
 	public static readonly modelName = 'Clipping'
@@ -45,11 +45,11 @@ export default class Clipping extends BaseModel<Clipping> {
 
 	public clippedAt!: Date
 
-	public MeemId!: string | null
+	public TokenId!: string | null
 
-	public Meem!: Meem | null
+	public Token!: Token | null
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.Meem)
+		this.belongsTo(models.Token)
 	}
 }

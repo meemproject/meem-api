@@ -6,31 +6,31 @@ import type Agreement from './Agreement'
 import type Transfer from './Transfer'
 import type Wallet from './Wallet'
 
-export default class Meem extends BaseModel<Meem> {
-	public static readonly modelName = 'Meem'
+export default class Token extends BaseModel<Token> {
+	public static readonly modelName = 'Token'
 
 	public static readonly paranoid: boolean = false
 
 	public static get indexes() {
 		return [
 			{
-				name: 'Meem_createdAt',
+				name: 'Token_createdAt',
 				fields: ['createdAt']
 			},
 			{
-				name: 'Meem_tokenId',
+				name: 'Token_tokenId',
 				fields: ['tokenId']
 			},
 			{
-				name: 'Meem_meemType',
+				name: 'Token_meemType',
 				fields: ['meemType']
 			},
 			{
-				name: 'Meem_mintedBy',
+				name: 'Token_mintedBy',
 				fields: ['mintedBy']
 			},
 			{
-				name: 'Meem_AgreementId',
+				name: 'Token_AgreementId',
 				fields: ['AgreementId']
 			}
 		]
@@ -45,7 +45,7 @@ export default class Meem extends BaseModel<Meem> {
 		tokenId: {
 			type: DataTypes.STRING,
 			allowNull: false,
-			set(this: Meem, val: any) {
+			set(this: Token, val: any) {
 				this.setDataValue(
 					'tokenId',
 					services.web3.toBigNumber(val).toHexString()
@@ -86,7 +86,7 @@ export default class Meem extends BaseModel<Meem> {
 
 	public mintedAt!: Date
 
-	public metadata!: MeemAPI.IMeemMetadata
+	public metadata!: MeemAPI.ITokenMetadata
 
 	public meemType!: MeemAPI.MeemType
 

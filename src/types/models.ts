@@ -11,15 +11,15 @@ import Clipping from '../models/Clipping'
 import Contract from '../models/Contract'
 import ContractInstance from '../models/ContractInstance'
 import Discord from '../models/Discord'
+import Extension from '../models/Extension'
 import Hashtag from '../models/Hashtag'
 import IdentityIntegration from '../models/IdentityIntegration'
-import Integration from '../models/Extension'
-import Meem from '../models/Meem'
 import MeemIdentity from '../models/MeemIdentity'
 import MeemIdentityIntegration from '../models/MeemIdentityIntegration'
 import MeemIdentityWallet from '../models/MeemIdentityWallet'
 import Reaction from '../models/Reaction'
 import RolePermission from '../models/RolePermission'
+import Token from '../models/Token'
 import Transaction from '../models/Transaction'
 import Transfer from '../models/Transfer'
 import Tweet from '../models/Tweet'
@@ -37,8 +37,8 @@ export interface IModels {
 	ContractInstance: typeof ContractInstance
 	Discord: typeof Discord
 	Hashtag: typeof Hashtag
-	Integration: typeof Integration
-	Meem: typeof Meem
+	Extension: typeof Extension
+	Token: typeof Token
 	Agreement: typeof Agreement
 	IdentityIntegration: typeof IdentityIntegration
 	MeemIdentityIntegration: typeof MeemIdentityIntegration

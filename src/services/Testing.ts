@@ -20,8 +20,8 @@ export default class EthersService {
 	}
 
 	public getMeemMetadata(
-		metadata: Partial<MeemAPI.IMeemMetadata>
-	): MeemAPI.IMeemMetadata {
+		metadata: Partial<MeemAPI.ITokenMetadata>
+	): MeemAPI.ITokenMetadata {
 		const imageUrl = this.getIpfsUrl()
 		return {
 			name: metadata.name ?? this.faker.name.firstName(),

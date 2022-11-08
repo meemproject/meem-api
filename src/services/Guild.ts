@@ -12,7 +12,7 @@ import _ from 'lodash'
 import Agreement from '../models/Agreement'
 import AgreementGuild from '../models/AgreementGuild'
 import AgreementRole from '../models/AgreementRole'
-import Meem from '../models/Meem'
+import Meem from '../models/Token'
 import { Mycontract__factory } from '../types/Meem'
 
 export default class GuildService {
@@ -602,7 +602,7 @@ export default class GuildService {
 				})
 				// TODO: Allow other contracts besides Meem
 				if (roleAgreement) {
-					const memberMeems = await orm.models.Meem.findAll({
+					const memberMeems = await orm.models.Token.findAll({
 						where: {
 							AgreementId: roleAgreement.id
 						},

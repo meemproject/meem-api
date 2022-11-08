@@ -187,7 +187,7 @@ export default class AgreementController {
 					}
 				},
 				{
-					model: orm.models.Integration
+					model: orm.models.Extension
 				}
 			]
 		})
@@ -200,7 +200,7 @@ export default class AgreementController {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		const integration = await orm.models.Integration.findOne({
+		const integration = await orm.models.Extension.findOne({
 			where: {
 				id: req.params.integrationId
 			}

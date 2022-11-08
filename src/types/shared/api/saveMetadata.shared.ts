@@ -1,5 +1,5 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { ICreateMeemMetadata, IMeemMetadata } from '../meem.shared'
+import { ICreateMeemMetadata, ITokenMetadata } from '../meem.shared'
 
 export namespace SaveMetadata {
 	export interface IPathParams {}
@@ -16,7 +16,7 @@ export namespace SaveMetadata {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		metadata: IMeemMetadata
+		metadata: ITokenMetadata
 		tokenURI: string
 	}
 

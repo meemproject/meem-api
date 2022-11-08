@@ -178,8 +178,8 @@ export default class Web3 {
 	public static async saveMeemMetadata(data: {
 		imageBase64?: string
 		image?: Buffer
-		metadata: MeemAPI.IMeemMetadata | MeemAPI.ICreateMeemMetadata
-	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
+		metadata: MeemAPI.ITokenMetadata | MeemAPI.ICreateMeemMetadata
+	}): Promise<{ metadata: MeemAPI.ITokenMetadata; tokenURI: string }> {
 		if (config.TESTING) {
 			const imageURI = services.testing.getIpfsUrl()
 			return {
@@ -199,7 +199,7 @@ export default class Web3 {
 			throw new Error('INVALID_IMAGE_TYPE')
 		}
 
-		const meemMetadata = data.metadata as MeemAPI.IMeemMetadata
+		const meemMetadata = data.metadata as MeemAPI.ITokenMetadata
 
 		const meemId = data.metadata.meem_id ?? uuidv4()
 		const isValid = validateUUID(meemId)
@@ -226,7 +226,7 @@ export default class Web3 {
 		const externalUrl =
 			meemMetadata.external_url ?? `${config.MEEM_DOMAIN}/meems/${meemId}`
 
-		const storedMetadata: MeemAPI.IMeemMetadata = {
+		const storedMetadata: MeemAPI.ITokenMetadata = {
 			...data.metadata,
 			external_url: externalUrl,
 			meem_id: meemId,
@@ -258,7 +258,7 @@ export default class Web3 {
 	}
 
 	public static async syncPins() {
-		const meems = await orm.models.Meem.findAll({ limit: 5 })
+		const meems = await orm.models.Token.findAll({ limit: 5 })
 		const pinata = this.getPinataInstance()
 
 		for (let i = 0; i < meems.length; i += 1) {

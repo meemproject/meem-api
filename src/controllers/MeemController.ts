@@ -272,7 +272,7 @@ export default class MeemController {
 			offset: page * limit,
 			include: [
 				{
-					model: orm.models.Meem,
+					model: orm.models.Token,
 					where: meemWhere,
 					required: true
 				}
@@ -283,15 +283,15 @@ export default class MeemController {
 		const cleanClippings: MeemAPI.IClippingExtended[] = []
 
 		result.rows.forEach(c => {
-			if (c.Meem?.tokenId) {
+			if (c.Token?.tokenId) {
 				const clip: MeemAPI.IClippingExtended = {
 					address: c.address,
 					clippedAt: DateTime.fromJSDate(c.clippedAt).toSeconds(),
 					hasMeemId: false,
-					tokenId: c.Meem.tokenId
+					tokenId: c.Token.tokenId
 				}
 				if (shouldIncludeMetadata) {
-					// clip.meem = services.meem.meemToIMeem(c.Meem)
+					// clip.meem = services.meem.meemToIMeem(c.Token)
 				}
 				cleanClippings.push(clip)
 			} else {
@@ -318,7 +318,7 @@ export default class MeemController {
 		const result = await orm.models.Clipping.findAll({
 			include: [
 				{
-					model: orm.models.Meem,
+					model: orm.models.Token,
 					where: {
 						tokenId: {
 							[Op.in]: tokenIds.slice(0, 200)
@@ -332,7 +332,7 @@ export default class MeemController {
 		const status: { [tokenId: string]: boolean } = {}
 
 		tokenIds.forEach(t => {
-			const clipping = result.find(c => c.Meem?.tokenId === t)
+			const clipping = result.find(c => c.Token?.tokenId === t)
 			status[t] = !!clipping
 		})
 

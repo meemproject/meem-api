@@ -55,6 +55,6 @@ export default class Transfer extends BaseModel<Transfer> {
 	public MeemId!: string
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.Meem)
+		this.belongsTo(models.Token)
 	}
 }

@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/rest'
 import request from 'superagent'
 import { MeemAPI } from '../types/meem.generated'
-import { IMeemMetadata } from '../types/shared/meem.shared'
+import { ITokenMetadata } from '../types/shared/meem.shared'
 
 // https://www.reddit.com/r/ipfs/comments/lvwn4o/ipfs_http_gateways_ranked_by_performance/
 
@@ -10,7 +10,7 @@ export default class GitService {
 		meemId: string
 		imageBase64: string
 		metadata: MeemAPI.ICreateMeemMetadata
-	}): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
+	}): Promise<{ metadata: MeemAPI.ITokenMetadata; tokenURI: string }> {
 		const branchName =
 			config.NETWORK === MeemAPI.NetworkName.Rinkeby ? `test` : `master`
 
@@ -47,7 +47,7 @@ export default class GitService {
 
 		const image = `https://raw.githubusercontent.com/meemproject/metadata/${branchName}/meem/images/${data.meemId}.png`
 
-		const storedMetadata: MeemAPI.IMeemMetadata = {
+		const storedMetadata: MeemAPI.ITokenMetadata = {
 			...data.metadata,
 			meem_id: data.metadata.meem_id ?? '',
 			external_url: data.metadata.external_url ?? '',
@@ -102,7 +102,7 @@ export default class GitService {
 		generation: number
 		tokenId: number
 		metadataId: string
-	}): Promise<IMeemMetadata> {
+	}): Promise<ITokenMetadata> {
 		const branchName =
 			config.NETWORK === MeemAPI.NetworkName.Rinkeby ? `test` : `master`
 		const result = await request.get(data.tokenURI)

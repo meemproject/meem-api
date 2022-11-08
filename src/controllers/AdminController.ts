@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import integrationsData from '../lib/integrations'
+import extensionsData from '../lib/extensions'
 import permissionsData from '../lib/permissions'
 
 export default class AdminController {
@@ -74,32 +74,32 @@ export default class AdminController {
 		})
 	}
 
-	public static async syncIntegrations(
+	public static async syncExtensions(
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		const failedIntegrations: any[] = []
+		const failedExtensions: any[] = []
 
-		for (let i = 0; i < integrationsData.length; i += 1) {
+		for (let i = 0; i < extensionsData.length; i += 1) {
 			try {
-				log.debug(`Syncing ${i + 1} / ${integrationsData.length} integrations`)
+				log.debug(`Syncing ${i + 1} / ${extensionsData.length} extensions`)
 				// eslint-disable-next-line no-await-in-loop
-				const existingIntegration = await orm.models.Integration.findOne({
+				const existingExtension = await orm.models.Extension.findOne({
 					where: {
-						name: integrationsData[i].name
+						name: extensionsData[i].name
 					}
 				})
-				if (!existingIntegration) {
+				if (!existingExtension) {
 					// eslint-disable-next-line no-await-in-loop
-					await orm.models.Integration.create(integrationsData[i])
+					await orm.models.Extension.create(extensionsData[i])
 				} else {
 					// eslint-disable-next-line no-await-in-loop
-					await existingIntegration.update(integrationsData[i])
+					await existingExtension.update(extensionsData[i])
 				}
 			} catch (e) {
-				failedIntegrations.push(integrationsData[i])
+				failedExtensions.push(extensionsData[i])
 				log.crit(e)
-				log.debug(integrationsData[i])
+				log.debug(extensionsData[i])
 			}
 		}
 
@@ -186,19 +186,19 @@ export default class AdminController {
 				log.debug(
 					`Syncing ${i + 1} / ${identityIntegrations.length} integrations`
 				)
-				const existingIntegration =
+				const existingExtension =
 					// eslint-disable-next-line no-await-in-loop
 					await orm.models.IdentityIntegration.findOne({
 						where: {
 							name: identityIntegrations[i].name
 						}
 					})
-				if (!existingIntegration) {
+				if (!existingExtension) {
 					// eslint-disable-next-line no-await-in-loop
 					await orm.models.IdentityIntegration.create(identityIntegrations[i])
 				} else {
 					// eslint-disable-next-line no-await-in-loop
-					await existingIntegration.update(identityIntegrations[i])
+					await existingExtension.update(identityIntegrations[i])
 				}
 			} catch (e) {
 				failedIntegratiosn.push(identityIntegrations[i])
