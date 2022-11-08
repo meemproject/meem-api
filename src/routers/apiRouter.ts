@@ -6,14 +6,10 @@ import ContractController from '../controllers/ContractController'
 import DiscordController from '../controllers/DiscordController'
 import MeemController from '../controllers/MeemController'
 import MeemIdController from '../controllers/MeemIdController'
-// import NFTController from '../controllers/NFTController'
 import TestController from '../controllers/TestController'
-// import TweetController from '../controllers/TweetController'
 import TypesController from '../controllers/TypesController'
-// import WebhookController from '../controllers/WebhookController'
 import extendedRouter from '../core/router'
 import userLoggedInPolicy from '../policies/UserLoggedInPolicy'
-// import userLoggedInPolicy from '../policies/UserLoggedInPolicy'
 
 export default (app: Express, _express: typeof coreExpress) => {
 	const router = extendedRouter()
@@ -36,7 +32,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/me/integrations/:integrationId',
 		MeemIdController.createOrUpdateMeemIdIntegration
 	)
-
 	router.getAsync('/config', ConfigController.getConfig)
 
 	router.postAsync('/isSlugAvailable', AgreementController.isSlugAvailable)
@@ -116,11 +111,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/extensions/:extensionId',
 		AgreementController.createOrUpdateAgreementExtension
 	)
-	// router.getAsync('/meems', MeemController.getMeems)
-	// router.getAsync('/meems/:tokenId', MeemController.getMeem)
-	// router.getAsync('/meems/:tokenId/children', MeemController.getChildMeems)
-	router.getAsync('/clippings', MeemController.getClippings)
-	router.postAsync('/clippings/status', MeemController.checkClippingStatus)
 	router.postAsync('/meems/mintOriginal', MeemController.mintOriginalMeem)
 	router.postAsync('/meems/create-image', MeemController.createMeemImage)
 	router.getAsync('/ipfs', MeemController.getIPFSFile)
@@ -194,4 +184,11 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/hash', TestController.testHash)
 		router.getAsync('/test/releaseLock', TestController.releaseLock)
 	}
+
+	// DEPRECATED:
+	// router.getAsync('/meems', MeemController.getMeems)
+	// router.getAsync('/meems/:tokenId', MeemController.getMeem)
+	// router.getAsync('/meems/:tokenId/children', MeemController.getChildMeems)
+	// router.getAsync('/clippings', MeemController.getClippings)
+	// router.postAsync('/clippings/status', MeemController.checkClippingStatus)
 }
