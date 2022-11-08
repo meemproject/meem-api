@@ -1,14 +1,15 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
+import User from './User'
 
-export default class MeemIdentityIntegration extends BaseModel<MeemIdentityIntegration> {
-	public static readonly modelName = 'MeemIdentityIntegration'
+export default class UserIdentity extends BaseModel<UserIdentity> {
+	public static readonly modelName = 'UserIdentity'
 
 	public static get indexes() {
 		return [
 			{
-				name: 'MeemIdentityIntegration_createdAt',
+				name: 'UserIdentity_createdAt',
 				fields: ['createdAt']
 			}
 		]
@@ -25,6 +26,10 @@ export default class MeemIdentityIntegration extends BaseModel<MeemIdentityInteg
 			allowNull: false,
 			defaultValue: 'mutual-club-members'
 		},
+		externalId: {
+			type: DataTypes.STRING,
+			unique: true
+		},
 		metadata: {
 			type: DataTypes.JSONB,
 			allowNull: false,
@@ -38,9 +43,13 @@ export default class MeemIdentityIntegration extends BaseModel<MeemIdentityInteg
 
 	public metadata!: { [key: string]: unknown }
 
+	public UserId!: string | null
+
+	public User!: User | null
+
 	public static associate(models: IModels) {
 		this.belongsTo(models.IdentityIntegration)
 
-		this.belongsTo(models.MeemIdentity)
+		this.belongsTo(models.User)
 	}
 }

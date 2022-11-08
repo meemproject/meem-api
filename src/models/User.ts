@@ -3,13 +3,13 @@ import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
 import Wallet from './Wallet'
 
-export default class MeemIdentity extends BaseModel<MeemIdentity> {
-	public static readonly modelName = 'MeemIdentity'
+export default class User extends BaseModel<User> {
+	public static readonly modelName = 'User'
 
 	public static get indexes() {
 		return [
 			{
-				name: 'MeemIdentity_createdAt',
+				name: 'User_createdAt',
 				fields: ['createdAt']
 			}
 		]
@@ -44,11 +44,12 @@ export default class MeemIdentity extends BaseModel<MeemIdentity> {
 	public Wallets!: Wallet[]
 
 	public static associate(models: IModels) {
-		this.belongsToMany(models.Wallet, {
-			through: models.MeemIdentityWallet
-		})
+		this.hasMany(models.Wallet)
+
 		this.belongsTo(models.Wallet, {
 			as: 'DefaultWallet'
 		})
+
+		this.hasMany(models.UserIdentity)
 	}
 }

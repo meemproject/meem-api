@@ -13,11 +13,12 @@ import { TwitterApi, UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import Discord from '../models/Discord'
 import type MeemContract from '../models/MeemContract'
-import MeemIdentity from '../models/MeemIdentity'
-import MeemIdentityIntegration from '../models/MeemIdentityIntegration'
 import Twitter from '../models/Twitter'
+import MeemIdentity from '../models/User'
+import User from '../models/User'
+import MeemIdentityIntegration from '../models/UserIdentity'
 import type Wallet from '../models/Wallet'
-import { IMeemIdIntegrationVisibility } from '../types/shared/meem.shared'
+import { MeemAPI } from '../types/meem.generated'
 export default class MeemIdentityService {
 	public static async getNonce(options: { address: string }) {
 		// Generate a nonce and save it for the wallet
@@ -49,16 +50,40 @@ export default class MeemIdentityService {
 	}
 
 	public static async login(options: {
+		/* Auth0 access token */
 		accessToken?: string
+
+		/* Wallet address */
 		address?: string
+		/* Wallet signature */
 		signature?: string
 	}) {
 		const { accessToken, address, signature } = options
 
 		let wallet: Wallet | undefined
+		let user: User | undefined | null
 
 		if (address && signature) {
 			wallet = await this.verifySignature({ address, signature })
+
+			if (!wallet.UserId) {
+				const t = await orm.sequelize.transaction()
+				user = await orm.models.User.create(
+					{
+						DefaultWalletId: wallet.id
+					},
+					{
+						transaction: t
+					}
+				)
+
+				wallet.UserId = user.id
+				await wallet.save({
+					transaction: t
+				})
+
+				await t.commit()
+			}
 		}
 
 		if (accessToken) {
@@ -76,72 +101,80 @@ export default class MeemIdentityService {
 
 			try {
 				const userInfo = await authClient.getProfile(accessToken)
-				if (userInfo?.sub) {
-					const user = await mgmgtClient.getUser({
-						id: userInfo.sub
-					})
-					if (user.app_metadata?.internal_id) {
-						const meemId = await orm.models.MeemIdentity.findOne({
-							where: {
-								id: user.app_metadata.internal_id
-							},
-							include: [
-								{
-									model: orm.models.Wallet,
-									as: 'DefaultWallet'
-								}
-							]
-						})
+				log.debug(userInfo)
 
-						if (meemId) {
-							wallet = meemId.DefaultWallet
+				if (!userInfo.sub) {
+					throw new Error('INVALID_ACCESS_TOKEN')
+				}
 
-							const userEmailIdentityIntegration =
-								await orm.models.MeemIdentityIntegration.findOne({
-									where: {
-										MeemIdentityId: meemId?.id,
-										IdentityIntegrationId: config.EMAIL_IDENTITY_INTEGRATION_ID
-									}
-								})
+				const connectionName = userInfo.sub.split('|')[1]
 
-							if (
-								!userEmailIdentityIntegration?.metadata?.isVerified &&
-								user.email_verified
-							) {
-								// Update the user's email identity integration to include the verified email
-								await services.meemId.createOrUpdateMeemIdIntegration({
-									meemId,
-									metadata: {
-										email: user.email
-									},
-									integrationId: config.EMAIL_IDENTITY_INTEGRATION_ID,
-									walletAddress: wallet.address
-								})
-							}
+				// eslint-disable-next-line prefer-const
+				let [userIdentity, identityIntegration] = await Promise.all([
+					orm.models.UserIdentity.findOne({
+						where: {
+							externalId: userInfo.sub
+						},
+						include: [orm.models.User]
+					}),
+					orm.models.IdentityIntegration.findOne({
+						where: {
+							connectionName
 						}
-					}
+					})
+				])
+
+				if (!identityIntegration) {
+					throw new Error('INTEGRATION_NOT_FOUND')
+				}
+
+				if (userIdentity) {
+					user = userIdentity.User
+				} else {
+					const t = await orm.sequelize.transaction()
+					user = await orm.models.User.create(
+						{},
+						{
+							transaction: t
+						}
+					)
+					userIdentity = await orm.models.UserIdentity.create(
+						{
+							externalId: userInfo.sub,
+							UserId: user.id,
+							IdentityIntegrationId: identityIntegration.id
+						},
+						{
+							transaction: t
+						}
+					)
+
+					await t.commit()
 				}
 			} catch (e) {
+				log.crit(e)
 				throw new Error('LOGIN_FAILED')
 			}
 		}
 
-		if (!wallet) {
+		if (!user) {
 			throw new Error('LOGIN_FAILED')
 		}
 
-		if (wallet.ensFetchedAt === null) {
+		if (wallet?.ensFetchedAt === null) {
 			await this.updateENS(wallet)
 		}
 
 		return {
+			user,
 			jwt: this.generateJWT({
 				walletAddress: wallet?.address ?? '',
 				data: {
 					'https://hasura.io/jwt/claims': {
 						'x-hasura-allowed-roles': ['anonymous', 'user', 'mutualClubMember'],
 						'x-hasura-default-role': 'user',
-						'x-hasura-wallet-id': wallet.id
+						'x-hasura-wallet-id': wallet?.id ?? '',
+						'x-hasura-user-id': user?.id ?? ''
 					}
 				}
 			})
@@ -271,7 +304,7 @@ export default class MeemIdentityService {
 	public static async createOrUpdateMeemIdIntegration(data: {
 		integrationId: string
 		metadata?: any
-		visibility?: IMeemIdIntegrationVisibility
+		visibility?: MeemAPI.IMeemIdIntegrationVisibility
 		meemId: MeemIdentity
 		walletAddress: string
 	}): Promise<MeemIdentityIntegration> {

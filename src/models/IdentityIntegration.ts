@@ -38,6 +38,11 @@ export default class IdentityIntegration extends BaseModel<IdentityIntegration> 
 			type: DataTypes.STRING,
 			allowNull: false,
 			defaultValue: ''
+		},
+		connectionName: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
 		}
 	}
 
@@ -49,9 +54,5 @@ export default class IdentityIntegration extends BaseModel<IdentityIntegration> 
 
 	public icon!: string
 
-	public static associate(models: IModels) {
-		this.belongsToMany(models.MeemIdentity, {
-			through: models.MeemIdentityIntegration
-		})
-	}
+	public static associate(_models: IModels) {}
 }

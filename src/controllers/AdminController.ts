@@ -163,17 +163,20 @@ export default class AdminController {
 			{
 				name: 'Twitter',
 				icon: 'integration-twitter.png',
-				description: 'Verify your Twitter account.'
+				description: 'Verify your Twitter account.',
+				connectionName: 'twitter'
 			},
 			{
 				name: 'Discord',
 				icon: 'integration-discord.png',
-				description: 'Verify your Discord account.'
+				description: 'Verify your Discord account.',
+				connectionName: 'discord'
 			},
 			{
 				name: 'Email',
 				icon: 'integration-email.png',
-				description: 'Verify your Email.'
+				description: 'Verify your Email.',
+				connectionName: 'email'
 			}
 		]
 

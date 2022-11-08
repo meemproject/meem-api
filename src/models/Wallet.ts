@@ -3,6 +3,7 @@ import { Op, DataTypes } from 'sequelize'
 import ModelWithAddress from '../core/ModelWithAddress'
 import type { IModels } from '../types/models'
 import type MeemContractWallet from './MeemContractWallet'
+import User from './User'
 
 export default class Wallet extends ModelWithAddress<Wallet> {
 	public static readonly modelName = 'Wallet'
@@ -60,9 +61,14 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 
 	public MeemContractWallets!: MeemContractWallet[]
 
+	public UserId!: string | null
+
+	public User!: User
+
 	public static associate(models: IModels) {
 		this.hasMany(models.MeemContractWallet)
-		this.hasOne(models.MeemIdentityWallet)
+		this.belongsTo(models.User)
+		// this.hasOne(models.MeemIdentityWallet)
 	}
 
 	public static async findAllBy(options: {

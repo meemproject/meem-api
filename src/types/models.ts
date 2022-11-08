@@ -15,9 +15,6 @@ import MeemContractIntegration from '../models/MeemContractIntegration'
 import MeemContractRole from '../models/MeemContractRole'
 import MeemContractRolePermission from '../models/MeemContractRolePermission'
 import MeemContractWallet from '../models/MeemContractWallet'
-import MeemIdentity from '../models/MeemIdentity'
-import MeemIdentityIntegration from '../models/MeemIdentityIntegration'
-import MeemIdentityWallet from '../models/MeemIdentityWallet'
 import Reaction from '../models/Reaction'
 import RolePermission from '../models/RolePermission'
 import Transaction from '../models/Transaction'
@@ -25,6 +22,8 @@ import Transfer from '../models/Transfer'
 import Tweet from '../models/Tweet'
 import TweetHashtag from '../models/TweetHashtag'
 import Twitter from '../models/Twitter'
+import User from '../models/User'
+import UserIdentity from '../models/UserIdentity'
 import Wallet from '../models/Wallet'
 import WalletContractInstance from '../models/WalletContractInstance'
 
@@ -38,25 +37,24 @@ export interface IModels {
 	Discord: typeof Discord
 	Hashtag: typeof Hashtag
 	Integration: typeof Integration
+	IdentityIntegration: typeof IdentityIntegration
 	Meem: typeof Meem
 	MeemContract: typeof MeemContract
-	IdentityIntegration: typeof IdentityIntegration
-	MeemIdentityIntegration: typeof MeemIdentityIntegration
+	UserIdentity: typeof UserIdentity
 	MeemContractGuild: typeof MeemContractGuild
+	MeemContractIntegration: typeof MeemContractIntegration
 	MeemContractRole: typeof MeemContractRole
 	MeemContractRolePermission: typeof MeemContractRolePermission
-	RolePermission: typeof RolePermission
-	MeemContractIntegration: typeof MeemContractIntegration
 	MeemContractWallet: typeof MeemContractWallet
+	RolePermission: typeof RolePermission
 	Reaction: typeof Reaction
 	Transaction: typeof Transaction
 	Transfer: typeof Transfer
 	Tweet: typeof Tweet
 	TweetHashtag: typeof TweetHashtag
 	Twitter: typeof Twitter
+	User: typeof User
 	Wallet: typeof Wallet
-	MeemIdentity: typeof MeemIdentity
-	MeemIdentityWallet: typeof MeemIdentityWallet
 	WalletContractInstance: typeof WalletContractInstance
 }
 
