@@ -7,7 +7,6 @@ import AgreementWallet from '../models/AgreementWallet'
 import Bundle from '../models/Bundle'
 import BundleContract from '../models/BundleContract'
 import ChainNonce from '../models/ChainNonce'
-import Clipping from '../models/Clipping'
 import Contract from '../models/Contract'
 import ContractInstance from '../models/ContractInstance'
 import Discord from '../models/Discord'
@@ -17,7 +16,6 @@ import IdentityIntegration from '../models/IdentityIntegration'
 import MeemIdentity from '../models/MeemIdentity'
 import MeemIdentityIntegration from '../models/MeemIdentityIntegration'
 import MeemIdentityWallet from '../models/MeemIdentityWallet'
-import Reaction from '../models/Reaction'
 import RolePermission from '../models/RolePermission'
 import Token from '../models/Token'
 import Transaction from '../models/Transaction'
@@ -32,7 +30,6 @@ export interface IModels {
 	Bundle: typeof Bundle
 	BundleContract: typeof BundleContract
 	ChainNonce: typeof ChainNonce
-	Clipping: typeof Clipping
 	Contract: typeof Contract
 	ContractInstance: typeof ContractInstance
 	Discord: typeof Discord
@@ -48,7 +45,6 @@ export interface IModels {
 	RolePermission: typeof RolePermission
 	AgreementExtension: typeof AgreementExtension
 	AgreementWallet: typeof AgreementWallet
-	Reaction: typeof Reaction
 	Transaction: typeof Transaction
 	Transfer: typeof Transfer
 	Tweet: typeof Tweet

@@ -1,17 +1,10 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
 import { Response } from 'express'
-import { DateTime } from 'luxon'
-import { Op } from 'sequelize'
 import sharp from 'sharp'
 import TwitterApi from 'twitter-api-v2'
 import Agreement from '../models/Agreement'
-import {
-	IAPIRequestPaginated,
-	IAuthenticatedRequest,
-	IRequest,
-	IResponse
-} from '../types/app'
+import { IAuthenticatedRequest, IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class MeemController {
@@ -239,105 +232,6 @@ export default class MeemController {
 		return res.json({
 			tokenURI,
 			metadata
-		})
-	}
-
-	public static async getClippings(
-		req: IAPIRequestPaginated<MeemAPI.v1.GetMeemClippings.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetMeemClippings.IResponseBody>
-	): Promise<Response> {
-		const { page, limit } = req
-
-		const { address } = req.query
-		const shouldIncludeMetadata = req.query.shouldIncludeMetadata === 'true'
-		const tokenId = req.query.tokenId
-			? services.web3.toBigNumber(req.query.tokenId).toHexString()
-			: undefined
-
-		let where: Record<string, any> = {}
-
-		if (address) {
-			where = orm.sequelize.where(
-				orm.sequelize.fn('lower', orm.sequelize.col('address')),
-				address.toLowerCase()
-			)
-		}
-		const meemWhere: Record<string, any> = tokenId
-			? { tokenId: tokenId.toLowerCase() }
-			: {}
-
-		const result = await orm.models.Clipping.findAndCountAll({
-			where,
-			limit,
-			offset: page * limit,
-			include: [
-				{
-					model: orm.models.Token,
-					where: meemWhere,
-					required: true
-				}
-			],
-			order: [['clippedAt', 'DESC']]
-		})
-
-		const cleanClippings: MeemAPI.IClippingExtended[] = []
-
-		result.rows.forEach(c => {
-			if (c.Token?.tokenId) {
-				const clip: MeemAPI.IClippingExtended = {
-					address: c.address,
-					clippedAt: DateTime.fromJSDate(c.clippedAt).toSeconds(),
-					hasMeemId: false,
-					tokenId: c.Token.tokenId
-				}
-				if (shouldIncludeMetadata) {
-					// clip.meem = services.meem.meemToIMeem(c.Token)
-				}
-				cleanClippings.push(clip)
-			} else {
-				log.warn(`Invalid clipping: ${c.id}`)
-			}
-		})
-
-		return res.json({
-			clippings: cleanClippings,
-			totalItems: result.count
-		})
-	}
-
-	public static async checkClippingStatus(
-		req: IAPIRequestPaginated<MeemAPI.v1.CheckClippingStatus.IDefinition>,
-		res: IResponse<MeemAPI.v1.CheckClippingStatus.IResponseBody>
-	): Promise<Response> {
-		const { address, tokenIds } = req.body
-
-		if (!Array.isArray(tokenIds) || !address) {
-			throw new Error('MISSING_PARAMETERS')
-		}
-
-		const result = await orm.models.Clipping.findAll({
-			include: [
-				{
-					model: orm.models.Token,
-					where: {
-						tokenId: {
-							[Op.in]: tokenIds.slice(0, 200)
-						}
-					},
-					required: true
-				}
-			]
-		})
-
-		const status: { [tokenId: string]: boolean } = {}
-
-		tokenIds.forEach(t => {
-			const clipping = result.find(c => c.Token?.tokenId === t)
-			status[t] = !!clipping
-		})
-
-		return res.json({
-			status
 		})
 	}
 }

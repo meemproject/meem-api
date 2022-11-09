@@ -107,8 +107,6 @@ export default class Token extends BaseModel<Token> {
 
 		this.hasMany(models.Transfer)
 
-		this.hasMany(models.Reaction)
-
 		this.belongsTo(models.Wallet, {
 			as: 'Owner'
 		})

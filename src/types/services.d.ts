@@ -37,7 +37,6 @@ declare global {
 		let agreement: typeof Agreement
 		let agreementRole: typeof AgreementRole
 		let meemId: typeof MeemId
-		// let prompts: typeof Prompts
 		let puppeteer: Puppeteer
 		let scraper: typeof Scraper
 		let storage: typeof Storage
