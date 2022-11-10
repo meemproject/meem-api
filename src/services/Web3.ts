@@ -71,7 +71,7 @@ export default class Web3 {
 			}
 			const ethers = services.ethers.getInstance()
 
-			const provider = await services.ethers.getProvider({
+			const { provider } = await services.ethers.getProvider({
 				chainId: options.chainId
 			})
 

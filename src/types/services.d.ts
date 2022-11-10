@@ -11,6 +11,7 @@ import Git from '../services/Git'
 import Guild from '../services/Guild'
 import Ipfs from '../services/Ipfs'
 import Lint from '../services/Lint'
+import Lit from '../services/Lit'
 import Meem from '../services/Meem'
 import MeemId from '../services/MeemId'
 // import Prompts from '../services/Prompts'
@@ -33,6 +34,7 @@ declare global {
 		let git: typeof Git
 		let ipfs: typeof Ipfs
 		let lint: typeof Lint
+		let lit: typeof Lit
 		let meem: typeof Meem
 		let agreement: typeof Agreement
 		let agreementRole: typeof AgreementRole

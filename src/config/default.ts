@@ -15,9 +15,11 @@ export default {
 			: 'https://meem.wtf',
 	SERVER_LISTENING: process.env.SERVER_LISTENING !== 'false',
 	SERVER_ADMIN_KEY: process.env.SERVER_ADMIN_KEY ?? 'xGugNAB2PEX4uY4sPF',
-	JWT_SECRET:
-		process.env.JWT_SECRET ??
-		'ac741f40d71a2564e08180f5eb1cc9dd28e288ed75b33c34cba2fc18a3c31a64e719835877c7a6db9fdae8054037053172aba56f4dabc5f1b',
+	// JWT_SECRET:
+	// 	process.env.JWT_SECRET ??
+	// 	'ac741f40d71a2564e08180f5eb1cc9dd28e288ed75b33c34cba2fc18a3c31a64e719835877c7a6db9fdae8054037053172aba56f4dabc5f1b',
+	JWT_RSA_PUBLIC_KEY: process.env.JWT_RSA_PUBLIC_KEY ?? '',
+	JWT_RSA_PRIVATE_KEY: process.env.JWT_RSA_PRIVATE_KEY ?? '',
 	JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN
 		? +process.env.JWT_EXPIRES_IN
 		: 604800, // 7 days
@@ -194,6 +196,7 @@ export default {
 		? +process.env.ARBITRUM_GAS_MULTIPLIER
 		: 6,
 	JSON_RPC_MAINNET: process.env.JSON_RPC_MAINNET ?? '',
+	JSON_RPC_CELO: process.env.JSON_RPC_CELO ?? 'https://rpc.ankr.com/celo',
 	ALCHEMY_API_KEY_MAINNET: process.env.ALCHEMY_API_KEY_MAINNET ?? '',
 	ALCHEMY_API_KEY_RINKEBY: process.env.ALCHEMY_API_KEY_RINKEBY ?? '',
 	ALCHEMY_API_KEY_POLYGON: process.env.ALCHEMY_API_KEY_POLYGON ?? '',
@@ -203,5 +206,9 @@ export default {
 	ALCHEMY_API_KEY_OPTIMISM_GOERLI:
 		process.env.ALCHEMY_API_KEY_OPTIMISM_GOERLI ?? '',
 	ALCHEMY_API_KEY_MUMBAI: process.env.ALCHEMY_API_KEY_MUMBAI ?? '',
-	JSON_RPC_HARDHAT: process.env.JSON_RPC_HARDHAT ?? 'http://127.0.0.1:8545'
+	JSON_RPC_HARDHAT: process.env.JSON_RPC_HARDHAT ?? 'http://127.0.0.1:8545',
+	PKP_CONTRACT_ADDRESS:
+		process.env.PKP_CONTRACT_ADDRESS ??
+		'0x86062B7a01B8b2e22619dBE0C15cbe3F7EBd0E92',
+	PKP_MINT_COST: process.env.PKP_MINT_COST ?? '0.0001'
 }

@@ -25,13 +25,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/login', MeemIdController.login)
 
 	router.getAsync('/me', MeemIdController.getMe)
-	router.postAsync('/me', MeemIdController.createOrUpdateMeemId)
+	router.postAsync('/me', MeemIdController.createOrUpdateUser)
 	router.postAsync('/me/refreshENS', MeemIdController.refreshENS)
 	router.getAsync('/me/apiKey', MeemIdController.getApiKey)
-	router.postAsync(
-		'/me/integrations/:integrationId',
-		MeemIdController.createOrUpdateMeemIdIntegration
-	)
+
 	router.getAsync('/config', ConfigController.getConfig)
 
 	router.postAsync('/isSlugAvailable', AgreementController.isSlugAvailable)
@@ -182,6 +179,8 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/metadata', TestController.metadata)
 		router.getAsync('/test/hash', TestController.testHash)
 		router.getAsync('/test/releaseLock', TestController.releaseLock)
+		router.getAsync('/test/mintPKP', TestController.mintPKP)
+		router.getAsync('/test/getEthAddress', TestController.getEthAddress)
 	}
 
 	// DEPRECATED:

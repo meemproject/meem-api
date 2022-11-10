@@ -4,7 +4,6 @@ import {
 	guild,
 	role as guildRole
 } from '@guildxyz/sdk'
-import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
 import type { Bytes } from 'ethers'
@@ -78,10 +77,9 @@ export default class GuildService {
 			}
 		}
 
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: agreement.chainId
 		})
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -207,10 +205,9 @@ export default class GuildService {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: agreement.chainId
 		})
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -296,10 +293,9 @@ export default class GuildService {
 			senderWalletAddress,
 			isAdminRole
 		} = data
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: agreement.chainId
 		})
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -530,11 +526,9 @@ export default class GuildService {
 			return agreementRole
 		}
 
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: agreement.chainId
 		})
-
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)
@@ -745,11 +739,9 @@ export default class GuildService {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: agreement.chainId
 		})
-
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const sign = (signableMessage: string | Bytes) =>
 			wallet.signMessage(signableMessage)

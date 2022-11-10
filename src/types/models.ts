@@ -13,9 +13,6 @@ import Discord from '../models/Discord'
 import Extension from '../models/Extension'
 import Hashtag from '../models/Hashtag'
 import IdentityIntegration from '../models/IdentityIntegration'
-import MeemIdentity from '../models/MeemIdentity'
-import MeemIdentityIntegration from '../models/MeemIdentityIntegration'
-import MeemIdentityWallet from '../models/MeemIdentityWallet'
 import RolePermission from '../models/RolePermission'
 import Token from '../models/Token'
 import Transaction from '../models/Transaction'
@@ -23,6 +20,8 @@ import Transfer from '../models/Transfer'
 import Tweet from '../models/Tweet'
 import TweetHashtag from '../models/TweetHashtag'
 import Twitter from '../models/Twitter'
+import User from '../models/User'
+import UserIdentity from '../models/UserIdentity'
 import Wallet from '../models/Wallet'
 import WalletContractInstance from '../models/WalletContractInstance'
 
@@ -38,7 +37,7 @@ export interface IModels {
 	Token: typeof Token
 	Agreement: typeof Agreement
 	IdentityIntegration: typeof IdentityIntegration
-	MeemIdentityIntegration: typeof MeemIdentityIntegration
+	UserIdentity: typeof UserIdentity
 	AgreementGuild: typeof AgreementGuild
 	AgreementRole: typeof AgreementRole
 	AgreementRolePermission: typeof AgreementRolePermission
@@ -50,9 +49,8 @@ export interface IModels {
 	Tweet: typeof Tweet
 	TweetHashtag: typeof TweetHashtag
 	Twitter: typeof Twitter
+	User: typeof User
 	Wallet: typeof Wallet
-	MeemIdentity: typeof MeemIdentity
-	MeemIdentityWallet: typeof MeemIdentityWallet
 	WalletContractInstance: typeof WalletContractInstance
 }
 

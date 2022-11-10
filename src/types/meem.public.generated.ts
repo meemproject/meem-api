@@ -719,6 +719,37 @@ export interface IDiscordServer {
 
 export namespace v1 {
 
+export namespace AttachIdentity {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/attachIdentity`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** Login w/ access token provided by Auth0 magic link */
+		accessToken?: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		/** JWT that can be used for future authentication */
+		jwt: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
 export namespace AuthenticateWithDiscord {
 	export interface IPathParams {}
 
@@ -1185,7 +1216,7 @@ export namespace CreateOrUpdateAgreementExtension {
 
 
 
-export namespace CreateOrUpdateMeemId {
+export namespace CreateOrUpdateUser {
 	export interface IPathParams {}
 
 	export const path = () => `/api/1.0/me`
@@ -1195,55 +1226,12 @@ export namespace CreateOrUpdateMeemId {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		// TODO: Add wallet address with signature to Identity. Remove from any other identity
-		// e.g. Identity merge
-		/** Wallet address to add or lookup by */
-		// address: string
-		/** Signature of wallet address */
-		// signature: string
-
 		/** Profile picture base64 string */
 		profilePicBase64?: string
 		/** Url to profile picture */
 		// profilePicUrl?: string
 		/** Display name of identity */
 		displayName?: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace CreateOrUpdateMeemIdIntegration {
-	export interface IPathParams {
-		/** The integration id to connect or update */
-		integrationId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/me/integrations/${options.integrationId}`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** Set the visibility type of the integration */
-		visibility?: IMeemIdIntegrationVisibility
-		/** Metadata associated with this integration */
-		metadata?: { [key: string]: unknown }
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -2397,7 +2385,7 @@ export namespace ReInitializeAgreement {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}`
+		`/api/1.0/agreements/${options.agreementId}/reinitialize`
 
 	export const method = HttpMethod.Post
 
@@ -2585,40 +2573,6 @@ export namespace UntrackContractInstance {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace UpdateAgreement {
-	export interface IPathParams {
-		/** The meem pass id to fetch */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}`
-
-	export const method = HttpMethod.Patch
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** New slug */
-		slug: string
-	}
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'

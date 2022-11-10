@@ -161,6 +161,19 @@ const errors = {
 		friendlyReason:
 			"You've hit your transaction limit for the day. Try again later."
 	},
+	INTEGRATION_NOT_FOUND: {
+		httpCode: 404,
+		status: 'failure',
+		reason: 'The integration could not be found.',
+		friendlyReason: 'The integration could not be found.'
+	},
+	IDENTITY_ASSOCIATED_TO_ANOTHER_USER: {
+		httpCode: 400,
+		status: 'failure',
+		reason: 'The identity is already associated to another user.',
+		friendlyReason:
+			'This identity is already associated to another user. Disconnect the identity before adding to a new profile.'
+	},
 	// Contract errors
 	UNKNOWN_CONTRACT_ERROR: {
 		httpCode: 500,

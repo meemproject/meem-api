@@ -5,6 +5,8 @@ import type { IModels } from '../types/models'
 export default class IdentityIntegration extends BaseModel<IdentityIntegration> {
 	public static readonly modelName = 'IdentityIntegration'
 
+	public static readonly paranoid = false
+
 	public static get indexes() {
 		return [
 			{
@@ -38,6 +40,16 @@ export default class IdentityIntegration extends BaseModel<IdentityIntegration> 
 			type: DataTypes.STRING,
 			allowNull: false,
 			defaultValue: ''
+		},
+		connectionName: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
+		},
+		connectionId: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
 		}
 	}
 
@@ -49,9 +61,5 @@ export default class IdentityIntegration extends BaseModel<IdentityIntegration> 
 
 	public icon!: string
 
-	public static associate(models: IModels) {
-		this.belongsToMany(models.MeemIdentity, {
-			through: models.MeemIdentityIntegration
-		})
-	}
+	public static associate(_models: IModels) {}
 }
