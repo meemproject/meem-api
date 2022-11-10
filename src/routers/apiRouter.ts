@@ -107,6 +107,9 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/extensions/:extensionId',
 		AgreementController.createOrUpdateAgreementExtension
 	)
+
+	// TODO: switch to aggreements/mint, agreements/roles/mint
+
 	router.postAsync('/meems/mintOriginal', MeemController.mintOriginalMeem)
 	router.postAsync('/meems/create-image', MeemController.createMeemImage)
 	router.getAsync('/ipfs', MeemController.getIPFSFile)

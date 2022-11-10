@@ -849,10 +849,9 @@ export default class AgreementController {
 					roleAgreement &&
 					roleAgreement.isTransferrable !== req.body.isTokenTransferrable
 				) {
-					const provider = await services.ethers.getProvider({
+					const { wallet } = await services.ethers.getProvider({
 						chainId: agreement.chainId
 					})
-					const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 					const roleSmartContract = Mycontract__factory.connect(
 						agreement.address,
