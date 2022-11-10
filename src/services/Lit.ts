@@ -21,10 +21,37 @@ export default class LitService {
 		await tx.wait()
 
 		const receipt = await provider.core.getTransactionReceipt(tx.hash)
-		const tokenId = receipt?.logs[0].topics[3]
+
+		const transferLog = receipt?.logs.find(
+			l =>
+				l.topics[0] ===
+				'0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+		)
+
+		const tokenId = transferLog ? transferLog.topics[3] : null
 
 		log.debug({ tx, tokenId })
+		if (!tokenId) {
+			throw new Error('PKP_MINT_FAILED')
+		}
 
-		return { tx, tokenId }
+		const address = await pkpNFTContract.getEthAddress(tokenId)
+
+		return { tx, tokenId, address }
+	}
+
+	public static async getEthAddress(tokenId: string) {
+		const { wallet } = await services.ethers.getProvider({
+			chainId: 80001
+		})
+
+		const pkpNFTContract = Pkpnft__factory.connect(
+			config.PKP_CONTRACT_ADDRESS,
+			wallet
+		)
+
+		const address = await pkpNFTContract.getEthAddress(tokenId)
+
+		return address
 	}
 }

@@ -1119,7 +1119,7 @@ export default class MeemContractService {
 		roles: IMeemContractRole[]
 	}> {
 		const { meemContractId, walletAddress, meemContractRoleId } = options
-		const meemIdentity = await orm.models.MeemIdentity.findOne({
+		const meemIdentity = await orm.models.User.findOne({
 			include: [
 				{
 					model: orm.models.Wallet,

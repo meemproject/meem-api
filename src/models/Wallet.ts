@@ -40,6 +40,9 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 			defaultValue: 5
+		},
+		pkpTokenId: {
+			type: DataTypes.STRING
 		}
 	}
 
@@ -56,6 +59,8 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 	public ensFetchedAt!: Date | null
 
 	public dailyTXLimit!: number
+
+	public pkpTokenId!: string | null
 
 	public MeemContractWalletId!: string | null
 

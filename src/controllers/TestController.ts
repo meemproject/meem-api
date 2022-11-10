@@ -328,4 +328,15 @@ export default class TestController {
 			tx
 		})
 	}
+
+	public static async getEthAddress(req: Request, res: Response) {
+		const ethAddress = await services.lit.getEthAddress(
+			req.query.tokenId as string
+		)
+
+		return res.json({
+			status: 'success',
+			ethAddress
+		})
+	}
 }

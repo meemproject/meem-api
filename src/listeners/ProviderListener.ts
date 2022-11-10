@@ -39,7 +39,7 @@ export default class ProviderListener {
 		// meemContract.filters.Crea
 		for (let i = 0; i < config.CHAIN_IDS.length; i++) {
 			const chainId = config.CHAIN_IDS[i]
-			const provider = await services.ethers.getProvider({
+			const { provider } = await services.ethers.getProvider({
 				chainId
 			})
 			this.providers.push(provider)
