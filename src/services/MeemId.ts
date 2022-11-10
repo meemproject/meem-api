@@ -130,7 +130,7 @@ export default class MeemIdentityService {
 				throw new Error('INVALID_ACCESS_TOKEN')
 			}
 
-			const connectionName = userInfo.sub.replace(/^oauth2\|/, '').split('|')[0]
+			const connectionId = userInfo.sub.replace(/^oauth2\|/, '').split('|')[0]
 
 			// eslint-disable-next-line prefer-const
 			let [userIdentity, identityIntegration] = await Promise.all([
@@ -142,7 +142,7 @@ export default class MeemIdentityService {
 				}),
 				orm.models.IdentityIntegration.findOne({
 					where: {
-						connectionName
+						connectionId
 					}
 				})
 			])

@@ -5,6 +5,8 @@ import type { IModels } from '../types/models'
 export default class IdentityIntegration extends BaseModel<IdentityIntegration> {
 	public static readonly modelName = 'IdentityIntegration'
 
+	public static readonly paranoid = false
+
 	public static get indexes() {
 		return [
 			{
@@ -40,6 +42,11 @@ export default class IdentityIntegration extends BaseModel<IdentityIntegration> 
 			defaultValue: ''
 		},
 		connectionName: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
+		},
+		connectionId: {
 			type: DataTypes.STRING,
 			allowNull: false,
 			defaultValue: ''
