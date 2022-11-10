@@ -36,10 +36,9 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	router.postAsync('/isSlugAvailable', AgreementController.isSlugAvailable)
 	router.postAsync('/agreements', AgreementController.createAgreement)
-	router.postAsync('/agreements/:agreementId', AgreementController.reInitialize)
-	router.patchAsync(
-		'/agreements/:agreementId',
-		AgreementController.updateAgreement
+	router.postAsync(
+		'/agreements/:agreementId/reinitialize',
+		AgreementController.reInitialize
 	)
 	router.postAsync(
 		'/agreements/:agreementId/safe',

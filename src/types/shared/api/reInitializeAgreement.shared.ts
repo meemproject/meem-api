@@ -16,7 +16,7 @@ export namespace ReInitializeAgreement {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}`
+		`/api/1.0/agreements/${options.agreementId}/reinitialize`
 
 	export const method = HttpMethod.Post
 
