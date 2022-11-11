@@ -813,11 +813,11 @@ export namespace AuthenticateWithDiscord {
 export namespace BulkMint {
 	export interface IPathParams {
 		/** The meem pass id to fetch */
-		agreementId: string
+		id: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/bulkMint`
+		`/api/1.0/agreements/${options.id}/bulkMint`
 
 	export const method = HttpMethod.Post
 
@@ -989,11 +989,11 @@ export namespace CreateAgreement {
 export namespace CreateAgreementRole {
 	export interface IPathParams {
 		/** The meem contract id to fetch */
-		agreementId: string
+		id: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/roles`
+		`/api/1.0/agreements/${options.id}/roles`
 
 	export const method = HttpMethod.Post
 
@@ -1067,11 +1067,11 @@ export namespace CreateBundle {
 /** Create Meem Image */
 export namespace CreateClubSafe {
 	export interface IPathParams {
-		agreementId: string
+		id: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/safe`
+		`/api/1.0/agreements/${options.id}/safe`
 
 	export const method = HttpMethod.Post
 
@@ -1206,13 +1206,13 @@ export namespace CreateMeemProject {
 export namespace CreateOrUpdateAgreementExtension {
 	export interface IPathParams {
 		/** The meem contract id to fetch */
-		agreementId: string
+		id: string
 		/** The integration id to connect or update */
 		integrationId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/integrations/${options.integrationId}`
+		`/api/1.0/agreements/${options.id}/integrations/${options.integrationId}`
 
 	export const method = HttpMethod.Post
 
@@ -1280,13 +1280,13 @@ export namespace CreateOrUpdateUser {
 export namespace DeleteAgreementRole {
 	export interface IPathParams {
 		/** The meem contract id to fetch */
-		agreementId: string
+		id: string
 		/** The AgreementRole id to update */
-		agreementRoleId: string
+		id: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}`
+		`/api/1.0/agreements/${options.id}/roles/${options.id}`
 
 	export const method = HttpMethod.Delete
 
@@ -1373,11 +1373,11 @@ export namespace GetAccessList {
 export namespace GetAgreementGuild {
 	export interface IPathParams {
 		/** The Agreement id of the guild to fetch */
-		agreementId: string
+		id: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/guild`
+		`/api/1.0/agreements/${options.id}/guild`
 
 	export const method = HttpMethod.Get
 
@@ -1404,13 +1404,13 @@ export namespace GetAgreementGuild {
 export namespace GetAgreementRole {
 	export interface IPathParams {
 		/** The Agreement id to fetch roles of */
-		agreementId: string
+		id: string
 		/** The Agreement Role id to fetch roles of */
-		agreementRoleId: string
+		id: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}`
+		`/api/1.0/agreements/${options.id}/roles/${options.id}`
 
 	export const method = HttpMethod.Get
 
@@ -1437,11 +1437,11 @@ export namespace GetAgreementRole {
 export namespace GetAgreementRoles {
 	export interface IPathParams {
 		/** The Agreement id to fetch roles of */
-		agreementId: string
+		id: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/roles`
+		`/api/1.0/agreements/${options.id}/roles`
 
 	export const method = HttpMethod.Get
 
@@ -1657,11 +1657,11 @@ export namespace GetIPFSFile {
 export namespace GetJoinGuildMessage {
 	export interface IPathParams {
 		/** The Agreement id */
-		agreementId: string
+		id: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/getJoinGuildMessage`
+		`/api/1.0/agreements/${options.id}/getJoinGuildMessage`
 
 	export const method = HttpMethod.Get
 
@@ -1938,11 +1938,11 @@ export namespace GetMeems {
 export namespace GetMintingProof {
 	export interface IPathParams {
 		/** The meem pass id to fetch */
-		agreementId: string
+		id: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/proof`
+		`/api/1.0/agreements/${options.id}/proof`
 
 	export const method = HttpMethod.Get
 
@@ -2093,11 +2093,11 @@ export namespace GetUrlScreenshot {
 export namespace GetUserAgreementRolesAccess {
 	export interface IPathParams {
 		/** The Agreement id */
-		agreementId: string
+		id: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/roles/access`
+		`/api/1.0/agreements/${options.id}/roles/access`
 
 	export const method = HttpMethod.Get
 
@@ -2232,11 +2232,11 @@ export namespace IsSlugAvailable {
 export namespace JoinGuild {
 	export interface IPathParams {
 		/** The Agreement id */
-		agreementId: string
+		id: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/joinGuild`
+		`/api/1.0/agreements/${options.id}/joinGuild`
 
 	export const method = HttpMethod.Post
 
@@ -2408,11 +2408,11 @@ export namespace MintOriginalMeem {
 /** Create Meem Image */
 export namespace ReInitializeAgreement {
 	export interface IPathParams {
-		agreementId: string
+		id: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/reinitialize`
+		`/api/1.0/agreements/${options.id}/reinitialize`
 
 	export const method = HttpMethod.Post
 
@@ -2625,13 +2625,13 @@ export namespace UpdateAgreementRole {
 	}
 	export interface IPathParams {
 		/** The meem contract id to fetch */
-		agreementId: string
+		id: string
 		/** The AgreementRole id to update */
-		agreementRoleId: string
+		id: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}`
+		`/api/1.0/agreements/${options.id}/roles/${options.id}`
 
 	export const method = HttpMethod.Post
 
@@ -2840,11 +2840,11 @@ export namespace UpdateMeemPassById {
 /** Create Meem Image */
 export namespace UpgradeClub {
 	export interface IPathParams {
-		agreementId: string
+		id: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/upgrade`
+		`/api/1.0/agreements/${options.id}/upgrade`
 
 	export const method = HttpMethod.Post
 

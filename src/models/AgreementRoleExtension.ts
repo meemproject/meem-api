@@ -1,13 +1,17 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
-import { MeemAPI } from '../types/meem.public.generated'
 import type { IModels } from '../types/models'
 import Agreement from './Agreement'
 import AgreementRole from './AgreementRole'
 import Extension from './Extension'
 
+// TODO: Move to @meemproject/metadata
+export interface AgreementRoleExtensionMetadata {}
+
 export default class AgreementRoleExtension extends BaseModel<AgreementRoleExtension> {
 	public static readonly modelName = 'AgreementRoleExtension'
+
+	public static readonly paranoid: boolean = false
 
 	public static get indexes() {
 		return [
@@ -29,11 +33,6 @@ export default class AgreementRoleExtension extends BaseModel<AgreementRoleExten
 			allowNull: false,
 			defaultValue: false
 		},
-		isPublic: {
-			type: DataTypes.BOOLEAN,
-			allowNull: false,
-			defaultValue: true
-		},
 		metadata: {
 			type: DataTypes.JSONB,
 			allowNull: false,
@@ -45,9 +44,7 @@ export default class AgreementRoleExtension extends BaseModel<AgreementRoleExten
 
 	public isEnabled!: boolean
 
-	public isPublic!: boolean
-
-	public metadata!: MeemAPI.IAgreementRoleExtensionMetadata
+	public metadata!: AgreementRoleExtensionMetadata
 
 	public AgreementId!: string
 

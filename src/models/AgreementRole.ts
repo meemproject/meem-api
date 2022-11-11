@@ -9,12 +9,9 @@ import ModelWithAddress from '../core/ModelWithAddress'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import Agreement from './Agreement'
-import AgreementGuild from './AgreementGuild'
 import type Meem from './AgreementToken'
 import type Extension from './Extension'
-import RolePermission from './RolePermission'
 import type Wallet from './Wallet'
-
 export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 	public static readonly modelName = 'AgreementRole'
 
@@ -53,11 +50,6 @@ export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 		address: {
 			type: DataTypes.STRING,
 			allowNull: false
-		},
-		metadataType: {
-			type: DataTypes.STRING,
-			allowNull: false,
-			defaultValue: ''
 		},
 		metadata: {
 			type: DataTypes.JSONB,
@@ -350,10 +342,6 @@ export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 	public Meems?: Meem[] | null
 
 	public Wallets?: Wallet[] | null
-
-	public AgreementGuild?: AgreementGuild | null
-
-	public RolePermissions?: RolePermission[] | null
 
 	public Extensions?: Extension[] | null
 

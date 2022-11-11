@@ -1,11 +1,11 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
-import { MeemAPI } from '../types/meem.public.generated'
 import type { IModels } from '../types/models'
 import Agreement from './Agreement'
-
 export default class AgreementExtension extends BaseModel<AgreementExtension> {
 	public static readonly modelName = 'AgreementExtension'
+
+	public static readonly paranoid: boolean = false
 
 	public static get indexes() {
 		return [
@@ -27,11 +27,6 @@ export default class AgreementExtension extends BaseModel<AgreementExtension> {
 			allowNull: false,
 			defaultValue: false
 		},
-		isPublic: {
-			type: DataTypes.BOOLEAN,
-			allowNull: false,
-			defaultValue: true
-		},
 		metadata: {
 			type: DataTypes.JSONB,
 			allowNull: false,
@@ -43,9 +38,7 @@ export default class AgreementExtension extends BaseModel<AgreementExtension> {
 
 	public isEnabled!: boolean
 
-	public isPublic!: boolean
-
-	public metadata!: MeemAPI.IAgreementExtensionMetadata
+	public metadata!: AgreementExtensionMetadata
 
 	public AgreementId!: string
 
