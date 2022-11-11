@@ -63,10 +63,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 	// )
 	router.postAsync('/discord/authenticate', DiscordController.authenticate)
 	router.getAsync('/discord/servers', DiscordController.getGuilds)
-	// router.postAsync(
-	// 	'/discord/sendButton',
-	// 	MeemIdController.sendDiscordJoinButton
-	// )
 	router.getAsync(
 		'/agreements/:agreementId/roles/access',
 		AgreementController.getUserAgreementRolesAccess
@@ -79,10 +75,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/joinGuild',
 		AgreementController.joinAgreementGuild
 	)
-	router.getAsync(
-		'/agreements/:agreementId/guild',
-		AgreementController.getAgreementGuild
-	)
+	// router.getAsync(
+	// 	'/agreements/:agreementId/guild',
+	// 	AgreementController.getAgreementGuild
+	// )
 	router.getAsync(
 		'/agreements/:agreementId/roles',
 		AgreementController.getAgreementRoles

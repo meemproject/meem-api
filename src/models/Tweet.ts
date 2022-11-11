@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import Token from './Token'
+import Token from './AgreementToken'
 
 export default class Tweet extends BaseModel<Tweet> {
 	public static readonly modelName = 'Tweet'
@@ -74,7 +74,7 @@ export default class Tweet extends BaseModel<Tweet> {
 	public Token!: Token | null
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.Token)
+		this.belongsTo(models.AgreementToken)
 		this.belongsToMany(models.Hashtag, {
 			through: models.TweetHashtag
 		})

@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { guild, role as guildRole } from '@guildxyz/sdk'
+import { guild } from '@guildxyz/sdk'
 import {
 	getCuts,
 	IFacetVersion,
@@ -9,7 +9,7 @@ import {
 import { Validator } from '@meemproject/metadata'
 import AWS from 'aws-sdk'
 // eslint-disable-next-line import/named
-import { Bytes, ethers } from 'ethers'
+import { ethers } from 'ethers'
 import _ from 'lodash'
 import slug from 'slug'
 import { v4 as uuidv4 } from 'uuid'
@@ -387,10 +387,10 @@ export default class AgreementService {
 			try {
 				// TODO: pass createRoles property to contract instead of meem-club
 				if (data.metadata.meem_contract_type === 'meem-club') {
-					await services.guild.createAgreementGuild({
-						agreementId: agreementInstance.id,
-						adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
-					})
+					// await services.guild.createAgreementGuild({
+					// 	agreementId: agreementInstance.id,
+					// 	adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
+					// })
 				} else if (data.agreementRoleData) {
 					const {
 						name: roleName,
@@ -399,37 +399,37 @@ export default class AgreementService {
 						permissions,
 						isAdminRole
 					} = data.agreementRoleData
-					const sign = (signableMessage: string | Bytes) =>
-						wallet.signMessage(signableMessage)
-					const createGuildRoleResponse = await guildRole.create(
-						wallet.address,
-						sign,
-						{
-							guildId: agreementGuild.guildId,
-							name: roleName,
-							logic: 'AND',
-							requirements: [
-								{
-									type: 'ERC721',
-									chain: services.guild.getGuildChain(
-										agreementInstance.chainId
-									),
-									address: agreement.address,
-									data: {
-										minAmount: 1
-									}
-								}
-							]
-						}
-					)
+					// const sign = (signableMessage: string | Bytes) =>
+					// 	wallet.signMessage(signableMessage)
+					// const createGuildRoleResponse = await guildRole.create(
+					// 	wallet.address,
+					// 	sign,
+					// 	{
+					// 		guildId: agreementGuild.guildId,
+					// 		name: roleName,
+					// 		logic: 'AND',
+					// 		requirements: [
+					// 			{
+					// 				type: 'ERC721',
+					// 				chain: services.guild.getGuildChain(
+					// 					agreementInstance.chainId
+					// 				),
+					// 				address: agreement.address,
+					// 				data: {
+					// 					minAmount: 1
+					// 				}
+					// 			}
+					// 		]
+					// 	}
+					// )
 
 					const agreementRole = await orm.models.AgreementRole.create({
-						guildRoleId: createGuildRoleResponse.id,
+						// guildRoleId: createGuildRoleResponse.id,
 						name: roleName,
 						AgreementId: parentAgreement.id,
 						AgreementGuildId: agreementGuild.id,
 						RoleAgreementId: agreementInstance.id,
-						tokenAddress: agreement.address,
+						// tokenAddress: agreement.address,
 						isAdminRole: isAdminRole ?? false
 					})
 
@@ -532,9 +532,9 @@ export default class AgreementService {
 			senderWallet = await orm.models.Wallet.create({
 				address: senderWalletAddress
 			})
-			await services.meemId.createOrUpdateMeemIdentity({
-				wallet: senderWallet
-			})
+			// await services.meemId.createOrUpdateMeemIdentity({
+			// 	wallet: senderWallet
+			// })
 		}
 
 		let { metadata, symbol, name, maxSupply } = data
@@ -1087,19 +1087,19 @@ export default class AgreementService {
 
 				delete role.RolePermissions
 
-				if (mcRole.guildRoleId) {
-					const guildRoleResponse = await guildRole.get(mcRole.guildRoleId)
+				// if (mcRole.guildRoleId) {
+				// 	const guildRoleResponse = await guildRole.get(mcRole.guildRoleId)
 
-					role.guildRole = guildRoleResponse
+				// 	role.guildRole = guildRoleResponse
 
-					if (agreementRoleId) {
-						role.memberMeemIds = await Promise.all(
-							(role.guildRole?.members ?? []).map((m: string) =>
-								services.meemId.getMeemIdentityForAddress(m)
-							)
-						)
-					}
-				}
+				// 	if (agreementRoleId) {
+				// 		role.memberMeemIds = await Promise.all(
+				// 			(role.guildRole?.members ?? []).map((m: string) =>
+				// 				services.meemId.getMeemIdentityForAddress(m)
+				// 			)
+				// 		)
+				// 	}
+				// }
 				return role
 			})
 		)
@@ -1201,19 +1201,19 @@ export default class AgreementService {
 
 				delete role.RolePermissions
 
-				if (mcRole.guildRoleId) {
-					const guildRoleResponse = await guildRole.get(mcRole.guildRoleId)
+				// if (mcRole.guildRoleId) {
+				// 	const guildRoleResponse = await guildRole.get(mcRole.guildRoleId)
 
-					role.guildRole = guildRoleResponse
+				// 	role.guildRole = guildRoleResponse
 
-					if (agreementRoleId) {
-						role.memberMeemIds = await Promise.all(
-							(role.guildRole?.members ?? []).map((m: string) =>
-								services.meemId.getMeemIdentityForAddress(m)
-							)
-						)
-					}
-				}
+				// 	if (agreementRoleId) {
+				// 		role.memberMeemIds = await Promise.all(
+				// 			(role.guildRole?.members ?? []).map((m: string) =>
+				// 				services.meemId.getMeemIdentityForAddress(m)
+				// 			)
+				// 		)
+				// 	}
+				// }
 				return role
 			})
 		)
@@ -1258,11 +1258,7 @@ export default class AgreementService {
 			]
 		})
 
-		const agreementAdminRole = (agreement?.AgreementRoles ?? []).find(
-			r => r.isAdminRole
-		)
-
-		if (!agreement || !agreementAdminRole?.guildRoleId) {
+		if (!agreement) {
 			throw new Error('SERVER_ERROR')
 		}
 

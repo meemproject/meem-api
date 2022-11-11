@@ -3,14 +3,16 @@ import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.public.generated'
 import type { IModels } from '../types/models'
 import Agreement from './Agreement'
+import AgreementRole from './AgreementRole'
+import Extension from './Extension'
 
-export default class AgreementExtension extends BaseModel<AgreementExtension> {
-	public static readonly modelName = 'AgreementExtension'
+export default class AgreementRoleExtension extends BaseModel<AgreementRoleExtension> {
+	public static readonly modelName = 'AgreementRoleExtension'
 
 	public static get indexes() {
 		return [
 			{
-				name: 'AgreementExtension_createdAt',
+				name: 'AgreementRoleExtension_createdAt',
 				fields: ['createdAt']
 			}
 		]
@@ -45,7 +47,7 @@ export default class AgreementExtension extends BaseModel<AgreementExtension> {
 
 	public isPublic!: boolean
 
-	public metadata!: MeemAPI.IAgreementExtensionMetadata
+	public metadata!: MeemAPI.IAgreementRoleExtensionMetadata
 
 	public AgreementId!: string
 
@@ -53,11 +55,19 @@ export default class AgreementExtension extends BaseModel<AgreementExtension> {
 
 	public ExtensionId!: string
 
-	public Extension!: Agreement
+	public Extension!: Extension
+
+	public AgreementRoleId!: string
+
+	public AgreementRole!: AgreementRole
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.Extension)
 
 		this.belongsTo(models.Agreement)
+
+		this.belongsTo(models.AgreementExtension)
+
+		this.belongsTo(models.AgreementRole)
 	}
 }

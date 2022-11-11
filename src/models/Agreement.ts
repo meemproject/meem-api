@@ -10,8 +10,8 @@ import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import AgreementGuild from './AgreementGuild'
 import AgreementRole from './AgreementRole'
+import type Meem from './AgreementToken'
 import type Extension from './Extension'
-import type Meem from './Token'
 import type Wallet from './Wallet'
 
 export default class Agreement extends ModelWithAddress<Agreement> {
@@ -350,7 +350,7 @@ export default class Agreement extends ModelWithAddress<Agreement> {
 	public Extensions?: Extension[] | null
 
 	public static associate(models: IModels) {
-		this.hasMany(models.Token)
+		this.hasMany(models.AgreementToken)
 
 		this.belongsToMany(models.Wallet, {
 			through: models.AgreementWallet

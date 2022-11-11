@@ -3,34 +3,31 @@ import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import type Agreement from './Agreement'
+import type AgreementRole from './AgreementRole'
 import type Transfer from './Transfer'
 import type Wallet from './Wallet'
 
-export default class Token extends BaseModel<Token> {
-	public static readonly modelName = 'Token'
+export default class AgreementRoleToken extends BaseModel<AgreementRoleToken> {
+	public static readonly modelName = 'AgreementRoleToken'
 
 	public static readonly paranoid: boolean = false
 
 	public static get indexes() {
 		return [
 			{
-				name: 'Token_createdAt',
+				name: 'AgreementRoleToken_createdAt',
 				fields: ['createdAt']
 			},
 			{
-				name: 'Token_tokenId',
+				name: 'AgreementRoleToken_tokenId',
 				fields: ['tokenId']
 			},
 			{
-				name: 'Token_meemType',
-				fields: ['meemType']
-			},
-			{
-				name: 'Token_mintedBy',
+				name: 'AgreementRoleToken_mintedBy',
 				fields: ['mintedBy']
 			},
 			{
-				name: 'Token_AgreementId',
+				name: 'AgreementRoleToken_AgreementId',
 				fields: ['AgreementId']
 			}
 		]
@@ -45,7 +42,7 @@ export default class Token extends BaseModel<Token> {
 		tokenId: {
 			type: DataTypes.STRING,
 			allowNull: false,
-			set(this: Token, val: any) {
+			set(this: AgreementRoleToken, val: any) {
 				this.setDataValue(
 					'tokenId',
 					services.web3.toBigNumber(val).toHexString()
@@ -60,16 +57,10 @@ export default class Token extends BaseModel<Token> {
 			type: DataTypes.DATE,
 			allowNull: false
 		},
-
 		metadata: {
 			type: DataTypes.JSONB,
 			allowNull: false,
 			defaultValue: {}
-		},
-		meemType: {
-			type: DataTypes.INTEGER,
-			allowNull: false,
-			defaultValue: 0
 		},
 		mintedBy: {
 			type: DataTypes.STRING,
@@ -88,13 +79,15 @@ export default class Token extends BaseModel<Token> {
 
 	public metadata!: MeemAPI.ITokenMetadata
 
-	public meemType!: MeemAPI.MeemType
-
 	public mintedBy!: string
 
 	public AgreementId!: string
 
 	public Agreement!: Agreement
+
+	public AgreementRoleId!: string
+
+	public AgreementRole!: AgreementRole
 
 	public OwnerId!: string
 
@@ -104,6 +97,8 @@ export default class Token extends BaseModel<Token> {
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.Agreement)
+
+		this.belongsTo(models.AgreementRole)
 
 		this.hasMany(models.Transfer)
 

@@ -16,10 +16,8 @@ export default class AgreementRoleService {
 			senderWallet,
 			agreementId,
 			agreementRoleId,
-			name,
 			permissions: rolePermissions,
-			members: roleMembers,
-			guildRoleData
+			members: roleMembers
 		} = data
 		const isAdmin = await services.agreement.isAgreementAdmin({
 			agreementId,
@@ -117,14 +115,13 @@ export default class AgreementRoleService {
 			}
 		}
 
-		const updatedName = name
+		// const updatedName = name
 		let updatedMembers = roleMembers?.map(m => m.toLowerCase())
 
 		if (
 			agreementRole.isAdminRole &&
 			!_.isUndefined(updatedMembers) &&
-			_.isArray(updatedMembers) &&
-			agreementRole.guildRoleId
+			_.isArray(updatedMembers)
 		) {
 			try {
 				if (agreementRole.isAdminRole && updatedMembers) {
@@ -141,16 +138,16 @@ export default class AgreementRoleService {
 			}
 		}
 
-		if (agreementRole.guildRoleId) {
-			await services.guild.updateAgreementGuildRole({
-				guildRoleId: agreementRole.guildRoleId,
-				agreementId: agreement.id,
-				name: updatedName,
-				members: updatedMembers,
-				guildRoleData,
-				senderWalletAddress: senderWallet.address
-			})
-		}
+		// if (agreementRole.guildRoleId) {
+		// 	await services.guild.updateAgreementGuildRole({
+		// 		guildRoleId: agreementRole.guildRoleId,
+		// 		agreementId: agreement.id,
+		// 		name: updatedName,
+		// 		members: updatedMembers,
+		// 		guildRoleData,
+		// 		senderWalletAddress: senderWallet.address
+		// 	})
+		// }
 
 		return agreementRole
 	}

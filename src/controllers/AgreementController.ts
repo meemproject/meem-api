@@ -1,5 +1,4 @@
 import { randomBytes } from 'crypto'
-import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
 import { ethers } from 'ethers'
@@ -39,71 +38,71 @@ export default class AgreementController {
 		})
 	}
 
-	public static async updateAgreement(
-		req: IRequest<MeemAPI.v1.UpdateAgreement.IDefinition>,
-		res: IResponse<MeemAPI.v1.UpdateAgreement.IResponseBody>
-	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
+	// public static async updateAgreement(
+	// 	req: IRequest<MeemAPI.v1.UpdateAgreement.IDefinition>,
+	// 	res: IResponse<MeemAPI.v1.UpdateAgreement.IResponseBody>
+	// ): Promise<Response> {
+	// 	if (!req.wallet) {
+	// 		throw new Error('USER_NOT_LOGGED_IN')
+	// 	}
 
-		await req.wallet.enforceTXLimit()
+	// 	await req.wallet.enforceTXLimit()
 
-		const adminRole = config.ADMIN_ROLE
-		const agreement = await orm.models.Agreement.findOne({
-			where: {
-				id: req.params.agreementId
-			},
-			include: [
-				{
-					model: orm.models.Wallet,
-					where: {
-						address: req.wallet.address
-					},
-					through: {
-						where: {
-							role: adminRole
-						}
-					}
-				}
-			]
-		})
+	// 	const adminRole = config.ADMIN_ROLE
+	// 	const agreement = await orm.models.Agreement.findOne({
+	// 		where: {
+	// 			id: req.params.agreementId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.Wallet,
+	// 				where: {
+	// 					address: req.wallet.address
+	// 				},
+	// 				through: {
+	// 					where: {
+	// 						role: adminRole
+	// 					}
+	// 				}
+	// 			}
+	// 		]
+	// 	})
 
-		if (!agreement) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
-		}
+	// 	if (!agreement) {
+	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 	}
 
-		if (agreement.Wallets && agreement.Wallets.length < 1) {
-			throw new Error('NOT_AUTHORIZED')
-		}
+	// 	if (agreement.Wallets && agreement.Wallets.length < 1) {
+	// 		throw new Error('NOT_AUTHORIZED')
+	// 	}
 
-		if (req.body.slug && req.body.slug !== agreement.slug) {
-			const isAvailable = await services.agreement.isSlugAvailable({
-				slugToCheck: req.body.slug,
-				chainId: agreement.chainId
-			})
-			if (!isAvailable) {
-				throw new Error('SLUG_UNAVAILABLE')
-			}
+	// 	if (req.body.slug && req.body.slug !== agreement.slug) {
+	// 		const isAvailable = await services.agreement.isSlugAvailable({
+	// 			slugToCheck: req.body.slug,
+	// 			chainId: agreement.chainId
+	// 		})
+	// 		if (!isAvailable) {
+	// 			throw new Error('SLUG_UNAVAILABLE')
+	// 		}
 
-			const slug = await services.agreement.generateSlug({
-				baseSlug: req.body.slug,
-				chainId: agreement.chainId
-			})
+	// 		const slug = await services.agreement.generateSlug({
+	// 			baseSlug: req.body.slug,
+	// 			chainId: agreement.chainId
+	// 		})
 
-			if (req.body.slug !== slug) {
-				throw new Error('INVALID_SLUG')
-			}
+	// 		if (req.body.slug !== slug) {
+	// 			throw new Error('INVALID_SLUG')
+	// 		}
 
-			agreement.slug = slug
-		}
+	// 		agreement.slug = slug
+	// 	}
 
-		await agreement.save()
+	// 	await agreement.save()
 
-		return res.json({
-			status: 'success'
-		})
-	}
+	// 	return res.json({
+	// 		status: 'success'
+	// 	})
+	// }
 
 	public static async createAgreement(
 		req: IRequest<MeemAPI.v1.CreateAgreement.IDefinition>,
@@ -525,51 +524,51 @@ export default class AgreementController {
 		})
 	}
 
-	public static async createAgreementGuild(
-		req: IRequest<any>,
-		res: IResponse<any>
-	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
+	// public static async createAgreementGuild(
+	// 	req: IRequest<any>,
+	// 	res: IResponse<any>
+	// ): Promise<Response> {
+	// 	if (!req.wallet) {
+	// 		throw new Error('USER_NOT_LOGGED_IN')
+	// 	}
 
-		const { agreementId } = req.params
+	// 	const { agreementId } = req.params
 
-		if (!agreementId) {
-			throw new Error('SERVER_ERROR')
-		}
+	// 	if (!agreementId) {
+	// 		throw new Error('SERVER_ERROR')
+	// 	}
 
-		const agreementGuild = await services.guild.createAgreementGuild({
-			agreementId: agreementId as string
-		})
+	// 	const agreementGuild = await services.guild.createAgreementGuild({
+	// 		agreementId: agreementId as string
+	// 	})
 
-		return res.json({
-			agreementGuild
-		})
-	}
+	// 	return res.json({
+	// 		agreementGuild
+	// 	})
+	// }
 
-	public static async deleteAgreementGuild(
-		req: IRequest<any>,
-		res: IResponse<any>
-	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
+	// public static async deleteAgreementGuild(
+	// 	req: IRequest<any>,
+	// 	res: IResponse<any>
+	// ): Promise<Response> {
+	// 	if (!req.wallet) {
+	// 		throw new Error('USER_NOT_LOGGED_IN')
+	// 	}
 
-		const { agreementId } = req.params
+	// 	const { agreementId } = req.params
 
-		if (!agreementId) {
-			throw new Error('SERVER_ERROR')
-		}
+	// 	if (!agreementId) {
+	// 		throw new Error('SERVER_ERROR')
+	// 	}
 
-		const agreementGuild = await services.guild.deleteAgreementGuild({
-			agreementId: agreementId as string
-		})
+	// 	const agreementGuild = await services.guild.deleteAgreementGuild({
+	// 		agreementId: agreementId as string
+	// 	})
 
-		return res.json({
-			agreementGuild
-		})
-	}
+	// 	return res.json({
+	// 		agreementGuild
+	// 	})
+	// }
 
 	public static async createAgreementRole(
 		req: IRequest<MeemAPI.v1.CreateAgreementRole.IDefinition>,
@@ -579,13 +578,13 @@ export default class AgreementController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const {
-			name,
-			permissions,
-			isTokenBasedRole,
-			isTokenTransferrable,
-			members
-		} = req.body
+		// const {
+		// 	name,
+		// 	permissions,
+		// 	isTokenBasedRole,
+		// 	isTokenTransferrable,
+		// 	members
+		// } = req.body
 
 		// TODO: Check if the user has permission to update and not just admin contract role
 
@@ -617,16 +616,16 @@ export default class AgreementController {
 			throw new Error('MEEM_CONTRACT_GUILD_NOT_FOUND')
 		}
 
-		await services.guild.createAgreementGuildRole({
-			name,
-			agreement,
-			agreementGuild: agreement.AgreementGuild,
-			permissions,
-			members: members ?? [],
-			isTokenBasedRole,
-			isTokenTransferrable,
-			senderWalletAddress: req.wallet.address
-		})
+		// await services.guild.createAgreementGuildRole({
+		// 	name,
+		// 	agreement,
+		// 	agreementGuild: agreement.AgreementGuild,
+		// 	permissions,
+		// 	members: members ?? [],
+		// 	isTokenBasedRole,
+		// 	isTokenTransferrable,
+		// 	senderWalletAddress: req.wallet.address
+		// })
 
 		return res.json({
 			status: 'success'
@@ -642,7 +641,7 @@ export default class AgreementController {
 		}
 
 		const { agreementId } = req.params
-		const { roleIntegrationsData } = req.body
+		// const { roleIntegrationsData } = req.body
 
 		// TODO: Check if the user has permission to update and not just admin contract role
 
@@ -658,26 +657,27 @@ export default class AgreementController {
 		const agreement = await orm.models.Agreement.findOne({
 			where: {
 				id: req.params.agreementId
-			}
-		})
-
-		if (!agreement) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
-		}
-
-		const agreementRole = await orm.models.AgreementRole.findOne({
-			where: {
-				id: req.params.agreementRoleId
 			},
 			include: [
 				{
-					model: orm.models.RolePermission
-				},
-				{
-					model: orm.models.AgreementGuild
+					model: orm.models.AgreementRole,
+					where: {
+						id: req.params.agreementRoleId
+					},
+					include: [
+						{
+							model: orm.models.RolePermission
+						}
+					]
 				}
 			]
 		})
+
+		if (!agreement || !agreement.AgreementRoles) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		const agreementRole = agreement.AgreementRoles[0]
 
 		if (!agreementRole) {
 			throw new Error('MEEM_CONTRACT_ROLE_NOT_FOUND')
@@ -755,95 +755,88 @@ export default class AgreementController {
 					senderWallet: req.wallet
 				})
 			}
-			if (agreementRole.guildRoleId) {
-				let guildRoleData
-				let discordServerData
-				const integrationsMetadata = agreementRole.integrationsMetadata
-				const agreementRoleDiscordIntegrationDataIndex =
-					integrationsMetadata?.findIndex(i => !!i.discordServerData)
-				const guildRoleDiscordIntegrationData = roleIntegrationsData?.find(
-					(d: any) => d.discordServerId
-				)
-				if (guildRoleDiscordIntegrationData) {
-					const discordServerResult = await request
-						.post(
-							`https://api.guild.xyz/v1/discord/server/${guildRoleDiscordIntegrationData.discordServerId}`
-						)
-						.send({
-							payload: {
-								authorization:
-									guildRoleDiscordIntegrationData.discordAccessToken
-							}
-						})
-					discordServerData = discordServerResult.body
-					// TODO: This creates a new role on discord no matter if isNew set to true or false
-					guildRoleData = {
-						rolePlatforms: [
-							{
-								guildPlatform: {
-									platformName: 'DISCORD',
-									platformGuildId:
-										guildRoleDiscordIntegrationData.discordServerId,
-									isNew: agreementRoleDiscordIntegrationDataIndex < 0
-								},
-								platformRoleData: {
-									gatedChannels:
-										guildRoleDiscordIntegrationData.discordGatedChannels ?? []
-								}
-							}
-						]
-					}
-				}
+			// if (agreementRole.guildRoleId) {
+			// 	let guildRoleData
+			// 	let discordServerData
+			// 	const integrationsMetadata = agreementRole.integrationsMetadata
+			// 	const agreementRoleDiscordIntegrationDataIndex =
+			// 		integrationsMetadata?.findIndex(i => !!i.discordServerData)
+			// 	const guildRoleDiscordIntegrationData = roleIntegrationsData?.find(
+			// 		(d: any) => d.discordServerId
+			// 	)
+			// 	if (guildRoleDiscordIntegrationData) {
+			// 		const discordServerResult = await request
+			// 			.post(
+			// 				`https://api.guild.xyz/v1/discord/server/${guildRoleDiscordIntegrationData.discordServerId}`
+			// 			)
+			// 			.send({
+			// 				payload: {
+			// 					authorization:
+			// 						guildRoleDiscordIntegrationData.discordAccessToken
+			// 				}
+			// 			})
+			// 		discordServerData = discordServerResult.body
+			// 		// TODO: This creates a new role on discord no matter if isNew set to true or false
+			// 		guildRoleData = {
+			// 			rolePlatforms: [
+			// 				{
+			// 					guildPlatform: {
+			// 						platformName: 'DISCORD',
+			// 						platformGuildId:
+			// 							guildRoleDiscordIntegrationData.discordServerId,
+			// 						isNew: agreementRoleDiscordIntegrationDataIndex < 0
+			// 					},
+			// 					platformRoleData: {
+			// 						gatedChannels:
+			// 							guildRoleDiscordIntegrationData.discordGatedChannels ?? []
+			// 					}
+			// 				}
+			// 			]
+			// 		}
+			// 	}
 
-				await services.guild.updateAgreementGuildRole({
-					guildRoleId: agreementRole.guildRoleId,
-					agreementId: agreement.id,
-					name: req.body.name,
-					members,
-					guildRoleData,
-					senderWalletAddress: req.wallet.address
-				})
+			// 	await services.guild.updateAgreementGuildRole({
+			// 		guildRoleId: agreementRole.guildRoleId,
+			// 		agreementId: agreement.id,
+			// 		name: req.body.name,
+			// 		members,
+			// 		guildRoleData,
+			// 		senderWalletAddress: req.wallet.address
+			// 	})
 
-				if (guildRoleDiscordIntegrationData?.discordAccessToken) {
-					const updatedDiscordServerResult = await request
-						.post(
-							`https://api.guild.xyz/v1/discord/server/${guildRoleDiscordIntegrationData.discordServerId}`
-						)
-						.send({
-							payload: {
-								authorization:
-									guildRoleDiscordIntegrationData.discordAccessToken
-							}
-						})
+			// 	if (guildRoleDiscordIntegrationData?.discordAccessToken) {
+			// 		const updatedDiscordServerResult = await request
+			// 			.post(
+			// 				`https://api.guild.xyz/v1/discord/server/${guildRoleDiscordIntegrationData.discordServerId}`
+			// 			)
+			// 			.send({
+			// 				payload: {
+			// 					authorization:
+			// 						guildRoleDiscordIntegrationData.discordAccessToken
+			// 				}
+			// 			})
 
-					discordServerData = updatedDiscordServerResult.body
+			// 		discordServerData = updatedDiscordServerResult.body
 
-					if (agreementRoleDiscordIntegrationDataIndex > -1) {
-						integrationsMetadata[agreementRoleDiscordIntegrationDataIndex] = {
-							discordServerData
-						}
-					} else {
-						integrationsMetadata.push({
-							discordServerData
-						})
-					}
+			// 		if (agreementRoleDiscordIntegrationDataIndex > -1) {
+			// 			integrationsMetadata[agreementRoleDiscordIntegrationDataIndex] = {
+			// 				discordServerData
+			// 			}
+			// 		} else {
+			// 			integrationsMetadata.push({
+			// 				discordServerData
+			// 			})
+			// 		}
 
-					agreementRole.integrationsMetadata = integrationsMetadata
-					agreementRole.changed('integrationsMetadata', true)
+			// 		agreementRole.integrationsMetadata = integrationsMetadata
+			// 		agreementRole.changed('integrationsMetadata', true)
 
-					await agreementRole.save()
-				}
-			}
+			// 		await agreementRole.save()
+			// 	}
+			// }
 
-			if (
-				!_.isUndefined(req.body.isTokenTransferrable) &&
-				agreementRole.tokenAddress
-			) {
-				const roleAgreement = await orm.models.Agreement.findOne({
-					where: {
-						address: agreementRole.tokenAddress
-					}
-				})
+			if (!_.isUndefined(req.body.isTokenTransferrable)) {
+				const roleAgreement = agreementRole.Agreement
 
 				if (
 					roleAgreement &&
@@ -974,12 +967,12 @@ export default class AgreementController {
 		const promises: Promise<any>[] = []
 		const t = await orm.sequelize.transaction()
 
-		if (agreementRole?.guildRoleId) {
-			await services.guild.deleteAgreementGuildRole({
-				guildRoleId: agreementRole.guildRoleId,
-				agreementId: agreement.id
-			})
-		}
+		// if (agreementRole?.guildRoleId) {
+		// 	await services.guild.deleteAgreementGuildRole({
+		// 		guildRoleId: agreementRole.guildRoleId,
+		// 		agreementId: agreement.id
+		// 	})
+		// }
 
 		promises.push(
 			orm.models.AgreementRolePermission.destroy({
@@ -1012,57 +1005,57 @@ export default class AgreementController {
 		}
 	}
 
-	public static async getAgreementGuild(
-		req: IRequest<MeemAPI.v1.GetAgreementGuild.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetAgreementGuild.IResponseBody>
-	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
+	// public static async getAgreementGuild(
+	// 	req: IRequest<MeemAPI.v1.GetAgreementGuild.IDefinition>,
+	// 	res: IResponse<MeemAPI.v1.GetAgreementGuild.IResponseBody>
+	// ): Promise<Response> {
+	// 	if (!req.wallet) {
+	// 		throw new Error('USER_NOT_LOGGED_IN')
+	// 	}
 
-		try {
-			const guildResponse = await services.guild.getAgreementGuild({
-				agreementId: req.params.agreementId
-			})
+	// 	try {
+	// 		const guildResponse = await services.guild.getAgreementGuild({
+	// 			agreementId: req.params.agreementId
+	// 		})
 
-			let guildPlatforms: any = guildResponse?.guildPlatforms
+	// 		let guildPlatforms: any = guildResponse?.guildPlatforms
 
-			if (guildPlatforms) {
-				guildPlatforms = await Promise.all(
-					guildPlatforms.map(async (gp: any) => {
-						const gpData = gp
+	// 		if (guildPlatforms) {
+	// 			guildPlatforms = await Promise.all(
+	// 				guildPlatforms.map(async (gp: any) => {
+	// 					const gpData = gp
 
-						if (gpData.platformId === 1) {
-							const discordDataResponse = await request.post(
-								`https://api.guild.xyz/v1/discord/server/${gp.platformGuildId}`
-							)
-							gpData.platformGuildData = {
-								...gpData.platformGuildData,
-								...discordDataResponse.body
-							}
-						}
+	// 					if (gpData.platformId === 1) {
+	// 						const discordDataResponse = await request.post(
+	// 							`https://api.guild.xyz/v1/discord/server/${gp.platformGuildId}`
+	// 						)
+	// 						gpData.platformGuildData = {
+	// 							...gpData.platformGuildData,
+	// 							...discordDataResponse.body
+	// 						}
+	// 					}
 
-						return gpData
-					})
-				)
-			}
+	// 					return gpData
+	// 				})
+	// 			)
+	// 		}
 
-			const guild = guildResponse
-				? {
-						id: guildResponse.id,
-						name: guildResponse.name,
-						guildPlatforms
-				  }
-				: null
+	// 		const guild = guildResponse
+	// 			? {
+	// 					id: guildResponse.id,
+	// 					name: guildResponse.name,
+	// 					guildPlatforms
+	// 			  }
+	// 			: null
 
-			return res.json({
-				guild
-			})
-		} catch (e) {
-			log.crit(e)
-			throw new Error('SERVER_ERROR')
-		}
-	}
+	// 		return res.json({
+	// 			guild
+	// 		})
+	// 	} catch (e) {
+	// 		log.crit(e)
+	// 		throw new Error('SERVER_ERROR')
+	// 	}
+	// }
 
 	public static async getAgreementRoles(
 		req: IRequest<MeemAPI.v1.GetAgreementRoles.IDefinition>,

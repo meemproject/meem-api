@@ -258,7 +258,7 @@ export default class Web3 {
 	}
 
 	public static async syncPins() {
-		const meems = await orm.models.Token.findAll({ limit: 5 })
+		const meems = await orm.models.AgreementToken.findAll({ limit: 5 })
 		const pinata = this.getPinataInstance()
 
 		for (let i = 0; i < meems.length; i += 1) {

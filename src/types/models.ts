@@ -2,7 +2,10 @@ import Agreement from '../models/Agreement'
 import AgreementExtension from '../models/AgreementExtension'
 import AgreementGuild from '../models/AgreementGuild'
 import AgreementRole from '../models/AgreementRole'
+import AgreementRoleExtension from '../models/AgreementRoleExtension'
 import AgreementRolePermission from '../models/AgreementRolePermission'
+import AgreementRoleToken from '../models/AgreementRoleToken'
+import AgreementToken from '../models/AgreementToken'
 import AgreementWallet from '../models/AgreementWallet'
 import Bundle from '../models/Bundle'
 import BundleContract from '../models/BundleContract'
@@ -14,7 +17,6 @@ import Extension from '../models/Extension'
 import Hashtag from '../models/Hashtag'
 import IdentityIntegration from '../models/IdentityIntegration'
 import RolePermission from '../models/RolePermission'
-import Token from '../models/Token'
 import Transaction from '../models/Transaction'
 import Transfer from '../models/Transfer'
 import Tweet from '../models/Tweet'
@@ -34,15 +36,17 @@ export interface IModels {
 	Discord: typeof Discord
 	Hashtag: typeof Hashtag
 	Extension: typeof Extension
-	Token: typeof Token
+	AgreementToken: typeof AgreementToken
 	Agreement: typeof Agreement
 	IdentityIntegration: typeof IdentityIntegration
 	UserIdentity: typeof UserIdentity
 	AgreementGuild: typeof AgreementGuild
 	AgreementRole: typeof AgreementRole
+	AgreementRoleToken: typeof AgreementRoleToken
 	AgreementRolePermission: typeof AgreementRolePermission
 	RolePermission: typeof RolePermission
 	AgreementExtension: typeof AgreementExtension
+	AgreementRoleExtension: typeof AgreementRoleExtension
 	AgreementWallet: typeof AgreementWallet
 	Transaction: typeof Transaction
 	Transfer: typeof Transfer

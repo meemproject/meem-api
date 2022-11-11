@@ -507,8 +507,14 @@ export interface IERC721Metadata {
 	description?: string
 }
 
+// TODO: Define metadata types for extensions (e.g. type: APP, LINK)
 export interface IAgreementExtensionMetadata {
 	externalUrl?: string
+	[key: string]: unknown
+}
+
+// TODO: Define metadata types for extensions (e.g. type: APP, LINK)
+export interface IAgreementRoleExtensionMetadata {
 	[key: string]: unknown
 }
 
