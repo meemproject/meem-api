@@ -301,8 +301,6 @@ export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 
 	public slug!: string
 
-	public type!: string
-
 	public symbol!: string
 
 	public contractURI!: string

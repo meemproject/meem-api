@@ -34,7 +34,6 @@ export default class AgreementService {
 		depth?: number
 	}): Promise<string> {
 		const { baseSlug, chainId, depth } = options
-		// TODO: 🚨 Figure out what to do with slugs. Do all contract types need slugs?
 		const theSlug = slug(baseSlug, { lower: true })
 
 		try {
@@ -310,7 +309,6 @@ export default class AgreementService {
 				mintPermissions: fullMintPermissions,
 				slug: contractSlug,
 				name: data.name,
-				type: data.metadata.meem_contract_type ?? '',
 				isTransferrable: !data.isTransferLocked,
 				chainId
 			})

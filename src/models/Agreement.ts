@@ -38,11 +38,6 @@ export default class Agreement extends ModelWithAddress<Agreement> {
 			allowNull: false,
 			defaultValue: DataTypes.UUIDV4
 		},
-		type: {
-			type: DataTypes.STRING,
-			allowNull: false,
-			defaultValue: ''
-		},
 		name: {
 			type: DataTypes.STRING,
 			allowNull: false,
@@ -303,8 +298,6 @@ export default class Agreement extends ModelWithAddress<Agreement> {
 	public name!: string
 
 	public slug!: string
-
-	public type!: string
 
 	public symbol!: string
 
