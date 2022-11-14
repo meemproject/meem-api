@@ -1,7 +1,7 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 import { ITokenMetadataLike } from '../meem.shared'
 
-export namespace BulkMint {
+export namespace BulkMintAgreementToken {
 	export interface IPathParams {
 		/** The meem pass id to fetch */
 		agreementId: string

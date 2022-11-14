@@ -14,6 +14,7 @@ import slug from 'slug'
 import { v4 as uuidv4 } from 'uuid'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
+import errors from '../config/errors'
 import IDiamondCut from '../lib/IDiamondCut'
 import type Agreement from '../models/Agreement'
 import AgreementWallet from '../models/AgreementWallet'
@@ -343,7 +344,7 @@ export default class AgreementService {
 
 				if (config.DISABLE_ASYNC_MINTING) {
 					try {
-						await services.meem.bulkMint({
+						await this.bulkMint({
 							tokens,
 							mintedBy: senderWalletAddress,
 							agreementId: agreementInstance.id
@@ -686,6 +687,114 @@ export default class AgreementService {
 			cleanAdmins,
 			fullMintPermissions,
 			builtMintPermissions
+		}
+	}
+
+	/** Mint an Agreement Token */
+	public static async bulkMint(
+		data: MeemAPI.v1.BulkMintAgreementToken.IRequestBody & {
+			mintedBy: string
+			agreementId: string
+		}
+	) {
+		try {
+			if (!data.agreementId) {
+				throw new Error('MISSING_CONTRACT_ADDRESS')
+			}
+
+			const [agreement, minterWallet] = await Promise.all([
+				orm.models.Agreement.findOne({
+					where: {
+						id: data.agreementId
+					}
+				}),
+				orm.models.Wallet.findByAddress<Wallet>(data.mintedBy)
+			])
+
+			if (!minterWallet) {
+				throw new Error('WALLET_NOT_FOUND')
+			}
+
+			if (!agreement) {
+				throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			}
+
+			const builtData: {
+				to: string
+				metadata: MeemAPI.ITokenMetadataLike
+				ipfs?: string
+			}[] = []
+
+			// Validate metadata
+			data.tokens.forEach(token => {
+				if (!token.to) {
+					throw new Error('MISSING_ACCOUNT_ADDRESS')
+				}
+
+				if (!token.metadata?.meem_metadata_version) {
+					throw new Error('INVALID_METADATA')
+				}
+
+				const validator = new Validator(token.metadata.meem_metadata_version)
+				const validatorResult = validator.validate(token.metadata)
+
+				if (!validatorResult.valid) {
+					log.crit(validatorResult.errors.map((e: any) => e.message))
+					throw new Error('INVALID_METADATA')
+				}
+
+				builtData.push({
+					...token,
+					metadata: token.metadata
+				})
+			})
+
+			// Pin to IPFS
+			for (let i = 0; i < builtData.length; i++) {
+				const item = builtData[i]
+				const result = await services.web3.saveToPinata({
+					json: item.metadata
+				})
+				item.ipfs = `ipfs://${result.IpfsHash}`
+			}
+
+			const { wallet } = await services.ethers.getProvider({
+				chainId: agreement.chainId
+			})
+			const contract = Mycontract__factory.connect(agreement.address, wallet)
+
+			const mintParams: Parameters<Mycontract['bulkMint']> = [
+				builtData.map(item => ({
+					to: item.to,
+					tokenType: MeemAPI.MeemType.Original,
+					tokenURI: item.ipfs as string
+				}))
+			]
+
+			log.debug('Bulk Minting meem w/ params', { mintParams })
+
+			const mintTx = await services.ethers.runTransaction({
+				chainId: agreement.chainId,
+				fn: contract.bulkMint.bind(contract),
+				params: mintParams,
+				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
+			})
+
+			log.debug(`Bulk Minting w/ transaction hash: ${mintTx.hash}`)
+
+			await orm.models.Transaction.create({
+				hash: mintTx.hash,
+				chainId: agreement.chainId,
+				WalletId: minterWallet.id
+			})
+
+			await mintTx.wait()
+		} catch (e) {
+			const err = e as any
+			log.warn(err, data)
+
+			await sockets?.emitError(errors.SERVER_ERROR, data.mintedBy)
+			throw new Error('SERVER_ERROR')
 		}
 	}
 

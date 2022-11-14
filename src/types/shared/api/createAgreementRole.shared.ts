@@ -1,9 +1,18 @@
-import { MeemAPI } from '../../meem.generated'
+import { MeemAgreementRoleMetadata } from '../../MeemMetadata'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import {
+	IMeemProperties,
+	IAgreementBaseProperties,
+	IMeemContractMetadataLike,
+	ITokenMetadataLike,
+	IAgreementInitParams,
+	IMeemPermission,
+	IMeemSplit
+} from '../meem.shared'
 
+/** Create Meem Image */
 export namespace CreateAgreementRole {
 	export interface IPathParams {
-		/** The meem contract id to fetch */
 		agreementId: string
 	}
 
@@ -15,15 +24,47 @@ export namespace CreateAgreementRole {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
+		/** Contract metadata */
+		metadata: MeemAgreementRoleMetadata
+
+		/** The chain id */
+		chainId: number
+
+		/** The symbol for the token. If omitted, will use a slug of the name */
+		symbol?: string
+
+		/** The name of the role */
 		name: string
-		/** Array of ids for permissions */
-		permissions?: string[]
-		/** Wallet addresses of members */
+
+		/** Contract admins */
+		admins?: string[]
+
+		/** Special minter permissions */
+		minters?: string[]
+
+		/** The max number of tokens */
+		maxSupply: string
+
+		/** Whether the max supply is locked */
+		isMaxSupplyLocked?: boolean
+
+		/** Minting permissions */
+		mintPermissions?: Omit<IMeemPermission, 'merkleRoot'>[]
+
+		/** Splits for minting / transfers */
+		splits?: IMeemSplit[]
+
+		/** Whether tokens can be transferred */
+		isTransferLocked?: boolean
+
+		/** If true, will mint a token to the admin wallet addresses and any addresses in the members parameter  */
+		shouldMintTokens?: boolean
+
+		/** Members to mint tokens to */
 		members?: string[]
-		/** Whether the role should be token-based (true) or off-chain (false) */
-		isTokenBasedRole: boolean
-		/** If the role is token-based, is the token transferrable to other wallets */
-		isTokenTransferrable: boolean
+
+		/** Token metadata */
+		tokenMetadata?: ITokenMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

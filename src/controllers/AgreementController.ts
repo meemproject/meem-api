@@ -464,8 +464,8 @@ export default class AgreementController {
 	}
 
 	public static async bulkMint(
-		req: IRequest<MeemAPI.v1.BulkMint.IDefinition>,
-		res: IResponse<MeemAPI.v1.BulkMint.IResponseBody>
+		req: IRequest<MeemAPI.v1.BulkMintAgreementToken.IDefinition>,
+		res: IResponse<MeemAPI.v1.BulkMintAgreementToken.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
@@ -492,7 +492,7 @@ export default class AgreementController {
 
 		if (config.DISABLE_ASYNC_MINTING) {
 			try {
-				await services.meem.bulkMint({
+				await services.agreement.bulkMint({
 					...req.body,
 					mintedBy: req.wallet.address,
 					agreementId
@@ -586,10 +586,12 @@ export default class AgreementController {
 		// 	members
 		// } = req.body
 
+		const { agreementId } = req.params
+
 		// TODO: Check if the user has permission to update and not just admin contract role
 
 		const isAdmin = await services.agreement.isAgreementAdmin({
-			agreementId: req.params.agreementId,
+			agreementId,
 			walletAddress: req.wallet.address
 		})
 
@@ -599,12 +601,12 @@ export default class AgreementController {
 
 		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: req.params.agreementId
+				id: agreementId
 			}
 		})
 
 		if (!agreement) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
 		// await services.guild.createAgreementGuildRole({
