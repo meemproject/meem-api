@@ -63,18 +63,18 @@ export default (app: Express, _express: typeof coreExpress) => {
 	// )
 	router.postAsync('/discord/authenticate', DiscordController.authenticate)
 	router.getAsync('/discord/servers', DiscordController.getGuilds)
-	router.getAsync(
-		'/agreements/:agreementId/roles/access',
-		AgreementController.getUserAgreementRolesAccess
-	)
-	router.getAsync(
-		'/agreements/:agreementId/getJoinGuildMessage',
-		AgreementController.getJoinGuildMessage
-	)
-	router.postAsync(
-		'/agreements/:agreementId/joinGuild',
-		AgreementController.joinAgreementGuild
-	)
+	// router.getAsync(
+	// 	'/agreements/:agreementId/roles/access',
+	// 	AgreementController.getUserAgreementRolesAccess
+	// )
+	// router.getAsync(
+	// 	'/agreements/:agreementId/getJoinGuildMessage',
+	// 	AgreementController.getJoinGuildMessage
+	// )
+	// router.postAsync(
+	// 	'/agreements/:agreementId/joinGuild',
+	// 	AgreementController.joinAgreementGuild
+	// )
 	// router.getAsync(
 	// 	'/agreements/:agreementId/guild',
 	// 	AgreementController.getAgreementGuild

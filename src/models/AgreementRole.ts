@@ -356,9 +356,5 @@ export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 		this.belongsToMany(models.Extension, {
 			through: models.AgreementExtension
 		})
-
-		this.belongsToMany(models.RolePermission, {
-			through: models.AgreementRolePermission
-		})
 	}
 }

@@ -8,7 +8,6 @@ import { DataTypes } from 'sequelize'
 import ModelWithAddress from '../core/ModelWithAddress'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
-import AgreementGuild from './AgreementGuild'
 import AgreementRole from './AgreementRole'
 import type Meem from './AgreementToken'
 import type Extension from './Extension'
@@ -343,8 +342,6 @@ export default class Agreement extends ModelWithAddress<Agreement> {
 
 	public Wallets?: Wallet[] | null
 
-	public AgreementGuild?: AgreementGuild | null
-
 	public AgreementRoles?: AgreementRole[] | null
 
 	public Extensions?: Extension[] | null
@@ -360,7 +357,6 @@ export default class Agreement extends ModelWithAddress<Agreement> {
 			through: models.AgreementExtension
 		})
 
-		this.hasOne(models.AgreementGuild)
 		this.hasMany(models.AgreementRole)
 		this.belongsTo(models.Wallet, {
 			as: 'Owner'

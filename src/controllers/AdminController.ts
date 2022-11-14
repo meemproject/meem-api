@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import extensionsData from '../lib/extensions'
-import permissionsData from '../lib/permissions'
+// import permissionsData from '../lib/permissions'
 
 export default class AdminController {
 	public static async runMigrations(
@@ -108,41 +108,41 @@ export default class AdminController {
 		})
 	}
 
-	public static async syncPermissions(
-		req: Request,
-		res: Response
-	): Promise<Response> {
-		// await orm.models.RolePermission.sync({ force: true })
+	// public static async syncPermissions(
+	// 	req: Request,
+	// 	res: Response
+	// ): Promise<Response> {
+	// 	// await orm.models.RolePermission.sync({ force: true })
 
-		const failedPermissions: any[] = []
+	// 	const failedPermissions: any[] = []
 
-		for (let i = 0; i < permissionsData.length; i += 1) {
-			try {
-				log.debug(`Syncing ${i + 1} / ${permissionsData.length} permissions`)
-				// eslint-disable-next-line no-await-in-loop
-				const existingPermission = await orm.models.RolePermission.findOne({
-					where: {
-						id: permissionsData[i].id
-					}
-				})
-				if (!existingPermission) {
-					// eslint-disable-next-line no-await-in-loop
-					await orm.models.RolePermission.create(permissionsData[i])
-				} else {
-					// eslint-disable-next-line no-await-in-loop
-					await existingPermission.update(permissionsData[i])
-				}
-			} catch (e) {
-				failedPermissions.push(permissionsData[i])
-				log.crit(e)
-				log.debug(permissionsData[i])
-			}
-		}
+	// 	for (let i = 0; i < permissionsData.length; i += 1) {
+	// 		try {
+	// 			log.debug(`Syncing ${i + 1} / ${permissionsData.length} permissions`)
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			const existingPermission = await orm.models.RolePermission.findOne({
+	// 				where: {
+	// 					id: permissionsData[i].id
+	// 				}
+	// 			})
+	// 			if (!existingPermission) {
+	// 				// eslint-disable-next-line no-await-in-loop
+	// 				await orm.models.RolePermission.create(permissionsData[i])
+	// 			} else {
+	// 				// eslint-disable-next-line no-await-in-loop
+	// 				await existingPermission.update(permissionsData[i])
+	// 			}
+	// 		} catch (e) {
+	// 			failedPermissions.push(permissionsData[i])
+	// 			log.crit(e)
+	// 			log.debug(permissionsData[i])
+	// 		}
+	// 	}
 
-		return res.json({
-			status: 'success'
-		})
-	}
+	// 	return res.json({
+	// 		status: 'success'
+	// 	})
+	// }
 
 	public static async createAgreementRoles(
 		req: Request,

@@ -1,11 +1,11 @@
-import { randomBytes } from 'crypto'
+// import { randomBytes } from 'crypto'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
 import { ethers } from 'ethers'
-import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
+// import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
 import { Response } from 'express'
 import _ from 'lodash'
-import request from 'superagent'
+// import request from 'superagent'
 import { IRequest, IResponse } from '../types/app'
 import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
@@ -221,45 +221,45 @@ export default class AgreementController {
 		// Can allow for third-party endpoint requests to verify information and return custom metadata
 		switch (integration.id) {
 			case config.TWITTER_INTEGRATION_ID: {
-				let twitterUsername = req.body.metadata?.twitterUsername
-					? (req.body.metadata?.twitterUsername as string)
-					: null
-				twitterUsername = twitterUsername?.replace(/^@/g, '').trim() ?? null
-				const integrationError = new Error('INTEGRATION_FAILED')
-				integrationError.message = 'Twitter verification failed.'
+				// let twitterUsername = req.body.metadata?.twitterUsername
+				// 	? (req.body.metadata?.twitterUsername as string)
+				// 	: null
+				// twitterUsername = twitterUsername?.replace(/^@/g, '').trim() ?? null
+				// const integrationError = new Error('INTEGRATION_FAILED')
+				// integrationError.message = 'Twitter verification failed.'
 
-				if (
-					existingAgreementExtension &&
-					existingAgreementExtension.metadata?.isVerified &&
-					(!twitterUsername ||
-						twitterUsername ===
-							existingAgreementExtension.metadata?.twitterUsername)
-				) {
-					break
-				}
+				// if (
+				// 	existingAgreementExtension &&
+				// 	existingAgreementExtension.metadata?.isVerified &&
+				// 	(!twitterUsername ||
+				// 		twitterUsername ===
+				// 			existingAgreementExtension.metadata?.twitterUsername)
+				// ) {
+				// 	break
+				// }
 
-				if (!twitterUsername) {
-					throw integrationError
-				}
+				// if (!twitterUsername) {
+				// 	throw integrationError
+				// }
 
-				integrationMetadata.isVerified = false
+				// integrationMetadata.isVerified = false
 
-				const verifiedTwitter = await services.twitter.verifyAgreementTwitter({
-					twitterUsername,
-					agreement
-				})
+				// const verifiedTwitter = await services.twitter.verifyAgreementTwitter({
+				// 	twitterUsername,
+				// 	agreement
+				// })
 
-				if (!verifiedTwitter) {
-					throw integrationError
-				}
+				// if (!verifiedTwitter) {
+				// 	throw integrationError
+				// }
 
-				integrationMetadata.isVerified = true
-				integrationMetadata.twitterUsername = verifiedTwitter.username
-				integrationMetadata.twitterProfileImageUrl =
-					verifiedTwitter.profile_image_url
-				integrationMetadata.twitterDisplayName = verifiedTwitter.name
-				integrationMetadata.twitterUserId = verifiedTwitter.id
-				integrationMetadata.externalUrl = `https://twitter.com/${verifiedTwitter.username}`
+				// integrationMetadata.isVerified = true
+				// integrationMetadata.twitterUsername = verifiedTwitter.username
+				// integrationMetadata.twitterProfileImageUrl =
+				// 	verifiedTwitter.profile_image_url
+				// integrationMetadata.twitterDisplayName = verifiedTwitter.name
+				// integrationMetadata.twitterUserId = verifiedTwitter.id
+				// integrationMetadata.externalUrl = `https://twitter.com/${verifiedTwitter.username}`
 
 				break
 			}
@@ -281,12 +281,12 @@ export default class AgreementController {
 			}
 
 			if (!_.isUndefined(req.body.isPublic)) {
-				existingAgreementExtension.isPublic = req.body.isPublic
+				// existingAgreementExtension.isPublic = req.body.isPublic
 			}
 
 			if (integrationMetadata) {
 				// TODO: Typecheck metadata
-				existingAgreementExtension.metadata = integrationMetadata
+				// existingAgreementExtension.metadata = integrationMetadata
 			}
 
 			await existingAgreementExtension.save()
@@ -600,20 +600,11 @@ export default class AgreementController {
 		const agreement = await orm.models.Agreement.findOne({
 			where: {
 				id: req.params.agreementId
-			},
-			include: [
-				{
-					model: orm.models.AgreementGuild
-				}
-			]
+			}
 		})
 
 		if (!agreement) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
-		}
-
-		if (!agreement.AgreementGuild) {
-			throw new Error('MEEM_CONTRACT_GUILD_NOT_FOUND')
 		}
 
 		// await services.guild.createAgreementGuildRole({
@@ -663,12 +654,7 @@ export default class AgreementController {
 					model: orm.models.AgreementRole,
 					where: {
 						id: req.params.agreementRoleId
-					},
-					include: [
-						{
-							model: orm.models.RolePermission
-						}
-					]
+					}
 				}
 			]
 		})
@@ -687,62 +673,59 @@ export default class AgreementController {
 			!_.isUndefined(req.body.permissions) &&
 			_.isArray(req.body.permissions)
 		) {
-			const promises: Promise<any>[] = []
-			const t = await orm.sequelize.transaction()
-			const permissions = req.body.permissions
-			const roleIdsToAdd =
-				permissions.filter(pid => {
-					const existingPermission = agreementRole.RolePermissions?.find(
-						rp => rp.id === pid
-					)
-					return !existingPermission
-				}) ?? []
-			const rolesToRemove: string[] =
-				agreementRole.RolePermissions?.filter(rp => {
-					const existingPermission = permissions.find(pid => rp.id === pid)
-					return !existingPermission
-				})?.map((rp: any) => {
-					return rp.AgreementRolePermission.id as string
-				}) ?? []
-
-			if (rolesToRemove.length > 0) {
-				promises.push(
-					orm.models.AgreementRolePermission.destroy({
-						where: {
-							id: rolesToRemove
-						},
-						transaction: t
-					})
-				)
-			}
-
-			if (roleIdsToAdd.length > 0) {
-				const agreementRolePermissionsData: {
-					AgreementRoleId: string
-					RolePermissionId: string
-				}[] = roleIdsToAdd.map(rid => {
-					return {
-						AgreementRoleId: agreementRole.id,
-						RolePermissionId: rid
-					}
-				})
-				promises.push(
-					orm.models.AgreementRolePermission.bulkCreate(
-						agreementRolePermissionsData,
-						{
-							transaction: t
-						}
-					)
-				)
-			}
-
-			try {
-				await Promise.all(promises)
-				await t.commit()
-			} catch (e) {
-				log.crit(e)
-				throw new Error('SERVER_ERROR')
-			}
+			// const promises: Promise<any>[] = []
+			// const t = await orm.sequelize.transaction()
+			// const permissions = req.body.permissions
+			// const roleIdsToAdd =
+			// 	permissions.filter(pid => {
+			// 		const existingPermission = agreementRole.RolePermissions?.find(
+			// 			rp => rp.id === pid
+			// 		)
+			// 		return !existingPermission
+			// 	}) ?? []
+			// const rolesToRemove: string[] =
+			// 	agreementRole.RolePermissions?.filter(rp => {
+			// 		const existingPermission = permissions.find(pid => rp.id === pid)
+			// 		return !existingPermission
+			// 	})?.map((rp: any) => {
+			// 		return rp.AgreementRolePermission.id as string
+			// 	}) ?? []
+			// if (rolesToRemove.length > 0) {
+			// 	promises.push(
+			// 		orm.models.AgreementRolePermission.destroy({
+			// 			where: {
+			// 				id: rolesToRemove
+			// 			},
+			// 			transaction: t
+			// 		})
+			// 	)
+			// }
+			// if (roleIdsToAdd.length > 0) {
+			// 	const agreementRolePermissionsData: {
+			// 		AgreementRoleId: string
+			// 		RolePermissionId: string
+			// 	}[] = roleIdsToAdd.map(rid => {
+			// 		return {
+			// 			AgreementRoleId: agreementRole.id,
+			// 			RolePermissionId: rid
+			// 		}
+			// 	})
+			// 	promises.push(
+			// 		orm.models.AgreementRolePermission.bulkCreate(
+			// 			agreementRolePermissionsData,
+			// 			{
+			// 				transaction: t
+			// 			}
+			// 		)
+			// 	)
+			// }
+			// try {
+			// 	await Promise.all(promises)
+			// 	await t.commit()
+			// } catch (e) {
+			// 	log.crit(e)
+			// 	throw new Error('SERVER_ERROR')
+			// }
 		}
 
 		let members = req.body.members?.map(m => m.toLowerCase())
@@ -949,15 +932,7 @@ export default class AgreementController {
 		const agreementRole = await orm.models.AgreementRole.findOne({
 			where: {
 				id: req.params.agreementRoleId
-			},
-			include: [
-				{
-					model: orm.models.RolePermission
-				},
-				{
-					model: orm.models.AgreementGuild
-				}
-			]
+			}
 		})
 
 		if (!agreementRole) {
@@ -974,14 +949,14 @@ export default class AgreementController {
 		// 	})
 		// }
 
-		promises.push(
-			orm.models.AgreementRolePermission.destroy({
-				where: {
-					AgreementRoleId: agreementRole.id
-				},
-				transaction: t
-			})
-		)
+		// promises.push(
+		// 	orm.models.AgreementRolePermission.destroy({
+		// 		where: {
+		// 			AgreementRoleId: agreementRole.id
+		// 		},
+		// 		transaction: t
+		// 	})
+		// )
 
 		promises.push(
 			orm.models.AgreementRole.destroy({
@@ -1100,133 +1075,133 @@ export default class AgreementController {
 		}
 	}
 
-	public static async getUserAgreementRolesAccess(
-		req: IRequest<MeemAPI.v1.GetUserAgreementRolesAccess.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetUserAgreementRolesAccess.IResponseBody>
-	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
+	// public static async getUserAgreementRolesAccess(
+	// 	req: IRequest<MeemAPI.v1.GetUserAgreementRolesAccess.IDefinition>,
+	// 	res: IResponse<MeemAPI.v1.GetUserAgreementRolesAccess.IResponseBody>
+	// ): Promise<Response> {
+	// 	if (!req.wallet) {
+	// 		throw new Error('USER_NOT_LOGGED_IN')
+	// 	}
 
-		try {
-			const rolesAccess = await services.agreement.getUserAgreementRolesAccess({
-				agreementId: req.params.agreementId,
-				walletAddress: req.wallet.address
-			})
-			return res.json(rolesAccess)
-		} catch (e) {
-			log.crit(e)
-			throw new Error('SERVER_ERROR')
-		}
-	}
+	// 	try {
+	// 		const rolesAccess = await services.agreement.getUserAgreementRolesAccess({
+	// 			agreementId: req.params.agreementId,
+	// 			walletAddress: req.wallet.address
+	// 		})
+	// 		return res.json(rolesAccess)
+	// 	} catch (e) {
+	// 		log.crit(e)
+	// 		throw new Error('SERVER_ERROR')
+	// 	}
+	// }
 
-	public static async getJoinGuildMessage(
-		req: IRequest<MeemAPI.v1.GetJoinGuildMessage.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetJoinGuildMessage.IResponseBody>
-	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
+	// public static async getJoinGuildMessage(
+	// 	req: IRequest<MeemAPI.v1.GetJoinGuildMessage.IDefinition>,
+	// 	res: IResponse<MeemAPI.v1.GetJoinGuildMessage.IResponseBody>
+	// ): Promise<Response> {
+	// 	if (!req.wallet) {
+	// 		throw new Error('USER_NOT_LOGGED_IN')
+	// 	}
 
-		const agreement = await orm.models.Agreement.findOne({
-			where: {
-				id: req.params.agreementId
-			},
-			include: [
-				{
-					model: orm.models.AgreementGuild
-				}
-			]
-		})
+	// 	const agreement = await orm.models.Agreement.findOne({
+	// 		where: {
+	// 			id: req.params.agreementId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.AgreementGuild
+	// 			}
+	// 		]
+	// 	})
 
-		if (!agreement || !agreement.AgreementGuild) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
-		}
+	// 	if (!agreement || !agreement.AgreementGuild) {
+	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 	}
 
-		const payload = {
-			guildId: agreement.AgreementGuild.guildId,
-			platforms: []
-		}
-		const msg = 'Please sign this message.'
-		const chainId = undefined // services.guild.getGuildChain(agreement.chainId)
-		const addr = req.wallet.address
-		const method = 1 // Guild method for authentication
-		const nonce = randomBytes(32).toString('base64')
-		const hash =
-			Object.keys(payload).length > 0
-				? keccak256(toUtf8Bytes(JSON.stringify(payload)))
-				: undefined
-		const ts = Date.now().toString()
+	// 	const payload = {
+	// 		guildId: agreement.AgreementGuild.guildId,
+	// 		platforms: []
+	// 	}
+	// 	const msg = 'Please sign this message.'
+	// 	const chainId = undefined // services.guild.getGuildChain(agreement.chainId)
+	// 	const addr = req.wallet.address
+	// 	const method = 1 // Guild method for authentication
+	// 	const nonce = randomBytes(32).toString('base64')
+	// 	const hash =
+	// 		Object.keys(payload).length > 0
+	// 			? keccak256(toUtf8Bytes(JSON.stringify(payload)))
+	// 			: undefined
+	// 	const ts = Date.now().toString()
 
-		const messageToSign = `${msg}\n\nAddress: ${addr}\nMethod: ${method}${
-			chainId ? `\nChainId: ${chainId}` : ''
-		}${hash ? `\nHash: ${hash}` : ''}\nNonce: ${nonce}\nTimestamp: ${ts}`
+	// 	const messageToSign = `${msg}\n\nAddress: ${addr}\nMethod: ${method}${
+	// 		chainId ? `\nChainId: ${chainId}` : ''
+	// 	}${hash ? `\nHash: ${hash}` : ''}\nNonce: ${nonce}\nTimestamp: ${ts}`
 
-		return res.json({
-			message: messageToSign,
-			params: { chainId, msg, method, addr, nonce, hash, ts }
-		})
-	}
+	// 	return res.json({
+	// 		message: messageToSign,
+	// 		params: { chainId, msg, method, addr, nonce, hash, ts }
+	// 	})
+	// }
 
-	public static async joinAgreementGuild(
-		req: IRequest<MeemAPI.v1.JoinGuild.IDefinition>,
-		res: IResponse<MeemAPI.v1.JoinGuild.IResponseBody>
-	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
+	// public static async joinAgreementGuild(
+	// 	req: IRequest<MeemAPI.v1.JoinGuild.IDefinition>,
+	// 	res: IResponse<MeemAPI.v1.JoinGuild.IResponseBody>
+	// ): Promise<Response> {
+	// 	if (!req.wallet) {
+	// 		throw new Error('USER_NOT_LOGGED_IN')
+	// 	}
 
-		const agreement = await orm.models.Agreement.findOne({
-			where: {
-				id: req.params.agreementId
-			},
-			include: [
-				{
-					model: orm.models.AgreementGuild
-				}
-			]
-		})
+	// 	const agreement = await orm.models.Agreement.findOne({
+	// 		where: {
+	// 			id: req.params.agreementId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.AgreementGuild
+	// 			}
+	// 		]
+	// 	})
 
-		if (!agreement || !agreement.AgreementGuild) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
-		}
+	// 	if (!agreement || !agreement.AgreementGuild) {
+	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 	}
 
-		// If user does not have a token, mint it before joining guild or request will fail.
-		if (req.body.mintToken) {
-			try {
-				await services.meem.mintOriginalMeem({
-					agreementAddress: agreement.address,
-					to: req.wallet.address.toLowerCase(),
-					metadata: agreement.metadata,
-					mintedBy: req.wallet.address.toLowerCase(),
-					chainId: agreement.chainId
-				})
-			} catch (e) {
-				log.crit(e)
-				sockets?.emitError(config.errors.MINT_FAILED, req.wallet.address)
-			}
-		}
+	// 	// If user does not have a token, mint it before joining guild or request will fail.
+	// 	if (req.body.mintToken) {
+	// 		try {
+	// 			await services.meem.mintOriginalMeem({
+	// 				agreementAddress: agreement.address,
+	// 				to: req.wallet.address.toLowerCase(),
+	// 				metadata: agreement.metadata,
+	// 				mintedBy: req.wallet.address.toLowerCase(),
+	// 				chainId: agreement.chainId
+	// 			})
+	// 		} catch (e) {
+	// 			log.crit(e)
+	// 			sockets?.emitError(config.errors.MINT_FAILED, req.wallet.address)
+	// 		}
+	// 	}
 
-		try {
-			const response = await request
-				.post(`https://api.guild.xyz/v1/user/join`)
-				.send({
-					payload: {
-						guildId: agreement.AgreementGuild.guildId,
-						platforms: []
-					},
-					params: req.body.params,
-					sig: req.body.sig
-				})
+	// 	try {
+	// 		const response = await request
+	// 			.post(`https://api.guild.xyz/v1/user/join`)
+	// 			.send({
+	// 				payload: {
+	// 					guildId: agreement.AgreementGuild.guildId,
+	// 					platforms: []
+	// 				},
+	// 				params: req.body.params,
+	// 				sig: req.body.sig
+	// 			})
 
-			log.debug(response.body)
-		} catch (e) {
-			log.crit(e)
-			throw new Error('SERVER_ERROR')
-		}
+	// 		log.debug(response.body)
+	// 	} catch (e) {
+	// 		log.crit(e)
+	// 		throw new Error('SERVER_ERROR')
+	// 	}
 
-		return res.json({
-			status: 'success'
-		})
-	}
+	// 	return res.json({
+	// 		status: 'success'
+	// 	})
+	// }
 }

@@ -1,5 +1,4 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { guild } from '@guildxyz/sdk'
 import {
 	getCuts,
 	IFacetVersion,
@@ -17,9 +16,7 @@ import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
 import IDiamondCut from '../lib/IDiamondCut'
 import type Agreement from '../models/Agreement'
-import AgreementGuild from '../models/AgreementGuild'
 import AgreementWallet from '../models/AgreementWallet'
-import RolePermission from '../models/RolePermission'
 import Wallet from '../models/Wallet'
 import {
 	InitParamsStruct,
@@ -168,7 +165,6 @@ export default class AgreementService {
 			agreementRoleData?: {
 				name: string
 				agreement: Agreement
-				agreementGuild: AgreementGuild
 				permissions?: string[]
 				isAdminRole?: boolean
 			}
@@ -259,11 +255,6 @@ export default class AgreementService {
 
 			log.debug(
 				`Deployed proxy at ${proxyContract.address} w/ tx: ${proxyContract.deployTransaction.hash}`
-			)
-
-			const agreement = Mycontract__factory.connect(
-				proxyContract.address,
-				wallet
 			)
 
 			const toVersion: IFacetVersion[] = []
@@ -395,8 +386,6 @@ export default class AgreementService {
 					const {
 						name: roleName,
 						agreement: parentAgreement,
-						agreementGuild,
-						permissions,
 						isAdminRole
 					} = data.agreementRoleData
 					// const sign = (signableMessage: string | Bytes) =>
@@ -423,62 +412,14 @@ export default class AgreementService {
 					// 	}
 					// )
 
-					const agreementRole = await orm.models.AgreementRole.create({
+					await orm.models.AgreementRole.create({
 						// guildRoleId: createGuildRoleResponse.id,
 						name: roleName,
 						AgreementId: parentAgreement.id,
-						AgreementGuildId: agreementGuild.id,
 						RoleAgreementId: agreementInstance.id,
 						// tokenAddress: agreement.address,
 						isAdminRole: isAdminRole ?? false
 					})
-
-					if (!_.isUndefined(permissions) && _.isArray(permissions)) {
-						const promises: Promise<any>[] = []
-						const t = await orm.sequelize.transaction()
-						const roleIdsToAdd =
-							permissions.filter(pid => {
-								const existingPermission = agreementRole.RolePermissions?.find(
-									rp => rp.id === pid
-								)
-								return !existingPermission
-							}) ?? []
-
-						if (roleIdsToAdd.length > 0) {
-							const agreementRolePermissionsData: {
-								AgreementRoleId: string
-								RolePermissionId: string
-							}[] = roleIdsToAdd.map(rid => {
-								return {
-									AgreementRoleId: agreementRole.id,
-									RolePermissionId: rid
-								}
-							})
-							promises.push(
-								orm.models.AgreementRolePermission.bulkCreate(
-									agreementRolePermissionsData,
-									{
-										transaction: t
-									}
-								)
-							)
-						}
-
-						try {
-							await Promise.all(promises)
-							await t.commit()
-							if (isAdminRole) {
-								const parentContract = Mycontract__factory.connect(
-									parentAgreement.address,
-									wallet
-								)
-								await parentContract.setAdminContract(agreement.address)
-							}
-						} catch (e) {
-							log.crit(e)
-							throw new Error('SERVER_ERROR')
-						}
-					}
 				}
 			} catch (e) {
 				log.crit('Failed to create Guild', e)
@@ -1057,16 +998,7 @@ export default class AgreementService {
 						where: {
 							id: agreementRoleId
 						}
-					}),
-					include: [
-						{
-							model: orm.models.RolePermission,
-							attributes: ['id'],
-							through: {
-								attributes: []
-							}
-						}
-					]
+					})
 				}
 			]
 		})
@@ -1080,12 +1012,6 @@ export default class AgreementService {
 		const roles: IAgreementRole[] = await Promise.all(
 			agreementRoles.map(async mcRole => {
 				const role: any = mcRole.toJSON()
-
-				role.permissions = role.RolePermissions.map(
-					(rp: RolePermission) => rp.id
-				)
-
-				delete role.RolePermissions
 
 				// if (mcRole.guildRoleId) {
 				// 	const guildRoleResponse = await guildRole.get(mcRole.guildRoleId)
@@ -1107,129 +1033,99 @@ export default class AgreementService {
 		return roles
 	}
 
-	public static async getUserAgreementRolesAccess(options: {
-		agreementId: string
-		walletAddress: string
-		agreementRoleId?: string
-	}): Promise<{
-		hasRolesAccess: boolean
-		roles: IAgreementRole[]
-	}> {
-		const { agreementId, walletAddress, agreementRoleId } = options
-		const meemIdentity = await orm.models.User.findOne({
-			include: [
-				{
-					model: orm.models.Wallet,
-					where: {
-						address: walletAddress
-					},
-					attributes: ['id', 'address', 'ens'],
-					through: {
-						attributes: []
-					}
-				},
-				{
-					model: orm.models.Wallet,
-					as: 'DefaultWallet',
-					attributes: ['id', 'address', 'ens']
-				}
-			]
-		})
-
-		if (!meemIdentity) {
-			log.crit('MeemIdentity not found')
-			throw new Error('SERVER_ERROR')
-		}
-
-		const agreement = await orm.models.Agreement.findOne({
-			where: {
-				id: agreementId
-			},
-			include: [
-				{
-					model: orm.models.AgreementGuild
-				},
-				{
-					model: orm.models.AgreementRole,
-					...(agreementRoleId && {
-						where: {
-							id: agreementRoleId
-						}
-					}),
-					include: [
-						{
-							model: orm.models.RolePermission,
-							attributes: ['id'],
-							through: {
-								attributes: []
-							}
-						}
-					]
-				}
-			]
-		})
-
-		const agreementRoles = agreement?.AgreementRoles ?? []
-
-		if (!agreement || !agreement.AgreementGuild) {
-			throw new Error('SERVER_ERROR')
-		}
-
-		const guildUserMembershipResponse = await guild.getUserMemberships(
-			agreement.AgreementGuild.guildId,
-			walletAddress
-		)
-
-		const rolesIdsWithAccess = guildUserMembershipResponse
-			.filter(r => r.access)
-			.map(r => r.roleId)
-
-		if (rolesIdsWithAccess.length < 1) {
-			return {
-				hasRolesAccess: false,
-				roles: []
-			}
-		}
-
-		let roles: IAgreementRole[] = await Promise.all(
-			agreementRoles.map(async mcRole => {
-				const role: any = mcRole.toJSON()
-
-				role.permissions = role.RolePermissions.map(
-					(rp: RolePermission) => rp.id
-				)
-
-				delete role.RolePermissions
-
-				// if (mcRole.guildRoleId) {
-				// 	const guildRoleResponse = await guildRole.get(mcRole.guildRoleId)
-
-				// 	role.guildRole = guildRoleResponse
-
-				// 	if (agreementRoleId) {
-				// 		role.memberMeemIds = await Promise.all(
-				// 			(role.guildRole?.members ?? []).map((m: string) =>
-				// 				services.meemId.getMeemIdentityForAddress(m)
-				// 			)
-				// 		)
-				// 	}
-				// }
-				return role
-			})
-		)
-
-		roles = roles.filter((r: IAgreementRole) => {
-			if (!r.guildRoleId && !r.guildRole) {
-				return false
-			}
-			return r.guildRole.members.includes(walletAddress)
-		})
-
-		return {
-			hasRolesAccess: true,
-			roles
-		}
-	}
+	// public static async getUserAgreementRolesAccess(options: {
+	// 	agreementId: string
+	// 	walletAddress: string
+	// 	agreementRoleId?: string
+	// }): Promise<{
+	// 	hasRolesAccess: boolean
+	// 	roles: IAgreementRole[]
+	// }> {
+	// const { agreementId, walletAddress, agreementRoleId } = options
+	// const meemIdentity = await orm.models.User.findOne({
+	// 	include: [
+	// 		{
+	// 			model: orm.models.Wallet,
+	// 			where: {
+	// 				address: walletAddress
+	// 			},
+	// 			attributes: ['id', 'address', 'ens'],
+	// 			through: {
+	// 				attributes: []
+	// 			}
+	// 		},
+	// 		{
+	// 			model: orm.models.Wallet,
+	// 			as: 'DefaultWallet',
+	// 			attributes: ['id', 'address', 'ens']
+	// 		}
+	// 	]
+	// })
+	// if (!meemIdentity) {
+	// 	log.crit('MeemIdentity not found')
+	// 	throw new Error('SERVER_ERROR')
+	// }
+	// const agreement = await orm.models.Agreement.findOne({
+	// 	where: {
+	// 		id: agreementId
+	// 	},
+	// 	include: [
+	// 		{
+	// 			model: orm.models.AgreementGuild
+	// 		},
+	// 		{
+	// 			model: orm.models.AgreementRole,
+	// 			...(agreementRoleId && {
+	// 				where: {
+	// 					id: agreementRoleId
+	// 				}
+	// 			}),
+	// 			include: [
+	// 				{
+	// 					model: orm.models.RolePermission,
+	// 					attributes: ['id'],
+	// 					through: {
+	// 						attributes: []
+	// 					}
+	// 				}
+	// 			]
+	// 		}
+	// 	]
+	// })
+	// const agreementRoles = agreement?.AgreementRoles ?? []
+	// if (!agreement || !agreement.AgreementGuild) {
+	// 	throw new Error('SERVER_ERROR')
+	// }
+	// const guildUserMembershipResponse = await guild.getUserMemberships(
+	// 	agreement.AgreementGuild.guildId,
+	// 	walletAddress
+	// )
+	// const rolesIdsWithAccess = guildUserMembershipResponse
+	// 	.filter(r => r.access)
+	// 	.map(r => r.roleId)
+	// if (rolesIdsWithAccess.length < 1) {
+	// 	return {
+	// 		hasRolesAccess: false,
+	// 		roles: []
+	// 	}
+	// }
+	// let roles: IAgreementRole[] = await Promise.all(
+	// 	agreementRoles.map(async mcRole => {
+	// 		const role: any = mcRole.toJSON()
+	// 		return role
+	// 	})
+	// )
+	// roles = roles.filter((r: IAgreementRole) => {
+	// 	if (!r.guildRoleId && !r.guildRole) {
+	// 		return false
+	// 	}
+	// 	return r.guildRole.members.includes(walletAddress)
+	// })
+	// return {
+	// 	hasRolesAccess: true,
+	// 	roles
+	// }
+	// }
 
 	public static async updateAgreementAdmins(options: {
 		agreementId: string

@@ -16,7 +16,6 @@ export default class AgreementRoleService {
 			senderWallet,
 			agreementId,
 			agreementRoleId,
-			permissions: rolePermissions,
 			members: roleMembers
 		} = data
 		const isAdmin = await services.agreement.isAgreementAdmin({
@@ -41,78 +40,11 @@ export default class AgreementRoleService {
 		const agreementRole = await orm.models.AgreementRole.findOne({
 			where: {
 				id: agreementRoleId
-			},
-			include: [
-				{
-					model: orm.models.RolePermission
-				},
-				{
-					model: orm.models.AgreementGuild
-				}
-			]
+			}
 		})
 
 		if (!agreementRole) {
 			throw new Error('MEEM_CONTRACT_ROLE_NOT_FOUND')
-		}
-
-		if (!_.isUndefined(rolePermissions) && _.isArray(rolePermissions)) {
-			const promises: Promise<any>[] = []
-			const t = await orm.sequelize.transaction()
-			const permissions = rolePermissions
-			const roleIdsToAdd =
-				permissions.filter(pid => {
-					const existingPermission = agreementRole.RolePermissions?.find(
-						rp => rp.id === pid
-					)
-					return !existingPermission
-				}) ?? []
-			const rolesToRemove: string[] =
-				agreementRole.RolePermissions?.filter(rp => {
-					const existingPermission = permissions.find(pid => rp.id === pid)
-					return !existingPermission
-				})?.map((rp: any) => {
-					return rp.AgreementRolePermission.id as string
-				}) ?? []
-
-			if (rolesToRemove.length > 0) {
-				promises.push(
-					orm.models.AgreementRolePermission.destroy({
-						where: {
-							id: rolesToRemove
-						},
-						transaction: t
-					})
-				)
-			}
-
-			if (roleIdsToAdd.length > 0) {
-				const agreementRolePermissionsData: {
-					AgreementRoleId: string
-					RolePermissionId: string
-				}[] = roleIdsToAdd.map(rid => {
-					return {
-						AgreementRoleId: agreementRole.id,
-						RolePermissionId: rid
-					}
-				})
-				promises.push(
-					orm.models.AgreementRolePermission.bulkCreate(
-						agreementRolePermissionsData,
-						{
-							transaction: t
-						}
-					)
-				)
-			}
-
-			try {
-				await Promise.all(promises)
-				await t.commit()
-			} catch (e) {
-				log.crit(e)
-				throw new Error('SERVER_ERROR')
-			}
 		}
 
 		// const updatedName = name
