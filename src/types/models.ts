@@ -3,7 +3,9 @@ import AgreementExtension from '../models/AgreementExtension'
 import AgreementRole from '../models/AgreementRole'
 import AgreementRoleExtension from '../models/AgreementRoleExtension'
 import AgreementRoleToken from '../models/AgreementRoleToken'
+import AgreementRoleTokenTransfer from '../models/AgreementRoleTokenTransfer'
 import AgreementToken from '../models/AgreementToken'
+import AgreementTokenTransfer from '../models/AgreementTokenTransfer'
 import AgreementWallet from '../models/AgreementWallet'
 import Bundle from '../models/Bundle'
 import BundleContract from '../models/BundleContract'
@@ -15,7 +17,6 @@ import Extension from '../models/Extension'
 import Hashtag from '../models/Hashtag'
 import IdentityIntegration from '../models/IdentityIntegration'
 import Transaction from '../models/Transaction'
-import Transfer from '../models/Transfer'
 import Tweet from '../models/Tweet'
 import TweetHashtag from '../models/TweetHashtag'
 import Twitter from '../models/Twitter'
@@ -43,7 +44,8 @@ export interface IModels {
 	AgreementRoleExtension: typeof AgreementRoleExtension
 	AgreementWallet: typeof AgreementWallet
 	Transaction: typeof Transaction
-	Transfer: typeof Transfer
+	AgreementTokenTransfer: typeof AgreementTokenTransfer
+	AgreementRoleTokenTransfer: typeof AgreementRoleTokenTransfer
 	Tweet: typeof Tweet
 	TweetHashtag: typeof TweetHashtag
 	Twitter: typeof Twitter

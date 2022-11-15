@@ -4,7 +4,7 @@ import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import type Agreement from './Agreement'
 import type AgreementRole from './AgreementRole'
-import type Transfer from './Transfer'
+import type AgreementRoleTokenTransfer from './AgreementRoleTokenTransfer'
 import type Wallet from './Wallet'
 
 export default class AgreementRoleToken extends BaseModel<AgreementRoleToken> {
@@ -29,6 +29,10 @@ export default class AgreementRoleToken extends BaseModel<AgreementRoleToken> {
 			{
 				name: 'AgreementRoleToken_AgreementId',
 				fields: ['AgreementId']
+			},
+			{
+				name: 'AgreementRoleToken_AgreementRoleId',
+				fields: ['AgreementRoleId']
 			}
 		]
 	}
@@ -93,14 +97,16 @@ export default class AgreementRoleToken extends BaseModel<AgreementRoleToken> {
 
 	public Owner!: Wallet
 
-	public Transfers!: Transfer[] | null
+	public Transfers!: AgreementRoleTokenTransfer[] | null
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.Agreement)
 
 		this.belongsTo(models.AgreementRole)
 
-		this.hasMany(models.Transfer)
+		this.hasMany(models.AgreementRoleTokenTransfer, {
+			as: 'Transfers'
+		})
 
 		this.belongsTo(models.Wallet, {
 			as: 'Owner'

@@ -36,7 +36,7 @@ export default class AgreementRoleService {
 		const newDepth = depth ? depth + 1 : 1
 
 		if (newDepth > 5) {
-			throw new Error('INVALID_SLUG')
+			return uuidv4()
 		}
 
 		try {

@@ -2,18 +2,18 @@ import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
 
-export default class Transfer extends BaseModel<Transfer> {
-	public static readonly modelName = 'Transfer'
+export default class AgreementRoleTokenTransfer extends BaseModel<AgreementRoleTokenTransfer> {
+	public static readonly modelName = 'AgreementRoleTokenTransfer'
 
 	public static get indexes() {
 		return [
 			{
-				name: 'Transfer_createdAt',
+				name: 'AgreementRoleTokenTransfer_createdAt',
 				fields: ['createdAt']
 			},
 			{
-				name: 'Transfer_MeemId',
-				fields: ['MeemId']
+				name: 'AgreementRoleTokenTransfer_AgreementRoleTokenId',
+				fields: ['AgreementRoleTokenId']
 			}
 		]
 	}
@@ -52,9 +52,9 @@ export default class Transfer extends BaseModel<Transfer> {
 
 	public transferredAt!: Date
 
-	public MeemId!: string
+	public AgreementRoleTokenId!: string
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.AgreementToken)
+		this.belongsTo(models.AgreementRoleToken)
 	}
 }

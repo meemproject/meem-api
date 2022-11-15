@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import Token from './AgreementToken'
 
 export default class Tweet extends BaseModel<Tweet> {
 	public static readonly modelName = 'Tweet'
@@ -11,10 +10,6 @@ export default class Tweet extends BaseModel<Tweet> {
 			{
 				name: 'Tweet_tweetId',
 				fields: ['tweetId']
-			},
-			{
-				name: 'Tweet_TokenId',
-				fields: ['TokenId']
 			}
 		]
 	}
@@ -68,10 +63,6 @@ export default class Tweet extends BaseModel<Tweet> {
 
 	/** The twitter conversation ID of the tweet */
 	public conversationId!: string
-
-	public TokenId!: string | null
-
-	public Token!: Token | null
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.AgreementToken)

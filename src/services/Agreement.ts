@@ -52,7 +52,7 @@ export default class AgreementService {
 		const newDepth = depth ? depth + 1 : 1
 
 		if (newDepth > 5) {
-			throw new Error('INVALID_SLUG')
+			return uuidv4()
 		}
 
 		try {
@@ -162,12 +162,6 @@ export default class AgreementService {
 	public static async createAgreement(
 		data: MeemAPI.v1.CreateAgreement.IRequestBody & {
 			senderWalletAddress: string
-			agreementRoleData?: {
-				name: string
-				agreement: Agreement
-				permissions?: string[]
-				isAdminRole?: boolean
-			}
 		}
 	): Promise<Agreement> {
 		const {
@@ -372,56 +366,6 @@ export default class AgreementService {
 				}
 
 				log.debug(`Finished minting admin/member tokens.`)
-			}
-
-			try {
-				// TODO: pass createRoles property to contract instead of meem-club
-				if (data.metadata.meem_contract_type === 'meem-club') {
-					// await services.guild.createAgreementGuild({
-					// 	agreementId: agreement.id,
-					// 	adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
-					// })
-				} else if (data.agreementRoleData) {
-					const {
-						name: roleName,
-						agreement: parentAgreement,
-						isAdminRole
-					} = data.agreementRoleData
-					// const sign = (signableMessage: string | Bytes) =>
-					// 	wallet.signMessage(signableMessage)
-					// const createGuildRoleResponse = await guildRole.create(
-					// 	wallet.address,
-					// 	sign,
-					// 	{
-					// 		guildId: agreementGuild.guildId,
-					// 		name: roleName,
-					// 		logic: 'AND',
-					// 		requirements: [
-					// 			{
-					// 				type: 'ERC721',
-					// 				chain: services.guild.getGuildChain(
-					// 					agreement.chainId
-					// 				),
-					// 				address: agreement.address,
-					// 				data: {
-					// 					minAmount: 1
-					// 				}
-					// 			}
-					// 		]
-					// 	}
-					// )
-
-					await orm.models.AgreementRole.create({
-						// guildRoleId: createGuildRoleResponse.id,
-						name: roleName,
-						AgreementId: parentAgreement.id,
-						RoleAgreementId: agreement.id,
-						// tokenAddress: agreement.address,
-						isAdminRole: isAdminRole ?? false
-					})
-				}
-			} catch (e) {
-				log.crit('Failed to create Guild', e)
 			}
 
 			return agreement
@@ -1280,14 +1224,14 @@ export default class AgreementService {
 		}))
 
 		if (cleanAdmins.length > 0) {
-			const meemSmartContract = (await services.meem.getAgreement({
+			const agreementContract = (await this.getAgreementContract({
 				address: agreement.address,
 				chainId: agreement.chainId
 			})) as unknown as Mycontract
 
 			const tx = await services.ethers.runTransaction({
 				chainId: agreement.chainId,
-				fn: meemSmartContract.bulkSetRoles.bind(meemSmartContract),
+				fn: agreementContract.bulkSetRoles.bind(agreementContract),
 				params: [cleanAdmins],
 				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
@@ -1304,5 +1248,19 @@ export default class AgreementService {
 		}
 
 		return cleanAdmins.map(a => a.user)
+	}
+
+	public static async getAgreementContract(options: {
+		address: string
+		chainId: number
+	}): Promise<Mycontract> {
+		const { address, chainId } = options
+		const { wallet } = await services.ethers.getProvider({
+			chainId
+		})
+
+		const contract = Mycontract__factory.connect(address, wallet)
+
+		return contract
 	}
 }

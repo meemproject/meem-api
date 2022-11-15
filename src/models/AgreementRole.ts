@@ -9,7 +9,7 @@ import ModelWithAddress from '../core/ModelWithAddress'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import Agreement from './Agreement'
-import type Meem from './AgreementToken'
+import type AgreementRoleToken from './AgreementRoleToken'
 import type Extension from './Extension'
 import type Wallet from './Wallet'
 export default class AgreementRole extends ModelWithAddress<AgreementRole> {
@@ -337,14 +337,16 @@ export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 
 	public Owner!: Wallet | null
 
-	public Meems?: Meem[] | null
+	public Tokens?: AgreementRoleToken[] | null
 
 	public Wallets?: Wallet[] | null
 
 	public Extensions?: Extension[] | null
 
 	public static associate(models: IModels) {
-		this.hasMany(models.AgreementRoleToken)
+		this.hasMany(models.AgreementRoleToken, {
+			as: 'Tokens'
+		})
 
 		this.belongsTo(models.Agreement)
 		this.belongsTo(models.Wallet, {

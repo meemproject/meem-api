@@ -3,7 +3,7 @@ import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import type Agreement from './Agreement'
-import type Transfer from './Transfer'
+import type AgreementTokenTransfer from './AgreementTokenTransfer'
 import type Wallet from './Wallet'
 
 export default class AgreementToken extends BaseModel<AgreementToken> {
@@ -100,12 +100,14 @@ export default class AgreementToken extends BaseModel<AgreementToken> {
 
 	public Owner!: Wallet
 
-	public Transfers!: Transfer[] | null
+	public Transfers!: AgreementTokenTransfer[] | null
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.Agreement)
 
-		this.hasMany(models.Transfer)
+		this.hasMany(models.AgreementTokenTransfer, {
+			as: 'Transfers'
+		})
 
 		this.belongsTo(models.Wallet, {
 			as: 'Owner'
