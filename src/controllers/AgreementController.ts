@@ -578,47 +578,48 @@ export default class AgreementController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		// const {
-		// 	name,
-		// 	permissions,
-		// 	isTokenBasedRole,
-		// 	isTokenTransferrable,
-		// 	members
-		// } = req.body
-
-		const { agreementId } = req.params
-
-		// TODO: Check if the user has permission to update and not just admin contract role
-
-		const isAdmin = await services.agreement.isAgreementAdmin({
-			agreementId,
-			walletAddress: req.wallet.address
-		})
-
-		if (!isAdmin) {
-			throw new Error('NOT_AUTHORIZED')
+		if (!req.body.name) {
+			throw new Error('MISSING_PARAMETERS')
 		}
 
-		const agreement = await orm.models.Agreement.findOne({
-			where: {
-				id: agreementId
+		if (!req.body.metadata) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		await req.wallet.enforceTXLimit()
+
+		if (config.DISABLE_ASYNC_MINTING) {
+			try {
+				await services.agreementRole.createAgreementRole({
+					...req.body,
+					agreementId: req.params.agreementId,
+					senderWalletAddress: req.wallet.address
+				})
+			} catch (e) {
+				log.crit(e)
+				sockets?.emitError(
+					config.errors.CONTRACT_CREATION_FAILED,
+					req.wallet.address
+				)
 			}
-		})
-
-		if (!agreement) {
-			throw new Error('AGREEMENT_NOT_FOUND')
+		} else {
+			// TODO: Create Agreement Role lambda
+			// const lambda = new AWS.Lambda({
+			// 	accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+			// 	secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+			// 	region: 'us-east-1'
+			// })
+			// await lambda
+			// 	.invoke({
+			// 		InvocationType: 'Event',
+			// 		FunctionName: config.LAMBDA_CREATE_CONTRACT_FUNCTION,
+			// 		Payload: JSON.stringify({
+			// 			...req.body,
+			// 			senderWalletAddress: req.wallet.address
+			// 		})
+			// 	})
+			// 	.promise()
 		}
-
-		// await services.guild.createAgreementGuildRole({
-		// 	name,
-		// 	agreement,
-		// 	agreementGuild: agreement.AgreementGuild,
-		// 	permissions,
-		// 	members: members ?? [],
-		// 	isTokenBasedRole,
-		// 	isTokenTransferrable,
-		// 	senderWalletAddress: req.wallet.address
-		// })
 
 		return res.json({
 			status: 'success'

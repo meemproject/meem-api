@@ -1,12 +1,15 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { getCuts, IFacetVersion } from '@meemproject/meem-contracts'
+import { Validator } from '@meemproject/metadata'
 import AWS from 'aws-sdk'
 import { ethers } from 'ethers'
 import _ from 'lodash'
 import slug from 'slug'
 import { v4 as uuidv4 } from 'uuid'
+import errors from '../config/errors'
 import AgreementRole from '../models/AgreementRole'
 import Wallet from '../models/Wallet'
+import { Mycontract, Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class AgreementRoleService {
@@ -70,8 +73,9 @@ export default class AgreementRoleService {
 	// TODO: Combine this with createAgreement?
 	public static async createAgreementRole(
 		data: MeemAPI.v1.CreateAgreementRole.IRequestBody & {
+			agreementId: string
 			senderWalletAddress: string
-			isAdminRole: boolean
+			isAdminRole?: boolean
 		}
 	): Promise<AgreementRole> {
 		const {
@@ -79,10 +83,21 @@ export default class AgreementRoleService {
 			tokenMetadata,
 			members,
 			senderWalletAddress,
-			chainId
+			chainId,
+			agreementId
 		} = data
 
 		try {
+			const agreement = await orm.models.Agreement.findOne({
+				where: {
+					id: agreementId
+				}
+			})
+
+			if (!agreement) {
+				throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			}
+
 			const [dbContract, bundle] = await Promise.all([
 				orm.models.Contract.findOne({
 					where: {
@@ -200,7 +215,7 @@ export default class AgreementRoleService {
 
 			if (data.name) {
 				try {
-					contractSlug = await services.agreement.generateSlug({
+					contractSlug = await this.generateSlug({
 						baseSlug: data.name,
 						chainId
 					})
@@ -209,13 +224,14 @@ export default class AgreementRoleService {
 				}
 			}
 
-			const agreementInstance = await orm.models.Agreement.create({
+			const agreementRole = await orm.models.AgreementRole.create({
 				address: proxyContract.address,
 				mintPermissions: fullMintPermissions,
 				slug: contractSlug,
 				name: data.name,
 				isTransferrable: !data.isTransferLocked,
-				chainId
+				chainId,
+				AgreementId: agreement.id
 			})
 
 			const cutTx = await services.ethers.runTransaction({
@@ -248,10 +264,10 @@ export default class AgreementRoleService {
 
 				if (config.DISABLE_ASYNC_MINTING) {
 					try {
-						await services.meem.bulkMint({
+						await this.bulkMint({
 							tokens,
 							mintedBy: senderWalletAddress,
-							agreementId: agreementInstance.id
+							agreementRoleId: agreementRole.id
 						})
 					} catch (e) {
 						log.crit(e)
@@ -269,7 +285,7 @@ export default class AgreementRoleService {
 							Payload: JSON.stringify({
 								tokens,
 								mintedBy: senderWalletAddress,
-								agreementId: agreementInstance.id
+								agreementId: agreementRole.id
 							})
 						})
 						.promise()
@@ -302,20 +318,19 @@ export default class AgreementRoleService {
 				// 		]
 				// 	}
 				// )
-
-				await orm.models.AgreementRole.create({
-					// guildRoleId: createGuildRoleResponse.id,
-					name: roleName,
-					AgreementId: parentAgreement.id,
-					RoleAgreementId: agreementInstance.id,
-					// tokenAddress: agreement.address,
-					isAdminRole: isAdminRole ?? false
-				})
+				// await orm.models.AgreementRole.create({
+				// 	// guildRoleId: createGuildRoleResponse.id,
+				// 	name: data.name,
+				// 	AgreementId: agreement.id,
+				// 	RoleAgreementId: agreementInstance.id,
+				// 	// tokenAddress: agreement.address,
+				// 	isAdminRole: isAdminRole ?? false
+				// })
 			} catch (e) {
 				log.crit('Failed to create Guild', e)
 			}
 
-			return agreementInstance
+			return agreementRole
 		} catch (e) {
 			await sockets?.emitError(
 				config.errors.CONTRACT_CREATION_FAILED,
@@ -405,5 +420,116 @@ export default class AgreementRoleService {
 		// }
 
 		return agreementRole
+	}
+
+	/** Mint an Agreement Token */
+	public static async bulkMint(
+		data: MeemAPI.v1.BulkMintAgreementToken.IRequestBody & {
+			mintedBy: string
+			agreementRoleId: string
+		}
+	) {
+		try {
+			if (!data.agreementRoleId) {
+				throw new Error('MISSING_CONTRACT_ADDRESS')
+			}
+
+			const [agreementRole, minterWallet] = await Promise.all([
+				orm.models.AgreementRole.findOne({
+					where: {
+						id: data.agreementRoleId
+					}
+				}),
+				orm.models.Wallet.findByAddress<Wallet>(data.mintedBy)
+			])
+
+			if (!minterWallet) {
+				throw new Error('WALLET_NOT_FOUND')
+			}
+
+			if (!agreementRole) {
+				throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			}
+
+			const builtData: {
+				to: string
+				metadata: MeemAPI.ITokenMetadataLike
+				ipfs?: string
+			}[] = []
+
+			// Validate metadata
+			data.tokens.forEach(token => {
+				if (!token.to) {
+					throw new Error('MISSING_ACCOUNT_ADDRESS')
+				}
+
+				if (!token.metadata?.meem_metadata_version) {
+					throw new Error('INVALID_METADATA')
+				}
+
+				const validator = new Validator(token.metadata.meem_metadata_version)
+				const validatorResult = validator.validate(token.metadata)
+
+				if (!validatorResult.valid) {
+					log.crit(validatorResult.errors.map((e: any) => e.message))
+					throw new Error('INVALID_METADATA')
+				}
+
+				builtData.push({
+					...token,
+					metadata: token.metadata
+				})
+			})
+
+			// Pin to IPFS
+			for (let i = 0; i < builtData.length; i++) {
+				const item = builtData[i]
+				const result = await services.web3.saveToPinata({
+					json: item.metadata
+				})
+				item.ipfs = `ipfs://${result.IpfsHash}`
+			}
+
+			const { wallet } = await services.ethers.getProvider({
+				chainId: agreementRole.chainId
+			})
+			const contract = Mycontract__factory.connect(
+				agreementRole.address,
+				wallet
+			)
+
+			const mintParams: Parameters<Mycontract['bulkMint']> = [
+				builtData.map(item => ({
+					to: item.to,
+					tokenType: MeemAPI.MeemType.Original,
+					tokenURI: item.ipfs as string
+				}))
+			]
+
+			log.debug('Bulk Minting meem w/ params', { mintParams })
+
+			const mintTx = await services.ethers.runTransaction({
+				chainId: agreementRole.chainId,
+				fn: contract.bulkMint.bind(contract),
+				params: mintParams,
+				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
+			})
+
+			log.debug(`Bulk Minting w/ transaction hash: ${mintTx.hash}`)
+
+			await orm.models.Transaction.create({
+				hash: mintTx.hash,
+				chainId: agreementRole.chainId,
+				WalletId: minterWallet.id
+			})
+
+			await mintTx.wait()
+		} catch (e) {
+			const err = e as any
+			log.warn(err, data)
+
+			await sockets?.emitError(errors.SERVER_ERROR, data.mintedBy)
+			throw new Error('SERVER_ERROR')
+		}
 	}
 }

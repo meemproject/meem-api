@@ -305,7 +305,7 @@ export default class AgreementService {
 				}
 			}
 
-			const agreementInstance = await orm.models.Agreement.create({
+			const agreement = await orm.models.Agreement.create({
 				address: proxyContract.address,
 				mintPermissions: fullMintPermissions,
 				slug: contractSlug,
@@ -347,7 +347,7 @@ export default class AgreementService {
 						await this.bulkMint({
 							tokens,
 							mintedBy: senderWalletAddress,
-							agreementId: agreementInstance.id
+							agreementId: agreement.id
 						})
 					} catch (e) {
 						log.crit(e)
@@ -365,7 +365,7 @@ export default class AgreementService {
 							Payload: JSON.stringify({
 								tokens,
 								mintedBy: senderWalletAddress,
-								agreementId: agreementInstance.id
+								agreementId: agreement.id
 							})
 						})
 						.promise()
@@ -378,7 +378,7 @@ export default class AgreementService {
 				// TODO: pass createRoles property to contract instead of meem-club
 				if (data.metadata.meem_contract_type === 'meem-club') {
 					// await services.guild.createAgreementGuild({
-					// 	agreementId: agreementInstance.id,
+					// 	agreementId: agreement.id,
 					// 	adminAddresses: cleanAdmins.map((a: any) => a.user.toLowerCase())
 					// })
 				} else if (data.agreementRoleData) {
@@ -400,7 +400,7 @@ export default class AgreementService {
 					// 			{
 					// 				type: 'ERC721',
 					// 				chain: services.guild.getGuildChain(
-					// 					agreementInstance.chainId
+					// 					agreement.chainId
 					// 				),
 					// 				address: agreement.address,
 					// 				data: {
@@ -415,7 +415,7 @@ export default class AgreementService {
 						// guildRoleId: createGuildRoleResponse.id,
 						name: roleName,
 						AgreementId: parentAgreement.id,
-						RoleAgreementId: agreementInstance.id,
+						RoleAgreementId: agreement.id,
 						// tokenAddress: agreement.address,
 						isAdminRole: isAdminRole ?? false
 					})
@@ -424,7 +424,7 @@ export default class AgreementService {
 				log.crit('Failed to create Guild', e)
 			}
 
-			return agreementInstance
+			return agreement
 		} catch (e) {
 			await sockets?.emitError(
 				config.errors.CONTRACT_CREATION_FAILED,
