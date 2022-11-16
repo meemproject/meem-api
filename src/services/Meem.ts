@@ -366,7 +366,6 @@ export default class MeemService {
 
 			log.debug('Minting meem w/ params', { mintParams })
 
-			// const mintTx = await meemContract.mint(...mintParams)
 			const mintTx = await services.ethers.runTransaction({
 				chainId: data.chainId,
 				fn: meemContract.mint.bind(meemContract),

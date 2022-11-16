@@ -241,6 +241,8 @@ export default class EthersService {
 
 			log.debug(overrides)
 
+			encodeSingle
+
 			const result = await fn(...params, overrides)
 
 			chainNonce.nonce = newNonce

@@ -666,3 +666,14 @@ export interface IDiscordServer {
 		}[]
 	}
 }
+
+export enum TransactionStatus {
+	Pending = 'pending',
+	Success = 'success',
+	Failure = 'failure'
+}
+
+export enum TransactionType {
+	MeemContract = 'meemContract',
+	Custom = 'custom'
+}

@@ -4,6 +4,7 @@
 import { Validator } from '@meemproject/metadata'
 import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import { ethers, ethers as Ethers } from 'ethers'
+import { encodeSingle, TransactionType } from 'ethers-multisend'
 import { Request, Response } from 'express'
 import keccak256 from 'keccak256'
 import { DateTime, Duration } from 'luxon'
@@ -11,6 +12,7 @@ import { MerkleTree } from 'merkletreejs'
 import { Op } from 'sequelize'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
+import meemABI from '../abis/Meem.json'
 import { Constructor } from '../serverless/cron'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -313,7 +315,7 @@ export default class TestController {
 	}
 
 	public static async releaseLock(req: Request, res: Response) {
-		await services.ethers.releaseLock(+(req.query.chainId as string))
+		// await services.ethers.releaseLock(+(req.query.chainId as string))
 
 		return res.json({
 			status: 'success'
@@ -337,6 +339,35 @@ export default class TestController {
 		return res.json({
 			status: 'success',
 			ethAddress
+		})
+	}
+
+	public static async testTxEncoding(req: Request, res: Response) {
+		// const functionSignature = ethers.utils
+		// 	.id('mint((address,string,uint8))')
+		// 	.substring(0, 10)
+
+		const encoded = encodeSingle({
+			id: '1',
+			abi: JSON.stringify(meemABI),
+			functionSignature: 'mint((address,string,uint8))',
+			to: '0xf5a0fD628AFe07D8c3736762Bd65Ae009F23e335',
+			value: '0',
+			inputValues: {
+				params: [
+					'0xbA343C26ad4387345edBB3256e62f4bB73d68a04',
+					'https://meem.wtf',
+					'0'
+				]
+			},
+			type: TransactionType.callContract
+		})
+
+		console.log({ encoded })
+
+		return res.json({
+			status: 'success',
+			encoded
 		})
 	}
 }

@@ -531,7 +531,7 @@ export default class MeemContractService {
 			senderWallet = await orm.models.Wallet.create({
 				address: senderWalletAddress
 			})
-			await services.meemId.createOrUpdateMeemIdentity({
+			await services.meemId.createOrUpdateUser({
 				wallet: senderWallet
 			})
 		}

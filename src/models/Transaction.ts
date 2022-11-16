@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
+import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import type Wallet from './Wallet'
 
@@ -34,6 +35,23 @@ export default class Transaction extends BaseModel<Transaction> {
 		chainId: {
 			type: DataTypes.INTEGER,
 			allowNull: false
+		},
+		status: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: MeemAPI.TransactionStatus.Pending
+		},
+		encodeTransactionInput: {
+			type: DataTypes.JSONB,
+			allowNull: false
+		},
+		transactionType: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: MeemAPI.TransactionType.MeemContract
+		},
+		customABI: {
+			type: DataTypes.JSONB
 		}
 	}
 
