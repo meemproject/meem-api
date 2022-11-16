@@ -194,7 +194,7 @@ export default class EthersService {
 				})
 			}
 
-			const provider = await this.getProvider({ chainId })
+			const { provider } = await this.getProvider({ chainId })
 			const wallet = new Wallet(config.WALLET_PRIVATE_KEY, provider)
 
 			const providerTxCount = await provider.core.getTransactionCount(

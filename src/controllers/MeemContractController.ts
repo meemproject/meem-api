@@ -1,5 +1,4 @@
 import { randomBytes } from 'crypto'
-import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
 import { ethers } from 'ethers'
@@ -853,10 +852,9 @@ export default class MeemContractController {
 					roleMeemContract &&
 					roleMeemContract.isTransferrable !== req.body.isTokenTransferrable
 				) {
-					const provider = await services.ethers.getProvider({
+					const { wallet } = await services.ethers.getProvider({
 						chainId: meemContract.chainId
 					})
-					const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 					const roleSmartContract = Mycontract__factory.connect(
 						meemContract.address,

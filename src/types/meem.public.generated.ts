@@ -572,9 +572,14 @@ export interface IMeemId {
 	}
 }
 
-export enum IMeemIdIntegrationVisibility {
+export enum IntegrationVisibility {
+	/** Anyone can view the integration */
 	Anyone = 'anyone',
+
+	/** Users that are in the same club */
 	MutualClubMembers = 'mutual-club-members',
+
+	/** Private. Only the current user can view */
 	JustMe = 'just-me'
 }
 
@@ -1260,6 +1265,36 @@ export namespace DeleteMeemContractRole {
 
 	export const path = (options: IPathParams) =>
 		`/api/1.0/meemContracts/${options.meemContractId}/roles/${options.meemContractRoleId}`
+
+	export const method = HttpMethod.Delete
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace DetachUserIdentity {
+	export interface IPathParams {
+		integrationId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/me/integrations/${options.integrationId}`
 
 	export const method = HttpMethod.Delete
 
@@ -2258,10 +2293,15 @@ export namespace Login {
 	export interface IRequestBody {
 		/** Login w/ access token provided by Auth0 magic link */
 		accessToken?: string
+
 		/** Login w/ wallet. Both address and signature must be provided */
 		address?: string
+
 		/** Login w/ wallet. Both address and signature must be provided */
 		signature?: string
+
+		/** Whether to connect the login method with the currently authenticated user */
+		shouldConnectUser?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -2826,6 +2866,42 @@ export namespace UpdateMeemPassById {
 
 	export interface IRequestBody {
 		isWhitelisted: boolean
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace UpdateUserIdentity {
+	export interface IPathParams {
+		/** The integration id to connect or update */
+		integrationId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/me/integrations/${options.integrationId}`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** Set the visibility type of the integration */
+		visibility?: IntegrationVisibility
+		/** Metadata associated with this integration */
+		metadata?: { [key: string]: unknown }
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

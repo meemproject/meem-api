@@ -6,6 +6,8 @@ import Wallet from './Wallet'
 export default class User extends BaseModel<User> {
 	public static readonly modelName = 'User'
 
+	public static readonly paranoid = false
+
 	public static get indexes() {
 		return [
 			{

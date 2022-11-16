@@ -4,7 +4,6 @@ import {
 	guild,
 	role as guildRole
 } from '@guildxyz/sdk'
-import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
 import type { Bytes } from 'ethers'

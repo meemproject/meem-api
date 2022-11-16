@@ -15,7 +15,9 @@ export default class AdminController {
 	}
 
 	public static async runSync(req: Request, res: Response): Promise<Response> {
-		await orm.runSync()
+		await orm.runSync({
+			force: req.query.force === 'true'
+		})
 
 		return res.json({
 			status: 'success'

@@ -12,7 +12,6 @@ import request from 'superagent'
 import { TwitterApi, UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import Discord from '../models/Discord'
-import IdentityIntegration from '../models/IdentityIntegration'
 import type MeemContract from '../models/MeemContract'
 import Twitter from '../models/Twitter'
 import MeemIdentity from '../models/User'
@@ -51,14 +50,14 @@ export default class MeemIdentityService {
 	}
 
 	public static async detachUserIdentity(options: {
-		user: User
+		userId: string
 		identityIntegrationId: string
 	}) {
-		const { user, identityIntegrationId } = options
+		const { userId, identityIntegrationId } = options
 
 		await orm.models.UserIdentity.destroy({
 			where: {
-				UserId: user.id,
+				UserId: userId,
 				IdentityIntegrationId: identityIntegrationId
 			}
 		})
@@ -79,8 +78,16 @@ export default class MeemIdentityService {
 	}) {
 		const { attachToUser, accessToken, address, signature } = options
 
-		let wallet: Wallet | undefined
+		let wallet: Wallet | undefined | null
 		let user: User | undefined | null = attachToUser
+
+		if (attachToUser && attachToUser.DefaultWalletId) {
+			wallet = await orm.models.Wallet.findOne({
+				where: {
+					id: attachToUser.DefaultWalletId
+				}
+			})
+		}
 
 		if (address && signature) {
 			wallet = await this.verifySignature({ address, signature })
@@ -138,7 +145,17 @@ export default class MeemIdentityService {
 					where: {
 						externalId: userInfo.sub
 					},
-					include: [orm.models.User]
+					include: [
+						{
+							model: orm.models.User,
+							include: [
+								{
+									model: orm.models.Wallet,
+									as: 'DefaultWallet'
+								}
+							]
+						}
+					]
 				}),
 				orm.models.IdentityIntegration.findOne({
 					where: {
@@ -156,6 +173,7 @@ export default class MeemIdentityService {
 					throw new Error('IDENTITY_ASSOCIATED_TO_ANOTHER_USER')
 				}
 				user = userIdentity.User
+				wallet = user?.DefaultWallet
 			} else {
 				const t = await orm.sequelize.transaction()
 				user =
@@ -337,22 +355,14 @@ export default class MeemIdentityService {
 		return user
 	}
 
-	public static async createOrUpdateUserIdentity(data: {
+	public static async updateUserIdentity(data: {
 		identityIntegrationId: string
 		metadata?: any
-		visibility?: MeemAPI.IMeemIdIntegrationVisibility
-		meemId: MeemIdentity
-		walletAddress: string
+		visibility?: MeemAPI.IntegrationVisibility
+		user: User
 	}): Promise<MeemIdentityIntegration> {
-		const {
-			identityIntegrationId,
-			metadata,
-			visibility,
-			meemId,
-			walletAddress
-		} = data
+		const { identityIntegrationId, metadata, visibility, user } = data
 
-		const integrationMetadata: any = {}
 		const integration = await orm.models.IdentityIntegration.findOne({
 			where: {
 				id: identityIntegrationId
@@ -365,168 +375,33 @@ export default class MeemIdentityService {
 
 		let identityIntegration: MeemIdentityIntegration
 		try {
-			const existingMeemIdIntegration =
-				await orm.models.MeemIdentityIntegration.findOne({
-					where: {
-						MeemIdentityId: meemId.id,
-						IdentityIntegrationId: integration.id
-					}
-				})
-
-			// Integration Verification
-			// Can allow for third-party endpoint requests to verify information and return custom metadata
-
-			const visibilityTypes = [
-				IMeemIdIntegrationVisibility.Anyone.toString(),
-				IMeemIdIntegrationVisibility.MutualClubMembers.toString(),
-				IMeemIdIntegrationVisibility.JustMe.toString()
-			]
-
-			switch (integration.id) {
-				case config.TWITTER_IDENTITY_INTEGRATION_ID: {
-					let twitterUsername = metadata?.twitterUsername
-						? (metadata?.twitterUsername as string)
-						: null
-					twitterUsername = twitterUsername?.replace(/^@/g, '').trim() ?? null
-					const integrationError = new Error('INTEGRATION_FAILED')
-					integrationError.message = 'Twitter verification failed.'
-
-					if (
-						existingMeemIdIntegration &&
-						existingMeemIdIntegration.metadata?.isVerified &&
-						(!twitterUsername ||
-							twitterUsername ===
-								existingMeemIdIntegration.metadata?.twitterUsername)
-					) {
-						break
-					}
-
-					if (!twitterUsername) {
-						throw integrationError
-					}
-
-					integrationMetadata.isVerified = false
-
-					const verifiedTwitter = await services.meemId.verifyTwitter({
-						twitterUsername,
-						walletAddress
-					})
-
-					if (!verifiedTwitter) {
-						throw integrationError
-					}
-
-					integrationMetadata.isVerified = true
-					integrationMetadata.twitterUsername = verifiedTwitter.username
-					integrationMetadata.twitterProfileImageUrl =
-						verifiedTwitter.profile_image_url
-					integrationMetadata.twitterDisplayName = verifiedTwitter.name
-					integrationMetadata.twitterUserId = verifiedTwitter.id
-					integrationMetadata.twitterProfileUrl = `https://twitter.com/${verifiedTwitter.username}`
-
-					break
+			const existingMeemIdIntegration = await orm.models.UserIdentity.findOne({
+				where: {
+					UserId: user.id,
+					IdentityIntegrationId: integration.id
 				}
-				case config.DISCORD_IDENTITY_INTEGRATION_ID: {
-					const discordAuthCode = metadata?.discordAuthCode
-						? (metadata?.discordAuthCode as string)
-						: null
-					const redirectUri = metadata?.redirectUri as string | undefined
-					const integrationError = new Error('INTEGRATION_FAILED')
-					integrationError.message = 'Discord verification failed.'
+			})
 
-					if (
-						existingMeemIdIntegration &&
-						existingMeemIdIntegration.metadata?.isVerified &&
-						!discordAuthCode
-					) {
-						break
-					}
-
-					if (!discordAuthCode) {
-						throw integrationError
-					}
-
-					integrationMetadata.isVerified = false
-
-					const verifiedDiscord = await services.meemId.verifyDiscord({
-						discordAuthCode,
-						redirectUri
-					})
-
-					if (!verifiedDiscord) {
-						throw integrationError
-					}
-
-					integrationMetadata.isVerified = true
-					integrationMetadata.discordUsername = verifiedDiscord.username
-					integrationMetadata.discordAvatarUrl = `https://cdn.discordapp.com/avatars/${verifiedDiscord.discordId}/${verifiedDiscord.avatar}.png`
-					integrationMetadata.discordUserId = verifiedDiscord.discordId
-
-					break
-				}
-				case config.EMAIL_IDENTITY_INTEGRATION_ID: {
-					const email = metadata?.email ? (metadata?.email as string) : null
-					const integrationError = new Error('INTEGRATION_FAILED')
-					integrationError.message = 'Email verification failed.'
-
-					if (
-						existingMeemIdIntegration &&
-						existingMeemIdIntegration.metadata?.isVerified &&
-						!email
-					) {
-						break
-					}
-
-					if (!email) {
-						throw integrationError
-					}
-
-					integrationMetadata.isVerified = false
-					integrationMetadata.email =
-						email === existingMeemIdIntegration?.metadata?.email ? email : ''
-
-					const user = await services.meemId.verifyEmail({
-						meemId,
-						email,
-						redirectUri: metadata?.redirectUri
-					})
-
-					integrationMetadata.isVerified = user.email_verified ?? false
-					integrationMetadata.email = user.email ?? email
-
-					break
-				}
-				default:
-					break
-			}
-
-			let meemIdIntegrationVisibility =
-				visibility ?? IMeemIdIntegrationVisibility.JustMe
+			const meemIdIntegrationVisibility =
+				visibility ?? MeemAPI.IntegrationVisibility.JustMe
 
 			if (!existingMeemIdIntegration) {
-				if (!visibilityTypes.includes(meemIdIntegrationVisibility))
-					meemIdIntegrationVisibility = IMeemIdIntegrationVisibility.JustMe
-				identityIntegration = await orm.models.MeemIdentityIntegration.create({
-					MeemIdentityId: meemId.id,
-					IdentityIntegrationId: integration.id,
-					visibility: meemIdIntegrationVisibility,
-					metadata: integrationMetadata
-				})
+				throw new Error('INTEGRATION_NOT_FOUND')
 			} else {
 				identityIntegration = existingMeemIdIntegration
 				if (
-					!_.isUndefined(visibility) &&
-					visibilityTypes.includes(meemIdIntegrationVisibility)
+					visibility &&
+					Object.values(MeemAPI.IntegrationVisibility).includes(
+						meemIdIntegrationVisibility
+					)
 				) {
 					existingMeemIdIntegration.visibility = meemIdIntegrationVisibility
 				}
 
-				if (integrationMetadata && _.keys(integrationMetadata).length > 0) {
-					// TODO: Typecheck metadata
-					existingMeemIdIntegration.metadata = {
-						...existingMeemIdIntegration.metadata,
-						...integrationMetadata
-					}
+				// TODO: Typecheck metadata
+				existingMeemIdIntegration.metadata = {
+					...existingMeemIdIntegration.metadata,
+					...metadata
 				}
 
 				await existingMeemIdIntegration.save()

@@ -517,9 +517,14 @@ export interface IMeemId {
 	}
 }
 
-export enum IMeemIdIntegrationVisibility {
+export enum IntegrationVisibility {
+	/** Anyone can view the integration */
 	Anyone = 'anyone',
+
+	/** Users that are in the same club */
 	MutualClubMembers = 'mutual-club-members',
+
+	/** Private. Only the current user can view */
 	JustMe = 'just-me'
 }
 

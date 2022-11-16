@@ -2,6 +2,7 @@
 // import AWS from 'aws-sdk'
 import { Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
+import User from '../models/User'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -27,23 +28,46 @@ export default class MeemIdController {
 		req: IRequest<MeemAPI.v1.Login.IDefinition>,
 		res: IResponse<MeemAPI.v1.Login.IResponseBody>
 	): Promise<Response> {
-		const user = req.wallet
-			? await orm.models.User.findOne({
-					where: {
-						id: req.wallet.UserId
-					}
-			  })
-			: null
+		const { accessToken, address, signature, shouldConnectUser } = req.body
+
+		let user: User | null = null
+
+		if (shouldConnectUser) {
+			if (!req.wallet) {
+				throw new Error('USER_NOT_LOGGED_IN')
+			}
+			user = await services.meemId.getUserForWallet(req.wallet)
+		}
 
 		const { jwt } = await services.meemId.login({
 			attachToUser: user,
-			accessToken: req.body.accessToken,
-			address: req.body.address,
-			signature: req.body.signature
+			accessToken,
+			address,
+			signature
 		})
 
 		return res.json({
 			jwt
+		})
+	}
+
+	public static async detachUserIdentity(
+		req: IRequest<MeemAPI.v1.DetachUserIdentity.IDefinition>,
+		res: IResponse<MeemAPI.v1.DetachUserIdentity.IResponseBody>
+	): Promise<Response> {
+		const { integrationId } = req.params
+
+		if (!req.wallet?.UserId) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		await services.meemId.detachUserIdentity({
+			userId: req.wallet.UserId,
+			identityIntegrationId: integrationId
+		})
+
+		return res.json({
+			status: 'success'
 		})
 	}
 
@@ -122,31 +146,31 @@ export default class MeemIdController {
 		})
 	}
 
-	// public static async createOrUpdateMeemIdIntegration(
-	// 	req: IRequest<MeemAPI.v1.CreateOrUpdateMeemIdIntegration.IDefinition>,
-	// 	res: IResponse<MeemAPI.v1.CreateOrUpdateMeemIdIntegration.IResponseBody>
-	// ): Promise<Response> {
-	// 	if (!req.wallet) {
-	// 		throw new Error('USER_NOT_LOGGED_IN')
-	// 	}
-	// 	const { metadata, visibility } = req.body
-	// 	const { integrationId } = req.params
-	// 	const meemId = await services.meemId.getMeemIdentityForWallet(req.wallet)
+	public static async updateUserIdentity(
+		req: IRequest<MeemAPI.v1.UpdateUserIdentity.IDefinition>,
+		res: IResponse<MeemAPI.v1.UpdateUserIdentity.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+		const { metadata, visibility } = req.body
+		const { integrationId } = req.params
+		const user = await services.meemId.getUserForWallet(req.wallet)
 
-	// 	try {
-	// 		await services.meemId.createOrUpdateMeemIdIntegration({
-	// 			meemId,
-	// 			metadata,
-	// 			visibility,
-	// 			integrationId,
-	// 			walletAddress: req.wallet.address
-	// 		})
+		try {
+			await services.meemId.updateUserIdentity({
+				user,
+				metadata,
+				visibility,
+				identityIntegrationId: integrationId,
+				walletAddress: req.wallet.address
+			})
 
-	// 		return res.json({
-	// 			status: 'success'
-	// 		})
-	// 	} catch (e) {
-	// 		throw new Error('SERVER_ERROR')
-	// 	}
-	// }
+			return res.json({
+				status: 'success'
+			})
+		} catch (e) {
+			throw new Error('SERVER_ERROR')
+		}
+	}
 }

@@ -6,6 +6,8 @@ import User from './User'
 export default class UserIdentity extends BaseModel<UserIdentity> {
 	public static readonly modelName = 'UserIdentity'
 
+	public static readonly paranoid = false
+
 	public static get indexes() {
 		return [
 			{
