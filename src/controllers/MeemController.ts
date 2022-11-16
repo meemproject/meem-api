@@ -1,9 +1,6 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import AWS from 'aws-sdk'
 import { Response } from 'express'
 import sharp from 'sharp'
 import TwitterApi from 'twitter-api-v2'
-import Agreement from '../models/Agreement'
 import { IAuthenticatedRequest, IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -63,64 +60,6 @@ export default class MeemController {
 
 		return res.json({
 			access
-		})
-	}
-
-	public static async mintOriginalMeem(
-		req: IRequest<MeemAPI.v1.MintOriginalMeem.IDefinition>,
-		res: IResponse<MeemAPI.v1.MintOriginalMeem.IResponseBody>
-	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
-
-		await req.wallet.enforceTXLimit()
-
-		const agreement = await orm.models.Agreement.findByAddress<Agreement>(
-			req.body.agreementAddress,
-			[{ model: orm.models.Wallet, include: [orm.models.AgreementWallet] }]
-		)
-
-		if (!agreement) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
-		}
-
-		const canMint = await agreement.canMint(req.wallet.address)
-
-		if (!canMint) {
-			throw new Error('MINTING_ACCESS_DENIED')
-		}
-
-		if (config.DISABLE_ASYNC_MINTING) {
-			try {
-				await services.meem.mintOriginalMeem({
-					...req.body,
-					mintedBy: req.wallet.address
-				})
-			} catch (e) {
-				log.crit(e)
-				sockets?.emitError(config.errors.MINT_FAILED, req.wallet.address)
-			}
-		} else {
-			const lambda = new AWS.Lambda({
-				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-				region: 'us-east-1'
-			})
-			await lambda
-				.invoke({
-					InvocationType: 'Event',
-					FunctionName: config.LAMBDA_MINT_ORIGINAL_FUNCTION,
-					Payload: JSON.stringify({
-						...req.body,
-						mintedBy: req.wallet.address
-					})
-				})
-				.promise()
-		}
-
-		return res.json({
-			status: 'success'
 		})
 	}
 
