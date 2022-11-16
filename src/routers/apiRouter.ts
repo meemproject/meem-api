@@ -1,6 +1,7 @@
 import coreExpress, { Express } from 'express'
 import multer from 'multer'
 import AgreementController from '../controllers/AgreementController'
+import AgreementRoleController from '../controllers/AgreementRoleController'
 import ConfigController from '../controllers/ConfigController'
 import ContractController from '../controllers/ContractController'
 import DiscordController from '../controllers/DiscordController'
@@ -81,23 +82,23 @@ export default (app: Express, _express: typeof coreExpress) => {
 	// )
 	router.getAsync(
 		'/agreements/:agreementId/roles',
-		AgreementController.getAgreementRoles
+		AgreementRoleController.getAgreementRoles
 	)
 	router.getAsync(
 		'/agreements/:agreementId/roles/:agreementRoleId',
-		AgreementController.getAgreementRole
+		AgreementRoleController.getAgreementRole
 	)
 	router.postAsync(
 		'/agreements/:agreementId/roles',
-		AgreementController.createAgreementRole
+		AgreementRoleController.createAgreementRole
 	)
 	router.postAsync(
 		'/agreements/:agreementId/roles/:agreementRoleId',
-		AgreementController.updateAgreementRole
+		AgreementRoleController.updateAgreementRole
 	)
 	router.deleteAsync(
 		'/agreements/:agreementId/roles/:agreementRoleId',
-		AgreementController.deleteAgreementRole
+		AgreementRoleController.deleteAgreementRole
 	)
 	router.postAsync(
 		'/agreements/:agreementId/extensions/:extensionId',

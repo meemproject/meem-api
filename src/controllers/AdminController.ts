@@ -144,17 +144,6 @@ export default class AdminController {
 	// 	})
 	// }
 
-	public static async createAgreementRoles(
-		req: Request,
-		res: Response
-	): Promise<Response> {
-		// TODO
-
-		return res.json({
-			status: 'success'
-		})
-	}
-
 	public static async seedIdentityIntegrations(
 		req: Request,
 		res: Response

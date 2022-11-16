@@ -12,7 +12,7 @@ let server: Express.Application
 let request: SuperTest<Test>
 
 export const handle = async (
-	body: MeemAPI.v1.BulkMint.IRequestBody & {
+	body: MeemAPI.v1.BulkMintAgreementTokens.IRequestBody & {
 		mintedBy: string
 		agreementId: string
 	},
@@ -46,7 +46,7 @@ export const handle = async (
 			log.crit('AWS_WEBSOCKET_GATEWAY_URL is not set')
 		}
 
-		await services.meem.bulkMint(body)
+		await services.agreement.bulkMint(body)
 	} catch (e) {
 		log.crit(e)
 	}

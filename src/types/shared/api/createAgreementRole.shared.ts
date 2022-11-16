@@ -25,7 +25,7 @@ export namespace CreateAgreementRole {
 
 	export interface IRequestBody {
 		/** Contract metadata */
-		metadata: MeemAgreementRoleMetadata
+		metadata: IMeemContractMetadataLike
 
 		/** The chain id */
 		chainId: number

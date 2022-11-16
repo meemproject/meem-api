@@ -355,7 +355,7 @@ export default class AgreementService {
 					await lambda
 						.invoke({
 							InvocationType: 'Event',
-							FunctionName: config.LAMBDA_BULK_MINT_FUNCTION_NAME,
+							FunctionName: config.LAMBDA_AGREEMENT_BULK_MINT_FUNCTION,
 							Payload: JSON.stringify({
 								tokens,
 								mintedBy: senderWalletAddress,
@@ -636,7 +636,7 @@ export default class AgreementService {
 
 	/** Mint an Agreement Token */
 	public static async bulkMint(
-		data: MeemAPI.v1.BulkMintAgreementToken.IRequestBody & {
+		data: MeemAPI.v1.BulkMintAgreementTokens.IRequestBody & {
 			mintedBy: string
 			agreementId: string
 		}

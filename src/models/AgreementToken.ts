@@ -22,10 +22,6 @@ export default class AgreementToken extends BaseModel<AgreementToken> {
 				fields: ['tokenId']
 			},
 			{
-				name: 'AgreementToken_meemType',
-				fields: ['meemType']
-			},
-			{
 				name: 'AgreementToken_mintedBy',
 				fields: ['mintedBy']
 			},
@@ -66,11 +62,6 @@ export default class AgreementToken extends BaseModel<AgreementToken> {
 			allowNull: false,
 			defaultValue: {}
 		},
-		meemType: {
-			type: DataTypes.INTEGER,
-			allowNull: false,
-			defaultValue: 0
-		},
 		mintedBy: {
 			type: DataTypes.STRING,
 			allowNull: false,
@@ -87,8 +78,6 @@ export default class AgreementToken extends BaseModel<AgreementToken> {
 	public mintedAt!: Date
 
 	public metadata!: MeemAPI.ITokenMetadata
-
-	public meemType!: MeemAPI.MeemType
 
 	public mintedBy!: string
 

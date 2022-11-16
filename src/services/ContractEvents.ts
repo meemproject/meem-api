@@ -304,7 +304,7 @@ export default class ContractEvent {
 
 		const t = await orm.sequelize.transaction()
 
-		let agreementOrRole: Agreement
+		let agreementOrRole: Agreement | AgreementRole
 
 		if (!existingAgreementOrRole) {
 			agreementOrRole = await orm.models.Agreement.create(agreementOrRoleData)
@@ -443,7 +443,9 @@ export default class ContractEvent {
 		await t.commit()
 
 		// Update ENS
-		await services.meemId.updateENS(agreementOrRole)
+		if (!isRoleAgreement) {
+			await services.meemId.updateENS(agreementOrRole as Agreement)
+		}
 
 		return agreementOrRole
 	}
@@ -482,6 +484,7 @@ export default class ContractEvent {
 		// }
 	}
 
+	// TODO: update to handle agreement and agreement roles
 	public static async meemHandleAdminContractSet(args: {
 		address: string
 		eventData: MeemAdminContractSetEvent['args']
@@ -491,10 +494,10 @@ export default class ContractEvent {
 		let agreement = await orm.models.Agreement.findByAddress<Agreement>(address)
 
 		if (!agreement) {
-			agreement = await this.meemHandleContractInitialized({
+			agreement = (await this.meemHandleContractInitialized({
 				address,
 				chainId
-			})
+			})) as Agreement
 		}
 
 		if (!agreement) {
@@ -961,10 +964,10 @@ export default class ContractEvent {
 		])
 
 		if (!agreementData) {
-			agreementData = await this.meemHandleContractInitialized({
+			agreementData = (await this.meemHandleContractInitialized({
 				address,
 				chainId
-			})
+			})) as Agreement
 			if (!agreementData) {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
 			}

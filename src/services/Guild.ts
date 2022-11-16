@@ -629,7 +629,7 @@ export default class GuildService {
 	// 						await lambda
 	// 							.invoke({
 	// 								InvocationType: 'Event',
-	// 								FunctionName: config.LAMBDA_BULK_MINT_FUNCTION_NAME,
+	// 								FunctionName: config.LAMBDA_AGREEMENT_BULK_MINT_FUNCTION,
 	// 								Payload: JSON.stringify({
 	// 									tokens,
 	// 									mintedBy: senderWalletAddress,

@@ -12,12 +12,10 @@ let server: Express.Application
 let request: SuperTest<Test>
 
 export const handle = async (
-	body: (
-		| MeemAPI.v1.CreateAgreement.IRequestBody
-		| MeemAPI.v1.CreateAgreementRole.IRequestBody
-	) & {
-		agreementId?: string
-		senderWalletAddress: string
+	body: MeemAPI.v1.BulkMintAgreementRoleTokens.IRequestBody & {
+		mintedBy: string
+		agreementId: string
+		agreementRoleId: string
 	},
 	context: AWSLambda.Context
 ) => {
@@ -49,18 +47,8 @@ export const handle = async (
 			log.crit('AWS_WEBSOCKET_GATEWAY_URL is not set')
 		}
 
-		if (body.metadata.meem_contract_type === 'meem-club') {
-			await services.agreement.createAgreement(body)
-		} else if (
-			body.metadata.meem_contract_type === 'meem-club-role' &&
-			body.agreementId
-		) {
-			await services.agreementRole.createAgreementRole({
-				...body,
-				agreementId: body.agreementId
-			})
-		}
-	} catch (e: any) {
+		await services.agreementRole.bulkMint(body)
+	} catch (e) {
 		log.crit(e)
 	}
 }

@@ -267,6 +267,7 @@ export default class AgreementRoleService {
 						await this.bulkMint({
 							tokens,
 							mintedBy: senderWalletAddress,
+							agreementId: agreement.id,
 							agreementRoleId: agreementRole.id
 						})
 					} catch (e) {
@@ -281,11 +282,12 @@ export default class AgreementRoleService {
 					await lambda
 						.invoke({
 							InvocationType: 'Event',
-							FunctionName: config.LAMBDA_BULK_MINT_FUNCTION_NAME,
+							FunctionName: config.LAMBDA_AGREEMENT_ROLE_BULK_MINT_FUNCTION,
 							Payload: JSON.stringify({
 								tokens,
 								mintedBy: senderWalletAddress,
-								agreementId: agreementRole.id
+								agreementId: agreement.id,
+								agreementRoleId: agreementRole.id
 							})
 						})
 						.promise()
@@ -424,9 +426,10 @@ export default class AgreementRoleService {
 
 	/** Mint an Agreement Token */
 	public static async bulkMint(
-		data: MeemAPI.v1.BulkMintAgreementToken.IRequestBody & {
-			mintedBy: string
+		data: MeemAPI.v1.BulkMintAgreementRoleTokens.IRequestBody & {
+			agreementId: string
 			agreementRoleId: string
+			mintedBy: string
 		}
 	) {
 		try {
