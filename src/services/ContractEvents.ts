@@ -1,4 +1,4 @@
-import { MeemContractMetadataLike, Validator } from '@meemproject/metadata'
+import { MeemMetadataLike, Validator } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 // import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
@@ -204,7 +204,7 @@ export default class ContractEvent {
 
 		const metadata = (await services.meem.getErc721Metadata(
 			contractInfo.contractURI as string
-		)) as MeemContractMetadataLike
+		)) as MeemMetadataLike
 
 		if (metadata.meem_contract_type) {
 			// Don't index contract if not a valid meem_contract_type
@@ -828,7 +828,7 @@ export default class ContractEvent {
 		const contractURI = await agreement.contractURI()
 		const metadata = (await services.meem.getErc721Metadata(
 			contractURI
-		)) as MeemContractMetadataLike
+		)) as MeemMetadataLike
 
 		if (metadata.meem_contract_type === 'meem-club') {
 			let token = await orm.models.AgreementToken.findOne({

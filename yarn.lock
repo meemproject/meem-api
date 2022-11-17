@@ -10,15 +10,6 @@
     d "1"
     es5-ext "^0.10.47"
 
-"@apidevtools/json-schema-ref-parser@https://github.com/bcherny/json-schema-ref-parser.git#984282d34a2993e5243aa35100fe32a63699164d":
-  version "0.0.0-dev"
-  resolved "https://github.com/bcherny/json-schema-ref-parser.git#984282d34a2993e5243aa35100fe32a63699164d"
-  dependencies:
-    "@jsdevtools/ono" "^7.1.3"
-    "@types/json-schema" "^7.0.6"
-    call-me-maybe "^1.0.1"
-    js-yaml "^4.1.0"
-
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.16.0":
   version "7.16.0"
   resolved "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.16.0.tgz"
@@ -730,10 +721,10 @@
     semver "^7.3.5"
     tar "^6.1.11"
 
-"@meemproject/meem-contracts@^0.9.4":
-  version "0.9.4"
-  resolved "https://registry.yarnpkg.com/@meemproject/meem-contracts/-/meem-contracts-0.9.4.tgz#ec940b5f36dfdb2769fbe6545771c7f45fb288b3"
-  integrity sha512-VeaJJvPu25KuLKCMvIasr4NEDSsO6nO3v+rtEgOMvfvVRbLiZa0e1rXiltUlybQ/sUg/4PgojrOZuXIDYgwD+w==
+"@meemproject/meem-contracts@^0.9.10":
+  version "0.9.10"
+  resolved "https://registry.yarnpkg.com/@meemproject/meem-contracts/-/meem-contracts-0.9.10.tgz#a937d72086c3e3d9ea74ba45569298b5a688fc7e"
+  integrity sha512-UK2ZKGnDevy9ew3GAUyyYx6OauXcmCuUDslA7Xx2ZuxFOesZm3pWSqiwYNdN4eJxdqvSR+zf0NjO5EAHIRka/g==
   dependencies:
     "@kengoldfarb/log" "^1.0.5"
     "@openzeppelin/contracts" "^4.7.3"
@@ -742,13 +733,13 @@
     merkletreejs "^0.2.32"
     superagent "^8.0.0"
 
-"@meemproject/metadata@^0.9.4":
-  version "0.9.4"
-  resolved "https://registry.yarnpkg.com/@meemproject/metadata/-/metadata-0.9.4.tgz#4dd98c4481ca33a702154d4f6081d2b1b9444160"
-  integrity sha512-b27rJ2Ab99K4mgvWMznuU0KN1/rhMHj9nb8byB6E3/ujwn0jKKszpLFpMqY23nh+af4g2js4jnoJL+u0CL5cuw==
+"@meemproject/metadata@^0.9.10":
+  version "0.9.10"
+  resolved "https://registry.yarnpkg.com/@meemproject/metadata/-/metadata-0.9.10.tgz#b214f6ee77d829abc36e996bcfc3f60b539cee1c"
+  integrity sha512-s+q8Yi+yAZ/d1o3hXGUirbwZORvBny5Wy9lrATxbY0eJshwfA895FGdkcOXxlbNdInJUb3LnxoZo+7qrKi3upQ==
   dependencies:
     "@kengoldfarb/log" "^1.0.5"
-    json-schema-to-typescript "^11.0.1"
+    json-schema-to-typescript "^11.0.2"
     jsonschema "^1.4.1"
 
 "@nodelib/fs.scandir@2.1.5":
@@ -6417,26 +6408,6 @@ json-refs@^3.0.15:
     path-loader "^1.0.10"
     slash "^3.0.0"
     uri-js "^4.2.2"
-
-json-schema-to-typescript@^11.0.1:
-  version "11.0.1"
-  resolved "https://registry.yarnpkg.com/json-schema-to-typescript/-/json-schema-to-typescript-11.0.1.tgz#9203036817ca797f1116cbfe9163e8a4ec948bc3"
-  integrity sha512-iQFEErdr9PWQUN3kLvaFFdgWAfwBeqH3PMzxza4NpSU/8uadwHKKi66Hgu5Rb3NeVSk85xkwTYIeuah+R0ASeA==
-  dependencies:
-    "@apidevtools/json-schema-ref-parser" "https://github.com/bcherny/json-schema-ref-parser.git#984282d34a2993e5243aa35100fe32a63699164d"
-    "@types/json-schema" "^7.0.11"
-    "@types/lodash" "^4.14.182"
-    "@types/prettier" "^2.6.1"
-    cli-color "^2.0.2"
-    get-stdin "^8.0.0"
-    glob "^7.1.6"
-    glob-promise "^4.2.2"
-    is-glob "^4.0.3"
-    lodash "^4.17.21"
-    minimist "^1.2.6"
-    mkdirp "^1.0.4"
-    mz "^2.7.0"
-    prettier "^2.6.2"
 
 json-schema-to-typescript@^11.0.2:
   version "11.0.2"
