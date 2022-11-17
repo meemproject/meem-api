@@ -3,7 +3,8 @@ import BaseTest from '../BaseTest'
 
 class ContractInitTests extends BaseTest {
 	protected async setup() {
-		it('Can prepare init values for removing admins', () => this.prepareInit())
+		it.skip('Can prepare init values for removing admins', () =>
+			this.prepareInit())
 	}
 
 	private async prepareInit() {
