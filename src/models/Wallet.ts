@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { Op, DataTypes } from 'sequelize'
 import ModelWithAddress from '../core/ModelWithAddress'
 import type { IModels } from '../types/models'
-import type MeemContractWallet from './MeemContractWallet'
+import type AgreementWallet from './AgreementWallet'
 import User from './User'
 
 export default class Wallet extends ModelWithAddress<Wallet> {
@@ -62,25 +62,25 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 
 	public pkpTokenId!: string | null
 
-	public MeemContractWalletId!: string | null
+	public AgreementWalletId!: string | null
 
-	public MeemContractWallets!: MeemContractWallet[]
+	public AgreementWallets!: AgreementWallet[]
 
 	public UserId!: string | null
 
 	public User!: User
 
 	public static associate(models: IModels) {
-		this.hasMany(models.MeemContractWallet)
+		this.hasMany(models.AgreementWallet)
 		this.belongsTo(models.User)
 		// this.hasOne(models.MeemIdentityWallet)
 	}
 
 	public static async findAllBy(options: {
 		addresses?: string[]
-		meemContractId?: string
+		agreementId?: string
 	}) {
-		const { addresses, meemContractId } = options
+		const { addresses, agreementId } = options
 
 		const findAll: Record<string, any> = {}
 
@@ -91,13 +91,13 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 			)
 		}
 
-		if (meemContractId) {
+		if (agreementId) {
 			findAll.include = [
 				{
 					required: false,
-					model: orm.models.MeemContractWallet,
+					model: orm.models.AgreementWallet,
 					where: {
-						MeemContractId: meemContractId
+						AgreementId: agreementId
 					}
 				}
 			]

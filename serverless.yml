@@ -79,7 +79,8 @@ provider:
     AUTH0_CLIENT_ID: ${env:AUTH0_CLIENT_ID, ''}
     AUTH0_CLIENT_SECRET: ${env:AUTH0_CLIENT_SECRET, ''}
     AUTH0_VERIFY_EMAIL_CALLBACK_URL: ${env:AUTH0_VERIFY_EMAIL_CALLBACK_URL, ''}
-    LAMBDA_BULK_MINT_FUNCTION_NAME: ${env:LAMBDA_BULK_MINT_FUNCTION_NAME, ''}
+    LAMBDA_AGREEMENT_BULK_MINT_FUNCTION: ${env:LAMBDA_AGREEMENT_BULK_MINT_FUNCTION, ''}
+    LAMBDA_AGREEMENT_ROLE_BULK_MINT_FUNCTION: ${env:LAMBDA_AGREEMENT_ROLE_BULK_MINT_FUNCTION, ''}
     CHAIN_IDS: ${env:CHAIN_IDS, ''}
     JSON_RPC_MAINNET: ${env:JSON_RPC_MAINNET, ''}
     ALCHEMY_API_KEY_MAINNET: ${env:ALCHEMY_API_KEY_MAINNET, ''}
@@ -135,8 +136,12 @@ functions:
     handler: build/serverless/upgradeClub.handle
     timeout: 300
     memorySize: 512
-  bulkMint:
-    handler: build/serverless/bulkMint.handle
+  bulkMintAgreementTokens:
+    handler: build/serverless/bulkMintAgreementTokens.handle
+    timeout: 300
+    memorySize: 512
+  bulkMintAgreementRoleTokens:
+    handler: build/serverless/bulkMintAgreementRoleTokens.handle
     timeout: 300
     memorySize: 512
   images:
@@ -207,7 +212,7 @@ functions:
           rate: rate(5 minutes)
           enabled: true
           input:
-            job: MeemContractCron
+            job: AgreementCron
 
 
 plugins:

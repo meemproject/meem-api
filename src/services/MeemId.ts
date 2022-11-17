@@ -11,14 +11,15 @@ import { DateTime } from 'luxon'
 import request from 'superagent'
 import { TwitterApi, UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
+import type Agreement from '../models/Agreement'
 import Discord from '../models/Discord'
-import type MeemContract from '../models/MeemContract'
 import Twitter from '../models/Twitter'
 import MeemIdentity from '../models/User'
 import type User from '../models/User'
-import MeemIdentityIntegration from '../models/UserIdentity'
+import UserIdentity from '../models/UserIdentity'
 import type Wallet from '../models/Wallet'
 import { MeemAPI } from '../types/meem.generated'
+import { IMeemIdIntegrationVisibility } from '../types/shared/meem.shared'
 export default class MeemIdentityService {
 	public static async getNonce(options: { address: string }) {
 		// Generate a nonce and save it for the wallet
@@ -40,7 +41,7 @@ export default class MeemIdentityService {
 		return wallet.nonce
 	}
 
-	public static async updateENS(item: Wallet | MeemContract) {
+	public static async updateENS(item: Wallet | Agreement) {
 		const ens = await services.ethers.lookupAddress(item.address)
 		// eslint-disable-next-line no-param-reassign
 		item.ens = ens
@@ -360,7 +361,7 @@ export default class MeemIdentityService {
 		metadata?: any
 		visibility?: MeemAPI.IntegrationVisibility
 		user: User
-	}): Promise<MeemIdentityIntegration> {
+	}): Promise<UserIdentity> {
 		const { identityIntegrationId, metadata, visibility, user } = data
 
 		const integration = await orm.models.IdentityIntegration.findOne({
@@ -373,7 +374,7 @@ export default class MeemIdentityService {
 			throw new Error('INTEGRATION_NOT_FOUND')
 		}
 
-		let identityIntegration: MeemIdentityIntegration
+		let identityIntegration: UserIdentity
 		try {
 			const existingMeemIdIntegration = await orm.models.UserIdentity.findOne({
 				where: {

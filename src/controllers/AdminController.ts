@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
-import integrationsData from '../lib/integrations'
-import permissionsData from '../lib/permissions'
+import extensionsData from '../lib/extensions'
+// import permissionsData from '../lib/permissions'
 
 export default class AdminController {
 	public static async runMigrations(
@@ -24,11 +24,11 @@ export default class AdminController {
 		})
 	}
 
-	public static async meemContractSync(
+	public static async agreementSync(
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		// await services.contractEvents.meemContractSync()
+		// await services.contractEvents.agreementSync()
 
 		return res.json({
 			status: 'success'
@@ -76,32 +76,32 @@ export default class AdminController {
 		})
 	}
 
-	public static async syncIntegrations(
+	public static async syncExtensions(
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		const failedIntegrations: any[] = []
+		const failedExtensions: any[] = []
 
-		for (let i = 0; i < integrationsData.length; i += 1) {
+		for (let i = 0; i < extensionsData.length; i += 1) {
 			try {
-				log.debug(`Syncing ${i + 1} / ${integrationsData.length} integrations`)
+				log.debug(`Syncing ${i + 1} / ${extensionsData.length} extensions`)
 				// eslint-disable-next-line no-await-in-loop
-				const existingIntegration = await orm.models.Integration.findOne({
+				const existingExtension = await orm.models.Extension.findOne({
 					where: {
-						name: integrationsData[i].name
+						name: extensionsData[i].name
 					}
 				})
-				if (!existingIntegration) {
+				if (!existingExtension) {
 					// eslint-disable-next-line no-await-in-loop
-					await orm.models.Integration.create(integrationsData[i])
+					await orm.models.Extension.create(extensionsData[i])
 				} else {
 					// eslint-disable-next-line no-await-in-loop
-					await existingIntegration.update(integrationsData[i])
+					await existingExtension.update(extensionsData[i])
 				}
 			} catch (e) {
-				failedIntegrations.push(integrationsData[i])
+				failedExtensions.push(extensionsData[i])
 				log.crit(e)
-				log.debug(integrationsData[i])
+				log.debug(extensionsData[i])
 			}
 		}
 
@@ -110,52 +110,41 @@ export default class AdminController {
 		})
 	}
 
-	public static async syncPermissions(
-		req: Request,
-		res: Response
-	): Promise<Response> {
-		// await orm.models.RolePermission.sync({ force: true })
+	// public static async syncPermissions(
+	// 	req: Request,
+	// 	res: Response
+	// ): Promise<Response> {
+	// 	// await orm.models.RolePermission.sync({ force: true })
 
-		const failedPermissions: any[] = []
+	// 	const failedPermissions: any[] = []
 
-		for (let i = 0; i < permissionsData.length; i += 1) {
-			try {
-				log.debug(`Syncing ${i + 1} / ${permissionsData.length} permissions`)
-				// eslint-disable-next-line no-await-in-loop
-				const existingPermission = await orm.models.RolePermission.findOne({
-					where: {
-						id: permissionsData[i].id
-					}
-				})
-				if (!existingPermission) {
-					// eslint-disable-next-line no-await-in-loop
-					await orm.models.RolePermission.create(permissionsData[i])
-				} else {
-					// eslint-disable-next-line no-await-in-loop
-					await existingPermission.update(permissionsData[i])
-				}
-			} catch (e) {
-				failedPermissions.push(permissionsData[i])
-				log.crit(e)
-				log.debug(permissionsData[i])
-			}
-		}
+	// 	for (let i = 0; i < permissionsData.length; i += 1) {
+	// 		try {
+	// 			log.debug(`Syncing ${i + 1} / ${permissionsData.length} permissions`)
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			const existingPermission = await orm.models.RolePermission.findOne({
+	// 				where: {
+	// 					id: permissionsData[i].id
+	// 				}
+	// 			})
+	// 			if (!existingPermission) {
+	// 				// eslint-disable-next-line no-await-in-loop
+	// 				await orm.models.RolePermission.create(permissionsData[i])
+	// 			} else {
+	// 				// eslint-disable-next-line no-await-in-loop
+	// 				await existingPermission.update(permissionsData[i])
+	// 			}
+	// 		} catch (e) {
+	// 			failedPermissions.push(permissionsData[i])
+	// 			log.crit(e)
+	// 			log.debug(permissionsData[i])
+	// 		}
+	// 	}
 
-		return res.json({
-			status: 'success'
-		})
-	}
-
-	public static async createMeemContractRoles(
-		req: Request,
-		res: Response
-	): Promise<Response> {
-		// TODO
-
-		return res.json({
-			status: 'success'
-		})
-	}
+	// 	return res.json({
+	// 		status: 'success'
+	// 	})
+	// }
 
 	public static async seedIdentityIntegrations(
 		req: Request,
@@ -191,19 +180,19 @@ export default class AdminController {
 				log.debug(
 					`Syncing ${i + 1} / ${identityIntegrations.length} integrations`
 				)
-				const existingIntegration =
+				const existingExtension =
 					// eslint-disable-next-line no-await-in-loop
 					await orm.models.IdentityIntegration.findOne({
 						where: {
 							name: identityIntegrations[i].name
 						}
 					})
-				if (!existingIntegration) {
+				if (!existingExtension) {
 					// eslint-disable-next-line no-await-in-loop
 					await orm.models.IdentityIntegration.create(identityIntegrations[i])
 				} else {
 					// eslint-disable-next-line no-await-in-loop
-					await existingIntegration.update(identityIntegrations[i])
+					await existingExtension.update(identityIntegrations[i])
 				}
 			} catch (e) {
 				failedIntegratiosn.push(identityIntegrations[i])

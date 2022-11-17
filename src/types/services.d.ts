@@ -1,5 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import Agreement from '../services/Agreement'
+import AgreementRole from '../services/AgreementRole'
 import Child from '../services/Child'
 import ContractEvents from '../services/ContractEvents'
 import Db from '../services/Db'
@@ -11,8 +13,6 @@ import Ipfs from '../services/Ipfs'
 import Lint from '../services/Lint'
 import Lit from '../services/Lit'
 import Meem from '../services/Meem'
-import MeemContract from '../services/MeemContract'
-import MeemContractRole from '../services/MeemContractRole'
 import MeemId from '../services/MeemId'
 // import Prompts from '../services/Prompts'
 import Puppeteer from '../services/Puppeteer'
@@ -37,10 +37,9 @@ declare global {
 		let lint: typeof Lint
 		let lit: typeof Lit
 		let meem: typeof Meem
-		let meemContract: typeof MeemContract
-		let meemContractRole: typeof MeemContractRole
+		let agreement: typeof Agreement
+		let agreementRole: typeof AgreementRole
 		let meemId: typeof MeemId
-		// let prompts: typeof Prompts
 		let puppeteer: Puppeteer
 		let queue: typeof Queue
 		let scraper: typeof Scraper

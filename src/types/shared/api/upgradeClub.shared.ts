@@ -3,11 +3,11 @@ import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 /** Create Meem Image */
 export namespace UpgradeClub {
 	export interface IPathParams {
-		meemContractId: string
+		agreementId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemContracts/${options.meemContractId}/upgrade`
+		`/api/1.0/agreements/${options.agreementId}/upgrade`
 
 	export const method = HttpMethod.Post
 

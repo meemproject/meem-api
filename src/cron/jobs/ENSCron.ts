@@ -22,8 +22,8 @@ export default class ENSCron extends CronJob {
 	public async run() {
 		log.info('Running ENSCron!')
 		log.info(new Date())
-		const [meemContracts, wallets] = await Promise.all([
-			orm.models.MeemContract.findAll({
+		const [agreements, wallets] = await Promise.all([
+			orm.models.Agreement.findAll({
 				where: {
 					[Op.or]: [
 						{
@@ -65,7 +65,7 @@ export default class ENSCron extends CronJob {
 			})
 		])
 
-		const itemsToCheck = [...meemContracts, ...wallets]
+		const itemsToCheck = [...agreements, ...wallets]
 
 		for (let i = 0; i < itemsToCheck.length; i += 1) {
 			const item = itemsToCheck[i]

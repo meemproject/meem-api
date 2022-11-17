@@ -35,8 +35,6 @@ export default class ProviderListener {
 	private hasSetupListners = false
 
 	public async start() {
-		// const meemContract = await services.meem.getMeemContract()
-		// meemContract.filters.Crea
 		for (let i = 0; i < config.CHAIN_IDS.length; i++) {
 			const chainId = config.CHAIN_IDS[i]
 			const { provider } = await services.ethers.getProvider({
@@ -70,19 +68,19 @@ export default class ProviderListener {
 			// 	}
 			// })
 
-			const genericMeemContract = new Contract(MeemAPI.zeroAddress, meemABI)
+			const genericAgreement = new Contract(MeemAPI.zeroAddress, meemABI)
 
-			// const eventNames = Object.keys(genericMeemContract.interface.events)
+			// const eventNames = Object.keys(genericAgreement.interface.events)
 
-			// See genericMeemContract.interface.events for all available events
-			// genericMeemContract.interface.events
+			// See genericAgreement.interface.events for all available events
+			// genericAgreement.interface.events
 			const eventIds = {
 				// MeemDiamondCreated: utils.id('MeemDiamondCreated()'),
 				// OwnershipTransferred: utils.id('OwnershipTransferred(address,address)'),
 				MeemRoleGranted: utils.id('MeemRoleGranted(bytes32,address)'),
 				MeemRoleRevoked: utils.id('MeemRoleRevoked(bytes32,address)'),
-				MeemTokenClipped: utils.id('MeemTokenClipped(uint256,address)'),
-				MeemTokenUnClipped: utils.id('MeemTokenUnClipped(uint256,address)'),
+				// MeemTokenClipped: utils.id('MeemTokenClipped(uint256,address)'),
+				// MeemTokenUnClipped: utils.id('MeemTokenUnClipped(uint256,address)'),
 				// Approval: utils.id('Approval(address,address,uint256)'),
 				// ApprovalForAll: utils.id('ApprovalForAll(address,address,bool)'),
 				MeemTransfer: utils.id('MeemTransfer(address,address,uint256)'),
@@ -192,7 +190,7 @@ export default class ProviderListener {
 
 							const block = await provider.core.getBlock(rawLog.blockHash)
 
-							const parsedLog = genericMeemContract.interface.parseLog({
+							const parsedLog = genericAgreement.interface.parseLog({
 								data: rawLog.data,
 								topics: rawLog.topics
 							})
