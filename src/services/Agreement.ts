@@ -416,15 +416,9 @@ export default class AgreementService {
 			senderWallet = await orm.models.Wallet.create({
 				address: senderWalletAddress
 			})
-<<<<<<< HEAD:src/services/MeemContract.ts
 			await services.meemId.createOrUpdateUser({
 				wallet: senderWallet
 			})
-=======
-			// await services.meemId.createOrUpdateMeemIdentity({
-			// 	wallet: senderWallet
-			// })
->>>>>>> feature/refactor:src/services/Agreement.ts
 		}
 
 		let { metadata, symbol, name, maxSupply } = data
