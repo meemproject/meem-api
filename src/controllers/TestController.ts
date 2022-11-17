@@ -348,7 +348,7 @@ export default class TestController {
 		// const functionSignature = ethers.utils
 		// 	.id('mint((address,string,uint8))')
 		// 	.substring(0, 10)
-		const m = await services.meem.getMeemContract({
+		const m = await services.agreement.getAgreementContract({
 			chainId: 5,
 			address: '0xf5a0fD628AFe07D8c3736762Bd65Ae009F23e335'
 		})
