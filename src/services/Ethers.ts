@@ -148,22 +148,6 @@ export default class EthersService {
 		return sigHashes
 	}
 
-	public async acquireLock(chainId: number) {
-		try {
-			await orm.acquireLock(`${config.WALLET_LOCK_KEY}_${chainId}`)
-		} catch (e) {
-			log.warn(e)
-		}
-	}
-
-	public async releaseLock(chainId: number) {
-		try {
-			await orm.releaseLock(`${config.WALLET_LOCK_KEY}_${chainId}`)
-		} catch (e) {
-			log.warn(e)
-		}
-	}
-
 	public async runTransaction<T extends (...args: any[]) => any>(options: {
 		/** The chain */
 		chainId: number
@@ -241,8 +225,6 @@ export default class EthersService {
 
 			log.debug(overrides)
 
-			encodeSingle
-
 			const result = await fn(...params, overrides)
 
 			chainNonce.nonce = newNonce
@@ -254,6 +236,22 @@ export default class EthersService {
 		} catch (e) {
 			await this.releaseLock(chainId)
 			throw e
+		}
+	}
+
+	private async acquireLock(chainId: number) {
+		try {
+			await orm.acquireLock(`${config.WALLET_LOCK_KEY}_${chainId}`)
+		} catch (e) {
+			log.warn(e)
+		}
+	}
+
+	private async releaseLock(chainId: number) {
+		try {
+			await orm.releaseLock(`${config.WALLET_LOCK_KEY}_${chainId}`)
+		} catch (e) {
+			log.warn(e)
 		}
 	}
 }

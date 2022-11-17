@@ -677,3 +677,7 @@ export enum TransactionType {
 	MeemContract = 'meemContract',
 	Custom = 'custom'
 }
+
+export enum QueueEvent {
+	RunTransaction = 'runTransaction'
+}

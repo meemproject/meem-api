@@ -16,6 +16,7 @@ import MeemContractRole from '../services/MeemContractRole'
 import MeemId from '../services/MeemId'
 // import Prompts from '../services/Prompts'
 import Puppeteer from '../services/Puppeteer'
+import Queue from '../services/Queue'
 import Scraper from '../services/Scraper'
 import Storage from '../services/Storage'
 import Testing from '../services/Testing'
@@ -41,6 +42,7 @@ declare global {
 		let meemId: typeof MeemId
 		// let prompts: typeof Prompts
 		let puppeteer: Puppeteer
+		let queue: typeof Queue
 		let scraper: typeof Scraper
 		let storage: typeof Storage
 		let testing: Testing

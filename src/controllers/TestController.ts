@@ -14,6 +14,7 @@ import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
 import meemABI from '../abis/Meem.json'
 import { Constructor } from '../serverless/cron'
+import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class TestController {
@@ -346,6 +347,12 @@ export default class TestController {
 		// const functionSignature = ethers.utils
 		// 	.id('mint((address,string,uint8))')
 		// 	.substring(0, 10)
+		const m = await services.meem.getMeemContract({
+			chainId: 5,
+			address: '0xf5a0fD628AFe07D8c3736762Bd65Ae009F23e335'
+		})
+
+		const x = m.interface.functions['setMaxSupply(uint256)'].format()
 
 		const encoded = encodeSingle({
 			id: '1',
@@ -363,7 +370,7 @@ export default class TestController {
 			type: TransactionType.callContract
 		})
 
-		console.log({ encoded })
+		console.log({ x, encoded })
 
 		return res.json({
 			status: 'success',

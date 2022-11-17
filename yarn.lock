@@ -9910,6 +9910,13 @@ sqlite3@^5.1.1:
   optionalDependencies:
     node-gyp "8.x"
 
+sqs-consumer@^5.7.0:
+  version "5.7.0"
+  resolved "https://registry.yarnpkg.com/sqs-consumer/-/sqs-consumer-5.7.0.tgz#d7c83516e0258d261caae199889e094bda93ac05"
+  integrity sha512-CjPzGsmmsKb6L0ia1WjbxjojjIHjVZ1FDK8s1MhEnf1eS8lJjuC28QEmcBpryQgsyaIcg1SgTsuicoZe008oQg==
+  dependencies:
+    debug "^4.3.1"
+
 sshpk@^1.7.0:
   version "1.16.1"
   resolved "https://registry.npmjs.org/sshpk/-/sshpk-1.16.1.tgz"

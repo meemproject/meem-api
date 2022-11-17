@@ -733,6 +733,10 @@ export enum TransactionType {
 	Custom = 'custom'
 }
 
+export enum QueueEvent {
+	RunTransaction = 'runTransaction'
+}
+
 
 export interface TweetMeemExtensionProperties {
 	meem_tweets_extension: {
