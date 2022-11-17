@@ -92,6 +92,7 @@ provider:
     ALCHEMY_API_KEY_MUMBAI: ${env:ALCHEMY_API_KEY_MUMBAI, ''}
     ARBITRUM_GAS_MULTIPLIER: ${env:ARBITRUM_GAS_MULTIPLIER, ''}
     MIN_GASE_PRICE_GWEI: ${env:MIN_GASE_PRICE_GWEI, '2'}
+    SQS_QUEUE_URL: ${env:SQS_QUEUE_URL, ''}
 
 package:
   excludeDevDependencies: true
