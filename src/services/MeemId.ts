@@ -19,7 +19,6 @@ import type User from '../models/User'
 import UserIdentity from '../models/UserIdentity'
 import type Wallet from '../models/Wallet'
 import { MeemAPI } from '../types/meem.generated'
-import { IMeemIdIntegrationVisibility } from '../types/shared/meem.shared'
 export default class MeemIdentityService {
 	public static async getNonce(options: { address: string }) {
 		// Generate a nonce and save it for the wallet

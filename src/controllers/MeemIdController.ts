@@ -162,8 +162,7 @@ export default class MeemIdController {
 				user,
 				metadata,
 				visibility,
-				identityIntegrationId: integrationId,
-				walletAddress: req.wallet.address
+				identityIntegrationId: integrationId
 			})
 
 			return res.json({
