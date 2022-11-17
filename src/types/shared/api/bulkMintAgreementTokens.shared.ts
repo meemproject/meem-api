@@ -1,5 +1,5 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { ITokenMetadataLike } from '../meem.shared'
+import { IMeemMetadataLike } from '../meem.shared'
 
 export namespace BulkMintAgreementTokens {
 	export interface IPathParams {
@@ -17,7 +17,7 @@ export namespace BulkMintAgreementTokens {
 	export interface IRequestBody {
 		tokens: {
 			/** Metadata object to be used for the minted Meem */
-			metadata?: ITokenMetadataLike
+			metadata?: IMeemMetadataLike
 
 			/** The address where the Meem will be minted to. */
 			to: string

@@ -456,7 +456,7 @@ export default class AgreementRoleService {
 
 			const builtData: {
 				to: string
-				metadata: MeemAPI.ITokenMetadataLike
+				metadata: MeemAPI.IMeemMetadataLike
 				ipfs?: string
 			}[] = []
 
@@ -466,11 +466,11 @@ export default class AgreementRoleService {
 					throw new Error('MISSING_ACCOUNT_ADDRESS')
 				}
 
-				if (!token.metadata?.meem_metadata_version) {
+				if (!token.metadata) {
 					throw new Error('INVALID_METADATA')
 				}
 
-				const validator = new Validator(token.metadata.meem_metadata_version)
+				const validator = new Validator(token.metadata)
 				const validatorResult = validator.validate(token.metadata)
 
 				if (!validatorResult.valid) {

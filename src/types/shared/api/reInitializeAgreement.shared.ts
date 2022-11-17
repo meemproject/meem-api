@@ -1,13 +1,5 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import {
-	IMeemProperties,
-	IAgreementBaseProperties,
-	IMeemContractMetadataLike,
-	ITokenMetadataLike,
-	IAgreementInitParams,
-	IMeemPermission,
-	IMeemSplit
-} from '../meem.shared'
+import { IMeemMetadataLike, IMeemPermission, IMeemSplit } from '../meem.shared'
 
 /** Create Meem Image */
 export namespace ReInitializeAgreement {
@@ -24,7 +16,7 @@ export namespace ReInitializeAgreement {
 
 	export interface IRequestBody {
 		/** Contract metadata */
-		metadata?: IMeemContractMetadataLike
+		metadata?: IMeemMetadataLike
 
 		/** The symbol for the token. If omitted, will use a slug of the name */
 		symbol?: string
@@ -54,7 +46,7 @@ export namespace ReInitializeAgreement {
 		shouldMintTokens?: boolean
 
 		/** Admin token metadata */
-		tokenMetadata?: ITokenMetadataLike
+		tokenMetadata?: IMeemMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

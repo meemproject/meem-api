@@ -1,5 +1,4 @@
 import coreExpress, { Express } from 'express'
-import multer from 'multer'
 import AgreementController from '../controllers/AgreementController'
 import AgreementRoleController from '../controllers/AgreementRoleController'
 import ConfigController from '../controllers/ConfigController'
@@ -16,8 +15,8 @@ export default (app: Express, _express: typeof coreExpress) => {
 	const router = extendedRouter()
 	const imageRouter = extendedRouter()
 
-	const storage = multer.memoryStorage()
-	const upload = multer({ storage })
+	// const storage = multer.memoryStorage()
+	// const upload = multer({ storage })
 
 	app.use('/api/1.0/', router)
 	app.use('/images/1.0/', imageRouter)
@@ -116,13 +115,13 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	imageRouter.postAsync('/meems/create-image', MeemController.createMeemImage)
 
-	imageRouter.postAsync(
-		'/metadata',
-		// TODO: Authentication of some kind?
-		// userLoggedInPolicy,
-		upload.any(),
-		MeemController.saveMetadata
-	)
+	// imageRouter.postAsync(
+	// 	'/metadata',
+	// 	// TODO: Authentication of some kind?
+	// 	// userLoggedInPolicy,
+	// 	upload.any(),
+	// 	MeemController.saveMetadata
+	// )
 
 	// Projects
 	// router.postAsync('/projects', MeemController.createMeemProject)

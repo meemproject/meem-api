@@ -77,7 +77,7 @@ export default class AgreementToken extends BaseModel<AgreementToken> {
 
 	public mintedAt!: Date
 
-	public metadata!: MeemAPI.ITokenMetadata
+	public metadata!: MeemAPI.IMeemMetadataLike
 
 	public mintedBy!: string
 

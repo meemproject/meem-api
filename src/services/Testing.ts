@@ -20,18 +20,17 @@ export default class EthersService {
 	}
 
 	public getMeemMetadata(
-		metadata: Partial<MeemAPI.ITokenMetadata>
-	): MeemAPI.ITokenMetadata {
+		metadata: Partial<MeemAPI.IMeemMetadataLike>
+	): MeemAPI.IMeemMetadataLike {
 		const imageUrl = this.getIpfsUrl()
 		return {
+			meem_metadata_type: 'MeemAgreement_Contract',
+			meem_metadata_version: '20221116',
 			name: metadata.name ?? this.faker.name.firstName(),
 			description: metadata.description ?? this.faker.lorem.paragraphs(),
 			external_url: metadata.external_url ?? this.faker.internet.url(),
 			image: metadata.image ?? imageUrl,
-			image_original: metadata.image_original ?? imageUrl,
-			meem_id: metadata.meem_id ?? uuidv4(),
-			meem_properties: metadata.meem_properties,
-			extension_properties: metadata.extension_properties
+			image_original: metadata.image_original ?? imageUrl
 		}
 	}
 

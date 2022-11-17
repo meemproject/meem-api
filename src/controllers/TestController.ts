@@ -192,12 +192,9 @@ export default class TestController {
 	}
 
 	public static async metadata(req: Request, res: Response) {
-		const contractMetadataValidator = new Validator(
-			'MeemClub_Contract_20220718'
-		)
-		const contractMetadataValidatorResult = contractMetadataValidator.validate({
-			meem_contract_type: 'meem-club',
-			meem_metadata_version: 'MeemClub_Contract_20220718',
+		const metadata = {
+			meem_metadata_type: 'MeemAgreement_Contract',
+			meem_metadata_version: '20221116',
 			name: 'metadataaaa',
 			description: 'asdfasdf',
 			image:
@@ -205,7 +202,11 @@ export default class TestController {
 			associations: [],
 			external_url: '',
 			application_instructions: ''
-		})
+		}
+
+		const contractMetadataValidator = new Validator(metadata)
+		const contractMetadataValidatorResult =
+			contractMetadataValidator.validate(metadata)
 
 		return res.json({
 			status: 'success',

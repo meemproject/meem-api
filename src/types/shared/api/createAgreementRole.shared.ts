@@ -1,14 +1,5 @@
-import { MeemAgreementRoleMetadata } from '../../MeemMetadata'
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import {
-	IMeemProperties,
-	IAgreementBaseProperties,
-	IMeemContractMetadataLike,
-	ITokenMetadataLike,
-	IAgreementInitParams,
-	IMeemPermission,
-	IMeemSplit
-} from '../meem.shared'
+import { IMeemMetadataLike, IMeemPermission, IMeemSplit } from '../meem.shared'
 
 /** Create Meem Image */
 export namespace CreateAgreementRole {
@@ -25,7 +16,7 @@ export namespace CreateAgreementRole {
 
 	export interface IRequestBody {
 		/** Contract metadata */
-		metadata: IMeemContractMetadataLike
+		metadata: IMeemMetadataLike
 
 		/** The chain id */
 		chainId: number
@@ -64,7 +55,7 @@ export namespace CreateAgreementRole {
 		members?: string[]
 
 		/** Token metadata */
-		tokenMetadata?: ITokenMetadataLike
+		tokenMetadata?: IMeemMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

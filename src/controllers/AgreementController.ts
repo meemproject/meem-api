@@ -1,5 +1,6 @@
 // import { randomBytes } from 'crypto'
 // eslint-disable-next-line import/no-extraneous-dependencies
+import { Validator } from '@meemproject/metadata'
 import AWS from 'aws-sdk'
 // import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
 import { Response } from 'express'
@@ -116,6 +117,26 @@ export default class AgreementController {
 
 		if (!req.body.metadata) {
 			throw new Error('MISSING_PARAMETERS')
+		}
+
+		if (!req.body.metadata) {
+			throw new Error('INVALID_METADATA')
+		}
+
+		try {
+			const contractMetadataValidator = new Validator(req.body.metadata)
+			const contractMetadataValidatorResult =
+				contractMetadataValidator.validate(req.body.metadata)
+
+			if (!contractMetadataValidatorResult.valid) {
+				log.crit(
+					contractMetadataValidatorResult.errors.map((e: any) => e.message)
+				)
+				throw new Error('INVALID_METADATA')
+			}
+		} catch (e) {
+			log.crit(e)
+			throw new Error('INVALID_METADATA')
 		}
 
 		await req.wallet.enforceTXLimit()

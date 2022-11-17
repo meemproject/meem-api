@@ -3,7 +3,6 @@ import Pinata, { PinataPinResponse } from '@pinata/sdk'
 // import BigNumber from 'bignumber.js'
 import type { ethers as Ethers } from 'ethers'
 import request from 'superagent'
-import { v4 as uuidv4, validate as validateUUID } from 'uuid'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class Web3 {
@@ -175,87 +174,87 @@ export default class Web3 {
 		return pinata
 	}
 
-	public static async saveMeemMetadata(data: {
-		imageBase64?: string
-		image?: Buffer
-		metadata: MeemAPI.ITokenMetadata | MeemAPI.ICreateMeemMetadata
-	}): Promise<{ metadata: MeemAPI.ITokenMetadata; tokenURI: string }> {
-		if (config.TESTING) {
-			const imageURI = services.testing.getIpfsUrl()
-			return {
-				metadata: services.testing.getMeemMetadata({
-					image: imageURI,
-					image_original: imageURI
-				}),
-				tokenURI: services.testing.getIpfsUrl()
-			}
-		}
+	// public static async saveMeemMetadata(data: {
+	// 	imageBase64?: string
+	// 	image?: Buffer
+	// 	metadata: MeemAPI.IMeemMetadataLike | MeemAPI.ICreateMeemMetadata
+	// }): Promise<{ metadata: MeemAPI.IMeemMetadataLike; tokenURI: string }> {
+	// 	if (config.TESTING) {
+	// 		const imageURI = services.testing.getIpfsUrl()
+	// 		return {
+	// 			metadata: services.testing.getMeemMetadata({
+	// 				image: imageURI,
+	// 				image_original: imageURI
+	// 			}),
+	// 			tokenURI: services.testing.getIpfsUrl()
+	// 		}
+	// 	}
 
-		this.validateCreateMeemMetadata(data.metadata)
+	// 	this.validateCreateMeemMetadata(data.metadata)
 
-		const imgData = data.imageBase64 ?? data.image?.toString('base64')
+	// 	const imgData = data.imageBase64 ?? data.image?.toString('base64')
 
-		if (!imgData) {
-			throw new Error('INVALID_IMAGE_TYPE')
-		}
+	// 	if (!imgData) {
+	// 		throw new Error('INVALID_IMAGE_TYPE')
+	// 	}
 
-		const meemMetadata = data.metadata as MeemAPI.ITokenMetadata
+	// 	const meemMetadata = data.metadata as MeemAPI.IMeemMetadataLike
 
-		const meemId = data.metadata.meem_id ?? uuidv4()
-		const isValid = validateUUID(meemId)
+	// 	const meemId = data.metadata.meem_id ?? uuidv4()
+	// 	const isValid = validateUUID(meemId)
 
-		if (!isValid) {
-			throw new Error('INVALID_METADATA')
-		}
+	// 	if (!isValid) {
+	// 		throw new Error('INVALID_METADATA')
+	// 	}
 
-		// const buffStream = new stream.PassThrough()
-		// buffStream.end(Buffer.from(imgData, 'base64'))
-		const buff = Buffer.from(imgData, 'base64')
-		const stream = Readable.from(buff)
-		// @ts-ignore
-		stream.path = `${meemId}/image.png`
+	// 	// const buffStream = new stream.PassThrough()
+	// 	// buffStream.end(Buffer.from(imgData, 'base64'))
+	// 	const buff = Buffer.from(imgData, 'base64')
+	// 	const stream = Readable.from(buff)
+	// 	// @ts-ignore
+	// 	stream.path = `${meemId}/image.png`
 
-		const imageResponse = await this.saveToPinata({
-			// file: Readable.from(Buffer.from(imgData, 'base64'))
-			// file: buffStream
-			file: stream
-		})
+	// 	const imageResponse = await this.saveToPinata({
+	// 		// file: Readable.from(Buffer.from(imgData, 'base64'))
+	// 		// file: buffStream
+	// 		file: stream
+	// 	})
 
-		const image = `ipfs://${imageResponse.IpfsHash}`
+	// 	const image = `ipfs://${imageResponse.IpfsHash}`
 
-		const externalUrl =
-			meemMetadata.external_url ?? `${config.MEEM_DOMAIN}/meems/${meemId}`
+	// 	const externalUrl =
+	// 		meemMetadata.external_url ?? `${config.MEEM_DOMAIN}/meems/${meemId}`
 
-		const storedMetadata: MeemAPI.ITokenMetadata = {
-			...data.metadata,
-			external_url: externalUrl,
-			meem_id: meemId,
-			image,
-			image_original:
-				meemMetadata.image && meemMetadata.image !== ''
-					? meemMetadata.image
-					: image
-		}
+	// 	const storedMetadata: MeemAPI.IMeemMetadataLike = {
+	// 		...data.metadata,
+	// 		external_url: externalUrl,
+	// 		meem_id: meemId,
+	// 		image,
+	// 		image_original:
+	// 			meemMetadata.image && meemMetadata.image !== ''
+	// 				? meemMetadata.image
+	// 				: image
+	// 	}
 
-		const metadataResponse = await this.saveToPinata({
-			json: storedMetadata
-		})
+	// 	const metadataResponse = await this.saveToPinata({
+	// 		json: storedMetadata
+	// 	})
 
-		// return {
-		// 	metadata: storedMetadata,
-		// 	tokenURI: metadataPath
-		// }
-		return {
-			metadata: storedMetadata,
-			tokenURI: `ipfs://${metadataResponse.IpfsHash}`
-		}
-	}
+	// 	// return {
+	// 	// 	metadata: storedMetadata,
+	// 	// 	tokenURI: metadataPath
+	// 	// }
+	// 	return {
+	// 		metadata: storedMetadata,
+	// 		tokenURI: `ipfs://${metadataResponse.IpfsHash}`
+	// 	}
+	// }
 
-	public static validateCreateMeemMetadata(metadata: Record<string, any>) {
-		if (!metadata.name || !metadata.description) {
-			throw new Error('INVALID_METADATA')
-		}
-	}
+	// public static validateCreateMeemMetadata(metadata: Record<string, any>) {
+	// 	if (!metadata.name || !metadata.description) {
+	// 		throw new Error('INVALID_METADATA')
+	// 	}
+	// }
 
 	public static async syncPins() {
 		const meems = await orm.models.AgreementToken.findAll({ limit: 5 })

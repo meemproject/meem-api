@@ -191,41 +191,8 @@ export interface IMeemSplit {
 	amount: number
 	lockedBy: string
 }
-
-export interface ITokenMetadataProperties {
-	root_token_uri?: string | null
-	root_token_address?: string | null
-	root_token_id?: string | null
-	root_token_metadata?: Record<string, any> | null
-	parent_token_uri?: string | null
-	parent_token_address?: string | null
-	parent_token_id?: string | null
-	parent_token_metadata?: Record<string, any> | null
-}
-
-export interface IAgreementAssociation {
-	meem_contract_type: string
-	address: string
-	tokenIds?: string[]
-}
-export interface ITokenMetadata {
-	name: string
-	description: string
-	external_url: string
-	image: string
-	image_original?: string
-	meem_id?: string
-	meem_properties?: ITokenMetadataProperties
-	extension_properties?: Record<string, any>
-	associations?: IAgreementAssociation[]
-}
-
-export interface ITokenMetadataLike {
-	meem_metadata_version: string
-	[key: string]: any
-}
-export interface IMeemContractMetadataLike {
-	meem_contract_type: string
+export interface IMeemMetadataLike {
+	meem_metadata_type: string
 	meem_metadata_version: string
 	[key: string]: any
 }
@@ -276,48 +243,48 @@ export interface IEnjinProperties {
 }
 
 /** Based on Opensea metadata standards: https://docs.opensea.io/docs/metadata-standards */
-export interface ICreateMeemMetadata {
-	/** Name of the item. */
-	name: string
+// export interface ICreateMeemMetadata {
+// 	/** Name of the item. */
+// 	name: string
 
-	/** A human readable description of the item. Markdown is supported. */
-	description: string
+// 	/** A human readable description of the item. Markdown is supported. */
+// 	description: string
 
-	/** Background color of the item. Must be a six-character hexadecimal without a pre-pended #. */
-	background_color?: string
+// 	/** Background color of the item. Must be a six-character hexadecimal without a pre-pended #. */
+// 	background_color?: string
 
-	/** An external URL */
-	external_url?: string
+// 	/** An external URL */
+// 	external_url?: string
 
-	/**
-	 * A URL to a multi-media attachment for the item. The file extensions GLTF, GLB, WEBM, MP4, M4V, OGV, and OGG are supported, along with the audio-only extensions MP3, WAV, and OGA.
-	 *
-	 * Animation_url also supports HTML pages, allowing you to build rich experiences and interactive NFTs using JavaScript canvas, WebGL, and more. Scripts and relative paths within the HTML page are now supported. However, access to browser extensions is not supported. */
-	animation_url?: string
+// 	/**
+// 	 * A URL to a multi-media attachment for the item. The file extensions GLTF, GLB, WEBM, MP4, M4V, OGV, and OGG are supported, along with the audio-only extensions MP3, WAV, and OGA.
+// 	 *
+// 	 * Animation_url also supports HTML pages, allowing you to build rich experiences and interactive NFTs using JavaScript canvas, WebGL, and more. Scripts and relative paths within the HTML page are now supported. However, access to browser extensions is not supported. */
+// 	animation_url?: string
 
-	/** A URL to a YouTube video. */
-	youtube_url?: string
+// 	/** A URL to a YouTube video. */
+// 	youtube_url?: string
 
-	/** Opensea metadata standard attributes */
-	attributes?: (
-		| IOpenseaStringTrait
-		| IOpenseaNumericTrait
-		| IOpenseaDateTrait
-	)[]
+// 	/** Opensea metadata standard attributes */
+// 	attributes?: (
+// 		| IOpenseaStringTrait
+// 		| IOpenseaNumericTrait
+// 		| IOpenseaDateTrait
+// 	)[]
 
-	properties?: IEnjinProperties
+// 	properties?: IEnjinProperties
 
-	generation?: number
+// 	generation?: number
 
-	/** UUID to associate w/ this Meem */
-	meem_id?: string
+// 	/** UUID to associate w/ this Meem */
+// 	meem_id?: string
 
-	/** Additional meem properties. For trusted minters only. */
-	meem_properties?: ITokenMetadataProperties
+// 	/** Additional meem properties. For trusted minters only. */
+// 	meem_properties?: IMeemMetadataLikeProperties
 
-	/** Extension properties. For trusted minters only. */
-	extension_properties?: Record<string, any>
-}
+// 	/** Extension properties. For trusted minters only. */
+// 	extension_properties?: Record<string, any>
+// }
 
 export interface IMeemPermission {
 	permission: Permission
@@ -437,7 +404,7 @@ export interface IMetadataMeem extends IMeem {
 	numCopies: number
 	numRemixes: number
 	addressReactions?: IReaction[]
-	metadata: ITokenMetadata
+	metadata: IMeemMetadataLike
 	defaultTwitterUser?: {
 		id: string
 		username: string

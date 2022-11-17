@@ -452,9 +452,7 @@ export default class AgreementService {
 			throw new Error('INVALID_METADATA')
 		}
 
-		const contractMetadataValidator = new Validator(
-			metadata.meem_metadata_version
-		)
+		const contractMetadataValidator = new Validator(metadata)
 		const contractMetadataValidatorResult =
 			contractMetadataValidator.validate(metadata)
 
@@ -465,14 +463,8 @@ export default class AgreementService {
 			throw new Error('INVALID_METADATA')
 		}
 
-		if (data.shouldMintTokens && !tokenMetadata?.meem_metadata_version) {
-			throw new Error('INVALID_METADATA')
-		}
-
 		if (data.shouldMintTokens && tokenMetadata) {
-			const tokenMetadataValidator = new Validator(
-				tokenMetadata.meem_metadata_version
-			)
+			const tokenMetadataValidator = new Validator(tokenMetadata)
 			const tokenMetadataValidatorResult =
 				tokenMetadataValidator.validate(tokenMetadata)
 
@@ -665,7 +657,7 @@ export default class AgreementService {
 
 			const builtData: {
 				to: string
-				metadata: MeemAPI.ITokenMetadataLike
+				metadata: MeemAPI.IMeemMetadataLike
 				ipfs?: string
 			}[] = []
 
@@ -675,11 +667,11 @@ export default class AgreementService {
 					throw new Error('MISSING_ACCOUNT_ADDRESS')
 				}
 
-				if (!token.metadata?.meem_metadata_version) {
+				if (!token.metadata) {
 					throw new Error('INVALID_METADATA')
 				}
 
-				const validator = new Validator(token.metadata.meem_metadata_version)
+				const validator = new Validator(token.metadata)
 				const validatorResult = validator.validate(token.metadata)
 
 				if (!validatorResult.valid) {

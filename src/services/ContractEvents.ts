@@ -208,9 +208,7 @@ export default class ContractEvent {
 
 		if (metadata.meem_contract_type) {
 			// Don't index contract if not a valid meem_contract_type
-			const contractMetadataValidator = new Validator(
-				metadata.meem_metadata_version
-			)
+			const contractMetadataValidator = new Validator(metadata)
 			const contractMetadataValidatorResult =
 				contractMetadataValidator.validate(metadata)
 
@@ -981,7 +979,7 @@ export default class ContractEvent {
 
 		const metadata = (await services.meem.getErc721Metadata(
 			tokenURI
-		)) as MeemAPI.ITokenMetadata
+		)) as MeemAPI.IMeemMetadataLike
 
 		const data: Record<string, any> = {
 			id: uuidv4(),
@@ -1061,7 +1059,7 @@ export default class ContractEvent {
 
 		const metadata = (await services.meem.getErc721Metadata(
 			tokenURI
-		)) as MeemAPI.ITokenMetadata
+		)) as MeemAPI.IMeemMetadataLike
 
 		const data: Record<string, any> = {
 			id: uuidv4(),
@@ -1155,7 +1153,7 @@ export default class ContractEvent {
 
 	// 	const metadata = (await services.meem.getErc721Metadata(
 	// 		tokenURI
-	// 	)) as MeemAPI.ITokenMetadata
+	// 	)) as MeemAPI.IMeemMetadataLike
 
 	// 	// meem.data = meemData.data
 	// 	meem.metadata = metadata

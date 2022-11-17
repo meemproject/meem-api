@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
-import { MeemAgreementExtensionMetadata } from '../types/MeemMetadata'
 import type { IModels } from '../types/models'
+import { IMeemMetadataLike } from '../types/shared/meem.shared'
 import Agreement from './Agreement'
 export default class AgreementExtension extends BaseModel<AgreementExtension> {
 	public static readonly modelName = 'AgreementExtension'
@@ -39,7 +39,7 @@ export default class AgreementExtension extends BaseModel<AgreementExtension> {
 
 	public isEnabled!: boolean
 
-	public metadata!: MeemAgreementExtensionMetadata
+	public metadata!: IMeemMetadataLike
 
 	public AgreementId!: string
 
