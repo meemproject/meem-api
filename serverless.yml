@@ -100,6 +100,7 @@ package:
     - build/**
     - src/types/meem.generated.ts
     - src/lib/meem-badge.png
+    - .env
   exclude:
     - .circleci/**
     - .vscode/**
