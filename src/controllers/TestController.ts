@@ -4,6 +4,7 @@
 import { Validator } from '@meemproject/metadata'
 import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import { ethers, ethers as Ethers } from 'ethers'
+import { encodeSingle, TransactionType } from 'ethers-multisend'
 import { Request, Response } from 'express'
 import keccak256 from 'keccak256'
 import { DateTime, Duration } from 'luxon'
@@ -11,7 +12,9 @@ import { MerkleTree } from 'merkletreejs'
 import { Op } from 'sequelize'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
+import meemABI from '../abis/Meem.json'
 import { Constructor } from '../serverless/cron'
+import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class TestController {
@@ -192,12 +195,9 @@ export default class TestController {
 	}
 
 	public static async metadata(req: Request, res: Response) {
-		const contractMetadataValidator = new Validator(
-			'MeemClub_Contract_20220718'
-		)
-		const contractMetadataValidatorResult = contractMetadataValidator.validate({
-			meem_contract_type: 'meem-club',
-			meem_metadata_version: 'MeemClub_Contract_20220718',
+		const metadata = {
+			meem_metadata_type: 'MeemAgreement_Contract',
+			meem_metadata_version: '20221116',
 			name: 'metadataaaa',
 			description: 'asdfasdf',
 			image:
@@ -205,7 +205,11 @@ export default class TestController {
 			associations: [],
 			external_url: '',
 			application_instructions: ''
-		})
+		}
+
+		const contractMetadataValidator = new Validator(metadata)
+		const contractMetadataValidatorResult =
+			contractMetadataValidator.validate(metadata)
 
 		return res.json({
 			status: 'success',
@@ -226,14 +230,14 @@ export default class TestController {
 
 		// gnosisSafeAbi is the Gnosis Safe ABI in JSON format,
 		// you can find an example here: https://github.com/gnosis/safe-deployments/blob/main/src/assets/v1.1.1/gnosis_safe.json#L16
-		const provider = await services.ethers.getProvider({
+		const { provider, wallet } = await services.ethers.getProvider({
 			chainId: +(req.query.chainId as string) as number
 		})
-		const signer = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
+
 		const proxyContract = new ethers.Contract(
 			proxyContractAddress,
 			GnosisSafeProxyABI,
-			signer
+			wallet
 		)
 		const gnosisInterface = new ethers.utils.Interface(GnosisSafeABI)
 		const safeSetupData = gnosisInterface.encodeFunctionData('setup', [
@@ -313,10 +317,65 @@ export default class TestController {
 	}
 
 	public static async releaseLock(req: Request, res: Response) {
-		await services.ethers.releaseLock(+(req.query.chainId as string))
+		// await services.ethers.releaseLock(+(req.query.chainId as string))
 
 		return res.json({
 			status: 'success'
+		})
+	}
+
+	public static async mintPKP(req: Request, res: Response) {
+		const tx = await services.lit.mintPKP()
+
+		return res.json({
+			status: 'success',
+			tx
+		})
+	}
+
+	public static async getEthAddress(req: Request, res: Response) {
+		const ethAddress = await services.lit.getEthAddress(
+			req.query.tokenId as string
+		)
+
+		return res.json({
+			status: 'success',
+			ethAddress
+		})
+	}
+
+	public static async testTxEncoding(req: Request, res: Response) {
+		// const functionSignature = ethers.utils
+		// 	.id('mint((address,string,uint8))')
+		// 	.substring(0, 10)
+		const m = await services.agreement.getAgreementContract({
+			chainId: 5,
+			address: '0xf5a0fD628AFe07D8c3736762Bd65Ae009F23e335'
+		})
+
+		const x = m.interface.functions['setMaxSupply(uint256)'].format()
+
+		const encoded = encodeSingle({
+			id: '1',
+			abi: JSON.stringify(meemABI),
+			functionSignature: 'mint((address,string,uint8))',
+			to: '0xf5a0fD628AFe07D8c3736762Bd65Ae009F23e335',
+			value: '0',
+			inputValues: {
+				params: [
+					'0xbA343C26ad4387345edBB3256e62f4bB73d68a04',
+					'https://meem.wtf',
+					'0'
+				]
+			},
+			type: TransactionType.callContract
+		})
+
+		console.log({ x, encoded })
+
+		return res.json({
+			status: 'success',
+			encoded
 		})
 	}
 }

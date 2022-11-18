@@ -1,5 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import Agreement from '../services/Agreement'
+import AgreementRole from '../services/AgreementRole'
 import Child from '../services/Child'
 import ContractEvents from '../services/ContractEvents'
 import Db from '../services/Db'
@@ -9,12 +11,12 @@ import Git from '../services/Git'
 import Guild from '../services/Guild'
 import Ipfs from '../services/Ipfs'
 import Lint from '../services/Lint'
+import Lit from '../services/Lit'
 import Meem from '../services/Meem'
-import MeemContract from '../services/MeemContract'
-import MeemContractRole from '../services/MeemContractRole'
 import MeemId from '../services/MeemId'
 // import Prompts from '../services/Prompts'
 import Puppeteer from '../services/Puppeteer'
+import Queue from '../services/Queue'
 import Scraper from '../services/Scraper'
 import Storage from '../services/Storage'
 import Testing from '../services/Testing'
@@ -33,12 +35,13 @@ declare global {
 		let git: typeof Git
 		let ipfs: typeof Ipfs
 		let lint: typeof Lint
+		let lit: typeof Lit
 		let meem: typeof Meem
-		let meemContract: typeof MeemContract
-		let meemContractRole: typeof MeemContractRole
+		let agreement: typeof Agreement
+		let agreementRole: typeof AgreementRole
 		let meemId: typeof MeemId
-		// let prompts: typeof Prompts
 		let puppeteer: Puppeteer
+		let queue: typeof Queue
 		let scraper: typeof Scraper
 		let storage: typeof Storage
 		let testing: Testing

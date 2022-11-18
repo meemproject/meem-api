@@ -13,7 +13,7 @@ let request: SuperTest<Test>
 
 export const handle = async (
 	body: MeemAPI.v1.CreateClubSafe.IRequestBody & {
-		meemContractId: string
+		agreementId: string
 		senderWalletAddress: string
 	},
 	context: AWSLambda.Context
@@ -46,7 +46,7 @@ export const handle = async (
 			log.crit('AWS_WEBSOCKET_GATEWAY_URL is not set')
 		}
 
-		await services.meemContract.createClubSafe(body)
+		await services.agreement.createClubSafe(body)
 	} catch (e: any) {
 		log.crit(e)
 	}

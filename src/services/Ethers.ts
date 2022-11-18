@@ -8,7 +8,7 @@ export default class EthersService {
 	public static shouldInitialize = true
 
 	// private providers: Record<number, ethers.providers.Provider> = {}
-	private providers: Record<number, Alchemy> = {}
+	private providers: Record<number, { provider: Alchemy; wallet: Wallet }> = {}
 
 	private ethers: typeof ethers
 
@@ -37,9 +37,7 @@ export default class EthersService {
 		return null
 	}
 
-	public async getProvider(options: {
-		chainId: ethers.BigNumberish
-	}): Promise<Alchemy> {
+	public async getProvider(options: { chainId: ethers.BigNumberish }) {
 		const chainId = ethers.BigNumber.from(options.chainId)
 		const chainIdNum = chainId.toNumber()
 
@@ -89,6 +87,13 @@ export default class EthersService {
 				break
 			}
 
+			case 42220: {
+				alchemyProvider = new Alchemy({
+					url: config.JSON_RPC_CELO
+				})
+				break
+			}
+
 			case 420: {
 				alchemyProvider = new Alchemy({
 					apiKey: config.ALCHEMY_API_KEY_OPTIMISM_GOERLI,
@@ -121,9 +126,11 @@ export default class EthersService {
 		}
 
 		// this.providers[chainIdNum] = provider
-		this.providers[chainIdNum] = alchemyProvider
+		const wallet = new Wallet(config.WALLET_PRIVATE_KEY, alchemyProvider)
 
-		return alchemyProvider
+		this.providers[chainIdNum] = { provider: alchemyProvider, wallet }
+
+		return { provider: alchemyProvider, wallet }
 	}
 
 	public getSelectors(abi: any[]): string[] {
@@ -139,22 +146,6 @@ export default class EthersService {
 		})
 
 		return sigHashes
-	}
-
-	public async acquireLock(chainId: number) {
-		try {
-			await orm.acquireLock(`${config.WALLET_LOCK_KEY}_${chainId}`)
-		} catch (e) {
-			log.warn(e)
-		}
-	}
-
-	public async releaseLock(chainId: number) {
-		try {
-			await orm.releaseLock(`${config.WALLET_LOCK_KEY}_${chainId}`)
-		} catch (e) {
-			log.warn(e)
-		}
 	}
 
 	public async runTransaction<T extends (...args: any[]) => any>(options: {
@@ -187,8 +178,9 @@ export default class EthersService {
 				})
 			}
 
-			const provider = await this.getProvider({ chainId })
-			const wallet = new Wallet(config.WALLET_PRIVATE_KEY, provider)
+			const { wallet, provider } = await services.ethers.getProvider({
+				chainId
+			})
 
 			const providerTxCount = await provider.core.getTransactionCount(
 				wallet.address,
@@ -245,6 +237,22 @@ export default class EthersService {
 		} catch (e) {
 			await this.releaseLock(chainId)
 			throw e
+		}
+	}
+
+	private async acquireLock(chainId: number) {
+		try {
+			await orm.acquireLock(`${config.WALLET_LOCK_KEY}_${chainId}`)
+		} catch (e) {
+			log.warn(e)
+		}
+	}
+
+	private async releaseLock(chainId: number) {
+		try {
+			await orm.releaseLock(`${config.WALLET_LOCK_KEY}_${chainId}`)
+		} catch (e) {
+			log.warn(e)
 		}
 	}
 }

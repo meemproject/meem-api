@@ -1,55 +1,15 @@
 import * as path from 'path'
-import { Validator } from '@meemproject/metadata'
-import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import { ethers as Ethers } from 'ethers'
 import _ from 'lodash'
 import sharp from 'sharp'
 import request from 'superagent'
-import { v4 as uuidv4 } from 'uuid'
 import ERC721ABI from '../abis/ERC721.json'
 import meemABI from '../abis/Meem.json'
-import errors from '../config/errors'
 import meemAccessListTesting from '../lib/meem-access-testing.json'
 import meemAccessList from '../lib/meem-access.json'
-import Wallet from '../models/Wallet'
 import { ERC721 } from '../types/ERC721'
 import { Mycontract } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
-import { MeemMetadataStorageProvider } from '../types/shared/meem.shared'
-
-function errorcodeToErrorString(contractErrorName: string) {
-	const allErrors: Record<string, any> = config.errors
-	const errorKeys = Object.keys(allErrors)
-	const errIdx = errorKeys.findIndex(
-		k => allErrors[k].contractErrorCode === contractErrorName
-	)
-	if (errIdx > -1) {
-		return errorKeys[errIdx]
-	}
-	return 'UNKNOWN_CONTRACT_ERROR'
-}
-
-function handleStringErrorKey(errorKey: string) {
-	let err = config.errors.SERVER_ERROR
-	// @ts-ignore
-	if (errorKey && config.errors[errorKey]) {
-		// @ts-ignore
-		err = config.errors[errorKey]
-	} else {
-		log.warn(
-			`errorResponder Middleware: Invalid error key specified: ${errorKey}`
-		)
-	}
-
-	return {
-		code: errorKey,
-		status: 'failure',
-		httpCode: 500,
-		reason: err.reason,
-		friendlyReason: err.friendlyReason
-	}
-}
-
 export default class MeemService {
 	/** Get generic ERC721 contract instance */
 	public static async erc721Contract(options: {
@@ -58,13 +18,11 @@ export default class MeemService {
 	}) {
 		const ethers = services.ethers.getInstance()
 		const { networkName, address } = options
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId: MeemAPI.networkNameToChain(
 				networkName ?? MeemAPI.NetworkName.Mainnet
 			)
 		})
-
-		const wallet = new AlchemyWallet(config.WALLET_PRIVATE_KEY, provider)
 
 		const contract = new ethers.Contract(address, ERC721ABI, wallet) as ERC721
 
@@ -126,7 +84,7 @@ export default class MeemService {
 	}
 
 	/** Get a Meem contract instance */
-	public static async getMeemContract(options: {
+	public static async getAgreement(options: {
 		address: string
 		chainId: number
 		walletPrivateKey?: string
@@ -144,22 +102,17 @@ export default class MeemService {
 			return c as Mycontract
 		}
 
-		const walletPrivateKey =
-			options?.walletPrivateKey ?? config.WALLET_PRIVATE_KEY
-
-		const provider = await services.ethers.getProvider({
+		const { wallet } = await services.ethers.getProvider({
 			chainId
 		})
 
-		const wallet = new AlchemyWallet(walletPrivateKey, provider)
-
-		const meemContract = new ethers.Contract(
+		const agreement = new ethers.Contract(
 			address,
 			meemABI,
 			wallet
 		) as unknown as Mycontract
 
-		return meemContract
+		return agreement
 	}
 
 	public static meemInterface() {
@@ -265,353 +218,6 @@ export default class MeemService {
 		}
 	}
 
-	public static async saveMeemMetadataasync(
-		options: {
-			name?: string
-			description: string
-			imageBase64: string
-			collectionName?: string
-			meemId?: string
-			extensionProperties?: MeemAPI.IMeemMetadata['extension_properties']
-		},
-		storageProvider?: MeemMetadataStorageProvider
-	): Promise<{ metadata: MeemAPI.IMeemMetadata; tokenURI: string }> {
-		const {
-			name,
-			description,
-			imageBase64,
-			collectionName,
-			meemId,
-			extensionProperties
-		} = options
-
-		const id = meemId || uuidv4()
-
-		const metadata: MeemAPI.ICreateMeemMetadata = {
-			name: collectionName ? `${collectionName} – ${name}` : `${name}`,
-			description,
-			external_url: `${config.MEEM_DOMAIN}/meems/${id}`,
-			meem_id: meemId,
-			...(extensionProperties && {
-				extension_properties: extensionProperties
-			})
-		}
-
-		switch (storageProvider) {
-			case MeemMetadataStorageProvider.Git:
-				return services.git.saveMeemMetadata({
-					imageBase64,
-					metadata,
-					meemId: id
-				})
-			default:
-				return services.web3.saveMeemMetadata({
-					imageBase64,
-					metadata
-				})
-		}
-	}
-
-	/** Mint a Meem */
-	public static async mintOriginalMeem(
-		data: MeemAPI.v1.MintOriginalMeem.IRequestBody & {
-			mintedBy: string
-		}
-	): Promise<{
-		toAddress: string
-		tokenURI: string
-		tokenId: number
-		transactionHash: string
-	}> {
-		try {
-			if (!data.meemContractAddress) {
-				throw new Error('MISSING_CONTRACT_ADDRESS')
-			}
-
-			if (!data.to) {
-				throw new Error('MISSING_ACCOUNT_ADDRESS')
-			}
-
-			if (!data.metadata?.meem_metadata_version) {
-				throw new Error('INVALID_METADATA')
-			}
-
-			let wallet = await orm.models.Wallet.findByAddress<Wallet>(data.mintedBy)
-
-			if (!wallet) {
-				wallet = await orm.models.Wallet.create({
-					address: data.mintedBy
-				})
-			}
-
-			const validator = new Validator(data.metadata.meem_metadata_version)
-			const validatorResult = validator.validate(data.metadata)
-
-			if (!validatorResult.valid) {
-				log.crit(validatorResult.errors.map((e: any) => e.message))
-				throw new Error('INVALID_METADATA')
-			}
-
-			const meemContract = await this.getMeemContract({
-				address: data.meemContractAddress.toLowerCase(),
-				chainId: data.chainId
-			})
-
-			const result = await services.web3.saveToPinata({
-				json: data.metadata
-			})
-
-			const tokenURI = `ipfs://${result.IpfsHash}`
-
-			const mintParams: Parameters<Mycontract['mintWithProof']> = [
-				{
-					to: data.to.toLowerCase(),
-					tokenURI,
-					tokenType: MeemAPI.MeemType.Original,
-					proof: []
-				}
-			]
-
-			log.debug('Minting meem w/ params', { mintParams })
-
-			// const mintTx = await meemContract.mint(...mintParams)
-			const mintTx = await services.ethers.runTransaction({
-				chainId: data.chainId,
-				fn: meemContract.mint.bind(meemContract),
-				params: mintParams,
-				gasLimit: Ethers.BigNumber.from(config.MINT_GAS_LIMIT)
-			})
-
-			log.debug(`Minting w/ transaction hash: ${mintTx.hash}`)
-
-			await orm.models.Transaction.create({
-				hash: mintTx.hash,
-				chainId: data.chainId,
-				WalletId: wallet.id
-			})
-
-			const receipt = await mintTx.wait()
-
-			const transferEvent = receipt.events?.find(e => e.event === 'Transfer')
-
-			if (transferEvent && transferEvent.args && transferEvent.args[2]) {
-				const tokenId = (transferEvent.args[2] as Ethers.BigNumber).toNumber()
-				const returnData = {
-					toAddress: data.to.toLowerCase(),
-					tokenURI: 'TODO: tokenURI is base64 encoded JSON',
-					tokenId,
-					transactionHash: receipt.transactionHash
-				}
-				await sockets?.emit({
-					subscription: MeemAPI.MeemEvent.MeemMinted,
-					eventName: MeemAPI.MeemEvent.MeemMinted,
-					data: returnData
-				})
-
-				return returnData
-			}
-
-			throw new Error('TRANSFER_EVENT_NOT_FOUND')
-		} catch (e) {
-			const err = e as any
-
-			log.warn(err, data)
-
-			if (err.error?.error?.body) {
-				let errStr = 'UNKNOWN_CONTRACT_ERROR'
-				try {
-					const body = JSON.parse(err.error.error.body)
-					log.warn(body)
-					const inter = services.meem.meemInterface()
-					const errInfo = inter.parseError(body.error.data)
-					errStr = errorcodeToErrorString(errInfo.name)
-				} catch (parseError) {
-					// Unable to parse
-					log.crit('Unable to parse error.')
-				}
-				const error = handleStringErrorKey(errStr)
-				await sockets?.emitError(error, data.to)
-				throw new Error(errStr)
-			}
-			if (err.message) {
-				const error = handleStringErrorKey(err.message)
-				await sockets?.emitError(error, data.to)
-				throw new Error(err.message)
-			}
-			await sockets?.emitError(errors.SERVER_ERROR, data.to)
-			throw new Error('SERVER_ERROR')
-		}
-	}
-
-	/** Mint a Meem */
-	public static async bulkMint(
-		data: MeemAPI.v1.BulkMint.IRequestBody & {
-			mintedBy: string
-			meemContractId: string
-		}
-	) {
-		try {
-			if (!data.meemContractId) {
-				throw new Error('MISSING_CONTRACT_ADDRESS')
-			}
-
-			const [meemContract, wallet] = await Promise.all([
-				orm.models.MeemContract.findOne({
-					where: {
-						id: data.meemContractId
-					}
-				}),
-				orm.models.Wallet.findByAddress<Wallet>(data.mintedBy)
-			])
-
-			if (!wallet) {
-				throw new Error('WALLET_NOT_FOUND')
-			}
-
-			if (!meemContract) {
-				throw new Error('MEEM_CONTRACT_NOT_FOUND')
-			}
-
-			const builtData: {
-				to: string
-				metadata: MeemAPI.IMeemMetadataLike
-				ipfs?: string
-			}[] = []
-
-			// Validate metadata
-			data.tokens.forEach(token => {
-				if (!token.to) {
-					throw new Error('MISSING_ACCOUNT_ADDRESS')
-				}
-
-				if (!token.metadata?.meem_metadata_version) {
-					throw new Error('INVALID_METADATA')
-				}
-
-				const validator = new Validator(token.metadata.meem_metadata_version)
-				const validatorResult = validator.validate(token.metadata)
-
-				if (!validatorResult.valid) {
-					log.crit(validatorResult.errors.map((e: any) => e.message))
-					throw new Error('INVALID_METADATA')
-				}
-
-				builtData.push({
-					...token,
-					metadata: token.metadata
-				})
-			})
-
-			// Pin to IPFS
-			for (let i = 0; i < builtData.length; i++) {
-				const item = builtData[i]
-				const result = await services.web3.saveToPinata({
-					json: item.metadata
-				})
-				item.ipfs = `ipfs://${result.IpfsHash}`
-			}
-
-			const contract = await this.getMeemContract({
-				address: meemContract.address,
-				chainId: meemContract.chainId
-			})
-
-			const mintParams: Parameters<Mycontract['bulkMint']> = [
-				builtData.map(item => ({
-					to: item.to,
-					tokenType: MeemAPI.MeemType.Original,
-					tokenURI: item.ipfs as string
-				}))
-			]
-
-			log.debug('Bulk Minting meem w/ params', { mintParams })
-
-			const mintTx = await services.ethers.runTransaction({
-				chainId: meemContract.chainId,
-				fn: contract.bulkMint.bind(contract),
-				params: mintParams,
-				gasLimit: Ethers.BigNumber.from(config.MINT_GAS_LIMIT)
-			})
-
-			log.debug(`Bulk Minting w/ transaction hash: ${mintTx.hash}`)
-
-			await orm.models.Transaction.create({
-				hash: mintTx.hash,
-				chainId: meemContract.chainId,
-				WalletId: wallet.id
-			})
-
-			await mintTx.wait()
-		} catch (e) {
-			const err = e as any
-			log.warn(err, data)
-
-			await sockets?.emitError(errors.SERVER_ERROR, data.mintedBy)
-			throw new Error('SERVER_ERROR')
-		}
-	}
-
-	public static async isValidMeemProject(options: {
-		chain: MeemAPI.Chain
-		contractAddress: string
-	}) {
-		const { chain, contractAddress } = options
-		const isMeemToken = contractAddress === config.MEEM_PROXY_ADDRESS
-		if (isMeemToken) {
-			return true
-		}
-		const meemRegistry = await this.getWhitelist()
-
-		const isValidMeemProject = Object.keys(meemRegistry).find(
-			contractId =>
-				meemRegistry[contractId].chain === chain &&
-				contractId.toLowerCase() === contractAddress.toLowerCase()
-		)
-
-		return !!isValidMeemProject
-	}
-
-	public static async isAccessAllowed(options: {
-		chain: MeemAPI.Chain
-		accountAddress: string
-		contractAddress: string
-	}) {
-		const { accountAddress, contractAddress } = options
-		const chain = +options.chain
-		let isAccessAllowed = false
-		const access: any = {}
-
-		const accessList = await this.getAccessList()
-
-		const accountAccessKey = Object.keys(accessList.addresses).find(
-			address => address.toLowerCase() === accountAddress.toLowerCase()
-		)
-
-		const contractAccessKey = Object.keys(accessList.tokens).find(
-			contractId => contractId.toLowerCase() === contractAddress.toLowerCase()
-		)
-
-		if (contractAccessKey) {
-			const contractAccess = accessList.tokens[contractAccessKey]
-			isAccessAllowed =
-				contractAccess.chain === chain &&
-				(contractAccess.allAddresses ||
-					!!contractAccess.addresses?.includes(accountAddress))
-
-			access.contractAccess = contractAccess
-		}
-
-		if (!contractAccessKey && accountAccessKey) {
-			const accountAccess = accessList.addresses[accountAccessKey]
-			isAccessAllowed =
-				accountAccess.allTokens ||
-				!!accountAccess.tokens?.includes(contractAddress)
-			access.accountAccess = accountAccess
-		}
-
-		return isAccessAllowed
-	}
-
 	public static async getContractInfo(options: {
 		contractAddress: string
 		chainId: number
@@ -646,16 +252,16 @@ export default class MeemService {
 		let rootContractMetadata = parentContractMetadata
 
 		if (isMeemToken) {
-			const meemContract = await this.getMeemContract({
+			const agreement = await this.getAgreement({
 				address: contractAddress,
 				chainId
 			})
-			// const meem = await meemContract.getMeem(tokenId)
+			// const meem = await agreement.getMeem(tokenId)
 			// rootTokenAddress = meem.root
 			// rootTokenId = meem.rootTokenId
 
 			const meemInfo = await this.getMetadata({
-				contract: meemContract,
+				contract: agreement,
 				tokenId
 			})
 

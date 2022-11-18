@@ -1,17 +1,6 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import AWS from 'aws-sdk'
 import { Response } from 'express'
-import { DateTime } from 'luxon'
-import { Op } from 'sequelize'
-import sharp from 'sharp'
 import TwitterApi from 'twitter-api-v2'
-import MeemContract from '../models/MeemContract'
-import {
-	IAPIRequestPaginated,
-	IAuthenticatedRequest,
-	IRequest,
-	IResponse
-} from '../types/app'
+import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class MeemController {
@@ -73,65 +62,6 @@ export default class MeemController {
 		})
 	}
 
-	public static async mintOriginalMeem(
-		req: IRequest<MeemAPI.v1.MintOriginalMeem.IDefinition>,
-		res: IResponse<MeemAPI.v1.MintOriginalMeem.IResponseBody>
-	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
-
-		await req.wallet.enforceTXLimit()
-
-		const meemContract =
-			await orm.models.MeemContract.findByAddress<MeemContract>(
-				req.body.meemContractAddress,
-				[{ model: orm.models.Wallet, include: [orm.models.MeemContractWallet] }]
-			)
-
-		if (!meemContract) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
-		}
-
-		const canMint = await meemContract.canMint(req.wallet.address)
-
-		if (!canMint) {
-			throw new Error('MINTING_ACCESS_DENIED')
-		}
-
-		if (config.DISABLE_ASYNC_MINTING) {
-			try {
-				await services.meem.mintOriginalMeem({
-					...req.body,
-					mintedBy: req.wallet.address
-				})
-			} catch (e) {
-				log.crit(e)
-				sockets?.emitError(config.errors.MINT_FAILED, req.wallet.address)
-			}
-		} else {
-			const lambda = new AWS.Lambda({
-				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-				region: 'us-east-1'
-			})
-			await lambda
-				.invoke({
-					InvocationType: 'Event',
-					FunctionName: config.LAMBDA_MINT_ORIGINAL_FUNCTION,
-					Payload: JSON.stringify({
-						...req.body,
-						mintedBy: req.wallet.address
-					})
-				})
-				.promise()
-		}
-
-		return res.json({
-			status: 'success'
-		})
-	}
-
 	public static async createMeemImage(
 		req: IRequest<MeemAPI.v1.CreateMeemImage.IDefinition>,
 		res: IResponse<MeemAPI.v1.CreateMeemImage.IResponseBody>
@@ -185,160 +115,61 @@ export default class MeemController {
 		res.send(buffer)
 	}
 
-	public static async saveMetadata(
-		req: IAuthenticatedRequest<MeemAPI.v1.SaveMetadata.IDefinition>,
-		res: IResponse<MeemAPI.v1.SaveMetadata.IResponseBody>
-	): Promise<any> {
-		let createMetadata: MeemAPI.ICreateMeemMetadata
+	// public static async saveMetadata(
+	// 	req: IAuthenticatedRequest<MeemAPI.v1.SaveMetadata.IDefinition>,
+	// 	res: IResponse<MeemAPI.v1.SaveMetadata.IResponseBody>
+	// ): Promise<any> {
+	// 	let createMetadata: MeemAPI.ICreateMeemMetadata
 
-		try {
-			createMetadata = JSON.parse(req.body.metadata)
-		} catch (e) {
-			throw new Error('INVALID_METADATA')
-		}
+	// 	try {
+	// 		createMetadata = JSON.parse(req.body.metadata)
+	// 	} catch (e) {
+	// 		throw new Error('INVALID_METADATA')
+	// 	}
 
-		/** Ensure that trusted properties are not set */
-		createMetadata.meem_properties = undefined
-		createMetadata.extension_properties = undefined
+	// 	/** Ensure that trusted properties are not set */
+	// 	createMetadata.meem_properties = undefined
+	// 	createMetadata.extension_properties = undefined
 
-		let file: Buffer | undefined
+	// 	let file: Buffer | undefined
 
-		if (Array.isArray(req.files)) {
-			file = req.files[0].buffer
-		} else if (typeof req.files === 'object') {
-			const fields = Object.values(req.files)
-			if (fields.length > 0) {
-				const field = fields[0]
-				if (field.length > 0) {
-					// eslint-disable-next-line prefer-destructuring
-					file = field[0].buffer
-				}
-			}
-		}
+	// 	if (Array.isArray(req.files)) {
+	// 		file = req.files[0].buffer
+	// 	} else if (typeof req.files === 'object') {
+	// 		const fields = Object.values(req.files)
+	// 		if (fields.length > 0) {
+	// 			const field = fields[0]
+	// 			if (field.length > 0) {
+	// 				// eslint-disable-next-line prefer-destructuring
+	// 				file = field[0].buffer
+	// 			}
+	// 		}
+	// 	}
 
-		if (!file) {
-			throw new Error('INVALID_FILE')
-		}
+	// 	if (!file) {
+	// 		throw new Error('INVALID_FILE')
+	// 	}
 
-		let img = sharp(file)
-		const imageMetadata = await img.metadata()
-		let imageWidth = imageMetadata.width || 400
+	// 	let img = sharp(file)
+	// 	const imageMetadata = await img.metadata()
+	// 	let imageWidth = imageMetadata.width || 400
 
-		// Set max image size to 1024
-		if (imageWidth > 1024) {
-			imageWidth = imageWidth > 1024 ? 1024 : imageWidth
-			img = img.resize(imageWidth)
-		}
+	// 	// Set max image size to 1024
+	// 	if (imageWidth > 1024) {
+	// 		imageWidth = imageWidth > 1024 ? 1024 : imageWidth
+	// 		img = img.resize(imageWidth)
+	// 	}
 
-		const buff = await img.toBuffer()
+	// 	const buff = await img.toBuffer()
 
-		const { tokenURI, metadata } = await services.web3.saveMeemMetadata({
-			image: buff,
-			metadata: createMetadata
-		})
+	// 	const { tokenURI, metadata } = await services.web3.saveMeemMetadata({
+	// 		image: buff,
+	// 		metadata: createMetadata
+	// 	})
 
-		return res.json({
-			tokenURI,
-			metadata
-		})
-	}
-
-	public static async getClippings(
-		req: IAPIRequestPaginated<MeemAPI.v1.GetMeemClippings.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetMeemClippings.IResponseBody>
-	): Promise<Response> {
-		const { page, limit } = req
-
-		const { address } = req.query
-		const shouldIncludeMetadata = req.query.shouldIncludeMetadata === 'true'
-		const tokenId = req.query.tokenId
-			? services.web3.toBigNumber(req.query.tokenId).toHexString()
-			: undefined
-
-		let where: Record<string, any> = {}
-
-		if (address) {
-			where = orm.sequelize.where(
-				orm.sequelize.fn('lower', orm.sequelize.col('address')),
-				address.toLowerCase()
-			)
-		}
-		const meemWhere: Record<string, any> = tokenId
-			? { tokenId: tokenId.toLowerCase() }
-			: {}
-
-		const result = await orm.models.Clipping.findAndCountAll({
-			where,
-			limit,
-			offset: page * limit,
-			include: [
-				{
-					model: orm.models.Meem,
-					where: meemWhere,
-					required: true
-				}
-			],
-			order: [['clippedAt', 'DESC']]
-		})
-
-		const cleanClippings: MeemAPI.IClippingExtended[] = []
-
-		result.rows.forEach(c => {
-			if (c.Meem?.tokenId) {
-				const clip: MeemAPI.IClippingExtended = {
-					address: c.address,
-					clippedAt: DateTime.fromJSDate(c.clippedAt).toSeconds(),
-					hasMeemId: false,
-					tokenId: c.Meem.tokenId
-				}
-				if (shouldIncludeMetadata) {
-					// clip.meem = services.meem.meemToIMeem(c.Meem)
-				}
-				cleanClippings.push(clip)
-			} else {
-				log.warn(`Invalid clipping: ${c.id}`)
-			}
-		})
-
-		return res.json({
-			clippings: cleanClippings,
-			totalItems: result.count
-		})
-	}
-
-	public static async checkClippingStatus(
-		req: IAPIRequestPaginated<MeemAPI.v1.CheckClippingStatus.IDefinition>,
-		res: IResponse<MeemAPI.v1.CheckClippingStatus.IResponseBody>
-	): Promise<Response> {
-		const { address, tokenIds } = req.body
-
-		if (!Array.isArray(tokenIds) || !address) {
-			throw new Error('MISSING_PARAMETERS')
-		}
-
-		const result = await orm.models.Clipping.findAll({
-			include: [
-				{
-					model: orm.models.Meem,
-					where: {
-						tokenId: {
-							[Op.in]: tokenIds.slice(0, 200)
-						}
-					},
-					required: true
-				}
-			]
-		})
-
-		const status: { [tokenId: string]: boolean } = {}
-
-		tokenIds.forEach(t => {
-			const clipping = result.find(c => c.Meem?.tokenId === t)
-			status[t] = !!clipping
-		})
-
-		return res.json({
-			status
-		})
-	}
+	// 	return res.json({
+	// 		tokenURI,
+	// 		metadata
+	// 	})
+	// }
 }

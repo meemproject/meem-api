@@ -187,6 +187,11 @@ export default async function start() {
 	// 	g.listeners.twitter.start()
 	// }
 
+	if (config.ENABLE_SQS_CONSUMER) {
+		// eslint-disable-next-line global-require
+		require('../lib/SQSConsumer')
+	}
+
 	log.info(
 		`Server boot: ${(log.timerEnd(bootTimer) / 1000).toFixed(4)} seconds`
 	)

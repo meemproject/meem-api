@@ -10,6 +10,9 @@ jobs:
       - image: circleci/node:16
     steps:
       - checkout
+      - run: touch .env
+      - run: echo "${JWT_RSA_PUBLIC_KEY}" >> .env
+      - run: echo "${JWT_RSA_PRIVATE_KEY}" >> .env
       - run: cp .yarnclean.ci .yarnclean
       - run: yarn install --frozen-lockfile
       - run: yarn build
@@ -19,6 +22,9 @@ jobs:
       - image: circleci/node:16
     steps:
       - checkout
+      - run: touch .env
+      - run: echo "${JWT_RSA_PUBLIC_KEY}" >> .env
+      - run: echo "${JWT_RSA_PRIVATE_KEY}" >> .env
       - run: cp .yarnclean.ci .yarnclean
       - run: yarn install --frozen-lockfile
       - run: yarn build
@@ -28,6 +34,9 @@ jobs:
       - image: circleci/node:16
     steps:
       - checkout
+      - run: touch .env
+      - run: echo "${JWT_RSA_PUBLIC_KEY}" >> .env
+      - run: echo "${JWT_RSA_PRIVATE_KEY}" >> .env
       - run: cp .yarnclean.ci .yarnclean
       - run: yarn install --frozen-lockfile
       - run: yarn build
@@ -37,6 +46,9 @@ jobs:
       - image: circleci/node:16
     steps:
       - checkout
+      - run: touch .env
+      - run: echo "${JWT_RSA_PUBLIC_KEY}" >> .env
+      - run: echo "${JWT_RSA_PRIVATE_KEY}" >> .env
       - run: yarn install --frozen-lockfile
       - run: yarn run lint
       - run: yarn run test
