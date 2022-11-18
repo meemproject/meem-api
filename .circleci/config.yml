@@ -11,12 +11,11 @@ jobs:
     steps:
       - checkout
       - run: touch .env
-      - run: echo "${JWT_RSA_PUBLIC_KEY}" >> .env
-      - run: echo "${JWT_RSA_PRIVATE_KEY}" >> .env
+      - run: echo "JWT_RSA_PUBLIC_KEY=${JWT_RSA_PUBLIC_KEY}" >> .env
+      - run: echo "JWT_RSA_PRIVATE_KEY=${JWT_RSA_PRIVATE_KEY}" >> .env
       - run: cp .yarnclean.ci .yarnclean
       - run: yarn install --frozen-lockfile
       - run: yarn build
-      - run: cat .env
       - run: yarn deploy:dev
   deploy_sls_stage:
     docker:
@@ -24,8 +23,8 @@ jobs:
     steps:
       - checkout
       - run: touch .env
-      - run: echo "${JWT_RSA_PUBLIC_KEY}" >> .env
-      - run: echo "${JWT_RSA_PRIVATE_KEY}" >> .env
+      - run: echo "JWT_RSA_PUBLIC_KEY=${JWT_RSA_PUBLIC_KEY}" >> .env
+      - run: echo "JWT_RSA_PRIVATE_KEY=${JWT_RSA_PRIVATE_KEY}" >> .env
       - run: cp .yarnclean.ci .yarnclean
       - run: yarn install --frozen-lockfile
       - run: yarn build
@@ -36,8 +35,8 @@ jobs:
     steps:
       - checkout
       - run: touch .env
-      - run: echo "${JWT_RSA_PUBLIC_KEY}" >> .env
-      - run: echo "${JWT_RSA_PRIVATE_KEY}" >> .env
+      - run: echo "JWT_RSA_PUBLIC_KEY=${JWT_RSA_PUBLIC_KEY}" >> .env
+      - run: echo "JWT_RSA_PRIVATE_KEY=${JWT_RSA_PRIVATE_KEY}" >> .env
       - run: cp .yarnclean.ci .yarnclean
       - run: yarn install --frozen-lockfile
       - run: yarn build
@@ -48,8 +47,8 @@ jobs:
     steps:
       - checkout
       - run: touch .env
-      - run: echo "${JWT_RSA_PUBLIC_KEY}" >> .env
-      - run: echo "${JWT_RSA_PRIVATE_KEY}" >> .env
+      - run: echo "JWT_RSA_PUBLIC_KEY=${JWT_RSA_PUBLIC_KEY}" >> .env
+      - run: echo "JWT_RSA_PRIVATE_KEY=${JWT_RSA_PRIVATE_KEY}" >> .env
       - run: yarn install --frozen-lockfile
       - run: yarn run lint
       - run: yarn run test
