@@ -5,8 +5,6 @@ import sharp from 'sharp'
 import request from 'superagent'
 import ERC721ABI from '../abis/ERC721.json'
 import meemABI from '../abis/Meem.json'
-import meemAccessListTesting from '../lib/meem-access-testing.json'
-import meemAccessList from '../lib/meem-access.json'
 import { ERC721 } from '../types/ERC721'
 import { Mycontract } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
@@ -119,21 +117,6 @@ export default class MeemService {
 		const ethers = services.ethers.getInstance()
 		const inter = new ethers.utils.Interface(meemABI)
 		return inter
-	}
-
-	public static getAccessList(): MeemAPI.IAccessList {
-		return (
-			config.ENABLE_WHITELIST_TEST_DATA
-				? _.merge(meemAccessList, meemAccessListTesting)
-				: meemAccessList
-		) as MeemAPI.IAccessList
-	}
-
-	public static getWhitelist() {
-		const list = this.getAccessList()
-		const whitelist = list.tokens
-
-		return whitelist
 	}
 
 	/* Create a badged meem image */

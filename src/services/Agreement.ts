@@ -388,6 +388,8 @@ export default class AgreementService {
 			chainId: number
 			senderWalletAddress: string
 			agreement?: Agreement
+			shouldMintTokens?: boolean
+			tokenMetadata?: MeemAPI.IMeemMetadataLike
 		}
 	) {
 		// TODO: Abstract this to allow new types of contract metadata e.g. clubs, other project types

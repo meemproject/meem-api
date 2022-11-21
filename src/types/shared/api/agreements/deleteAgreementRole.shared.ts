@@ -1,27 +1,22 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { MeemAPI } from '../../../meem.generated'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-/** Create Meem Image */
-export namespace CreateClubSafe {
+export namespace DeleteAgreementRole {
 	export interface IPathParams {
+		/** The meem contract id to fetch */
 		agreementId: string
+		/** The AgreementRole id to update */
+		agreementRoleId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/safe`
+		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}`
 
-	export const method = HttpMethod.Post
+	export const method = HttpMethod.Delete
 
 	export interface IQueryParams {}
 
-	export interface IRequestBody {
-		/** The owners of the safe */
-		safeOwners: string[]
-
-		chainId: number
-
-		/** The number of signatures required */
-		threshold?: number
-	}
+	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'

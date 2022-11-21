@@ -1,5 +1,9 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemMetadataLike, IMeemPermission, IMeemSplit } from '../meem.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
+import {
+	IMeemMetadataLike,
+	IMeemPermission,
+	IMeemSplit
+} from '../../meem.shared'
 
 /** Create Meem Image */
 export namespace ReInitializeAgreement {
@@ -15,38 +19,32 @@ export namespace ReInitializeAgreement {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Contract metadata */
-		metadata?: IMeemMetadataLike
-
-		/** The symbol for the token. If omitted, will use a slug of the name */
-		symbol?: string
-
-		/** The name of the token */
+		/** The name of the contract */
 		name?: string
 
-		/** Contract admins */
+		/** The max number of tokens */
+		maxSupply?: string
+
+		/** Agreement contract metadata */
+		metadata?: IMeemMetadataLike
+
+		/** The contract symbol. If omitted, will use slug generated from name */
+		symbol?: string
+
+		/** Contract admin addresses */
 		admins?: string[]
 
 		/** Special minter permissions */
 		minters?: string[]
 
-		/** The max number of tokens */
-		maxSupply?: string
-
 		/** Minting permissions */
-		mintPermissions?: IMeemPermission[]
+		mintPermissions?: Omit<IMeemPermission, 'merkleRoot'>[]
 
 		/** Splits for minting / transfers */
 		splits?: IMeemSplit[]
 
 		/** Whether tokens can be transferred */
 		isTransferLocked?: boolean
-
-		/** If true, will mint a token to the admin wallet addresses  */
-		shouldMintTokens?: boolean
-
-		/** Admin token metadata */
-		tokenMetadata?: IMeemMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

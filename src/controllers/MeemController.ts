@@ -40,28 +40,6 @@ export default class MeemController {
 		})
 	}
 
-	public static async getWhitelist(
-		req: IRequest<MeemAPI.v1.GetWhitelist.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetWhitelist.IResponseBody>
-	): Promise<Response> {
-		const whitelist = services.meem.getWhitelist()
-
-		return res.json({
-			whitelist
-		})
-	}
-
-	public static async getAccessList(
-		req: IRequest<MeemAPI.v1.GetAccessList.IDefinition>,
-		res: IResponse<MeemAPI.v1.GetAccessList.IResponseBody>
-	): Promise<Response> {
-		const access = services.meem.getAccessList()
-
-		return res.json({
-			access
-		})
-	}
-
 	public static async createMeemImage(
 		req: IRequest<MeemAPI.v1.CreateMeemImage.IDefinition>,
 		res: IResponse<MeemAPI.v1.CreateMeemImage.IResponseBody>

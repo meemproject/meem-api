@@ -1,24 +1,26 @@
-import { MeemMetadataLike } from '@meemproject/metadata'
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-export namespace CreateAgreementExtension {
+/** Create Meem Image */
+export namespace CreateClubSafe {
 	export interface IPathParams {
-		/** The meem contract id to fetch */
 		agreementId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/extensions`
+		`/api/1.0/agreements/${options.agreementId}/safe`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** The slug of the extension to enable */
-		slug: string
-		/** Metadata associated with this extension */
-		metadata?: MeemMetadataLike
+		/** The owners of the safe */
+		safeOwners: string[]
+
+		chainId: number
+
+		/** The number of signatures required */
+		threshold?: number
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

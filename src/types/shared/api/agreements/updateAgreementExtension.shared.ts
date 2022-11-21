@@ -1,22 +1,26 @@
-import { MeemAPI } from '../../meem.generated'
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
+import { IMeemMetadataLike } from '../../meem.shared'
 
-export namespace DeleteAgreementRole {
+export namespace UpdateAgreementExtension {
 	export interface IPathParams {
 		/** The meem contract id to fetch */
 		agreementId: string
-		/** The AgreementRole id to update */
-		agreementRoleId: string
+
+		/** The extension slug */
+		slug: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}`
+		`/api/1.0/agreements/${options.agreementId}/extensions/${options.slug}`
 
-	export const method = HttpMethod.Delete
+	export const method = HttpMethod.Put
 
 	export interface IQueryParams {}
 
-	export interface IRequestBody {}
+	export interface IRequestBody {
+		/** Metadata associated with this extension */
+		metadata?: IMeemMetadataLike
+	}
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'

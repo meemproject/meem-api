@@ -1,5 +1,5 @@
-import { MeemAPI } from '../../meem.generated'
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { MeemAPI } from '../../../meem.generated'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
 export namespace UpdateAgreementRole {
 	export interface DiscordRoleIntegrationData {

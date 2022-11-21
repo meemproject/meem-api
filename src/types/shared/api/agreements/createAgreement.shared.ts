@@ -1,43 +1,44 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemMetadataLike, IMeemPermission, IMeemSplit } from '../meem.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
+import {
+	IMeemMetadataLike,
+	IMeemPermission,
+	IMeemSplit
+} from '../../meem.shared'
 
 /** Create Meem Image */
-export namespace CreateAgreementRole {
-	export interface IPathParams {
-		agreementId: string
-	}
+export namespace CreateAgreement {
+	export interface IPathParams {}
 
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/roles`
+	export const path = () => `/api/1.0/agreements`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Contract metadata */
-		metadata: IMeemMetadataLike
-
-		/** The chain id */
-		chainId: number
-
-		/** The symbol for the token. If omitted, will use a slug of the name */
-		symbol?: string
-
-		/** The name of the role */
+		/** The name of the contract */
 		name: string
 
-		/** Contract admins */
-		admins?: string[]
+		/** Agreement contract metadata */
+		metadata: IMeemMetadataLike
 
-		/** Special minter permissions */
-		minters?: string[]
+		/** The contract chain id */
+		chainId: number
 
 		/** The max number of tokens */
 		maxSupply: string
 
 		/** Whether the max supply is locked */
 		isMaxSupplyLocked?: boolean
+
+		/** The contract symbol. If omitted, will use slug generated from name */
+		symbol?: string
+
+		/** Contract admin addresses */
+		admins?: string[]
+
+		/** Special minter permissions */
+		minters?: string[]
 
 		/** Minting permissions */
 		mintPermissions?: Omit<IMeemPermission, 'merkleRoot'>[]
@@ -51,10 +52,10 @@ export namespace CreateAgreementRole {
 		/** If true, will mint a token to the admin wallet addresses and any addresses in the members parameter  */
 		shouldMintTokens?: boolean
 
-		/** Members to mint tokens to */
+		/** Additional non-admin member addresses that will receive tokens if shouldMintTokens is true */
 		members?: string[]
 
-		/** Token metadata */
+		/** Token metadata to use if shouldMintTokens is true */
 		tokenMetadata?: IMeemMetadataLike
 	}
 

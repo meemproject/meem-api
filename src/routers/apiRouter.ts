@@ -194,11 +194,4 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/getEthAddress', TestController.getEthAddress)
 		router.getAsync('/test/txEncoding', TestController.testTxEncoding)
 	}
-
-	// DEPRECATED:
-	// router.getAsync('/meems', MeemController.getMeems)
-	// router.getAsync('/meems/:tokenId', MeemController.getMeem)
-	// router.getAsync('/meems/:tokenId/children', MeemController.getChildMeems)
-	// router.getAsync('/clippings', MeemController.getClippings)
-	// router.postAsync('/clippings/status', MeemController.checkClippingStatus)
 }

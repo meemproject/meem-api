@@ -1,5 +1,5 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemMetadataLike } from '../meem.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
+import { IMeemMetadataLike } from '../../meem.shared'
 
 export namespace BulkMintAgreementTokens {
 	export interface IPathParams {

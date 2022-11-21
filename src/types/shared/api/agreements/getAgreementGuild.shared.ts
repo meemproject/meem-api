@@ -1,16 +1,14 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IAgreementRole } from '../meem.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
+import { IGuild, IAgreementRole } from '../../meem.shared'
 
-export namespace GetAgreementRole {
+export namespace GetAgreementGuild {
 	export interface IPathParams {
-		/** The Agreement id to fetch roles of */
+		/** The Agreement id of the guild to fetch */
 		agreementId: string
-		/** The Agreement Role id to fetch roles of */
-		agreementRoleId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}`
+		`/api/1.0/agreements/${options.agreementId}/guild`
 
 	export const method = HttpMethod.Get
 
@@ -19,7 +17,7 @@ export namespace GetAgreementRole {
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		role: IAgreementRole
+		guild: IGuild | null
 	}
 
 	export interface IDefinition {

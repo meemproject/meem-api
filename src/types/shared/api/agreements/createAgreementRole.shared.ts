@@ -1,11 +1,18 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemMetadataLike, IMeemPermission, IMeemSplit } from '../meem.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
+import {
+	IMeemMetadataLike,
+	IMeemPermission,
+	IMeemSplit
+} from '../../meem.shared'
 
 /** Create Meem Image */
-export namespace CreateAgreement {
-	export interface IPathParams {}
+export namespace CreateAgreementRole {
+	export interface IPathParams {
+		agreementId: string
+	}
 
-	export const path = () => `/api/1.0/agreements`
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/roles`
 
 	export const method = HttpMethod.Post
 
@@ -21,7 +28,7 @@ export namespace CreateAgreement {
 		/** The symbol for the token. If omitted, will use a slug of the name */
 		symbol?: string
 
-		/** The name of the token */
+		/** The name of the role */
 		name: string
 
 		/** Contract admins */
