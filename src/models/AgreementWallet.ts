@@ -7,6 +7,8 @@ import type Wallet from './Wallet'
 export default class AgreementWallet extends BaseModel<AgreementWallet> {
 	public static readonly modelName = 'AgreementWallet'
 
+	public static readonly paranoid = false
+
 	public static get indexes() {
 		return [
 			{
