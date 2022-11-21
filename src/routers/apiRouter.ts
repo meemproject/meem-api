@@ -1,5 +1,6 @@
 import coreExpress, { Express } from 'express'
 import AgreementController from '../controllers/AgreementController'
+import AgreementExtensionController from '../controllers/AgreementExtensionController'
 import AgreementRoleController from '../controllers/AgreementRoleController'
 import ConfigController from '../controllers/ConfigController'
 import ContractController from '../controllers/ContractController'
@@ -108,8 +109,12 @@ export default (app: Express, _express: typeof coreExpress) => {
 		AgreementRoleController.deleteAgreementRole
 	)
 	router.postAsync(
-		'/agreements/:agreementId/extensions/:extensionId',
-		AgreementController.createOrUpdateAgreementExtension
+		'/agreements/:agreementId/extensions',
+		AgreementExtensionController.createAgreementExtension
+	)
+	router.putAsync(
+		'/agreements/:agreementId/extensions/:slug',
+		AgreementExtensionController.updateAgreementExtension
 	)
 
 	// TODO: switch to aggreements/mint, agreements/roles/mint

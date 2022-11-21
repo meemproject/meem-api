@@ -1014,6 +1014,42 @@ export namespace CreateAgreement {
 
 
 
+export namespace CreateAgreementExtension {
+	export interface IPathParams {
+		/** The meem contract id to fetch */
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/extensions`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The slug of the extension to enable */
+		slug: string
+		/** Metadata associated with this extension */
+		metadata?: MeemMetadataLike
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
 /** Create Meem Image */
 export namespace CreateAgreementRole {
 	export interface IPathParams {
@@ -1245,46 +1281,6 @@ export namespace CreateMeemProject {
 		name: string
 		description: string
 		minterAddresses: string[]
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace CreateOrUpdateAgreementExtension {
-	export interface IPathParams {
-		/** The meem contract id to fetch */
-		agreementId: string
-		/** The integration id to connect or update */
-		integrationId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/integrations/${options.integrationId}`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** Is the integration enabled? */
-		isEnabled?: boolean
-		/** Is the integration publicly displayed on club */
-		isPublic?: boolean
-		/** Metadata associated with this integration */
-		metadata?: MeemAPI.IAgreementExtensionMetadata
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -2653,6 +2649,43 @@ export namespace UntrackContractInstance {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace UpdateAgreementExtension {
+	export interface IPathParams {
+		/** The meem contract id to fetch */
+		agreementId: string
+
+		/** The extension slug */
+		slug: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/extensions/${options.slug}`
+
+	export const method = HttpMethod.Put
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** Metadata associated with this extension */
+		metadata?: MeemMetadataLike
+	}
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
