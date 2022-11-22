@@ -1,6 +1,7 @@
 import { MeemAPI } from '../../../meem.generated'
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
+/** Update an agreement role */
 export namespace UpdateAgreementRole {
 	export interface DiscordRoleIntegrationData {
 		discordServerId: string
@@ -8,9 +9,9 @@ export namespace UpdateAgreementRole {
 		discordAccessToken: string
 	}
 	export interface IPathParams {
-		/** The meem contract id to fetch */
+		/** The agreement id */
 		agreementId: string
-		/** The AgreementRole id to update */
+		/** The agreement role id */
 		agreementRoleId: string
 	}
 

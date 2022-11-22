@@ -65,7 +65,7 @@ provider:
     GNOSIS_MASTER_CONTRACT_ADDRESS: ${env:GNOSIS_MASTER_CONTRACT_ADDRESS, ''}
     GNOSIS_PROXY_CONTRACT_ADDRESS: ${env:GNOSIS_PROXY_CONTRACT_ADDRESS, ''}
     LAMBDA_CREATE_CLUB_SAFE_FUNCTION_NAME: ${env:LAMBDA_CREATE_CLUB_SAFE_FUNCTION_NAME, ''}
-    UPGRADE_CLUB_FUNCTION_NAME: ${env:UPGRADE_CLUB_FUNCTION_NAME, ''}
+    UPGRADE_AGREEMENT_FUNCTION_NAME: ${env:UPGRADE_AGREEMENT_FUNCTION_NAME, ''}
     GNOSIS_DEFAULT_CALLBACK_HANDLER: ${env:GNOSIS_DEFAULT_CALLBACK_HANDLER, ''}
     DISCORD_CLIENT_ID: ${env:DISCORD_CLIENT_ID, ''}
     DISCORD_CLIENT_SECRET: ${env:DISCORD_CLIENT_SECRET, ''}
@@ -132,8 +132,8 @@ functions:
     handler: build/serverless/createClubSafe.handle
     timeout: 300
     memorySize: 512
-  upgradeClub:
-    handler: build/serverless/upgradeClub.handle
+  upgradeAgreement:
+    handler: build/serverless/upgradeAgreement.handle
     timeout: 300
     memorySize: 512
   bulkMintAgreementTokens:

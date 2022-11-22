@@ -1,11 +1,12 @@
 import { MeemAPI } from '../../../meem.generated'
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
+/** Delete an agreement role contract */
 export namespace DeleteAgreementRole {
 	export interface IPathParams {
-		/** The meem contract id to fetch */
+		/** The agreement id */
 		agreementId: string
-		/** The AgreementRole id to update */
+		/** The agreement role id */
 		agreementRoleId: string
 	}
 

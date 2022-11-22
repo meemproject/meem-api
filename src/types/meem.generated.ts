@@ -1927,45 +1927,12 @@ export namespace UpdateUserIdentity {
 
 
 
-/** Create Meem Image */
-export namespace UpgradeClub {
-	export interface IPathParams {
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/upgrade`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** Specify the bundle id to upgrade to. Defaults to latest Clubs bundle */
-		bundleId?: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
+/** Bulk mint agreement role tokens */
 export namespace BulkMintAgreementRoleTokens {
 	export interface IPathParams {
-		/** The id of the agreement to fetch */
+		/** The id of the Agreement */
 		agreementId: string
-		/** The id of the agreement role to fetch */
+		/** The id of the AgreementRole */
 		agreementRoleId: string
 	}
 
@@ -1978,10 +1945,10 @@ export namespace BulkMintAgreementRoleTokens {
 
 	export interface IRequestBody {
 		tokens: {
-			/** Metadata object to be used for the minted Meem */
+			/** Token metadata */
 			metadata?: IMeemMetadataLike
 
-			/** The address where the Meem will be minted to. */
+			/** The address where the token will be minted to. */
 			to: string
 		}[]
 	}
@@ -2002,9 +1969,10 @@ export namespace BulkMintAgreementRoleTokens {
 
 
 
+/** Bulk mint agreement tokens */
 export namespace BulkMintAgreementTokens {
 	export interface IPathParams {
-		/** The meem pass id to fetch */
+		/** The id of the Agreement */
 		agreementId: string
 	}
 
@@ -2017,10 +1985,10 @@ export namespace BulkMintAgreementTokens {
 
 	export interface IRequestBody {
 		tokens: {
-			/** Metadata object to be used for the minted Meem */
+			/** Token metadata */
 			metadata?: IMeemMetadataLike
 
-			/** The address where the Meem will be minted to. */
+			/** The address where the token will be minted to. */
 			to: string
 		}[]
 	}
@@ -2041,7 +2009,7 @@ export namespace BulkMintAgreementTokens {
 
 
 
-/** Create Meem Image */
+/** Create an agreement contract */
 export namespace CreateAgreement {
 	export interface IPathParams {}
 
@@ -2111,6 +2079,7 @@ export namespace CreateAgreement {
 
 
 
+/** Create an agreement extension */
 export namespace CreateAgreementExtension {
 	export interface IPathParams {
 		/** The meem contract id to fetch */
@@ -2147,7 +2116,7 @@ export namespace CreateAgreementExtension {
 
 
 
-/** Create Meem Image */
+/** Create an agreement role contract */
 export namespace CreateAgreementRole {
 	export interface IPathParams {
 		agreementId: string
@@ -2161,29 +2130,26 @@ export namespace CreateAgreementRole {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Contract metadata */
-		metadata: IMeemMetadataLike
-
-		/** The chain id */
-		chainId: number
-
-		/** The symbol for the token. If omitted, will use a slug of the name */
-		symbol?: string
-
-		/** The name of the role */
+		/** The name of the agreement role contract */
 		name: string
 
-		/** Contract admins */
-		admins?: string[]
-
-		/** Special minter permissions */
-		minters?: string[]
+		/** Agreement role contract metadata */
+		metadata: IMeemMetadataLike
 
 		/** The max number of tokens */
 		maxSupply: string
 
 		/** Whether the max supply is locked */
 		isMaxSupplyLocked?: boolean
+
+		/** The contract symbol. If omitted, will use slug generated from name */
+		symbol?: string
+
+		/** Contract admin addresses */
+		admins?: string[]
+
+		/** Special minter permissions */
+		minters?: string[]
 
 		/** Minting permissions */
 		mintPermissions?: Omit<IMeemPermission, 'merkleRoot'>[]
@@ -2197,10 +2163,10 @@ export namespace CreateAgreementRole {
 		/** If true, will mint a token to the admin wallet addresses and any addresses in the members parameter  */
 		shouldMintTokens?: boolean
 
-		/** Members to mint tokens to */
+		/** Additional non-admin member addresses that will receive tokens if shouldMintTokens is true */
 		members?: string[]
 
-		/** Token metadata */
+		/** Token metadata to use if shouldMintTokens is true */
 		tokenMetadata?: IMeemMetadataLike
 	}
 
@@ -2220,7 +2186,7 @@ export namespace CreateAgreementRole {
 
 
 
-/** Create Meem Image */
+/** Create a Gnosis safe */
 export namespace CreateClubSafe {
 	export interface IPathParams {
 		agreementId: string
@@ -2259,11 +2225,12 @@ export namespace CreateClubSafe {
 
 
 
+/** Delete an agreement role contract */
 export namespace DeleteAgreementRole {
 	export interface IPathParams {
-		/** The meem contract id to fetch */
+		/** The agreement id */
 		agreementId: string
-		/** The AgreementRole id to update */
+		/** The agreement role id */
 		agreementRoleId: string
 	}
 
@@ -2325,9 +2292,9 @@ export namespace GetAgreementGuild {
 
 export namespace GetAgreementRole {
 	export interface IPathParams {
-		/** The Agreement id to fetch roles of */
+		/** The agreement id */
 		agreementId: string
-		/** The Agreement Role id to fetch roles of */
+		/** The agreement role id */
 		agreementRoleId: string
 	}
 
@@ -2477,9 +2444,10 @@ export namespace ReInitializeAgreement {
 
 
 
+/** Update an agreement extension */
 export namespace UpdateAgreementExtension {
 	export interface IPathParams {
-		/** The meem contract id to fetch */
+		/** The agreement id */
 		agreementId: string
 
 		/** The extension slug */
@@ -2494,7 +2462,7 @@ export namespace UpdateAgreementExtension {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Metadata associated with this extension */
+		/** Metadata to store for this extension */
 		metadata?: IMeemMetadataLike
 	}
 
@@ -2514,6 +2482,7 @@ export namespace UpdateAgreementExtension {
 
 
 
+/** Update an agreement role */
 export namespace UpdateAgreementRole {
 	export interface DiscordRoleIntegrationData {
 		discordServerId: string
@@ -2521,9 +2490,9 @@ export namespace UpdateAgreementRole {
 		discordAccessToken: string
 	}
 	export interface IPathParams {
-		/** The meem contract id to fetch */
+		/** The agreement id */
 		agreementId: string
-		/** The AgreementRole id to update */
+		/** The agreement role id */
 		agreementRoleId: string
 	}
 
@@ -2548,6 +2517,40 @@ export namespace UpdateAgreementRole {
 			| DiscordRoleIntegrationData
 			| { [key: string]: any }
 		)[]
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+/** Upgrad an Agreement Contract */
+export namespace UpgradeAgreement {
+	export interface IPathParams {
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/upgrade`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** Specify the bundle id to upgrade to. Defaults to latest Agreements bundle */
+		bundleId?: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

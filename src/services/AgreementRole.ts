@@ -14,15 +14,17 @@ import { MeemAPI } from '../types/meem.generated'
 
 export default class AgreementRoleService {
 	public static async generateSlug(options: {
+		agreementId: string
 		baseSlug: string
 		chainId: number
 		depth?: number
 	}): Promise<string> {
-		const { baseSlug, chainId, depth } = options
+		const { agreementId, baseSlug, chainId, depth } = options
 		const theSlug = slug(baseSlug, { lower: true })
 
 		try {
 			const isAvailable = await this.isSlugAvailable({
+				agreementId,
 				slugToCheck: theSlug,
 				chainId
 			})
@@ -45,6 +47,7 @@ export default class AgreementRoleService {
 			const randStr = Math.random().toString(36).substring(3)
 			const newSlug = `${randStr}-${theSlug}-${rand}`
 			const finalSlug = await this.generateSlug({
+				agreementId,
 				baseSlug: newSlug,
 				chainId,
 				depth: newDepth
@@ -57,12 +60,14 @@ export default class AgreementRoleService {
 	}
 
 	public static async isSlugAvailable(options: {
+		agreementId: string
 		slugToCheck: string
 		chainId: number
 	}): Promise<boolean> {
-		const { slugToCheck, chainId } = options
+		const { agreementId, slugToCheck, chainId } = options
 		const existingSlug = await orm.models.AgreementRole.findOne({
 			where: {
+				AgreementId: agreementId,
 				slug: slugToCheck,
 				chainId
 			}
@@ -83,7 +88,6 @@ export default class AgreementRoleService {
 			tokenMetadata,
 			members,
 			senderWalletAddress,
-			chainId,
 			agreementId
 		} = data
 
@@ -97,6 +101,8 @@ export default class AgreementRoleService {
 			if (!agreement) {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
 			}
+
+			const chainId = agreement.chainId
 
 			const [dbContract, bundle] = await Promise.all([
 				orm.models.Contract.findOne({
@@ -137,13 +143,22 @@ export default class AgreementRoleService {
 				throw new Error('BUNDLE_NOT_FOUND')
 			}
 
+			const metadata = {
+				...data.metadata,
+				meem_agreement_address: agreement.address
+			}
+
 			const {
 				wallet,
 				senderWallet,
 				contractInitParams,
 				cleanAdmins,
 				fullMintPermissions
-			} = await services.agreement.prepareInitValues({ ...data, chainId })
+			} = await services.agreement.prepareInitValues({
+				...data,
+				metadata,
+				chainId
+			})
 
 			const proxyContractFactory = new ethers.ContractFactory(
 				dbContract.abi,
@@ -167,7 +182,8 @@ export default class AgreementRoleService {
 			await orm.models.Transaction.create({
 				hash: proxyContract.deployTransaction.hash,
 				chainId,
-				WalletId: senderWallet.id
+				WalletId: senderWallet.id,
+				encodeTransactionInput: {}
 			})
 
 			await proxyContract.deployed()
@@ -216,6 +232,7 @@ export default class AgreementRoleService {
 			if (data.name) {
 				try {
 					contractSlug = await this.generateSlug({
+						agreementId: agreement.id,
 						baseSlug: data.name,
 						chainId
 					})
@@ -246,7 +263,8 @@ export default class AgreementRoleService {
 			await orm.models.Transaction.create({
 				hash: cutTx.hash,
 				chainId,
-				WalletId: senderWallet.id
+				WalletId: senderWallet.id,
+				encodeTransactionInput: {}
 			})
 
 			await cutTx.wait()
@@ -470,7 +488,10 @@ export default class AgreementRoleService {
 					throw new Error('INVALID_METADATA')
 				}
 
-				const validator = new Validator(token.metadata)
+				const validator = new Validator({
+					meem_metadata_type: 'Meem_AgreementRoleToken',
+					meem_metadata_version: token.metadata.meem_metadata_version
+				})
 				const validatorResult = validator.validate(token.metadata)
 
 				if (!validatorResult.valid) {
@@ -523,7 +544,8 @@ export default class AgreementRoleService {
 			await orm.models.Transaction.create({
 				hash: mintTx.hash,
 				chainId: agreementRole.chainId,
-				WalletId: minterWallet.id
+				WalletId: minterWallet.id,
+				encodeTransactionInput: {}
 			})
 
 			await mintTx.wait()

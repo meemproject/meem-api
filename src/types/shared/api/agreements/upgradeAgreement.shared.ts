@@ -1,7 +1,7 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-/** Create Meem Image */
-export namespace UpgradeClub {
+/** Upgrad an agreement contract */
+export namespace UpgradeAgreement {
 	export interface IPathParams {
 		agreementId: string
 	}
@@ -14,7 +14,7 @@ export namespace UpgradeClub {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Specify the bundle id to upgrade to. Defaults to latest Clubs bundle */
+		/** Specify the bundle id to upgrade to. Defaults to latest Agreements bundle */
 		bundleId?: string
 	}
 

@@ -56,11 +56,19 @@ export default (app: Express, _express: typeof coreExpress) => {
 	)
 	router.postAsync(
 		'/agreements/:agreementId/upgrade',
-		AgreementController.upgradeClub
+		AgreementController.upgradeAgreement
 	)
 	router.getAsync(
 		'/agreements/:agreementId/proof',
 		AgreementController.getMintingProof
+	)
+	router.postAsync(
+		'/agreements/:agreementId/extensions',
+		AgreementExtensionController.createAgreementExtension
+	)
+	router.putAsync(
+		'/agreements/:agreementId/extensions/:slug',
+		AgreementExtensionController.updateAgreementExtension
 	)
 	// router.postAsync(
 	// 	'/agreements/:agreementId/guild',
@@ -70,8 +78,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 	// 	'/agreements/:agreementId/guild',
 	// 	AgreementController.deleteAgreementGuild
 	// )
-	router.postAsync('/discord/authenticate', DiscordController.authenticate)
-	router.getAsync('/discord/servers', DiscordController.getGuilds)
 	// router.getAsync(
 	// 	'/agreements/:agreementId/roles/access',
 	// 	AgreementController.getUserAgreementRolesAccess
@@ -100,24 +106,21 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/roles',
 		AgreementRoleController.createAgreementRole
 	)
+	// router.postAsync(
+	// 	'/agreements/:agreementId/roles/:agreementRoleId',
+	// 	AgreementRoleController.updateAgreementRole
+	// )
+	// router.deleteAsync(
+	// 	'/agreements/:agreementId/roles/:agreementRoleId',
+	// 	AgreementRoleController.deleteAgreementRole
+	// )
 	router.postAsync(
-		'/agreements/:agreementId/roles/:agreementRoleId',
-		AgreementRoleController.updateAgreementRole
-	)
-	router.deleteAsync(
-		'/agreements/:agreementId/roles/:agreementRoleId',
-		AgreementRoleController.deleteAgreementRole
-	)
-	router.postAsync(
-		'/agreements/:agreementId/extensions',
-		AgreementExtensionController.createAgreementExtension
-	)
-	router.putAsync(
-		'/agreements/:agreementId/extensions/:slug',
-		AgreementExtensionController.updateAgreementExtension
+		'/agreements/:agreementId/roles/:agreementRoleId/bulkMint',
+		AgreementRoleController.bulkMint
 	)
 
-	// TODO: switch to aggreements/mint, agreements/roles/mint
+	router.postAsync('/discord/authenticate', DiscordController.authenticate)
+	router.getAsync('/discord/servers', DiscordController.getGuilds)
 
 	router.postAsync('/meems/create-image', MeemController.createMeemImage)
 	router.getAsync('/ipfs', MeemController.getIPFSFile)

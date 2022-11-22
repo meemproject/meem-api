@@ -5,7 +5,7 @@ import {
 	IMeemSplit
 } from '../../meem.shared'
 
-/** Create Meem Image */
+/** Create an agreement contract */
 export namespace CreateAgreement {
 	export interface IPathParams {}
 

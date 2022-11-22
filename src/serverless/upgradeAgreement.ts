@@ -12,7 +12,7 @@ let server: Express.Application
 let request: SuperTest<Test>
 
 export const handle = async (
-	body: MeemAPI.v1.UpgradeClub.IRequestBody & {
+	body: MeemAPI.v1.UpgradeAgreement.IRequestBody & {
 		agreementId: string
 		senderWalletAddress: string
 	},
@@ -46,7 +46,7 @@ export const handle = async (
 			log.crit('AWS_WEBSOCKET_GATEWAY_URL is not set')
 		}
 
-		await services.agreement.upgradeClub(body)
+		await services.agreement.upgradeAgreement(body)
 	} catch (e: any) {
 		log.crit(e)
 	}

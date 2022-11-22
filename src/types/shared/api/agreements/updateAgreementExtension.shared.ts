@@ -1,9 +1,10 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 import { IMeemMetadataLike } from '../../meem.shared'
 
+/** Update an agreement extension */
 export namespace UpdateAgreementExtension {
 	export interface IPathParams {
-		/** The meem contract id to fetch */
+		/** The agreement id */
 		agreementId: string
 
 		/** The extension slug */
@@ -18,7 +19,7 @@ export namespace UpdateAgreementExtension {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Metadata associated with this extension */
+		/** Metadata to store for this extension */
 		metadata?: IMeemMetadataLike
 	}
 

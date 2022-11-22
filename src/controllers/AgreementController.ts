@@ -122,22 +122,6 @@ export default class AgreementController {
 			throw new Error('INVALID_METADATA')
 		}
 
-		try {
-			const contractMetadataValidator = new Validator(req.body.metadata)
-			const contractMetadataValidatorResult =
-				contractMetadataValidator.validate(req.body.metadata)
-
-			if (!contractMetadataValidatorResult.valid) {
-				log.crit(
-					contractMetadataValidatorResult.errors.map((e: any) => e.message)
-				)
-				throw new Error('INVALID_METADATA')
-			}
-		} catch (e) {
-			log.crit(e)
-			throw new Error('INVALID_METADATA')
-		}
-
 		await req.wallet.enforceTXLimit()
 
 		if (config.DISABLE_ASYNC_MINTING) {
@@ -270,9 +254,9 @@ export default class AgreementController {
 		})
 	}
 
-	public static async upgradeClub(
-		req: IRequest<MeemAPI.v1.UpgradeClub.IDefinition>,
-		res: IResponse<MeemAPI.v1.UpgradeClub.IResponseBody>
+	public static async upgradeAgreement(
+		req: IRequest<MeemAPI.v1.UpgradeAgreement.IDefinition>,
+		res: IResponse<MeemAPI.v1.UpgradeAgreement.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
@@ -284,7 +268,7 @@ export default class AgreementController {
 
 		if (config.DISABLE_ASYNC_MINTING) {
 			try {
-				await services.agreement.upgradeClub({
+				await services.agreement.upgradeAgreement({
 					...req.body,
 					agreementId,
 					senderWalletAddress: req.wallet.address
@@ -301,7 +285,7 @@ export default class AgreementController {
 			await lambda
 				.invoke({
 					InvocationType: 'Event',
-					FunctionName: config.UPGRADE_CLUB_FUNCTION_NAME,
+					FunctionName: config.UPGRADE_AGREEMENT_FUNCTION_NAME,
 					Payload: JSON.stringify({
 						...req.body,
 						agreementId,

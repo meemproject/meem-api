@@ -3,9 +3,9 @@ import { IAgreementRole } from '../../meem.shared'
 
 export namespace GetAgreementRole {
 	export interface IPathParams {
-		/** The Agreement id to fetch roles of */
+		/** The agreement id */
 		agreementId: string
-		/** The Agreement Role id to fetch roles of */
+		/** The agreement role id */
 		agreementRoleId: string
 	}
 

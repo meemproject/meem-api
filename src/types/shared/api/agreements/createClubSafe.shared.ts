@@ -1,6 +1,6 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-/** Create Meem Image */
+/** Create a Gnosis safe */
 export namespace CreateClubSafe {
 	export interface IPathParams {
 		agreementId: string

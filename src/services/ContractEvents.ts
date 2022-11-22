@@ -206,8 +206,8 @@ export default class ContractEvent {
 			contractInfo.contractURI as string
 		)) as MeemMetadataLike
 
-		if (metadata.meem_contract_type) {
-			// Don't index contract if not a valid meem_contract_type
+		if (metadata.meem_metadata_type) {
+			// Don't index contract if not a valid meem_metadata_type
 			const contractMetadataValidator = new Validator(metadata)
 			const contractMetadataValidatorResult =
 				contractMetadataValidator.validate(metadata)
@@ -223,7 +223,8 @@ export default class ContractEvent {
 			return null
 		}
 
-		const isRoleAgreement = metadata.meem_contract_type === 'meem-club-role'
+		const isRoleAgreement =
+			metadata.meem_metadata_type === 'Meem_AgreementRoleContract'
 
 		const existingAgreementOrRole = isRoleAgreement
 			? await orm.models.AgreementRole.findOne({
@@ -305,15 +306,12 @@ export default class ContractEvent {
 		let agreementOrRole: Agreement | AgreementRole
 
 		if (!existingAgreementOrRole) {
-			agreementOrRole = await orm.models.Agreement.create(agreementOrRoleData)
-			if (agreementOrRole.metadata.meem_contract_type === 'meem-club') {
-				// await services.guild.createAgreementGuild({
-				// 	agreementId: agreementOrRole.id
-				// })
-			} else if (
-				agreementOrRole.metadata.meem_contract_type === 'meem-club-role'
-			) {
-				// TODO: create the guild role? this shouldn't happen.
+			if (isRoleAgreement) {
+				agreementOrRole = await orm.models.AgreementRole.create(
+					agreementOrRoleData
+				)
+			} else {
+				agreementOrRole = await orm.models.Agreement.create(agreementOrRoleData)
 			}
 		} else {
 			agreementOrRole = await existingAgreementOrRole.update(
@@ -830,7 +828,7 @@ export default class ContractEvent {
 			contractURI
 		)) as MeemMetadataLike
 
-		if (metadata.meem_contract_type === 'meem-club') {
+		if (metadata.meem_metadata_type === 'Meem_AgreementContract') {
 			let token = await orm.models.AgreementToken.findOne({
 				where: {
 					tokenId
@@ -879,7 +877,7 @@ export default class ContractEvent {
 				transferredAt,
 				AgreementTokenId: token.id
 			})
-		} else if (metadata.meem_contract_type === 'meem-club-role') {
+		} else if (metadata.meem_metadata_type === 'Meem_AgreementRoleContract') {
 			let token = await orm.models.AgreementRoleToken.findOne({
 				where: {
 					tokenId

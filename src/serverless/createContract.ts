@@ -16,6 +16,7 @@ export const handle = async (
 		| MeemAPI.v1.CreateAgreement.IRequestBody
 		| MeemAPI.v1.CreateAgreementRole.IRequestBody
 	) & {
+		chainId?: number
 		agreementId?: string
 		senderWalletAddress: string
 	},
@@ -49,10 +50,16 @@ export const handle = async (
 			log.crit('AWS_WEBSOCKET_GATEWAY_URL is not set')
 		}
 
-		if (body.metadata.meem_contract_type === 'meem-club') {
-			await services.agreement.createAgreement(body)
+		if (
+			body.metadata.meem_metadata_type === 'Meem_AgreementContract' &&
+			body.chainId
+		) {
+			await services.agreement.createAgreement({
+				...body,
+				chainId: body.chainId
+			})
 		} else if (
-			body.metadata.meem_contract_type === 'meem-club-role' &&
+			body.metadata.meem_metadata_type === 'Meem_AgreementRoleContract' &&
 			body.agreementId
 		) {
 			await services.agreementRole.createAgreementRole({

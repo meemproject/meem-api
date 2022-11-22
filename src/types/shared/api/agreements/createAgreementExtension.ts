@@ -1,6 +1,7 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 import { IMeemMetadataLike } from '../../meem.shared'
 
+/** Create an agreement extension */
 export namespace CreateAgreementExtension {
 	export interface IPathParams {
 		/** The meem contract id to fetch */
