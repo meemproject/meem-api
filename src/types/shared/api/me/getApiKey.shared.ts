@@ -1,11 +1,9 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IAccessList, IWhitelistItem } from '../meem.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-/** Get Meem access config */
-export namespace GetAccessList {
+export namespace GetApiKey {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/access`
+	export const path = () => `/api/1.0/me/apiKey`
 
 	export const method = HttpMethod.Get
 
@@ -14,7 +12,7 @@ export namespace GetAccessList {
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		access: IAccessList
+		jwt: string
 	}
 
 	export interface IDefinition {

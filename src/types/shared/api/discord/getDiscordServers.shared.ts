@@ -1,5 +1,5 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IDiscordServer } from '../meem.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
+import { IDiscordServer } from '../../meem.shared'
 
 export namespace GetDiscordServers {
 	export interface IPathParams {}

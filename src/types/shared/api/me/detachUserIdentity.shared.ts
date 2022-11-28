@@ -1,31 +1,21 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-export namespace GetJoinGuildMessage {
+export namespace DetachUserIdentity {
 	export interface IPathParams {
-		/** The Agreement id */
-		agreementId: string
+		integrationId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/getJoinGuildMessage`
+		`/api/1.0/me/integrations/${options.integrationId}`
 
-	export const method = HttpMethod.Get
+	export const method = HttpMethod.Delete
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		message: string
-		params: {
-			chainId?: string
-			msg: string
-			method: number
-			addr: string
-			nonce: string
-			hash?: string
-			ts: string
-		}
+		status: 'success'
 	}
 
 	export interface IDefinition {

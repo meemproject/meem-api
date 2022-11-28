@@ -1,22 +1,25 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemId } from '../meem.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-/** Update user MeemPass */
-export namespace UpdateMeemPass {
+export namespace IsSlugAvailable {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/me/meemPass`
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/isSlugAvailable`
 
-	export const method = HttpMethod.Patch
+	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		hasAppliedTwitter: boolean
+		/** New slug to check */
+		slug: string
+
+		/** The new agreement chain id */
+		chainId: number
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		isSlugAvailable: boolean
 	}
 
 	export interface IDefinition {

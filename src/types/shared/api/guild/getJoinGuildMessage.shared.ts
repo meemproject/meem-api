@@ -1,13 +1,13 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-export namespace GetMintingProof {
+export namespace GetJoinGuildMessage {
 	export interface IPathParams {
-		/** The meem pass id to fetch */
+		/** The Agreement id */
 		agreementId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/proof`
+		`/api/1.0/agreements/${options.agreementId}/getJoinGuildMessage`
 
 	export const method = HttpMethod.Get
 
@@ -16,7 +16,16 @@ export namespace GetMintingProof {
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		proof: string[]
+		message: string
+		params: {
+			chainId?: string
+			msg: string
+			method: number
+			addr: string
+			nonce: string
+			hash?: string
+			ts: string
+		}
 	}
 
 	export interface IDefinition {

@@ -1,22 +1,31 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemId } from '../meem.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-/** Update user MeemPass */
-export namespace UpdateMeemPassById {
+export namespace JoinGuild {
 	export interface IPathParams {
-		/** The meem pass id to fetch */
-		meemPassId: string
+		/** The Agreement id */
+		agreementId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meemPass/${options.meemPassId}`
+		`/api/1.0/agreements/${options.agreementId}/joinGuild`
 
-	export const method = HttpMethod.Patch
+	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		isWhitelisted: boolean
+		message: string
+		params: {
+			chainId?: string
+			msg: string
+			method: number
+			addr: string
+			nonce: string
+			hash?: string
+			ts: string
+		}
+		sig: string
+		mintToken?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

@@ -191,9 +191,6 @@ export default class ContractEvent {
 
 		let contractInfo: ContractInfoStruct
 
-		// TODO: Parse metadata and create database models for contract type (Check if exist first)
-		// TODO: Parse associations from metadata and create database associations (Check if exist first)
-
 		try {
 			contractInfo = await agreementOrRoleContract.getContractInfo()
 		} catch (e) {
@@ -229,31 +226,44 @@ export default class ContractEvent {
 		const existingAgreementOrRole = isRoleAgreement
 			? await orm.models.AgreementRole.findOne({
 					where: {
-						address
+						address,
+						chainId
 					}
 			  })
 			: await orm.models.Agreement.findOne({
 					where: {
-						address
+						address,
+						chainId
 					}
 			  })
 
-		let slug = existingAgreementOrRole?.slug
+		let slug = existingAgreementOrRole?.slug ?? uuidv4()
 
 		if (!existingAgreementOrRole || !slug) {
 			try {
-				slug = isRoleAgreement
-					? await services.agreementRole.generateSlug({
+				if (isRoleAgreement && metadata.meem_agreement_address) {
+					const agreement = await orm.models.Agreement.findOne({
+						where: {
+							address: metadata.meem_agreement_address,
+							chainId
+						}
+					})
+
+					if (agreement) {
+						slug = await services.agreementRole.generateSlug({
+							agreementId: agreement.id,
 							baseSlug: contractInfo.name as string,
 							chainId
-					  })
-					: await services.agreement.generateSlug({
-							baseSlug: contractInfo.name as string,
-							chainId
-					  })
+						})
+					}
+				} else {
+					slug = await services.agreement.generateSlug({
+						baseSlug: contractInfo.name as string,
+						chainId
+					})
+				}
 			} catch (e) {
 				log.crit('Something went wrong while creating slug', e)
-				slug = uuidv4()
 			}
 		}
 

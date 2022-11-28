@@ -1,26 +1,22 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemId } from '../meem.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-export namespace CreateOrUpdateUser {
+export namespace AttachIdentity {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/me`
+	export const path = () => `/api/1.0/attachIdentity`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Profile picture base64 string */
-		profilePicBase64?: string
-		/** Url to profile picture */
-		// profilePicUrl?: string
-		/** Display name of identity */
-		displayName?: string
+		/** Login w/ access token provided by Auth0 magic link */
+		accessToken?: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		/** JWT that can be used for future authentication */
+		jwt: string
 	}
 
 	export interface IDefinition {

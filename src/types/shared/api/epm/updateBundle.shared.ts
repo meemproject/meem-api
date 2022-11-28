@@ -1,4 +1,4 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
 export namespace UpdateBundle {
 	export interface IPathParams {
@@ -6,7 +6,7 @@ export namespace UpdateBundle {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/bundles/${options.bundleId}`
+		`/api/1.0/epm/bundles/${options.bundleId}`
 
 	export const method = HttpMethod.Put
 

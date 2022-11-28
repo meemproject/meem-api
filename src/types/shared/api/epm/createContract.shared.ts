@@ -1,24 +1,32 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
+import {
+	Chain,
+	IMeemPermission,
+	IMeemSplit,
+	IMeemProperties,
+	ContractType
+} from '../../meem.shared'
 
-export namespace AuthenticateWithDiscord {
+export namespace CreateContract {
 	export interface IPathParams {}
 
-	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
+	export const path = () => `/api/1.0/epm/contracts`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
+		name: string
+		description: string
+		contractType: ContractType
+		abi: any[]
+		bytecode: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		user: { [key: string]: any }
-		accessToken: string
+		status: 'success'
+		contractId: string
 	}
 
 	export interface IDefinition {

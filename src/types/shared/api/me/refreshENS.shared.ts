@@ -1,14 +1,12 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
+import { IMeemId } from '../../meem.shared'
 
-export namespace DetachUserIdentity {
-	export interface IPathParams {
-		integrationId: string
-	}
+export namespace RefreshENS {
+	export interface IPathParams {}
 
-	export const path = (options: IPathParams) =>
-		`/api/1.0/me/integrations/${options.integrationId}`
+	export const path = () => `/api/1.0/me/refreshENS`
 
-	export const method = HttpMethod.Delete
+	export const method = HttpMethod.Get
 
 	export interface IQueryParams {}
 

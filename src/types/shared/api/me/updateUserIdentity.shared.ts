@@ -1,6 +1,6 @@
-import { MeemAPI } from '../../meem.generated'
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IntegrationVisibility } from '../meem.shared'
+import { MeemAPI } from '../../../meem.generated'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
+import { IntegrationVisibility } from '../../meem.shared'
 
 export namespace UpdateUserIdentity {
 	export interface IPathParams {

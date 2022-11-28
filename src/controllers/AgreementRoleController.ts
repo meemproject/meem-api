@@ -1,6 +1,5 @@
 // import { randomBytes } from 'crypto'
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Validator } from '@meemproject/metadata'
 import AWS from 'aws-sdk'
 import { ethers } from 'ethers'
 // import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'

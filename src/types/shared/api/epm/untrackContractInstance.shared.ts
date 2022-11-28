@@ -1,22 +1,14 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import {
-	Chain,
-	IMeemPermission,
-	IMeemSplit,
-	IMeemProperties
-} from '../meem.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-/** Claim an existing Meem */
-export namespace ClaimMeem {
+export namespace UntrackContractInstance {
 	export interface IPathParams {
-		/** The meem pass id to fetch */
-		tokenId: string
+		contractInstanceId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/meems/claim/${options.tokenId}`
+		`/api/1.0/epm/contractInstances/${options.contractInstanceId}`
 
-	export const method = HttpMethod.Post
+	export const method = HttpMethod.Delete
 
 	export interface IQueryParams {}
 

@@ -1,28 +1,24 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-export namespace CreateBundle {
+export namespace AuthenticateWithDiscord {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/bundles`
+	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		name: string
-		description: string
-		// contractIds: string[]
-		contracts: {
-			id: string
-			functionSelectors: string[]
-		}[]
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		bundleId: string
-		types: string
-		abi: Record<string, any>[]
+		user: { [key: string]: any }
+		accessToken: string
 	}
 
 	export interface IDefinition {

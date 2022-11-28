@@ -1,16 +1,18 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
-import { IMeemId } from '../meem.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-export namespace RefreshENS {
+export namespace TrackContractInstance {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/me/refreshENS`
+	export const path = () => `/api/1.0/epm/contractInstances`
 
-	export const method = HttpMethod.Get
+	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
-	export interface IRequestBody {}
+	export interface IRequestBody {
+		address: string
+		chainId: number
+	}
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'

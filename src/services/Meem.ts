@@ -1,7 +1,4 @@
-import * as path from 'path'
 import { ethers as Ethers } from 'ethers'
-import _ from 'lodash'
-import sharp from 'sharp'
 import request from 'superagent'
 import ERC721ABI from '../abis/ERC721.json'
 import meemABI from '../abis/Meem.json'
@@ -117,88 +114,6 @@ export default class MeemService {
 		const ethers = services.ethers.getInstance()
 		const inter = new ethers.utils.Interface(meemABI)
 		return inter
-	}
-
-	/* Create a badged meem image */
-	public static async createMeemImage(
-		data: MeemAPI.v1.CreateMeemImage.IRequestBody
-	): Promise<string> {
-		let image
-		if (!data.base64Image) {
-			if (!data.tokenAddress) {
-				throw new Error('MISSING_TOKEN_ADDRESS')
-			}
-
-			if (_.isUndefined(data.chain)) {
-				throw new Error('MISSING_CHAIN_ID')
-			}
-
-			if (_.isUndefined(data.tokenId)) {
-				throw new Error('MISSING_TOKEN_ID')
-			}
-
-			const contract = await this.erc721Contract({
-				networkName: MeemAPI.chainToNetworkName(data.chain),
-				address: data.tokenAddress
-			})
-
-			const tokenURI = await contract.tokenURI(data.tokenId)
-			const metadata = await this.getErc721Metadata(tokenURI)
-
-			if (!metadata.image) {
-				throw new Error('INVALID_METADATA')
-			}
-
-			image = await this.getImageFromMetadata(metadata)
-		} else {
-			image = Buffer.from(data.base64Image, 'base64')
-		}
-
-		try {
-			const badgeImagePath = path.resolve(
-				process.cwd(),
-				'src/lib/meem-badge.png'
-			)
-			const badgeImage = sharp(badgeImagePath)
-			const meemImage = sharp(image)
-
-			const meemImageMetadata = await meemImage.metadata()
-			let meemImageWidth = meemImageMetadata.width || 400
-
-			// Set max image size to 1024
-			if (meemImageWidth > 1024) {
-				meemImageWidth = meemImageWidth > 1024 ? 1024 : meemImageWidth
-				meemImage.resize(meemImageWidth)
-			}
-
-			const meemBadgeOffset = Math.round(meemImageWidth * 0.02)
-			const meemBadgeWidth = Math.round(meemImageWidth * 0.2)
-
-			const badgeImageBuffer = await badgeImage
-				.resize(meemBadgeWidth)
-				.toBuffer()
-
-			const compositeMeemImage = await meemImage
-				.composite([
-					{
-						input: badgeImageBuffer,
-						top: meemBadgeOffset,
-						left: meemBadgeOffset,
-						blend: 'hard-light'
-					}
-				])
-				.png({
-					quality: 99
-				})
-				.toBuffer()
-
-			const base64MeemImage = compositeMeemImage.toString('base64')
-
-			return base64MeemImage
-		} catch (e) {
-			log.crit(e)
-			throw new Error('CREATE_IMAGE_ERROR')
-		}
 	}
 
 	public static async getContractInfo(options: {

@@ -1,10 +1,9 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-/** Create Meem Image */
-export namespace CreateMeemProject {
+export namespace CreateBundle {
 	export interface IPathParams {}
 
-	export const path = () => `/images/1.0/projects`
+	export const path = () => `/api/1.0/epm/bundles`
 
 	export const method = HttpMethod.Post
 
@@ -13,11 +12,17 @@ export namespace CreateMeemProject {
 	export interface IRequestBody {
 		name: string
 		description: string
-		minterAddresses: string[]
+		// contractIds: string[]
+		contracts: {
+			id: string
+			functionSelectors: string[]
+		}[]
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		bundleId: string
+		types: string
+		abi: Record<string, any>[]
 	}
 
 	export interface IDefinition {

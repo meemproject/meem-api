@@ -1,21 +1,22 @@
-import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
+import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-export namespace UntrackContractInstance {
+export namespace GetMintingProof {
 	export interface IPathParams {
-		contractInstanceId: string
+		/** The meem pass id to fetch */
+		agreementId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/contractInstances/${options.contractInstanceId}`
+		`/api/1.0/agreements/${options.agreementId}/proof`
 
-	export const method = HttpMethod.Delete
+	export const method = HttpMethod.Get
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		proof: string[]
 	}
 
 	export interface IDefinition {

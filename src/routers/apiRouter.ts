@@ -16,14 +16,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 	const router = extendedRouter()
 	const imageRouter = extendedRouter()
 
-	// const storage = multer.memoryStorage()
-	// const upload = multer({ storage })
-
 	app.use('/api/1.0/', router)
 	app.use('/images/1.0/', imageRouter)
 
-	router.getAsync('/getNonce', MeemIdController.getNonce)
-	router.postAsync('/login', MeemIdController.login)
+	/** Current User Routes */
 
 	router.getAsync('/me', MeemIdController.getMe)
 	router.postAsync('/me', MeemIdController.createOrUpdateUser)
@@ -38,10 +34,13 @@ export default (app: Express, _express: typeof coreExpress) => {
 		MeemIdController.updateUserIdentity
 	)
 
-	router.getAsync('/config', ConfigController.getConfig)
+	/** Agreements and Roles Routes */
 
-	router.postAsync('/isSlugAvailable', AgreementController.isSlugAvailable)
 	router.postAsync('/agreements', AgreementController.createAgreement)
+	router.postAsync(
+		'/agreements/isSlugAvailable',
+		AgreementController.isSlugAvailable
+	)
 	router.postAsync(
 		'/agreements/:agreementId/reinitialize',
 		AgreementController.reInitialize
@@ -70,30 +69,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/extensions/:slug',
 		AgreementExtensionController.updateAgreementExtension
 	)
-	// router.postAsync(
-	// 	'/agreements/:agreementId/guild',
-	// 	AgreementController.createAgreementGuild
-	// )
-	// router.deleteAsync(
-	// 	'/agreements/:agreementId/guild',
-	// 	AgreementController.deleteAgreementGuild
-	// )
-	// router.getAsync(
-	// 	'/agreements/:agreementId/roles/access',
-	// 	AgreementController.getUserAgreementRolesAccess
-	// )
-	// router.getAsync(
-	// 	'/agreements/:agreementId/getJoinGuildMessage',
-	// 	AgreementController.getJoinGuildMessage
-	// )
-	// router.postAsync(
-	// 	'/agreements/:agreementId/joinGuild',
-	// 	AgreementController.joinAgreementGuild
-	// )
-	// router.getAsync(
-	// 	'/agreements/:agreementId/guild',
-	// 	AgreementController.getAgreementGuild
-	// )
 	router.getAsync(
 		'/agreements/:agreementId/roles',
 		AgreementRoleController.getAgreementRoles
@@ -119,60 +94,48 @@ export default (app: Express, _express: typeof coreExpress) => {
 		AgreementRoleController.bulkMint
 	)
 
-	router.postAsync('/discord/authenticate', DiscordController.authenticate)
-	router.getAsync('/discord/servers', DiscordController.getGuilds)
-
-	router.postAsync('/meems/create-image', MeemController.createMeemImage)
-	router.getAsync('/ipfs', MeemController.getIPFSFile)
-
-	if (config.ENABLE_URL_SCRAPER) {
-		router.getAsync('/screenshot', MeemController.getScreenshot)
-	}
-
-	imageRouter.postAsync('/meems/create-image', MeemController.createMeemImage)
-
-	// imageRouter.postAsync(
-	// 	'/metadata',
-	// 	// TODO: Authentication of some kind?
-	// 	// userLoggedInPolicy,
-	// 	upload.any(),
-	// 	MeemController.saveMetadata
-	// )
-
-	// Projects
-	// router.postAsync('/projects', MeemController.createMeemProject)
+	/** EPM Routes */
 
 	router.postAsync(
-		'/contracts',
+		'/epm/contracts',
 		userLoggedInPolicy,
 		ContractController.createContract
 	)
-
 	router.postAsync(
-		'/contractInstances',
+		'/epm/contractInstances',
 		userLoggedInPolicy,
 		ContractController.addContractInstance
 	)
-
+	router.postAsync(
+		'/epm/bundles',
+		userLoggedInPolicy,
+		ContractController.createBundle
+	)
+	router.putAsync(
+		'/epm/bundles/:bundleId',
+		userLoggedInPolicy,
+		ContractController.updateBundle
+	)
 	router.patchAsync(
-		'/walletContractInstances/:contractInstanceId',
+		'/epm/walletContractInstances/:contractInstanceId',
 		userLoggedInPolicy,
 		ContractController.updateWalletContractInstance
 	)
 
-	router.postAsync(
-		'/bundles',
-		userLoggedInPolicy,
-		ContractController.createBundle
-	)
+	/** Discord Routes */
 
-	router.putAsync(
-		'/bundles/:bundleId',
-		userLoggedInPolicy,
-		ContractController.updateBundle
-	)
+	router.postAsync('/discord/authenticate', DiscordController.authenticate)
+	router.getAsync('/discord/servers', DiscordController.getGuilds)
 
+	/** Misc Routes */
+
+	router.getAsync('/config', ConfigController.getConfig)
+	router.getAsync('/getNonce', MeemIdController.getNonce)
+	router.postAsync('/login', MeemIdController.login)
+	router.getAsync('/ipfs', MeemController.getIPFSFile)
 	router.postAsync('/generateTypes', TypesController.generateTypes)
+
+	/** Test Routes */
 
 	if (config.ENABLE_TEST_ENDPOINTS) {
 		router.getAsync('/test/emit', TestController.testEmit)
