@@ -5,7 +5,7 @@ import {
 	IMeemSplit
 } from '../../meem.shared'
 
-/** Create an agreement contract */
+/** Create an agreement contract. */
 export namespace CreateAgreement {
 	export interface IPathParams {}
 
@@ -28,10 +28,10 @@ export namespace CreateAgreement {
 		/** The max number of tokens */
 		maxSupply: string
 
-		/** Whether the max supply is locked */
+		/** Whether the max number of tokens is locked */
 		isMaxSupplyLocked?: boolean
 
-		/** The contract symbol. If omitted, will use slug generated from name */
+		/** The contract symbol. If omitted, will use slug generated from name. */
 		symbol?: string
 
 		/** Contract admin addresses */
@@ -72,3 +72,59 @@ export namespace CreateAgreement {
 
 	export type Response = IResponseBody | IError
 }
+
+/** OpenAPI Spec */
+
+/**
+ * 	@api [post] /agreements
+ * 	security:
+ * 		- jwtAuth: []
+ * 	description: "Create an agreement contract."
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/CreateAgreementRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if create agreement transaction is executed."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
+
+/**
+ *  @schema CreateAgreementRequestBody
+ * 	required:
+ * 		- name
+ * 		- metadata
+ * 		- chainId
+ * 		- maxSupply
+ *  properties:
+ *  	name:
+ *  		description: The name of the contract
+ *  		type: string
+ * 			example: "My Agreement"
+ *  	metadata:
+ * 			description: The contract metadata `IMeemMetadataLike`
+ *  		type: object
+ *  	chainId:
+ * 			description: The contract chain id
+ *  		type: integer
+ * 			example: 421613
+ *  	maxSupply:
+ * 			description: The max number of tokens
+ *  		type: string
+ * 		isMaxSupplyLocked:
+ * 			description: Is the max number of tokens locked
+ * 			type: boolean
+ *  	symbol:
+ * 			description: The contract symbol. If omitted, will use slug generated from name.
+ *  		type: string
+ *  	admins:
+ * 			description: Contract admin addresses
+ *  		type: array
+ * 			items:
+ * 				type: string
+ */

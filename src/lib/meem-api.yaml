@@ -1,0 +1,106 @@
+openapi: 3.0.0
+info:
+  title: Meem API
+  description: Meem Protocol REST API.
+  version: 0.1.0
+servers:
+  - url: https://api.meem.wtf/api/1.0
+    description: Main (production) API
+  - url: https://dev-api.meem.wtf/api/1.0
+    description: Development server for testing
+components:
+  securitySchemes:
+    jwtAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Specify the token value with the `JWT` prefix, e.g. "JWT xxxxx"
+  schemas:
+    CreateAgreementRequestBody:
+      required:
+        - name
+        - metadata
+        - chainId
+        - maxSupply
+      properties:
+        name:
+          description: The name of the contract
+          type: string
+          example: My Agreement
+        metadata:
+          description: The contract metadata `IMeemMetadataLike`
+          type: object
+        chainId:
+          description: The contract chain id
+          type: integer
+          example: 421613
+        maxSupply:
+          description: The max number of tokens
+          type: string
+        isMaxSupplyLocked:
+          description: Is the max number of tokens locked
+          type: boolean
+        symbol:
+          description: The contract symbol. If omitted, will use slug generated from name.
+          type: string
+        admins:
+          description: Contract admin addresses
+          type: array
+          items:
+            type: string
+    DefaultStatusResponseBody:
+      type: object
+      properties:
+        status:
+          description: The response status.
+          type: string
+    LoginRequestBody:
+      properties:
+        accessToken:
+          description: Login w/ access token provided by Auth0 magic link
+          type: integer
+          format: int64
+        address:
+          type: string
+        signature:
+          type: string
+        shouldConnectUser:
+          type: boolean
+    LoginResponseBody:
+      properties:
+        jwt:
+          type: string
+paths:
+  /agreements:
+    post:
+      security:
+        - jwtAuth: []
+      description: Create an agreement contract.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAgreementRequestBody'
+      responses:
+        '200':
+          description: Returns 'success' if create agreement transaction is executed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultStatusResponseBody'
+  /login:
+    post:
+      description: Log in a user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestBody'
+      responses:
+        '200':
+          description: Returns a jwt token for the logged-in user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseBody'
+

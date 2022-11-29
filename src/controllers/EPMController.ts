@@ -5,7 +5,7 @@ import ContractInstance from '../models/ContractInstance'
 import { IAuthenticatedRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
-export default class ContractController {
+export default class EPMController {
 	public static async createContract(
 		req: IAuthenticatedRequest<MeemAPI.v1.CreateContract.IDefinition>,
 		res: IResponse<MeemAPI.v1.CreateContract.IResponseBody>

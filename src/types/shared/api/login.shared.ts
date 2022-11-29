@@ -1,5 +1,23 @@
 import { IError, HttpMethod, IApiResponseBody } from '../api.shared'
 
+/**
+ * 	@api [post] /login
+ * 	description: "Log in a user."
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/LoginRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns a jwt token for the logged-in user."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/LoginResponseBody'
+ **/
+
+/** Log in a user. */
 export namespace Login {
 	export interface IPathParams {}
 
@@ -8,8 +26,22 @@ export namespace Login {
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
-
 	export interface IRequestBody {
+		/**
+		 *  @schema LoginRequestBody
+		 *  properties:
+		 *  	accessToken:
+		 *  		description: Login w/ access token provided by Auth0 magic link
+		 *  		type: integer
+		 *  		format: int64
+		 *  	address:
+		 *  		type: string
+		 *  	signature:
+		 *  		type: string
+		 *  	shouldConnectUser:
+		 *  		type: boolean
+		 */
+
 		/** Login w/ access token provided by Auth0 magic link */
 		accessToken?: string
 
@@ -24,6 +56,13 @@ export namespace Login {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
+		/**
+		 * 	@schema LoginResponseBody
+		 * 	properties:
+		 * 		jwt:
+		 * 			type: string
+		 */
+
 		/** JWT that can be used for future authentication */
 		jwt: string
 	}

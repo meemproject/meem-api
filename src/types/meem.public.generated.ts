@@ -828,6 +828,24 @@ export namespace GetNonce {
 
 
 
+/**
+ * @api [post] /login
+ * description: "Log in a user."
+ * requestBody:
+ * 	content:
+ * 		application/json:
+ * 			schema:
+ * 				$ref: '#/components/schemas/LoginRequestBody'
+ * responses:
+ * 	"200":
+ * 		description: "Returns a jwt token for the logged-in user."
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/LoginResponseBody'
+ **/
+
+/** Log in a user. */
 export namespace Login {
 	export interface IPathParams {}
 
@@ -837,6 +855,22 @@ export namespace Login {
 
 	export interface IQueryParams {}
 
+	/**
+	 * @schema LoginRequestBody
+	 * required:
+	 * 	- accessToken
+	 * properties:
+	 * 	accessToken:
+	 * 		description: Login w/ access token provided by Auth0 magic link
+	 * 		type: integer
+	 * 		format: int64
+	 * 	address:
+	 * 		type: string
+	 * 	signature:
+	 * 		type: string
+	 * 	shouldConnectUser:
+	 * 		type: boolean
+	 */
 	export interface IRequestBody {
 		/** Login w/ access token provided by Auth0 magic link */
 		accessToken?: string
@@ -852,8 +886,82 @@ export namespace Login {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
+		/**
+		 * @schema LoginResponseBody
+		 * properties:
+		 * 	jwt:
+		 * 		type: string
+		 */
+
 		/** JWT that can be used for future authentication */
 		jwt: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace AuthenticateWithDiscord {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		user: { [key: string]: any }
+		accessToken: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetDiscordServers {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		accessToken: string
+	}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		discordServers: IDiscordServer[]
 	}
 
 	export interface IDefinition {
@@ -1561,73 +1669,6 @@ export namespace UpgradeAgreement {
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace AuthenticateWithDiscord {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		user: { [key: string]: any }
-		accessToken: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetDiscordServers {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {
-		accessToken: string
-	}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		discordServers: IDiscordServer[]
 	}
 
 	export interface IDefinition {

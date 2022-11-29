@@ -3,8 +3,8 @@ import AgreementController from '../controllers/AgreementController'
 import AgreementExtensionController from '../controllers/AgreementExtensionController'
 import AgreementRoleController from '../controllers/AgreementRoleController'
 import ConfigController from '../controllers/ConfigController'
-import ContractController from '../controllers/ContractController'
 import DiscordController from '../controllers/DiscordController'
+import EPMController from '../controllers/EPMController'
 import MeemController from '../controllers/MeemController'
 import MeemIdController from '../controllers/MeemIdController'
 import TestController from '../controllers/TestController'
@@ -99,27 +99,27 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync(
 		'/epm/contracts',
 		userLoggedInPolicy,
-		ContractController.createContract
+		EPMController.createContract
 	)
 	router.postAsync(
 		'/epm/contractInstances',
 		userLoggedInPolicy,
-		ContractController.addContractInstance
+		EPMController.addContractInstance
 	)
 	router.postAsync(
 		'/epm/bundles',
 		userLoggedInPolicy,
-		ContractController.createBundle
+		EPMController.createBundle
 	)
 	router.putAsync(
 		'/epm/bundles/:bundleId',
 		userLoggedInPolicy,
-		ContractController.updateBundle
+		EPMController.updateBundle
 	)
 	router.patchAsync(
 		'/epm/walletContractInstances/:contractInstanceId',
 		userLoggedInPolicy,
-		ContractController.updateWalletContractInstance
+		EPMController.updateWalletContractInstance
 	)
 
 	/** Discord Routes */
