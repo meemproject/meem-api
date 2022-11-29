@@ -73,7 +73,7 @@ export namespace CreateAgreement {
 	export type Response = IResponseBody | IError
 }
 
-/** OpenAPI Spec */
+/** OpenAPI Definition */
 
 /**
  * 	@api [post] /agreements
@@ -127,4 +127,33 @@ export namespace CreateAgreement {
  *  		type: array
  * 			items:
  * 				type: string
+ *  	minters:
+ * 			description: Special minter permissions
+ *  		type: array
+ * 			items:
+ * 				type: string
+ *  	mintPermissions:
+ * 			description: Minting permissions
+ *  		type: array
+ * 			items:
+ * 				type: object
+ *  	splits:
+ * 			description: Splits for minting / transfers
+ *  		type: array
+ * 			items:
+ * 				type: object
+ * 		isTransferLocked:
+ * 			description: Whether tokens can be transferred
+ * 			type: boolean
+ * 		shouldMintTokens:
+ * 			description: If true, will mint a token to the admin wallet addresses and any addresses in the members parameter.
+ * 			type: boolean
+ *  	members:
+ * 			description: Additional non-admin member addresses that will receive tokens if shouldMintTokens is true
+ *  		type: array
+ * 			items:
+ * 				type: string
+ *  	tokenMetadata:
+ * 			description: Token metadata to use if shouldMintTokens is true
+ *  		type: object
  */
