@@ -138,7 +138,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/config', ConfigController.getConfig)
 	router.getAsync('/ipfs', MeemController.getIPFSFile)
 	router.postAsync('/generateTypes', TypesController.generateTypes)
-	router.getAsync('/meem-api.yaml', TypesController.getOpenAPIFile)
+	router.getAsync('/meem-api.json', TypesController.getOpenAPIFile)
 
 	/** Test Routes */
 
