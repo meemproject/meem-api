@@ -701,13 +701,10 @@ export enum TransactionStatus {
 	Failure = 'failure'
 }
 
-export enum TransactionType {
-	MeemContract = 'meemContract',
-	Custom = 'custom'
-}
-
 export enum QueueEvent {
-	RunTransaction = 'runTransaction'
+	CallContract = 'callContract',
+	DeployContract = 'deployContract',
+	DiamondCut = 'diamondCut'
 }
 
 export namespace v1 {
@@ -978,7 +975,14 @@ export namespace CreateAgreement {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		/** The Transaction id for deploying the contract. Transaction #1 */
+		deployContractTxId: string
+
+		/** The Transaction id for initializing the contract. Transaction #2 */
+		cutTxId: string
+
+		/** The Transaction id for minting tokens. Transaction #3 */
+		mintTxId?: string
 	}
 
 	export interface IDefinition {

@@ -141,41 +141,44 @@ export default class AgreementController {
 
 		await req.wallet.enforceTXLimit()
 
-		if (config.DISABLE_ASYNC_MINTING) {
-			try {
-				await services.agreement.createAgreement({
-					...req.body,
-					senderWalletAddress: req.wallet.address
-				})
-			} catch (e) {
-				log.crit(e)
-				sockets?.emitError(
-					config.errors.CONTRACT_CREATION_FAILED,
-					req.wallet.address
-				)
-			}
-		} else {
-			const lambda = new AWS.Lambda({
-				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-				region: 'us-east-1'
-			})
-
-			await lambda
-				.invoke({
-					InvocationType: 'Event',
-					FunctionName: config.LAMBDA_CREATE_CONTRACT_FUNCTION,
-					Payload: JSON.stringify({
-						...req.body,
-						senderWalletAddress: req.wallet.address
-					})
-				})
-				.promise()
-		}
-
-		return res.json({
-			status: 'success'
+		const result = await services.agreement.createAgreement({
+			...req.body,
+			senderWalletAddress: req.wallet.address
 		})
+
+		// if (config.DISABLE_ASYNC_MINTING) {
+		// 	try {
+		// 		await services.agreement.createAgreement({
+		// 			...req.body,
+		// 			senderWalletAddress: req.wallet.address
+		// 		})
+		// 	} catch (e) {
+		// 		log.crit(e)
+		// 		sockets?.emitError(
+		// 			config.errors.CONTRACT_CREATION_FAILED,
+		// 			req.wallet.address
+		// 		)
+		// 	}
+		// } else {
+		// 	const lambda = new AWS.Lambda({
+		// 		accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+		// 		secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+		// 		region: 'us-east-1'
+		// 	})
+
+		// 	await lambda
+		// 		.invoke({
+		// 			InvocationType: 'Event',
+		// 			FunctionName: config.LAMBDA_CREATE_CONTRACT_FUNCTION,
+		// 			Payload: JSON.stringify({
+		// 				...req.body,
+		// 				senderWalletAddress: req.wallet.address
+		// 			})
+		// 		})
+		// 		.promise()
+		// }
+
+		return res.json(result)
 	}
 
 	public static async createOrUpdateAgreementExtension(

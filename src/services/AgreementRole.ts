@@ -164,12 +164,6 @@ export default class AgreementRoleService {
 				`Deploying contract w/ tx: ${proxyContract.deployTransaction.hash}`
 			)
 
-			await orm.models.Transaction.create({
-				hash: proxyContract.deployTransaction.hash,
-				chainId,
-				WalletId: senderWallet.id
-			})
-
 			await proxyContract.deployed()
 
 			log.debug(
@@ -242,12 +236,6 @@ export default class AgreementRoleService {
 			})
 
 			log.debug(`Running diamond cut w/ TX: ${cutTx.hash}`)
-
-			await orm.models.Transaction.create({
-				hash: cutTx.hash,
-				chainId,
-				WalletId: senderWallet.id
-			})
 
 			await cutTx.wait()
 
@@ -519,12 +507,6 @@ export default class AgreementRoleService {
 			})
 
 			log.debug(`Bulk Minting w/ transaction hash: ${mintTx.hash}`)
-
-			await orm.models.Transaction.create({
-				hash: mintTx.hash,
-				chainId: agreementRole.chainId,
-				WalletId: minterWallet.id
-			})
 
 			await mintTx.wait()
 		} catch (e) {

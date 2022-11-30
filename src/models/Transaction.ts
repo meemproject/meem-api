@@ -29,8 +29,7 @@ export default class Transaction extends BaseModel<Transaction> {
 			primaryKey: true
 		},
 		hash: {
-			type: DataTypes.STRING,
-			allowNull: false
+			type: DataTypes.STRING
 		},
 		chainId: {
 			type: DataTypes.INTEGER,
@@ -41,14 +40,14 @@ export default class Transaction extends BaseModel<Transaction> {
 			allowNull: false,
 			defaultValue: MeemAPI.TransactionStatus.Pending
 		},
-		encodeTransactionInput: {
+		transactionInput: {
 			type: DataTypes.JSONB,
 			allowNull: false
 		},
 		transactionType: {
 			type: DataTypes.STRING,
 			allowNull: false,
-			defaultValue: MeemAPI.TransactionType.MeemContract
+			defaultValue: MeemAPI.QueueEvent.CallContract
 		},
 		customABI: {
 			type: DataTypes.JSONB
@@ -63,9 +62,9 @@ export default class Transaction extends BaseModel<Transaction> {
 
 	public status!: MeemAPI.TransactionStatus
 
-	public encodeTransactionInput!: TransactionInput
+	public transactionInput!: TransactionInput
 
-	public transactionType!: MeemAPI.TransactionType
+	public transactionType!: MeemAPI.QueueEvent
 
 	public customABI!: Record<string, any>[]
 
