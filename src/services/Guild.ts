@@ -280,7 +280,7 @@ export default class GuildService {
 	// 				chainId: agreement.chainId,
 	// 				shouldMintTokens: true,
 	// 				metadata: {
-	// 					meem_contract_type: 'meem-club-role',
+	// 					meem_metadata_type: 'Meem_AgreementRoleContract',
 	// 					meem_metadata_version: 'MeemClubRole_Contract_20220718',
 	// 					name: `${agreement.name ?? ''} - ${name}`,
 	// 					description: name,

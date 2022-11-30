@@ -139,7 +139,8 @@ export default class AgreementService {
 			await orm.models.Transaction.create({
 				hash: tx.hash,
 				chainId: agreementInstance.chainId,
-				WalletId: senderWallet.id
+				WalletId: senderWallet.id,
+				encodeTransactionInput: {}
 			})
 
 			await agreementInstance.save()
@@ -242,7 +243,8 @@ export default class AgreementService {
 			await orm.models.Transaction.create({
 				hash: proxyContract.deployTransaction.hash,
 				chainId,
-				WalletId: senderWallet.id
+				WalletId: senderWallet.id,
+				encodeTransactionInput: {}
 			})
 
 			await proxyContract.deployed()
@@ -320,7 +322,8 @@ export default class AgreementService {
 			await orm.models.Transaction.create({
 				hash: cutTx.hash,
 				chainId,
-				WalletId: senderWallet.id
+				WalletId: senderWallet.id,
+				encodeTransactionInput: {}
 			})
 
 			await cutTx.wait()
@@ -388,17 +391,10 @@ export default class AgreementService {
 			chainId: number
 			senderWalletAddress: string
 			agreement?: Agreement
+			shouldMintTokens?: boolean
+			tokenMetadata?: MeemAPI.IMeemMetadataLike
 		}
 	) {
-		// TODO: Abstract this to allow new types of contract metadata e.g. clubs, other project types
-		// TODO: Generate the slug for the contract here and store the external URL
-		// TOOD: How do we create associations between Clubs and their projects i.e MAGS?
-		// TODO: Does each new (official) contract type have a model in our database?
-		// TODO: Verify club exists before storing address in metadata?
-
-		// TODO: Pass type-safe data in for contract types
-		// TODO: 🚨 Validate all properties!
-
 		const {
 			mintPermissions,
 			splits,
@@ -671,7 +667,10 @@ export default class AgreementService {
 					throw new Error('INVALID_METADATA')
 				}
 
-				const validator = new Validator(token.metadata)
+				const validator = new Validator({
+					meem_metadata_type: 'Meem_AgreementToken',
+					meem_metadata_version: token.metadata.meem_metadata_version
+				})
 				const validatorResult = validator.validate(token.metadata)
 
 				if (!validatorResult.valid) {
@@ -721,7 +720,8 @@ export default class AgreementService {
 			await orm.models.Transaction.create({
 				hash: mintTx.hash,
 				chainId: agreement.chainId,
-				WalletId: minterWallet.id
+				WalletId: minterWallet.id,
+				encodeTransactionInput: {}
 			})
 
 			await mintTx.wait()
@@ -737,8 +737,8 @@ export default class AgreementService {
 	// Adapted from https://forum.openzeppelin.com/t/creating-gnosis-safes-via-the-api/12031/2
 	// Gnosis safe deployments / abi: https://github.com/safe-global/safe-deployments/blob/main/src/assets/v1.3.0/gnosis_safe.json
 	// Gnosis proxy factory deployments / abi: https://github.com/safe-global/safe-deployments/blob/main/src/assets/v1.3.0/proxy_factory.json
-	public static async createClubSafe(
-		options: MeemAPI.v1.CreateClubSafe.IRequestBody & {
+	public static async createAgreementSafe(
+		options: MeemAPI.v1.CreateAgreementSafe.IRequestBody & {
 			agreementId: string
 			senderWalletAddress: string
 		}
@@ -820,7 +820,8 @@ export default class AgreementService {
 			await orm.models.Transaction.create({
 				hash: tx.hash,
 				chainId,
-				WalletId: senderWallet.id
+				WalletId: senderWallet.id,
+				encodeTransactionInput: {}
 			})
 
 			// await services.ethers.releaseLock(chainId)
@@ -854,8 +855,8 @@ export default class AgreementService {
 		}
 	}
 
-	public static async upgradeClub(
-		options: MeemAPI.v1.UpgradeClub.IRequestBody & {
+	public static async upgradeAgreement(
+		options: MeemAPI.v1.UpgradeAgreement.IRequestBody & {
 			agreementId: string
 			senderWalletAddress: string
 		}
@@ -980,20 +981,21 @@ export default class AgreementService {
 				await orm.models.Transaction.create({
 					hash: tx.hash,
 					chainId: agreement.chainId,
-					WalletId: senderWallet.id
+					WalletId: senderWallet.id,
+					encodeTransactionInput: {}
 				})
 			}
 
 			await tx.wait()
 
-			log.debug(`Upgrading club ${agreement.address} w/ tx ${tx?.hash}`)
+			log.debug(`Upgrading agreement ${agreement.address} w/ tx ${tx?.hash}`)
 		} catch (e: any) {
 			log.crit(e)
 			await sockets?.emitError(
-				config.errors.UPGRADE_CLUB_FAILED,
+				config.errors.UPGRADE_AGREEMENT_FAILED,
 				senderWalletAddress
 			)
-			throw new Error('UPGRADE_CLUB_FAILED')
+			throw new Error('UPGRADE_AGREEMENT_FAILED')
 		}
 	}
 
@@ -1231,7 +1233,8 @@ export default class AgreementService {
 			await orm.models.Transaction.create({
 				hash: tx.hash,
 				chainId: agreement.chainId,
-				WalletId: senderWallet.id
+				WalletId: senderWallet.id,
+				encodeTransactionInput: {}
 			})
 
 			await tx.wait()

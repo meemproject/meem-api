@@ -191,9 +191,6 @@ export default class ContractEvent {
 
 		let contractInfo: ContractInfoStruct
 
-		// TODO: Parse metadata and create database models for contract type (Check if exist first)
-		// TODO: Parse associations from metadata and create database associations (Check if exist first)
-
 		try {
 			contractInfo = await agreementOrRoleContract.getContractInfo()
 		} catch (e) {
@@ -206,8 +203,8 @@ export default class ContractEvent {
 			contractInfo.contractURI as string
 		)) as MeemMetadataLike
 
-		if (metadata.meem_contract_type) {
-			// Don't index contract if not a valid meem_contract_type
+		if (metadata.meem_metadata_type) {
+			// Don't index contract if not a valid meem_metadata_type
 			const contractMetadataValidator = new Validator(metadata)
 			const contractMetadataValidatorResult =
 				contractMetadataValidator.validate(metadata)
@@ -223,36 +220,50 @@ export default class ContractEvent {
 			return null
 		}
 
-		const isRoleAgreement = metadata.meem_contract_type === 'meem-club-role'
+		const isRoleAgreement =
+			metadata.meem_metadata_type === 'Meem_AgreementRoleContract'
 
 		const existingAgreementOrRole = isRoleAgreement
 			? await orm.models.AgreementRole.findOne({
 					where: {
-						address
+						address,
+						chainId
 					}
 			  })
 			: await orm.models.Agreement.findOne({
 					where: {
-						address
+						address,
+						chainId
 					}
 			  })
 
-		let slug = existingAgreementOrRole?.slug
+		let slug = existingAgreementOrRole?.slug ?? uuidv4()
 
 		if (!existingAgreementOrRole || !slug) {
 			try {
-				slug = isRoleAgreement
-					? await services.agreementRole.generateSlug({
+				if (isRoleAgreement && metadata.meem_agreement_address) {
+					const agreement = await orm.models.Agreement.findOne({
+						where: {
+							address: metadata.meem_agreement_address,
+							chainId
+						}
+					})
+
+					if (agreement) {
+						slug = await services.agreementRole.generateSlug({
+							agreementId: agreement.id,
 							baseSlug: contractInfo.name as string,
 							chainId
-					  })
-					: await services.agreement.generateSlug({
-							baseSlug: contractInfo.name as string,
-							chainId
-					  })
+						})
+					}
+				} else {
+					slug = await services.agreement.generateSlug({
+						baseSlug: contractInfo.name as string,
+						chainId
+					})
+				}
 			} catch (e) {
 				log.crit('Something went wrong while creating slug', e)
-				slug = uuidv4()
 			}
 		}
 
@@ -305,15 +316,12 @@ export default class ContractEvent {
 		let agreementOrRole: Agreement | AgreementRole
 
 		if (!existingAgreementOrRole) {
-			agreementOrRole = await orm.models.Agreement.create(agreementOrRoleData)
-			if (agreementOrRole.metadata.meem_contract_type === 'meem-club') {
-				// await services.guild.createAgreementGuild({
-				// 	agreementId: agreementOrRole.id
-				// })
-			} else if (
-				agreementOrRole.metadata.meem_contract_type === 'meem-club-role'
-			) {
-				// TODO: create the guild role? this shouldn't happen.
+			if (isRoleAgreement) {
+				agreementOrRole = await orm.models.AgreementRole.create(
+					agreementOrRoleData
+				)
+			} else {
+				agreementOrRole = await orm.models.Agreement.create(agreementOrRoleData)
 			}
 		} else {
 			agreementOrRole = await existingAgreementOrRole.update(
@@ -830,7 +838,7 @@ export default class ContractEvent {
 			contractURI
 		)) as MeemMetadataLike
 
-		if (metadata.meem_contract_type === 'meem-club') {
+		if (metadata.meem_metadata_type === 'Meem_AgreementContract') {
 			let token = await orm.models.AgreementToken.findOne({
 				where: {
 					tokenId
@@ -879,7 +887,7 @@ export default class ContractEvent {
 				transferredAt,
 				AgreementTokenId: token.id
 			})
-		} else if (metadata.meem_contract_type === 'meem-club-role') {
+		} else if (metadata.meem_metadata_type === 'Meem_AgreementRoleContract') {
 			let token = await orm.models.AgreementRoleToken.findOne({
 				where: {
 					tokenId

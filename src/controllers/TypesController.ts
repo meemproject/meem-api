@@ -1,7 +1,6 @@
 import { Response } from 'express'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
-
 export default class TypesController {
 	public static async generateTypes(
 		req: IRequest<MeemAPI.v1.GenerateTypes.IDefinition>,
