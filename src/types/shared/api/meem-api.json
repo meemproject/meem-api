@@ -1039,26 +1039,15 @@
     },
     "/me": {
       "get": {
-        "summary": "Generate nonce for client to sign and verify a user's wallet address",
+        "summary": "Get the current authenticated user",
         "security": [
           {
             "jwtAuth": []
           }
         ],
-        "parameters": [
-          {
-            "in": "query",
-            "name": "address",
-            "required": true,
-            "description": "The wallet address that will sign the message",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
-            "description": "Returns a generated message to sign",
+            "description": "Returns the authenticated user's information",
             "content": {
               "application/json": {
                 "schema": {

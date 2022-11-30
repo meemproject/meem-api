@@ -1,6 +1,7 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 import { IMeemId } from '../../meem.shared'
 
+/** Get the current authenticated user */
 export namespace GetMe {
 	export interface IPathParams {}
 
@@ -37,14 +38,12 @@ export namespace GetMe {
 
 /**
  * 	@api [get] /me
- * 	summary: "Generate nonce for client to sign and verify a user's wallet address"
+ * 	summary: "Get the current authenticated user"
  * 	security:
  * 		- jwtAuth: []
- * 	parameters:
- * 		- (query) address* {string} The wallet address that will sign the message
  * 	responses:
  * 		"200":
- * 			description: "Returns a generated message to sign"
+ * 			description: "Returns the authenticated user's information"
  * 			content:
  * 				application/json:
  * 					schema:
