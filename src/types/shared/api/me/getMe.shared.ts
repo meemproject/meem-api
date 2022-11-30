@@ -33,7 +33,7 @@ export namespace GetMe {
 	export type Response = IResponseBody | IError
 }
 
-/** OpenAPI Definition */
+/** === OpenAPI Definition === */
 
 /**
  * 	@api [get] /me

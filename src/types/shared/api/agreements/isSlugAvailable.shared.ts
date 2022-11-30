@@ -33,7 +33,7 @@ export namespace IsSlugAvailable {
 	export type Response = IResponseBody | IError
 }
 
-/** OpenAPI Definition */
+/** === OpenAPI Definition === */
 
 /**
  * 	@api [post] /agreements/isSlugAvailable

@@ -13,11 +13,4 @@ export default class TypesController {
 			abi
 		})
 	}
-
-	public static async getMeemAPIDefinition(
-		req: IRequest<any>,
-		res: IResponse<any>
-	): Promise<void> {
-		return res.sendFile('meem-api.yaml')
-	}
 }

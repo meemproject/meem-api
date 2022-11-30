@@ -29,7 +29,7 @@ export namespace DetachUserIdentity {
 	export type Response = IResponseBody | IError
 }
 
-/** OpenAPI Definition */
+/** === OpenAPI Definition === */
 
 /**
  * 	@api [delete] /me/integrations/{integrationId}

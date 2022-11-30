@@ -29,7 +29,7 @@ export namespace GetNonce {
 	export type Response = IResponseBody | IError
 }
 
-/** OpenAPI Definition */
+/** === OpenAPI Definition === */
 
 /**
  * 	@api [get] /getNonce

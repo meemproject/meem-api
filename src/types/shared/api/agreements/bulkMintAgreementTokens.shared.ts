@@ -39,7 +39,7 @@ export namespace BulkMintAgreementTokens {
 	export type Response = IResponseBody | IError
 }
 
-/** OpenAPI Definition */
+/** === OpenAPI Definition === */
 
 /**
  * 	@api [post] /agreements/{agreementId}/bulkMint

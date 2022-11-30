@@ -37,7 +37,7 @@ export namespace UpdateUserIdentity {
 	export type Response = IResponseBody | IError
 }
 
-/** OpenAPI Definition */
+/** === OpenAPI Definition === */
 
 /**
  * 	@api [post] /me/integrations/{integrationId}

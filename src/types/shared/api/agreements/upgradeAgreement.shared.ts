@@ -32,7 +32,7 @@ export namespace UpgradeAgreement {
 	export type Response = IResponseBody | IError
 }
 
-/** OpenAPI Definition */
+/** === OpenAPI Definition === */
 
 /**
  * 	@api [post] /agreements/{agreementId}/upgrade

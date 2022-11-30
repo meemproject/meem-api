@@ -33,7 +33,7 @@ export namespace DeleteAgreementRole {
 	export type Response = IResponseBody | IError
 }
 
-/** OpenAPI Definition */
+/** === OpenAPI Definition === */
 
 /**
  * 	@api [delete] /agreements/{agreementId}/roles/{agreementRoleId}

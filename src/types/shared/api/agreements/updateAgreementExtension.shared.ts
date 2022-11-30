@@ -37,7 +37,7 @@ export namespace UpdateAgreementExtension {
 	export type Response = IResponseBody | IError
 }
 
-/** OpenAPI Definition */
+/** === OpenAPI Definition === */
 
 /**
  * 	@api [put] /agreements/{agreementId}/extensions/{slug}

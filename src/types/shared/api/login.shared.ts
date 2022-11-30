@@ -38,6 +38,8 @@ export namespace Login {
 	export type Response = IResponseBody | IError
 }
 
+/** === OpenAPI Definition === */
+
 /**
  * 	@api [post] /login
  * 	summary: "Log in a user."

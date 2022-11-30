@@ -29,7 +29,7 @@ export namespace GetAgreementRoles {
 	export type Response = IResponseBody | IError
 }
 
-/** OpenAPI Definition */
+/** === OpenAPI Definition === */
 
 /**
  * 	@api [get] /agreements/{agreementId}/roles

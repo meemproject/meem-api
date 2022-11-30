@@ -34,7 +34,7 @@ export namespace CreateOrUpdateUser {
 	export type Response = IResponseBody | IError
 }
 
-/** OpenAPI Definition */
+/** === OpenAPI Definition === */
 
 /**
  * 	@api [post] /me

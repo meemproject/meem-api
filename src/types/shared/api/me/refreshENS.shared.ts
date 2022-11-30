@@ -27,6 +27,8 @@ export namespace RefreshENS {
 	export type Response = IResponseBody | IError
 }
 
+/** === OpenAPI Definition === */
+
 /**
  * 	@api [get] /me/refreshENS
  * 	security:
