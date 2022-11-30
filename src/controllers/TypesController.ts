@@ -1,6 +1,4 @@
-import path from 'path'
 import { Response } from 'express'
-import fs from 'fs-extra'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 export default class TypesController {

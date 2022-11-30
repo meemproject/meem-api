@@ -1,6 +1,6 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-/** Upgrad an agreement contract */
+/** Upgrade an agreement contract */
 export namespace UpgradeAgreement {
 	export interface IPathParams {
 		agreementId: string
