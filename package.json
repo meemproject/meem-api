@@ -56,7 +56,7 @@
 		"fetchMeemContracts": "tsnd --transpile-only src/scripts/fetchMeemContracts.ts",
 		"fetchMeemIdContracts": "tsnd --transpile-only src/scripts/fetchMeemIdContracts.ts",
 		"fetchContracts": "yarn fetchMeemContracts && yarn fetchMeemIdContracts",
-		"swagger": "npx swagger-inline 'src/types/shared/api/**/*.ts' --base 'src/types/shared/api/swaggerBase.yaml' > 'src/lib/meem-api.yaml'"
+		"swagger": "npx swagger-inline 'src/types/shared/api/**/*.ts' --base 'src/types/shared/api/swaggerBase.yaml' > 'public/meem-api.yaml'"
 	},
 	"dependencies": {
 		"@ethersproject/abstract-provider": "^5.7.0",
