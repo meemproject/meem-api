@@ -1,11 +1,12 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 import { IAgreementRole } from '../../meem.shared'
 
+/** Get an agreement role */
 export namespace GetAgreementRole {
 	export interface IPathParams {
-		/** The agreement id */
+		/** The id of the agreement */
 		agreementId: string
-		/** The agreement role id */
+		/** The id of the agreement role */
 		agreementRoleId: string
 	}
 
@@ -31,3 +32,24 @@ export namespace GetAgreementRole {
 
 	export type Response = IResponseBody | IError
 }
+
+/** OpenAPI Definition */
+
+/**
+ * 	@api [get] /agreements/{agreementId}/roles/{agreementRoleId}
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "TODO: Get an agreement role"
+ * 	description: "TODO: define the IAgreemeentRole role schema"
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 		- (path) agreementRoleId* {string} The id of the agreement role
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns the agreement role"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						description: IAgreemeentRole
+ * 						type: object
+ **/

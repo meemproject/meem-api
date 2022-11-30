@@ -737,8 +737,8 @@ export default class AgreementService {
 	// Adapted from https://forum.openzeppelin.com/t/creating-gnosis-safes-via-the-api/12031/2
 	// Gnosis safe deployments / abi: https://github.com/safe-global/safe-deployments/blob/main/src/assets/v1.3.0/gnosis_safe.json
 	// Gnosis proxy factory deployments / abi: https://github.com/safe-global/safe-deployments/blob/main/src/assets/v1.3.0/proxy_factory.json
-	public static async createClubSafe(
-		options: MeemAPI.v1.CreateClubSafe.IRequestBody & {
+	public static async createAgreementSafe(
+		options: MeemAPI.v1.CreateAgreementSafe.IRequestBody & {
 			agreementId: string
 			senderWalletAddress: string
 		}

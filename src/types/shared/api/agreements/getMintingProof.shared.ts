@@ -1,8 +1,9 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
+/** Get agreement minting proof */
 export namespace GetMintingProof {
 	export interface IPathParams {
-		/** The meem pass id to fetch */
+		/** The id of the agreement */
 		agreementId: string
 	}
 
@@ -28,3 +29,27 @@ export namespace GetMintingProof {
 
 	export type Response = IResponseBody | IError
 }
+
+/** OpenAPI Definition */
+
+/**
+ * 	@api [get] /agreements/{agreementId}
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Get agreement minting proof"
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns the agreement minting proof"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						type: object
+ * 						properties:
+ * 							proof:
+ * 								description: Agreement minting proof as array of hex strings
+ * 								type: array
+ * 								items:
+ * 									type: string
+ **/

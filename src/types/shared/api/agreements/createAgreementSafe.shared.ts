@@ -1,25 +1,27 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
-import { IMeemMetadataLike } from '../../meem.shared'
 
-/** Create an agreement extension */
-export namespace CreateAgreementExtension {
+/** Create an agreement safe */
+export namespace CreateAgreementSafe {
 	export interface IPathParams {
-		/** The id of the agreement */
 		agreementId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/extensions`
+		`/api/1.0/agreements/${options.agreementId}/safe`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** The slug of the extension to enable */
-		slug: string
-		/** Metadata to store for this extension */
-		metadata: IMeemMetadataLike
+		/** Addresses of the safe owners */
+		safeOwners: string[]
+
+		/** Chain id of the safe */
+		chainId: number
+
+		/** The number of signatures required */
+		threshold?: number
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -42,17 +44,17 @@ export namespace CreateAgreementExtension {
  * 	@api [post] /agreements/{agreementId}/extensions
  * 	security:
  * 		- jwtAuth: []
- * 	summary: "Create an agreement extension"
+ * 	summary: "Create an agreement safe"
  * 	parameters:
  * 		- (path) agreementId* {string} The id of the agreement
  * 	requestBody:
  * 		content:
  * 			application/json:
  * 				schema:
- * 					$ref: '#/components/schemas/CreateAgreementExtensionRequestBody'
+ * 					$ref: '#/components/schemas/CreateAgreementSafeRequestBody'
  * 	responses:
  * 		"200":
- * 			description: "Returns 'success' if bulk mint transaction is executed."
+ * 			description: "Returns 'success' if safe is successfully created."
  * 			content:
  * 				application/json:
  * 					schema:
@@ -60,15 +62,22 @@ export namespace CreateAgreementExtension {
  **/
 
 /**
- *  @schema CreateAgreementExtensionRequestBody
+ *  @schema CreateAgreementSafeRequestBody
  * 	required:
- * 		- slug
- * 		- metadata
+ * 		- safeOwners
+ * 		- chainId
  *  properties:
- *  	slug:
- *  		description: The slug of the extension to enable
- *  		type: string
- * 		metadata:
- * 			description: Metadata associated with this extension
- * 			type: object
+ *  	safeOwners:
+ * 			description: Addresses of the safe owners
+ *  		type: array
+ * 			items:
+ * 				type: string
+ *  	chainId:
+ * 			description: Chain id of the safe
+ *  		type: integer
+ * 			example: 421613
+ * 		threshold:
+ * 			description: The number of signatures required
+ * 			type: integer
+ * 			example: 2
  */

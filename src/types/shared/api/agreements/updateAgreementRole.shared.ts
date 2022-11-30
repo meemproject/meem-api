@@ -9,9 +9,9 @@ export namespace UpdateAgreementRole {
 		discordAccessToken: string
 	}
 	export interface IPathParams {
-		/** The agreement id */
+		/** The id of the agreement */
 		agreementId: string
-		/** The agreement role id */
+		/** The id of the agreement role */
 		agreementRoleId: string
 	}
 

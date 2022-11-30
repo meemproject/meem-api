@@ -4,9 +4,9 @@ import { IMeemMetadataLike } from '../../meem.shared'
 /** Bulk mint agreement role tokens */
 export namespace BulkMintAgreementRoleTokens {
 	export interface IPathParams {
-		/** The id of the Agreement */
+		/** The id of the agreement */
 		agreementId: string
-		/** The id of the AgreementRole */
+		/** The id of the agreement role */
 		agreementRoleId: string
 	}
 
@@ -40,3 +40,48 @@ export namespace BulkMintAgreementRoleTokens {
 
 	export type Response = IResponseBody | IError
 }
+
+/** OpenAPI Definition */
+
+/**
+ * 	@api [post] /agreements/{agreementId}/roles/{agreementRoleId}/bulkMint
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Bulk mint agreement role tokens"
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 		- (path) agreementRoleId* {string} The id of the agreement role
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/BulkMintAgreementRoleTokensRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if bulk mint transaction is executed."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
+
+/**
+ *  @schema BulkMintAgreementRoleTokensRequestBody
+ * 	required:
+ * 		- tokens
+ *  properties:
+ *  	tokens:
+ *  		description: The token
+ *  		type: array
+ * 			items:
+ * 				type: object
+ * 				required:
+ * 					- to
+ * 				properties:
+ * 					metadata:
+ * 						description: The token metadata
+ * 						type: object
+ * 					to:
+ * 						description: The address where the token will be minted
+ * 						type: string
+ */

@@ -18,6 +18,12 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	app.use('/api/1.0/', router)
 	app.use('/images/1.0/', imageRouter)
+	app.use(coreExpress.static('public'))
+
+	/** Auth Routes */
+
+	router.getAsync('/getNonce', MeemIdController.getNonce)
+	router.postAsync('/login', MeemIdController.login)
 
 	/** Current User Routes */
 
@@ -47,7 +53,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	)
 	router.postAsync(
 		'/agreements/:agreementId/safe',
-		AgreementController.createClubSafe
+		AgreementController.createAgreementSafe
 	)
 	router.postAsync(
 		'/agreements/:agreementId/bulkMint',
@@ -85,6 +91,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	// 	'/agreements/:agreementId/roles/:agreementRoleId',
 	// 	AgreementRoleController.updateAgreementRole
 	// )
+	// TODO: How do we handle deleting roles/role tokens?
 	// router.deleteAsync(
 	// 	'/agreements/:agreementId/roles/:agreementRoleId',
 	// 	AgreementRoleController.deleteAgreementRole
@@ -130,8 +137,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 	/** Misc Routes */
 
 	router.getAsync('/config', ConfigController.getConfig)
-	router.getAsync('/getNonce', MeemIdController.getNonce)
-	router.postAsync('/login', MeemIdController.login)
 	router.getAsync('/ipfs', MeemController.getIPFSFile)
 	router.postAsync('/generateTypes', TypesController.generateTypes)
 

@@ -5,7 +5,7 @@ import {
 	IMeemSplit
 } from '../../meem.shared'
 
-/** Create Meem Image */
+/** Reinitialize an agreement contract */
 export namespace ReInitializeAgreement {
 	export interface IPathParams {
 		agreementId: string
@@ -60,3 +60,67 @@ export namespace ReInitializeAgreement {
 
 	export type Response = IResponseBody | IError
 }
+
+/** OpenAPI Definition */
+
+/**
+ * 	@api [post] /agreements/{agreementId}/reinitialize
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Reinitialize an agreement contract."
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement to reinitialize
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/ReinitializeAgreementRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if reinitialize agreement transaction is executed."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
+
+/**
+ *  @schema ReinitializeAgreementRequestBody
+ *  properties:
+ *  	name:
+ *  		description: The name of the contract
+ *  		type: string
+ * 			example: "My Agreement"
+ *  	metadata:
+ * 			description: The contract metadata `IMeemMetadataLike`
+ *  		type: object
+ *  	maxSupply:
+ * 			description: The max number of tokens
+ *  		type: string
+ *  	symbol:
+ * 			description: The contract symbol. If omitted, will use slug generated from name.
+ *  		type: string
+ *  	admins:
+ * 			description: Contract admin addresses
+ *  		type: array
+ * 			items:
+ * 				type: string
+ *  	minters:
+ * 			description: Special minter permissions
+ *  		type: array
+ * 			items:
+ * 				type: string
+ *  	mintPermissions:
+ * 			description: Minting permissions
+ *  		type: array
+ * 			items:
+ * 				type: object
+ *  	splits:
+ * 			description: Splits for minting / transfers
+ *  		type: array
+ * 			items:
+ * 				type: object
+ * 		isTransferLocked:
+ * 			description: Whether tokens can be transferred
+ * 			type: boolean
+ */

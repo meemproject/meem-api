@@ -4,9 +4,9 @@ import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 /** Delete an agreement role contract */
 export namespace DeleteAgreementRole {
 	export interface IPathParams {
-		/** The agreement id */
+		/** The id of the agreement */
 		agreementId: string
-		/** The agreement role id */
+		/** The id of the agreement role */
 		agreementRoleId: string
 	}
 
@@ -32,3 +32,22 @@ export namespace DeleteAgreementRole {
 
 	export type Response = IResponseBody | IError
 }
+
+/** OpenAPI Definition */
+
+/**
+ * 	@api [delete] /agreements/{agreementId}/roles/{agreementRoleId}
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "TODO: Delete an agreement role."
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 		- (path) agreementRoleId* {string} The id of the agreement role
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if create agreement transaction is executed."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/

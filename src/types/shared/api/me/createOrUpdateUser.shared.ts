@@ -1,6 +1,7 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 import { IMeemId } from '../../meem.shared'
 
+/** Create or update the current user */
 export namespace CreateOrUpdateUser {
 	export interface IPathParams {}
 
@@ -20,7 +21,7 @@ export namespace CreateOrUpdateUser {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		user: any
 	}
 
 	export interface IDefinition {
@@ -32,3 +33,39 @@ export namespace CreateOrUpdateUser {
 
 	export type Response = IResponseBody | IError
 }
+
+/** OpenAPI Definition */
+
+/**
+ * 	@api [post] /me
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Create or update the current user"
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/CreateOrUpdateUserRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns a generated message to sign"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						type: object
+ * 						properties:
+ * 							user:
+ * 								description: The new or updated user
+ * 								type: object
+ **/
+
+/**
+ *  @schema CreateOrUpdateUserRequestBody
+ *  properties:
+ *  	profilePicBase64:
+ *  		description: Profile picture base64 string
+ *  		type: string
+ *  	displayName:
+ * 			description: Display name of identity
+ *  		type: string
+ */

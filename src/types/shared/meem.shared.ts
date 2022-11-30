@@ -494,8 +494,8 @@ export enum IntegrationVisibility {
 	/** Anyone can view the integration */
 	Anyone = 'anyone',
 
-	/** Users that are in the same club */
-	MutualClubMembers = 'mutual-club-members',
+	/** Users that are members of the same agreement */
+	MutualClubMembers = 'mutual-agreement-members',
 
 	/** Private. Only the current user can view */
 	JustMe = 'just-me'
@@ -568,28 +568,8 @@ export interface IMeemIdentity {
 export interface IAgreementRole {
 	id: string
 	name: string
-	guildRoleId?: number
 	isAdminRole: boolean
 	AgreementId: string
-	AgreementGuildId?: string
-	permissions: string[]
-	guildRole: {
-		id: number
-		name: string
-		description: string
-		imageUrl: string | null
-		members: string[]
-		rolePlatforms: {
-			guildPlatform: {
-				platformGuildId: string
-				invite?: string
-				platform: {
-					id: number
-					name: 'DISCORD'
-				}
-			}
-		}[]
-	}
 	memberMeemIds: IMeemIdentity[]
 }
 

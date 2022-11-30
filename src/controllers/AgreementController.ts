@@ -8,14 +8,6 @@ export default class AgreementController {
 		req: IRequest<MeemAPI.v1.IsSlugAvailable.IDefinition>,
 		res: IResponse<MeemAPI.v1.IsSlugAvailable.IResponseBody>
 	): Promise<Response> {
-		// if (!req.meemId) {
-		// 	throw new Error('USER_NOT_LOGGED_IN')
-		// }
-
-		// if (!req.meemId.MeemPass) {
-		// 	throw new Error('MEEMPASS_NOT_FOUND')
-		// }
-
 		if (!req.body.slug) {
 			return res.json({
 				isSlugAvailable: false
@@ -204,9 +196,9 @@ export default class AgreementController {
 		})
 	}
 
-	public static async createClubSafe(
-		req: IRequest<MeemAPI.v1.CreateClubSafe.IDefinition>,
-		res: IResponse<MeemAPI.v1.CreateClubSafe.IResponseBody>
+	public static async createAgreementSafe(
+		req: IRequest<MeemAPI.v1.CreateAgreementSafe.IDefinition>,
+		res: IResponse<MeemAPI.v1.CreateAgreementSafe.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
@@ -218,7 +210,7 @@ export default class AgreementController {
 
 		if (config.DISABLE_ASYNC_MINTING) {
 			try {
-				await services.agreement.createClubSafe({
+				await services.agreement.createAgreementSafe({
 					...req.body,
 					agreementId,
 					senderWalletAddress: req.wallet.address

@@ -28,3 +28,26 @@ export namespace GetAgreementRoles {
 
 	export type Response = IResponseBody | IError
 }
+
+/** OpenAPI Definition */
+
+/**
+ * 	@api [get] /agreements/{agreementId}/roles
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "TODO: Get all roles for an agreement"
+ * 	description: "TODO: define the IAgreemeentRole role schema"
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns the agreement role"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						description: IAgreemeentRole[]
+ * 						type: array
+ * 						items:
+ * 							description: IAgreemeentRole
+ * 							type: object
+ **/

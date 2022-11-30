@@ -26,7 +26,7 @@ export default class UserIdentity extends BaseModel<UserIdentity> {
 		visibility: {
 			type: DataTypes.STRING,
 			allowNull: false,
-			defaultValue: 'mutual-club-members'
+			defaultValue: 'mutual-agreement-members'
 		},
 		externalId: {
 			type: DataTypes.STRING,

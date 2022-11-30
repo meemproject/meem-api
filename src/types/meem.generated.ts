@@ -549,8 +549,8 @@ export enum IntegrationVisibility {
 	/** Anyone can view the integration */
 	Anyone = 'anyone',
 
-	/** Users that are in the same club */
-	MutualClubMembers = 'mutual-club-members',
+	/** Users that are members of the same agreement */
+	MutualClubMembers = 'mutual-agreement-members',
 
 	/** Private. Only the current user can view */
 	JustMe = 'just-me'
@@ -623,28 +623,8 @@ export interface IMeemIdentity {
 export interface IAgreementRole {
 	id: string
 	name: string
-	guildRoleId?: number
 	isAdminRole: boolean
 	AgreementId: string
-	AgreementGuildId?: string
-	permissions: string[]
-	guildRole: {
-		id: number
-		name: string
-		description: string
-		imageUrl: string | null
-		members: string[]
-		rolePlatforms: {
-			guildPlatform: {
-				platformGuildId: string
-				invite?: string
-				platform: {
-					id: number
-					name: 'DISCORD'
-				}
-			}
-		}[]
-	}
 	memberMeemIds: IMeemIdentity[]
 }
 
@@ -711,25 +691,6 @@ export enum QueueEvent {
 }
 
 
-export interface TweetMeemExtensionProperties {
-	meem_tweets_extension: {
-		tweet: {
-			text: string
-			userId: string
-			tweetId: string
-			entities?: any
-			username: string
-			createdAt: string
-			updatedAt: string
-			userProfileImageUrl: string
-		}
-		prompt?: {
-			body: string
-			startAt: string
-			tweetId: string
-		}
-	}
-}
 
 export namespace v1 {
 
@@ -819,6 +780,7 @@ export namespace GetIPFSFile {
 
 
 
+/** Generate nonce for client to sign and verify a user's wallet address */
 export namespace GetNonce {
 	export interface IPathParams {}
 
@@ -847,24 +809,27 @@ export namespace GetNonce {
 	export type Response = IResponseBody | IError
 }
 
-
+/** OpenAPI Definition */
 
 /**
- * @api [post] /login
- * description: "Log in a user."
- * requestBody:
- * 	content:
- * 		application/json:
- * 			schema:
- * 				$ref: '#/components/schemas/LoginRequestBody'
- * responses:
- * 	"200":
- * 		description: "Returns a jwt token for the logged-in user."
- * 		content:
- * 			application/json:
- * 				schema:
- * 					$ref: '#/components/schemas/LoginResponseBody'
+ * 	@api [get] /getNonce
+ * 	summary: "Generate nonce for client to sign and verify a user's wallet address"
+ * 	parameters:
+ * 		- (query) address* {string} The wallet address that will sign the message
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns a generated message to sign"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						type: object
+ * 						properties:
+ * 							nonce:
+ * 								description: The generated message to sign
+ * 								type: string
  **/
+
+
 
 /** Log in a user. */
 export namespace Login {
@@ -875,23 +840,6 @@ export namespace Login {
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
-
-	/**
-	 * @schema LoginRequestBody
-	 * required:
-	 * 	- accessToken
-	 * properties:
-	 * 	accessToken:
-	 * 		description: Login w/ access token provided by Auth0 magic link
-	 * 		type: integer
-	 * 		format: int64
-	 * 	address:
-	 * 		type: string
-	 * 	signature:
-	 * 		type: string
-	 * 	shouldConnectUser:
-	 * 		type: boolean
-	 */
 	export interface IRequestBody {
 		/** Login w/ access token provided by Auth0 magic link */
 		accessToken?: string
@@ -907,15 +855,113 @@ export namespace Login {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/**
-		 * @schema LoginResponseBody
-		 * properties:
-		 * 	jwt:
-		 * 		type: string
-		 */
-
 		/** JWT that can be used for future authentication */
 		jwt: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+/**
+ * 	@api [post] /login
+ * 	summary: "Log in a user."
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/LoginRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns a jwt token for the logged-in user."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						type: object
+ * 						properties:
+ * 							jwt:
+ * 								description: JWT that can be used for future authentication
+ * 								type: string
+ **/
+
+/**
+ *  @schema LoginRequestBody
+ *  properties:
+ *  	accessToken:
+ *  		description: Login w/ access token provided by Auth0 magic link
+ *  		type: string
+ *  	address:
+ * 			description: Login w/ wallet. Both address and signature must be provided
+ *  		type: string
+ *  	signature:
+ * 			description: Login w/ wallet. Both address and signature must be provided
+ *  		type: string
+ *  	shouldConnectUser:
+ * 			description: Whether to connect the login method with the currently authenticated user
+ *  		type: boolean
+ */
+
+
+
+export namespace AuthenticateWithDiscord {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		user: { [key: string]: any }
+		accessToken: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetDiscordServers {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		accessToken: string
+	}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		discordServers: IDiscordServer[]
 	}
 
 	export interface IDefinition {
@@ -933,9 +979,9 @@ export namespace Login {
 /** Bulk mint agreement role tokens */
 export namespace BulkMintAgreementRoleTokens {
 	export interface IPathParams {
-		/** The id of the Agreement */
+		/** The id of the agreement */
 		agreementId: string
-		/** The id of the AgreementRole */
+		/** The id of the agreement role */
 		agreementRoleId: string
 	}
 
@@ -970,12 +1016,57 @@ export namespace BulkMintAgreementRoleTokens {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
+
+/**
+ * 	@api [post] /agreements/{agreementId}/roles/{agreementRoleId}/bulkMint
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Bulk mint agreement role tokens"
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 		- (path) agreementRoleId* {string} The id of the agreement role
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/BulkMintAgreementRoleTokensRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if bulk mint transaction is executed."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
+
+/**
+ *  @schema BulkMintAgreementRoleTokensRequestBody
+ * 	required:
+ * 		- tokens
+ *  properties:
+ *  	tokens:
+ *  		description: The token
+ *  		type: array
+ * 			items:
+ * 				type: object
+ * 				required:
+ * 					- to
+ * 				properties:
+ * 					metadata:
+ * 						description: The token metadata
+ * 						type: object
+ * 					to:
+ * 						description: The address where the token will be minted
+ * 						type: string
+ */
+
 
 
 /** Bulk mint agreement tokens */
 export namespace BulkMintAgreementTokens {
 	export interface IPathParams {
-		/** The id of the Agreement */
+		/** The id of the agreement */
 		agreementId: string
 	}
 
@@ -988,10 +1079,10 @@ export namespace BulkMintAgreementTokens {
 
 	export interface IRequestBody {
 		tokens: {
-			/** Token metadata */
+			/** The token metadata */
 			metadata?: IMeemMetadataLike
 
-			/** The address where the token will be minted to. */
+			/** The address where the token will be minted */
 			to: string
 		}[]
 	}
@@ -1010,9 +1101,53 @@ export namespace BulkMintAgreementTokens {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
+
+/**
+ * 	@api [post] /agreements/{agreementId}/bulkMint
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Bulk mint agreement tokens"
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/BulkMintAgreementTokensRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if bulk mint transaction is executed."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
+
+/**
+ *  @schema BulkMintAgreementTokensRequestBody
+ * 	required:
+ * 		- tokens
+ *  properties:
+ *  	tokens:
+ *  		description: The token
+ *  		type: array
+ * 			items:
+ * 				type: object
+ * 				required:
+ * 					- to
+ * 				properties:
+ * 					metadata:
+ * 						description: The token metadata
+ * 						type: object
+ * 					to:
+ * 						description: The address where the token will be minted
+ * 						type: string
+ */
 
 
-/** Create an agreement contract */
+
+/** Create an agreement contract. */
 export namespace CreateAgreement {
 	export interface IPathParams {}
 
@@ -1035,10 +1170,10 @@ export namespace CreateAgreement {
 		/** The max number of tokens */
 		maxSupply: string
 
-		/** Whether the max supply is locked */
+		/** Whether the max number of tokens is locked */
 		isMaxSupplyLocked?: boolean
 
-		/** The contract symbol. If omitted, will use slug generated from name */
+		/** The contract symbol. If omitted, will use slug generated from name. */
 		symbol?: string
 
 		/** Contract admin addresses */
@@ -1080,12 +1215,97 @@ export namespace CreateAgreement {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
+
+/**
+ * 	@api [post] /agreements
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Create an agreement contract."
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/CreateAgreementRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if create agreement transaction is executed."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
+
+/**
+ *  @schema CreateAgreementRequestBody
+ * 	required:
+ * 		- name
+ * 		- metadata
+ * 		- chainId
+ * 		- maxSupply
+ *  properties:
+ *  	name:
+ *  		description: The name of the contract
+ *  		type: string
+ * 			example: "My Agreement"
+ *  	metadata:
+ * 			description: The contract metadata `IMeemMetadataLike`
+ *  		type: object
+ *  	chainId:
+ * 			description: The contract chain id
+ *  		type: integer
+ * 			example: 421613
+ *  	maxSupply:
+ * 			description: The max number of tokens
+ *  		type: string
+ * 		isMaxSupplyLocked:
+ * 			description: Is the max number of tokens locked
+ * 			type: boolean
+ *  	symbol:
+ * 			description: The contract symbol. If omitted, will use slug generated from name.
+ *  		type: string
+ *  	admins:
+ * 			description: Contract admin addresses
+ *  		type: array
+ * 			items:
+ * 				type: string
+ *  	minters:
+ * 			description: Special minter permissions
+ *  		type: array
+ * 			items:
+ * 				type: string
+ *  	mintPermissions:
+ * 			description: Minting permissions
+ *  		type: array
+ * 			items:
+ * 				type: object
+ *  	splits:
+ * 			description: Splits for minting / transfers
+ *  		type: array
+ * 			items:
+ * 				type: object
+ * 		isTransferLocked:
+ * 			description: Whether tokens can be transferred
+ * 			type: boolean
+ * 		shouldMintTokens:
+ * 			description: If true, will mint a token to the admin wallet addresses and any addresses in the members parameter.
+ * 			type: boolean
+ *  	members:
+ * 			description: Additional non-admin member addresses that will receive tokens if shouldMintTokens is true
+ *  		type: array
+ * 			items:
+ * 				type: string
+ *  	tokenMetadata:
+ * 			description: Token metadata to use if shouldMintTokens is true
+ *  		type: object
+ */
+
 
 
 /** Create an agreement extension */
 export namespace CreateAgreementExtension {
 	export interface IPathParams {
-		/** The meem contract id to fetch */
+		/** The id of the agreement */
 		agreementId: string
 	}
 
@@ -1099,8 +1319,8 @@ export namespace CreateAgreementExtension {
 	export interface IRequestBody {
 		/** The slug of the extension to enable */
 		slug: string
-		/** Metadata associated with this extension */
-		metadata?: IMeemMetadataLike
+		/** Metadata to store for this extension */
+		metadata: IMeemMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -1116,6 +1336,43 @@ export namespace CreateAgreementExtension {
 
 	export type Response = IResponseBody | IError
 }
+
+/** OpenAPI Definition */
+
+/**
+ * 	@api [post] /agreements/{agreementId}/extensions
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Create an agreement extension"
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/CreateAgreementExtensionRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if bulk mint transaction is executed."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
+
+/**
+ *  @schema CreateAgreementExtensionRequestBody
+ * 	required:
+ * 		- slug
+ * 		- metadata
+ *  properties:
+ *  	slug:
+ *  		description: The slug of the extension to enable
+ *  		type: string
+ * 		metadata:
+ * 			description: Metadata associated with this extension
+ * 			type: object
+ */
 
 
 
@@ -1187,10 +1444,92 @@ export namespace CreateAgreementRole {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
+
+/**
+ * 	@api [post] /agreements/{agreementId}/roles
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Create an agreement role contract"
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement to create a role for
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/CreateAgreementRoleRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if create agreement transaction is executed."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
+
+/**
+ *  @schema CreateAgreementRoleRequestBody
+ * 	required:
+ * 		- name
+ * 		- metadata
+ * 		- maxSupply
+ *  properties:
+ *  	name:
+ *  		description: The name of the contract
+ *  		type: string
+ * 			example: "My Agreement Role"
+ *  	metadata:
+ * 			description: The contract metadata `IMeemMetadataLike`
+ *  		type: object
+ *  	maxSupply:
+ * 			description: The max number of tokens
+ *  		type: string
+ * 		isMaxSupplyLocked:
+ * 			description: Is the max number of tokens locked
+ * 			type: boolean
+ *  	symbol:
+ * 			description: The contract symbol. If omitted, will use slug generated from name.
+ *  		type: string
+ *  	admins:
+ * 			description: Contract admin addresses
+ *  		type: array
+ * 			items:
+ * 				type: string
+ *  	minters:
+ * 			description: Special minter permissions
+ *  		type: array
+ * 			items:
+ * 				type: string
+ *  	mintPermissions:
+ * 			description: Minting permissions
+ *  		type: array
+ * 			items:
+ * 				type: object
+ *  	splits:
+ * 			description: Splits for minting / transfers
+ *  		type: array
+ * 			items:
+ * 				type: object
+ * 		isTransferLocked:
+ * 			description: Whether tokens can be transferred
+ * 			type: boolean
+ * 		shouldMintTokens:
+ * 			description: If true, will mint a token to the admin wallet addresses and any addresses in the members parameter.
+ * 			type: boolean
+ *  	members:
+ * 			description: Additional non-admin member addresses that will receive tokens if shouldMintTokens is true
+ *  		type: array
+ * 			items:
+ * 				type: string
+ *  	tokenMetadata:
+ * 			description: Token metadata to use if shouldMintTokens is true
+ *  		type: object
+ */
 
 
-/** Create a Gnosis safe */
-export namespace CreateClubSafe {
+
+/** Create an agreement safe */
+export namespace CreateAgreementSafe {
 	export interface IPathParams {
 		agreementId: string
 	}
@@ -1203,9 +1542,10 @@ export namespace CreateClubSafe {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** The owners of the safe */
+		/** Addresses of the safe owners */
 		safeOwners: string[]
 
+		/** Chain id of the safe */
 		chainId: number
 
 		/** The number of signatures required */
@@ -1226,14 +1566,58 @@ export namespace CreateClubSafe {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
+
+/**
+ * 	@api [post] /agreements/{agreementId}/extensions
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Create an agreement safe"
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/CreateAgreementSafeRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if safe is successfully created."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
+
+/**
+ *  @schema CreateAgreementSafeRequestBody
+ * 	required:
+ * 		- safeOwners
+ * 		- chainId
+ *  properties:
+ *  	safeOwners:
+ * 			description: Addresses of the safe owners
+ *  		type: array
+ * 			items:
+ * 				type: string
+ *  	chainId:
+ * 			description: Chain id of the safe
+ *  		type: integer
+ * 			example: 421613
+ * 		threshold:
+ * 			description: The number of signatures required
+ * 			type: integer
+ * 			example: 2
+ */
+
 
 
 /** Delete an agreement role contract */
 export namespace DeleteAgreementRole {
 	export interface IPathParams {
-		/** The agreement id */
+		/** The id of the agreement */
 		agreementId: string
-		/** The agreement role id */
+		/** The id of the agreement role */
 		agreementRoleId: string
 	}
 
@@ -1260,44 +1644,33 @@ export namespace DeleteAgreementRole {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
 
-
-export namespace GetAgreementGuild {
-	export interface IPathParams {
-		/** The Agreement id of the guild to fetch */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/guild`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		guild: IGuild | null
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
+/**
+ * 	@api [delete] /agreements/{agreementId}/roles/{agreementRoleId}
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "TODO: Delete an agreement role."
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 		- (path) agreementRoleId* {string} The id of the agreement role
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if create agreement transaction is executed."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
 
 
 
+/** Get an agreement role */
 export namespace GetAgreementRole {
 	export interface IPathParams {
-		/** The agreement id */
+		/** The id of the agreement */
 		agreementId: string
-		/** The agreement role id */
+		/** The id of the agreement role */
 		agreementRoleId: string
 	}
 
@@ -1323,6 +1696,27 @@ export namespace GetAgreementRole {
 
 	export type Response = IResponseBody | IError
 }
+
+/** OpenAPI Definition */
+
+/**
+ * 	@api [get] /agreements/{agreementId}/roles/{agreementRoleId}
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "TODO: Get an agreement role"
+ * 	description: "TODO: define the IAgreemeentRole role schema"
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 		- (path) agreementRoleId* {string} The id of the agreement role
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns the agreement role"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						description: IAgreemeentRole
+ * 						type: object
+ **/
 
 
 
@@ -1355,11 +1749,35 @@ export namespace GetAgreementRoles {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
+
+/**
+ * 	@api [get] /agreements/{agreementId}/roles
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "TODO: Get all roles for an agreement"
+ * 	description: "TODO: define the IAgreemeentRole role schema"
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns the agreement role"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						description: IAgreemeentRole[]
+ * 						type: array
+ * 						items:
+ * 							description: IAgreemeentRole
+ * 							type: object
+ **/
 
 
+
+/** Get agreement minting proof */
 export namespace GetMintingProof {
 	export interface IPathParams {
-		/** The meem pass id to fetch */
+		/** The id of the agreement */
 		agreementId: string
 	}
 
@@ -1386,40 +1804,33 @@ export namespace GetMintingProof {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
 
-
-export namespace GetUserAgreementRolesAccess {
-	export interface IPathParams {
-		/** The Agreement id */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/roles/access`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		hasRolesAccess: boolean
-		roles: IAgreementRole[]
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
+/**
+ * 	@api [get] /agreements/{agreementId}
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Get agreement minting proof"
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns the agreement minting proof"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						type: object
+ * 						properties:
+ * 							proof:
+ * 								description: Agreement minting proof as array of hex strings
+ * 								type: array
+ * 								items:
+ * 									type: string
+ **/
 
 
 
+/** Check if agreement slug is available */
 export namespace IsSlugAvailable {
 	export interface IPathParams {}
 
@@ -1431,10 +1842,10 @@ export namespace IsSlugAvailable {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** New slug to check */
+		/** New agreement slug to check */
 		slug: string
 
-		/** The new agreement chain id */
+		/** The chain id of new agreement */
 		chainId: number
 	}
 
@@ -1452,9 +1863,49 @@ export namespace IsSlugAvailable {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
+
+/**
+ * 	@api [post] /agreements/isSlugAvailable
+ * 	summary: Check if agreement slug is available
+ * 	description: When creating a new agreement contract, you can specify the slug that is stored in the Meem indexer database. This endpoint will allow you to see if a slug is avilable before creating the agreement contract.
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/IsAgreementSlugAvailableRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns the agreement minting proof"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						type: object
+ * 						properties:
+ * 							isSlugAvailable:
+ * 								description: Whether this slug is available
+ * 								type: boolean
+ **/
+
+/**
+ *  @schema IsAgreementSlugAvailableRequestBody
+ * 	required:
+ * 		- slug
+ * 		- chainId
+ *  properties:
+ *  	slug:
+ *  		description: New agreement slug to check
+ *  		type: string
+ * 			example: "my-agreement"
+ *  	chainId:
+ *  		description: The chain id of new agreement. Agreement slugs are unique to the chain of the agreement contract.
+ *  		type: integer
+ * 			example: 421613
+ */
 
 
-/** Create Meem Image */
+
+/** Reinitialize an agreement contract */
 export namespace ReInitializeAgreement {
 	export interface IPathParams {
 		agreementId: string
@@ -1510,12 +1961,76 @@ export namespace ReInitializeAgreement {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
+
+/**
+ * 	@api [post] /agreements/{agreementId}/reinitialize
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Reinitialize an agreement contract."
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement to reinitialize
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/ReinitializeAgreementRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if reinitialize agreement transaction is executed."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
+
+/**
+ *  @schema ReinitializeAgreementRequestBody
+ *  properties:
+ *  	name:
+ *  		description: The name of the contract
+ *  		type: string
+ * 			example: "My Agreement"
+ *  	metadata:
+ * 			description: The contract metadata `IMeemMetadataLike`
+ *  		type: object
+ *  	maxSupply:
+ * 			description: The max number of tokens
+ *  		type: string
+ *  	symbol:
+ * 			description: The contract symbol. If omitted, will use slug generated from name.
+ *  		type: string
+ *  	admins:
+ * 			description: Contract admin addresses
+ *  		type: array
+ * 			items:
+ * 				type: string
+ *  	minters:
+ * 			description: Special minter permissions
+ *  		type: array
+ * 			items:
+ * 				type: string
+ *  	mintPermissions:
+ * 			description: Minting permissions
+ *  		type: array
+ * 			items:
+ * 				type: object
+ *  	splits:
+ * 			description: Splits for minting / transfers
+ *  		type: array
+ * 			items:
+ * 				type: object
+ * 		isTransferLocked:
+ * 			description: Whether tokens can be transferred
+ * 			type: boolean
+ */
+
 
 
 /** Update an agreement extension */
 export namespace UpdateAgreementExtension {
 	export interface IPathParams {
-		/** The agreement id */
+		/** The id of the agreement */
 		agreementId: string
 
 		/** The extension slug */
@@ -1548,6 +2063,40 @@ export namespace UpdateAgreementExtension {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
+
+/**
+ * 	@api [put] /agreements/{agreementId}/extensions/{slug}
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Update an agreement extension"
+ * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 		- (path) slug* {string} The extension slug
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/UpdateAgreementExtensionRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if bulk mint transaction is executed."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
+
+/**
+ *  @schema UpdateAgreementExtensionRequestBody
+ * 	required:
+ * 		- metadata
+ *  properties:
+ * 		metadata:
+ * 			description: Metadata to store for this extension
+ * 			type: object
+ */
+
 
 
 /** Update an agreement role */
@@ -1558,9 +2107,9 @@ export namespace UpdateAgreementRole {
 		discordAccessToken: string
 	}
 	export interface IPathParams {
-		/** The agreement id */
+		/** The id of the agreement */
 		agreementId: string
-		/** The agreement role id */
+		/** The id of the agreement role */
 		agreementRoleId: string
 	}
 
@@ -1635,72 +2184,36 @@ export namespace UpgradeAgreement {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
 
+/**
+ * 	@api [post] /agreements/{agreementId}/upgrade
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Upgrade an agreement contract."
+ * 	parameters:
+ * 		- (path) agreementId* {string} The ID of the agreement to upgrade
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/UpgradeAgreementRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if upgrade agreement transaction is executed."
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
 
-export namespace AuthenticateWithDiscord {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		user: { [key: string]: any }
-		accessToken: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetDiscordServers {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {
-		accessToken: string
-	}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		discordServers: IDiscordServer[]
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
+/**
+ *  @schema UpgradeAgreementRequestBody
+ *  properties:
+ *  	bundleId:
+ *  		description: Specify the bundle id to upgrade to. Defaults to latest Agreements bundle
+ *  		type: string
+ */
 
 
 
@@ -1990,37 +2503,7 @@ export namespace JoinGuild {
 
 
 
-export namespace AttachIdentity {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/attachIdentity`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** Login w/ access token provided by Auth0 magic link */
-		accessToken?: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		/** JWT that can be used for future authentication */
-		jwt: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
+/** Create or update the current user */
 export namespace CreateOrUpdateUser {
 	export interface IPathParams {}
 
@@ -2040,7 +2523,7 @@ export namespace CreateOrUpdateUser {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		user: any
 	}
 
 	export interface IDefinition {
@@ -2053,8 +2536,45 @@ export namespace CreateOrUpdateUser {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
+
+/**
+ * 	@api [post] /me
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Create or update the current user"
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/CreateOrUpdateUserRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns a generated message to sign"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						type: object
+ * 						properties:
+ * 							user:
+ * 								description: The new or updated user
+ * 								type: object
+ **/
+
+/**
+ *  @schema CreateOrUpdateUserRequestBody
+ *  properties:
+ *  	profilePicBase64:
+ *  		description: Profile picture base64 string
+ *  		type: string
+ *  	displayName:
+ * 			description: Display name of identity
+ *  		type: string
+ */
 
 
+
+/** Remove a user identity integration from the current user identity */
 export namespace DetachUserIdentity {
 	export interface IPathParams {
 		integrationId: string
@@ -2082,6 +2602,24 @@ export namespace DetachUserIdentity {
 
 	export type Response = IResponseBody | IError
 }
+
+/** OpenAPI Definition */
+
+/**
+ * 	@api [delete] /me/integrations/{integrationId}
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Remove a user identity integration from the current user identity"
+ * 	parameters:
+ * 		- (path) integrationId* {string} The user identity integration id to remove
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if user identity integration was removed"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
 
 
 
@@ -2124,9 +2662,14 @@ export namespace GetMe {
 	export interface IRequestBody {}
 
 	export interface IResponseBody extends IApiResponseBody {
+		/** The authenticated user's wallet id */
 		walletId: string
+
+		/** The authenticated user's wallet address */
 		address: string
-		meemIdentity: any
+
+		/** The authenticated user */
+		user: any
 	}
 
 	export interface IDefinition {
@@ -2139,8 +2682,37 @@ export namespace GetMe {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
+
+/**
+ * 	@api [get] /me
+ * 	summary: "Generate nonce for client to sign and verify a user's wallet address"
+ * 	security:
+ * 		- jwtAuth: []
+ * 	parameters:
+ * 		- (query) address* {string} The wallet address that will sign the message
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns a generated message to sign"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						type: object
+ * 						properties:
+ * 							walletId:
+ * 								description: The authenticated user's wallet id
+ * 								type: string
+ * 							address:
+ * 								description: The authenticated user's wallet address
+ * 								type: string
+ * 							user:
+ * 								description: The authenticated user
+ * 								type: object
+ **/
 
 
+
+/** Refresh the ENS name for the current user's wallet address */
 export namespace RefreshENS {
 	export interface IPathParams {}
 
@@ -2166,11 +2738,26 @@ export namespace RefreshENS {
 	export type Response = IResponseBody | IError
 }
 
+/**
+ * 	@api [get] /me/refreshENS
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Refresh the ENS name for the current user's wallet address"
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if ENS was updated"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/
 
 
+
+/** Update current user identity */
 export namespace UpdateUserIdentity {
 	export interface IPathParams {
-		/** The integration id to connect or update */
+		/** The user identity integration id to connect or update */
 		integrationId: string
 	}
 
@@ -2182,14 +2769,14 @@ export namespace UpdateUserIdentity {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Set the visibility type of the integration */
+		/** Set the visibility type of the user identity integration */
 		visibility?: IntegrationVisibility
-		/** Metadata associated with this integration */
+		/** Metadata associated with this user identity integration */
 		metadata?: { [key: string]: unknown }
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		userIdentity: any
 	}
 
 	export interface IDefinition {
@@ -2202,96 +2789,50 @@ export namespace UpdateUserIdentity {
 	export type Response = IResponseBody | IError
 }
 
+/** OpenAPI Definition */
+
+/**
+ * 	@api [post] /me/integrations/{integrationId}
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Update current user identity"
+ * 	parameters:
+ * 		- (path) integrationId* {string} The user identity integration id to connect or update
+ * 	requestBody:
+ * 		content:
+ * 			application/json:
+ * 				schema:
+ * 					$ref: '#/components/schemas/UpdateUserIdentityRequestBody'
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns a generated message to sign"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						type: object
+ * 						properties:
+ * 							userIdentity:
+ * 								description: The new or updated user identity
+ * 								type: object
+ **/
+
+/**
+ *  @schema UpdateUserIdentityRequestBody
+ *  properties:
+ *  	visibility:
+ *  		description: Set the visibility type of the user identity integration
+ *  		type: string
+ * 			default: mutual-agreement-members
+ * 			enum:
+ * 				- just-me
+ * 				- mutual-agreement-members
+ * 				- anyone
+ *  	metadata:
+ * 			description: Metadata associated with this user identity integration
+ *  		type: string
+ **/
 
 
-/** Get Meem Tweets */
-export namespace GetTweets {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/tweets`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		tweets: any[]
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-/** Get Twitter Access Token */
-export namespace GetTwitterAccessToken {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/meemid/twitter/access-token`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		oauthToken: string
-		oauthTokenSecret: string
-		oauthVerifier: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		accessToken: string
-		accessTokenSecret: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-/** Get Twitter Auth Url */
-export namespace GetTwitterAuthUrl {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/meemid/twitter/request-url`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		url: string
-		oauthToken: string
-		oauthTokenSecret: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
 
 }
 export enum MeemEvent {

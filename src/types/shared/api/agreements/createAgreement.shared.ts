@@ -79,7 +79,7 @@ export namespace CreateAgreement {
  * 	@api [post] /agreements
  * 	security:
  * 		- jwtAuth: []
- * 	description: "Create an agreement contract."
+ * 	summary: "Create an agreement contract."
  * 	requestBody:
  * 		content:
  * 			application/json:

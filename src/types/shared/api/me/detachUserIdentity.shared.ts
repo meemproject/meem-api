@@ -1,5 +1,6 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
+/** Remove a user identity integration from the current user identity */
 export namespace DetachUserIdentity {
 	export interface IPathParams {
 		integrationId: string
@@ -27,3 +28,21 @@ export namespace DetachUserIdentity {
 
 	export type Response = IResponseBody | IError
 }
+
+/** OpenAPI Definition */
+
+/**
+ * 	@api [delete] /me/integrations/{integrationId}
+ * 	security:
+ * 		- jwtAuth: []
+ * 	summary: "Remove a user identity integration from the current user identity"
+ * 	parameters:
+ * 		- (path) integrationId* {string} The user identity integration id to remove
+ * 	responses:
+ * 		"200":
+ * 			description: "Returns 'success' if user identity integration was removed"
+ * 			content:
+ * 				application/json:
+ * 					schema:
+ * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ **/

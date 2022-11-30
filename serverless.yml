@@ -128,8 +128,8 @@ functions:
     handler: build/serverless/reInitialize.handle
     timeout: 300
     memorySize: 512
-  createClubSafe:
-    handler: build/serverless/createClubSafe.handle
+  createAgreementSafe:
+    handler: build/serverless/createAgreementSafe.handle
     timeout: 300
     memorySize: 512
   upgradeAgreement:
