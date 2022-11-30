@@ -18,7 +18,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	app.use('/api/1.0/', router)
 	app.use('/images/1.0/', imageRouter)
-	app.use(coreExpress.static('public'))
 
 	/** Auth Routes */
 
@@ -139,6 +138,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/config', ConfigController.getConfig)
 	router.getAsync('/ipfs', MeemController.getIPFSFile)
 	router.postAsync('/generateTypes', TypesController.generateTypes)
+	router.getAsync('/meem-api.yaml', TypesController.getOpenAPIFile)
 
 	/** Test Routes */
 

@@ -1480,7 +1480,7 @@ export namespace UpdateAgreementRole {
 
 
 
-/** Upgrad an agreement contract */
+/** Upgrade an agreement contract */
 export namespace UpgradeAgreement {
 	export interface IPathParams {
 		agreementId: string
