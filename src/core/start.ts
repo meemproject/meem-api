@@ -106,7 +106,10 @@ async function loadAllMiddleware(app: Express) {
 	log.info(`Load Afterware: ${(log.timerEnd(timer) / 1000).toFixed(4)} seconds`)
 }
 
-export default async function start() {
+export default async function start(options: {
+	isListeningDisabled?: boolean
+}) {
+	const { isListeningDisabled } = options
 	const g = global as any
 	g.configuration = new Configuration()
 	g.config = await configuration.load()
@@ -134,7 +137,10 @@ export default async function start() {
 		port = 1337
 	}
 
-	const server = config.SERVER_LISTENING ? await listen(app) : undefined
+	const server =
+		config.SERVER_LISTENING && !isListeningDisabled
+			? await listen(app)
+			: undefined
 
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	const Sockets = (await import('./Sockets')).default
