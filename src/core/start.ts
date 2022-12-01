@@ -106,10 +106,10 @@ async function loadAllMiddleware(app: Express) {
 	log.info(`Load Afterware: ${(log.timerEnd(timer) / 1000).toFixed(4)} seconds`)
 }
 
-export default async function start(options: {
+export default async function start(options?: {
 	isListeningDisabled?: boolean
 }) {
-	const { isListeningDisabled } = options
+	const isListeningDisabled = options?.isListeningDisabled === true
 	const g = global as any
 	g.configuration = new Configuration()
 	g.config = await configuration.load()
