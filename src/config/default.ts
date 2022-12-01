@@ -187,10 +187,10 @@ export default {
 		process.env.AUTH0_VERIFY_EMAIL_CALLBACK_URL ?? '',
 	PG_LOCK_RETRY_COUNT: process.env.PG_LOCK_RETRY_COUNT
 		? +process.env.PG_LOCK_RETRY_COUNT
-		: 3,
+		: 10,
 	PG_LOCK_TIMEOUT: process.env.PG_LOCK_TIMEOUT
 		? +process.env.PG_LOCK_TIMEOUT
-		: 10000,
+		: 60000,
 	WALLET_LOCK_KEY: process.env.WALLET_LOCK_KEY ?? 'apiWallet',
 	ARBITRUM_GAS_MULTIPLIER: process.env.ARBITRUM_GAS_MULTIPLIER
 		? +process.env.ARBITRUM_GAS_MULTIPLIER
