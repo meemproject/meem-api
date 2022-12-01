@@ -101,5 +101,7 @@ export default class AgreementToken extends BaseModel<AgreementToken> {
 		this.belongsTo(models.Wallet, {
 			as: 'Owner'
 		})
+
+		this.belongsTo(models.Transaction)
 	}
 }

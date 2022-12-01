@@ -6,7 +6,6 @@ import {
 	getMerkleInfo
 } from '@meemproject/meem-contracts'
 import { Validator } from '@meemproject/metadata'
-import AWS from 'aws-sdk'
 // eslint-disable-next-line import/named
 import { ethers } from 'ethers'
 import _ from 'lodash'
@@ -104,7 +103,7 @@ export default class AgreementService {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
 			}
 
-			const { wallet, contractInitParams, fullMintPermissions, senderWallet } =
+			const { wallet, contractInitParams, fullMintPermissions } =
 				await this.prepareInitValues({
 					...data,
 					chainId: agreementInstance.chainId,

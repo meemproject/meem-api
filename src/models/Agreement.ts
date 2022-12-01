@@ -11,6 +11,7 @@ import type { IModels } from '../types/models'
 import AgreementRole from './AgreementRole'
 import type AgreementToken from './AgreementToken'
 import type Extension from './Extension'
+import Transaction from './Transaction'
 import type Wallet from './Wallet'
 
 export default class Agreement extends ModelWithAddress<Agreement> {
@@ -339,6 +340,10 @@ export default class Agreement extends ModelWithAddress<Agreement> {
 
 	public Extensions?: Extension[] | null
 
+	public TransactionId!: string | null
+
+	public Transaction?: Transaction[] | null
+
 	public static associate(models: IModels) {
 		this.hasMany(models.AgreementToken, {
 			as: 'Tokens'
@@ -356,5 +361,7 @@ export default class Agreement extends ModelWithAddress<Agreement> {
 		this.belongsTo(models.Wallet, {
 			as: 'Owner'
 		})
+
+		this.belongsTo(models.Transaction)
 	}
 }

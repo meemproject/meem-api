@@ -262,6 +262,9 @@ export default class QueueService {
 						}
 					)
 
+					transaction.hash = tx.hash
+					await transaction.save()
+
 					log.debug(`DiamondCut contract w/ hash: ${tx.hash}`)
 
 					try {
