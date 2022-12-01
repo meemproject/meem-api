@@ -1,3 +1,4 @@
+import { diamondABI } from '@meemproject/meem-contracts'
 import { MeemMetadataLike, Validator } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 // import { IGunChainReference } from 'gun/types/chain'
@@ -182,8 +183,9 @@ export default class ContractEvent {
 	public static async meemHandleContractInitialized(args: {
 		address: string
 		chainId: number
+		transactionHash?: string
 	}): Promise<Agreement | AgreementRole | null> {
-		const { address, chainId } = args
+		const { address, chainId, transactionHash } = args
 		const agreementOrRoleContract = (await services.meem.getAgreement({
 			address,
 			chainId
@@ -199,26 +201,32 @@ export default class ContractEvent {
 			return null
 		}
 
-		const metadata = (await services.meem.getErc721Metadata(
-			contractInfo.contractURI as string
-		)) as MeemMetadataLike
+		const { wallet } = await services.ethers.getProvider({ chainId })
 
-		if (metadata.meem_metadata_type) {
-			// Don't index contract if not a valid meem_metadata_type
-			const contractMetadataValidator = new Validator(metadata)
-			const contractMetadataValidatorResult =
-				contractMetadataValidator.validate(metadata)
+		const instance = new ethers.Contract(address, diamondABI, wallet)
 
-			if (!contractMetadataValidatorResult.valid) {
-				log.crit(
-					contractMetadataValidatorResult.errors.map((e: any) => e.message)
-				)
-				return null
-			}
-		} else {
-			log.crit('Invalid metadata.')
-			return null
-		}
+		const [metadata, ownerAddress] = await Promise.all([
+			services.meem.getErc721Metadata(contractInfo.contractURI as string),
+			instance.owner()
+		])
+
+		// TODO: Fix validation
+		// if (metadata.meem_contract_type) {
+		// 	// Don't index contract if not a valid meem_contract_type
+		// 	const contractMetadataValidator = new Validator(metadata)
+		// 	const contractMetadataValidatorResult =
+		// 		contractMetadataValidator.validate(metadata)
+
+		// 	if (!contractMetadataValidatorResult.valid) {
+		// 		log.crit(
+		// 			contractMetadataValidatorResult.errors.map((e: any) => e.message)
+		// 		)
+		// 		return null
+		// 	}
+		// } else {
+		// 	log.crit('Invalid metadata.')
+		// 	return null
+		// }
 
 		const isRoleAgreement =
 			metadata.meem_metadata_type === 'Meem_AgreementRoleContract'
@@ -293,6 +301,15 @@ export default class ContractEvent {
 			})
 		}
 
+		const [transaction, owner] = await Promise.all([
+			orm.models.Transaction.findOne({
+				where: {
+					hash: transactionHash
+				}
+			}),
+			orm.models.Wallet.findByAddress<Wallet>(ownerAddress)
+		])
+
 		const agreementOrRoleData = {
 			slug,
 			symbol: contractInfo.symbol,
@@ -308,7 +325,9 @@ export default class ContractEvent {
 				lockedBy: s.lockedBy
 			})),
 			isTransferrable: !contractInfo.isTransferLocked,
-			chainId
+			chainId,
+			OwnerId: owner?.id,
+			TransactionId: transaction?.id
 		}
 
 		const t = await orm.sequelize.transaction()
@@ -826,7 +845,7 @@ export default class ContractEvent {
 		chainId: number
 	}) {
 		const tokenId = args.eventData.tokenId.toHexString()
-		const { chainId, address } = args
+		const { chainId, address, transactionHash } = args
 
 		const agreement = await services.agreement.getAgreementContract({
 			address,
@@ -858,7 +877,8 @@ export default class ContractEvent {
 				token = await this.createNewAgreementToken({
 					address: args.address,
 					tokenId,
-					chainId
+					chainId,
+					transactionHash
 				})
 			} else {
 				log.debug(`Updating token: ${tokenId}`)
@@ -883,7 +903,7 @@ export default class ContractEvent {
 			await orm.models.AgreementTokenTransfer.create({
 				from: args.eventData.from,
 				to: args.eventData.to,
-				transactionHash: args.transactionHash,
+				transactionHash,
 				transferredAt,
 				AgreementTokenId: token.id
 			})
@@ -943,11 +963,18 @@ export default class ContractEvent {
 		address: string
 		tokenId: string
 		chainId: number
+		transactionHash: string
 	}) {
-		const { address, tokenId, chainId } = options
+		const { address, tokenId, chainId, transactionHash } = options
 		const agreement = await services.agreement.getAgreementContract({
 			address,
 			chainId
+		})
+
+		const transaction = await orm.models.Transaction.findOne({
+			where: {
+				hash: transactionHash
+			}
 		})
 
 		log.debug(`Fetching AgreementToken from contract: ${tokenId}`)
@@ -997,7 +1024,8 @@ export default class ContractEvent {
 			metadata,
 			mintedBy: tokenData.mintedBy,
 			AgreementId: agreementData.id,
-			OwnerId: wallet.id
+			OwnerId: wallet.id,
+			TransactionId: transaction?.id
 		}
 
 		log.debug(`Saving AgreementToken to db: ${tokenId}`)

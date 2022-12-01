@@ -6,7 +6,6 @@ import {
 	getMerkleInfo
 } from '@meemproject/meem-contracts'
 import { Validator } from '@meemproject/metadata'
-import AWS from 'aws-sdk'
 // eslint-disable-next-line import/named
 import { ethers } from 'ethers'
 import _ from 'lodash'
@@ -104,7 +103,7 @@ export default class AgreementService {
 				throw new Error('MEEM_CONTRACT_NOT_FOUND')
 			}
 
-			const { wallet, contractInitParams, fullMintPermissions, senderWallet } =
+			const { wallet, contractInitParams, fullMintPermissions } =
 				await this.prepareInitValues({
 					...data,
 					chainId: agreementInstance.chainId,
@@ -136,13 +135,6 @@ export default class AgreementService {
 				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
 
-			await orm.models.Transaction.create({
-				hash: tx.hash,
-				chainId: agreementInstance.chainId,
-				WalletId: senderWallet.id,
-				encodeTransactionInput: {}
-			})
-
 			await agreementInstance.save()
 
 			log.debug(`Reinitialize tx: ${tx.hash}`)
@@ -164,221 +156,181 @@ export default class AgreementService {
 		data: MeemAPI.v1.CreateAgreement.IRequestBody & {
 			senderWalletAddress: string
 		}
-	): Promise<Agreement> {
-		const {
-			shouldMintTokens,
-			tokenMetadata,
-			members,
-			senderWalletAddress,
-			chainId
-		} = data
+	) {
+		const { shouldMintTokens, tokenMetadata, members, chainId, metadata } = data
 
-		try {
-			const [dbContract, bundle] = await Promise.all([
-				orm.models.Contract.findOne({
-					where: {
-						id: config.MEEM_PROXY_CONTRACT_ID
-					}
-				}),
-				orm.models.Bundle.findOne({
-					where: {
-						id: config.MEEM_BUNDLE_ID
-					},
-					include: [
-						{
-							model: orm.models.BundleContract,
-							include: [
-								{
-									model: orm.models.Contract,
-									include: [
-										{
-											model: orm.models.ContractInstance,
-											where: {
-												chainId
-											}
-										}
-									]
-								}
-							]
-						}
-					]
-				})
-			])
-
-			if (!dbContract) {
-				throw new Error('CONTRACT_NOT_FOUND')
-			}
-
-			if (!bundle) {
-				throw new Error('BUNDLE_NOT_FOUND')
-			}
-
-			const {
-				wallet,
-				senderWallet,
-				contractInitParams,
-				cleanAdmins,
-				fullMintPermissions
-			} = await this.prepareInitValues({ ...data, chainId })
-
-			const proxyContractFactory = new ethers.ContractFactory(
-				dbContract.abi,
-				{
-					object: dbContract.bytecode
+		const [dbContract, bundle] = await Promise.all([
+			orm.models.Contract.findOne({
+				where: {
+					id: config.MEEM_PROXY_CONTRACT_ID
+				}
+			}),
+			orm.models.Bundle.findOne({
+				where: {
+					id: config.MEEM_BUNDLE_ID
 				},
-				wallet
-			)
+				include: [
+					{
+						model: orm.models.BundleContract,
+						include: [
+							{
+								model: orm.models.Contract,
+								include: [
+									{
+										model: orm.models.ContractInstance,
+										where: {
+											chainId
+										}
+									}
+								]
+							}
+						]
+					}
+				]
+			})
+		])
 
-			const proxyContract = await services.ethers.runTransaction({
-				chainId,
-				fn: proxyContractFactory.deploy.bind(proxyContractFactory),
-				params: [senderWallet.address, [senderWallet.address, wallet.address]],
-				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
+		if (!dbContract) {
+			throw new Error('CONTRACT_NOT_FOUND')
+		}
+
+		if (!bundle) {
+			throw new Error('BUNDLE_NOT_FOUND')
+		}
+
+		// Validate metadata
+		const contractMetadataValidator = new Validator(metadata)
+		const contractMetadataValidatorResult =
+			contractMetadataValidator.validate(metadata)
+
+		if (!contractMetadataValidatorResult.valid) {
+			log.crit(
+				contractMetadataValidatorResult.errors.map((e: any) => e.message)
+			)
+			throw new Error('INVALID_METADATA')
+		}
+
+		const { wallet, senderWallet, contractInitParams, cleanAdmins } =
+			await this.prepareInitValues({ ...data, chainId })
+
+		const builtData: {
+			to: string
+			metadata: MeemAPI.IMeemMetadataLike
+			ipfs?: string
+		}[] = []
+
+		if (shouldMintTokens && tokenMetadata) {
+			const addresses = [...cleanAdmins.map(a => a.user), ...(members ?? [])]
+
+			const tokens = addresses.map(a => {
+				return {
+					to: a,
+					metadata: tokenMetadata
+				}
 			})
 
-			log.debug(
-				`Deploying contract w/ tx: ${proxyContract.deployTransaction.hash}`
-			)
-
-			await orm.models.Transaction.create({
-				hash: proxyContract.deployTransaction.hash,
-				chainId,
-				WalletId: senderWallet.id,
-				encodeTransactionInput: {}
-			})
-
-			await proxyContract.deployed()
-
-			log.debug(
-				`Deployed proxy at ${proxyContract.address} w/ tx: ${proxyContract.deployTransaction.hash}`
-			)
-
-			const toVersion: IFacetVersion[] = []
-
-			bundle.BundleContracts?.forEach(bc => {
-				const contractInstance =
-					bc.Contract?.ContractInstances && bc.Contract?.ContractInstances[0]
-				if (!contractInstance) {
-					throw new Error('FACET_NOT_DEPLOYED')
+			// Validate metadata
+			tokens.forEach(token => {
+				if (!token.to) {
+					throw new Error('MISSING_ACCOUNT_ADDRESS')
 				}
 
-				toVersion.push({
-					address: contractInstance.address,
-					functionSelectors: bc.functionSelectors
+				if (!token.metadata) {
+					throw new Error('INVALID_METADATA')
+				}
+
+				const validator = new Validator(token.metadata)
+				const validatorResult = validator.validate(token.metadata)
+
+				if (!validatorResult.valid) {
+					log.crit(validatorResult.errors.map((e: any) => e.message))
+					throw new Error('INVALID_METADATA')
+				}
+
+				builtData.push({
+					...token,
+					metadata: token.metadata
 				})
 			})
+		}
 
-			const cuts = getCuts({
-				proxyContractAddress: proxyContract.address,
-				fromVersion: [],
-				toVersion
+		const deployContractTxId = await services.ethers.queueContractDeployment({
+			chainId,
+			abi: dbContract.abi,
+			bytecode: dbContract.bytecode,
+			args: [senderWallet.address, [senderWallet.address, wallet.address]]
+		})
+
+		const toVersion: IFacetVersion[] = []
+
+		bundle.BundleContracts?.forEach(bc => {
+			const contractInstance =
+				bc.Contract?.ContractInstances && bc.Contract?.ContractInstances[0]
+			if (!contractInstance) {
+				throw new Error('FACET_NOT_DEPLOYED')
+			}
+
+			toVersion.push({
+				address: contractInstance.address,
+				functionSelectors: bc.functionSelectors
+			})
+		})
+
+		const iFace = new ethers.utils.Interface(bundle.abi)
+
+		const functionCall = iFace.encodeFunctionData('initialize', [
+			contractInitParams
+		])
+
+		const cutTxId = await services.ethers.queueDiamondCut({
+			chainId,
+			contractTxId: deployContractTxId,
+			fromVersion: [],
+			toVersion,
+			functionCall,
+			abi: dbContract.abi
+		})
+
+		let mintTxId
+
+		if (shouldMintTokens && tokenMetadata) {
+			const agreementContract = await services.agreement.getAgreementContract({
+				chainId,
+				address: ethers.constants.AddressZero
 			})
 
-			const iFace = new ethers.utils.Interface(bundle.abi)
+			// Pin to IPFS
+			for (let i = 0; i < builtData.length; i++) {
+				const item = builtData[i]
+				const result = await services.web3.saveToPinata({
+					json: item.metadata
+				})
+				item.ipfs = `ipfs://${result.IpfsHash}`
+			}
 
-			const functionCall = iFace.encodeFunctionData('initialize', [
-				contractInitParams
-			])
-
-			log.debug(contractInitParams)
-
-			const facetCuts = cuts.map(c => ({
-				target: c.facetAddress,
-				action: c.action,
-				selectors: c.functionSelectors
+			const bulkParams = builtData.map(item => ({
+				to: item.to,
+				tokenType: MeemAPI.MeemType.Original,
+				tokenURI: item.ipfs as string
 			}))
 
-			let contractSlug = uuidv4()
-
-			if (data.name) {
-				try {
-					contractSlug = await services.agreement.generateSlug({
-						baseSlug: data.name,
-						chainId
-					})
-				} catch (e) {
-					log.crit('Something went wrong while creating slug', e)
-				}
-			}
-
-			const agreement = await orm.models.Agreement.create({
-				address: proxyContract.address,
-				mintPermissions: fullMintPermissions,
-				slug: contractSlug,
-				name: data.name,
-				isTransferrable: !data.isTransferLocked,
-				chainId
-			})
-
-			const cutTx = await services.ethers.runTransaction({
+			mintTxId = await services.ethers.queueTransaction({
 				chainId,
-				fn: proxyContract.diamondCut.bind(proxyContract),
-				params: [facetCuts, proxyContract.address, functionCall],
-				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
-			})
-
-			log.debug(`Running diamond cut w/ TX: ${cutTx.hash}`)
-
-			await orm.models.Transaction.create({
-				hash: cutTx.hash,
-				chainId,
-				WalletId: senderWallet.id,
-				encodeTransactionInput: {}
-			})
-
-			await cutTx.wait()
-
-			if (shouldMintTokens && tokenMetadata) {
-				log.debug(`Minting admin/member tokens.`, cleanAdmins)
-				const addresses = [...cleanAdmins.map(a => a.user), ...(members ?? [])]
-
-				const tokens = addresses.map(a => {
-					return {
-						to: a,
-						metadata: tokenMetadata
-					}
-				})
-
-				if (config.DISABLE_ASYNC_MINTING) {
-					try {
-						await this.bulkMint({
-							tokens,
-							mintedBy: senderWalletAddress,
-							agreementId: agreement.id
-						})
-					} catch (e) {
-						log.crit(e)
-					}
-				} else {
-					const lambda = new AWS.Lambda({
-						accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-						secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-						region: 'us-east-1'
-					})
-					await lambda
-						.invoke({
-							InvocationType: 'Event',
-							FunctionName: config.LAMBDA_AGREEMENT_BULK_MINT_FUNCTION,
-							Payload: JSON.stringify({
-								tokens,
-								mintedBy: senderWalletAddress,
-								agreementId: agreement.id
-							})
-						})
-						.promise()
+				functionSignature:
+					agreementContract.interface.functions[
+						'bulkMint((address,string,uint8)[])'
+					].format(),
+				contractTxId: deployContractTxId,
+				inputValues: {
+					bulkParams
 				}
+			})
+		}
 
-				log.debug(`Finished minting admin/member tokens.`)
-			}
-
-			return agreement
-		} catch (e) {
-			await sockets?.emitError(
-				config.errors.CONTRACT_CREATION_FAILED,
-				senderWalletAddress
-			)
-			log.crit(e)
-			throw new Error('CONTRACT_CREATION_FAILED')
+		return {
+			deployContractTxId,
+			cutTxId,
+			mintTxId
 		}
 	}
 
@@ -717,13 +669,6 @@ export default class AgreementService {
 
 			log.debug(`Bulk Minting w/ transaction hash: ${mintTx.hash}`)
 
-			await orm.models.Transaction.create({
-				hash: mintTx.hash,
-				chainId: agreement.chainId,
-				WalletId: minterWallet.id,
-				encodeTransactionInput: {}
-			})
-
 			await mintTx.wait()
 		} catch (e) {
 			const err = e as any
@@ -816,15 +761,6 @@ export default class AgreementService {
 				params: [config.GNOSIS_MASTER_CONTRACT_ADDRESS, safeSetupData],
 				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
-
-			await orm.models.Transaction.create({
-				hash: tx.hash,
-				chainId,
-				WalletId: senderWallet.id,
-				encodeTransactionInput: {}
-			})
-
-			// await services.ethers.releaseLock(chainId)
 
 			await tx.wait()
 
@@ -976,15 +912,6 @@ export default class AgreementService {
 				params: [cuts, ethers.constants.AddressZero, '0x'],
 				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 			})
-
-			if (tx?.hash) {
-				await orm.models.Transaction.create({
-					hash: tx.hash,
-					chainId: agreement.chainId,
-					WalletId: senderWallet.id,
-					encodeTransactionInput: {}
-				})
-			}
 
 			await tx.wait()
 
@@ -1228,13 +1155,6 @@ export default class AgreementService {
 				fn: agreementContract.bulkSetRoles.bind(agreementContract),
 				params: [cleanAdmins],
 				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
-			})
-
-			await orm.models.Transaction.create({
-				hash: tx.hash,
-				chainId: agreement.chainId,
-				WalletId: senderWallet.id,
-				encodeTransactionInput: {}
 			})
 
 			await tx.wait()

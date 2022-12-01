@@ -205,7 +205,8 @@ export default class ProviderListener {
 								case eventIds.MeemContractInitialized: {
 									await services.contractEvents.meemHandleContractInitialized({
 										address: rawLog.address,
-										chainId: network.chainId
+										chainId: network.chainId,
+										transactionHash: rawLog.transactionHash
 									})
 									break
 								}

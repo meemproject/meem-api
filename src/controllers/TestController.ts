@@ -353,9 +353,31 @@ export default class TestController {
 			address: '0xf5a0fD628AFe07D8c3736762Bd65Ae009F23e335'
 		})
 
-		const x = m.interface.functions['setMaxSupply(uint256)'].format()
-
 		const encoded = encodeSingle({
+			id: '1',
+			abi: JSON.stringify(meemABI),
+			functionSignature: 'bulkMint((address,string,uint8)[])',
+			to: '0xf5a0fD628AFe07D8c3736762Bd65Ae009F23e335',
+			value: '0',
+			inputValues: {
+				bulkParams: [
+					{
+						to: '0xbA343C26ad4387345edBB3256e62f4bB73d68a04',
+						tokenType: '0',
+						tokenURI: 'ipfs://QmTFk4Wgka3VfwpMJzjbHA9ZsKjG7bbRcbbDoPnHYVV3Gv'
+					},
+					{
+						to: '0x1e6c71F7338276524D646dB2F04a49fA88458cF2',
+						tokenType: '0',
+						tokenURI: 'ipfs://QmTFk4Wgka3VfwpMJzjbHA9ZsKjG7bbRcbbDoPnHYVV3Gv'
+					}
+				]
+			},
+			type: TransactionType.callContract
+		})
+		// const x = m.interface.functions['setMaxSupply(uint256)'].format()
+
+		const encoded2 = encodeSingle({
 			id: '1',
 			abi: JSON.stringify(meemABI),
 			functionSignature: 'mint((address,string,uint8))',
@@ -371,11 +393,13 @@ export default class TestController {
 			type: TransactionType.callContract
 		})
 
-		console.log({ x, encoded })
+		// console.log({ x, encoded })
 
 		return res.json({
 			status: 'success',
-			encoded
+			encoded,
+			encoded2,
+			meemABI
 		})
 	}
 }

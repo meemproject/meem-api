@@ -626,11 +626,8 @@ export enum TransactionStatus {
 	Failure = 'failure'
 }
 
-export enum TransactionType {
-	MeemContract = 'meemContract',
-	Custom = 'custom'
-}
-
 export enum QueueEvent {
-	RunTransaction = 'runTransaction'
+	CallContract = 'callContract',
+	DeployContract = 'deployContract',
+	DiamondCut = 'diamondCut'
 }

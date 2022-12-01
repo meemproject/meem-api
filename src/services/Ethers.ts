@@ -1,8 +1,11 @@
 /* eslint-disable global-require */
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable import/no-extraneous-dependencies */
+import { IFacetVersion } from '@meemproject/meem-contracts'
 import { Alchemy, Network, Wallet } from 'alchemy-sdk'
 import { ethers } from 'ethers'
+import { v4 as uuidv4 } from 'uuid'
+import { MeemAPI } from '../types/meem.generated'
 
 export default class EthersService {
 	public static shouldInitialize = true
@@ -41,11 +44,12 @@ export default class EthersService {
 		const chainId = ethers.BigNumber.from(options.chainId)
 		const chainIdNum = chainId.toNumber()
 
-		if (this.providers[chainIdNum]) {
-			return this.providers[chainIdNum]
-		}
+		// if (this.providers[chainIdNum]) {
+		// 	return this.providers[chainIdNum]
+		// }
 
 		let alchemyProvider: Alchemy
+		let provider: ethers.providers.JsonRpcProvider | undefined
 
 		switch (chainIdNum) {
 			case 1: {
@@ -60,6 +64,10 @@ export default class EthersService {
 					apiKey: config.ALCHEMY_API_KEY_GOERLI,
 					network: Network.ETH_GOERLI
 				})
+
+				provider = new ethers.providers.JsonRpcProvider(
+					'https://eth-goerli.g.alchemy.com/v2/m9i7qiVc6gngIGIVm6JR3dCwIGu9-0Dy'
+				)
 				break
 			}
 
@@ -130,7 +138,7 @@ export default class EthersService {
 
 		this.providers[chainIdNum] = { provider: alchemyProvider, wallet }
 
-		return { provider: alchemyProvider, wallet }
+		return { provider: alchemyProvider, wallet, ethersProvider: provider }
 	}
 
 	public getSelectors(abi: any[]): string[] {
@@ -146,6 +154,123 @@ export default class EthersService {
 		})
 
 		return sigHashes
+	}
+
+	public async queueDiamondCut(options: {
+		chainId: number
+		abi: Record<string, any>[]
+		functionCall: string
+		fromVersion: IFacetVersion[]
+		toVersion: IFacetVersion[]
+		contractTxId?: string
+		contractAddress?: string
+	}) {
+		const {
+			chainId,
+			abi,
+			functionCall,
+			fromVersion,
+			toVersion,
+			contractAddress,
+			contractTxId
+		} = options
+
+		if (!contractAddress && !contractTxId) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		const cutTxId = uuidv4()
+
+		await services.queue.sendMessage({
+			Id: cutTxId,
+			MessageBody: JSON.stringify({
+				id: cutTxId,
+				eventName: MeemAPI.QueueEvent.DiamondCut,
+				chainId,
+				customABI: abi,
+				transactionInput: {
+					functionCall,
+					fromVersion,
+					toVersion,
+					contractTxId,
+					contractAddress
+				}
+			}),
+			MessageGroupId: '1'
+		})
+
+		return cutTxId
+	}
+
+	public async queueContractDeployment(options: {
+		chainId: number
+		abi: Record<string, any>[]
+		bytecode: string
+		args: any[]
+	}) {
+		const { chainId, abi, bytecode, args } = options
+
+		const txId = uuidv4()
+
+		await services.queue.sendMessage({
+			Id: txId,
+			MessageBody: JSON.stringify({
+				id: txId,
+				eventName: MeemAPI.QueueEvent.DeployContract,
+				chainId,
+				customABI: abi,
+				transactionInput: {
+					args,
+					bytecode
+				}
+			}),
+			MessageGroupId: '1'
+		})
+
+		return txId
+	}
+
+	public async queueTransaction(options: {
+		abi?: Record<string, any>[]
+		functionSignature: string
+		contractTxId?: string
+		contractAddress?: string
+		inputValues: Record<string, any>
+		chainId: number
+	}) {
+		const {
+			abi,
+			functionSignature,
+			contractAddress,
+			contractTxId,
+			inputValues,
+			chainId
+		} = options
+
+		if (!contractAddress && !contractTxId) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		const id = uuidv4()
+
+		await services.queue.sendMessage({
+			Id: id,
+			MessageBody: JSON.stringify({
+				id,
+				eventName: MeemAPI.QueueEvent.CallContract,
+				chainId,
+				customABI: abi,
+				transactionInput: {
+					contractAddress,
+					contractTxId,
+					functionSignature,
+					inputValues
+				}
+			}),
+			MessageGroupId: '1'
+		})
+
+		return id
 	}
 
 	public async runTransaction<T extends (...args: any[]) => any>(options: {
@@ -240,7 +365,45 @@ export default class EthersService {
 		}
 	}
 
-	private async acquireLock(chainId: number) {
+	public async aquireLockAndNonce(chainId: number) {
+		await this.acquireLock(chainId)
+		let nonce = 0
+		let chainNonce = await orm.models.ChainNonce.findOne({
+			where: {
+				chainId
+			}
+		})
+
+		if (chainNonce) {
+			nonce = chainNonce.nonce
+		} else {
+			chainNonce = orm.models.ChainNonce.build({
+				nonce,
+				chainId
+			})
+		}
+
+		const { wallet, provider } = await services.ethers.getProvider({
+			chainId
+		})
+
+		const providerTxCount = await provider.core.getTransactionCount(
+			wallet.address,
+			'latest'
+		)
+
+		const providerNonce = providerTxCount - 1
+
+		if (providerNonce > nonce) {
+			nonce = providerNonce
+		}
+
+		const newNonce = providerTxCount > 0 ? nonce + 1 : 0
+
+		return { nonce: newNonce }
+	}
+
+	public async acquireLock(chainId: number) {
 		try {
 			await orm.acquireLock(`${config.WALLET_LOCK_KEY}_${chainId}`)
 		} catch (e) {
@@ -248,7 +411,7 @@ export default class EthersService {
 		}
 	}
 
-	private async releaseLock(chainId: number) {
+	public async releaseLock(chainId: number) {
 		try {
 			await orm.releaseLock(`${config.WALLET_LOCK_KEY}_${chainId}`)
 		} catch (e) {
