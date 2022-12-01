@@ -119,6 +119,7 @@ functions:
     handler: build/serverless/queue.handle
     events:
       - sqs: ${env:SQS_QUEUE_ARN, ''}
+    timeout: 600
   mint:
     handler: build/serverless/mint.handle
     timeout: 300

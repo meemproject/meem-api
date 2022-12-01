@@ -303,7 +303,7 @@ export default class AgreementService {
 			for (let i = 0; i < builtData.length; i++) {
 				const item = builtData[i]
 				const result = await services.web3.saveToPinata({
-					json: item.metadata
+					json: { ...item.metadata }
 				})
 				item.ipfs = `ipfs://${result.IpfsHash}`
 			}
@@ -423,7 +423,9 @@ export default class AgreementService {
 		}
 
 		const result = await services.web3.saveToPinata({
-			json: JSON.parse(JSON.stringify(metadata))
+			json: {
+				...metadata
+			}
 		})
 		const { provider, wallet } = await services.ethers.getProvider({
 			chainId
@@ -642,7 +644,7 @@ export default class AgreementService {
 			for (let i = 0; i < builtData.length; i++) {
 				const item = builtData[i]
 				const result = await services.web3.saveToPinata({
-					json: item.metadata
+					json: { ...item.metadata }
 				})
 				item.ipfs = `ipfs://${result.IpfsHash}`
 			}
