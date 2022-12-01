@@ -22,6 +22,7 @@ import {
 	MeemAdminContractSetEvent
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
+import { IMeemMetadataLike } from '../types/shared/meem.shared'
 
 export default class ContractEvent {
 	// TODO: sync reactions?
@@ -206,27 +207,28 @@ export default class ContractEvent {
 		const instance = new ethers.Contract(address, diamondABI, wallet)
 
 		const [metadata, ownerAddress] = await Promise.all([
-			services.meem.getErc721Metadata(contractInfo.contractURI as string),
+			services.meem.getErc721Metadata(
+				contractInfo.contractURI as string
+			) as unknown as IMeemMetadataLike,
 			instance.owner()
 		])
 
-		// TODO: Fix validation
-		// if (metadata.meem_contract_type) {
-		// 	// Don't index contract if not a valid meem_contract_type
-		// 	const contractMetadataValidator = new Validator(metadata)
-		// 	const contractMetadataValidatorResult =
-		// 		contractMetadataValidator.validate(metadata)
+		if (metadata.meem_metadata_type) {
+			// Don't index contract if not a valid meem_contract_type
+			const contractMetadataValidator = new Validator(metadata)
+			const contractMetadataValidatorResult =
+				contractMetadataValidator.validate(metadata)
 
-		// 	if (!contractMetadataValidatorResult.valid) {
-		// 		log.crit(
-		// 			contractMetadataValidatorResult.errors.map((e: any) => e.message)
-		// 		)
-		// 		return null
-		// 	}
-		// } else {
-		// 	log.crit('Invalid metadata.')
-		// 	return null
-		// }
+			if (!contractMetadataValidatorResult.valid) {
+				log.crit(
+					contractMetadataValidatorResult.errors.map((e: any) => e.message)
+				)
+				return null
+			}
+		} else {
+			log.crit('Invalid metadata.')
+			return null
+		}
 
 		const isRoleAgreement =
 			metadata.meem_metadata_type === 'Meem_AgreementRoleContract'
@@ -404,14 +406,14 @@ export default class ContractEvent {
 			}[] = []
 
 			admins.forEach(adminAddress => {
-				const wallet = adminWallets.find(
+				const adminWallet = adminWallets.find(
 					aw => aw.address.toLowerCase() === adminAddress.toLowerCase()
 				)
 
 				const agreementWallet =
-					wallet?.AgreementWallets && wallet?.AgreementWallets[0]
+					adminWallet?.AgreementWallets && adminWallet?.AgreementWallets[0]
 
-				if (!wallet) {
+				if (!adminWallet) {
 					// Create the wallet
 					const walletId = uuidv4()
 					walletsData.push({
@@ -425,11 +427,11 @@ export default class ContractEvent {
 						WalletId: walletId,
 						role: adminRole
 					})
-				} else if (wallet && !agreementWallet) {
+				} else if (adminWallet && !agreementWallet) {
 					// Create the association
 					walletContractsData.push({
 						AgreementId: agreementOrRole.id,
-						WalletId: wallet.id,
+						WalletId: adminWallet.id,
 						role: adminRole
 					})
 				}
