@@ -3,15 +3,15 @@ import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
 import { IMeemMetadataLike } from '../types/shared/meem.shared'
 import Agreement from './Agreement'
-export default class AgreementExtension extends BaseModel<AgreementExtension> {
-	public static readonly modelName = 'AgreementExtension'
+export default class AgreementExtensionLink extends BaseModel<AgreementExtensionLink> {
+	public static readonly modelName = 'AgreementExtensionLink'
 
 	public static readonly paranoid: boolean = false
 
 	public static get indexes() {
 		return [
 			{
-				name: 'AgreementExtension_createdAt',
+				name: 'AgreementExtensionLink_createdAt',
 				fields: ['createdAt']
 			}
 		]
@@ -23,6 +23,11 @@ export default class AgreementExtension extends BaseModel<AgreementExtension> {
 			defaultValue: DataTypes.UUIDV4,
 			primaryKey: true
 		},
+		isEnabled: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: false
+		},
 		metadata: {
 			type: DataTypes.JSONB,
 			allowNull: true
@@ -31,19 +36,15 @@ export default class AgreementExtension extends BaseModel<AgreementExtension> {
 
 	public id!: string
 
+	public isEnabled!: boolean
+
 	public metadata!: IMeemMetadataLike | null
 
-	public AgreementId!: string
+	public AgreementExtensionId!: string
 
-	public Agreement!: Agreement
-
-	public ExtensionId!: string
-
-	public Extension!: Agreement
+	public AgreementExtension!: Agreement
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.Extension)
-
-		this.belongsTo(models.Agreement)
+		this.belongsTo(models.AgreementExtension)
 	}
 }
