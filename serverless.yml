@@ -114,6 +114,10 @@ package:
     - tmp/**
 
 functions:
+  queue:
+    handler: build/serverless/queue.handle
+    events:
+      - sqs: ${env:SQS_QUEUE_ARN, ''}
   mint:
     handler: build/serverless/mint.handle
     timeout: 300
