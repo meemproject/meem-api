@@ -81,11 +81,11 @@ export default class MeemIdController {
 
 		const { profilePicBase64, displayName } = req.body
 
-		const user = await services.meemId.createOrUpdateUser({
+		const user = (await services.meemId.createOrUpdateUser({
 			wallet: req.wallet,
 			profilePicBase64,
 			displayName
-		})
+		})) as MeemAPI.IMeemUser
 
 		return res.json({
 			user

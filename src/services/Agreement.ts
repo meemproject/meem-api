@@ -995,7 +995,7 @@ export default class AgreementService {
 				// 	role.guildRole = guildRoleResponse
 
 				// 	if (agreementRoleId) {
-				// 		role.memberMeemIds = await Promise.all(
+				// 		role.members = await Promise.all(
 				// 			(role.guildRole?.members ?? []).map((m: string) =>
 				// 				services.meemId.getMeemIdentityForAddress(m)
 				// 			)
