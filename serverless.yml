@@ -13,6 +13,8 @@
 
 service: meem-api
 
+configValidationMode: warn
+
 provider:
   name: aws
   runtime: nodejs16.x
@@ -91,6 +93,7 @@ provider:
     ARBITRUM_GAS_MULTIPLIER: ${env:ARBITRUM_GAS_MULTIPLIER, ''}
     MIN_GASE_PRICE_GWEI: ${env:MIN_GASE_PRICE_GWEI, '2'}
     SQS_QUEUE_URL: ${env:SQS_QUEUE_URL, ''}
+    SQS_QUEUE_ARN: ${env:SQS_QUEUE_ARN, ''}
 
 package:
   excludeDevDependencies: true

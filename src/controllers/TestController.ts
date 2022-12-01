@@ -344,6 +344,27 @@ export default class TestController {
 		})
 	}
 
+	public static async testPinata(req: Request, res: Response) {
+		const result = await services.web3.saveToPinata({
+			json: {
+				meem_metadata_type: 'Meem_AgreementContract',
+				meem_metadata_version: '20221116',
+				name: 'aqer',
+				description: 'asdfgscfg',
+				image:
+					'data:image/png;base64,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',
+				associations: [],
+				external_url: '',
+				application_instructions: []
+			}
+		})
+
+		return res.json({
+			status: 'success',
+			result
+		})
+	}
+
 	public static async testTxEncoding(req: Request, res: Response) {
 		// const functionSignature = ethers.utils
 		// 	.id('mint((address,string,uint8))')

@@ -422,7 +422,9 @@ export default class AgreementService {
 			}
 		}
 
-		const result = await services.web3.saveToPinata({ json: metadata })
+		const result = await services.web3.saveToPinata({
+			json: JSON.parse(JSON.stringify(metadata))
+		})
 		const { provider, wallet } = await services.ethers.getProvider({
 			chainId
 		})
