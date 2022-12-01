@@ -21,14 +21,6 @@ export const handle: SQSHandler = async (event, context) => {
 			// request = supertest(app)
 		}
 
-		if (config.AWS_WEBSOCKET_GATEWAY_URL) {
-			sockets?.connectLambda({
-				endpoint: config.AWS_WEBSOCKET_GATEWAY_URL
-			})
-		} else {
-			log.crit('AWS_WEBSOCKET_GATEWAY_URL is not set')
-		}
-
 		const records = event.Records
 		const promises: Promise<any>[] = []
 
