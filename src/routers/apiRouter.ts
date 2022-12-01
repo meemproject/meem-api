@@ -1,9 +1,10 @@
 import coreExpress, { Express } from 'express'
 import AgreementController from '../controllers/AgreementController'
+import AgreementExtensionController from '../controllers/AgreementExtensionController'
 import AgreementRoleController from '../controllers/AgreementRoleController'
 import ConfigController from '../controllers/ConfigController'
-import ContractController from '../controllers/ContractController'
 import DiscordController from '../controllers/DiscordController'
+import EPMController from '../controllers/EPMController'
 import MeemController from '../controllers/MeemController'
 import MeemIdController from '../controllers/MeemIdController'
 import TestController from '../controllers/TestController'
@@ -15,14 +16,15 @@ export default (app: Express, _express: typeof coreExpress) => {
 	const router = extendedRouter()
 	const imageRouter = extendedRouter()
 
-	// const storage = multer.memoryStorage()
-	// const upload = multer({ storage })
-
 	app.use('/api/1.0/', router)
 	app.use('/images/1.0/', imageRouter)
 
+	/** Auth Routes */
+
 	router.getAsync('/getNonce', MeemIdController.getNonce)
 	router.postAsync('/login', MeemIdController.login)
+
+	/** Current User Routes */
 
 	router.getAsync('/me', MeemIdController.getMe)
 	router.postAsync('/me', MeemIdController.createOrUpdateUser)
@@ -37,17 +39,20 @@ export default (app: Express, _express: typeof coreExpress) => {
 		MeemIdController.updateUserIdentity
 	)
 
-	router.getAsync('/config', ConfigController.getConfig)
+	/** Agreements and Roles Routes */
 
-	router.postAsync('/isSlugAvailable', AgreementController.isSlugAvailable)
 	router.postAsync('/agreements', AgreementController.createAgreement)
+	router.postAsync(
+		'/agreements/isSlugAvailable',
+		AgreementController.isSlugAvailable
+	)
 	router.postAsync(
 		'/agreements/:agreementId/reinitialize',
 		AgreementController.reInitialize
 	)
 	router.postAsync(
 		'/agreements/:agreementId/safe',
-		AgreementController.createClubSafe
+		AgreementController.createAgreementSafe
 	)
 	router.postAsync(
 		'/agreements/:agreementId/bulkMint',
@@ -55,38 +60,20 @@ export default (app: Express, _express: typeof coreExpress) => {
 	)
 	router.postAsync(
 		'/agreements/:agreementId/upgrade',
-		AgreementController.upgradeClub
+		AgreementController.upgradeAgreement
 	)
 	router.getAsync(
 		'/agreements/:agreementId/proof',
 		AgreementController.getMintingProof
 	)
-	// router.postAsync(
-	// 	'/agreements/:agreementId/guild',
-	// 	AgreementController.createAgreementGuild
-	// )
-	// router.deleteAsync(
-	// 	'/agreements/:agreementId/guild',
-	// 	AgreementController.deleteAgreementGuild
-	// )
-	router.postAsync('/discord/authenticate', DiscordController.authenticate)
-	router.getAsync('/discord/servers', DiscordController.getGuilds)
-	// router.getAsync(
-	// 	'/agreements/:agreementId/roles/access',
-	// 	AgreementController.getUserAgreementRolesAccess
-	// )
-	// router.getAsync(
-	// 	'/agreements/:agreementId/getJoinGuildMessage',
-	// 	AgreementController.getJoinGuildMessage
-	// )
-	// router.postAsync(
-	// 	'/agreements/:agreementId/joinGuild',
-	// 	AgreementController.joinAgreementGuild
-	// )
-	// router.getAsync(
-	// 	'/agreements/:agreementId/guild',
-	// 	AgreementController.getAgreementGuild
-	// )
+	router.postAsync(
+		'/agreements/:agreementId/extensions',
+		AgreementExtensionController.createAgreementExtension
+	)
+	router.putAsync(
+		'/agreements/:agreementId/extensions/:slug',
+		AgreementExtensionController.updateAgreementExtension
+	)
 	router.getAsync(
 		'/agreements/:agreementId/roles',
 		AgreementRoleController.getAgreementRoles
@@ -99,72 +86,61 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/roles',
 		AgreementRoleController.createAgreementRole
 	)
-	router.postAsync(
-		'/agreements/:agreementId/roles/:agreementRoleId',
-		AgreementRoleController.updateAgreementRole
-	)
-	router.deleteAsync(
-		'/agreements/:agreementId/roles/:agreementRoleId',
-		AgreementRoleController.deleteAgreementRole
-	)
-	router.postAsync(
-		'/agreements/:agreementId/extensions/:extensionId',
-		AgreementController.createOrUpdateAgreementExtension
-	)
-
-	// TODO: switch to aggreements/mint, agreements/roles/mint
-
-	router.postAsync('/meems/create-image', MeemController.createMeemImage)
-	router.getAsync('/ipfs', MeemController.getIPFSFile)
-
-	if (config.ENABLE_URL_SCRAPER) {
-		router.getAsync('/screenshot', MeemController.getScreenshot)
-	}
-
-	imageRouter.postAsync('/meems/create-image', MeemController.createMeemImage)
-
-	// imageRouter.postAsync(
-	// 	'/metadata',
-	// 	// TODO: Authentication of some kind?
-	// 	// userLoggedInPolicy,
-	// 	upload.any(),
-	// 	MeemController.saveMetadata
+	// router.postAsync(
+	// 	'/agreements/:agreementId/roles/:agreementRoleId',
+	// 	AgreementRoleController.updateAgreementRole
 	// )
+	// TODO: How do we handle deleting roles/role tokens?
+	// router.deleteAsync(
+	// 	'/agreements/:agreementId/roles/:agreementRoleId',
+	// 	AgreementRoleController.deleteAgreementRole
+	// )
+	router.postAsync(
+		'/agreements/:agreementId/roles/:agreementRoleId/bulkMint',
+		AgreementRoleController.bulkMint
+	)
 
-	// Projects
-	// router.postAsync('/projects', MeemController.createMeemProject)
+	/** EPM Routes */
 
 	router.postAsync(
-		'/contracts',
+		'/epm/contracts',
 		userLoggedInPolicy,
-		ContractController.createContract
+		EPMController.createContract
 	)
-
 	router.postAsync(
-		'/contractInstances',
+		'/epm/contractInstances',
 		userLoggedInPolicy,
-		ContractController.addContractInstance
+		EPMController.addContractInstance
 	)
-
-	router.patchAsync(
-		'/walletContractInstances/:contractInstanceId',
-		userLoggedInPolicy,
-		ContractController.updateWalletContractInstance
-	)
-
 	router.postAsync(
-		'/bundles',
+		'/epm/bundles',
 		userLoggedInPolicy,
-		ContractController.createBundle
+		EPMController.createBundle
 	)
-
 	router.putAsync(
-		'/bundles/:bundleId',
+		'/epm/bundles/:bundleId',
 		userLoggedInPolicy,
-		ContractController.updateBundle
+		EPMController.updateBundle
+	)
+	router.patchAsync(
+		'/epm/walletContractInstances/:contractInstanceId',
+		userLoggedInPolicy,
+		EPMController.updateWalletContractInstance
 	)
 
+	/** Discord Routes */
+
+	router.postAsync('/discord/authenticate', DiscordController.authenticate)
+	router.getAsync('/discord/servers', DiscordController.getGuilds)
+
+	/** Misc Routes */
+
+	router.getAsync('/config', ConfigController.getConfig)
+	router.getAsync('/ipfs', MeemController.getIPFSFile)
 	router.postAsync('/generateTypes', TypesController.generateTypes)
+	router.getAsync('/meem-api.json', TypesController.getOpenAPIFile)
+
+	/** Test Routes */
 
 	if (config.ENABLE_TEST_ENDPOINTS) {
 		router.getAsync('/test/emit', TestController.testEmit)
@@ -189,11 +165,4 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/getEthAddress', TestController.getEthAddress)
 		router.getAsync('/test/txEncoding', TestController.testTxEncoding)
 	}
-
-	// DEPRECATED:
-	// router.getAsync('/meems', MeemController.getMeems)
-	// router.getAsync('/meems/:tokenId', MeemController.getMeem)
-	// router.getAsync('/meems/:tokenId/children', MeemController.getChildMeems)
-	// router.getAsync('/clippings', MeemController.getClippings)
-	// router.postAsync('/clippings/status', MeemController.checkClippingStatus)
 }

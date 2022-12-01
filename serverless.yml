@@ -34,8 +34,6 @@ provider:
     ENABLE_TEST_ENDPOINTS: ${env:ENABLE_TEST_ENDPOINTS, ''}
     DYNAMODB_SOCKETS_TABLE: ${env:DYNAMODB_SOCKETS_TABLE, ''}
     AWS_WEBSOCKET_GATEWAY_URL: ${env:AWS_WEBSOCKET_GATEWAY_URL, ''}
-    LAMBDA_MINT_FUNCTION: ${env:LAMBDA_MINT_FUNCTION, ''}
-    LAMBDA_MINT_ORIGINAL_FUNCTION: ${env:LAMBDA_MINT_ORIGINAL_FUNCTION, ''}
     LAMBDA_CREATE_CONTRACT_FUNCTION: ${env:LAMBDA_CREATE_CONTRACT_FUNCTION, ''}
     LAMBDA_MEEMID_UPDATE_FUNCTION: ${env:LAMBDA_MEEMID_UPDATE_FUNCTION, ''}
     S3_BUCKET: ${env:S3_BUCKET, ''}
@@ -67,7 +65,7 @@ provider:
     GNOSIS_MASTER_CONTRACT_ADDRESS: ${env:GNOSIS_MASTER_CONTRACT_ADDRESS, ''}
     GNOSIS_PROXY_CONTRACT_ADDRESS: ${env:GNOSIS_PROXY_CONTRACT_ADDRESS, ''}
     LAMBDA_CREATE_CLUB_SAFE_FUNCTION_NAME: ${env:LAMBDA_CREATE_CLUB_SAFE_FUNCTION_NAME, ''}
-    UPGRADE_CLUB_FUNCTION_NAME: ${env:UPGRADE_CLUB_FUNCTION_NAME, ''}
+    UPGRADE_AGREEMENT_FUNCTION_NAME: ${env:UPGRADE_AGREEMENT_FUNCTION_NAME, ''}
     GNOSIS_DEFAULT_CALLBACK_HANDLER: ${env:GNOSIS_DEFAULT_CALLBACK_HANDLER, ''}
     DISCORD_CLIENT_ID: ${env:DISCORD_CLIENT_ID, ''}
     DISCORD_CLIENT_SECRET: ${env:DISCORD_CLIENT_SECRET, ''}
@@ -134,12 +132,12 @@ functions:
     handler: build/serverless/reInitialize.handle
     timeout: 300
     memorySize: 512
-  createClubSafe:
-    handler: build/serverless/createClubSafe.handle
+  createAgreementSafe:
+    handler: build/serverless/createAgreementSafe.handle
     timeout: 300
     memorySize: 512
-  upgradeClub:
-    handler: build/serverless/upgradeClub.handle
+  upgradeAgreement:
+    handler: build/serverless/upgradeAgreement.handle
     timeout: 300
     memorySize: 512
   bulkMintAgreementTokens:

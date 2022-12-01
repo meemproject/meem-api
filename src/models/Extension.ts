@@ -43,12 +43,19 @@ export default class Extension extends BaseModel<Extension> {
 			type: DataTypes.STRING,
 			allowNull: false,
 			defaultValue: ''
+		},
+		slug: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
 		}
 	}
 
 	public id!: string
 
 	public name!: string
+
+	public slug!: string
 
 	public description!: string
 

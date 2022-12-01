@@ -81,14 +81,14 @@ export default class MeemIdController {
 
 		const { profilePicBase64, displayName } = req.body
 
-		await services.meemId.createOrUpdateUser({
+		const user = await services.meemId.createOrUpdateUser({
 			wallet: req.wallet,
 			profilePicBase64,
 			displayName
 		})
 
 		return res.json({
-			status: 'success'
+			user
 		})
 	}
 
@@ -100,11 +100,11 @@ export default class MeemIdController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const meemId = await services.meemId.getUserForWallet(req.wallet)
+		const user = await services.meemId.getUserForWallet(req.wallet)
 		return res.json({
 			walletId: req.wallet.id,
 			address: req.wallet.address,
-			meemIdentity: meemId
+			user
 		})
 	}
 
@@ -158,7 +158,7 @@ export default class MeemIdController {
 		const user = await services.meemId.getUserForWallet(req.wallet)
 
 		try {
-			await services.meemId.updateUserIdentity({
+			const userIdentity = await services.meemId.updateUserIdentity({
 				user,
 				metadata,
 				visibility,
@@ -166,7 +166,7 @@ export default class MeemIdController {
 			})
 
 			return res.json({
-				status: 'success'
+				userIdentity
 			})
 		} catch (e) {
 			throw new Error('SERVER_ERROR')

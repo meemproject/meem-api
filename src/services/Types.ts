@@ -243,6 +243,7 @@ export default class TypesService {
 			if (!/index.ts$/.test(file)) {
 				log.debug(file)
 				const contents = (await fs.readFile(file)).toString()
+
 				const matches = contents.match(
 					/import[^;]*{([^;]*)}[^;]*from[^;]*"([^;]*)";/g
 				)
@@ -293,7 +294,15 @@ export default class TypesService {
 		const contents = await fs.readFile(file)
 
 		// Strip out any imports
-		const typesOnly = contents.toString().replace(/import[^]+} from.*\n/g, '')
+		let typesOnly = contents.toString().replace(/import[^]+} from.*\n/g, '')
+
+		// Strip out OpenAPI Definitions
+		if (typesOnly.match(/\/\*\* === OpenAPI Definition === \*\/(.*)/s)) {
+			typesOnly = typesOnly.replace(
+				/\/\*\* === OpenAPI Definition === \*\/(.*)/s,
+				''
+			)
+		}
 
 		return typesOnly
 	}
