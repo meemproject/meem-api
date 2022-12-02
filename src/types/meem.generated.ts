@@ -1987,7 +1987,7 @@ export namespace GetMe {
 		address: string
 
 		/** The authenticated user */
-		user: any
+		user: IMeemUser
 	}
 
 	export interface IDefinition {
