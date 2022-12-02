@@ -1,5 +1,5 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
-import { IMeemId } from '../../meem.shared'
+import { IMeemId, IMeemUser } from '../../meem.shared'
 
 /** Get the current authenticated user */
 export namespace GetMe {
@@ -21,7 +21,7 @@ export namespace GetMe {
 		address: string
 
 		/** The authenticated user */
-		user: any
+		user: IMeemUser
 	}
 
 	export interface IDefinition {
