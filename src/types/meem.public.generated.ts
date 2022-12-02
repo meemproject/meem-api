@@ -604,7 +604,7 @@ export enum ContractType {
 	DiamondFacet = 'diamondFacet'
 }
 
-export interface IMeemIdentity {
+export interface IMeemUser {
 	id: string
 	displayName: string
 	profilePicUrl: string
@@ -625,7 +625,7 @@ export interface IAgreementRole {
 	name: string
 	isAdminRole: boolean
 	AgreementId: string
-	memberMeemIds: IMeemIdentity[]
+	members: IMeemUser[]
 }
 
 export interface IGuild {
@@ -1890,7 +1890,7 @@ export namespace CreateOrUpdateUser {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		user: any
+		user: IMeemUser
 	}
 
 	export interface IDefinition {
@@ -1985,7 +1985,7 @@ export namespace GetMe {
 		address: string
 
 		/** The authenticated user */
-		user: any
+		user: IMeemUser
 	}
 
 	export interface IDefinition {

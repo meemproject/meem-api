@@ -81,11 +81,11 @@ export default class MeemIdController {
 
 		const { profilePicBase64, displayName } = req.body
 
-		const user = await services.meemId.createOrUpdateUser({
+		const user = (await services.meemId.createOrUpdateUser({
 			wallet: req.wallet,
 			profilePicBase64,
 			displayName
-		})
+		})) as MeemAPI.IMeemUser
 
 		return res.json({
 			user
@@ -100,7 +100,9 @@ export default class MeemIdController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const user = await services.meemId.getUserForWallet(req.wallet)
+		const user = (await services.meemId.getUserForWallet(
+			req.wallet
+		)) as MeemAPI.IMeemUser
 		return res.json({
 			walletId: req.wallet.id,
 			address: req.wallet.address,

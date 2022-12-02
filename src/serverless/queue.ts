@@ -22,23 +22,16 @@ export const handle: SQSHandler = async (event, context) => {
 		}
 
 		const records = event.Records
-		const promises: Promise<any>[] = []
 
-		records.forEach(record => {
+		for (let i = 0; i < records.length; i++) {
 			try {
+				const record = records[i]
 				const e = JSON.parse(record.body)
-				promises.push(services.queue.handleEvent({ event: e }))
+				await services.queue.handleEvent({ event: e })
 			} catch (e) {
 				log.warn(e)
 			}
-		})
-
-		const results = await Promise.allSettled(promises)
-		results.forEach(result => {
-			if (result.status === 'rejected') {
-				log.warn(result.reason)
-			}
-		})
+		}
 	} catch (e) {
 		// eslint-disable-next-line no-console
 		console.log(e)

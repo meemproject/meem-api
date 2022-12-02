@@ -1,5 +1,5 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
-import { IMeemId } from '../../meem.shared'
+import { IMeemId, IMeemUser } from '../../meem.shared'
 
 /** Create or update the current user */
 export namespace CreateOrUpdateUser {
@@ -21,7 +21,7 @@ export namespace CreateOrUpdateUser {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		user: any
+		user: IMeemUser
 	}
 
 	export interface IDefinition {

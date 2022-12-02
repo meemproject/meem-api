@@ -604,7 +604,7 @@ export enum ContractType {
 	DiamondFacet = 'diamondFacet'
 }
 
-export interface IMeemIdentity {
+export interface IMeemUser {
 	id: string
 	displayName: string
 	profilePicUrl: string
@@ -625,7 +625,7 @@ export interface IAgreementRole {
 	name: string
 	isAdminRole: boolean
 	AgreementId: string
-	memberMeemIds: IMeemIdentity[]
+	members: IMeemUser[]
 }
 
 export interface IGuild {
@@ -1519,288 +1519,6 @@ export namespace UpgradeAgreement {
 
 
 
-export namespace GetJoinGuildMessage {
-	export interface IPathParams {
-		/** The Agreement id */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/getJoinGuildMessage`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		message: string
-		params: {
-			chainId?: string
-			msg: string
-			method: number
-			addr: string
-			nonce: string
-			hash?: string
-			ts: string
-		}
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace JoinGuild {
-	export interface IPathParams {
-		/** The Agreement id */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/joinGuild`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		message: string
-		params: {
-			chainId?: string
-			msg: string
-			method: number
-			addr: string
-			nonce: string
-			hash?: string
-			ts: string
-		}
-		sig: string
-		mintToken?: boolean
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-/** Create or update the current user */
-export namespace CreateOrUpdateUser {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/me`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** Profile picture base64 string */
-		profilePicBase64?: string
-		/** Url to profile picture */
-		// profilePicUrl?: string
-		/** Display name of identity */
-		displayName?: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		user: any
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-
-/** Remove a user identity integration from the current user identity */
-export namespace DetachUserIdentity {
-	export interface IPathParams {
-		integrationId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/me/integrations/${options.integrationId}`
-
-	export const method = HttpMethod.Delete
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-
-export namespace GetApiKey {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/me/apiKey`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		jwt: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-/** Get the current authenticated user */
-export namespace GetMe {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/me`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		/** The authenticated user's wallet id */
-		walletId: string
-
-		/** The authenticated user's wallet address */
-		address: string
-
-		/** The authenticated user */
-		user: any
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-
-/** Refresh the ENS name for the current user's wallet address */
-export namespace RefreshENS {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/me/refreshENS`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-
-/** Update current user identity */
-export namespace UpdateUserIdentity {
-	export interface IPathParams {
-		/** The user identity integration id to connect or update */
-		integrationId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/me/integrations/${options.integrationId}`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** Set the visibility type of the user identity integration */
-		visibility?: IntegrationVisibility
-		/** Metadata associated with this user identity integration */
-		metadata?: { [key: string]: unknown }
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		userIdentity: any
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-
 export namespace AuthenticateWithDiscord {
 	export interface IPathParams {}
 
@@ -2067,6 +1785,288 @@ export namespace UpdateWalletContractInstance {
 
 	export type Response = IResponseBody | IError
 }
+
+
+
+export namespace GetJoinGuildMessage {
+	export interface IPathParams {
+		/** The Agreement id */
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/getJoinGuildMessage`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		message: string
+		params: {
+			chainId?: string
+			msg: string
+			method: number
+			addr: string
+			nonce: string
+			hash?: string
+			ts: string
+		}
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace JoinGuild {
+	export interface IPathParams {
+		/** The Agreement id */
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/joinGuild`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		message: string
+		params: {
+			chainId?: string
+			msg: string
+			method: number
+			addr: string
+			nonce: string
+			hash?: string
+			ts: string
+		}
+		sig: string
+		mintToken?: boolean
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+/** Create or update the current user */
+export namespace CreateOrUpdateUser {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/me`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** Profile picture base64 string */
+		profilePicBase64?: string
+		/** Url to profile picture */
+		// profilePicUrl?: string
+		/** Display name of identity */
+		displayName?: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		user: IMeemUser
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+
+/** Remove a user identity integration from the current user identity */
+export namespace DetachUserIdentity {
+	export interface IPathParams {
+		integrationId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/me/integrations/${options.integrationId}`
+
+	export const method = HttpMethod.Delete
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+
+export namespace GetApiKey {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/me/apiKey`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		jwt: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+/** Get the current authenticated user */
+export namespace GetMe {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/me`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		/** The authenticated user's wallet id */
+		walletId: string
+
+		/** The authenticated user's wallet address */
+		address: string
+
+		/** The authenticated user */
+		user: IMeemUser
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+
+/** Refresh the ENS name for the current user's wallet address */
+export namespace RefreshENS {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/me/refreshENS`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+
+/** Update current user identity */
+export namespace UpdateUserIdentity {
+	export interface IPathParams {
+		/** The user identity integration id to connect or update */
+		integrationId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/me/integrations/${options.integrationId}`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** Set the visibility type of the user identity integration */
+		visibility?: IntegrationVisibility
+		/** Metadata associated with this user identity integration */
+		metadata?: { [key: string]: unknown }
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		userIdentity: any
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
 
 
 
