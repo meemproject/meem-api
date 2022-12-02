@@ -1029,8 +1029,22 @@ export namespace CreateAgreementExtension {
 	export interface IRequestBody {
 		/** The slug of the extension to enable */
 		slug: string
-		/** Metadata to store for this extension */
-		metadata: IMeemMetadataLike
+		/** Optional metadata associated with this extension */
+		metadata?: IMeemMetadataLike
+		/** Optional external link associated with this extension */
+		externalLink?: {
+			/** Url for the link */
+			url: string
+			/** The link label */
+			label?: string
+		}
+		/** Optional widget data associated with this extension */
+		widget?: {
+			/** Whether widget should be enabled */
+			isEnabled: boolean
+			/** Metadata associated with the extension widget */
+			metadata?: IMeemMetadataLike
+		}
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -1398,20 +1412,34 @@ export namespace UpdateAgreementExtension {
 		/** The id of the agreement */
 		agreementId: string
 
-		/** The extension slug */
-		slug: string
+		/** The agreement extension id */
+		agreementExtensionId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/extensions/${options.slug}`
+		`/api/1.0/agreements/${options.agreementId}/extensions/${options.agreementExtensionId}`
 
 	export const method = HttpMethod.Put
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Metadata to store for this extension */
+		/** Optional metadata associated with this extension */
 		metadata?: IMeemMetadataLike
+		/** Optional external link associated with this extension */
+		externalLink?: {
+			/** Url for the link */
+			url: string
+			/** The link label */
+			label?: string
+		}
+		/** Optional widget data associated with this extension */
+		widget?: {
+			/** Whether widget should be enabled */
+			isEnabled: boolean
+			/** Metadata associated with the extension widget */
+			metadata?: IMeemMetadataLike
+		}
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

@@ -71,7 +71,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 		AgreementExtensionController.createAgreementExtension
 	)
 	router.putAsync(
-		'/agreements/:agreementId/extensions/:slug',
+		'/agreements/:agreementId/extensions/:agreementExtensionId',
 		AgreementExtensionController.updateAgreementExtension
 	)
 	router.getAsync(

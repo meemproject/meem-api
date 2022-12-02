@@ -3,15 +3,15 @@ import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
 import { IMeemMetadataLike } from '../types/shared/meem.shared'
 import Agreement from './Agreement'
-export default class AgreementExtensionLink extends BaseModel<AgreementExtensionLink> {
-	public static readonly modelName = 'AgreementExtensionLink'
+export default class AgreementExtensionWidget extends BaseModel<AgreementExtensionWidget> {
+	public static readonly modelName = 'AgreementExtensionWidget'
 
 	public static readonly paranoid: boolean = false
 
 	public static get indexes() {
 		return [
 			{
-				name: 'AgreementExtensionLink_createdAt',
+				name: 'AgreementExtensionWidget_createdAt',
 				fields: ['createdAt']
 			}
 		]

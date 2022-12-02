@@ -81,8 +81,7 @@
       },
       "CreateAgreementExtensionRequestBody": {
         "required": [
-          "slug",
-          "metadata"
+          "slug"
         ],
         "properties": {
           "slug": {
@@ -90,8 +89,42 @@
             "type": "string"
           },
           "metadata": {
-            "description": "Metadata associated with this extension",
+            "description": "Optional metadata associated with this extension",
             "type": "object"
+          },
+          "externalLink": {
+            "description": "Optional external link associated with this extension",
+            "type": "object",
+            "required": [
+              "url"
+            ],
+            "properties": {
+              "url": {
+                "description": "The URL for the link",
+                "type": "string"
+              },
+              "label": {
+                "description": "The link label",
+                "type": "string"
+              }
+            }
+          },
+          "widget": {
+            "description": "Optional widget data associated with this extension",
+            "type": "object",
+            "required": [
+              "isEnabled"
+            ],
+            "properties": {
+              "isEnabled": {
+                "description": "Whether widget should be enabled",
+                "type": "boolean"
+              },
+              "metadata": {
+                "description": "Metadata associated with the extension widget",
+                "type": "object"
+              }
+            }
           }
         }
       },
@@ -393,13 +426,44 @@
         }
       },
       "UpdateAgreementExtensionRequestBody": {
-        "required": [
-          "metadata"
-        ],
         "properties": {
           "metadata": {
-            "description": "Metadata to store for this extension",
+            "description": "Optional metadata associated with this extension",
             "type": "object"
+          },
+          "externalLink": {
+            "description": "Optional external link associated with this extension",
+            "type": "object",
+            "required": [
+              "url"
+            ],
+            "properties": {
+              "url": {
+                "description": "The URL for the link",
+                "type": "string"
+              },
+              "label": {
+                "description": "The link label",
+                "type": "string"
+              }
+            }
+          },
+          "widget": {
+            "description": "Optional widget data associated with this extension",
+            "type": "object",
+            "required": [
+              "isEnabled"
+            ],
+            "properties": {
+              "isEnabled": {
+                "description": "Whether widget should be enabled",
+                "type": "boolean"
+              },
+              "metadata": {
+                "description": "Metadata associated with the extension widget",
+                "type": "object"
+              }
+            }
           }
         }
       },
@@ -587,7 +651,7 @@
             "jwtAuth": []
           }
         ],
-        "summary": "Create an agreement safe",
+        "summary": "Create an agreement extension",
         "parameters": [
           {
             "in": "path",
@@ -603,14 +667,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateAgreementSafeRequestBody"
+                "$ref": "#/components/schemas/CreateAgreementExtensionRequestBody"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Returns 'success' if safe is successfully created.",
+            "description": "Returns 'success' if bulk mint transaction is executed.",
             "content": {
               "application/json": {
                 "schema": {
@@ -622,7 +686,7 @@
         }
       }
     },
-    "/agreements/{agreementId}/extensions/{slug}": {
+    "/agreements/{agreementId}/extensions/{agreementExtensionId}": {
       "put": {
         "security": [
           {
@@ -918,6 +982,48 @@
         "responses": {
           "200": {
             "description": "Returns 'success' if bulk mint transaction is executed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultStatusResponseBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agreements/{agreementId}/safe": {
+      "post": {
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "summary": "Create an agreement safe",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agreementId",
+            "required": true,
+            "description": "The id of the agreement",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAgreementSafeRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns 'success' if safe is successfully created.",
             "content": {
               "application/json": {
                 "schema": {

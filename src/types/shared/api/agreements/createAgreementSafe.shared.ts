@@ -41,7 +41,7 @@ export namespace CreateAgreementSafe {
 /** === OpenAPI Definition === */
 
 /**
- * 	@api [post] /agreements/{agreementId}/extensions
+ * 	@api [post] /agreements/{agreementId}/safe
  * 	security:
  * 		- jwtAuth: []
  * 	summary: "Create an agreement safe"
