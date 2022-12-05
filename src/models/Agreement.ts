@@ -8,7 +8,7 @@ import { DataTypes } from 'sequelize'
 import ModelWithAddress from '../core/ModelWithAddress'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
-import AgreementRole from './AgreementRole'
+import type AgreementRole from './AgreementRole'
 import type AgreementToken from './AgreementToken'
 import type Extension from './Extension'
 import Transaction from './Transaction'
@@ -133,7 +133,34 @@ export default class Agreement extends ModelWithAddress<Agreement> {
 			return true
 		}
 
+		const adminAgreementRole = await this.getAdminAgreementRole()
+		const wallet = await orm.models.Wallet.findByAddress<Wallet>(minter)
+
+		if (wallet && adminAgreementRole) {
+			const agreementAdminToken = await orm.models.AgreementRoleToken.findOne({
+				where: {
+					AgreementRoleId: adminAgreementRole.id,
+					OwnerId: wallet.id
+				}
+			})
+
+			if (agreementAdminToken) {
+				return true
+			}
+		}
+
 		return false
+	}
+
+	public async getAdminAgreementRole(): Promise<AgreementRole | null> {
+		const adminAgreementRole = await orm.models.AgreementRole.findOne({
+			where: {
+				AgreementId: this.id,
+				isAdminRole: true
+			}
+		})
+
+		return adminAgreementRole
 	}
 
 	public async getMintingPermission(

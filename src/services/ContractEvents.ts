@@ -1,5 +1,5 @@
 import { diamondABI } from '@meemproject/meem-contracts'
-import { MeemMetadataLike } from '@meemproject/metadata'
+import { MeemMetadataLike, Validator } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 // import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
@@ -321,9 +321,19 @@ export default class ContractEvent {
 
 		if (!existingAgreementOrRole) {
 			if (isRoleAgreement) {
-				agreementOrRole = await orm.models.AgreementRole.create(
-					agreementOrRoleData
-				)
+				let agreementId = null
+				if (agreementOrRoleData.metadata.meem_agreement_address) {
+					const agreement = await orm.models.Agreement.findOne({
+						where: {
+							address: agreementOrRoleData.metadata.meem_agreement_address
+						}
+					})
+					agreementId = agreement?.id ?? null
+				}
+				agreementOrRole = await orm.models.AgreementRole.create({
+					...agreementOrRoleData,
+					AgreementId: agreementId
+				})
 			} else {
 				agreementOrRole = await orm.models.Agreement.create(agreementOrRoleData)
 			}
@@ -516,7 +526,47 @@ export default class ContractEvent {
 		}
 
 		agreement.adminContractAddress = eventData.adminContract
+
 		await agreement.save()
+
+		let newAdminAgreementRole = await orm.models.AgreementRole.findOne({
+			where: {
+				address: eventData.adminContract
+			}
+		})
+
+		const existingAdminAgreementRole = await orm.models.AgreementRole.findOne({
+			where: {
+				AgreementId: agreement.id,
+				isAdminRole: true
+			}
+		})
+
+		if (!newAdminAgreementRole) {
+			newAdminAgreementRole = (await this.meemHandleContractInitialized({
+				address,
+				chainId
+			})) as AgreementRole
+		}
+
+		if (!newAdminAgreementRole) {
+			log.crit('Unable to find or create AgreementRole')
+			return
+		}
+
+		const t = await orm.sequelize.transaction()
+		const promises: Promise<any>[] = []
+
+		newAdminAgreementRole.isAdminRole = true
+		promises.push(newAdminAgreementRole.save({ transaction: t }))
+
+		if (existingAdminAgreementRole) {
+			existingAdminAgreementRole.isAdminRole = false
+			promises.push(existingAdminAgreementRole.save({ transaction: t }))
+		}
+
+		await Promise.all(promises)
+		await t.commit()
 	}
 
 	// public static async meemHandlePropertiesSet(args: {

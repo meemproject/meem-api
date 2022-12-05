@@ -7,20 +7,34 @@ export namespace UpdateAgreementExtension {
 		/** The id of the agreement */
 		agreementId: string
 
-		/** The extension slug */
-		slug: string
+		/** The agreement extension id */
+		agreementExtensionId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/extensions/${options.slug}`
+		`/api/1.0/agreements/${options.agreementId}/extensions/${options.agreementExtensionId}`
 
 	export const method = HttpMethod.Put
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Metadata to store for this extension */
+		/** Optional metadata associated with this extension */
 		metadata?: IMeemMetadataLike
+		/** Optional external link associated with this extension */
+		externalLink?: {
+			/** Url for the link */
+			url: string
+			/** The link label */
+			label?: string
+		}
+		/** Optional widget data associated with this extension */
+		widget?: {
+			/** Whether widget should be enabled */
+			isEnabled: boolean
+			/** Metadata associated with the extension widget */
+			metadata?: IMeemMetadataLike
+		}
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -40,13 +54,13 @@ export namespace UpdateAgreementExtension {
 /** === OpenAPI Definition === */
 
 /**
- * 	@api [put] /agreements/{agreementId}/extensions/{slug}
+ * 	@api [put] /agreements/{agreementId}/extensions/{agreementExtensionId}
  * 	security:
  * 		- jwtAuth: []
  * 	summary: "Update an agreement extension"
  * 	parameters:
  * 		- (path) agreementId* {string} The id of the agreement
- * 		- (path) slug* {string} The extension slug
+ * 		- (path) agreementExtensionId* {string} The agreement extension id
  * 	requestBody:
  * 		content:
  * 			application/json:
@@ -63,10 +77,32 @@ export namespace UpdateAgreementExtension {
 
 /**
  *  @schema UpdateAgreementExtensionRequestBody
- * 	required:
- * 		- metadata
  *  properties:
  * 		metadata:
- * 			description: Metadata to store for this extension
+ * 			description: Optional metadata associated with this extension
  * 			type: object
+ * 		externalLink:
+ * 			description: Optional external link associated with this extension
+ * 			type: object
+ * 			required:
+ * 				- url
+ * 			properties:
+ * 				url:
+ * 					description: The URL for the link
+ * 					type: string
+ * 				label:
+ * 					description: The link label
+ * 					type: string
+ * 		widget:
+ * 			description: Optional widget data associated with this extension
+ * 			type: object
+ * 			required:
+ * 				- isEnabled
+ * 			properties:
+ * 				isEnabled:
+ * 					description: Whether widget should be enabled
+ * 					type: boolean
+ * 				metadata:
+ * 					description: Metadata associated with the extension widget
+ * 					type: object
  */

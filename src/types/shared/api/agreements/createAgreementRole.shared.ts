@@ -34,7 +34,7 @@ export namespace CreateAgreementRole {
 		/** The contract symbol. If omitted, will use slug generated from name */
 		symbol?: string
 
-		/** Contract admin addresses */
+		/** Contract admin addresses. */
 		admins?: string[]
 
 		/** Special minter permissions */

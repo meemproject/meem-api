@@ -1,28 +1,26 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-/** Set the agreement safe address */
-export namespace SetAgreementSafeAddress {
+/** Set the agreement admin role */
+export namespace SetAgreementAdminRole {
 	export interface IPathParams {
 		agreementId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/safe`
+		`/api/1.0/agreements/${options.agreementId}/setAdminRole`
 
 	export const method = HttpMethod.Patch
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** The safe address */
-		address: string
-
-		/** Chain id of the safe */
-		chainId?: number
+		/** The id of the agreement role to set as admin role */
+		adminAgreementRoleId: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		/** The Transaction id */
+		txId: string
 	}
 
 	export interface IDefinition {
@@ -31,27 +29,25 @@ export namespace SetAgreementSafeAddress {
 		requestBody: IRequestBody
 		responseBody: IResponseBody
 	}
-
-	export type Response = IResponseBody | IError
 }
 
 /** === OpenAPI Definition === */
 
 /**
- * 	@api [patch] /agreements/{agreementId}/safe
+ * 	@api [patch] /agreements/{agreementId}/setAdminRole
  * 	security:
  * 		- jwtAuth: []
- * 	summary: "Create an agreement safe"
+ * 	summary: "Set the agreement admin role"
  * 	parameters:
  * 		- (path) agreementId* {string} The id of the agreement
  * 	requestBody:
  * 		content:
  * 			application/json:
  * 				schema:
- * 					$ref: '#/components/schemas/SetAgreementSafeAddressRequestBody'
+ * 					$ref: '#/components/schemas/SetAgreemetAdminRoleRequestBody'
  * 	responses:
  * 		"200":
- * 			description: "Returns 'success' if safe is successfully created."
+ * 			description: "Returns 'success' if admin role was successfully set."
  * 			content:
  * 				application/json:
  * 					schema:
@@ -59,17 +55,12 @@ export namespace SetAgreementSafeAddress {
  **/
 
 /**
- *  @schema SetAgreementSafeAddressRequestBody
+ *  @schema SetAgreemetAdminRoleRequestBody
  * 	required:
  * 		- address
  *  properties:
 
- * 		address:
- * 			description: The number of signatures required
+ * 		adminAgreementRoleId:
+ * 			description: The id of the agreement role to set as admin role
  * 			type: string
- * 			example: 0x0000000000000000000000000000000000000000
- *  	chainId:
- * 			description: Chain id of the safe
- *  		type: integer
- * 			example: 421613
  */

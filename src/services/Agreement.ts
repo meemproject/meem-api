@@ -614,6 +614,16 @@ export default class AgreementService {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
+		let agreementRole
+
+		if (agreementRoleId) {
+			agreementRole = await orm.models.AgreementRole.findOne({
+				where: {
+					id: agreementRoleId
+				}
+			})
+		}
+
 		const builtData: {
 			to: string
 			metadata: MeemAPI.IMeemMetadataLike
@@ -666,7 +676,7 @@ export default class AgreementService {
 			})
 		)
 
-		log.debug('Bulk Minting meem w/ params', { bulkParams })
+		log.debug('Bulk Minting w/ params', { bulkParams })
 
 		// const mintTx = await services.ethers.runTransaction({
 		// 	chainId: agreement.chainId,
@@ -688,7 +698,7 @@ export default class AgreementService {
 				agreementContract.interface.functions[
 					'bulkMint((address,string,uint8)[])'
 				].format(),
-			contractAddress: agreement.address,
+			contractAddress: agreementRole?.address ?? agreement.address,
 			inputValues: {
 				bulkParams
 			}
@@ -770,6 +780,59 @@ export default class AgreementService {
 			inputValues: {
 				address: config.GNOSIS_MASTER_CONTRACT_ADDRESS,
 				data: safeSetupData
+			}
+		})
+
+		return { txId }
+	}
+
+	public static async setAgreemetAdminRole(options: {
+		agreementId: string
+		adminAgreementRoleId: string
+		senderWalletAddress: string
+	}) {
+		const { agreementId, adminAgreementRoleId, senderWalletAddress } = options
+		const [agreement, agreementRole, senderWallet] = await Promise.all([
+			orm.models.Agreement.findOne({
+				where: {
+					id: agreementId
+				}
+			}),
+			orm.models.AgreementRole.findOne({
+				where: {
+					id: adminAgreementRoleId
+				}
+			}),
+			orm.models.Wallet.findByAddress<Wallet>(senderWalletAddress)
+		])
+
+		if (!senderWallet) {
+			throw new Error('WALLET_NOT_FOUND')
+		}
+
+		if (!agreement) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		if (!agreementRole) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		const isAdmin = await this.isAgreementAdmin({
+			agreementId: agreement.id,
+			walletAddress: senderWalletAddress
+		})
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const txId = await services.ethers.queueTransaction({
+			chainId: agreement.chainId,
+			functionSignature: 'setAdminContract(address)',
+			contractAddress: agreement.address,
+			inputValues: {
+				newAdminContract: agreementRole.address
 			}
 		})
 
