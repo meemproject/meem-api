@@ -1,4 +1,3 @@
-import { Validator } from '@meemproject/metadata'
 import { Response } from 'express'
 import _ from 'lodash'
 import { IRequest, IResponse } from '../types/app'

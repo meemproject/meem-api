@@ -214,8 +214,7 @@
       "CreateAgreementRoleRequestBody": {
         "required": [
           "name",
-          "metadata",
-          "maxSupply"
+          "metadata"
         ],
         "properties": {
           "name": {
@@ -425,6 +424,34 @@
           }
         }
       },
+      "SetAgreementSafeAddressRequestBody": {
+        "required": [
+          "address"
+        ],
+        "properties": {
+          "address": {
+            "description": "The number of signatures required",
+            "type": "string",
+            "example": 0
+          },
+          "chainId": {
+            "description": "Chain id of the safe",
+            "type": "integer",
+            "example": 421613
+          }
+        }
+      },
+      "SetAgreemetAdminRoleRequestBody": {
+        "required": [
+          "address"
+        ],
+        "properties": {
+          "adminAgreementRoleId": {
+            "description": "The id of the agreement role to set as admin role",
+            "type": "string"
+          }
+        }
+      },
       "UpdateAgreementExtensionRequestBody": {
         "properties": {
           "metadata": {
@@ -602,6 +629,38 @@
         }
       }
     },
+    "/agreements/{agreementId}/adminRole": {
+      "patch": {
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "summary": "Set the agreement admin role",
+        "parameters": null,
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAgreemetAdminRoleRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns 'success' if admin role was successfully set.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultStatusResponseBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/agreements/{agreementId}/bulkMint": {
       "post": {
         "security": [
@@ -706,9 +765,9 @@
           },
           {
             "in": "path",
-            "name": "slug",
+            "name": "agreementExtensionId",
             "required": true,
-            "description": "The extension slug",
+            "description": "The agreement extension id",
             "schema": {
               "type": "string"
             }
@@ -1017,6 +1076,46 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CreateAgreementSafeRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns 'success' if safe is successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultStatusResponseBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "summary": "Create an agreement safe",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agreementId",
+            "required": true,
+            "description": "The id of the agreement",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAgreementSafeAddressRequestBody"
               }
             }
           }

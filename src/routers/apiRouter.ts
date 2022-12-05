@@ -58,6 +58,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/safe',
 		AgreementController.setAgreementSafeAddress
 	)
+	router.patchAsync(
+		'/agreements/:agreementId/setAdminRole',
+		AgreementController.setAgreementAdminRole
+	)
 	router.postAsync(
 		'/agreements/:agreementId/bulkMint',
 		AgreementController.bulkMint

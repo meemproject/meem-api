@@ -776,6 +776,59 @@ export default class AgreementService {
 		return { txId }
 	}
 
+	public static async setAgreemetAdminRole(options: {
+		agreementId: string
+		adminAgreementRoleId: string
+		senderWalletAddress: string
+	}) {
+		const { agreementId, adminAgreementRoleId, senderWalletAddress } = options
+		const [agreement, agreementRole, senderWallet] = await Promise.all([
+			orm.models.Agreement.findOne({
+				where: {
+					id: agreementId
+				}
+			}),
+			orm.models.AgreementRole.findOne({
+				where: {
+					id: adminAgreementRoleId
+				}
+			}),
+			orm.models.Wallet.findByAddress<Wallet>(senderWalletAddress)
+		])
+
+		if (!senderWallet) {
+			throw new Error('WALLET_NOT_FOUND')
+		}
+
+		if (!agreement) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		if (!agreementRole) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		const isAdmin = await this.isAgreementAdmin({
+			agreementId: agreement.id,
+			walletAddress: senderWalletAddress
+		})
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const txId = await services.ethers.queueTransaction({
+			chainId: agreement.chainId,
+			functionSignature: 'setAdminContract(address)',
+			contractAddress: agreement.address,
+			inputValues: {
+				newAdminContract: agreementRole.address
+			}
+		})
+
+		return { txId }
+	}
+
 	public static async upgradeAgreement(
 		options: MeemAPI.v1.UpgradeAgreement.IRequestBody & {
 			agreementId: string
