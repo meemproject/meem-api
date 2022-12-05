@@ -214,7 +214,8 @@
       "CreateAgreementRoleRequestBody": {
         "required": [
           "name",
-          "metadata"
+          "metadata",
+          "maxSupply"
         ],
         "properties": {
           "name": {
@@ -622,38 +623,6 @@
                       }
                     }
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/agreements/{agreementId}/adminRole": {
-      "patch": {
-        "security": [
-          {
-            "jwtAuth": []
-          }
-        ],
-        "summary": "Set the agreement admin role",
-        "parameters": null,
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetAgreemetAdminRoleRequestBody"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns 'success' if admin role was successfully set.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DefaultStatusResponseBody"
                 }
               }
             }
@@ -1123,6 +1092,48 @@
         "responses": {
           "200": {
             "description": "Returns 'success' if safe is successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultStatusResponseBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agreements/{agreementId}/setAdminRole": {
+      "patch": {
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "summary": "Set the agreement admin role",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agreementId",
+            "required": true,
+            "description": "The id of the agreement",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAgreemetAdminRoleRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns 'success' if admin role was successfully set.",
             "content": {
               "application/json": {
                 "schema": {

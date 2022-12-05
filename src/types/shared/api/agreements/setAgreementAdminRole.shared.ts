@@ -7,7 +7,7 @@ export namespace SetAgreementAdminRole {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/adminRole`
+		`/api/1.0/agreements/${options.agreementId}/setAdminRole`
 
 	export const method = HttpMethod.Patch
 
@@ -39,6 +39,7 @@ export namespace SetAgreementAdminRole {
  * 		- jwtAuth: []
  * 	summary: "Set the agreement admin role"
  * 	parameters:
+ * 		- (path) agreementId* {string} The id of the agreement
  * 	requestBody:
  * 		content:
  * 			application/json:
