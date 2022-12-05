@@ -469,20 +469,18 @@ export interface IMetadataMeem extends IMeem {
 }
 
 export interface IERC721Metadata {
-	name?: string
-	image?: string
-	description?: string
+	[key: string]: any
 }
 
 // TODO: Define metadata types for extensions (e.g. type: APP, LINK)
 export interface IAgreementExtensionMetadata {
 	externalUrl?: string
-	[key: string]: unknown
+	[key: string]: any
 }
 
 // TODO: Define metadata types for extensions (e.g. type: APP, LINK)
 export interface IAgreementRoleExtensionMetadata {
-	[key: string]: unknown
+	[key: string]: any
 }
 
 export interface INFT {
@@ -918,7 +916,8 @@ export namespace BulkMintAgreementTokens {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		/** The Transaction id */
+		txId: string
 	}
 
 	export interface IDefinition {
@@ -1105,7 +1104,14 @@ export namespace CreateAgreementRole {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		/** The Transaction id for deploying the contract. Transaction #1 */
+		deployContractTxId: string
+
+		/** The Transaction id for initializing the contract. Transaction #2 */
+		cutTxId: string
+
+		/** The Transaction id for minting tokens. Transaction #3 */
+		mintTxId?: string
 	}
 
 	export interface IDefinition {
@@ -1146,7 +1152,8 @@ export namespace CreateAgreementSafe {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		/** The Transaction id */
+		txId: string
 	}
 
 	export interface IDefinition {
@@ -1376,7 +1383,8 @@ export namespace ReInitializeAgreement {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		/** The Transaction id for updating the contract */
+		txId: string
 	}
 
 	export interface IDefinition {
@@ -1469,7 +1477,8 @@ export namespace UpdateAgreementRole {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		/** The Transaction id for updating the contract */
+		txId: string
 	}
 
 	export interface IDefinition {
@@ -1503,7 +1512,8 @@ export namespace UpgradeAgreement {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		/** The Transaction id */
+		txId: string
 	}
 
 	export interface IDefinition {

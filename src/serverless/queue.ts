@@ -18,7 +18,6 @@ export const handle: SQSHandler = async (event, context) => {
 				isListeningDisabled: true
 			})
 			app = result.app
-			// request = supertest(app)
 		}
 
 		const records = event.Records

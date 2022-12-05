@@ -1,5 +1,5 @@
 import { diamondABI } from '@meemproject/meem-contracts'
-import { MeemMetadataLike, Validator } from '@meemproject/metadata'
+import { MeemMetadataLike } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 // import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
@@ -404,14 +404,14 @@ export default class ContractEvent {
 			}[] = []
 
 			admins.forEach(adminAddress => {
-				const wallet = adminWallets.find(
+				const adminWallet = adminWallets.find(
 					aw => aw.address.toLowerCase() === adminAddress.toLowerCase()
 				)
 
 				const agreementWallet =
-					wallet?.AgreementWallets && wallet?.AgreementWallets[0]
+					adminWallet?.AgreementWallets && adminWallet?.AgreementWallets[0]
 
-				if (!wallet) {
+				if (!adminWallet) {
 					// Create the wallet
 					const walletId = uuidv4()
 					walletsData.push({
@@ -425,11 +425,11 @@ export default class ContractEvent {
 						WalletId: walletId,
 						role: adminRole
 					})
-				} else if (wallet && !agreementWallet) {
+				} else if (adminWallet && !agreementWallet) {
 					// Create the association
 					walletContractsData.push({
 						AgreementId: agreementOrRole.id,
-						WalletId: wallet.id,
+						WalletId: adminWallet.id,
 						role: adminRole
 					})
 				}

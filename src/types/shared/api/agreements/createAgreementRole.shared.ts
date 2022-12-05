@@ -60,7 +60,14 @@ export namespace CreateAgreementRole {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		/** The Transaction id for deploying the contract. Transaction #1 */
+		deployContractTxId: string
+
+		/** The Transaction id for initializing the contract. Transaction #2 */
+		cutTxId: string
+
+		/** The Transaction id for minting tokens. Transaction #3 */
+		mintTxId?: string
 	}
 
 	export interface IDefinition {
