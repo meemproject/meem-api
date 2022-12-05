@@ -591,10 +591,7 @@ export default class AgreementService {
 			mintedBy: string
 		}
 	) {
-		const { agreementId, agreementRoleId, mintedBy } =
-			data as MeemAPI.v1.BulkMintAgreementRoleTokens.IRequestBody & {
-				mintedBy: string
-			}
+		const { agreementId, agreementRoleId, tokens, mintedBy } = data
 
 		if (!agreementId) {
 			throw new Error('MISSING_CONTRACT_ADDRESS')
@@ -606,7 +603,7 @@ export default class AgreementService {
 					id: agreementId
 				}
 			}),
-			orm.models.Wallet.findByAddress<Wallet>(data.mintedBy)
+			orm.models.Wallet.findByAddress<Wallet>(mintedBy)
 		])
 
 		if (!minterWallet) {
@@ -624,7 +621,7 @@ export default class AgreementService {
 		}[] = []
 
 		// Validate metadata
-		data.tokens.forEach(token => {
+		tokens.forEach(token => {
 			if (!token.to) {
 				throw new Error('MISSING_ACCOUNT_ADDRESS')
 			}

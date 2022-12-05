@@ -1,11 +1,6 @@
-// import { randomBytes } from 'crypto'
-// eslint-disable-next-line import/no-extraneous-dependencies
-import AWS from 'aws-sdk'
 import { ethers } from 'ethers'
-// import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
 import { Response } from 'express'
 import _ from 'lodash'
-// import request from 'superagent'
 import { IRequest, IResponse } from '../types/app'
 import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
