@@ -1,3 +1,4 @@
+import { ethers } from 'ethers'
 import { Response } from 'express'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
@@ -53,7 +54,7 @@ export default class AgreementController {
 	// 	})
 
 	// 	if (!agreement) {
-	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 		throw new Error('AGREEMENT_NOT_FOUND')
 	// 	}
 
 	// 	if (agreement.Wallets && agreement.Wallets.length < 1) {
@@ -160,6 +161,43 @@ export default class AgreementController {
 		return res.json(result)
 	}
 
+	public static async setAgreementSafeAddress(
+		req: IRequest<MeemAPI.v1.SetAgreementSafeAddress.IDefinition>,
+		res: IResponse<MeemAPI.v1.SetAgreementSafeAddress.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		await req.wallet.enforceTXLimit()
+
+		const { agreementId } = req.params
+
+		const agreement = await orm.models.Agreement.findOne({
+			where: {
+				id: agreementId
+			}
+		})
+
+		if (!agreement) {
+			throw new Error('AGREEMENT_NOT_FOUND')
+		}
+
+		const isAdmin = await agreement.isAdmin(req.wallet.address)
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		agreement.gnosisSafeAddress = ethers.utils.getAddress(req.body.address)
+
+		await agreement.save()
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
 	public static async upgradeAgreement(
 		req: IRequest<MeemAPI.v1.UpgradeAgreement.IDefinition>,
 		res: IResponse<MeemAPI.v1.UpgradeAgreement.IResponseBody>
@@ -198,7 +236,7 @@ export default class AgreementController {
 		})
 
 		if (!agreement) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
 		const { proof } = await agreement.getMintingPermission(req.wallet.address)
@@ -227,7 +265,7 @@ export default class AgreementController {
 		})
 
 		if (!agreement) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
 		const canMint = await agreement.canMint(req.wallet.address)

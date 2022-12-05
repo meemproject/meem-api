@@ -54,6 +54,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/safe',
 		AgreementController.createAgreementSafe
 	)
+	router.patchAsync(
+		'/agreements/:agreementId/safe',
+		AgreementController.setAgreementSafeAddress
+	)
 	router.postAsync(
 		'/agreements/:agreementId/bulkMint',
 		AgreementController.bulkMint

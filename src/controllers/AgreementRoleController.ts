@@ -1,11 +1,6 @@
-// import { randomBytes } from 'crypto'
-// eslint-disable-next-line import/no-extraneous-dependencies
-import AWS from 'aws-sdk'
 import { ethers } from 'ethers'
-// import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
 import { Response } from 'express'
 import _ from 'lodash'
-// import request from 'superagent'
 import { IRequest, IResponse } from '../types/app'
 import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
@@ -487,39 +482,15 @@ export default class AgreementRoleController {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		if (config.DISABLE_ASYNC_MINTING) {
-			try {
-				await services.agreementRole.bulkMint({
-					...req.body,
-					mintedBy: req.wallet.address,
-					agreementId,
-					agreementRoleId
-				})
-			} catch (e) {
-				log.crit(e)
-			}
-		} else {
-			const lambda = new AWS.Lambda({
-				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-				region: 'us-east-1'
-			})
-			await lambda
-				.invoke({
-					InvocationType: 'Event',
-					FunctionName: config.LAMBDA_AGREEMENT_ROLE_BULK_MINT_FUNCTION,
-					Payload: JSON.stringify({
-						...req.body,
-						mintedBy: req.wallet.address,
-						agreementId,
-						agreementRoleId
-					})
-				})
-				.promise()
-		}
+		const { txId } = await services.agreement.bulkMint({
+			...req.body,
+			mintedBy: req.wallet.address,
+			agreementId,
+			agreementRoleId
+		})
 
 		return res.json({
-			status: 'success'
+			txId
 		})
 	}
 
