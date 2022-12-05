@@ -82,7 +82,7 @@ export default class AgreementRoleService {
 			senderWalletAddress: string
 			isAdminRole?: boolean
 		}
-	): Promise<AgreementRole> {
+	) {
 		const {
 			shouldMintTokens,
 			tokenMetadata,
@@ -91,259 +91,160 @@ export default class AgreementRoleService {
 			agreementId
 		} = data
 
-		try {
-			const agreement = await orm.models.Agreement.findOne({
+		const agreement = await orm.models.Agreement.findOne({
+			where: {
+				id: agreementId
+			}
+		})
+
+		if (!agreement) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		const chainId = agreement.chainId
+
+		const [dbContract, bundle] = await Promise.all([
+			orm.models.Contract.findOne({
 				where: {
-					id: agreementId
+					id: config.MEEM_PROXY_CONTRACT_ID
 				}
-			})
-
-			if (!agreement) {
-				throw new Error('MEEM_CONTRACT_NOT_FOUND')
-			}
-
-			const chainId = agreement.chainId
-
-			const [dbContract, bundle] = await Promise.all([
-				orm.models.Contract.findOne({
-					where: {
-						id: config.MEEM_PROXY_CONTRACT_ID
-					}
-				}),
-				orm.models.Bundle.findOne({
-					where: {
-						id: config.MEEM_BUNDLE_ID
-					},
-					include: [
-						{
-							model: orm.models.BundleContract,
-							include: [
-								{
-									model: orm.models.Contract,
-									include: [
-										{
-											model: orm.models.ContractInstance,
-											where: {
-												chainId
-											}
-										}
-									]
-								}
-							]
-						}
-					]
-				})
-			])
-
-			if (!dbContract) {
-				throw new Error('CONTRACT_NOT_FOUND')
-			}
-
-			if (!bundle) {
-				throw new Error('BUNDLE_NOT_FOUND')
-			}
-
-			const metadata = {
-				...data.metadata,
-				meem_agreement_address: agreement.address
-			}
-
-			const {
-				wallet,
-				senderWallet,
-				contractInitParams,
-				cleanAdmins,
-				fullMintPermissions
-			} = await services.agreement.prepareInitValues({
-				...data,
-				metadata,
-				chainId
-			})
-
-			const proxyContractFactory = new ethers.ContractFactory(
-				dbContract.abi,
-				{
-					object: dbContract.bytecode
+			}),
+			orm.models.Bundle.findOne({
+				where: {
+					id: config.MEEM_BUNDLE_ID
 				},
-				wallet
-			)
-
-			const proxyContract = await services.ethers.runTransaction({
-				chainId,
-				fn: proxyContractFactory.deploy.bind(proxyContractFactory),
-				params: [senderWallet.address, [senderWallet.address, wallet.address]],
-				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
+				include: [
+					{
+						model: orm.models.BundleContract,
+						include: [
+							{
+								model: orm.models.Contract,
+								include: [
+									{
+										model: orm.models.ContractInstance,
+										where: {
+											chainId
+										}
+									}
+								]
+							}
+						]
+					}
+				]
 			})
+		])
 
-			log.debug(
-				`Deploying contract w/ tx: ${proxyContract.deployTransaction.hash}`
-			)
+		if (!dbContract) {
+			throw new Error('CONTRACT_NOT_FOUND')
+		}
 
-			await proxyContract.deployed()
+		if (!bundle) {
+			throw new Error('BUNDLE_NOT_FOUND')
+		}
 
-			log.debug(
-				`Deployed proxy at ${proxyContract.address} w/ tx: ${proxyContract.deployTransaction.hash}`
-			)
+		const metadata = {
+			...data.metadata,
+			meem_agreement_address: agreement.address
+		}
 
-			const toVersion: IFacetVersion[] = []
+		const {
+			wallet,
+			senderWallet,
+			contractInitParams,
+			cleanAdmins,
+			fullMintPermissions
+		} = await services.agreement.prepareInitValues({
+			...data,
+			metadata,
+			chainId
+		})
 
-			bundle.BundleContracts?.forEach(bc => {
-				const contractInstance =
-					bc.Contract?.ContractInstances && bc.Contract?.ContractInstances[0]
-				if (!contractInstance) {
-					throw new Error('FACET_NOT_DEPLOYED')
+		const deployContractTxId = await services.ethers.queueContractDeployment({
+			chainId,
+			abi: dbContract.abi,
+			bytecode: dbContract.bytecode,
+			args: [senderWallet.address, [senderWallet.address, wallet.address]]
+		})
+
+		const toVersion: IFacetVersion[] = []
+
+		bundle.BundleContracts?.forEach(bc => {
+			const contractInstance =
+				bc.Contract?.ContractInstances && bc.Contract?.ContractInstances[0]
+			if (!contractInstance) {
+				throw new Error('FACET_NOT_DEPLOYED')
+			}
+
+			toVersion.push({
+				address: contractInstance.address,
+				functionSelectors: bc.functionSelectors
+			})
+		})
+
+		const iFace = new ethers.utils.Interface(bundle.abi)
+
+		const functionCall = iFace.encodeFunctionData('initialize', [
+			contractInitParams
+		])
+
+		const cutTxId = await services.ethers.queueDiamondCut({
+			chainId,
+			contractTxId: deployContractTxId,
+			fromVersion: [],
+			toVersion,
+			functionCall,
+			abi: dbContract.abi
+		})
+
+		if (shouldMintTokens && tokenMetadata) {
+			log.debug(`Minting admin/member tokens.`, cleanAdmins)
+			const addresses = [...cleanAdmins.map(a => a.user), ...(members ?? [])]
+
+			const tokens = addresses.map(a => {
+				return {
+					to: a,
+					metadata: tokenMetadata
 				}
-
-				toVersion.push({
-					address: contractInstance.address,
-					functionSelectors: bc.functionSelectors
-				})
 			})
 
-			const cuts = getCuts({
-				proxyContractAddress: proxyContract.address,
-				fromVersion: [],
-				toVersion
-			})
-
-			const iFace = new ethers.utils.Interface(bundle.abi)
-
-			const functionCall = iFace.encodeFunctionData('initialize', [
-				contractInitParams
-			])
-
-			log.debug(contractInitParams)
-
-			const facetCuts = cuts.map(c => ({
-				target: c.facetAddress,
-				action: c.action,
-				selectors: c.functionSelectors
-			}))
-
-			let contractSlug = uuidv4()
-
-			if (data.name) {
+			if (config.DISABLE_ASYNC_MINTING) {
 				try {
-					contractSlug = await this.generateSlug({
+					await this.bulkMint({
+						tokens,
+						mintedBy: senderWalletAddress,
 						agreementId: agreement.id,
-						baseSlug: data.name,
-						chainId
+						agreementRoleId: agreementRole.id
 					})
 				} catch (e) {
-					log.crit('Something went wrong while creating slug', e)
+					log.crit(e)
 				}
-			}
-
-			const agreementRole = await orm.models.AgreementRole.create({
-				address: proxyContract.address,
-				mintPermissions: fullMintPermissions,
-				slug: contractSlug,
-				name: data.name,
-				isTransferrable: !data.isTransferLocked,
-				chainId,
-				AgreementId: agreement.id
-			})
-
-			const cutTx = await services.ethers.runTransaction({
-				chainId,
-				fn: proxyContract.diamondCut.bind(proxyContract),
-				params: [facetCuts, proxyContract.address, functionCall],
-				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
-			})
-
-			log.debug(`Running diamond cut w/ TX: ${cutTx.hash}`)
-
-			await cutTx.wait()
-
-			if (shouldMintTokens && tokenMetadata) {
-				log.debug(`Minting admin/member tokens.`, cleanAdmins)
-				const addresses = [...cleanAdmins.map(a => a.user), ...(members ?? [])]
-
-				const tokens = addresses.map(a => {
-					return {
-						to: a,
-						metadata: tokenMetadata
-					}
+			} else {
+				const lambda = new AWS.Lambda({
+					accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
+					secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
+					region: 'us-east-1'
 				})
-
-				if (config.DISABLE_ASYNC_MINTING) {
-					try {
-						await this.bulkMint({
+				await lambda
+					.invoke({
+						InvocationType: 'Event',
+						FunctionName: config.LAMBDA_AGREEMENT_ROLE_BULK_MINT_FUNCTION,
+						Payload: JSON.stringify({
 							tokens,
 							mintedBy: senderWalletAddress,
 							agreementId: agreement.id,
 							agreementRoleId: agreementRole.id
 						})
-					} catch (e) {
-						log.crit(e)
-					}
-				} else {
-					const lambda = new AWS.Lambda({
-						accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-						secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-						region: 'us-east-1'
 					})
-					await lambda
-						.invoke({
-							InvocationType: 'Event',
-							FunctionName: config.LAMBDA_AGREEMENT_ROLE_BULK_MINT_FUNCTION,
-							Payload: JSON.stringify({
-								tokens,
-								mintedBy: senderWalletAddress,
-								agreementId: agreement.id,
-								agreementRoleId: agreementRole.id
-							})
-						})
-						.promise()
-				}
-
-				log.debug(`Finished minting admin/member tokens.`)
+					.promise()
 			}
 
-			try {
-				// const sign = (signableMessage: string | Bytes) =>
-				// 	wallet.signMessage(signableMessage)
-				// const createGuildRoleResponse = await guildRole.create(
-				// 	wallet.address,
-				// 	sign,
-				// 	{
-				// 		guildId: agreementGuild.guildId,
-				// 		name: roleName,
-				// 		logic: 'AND',
-				// 		requirements: [
-				// 			{
-				// 				type: 'ERC721',
-				// 				chain: services.guild.getGuildChain(
-				// 					agreementInstance.chainId
-				// 				),
-				// 				address: agreement.address,
-				// 				data: {
-				// 					minAmount: 1
-				// 				}
-				// 			}
-				// 		]
-				// 	}
-				// )
-				// await orm.models.AgreementRole.create({
-				// 	// guildRoleId: createGuildRoleResponse.id,
-				// 	name: data.name,
-				// 	AgreementId: agreement.id,
-				// 	RoleAgreementId: agreementInstance.id,
-				// 	// tokenAddress: agreement.address,
-				// 	isAdminRole: isAdminRole ?? false
-				// })
-			} catch (e) {
-				log.crit('Failed to create Guild', e)
-			}
+			log.debug(`Finished minting admin/member tokens.`)
+		}
 
-			return agreementRole
-		} catch (e) {
-			await sockets?.emitError(
-				config.errors.CONTRACT_CREATION_FAILED,
-				senderWalletAddress
-			)
-			log.crit(e)
-			throw new Error('CONTRACT_CREATION_FAILED')
+		return {
+			deployContractTxId,
+			cutTxId,
+			mintTxId
 		}
 	}
 

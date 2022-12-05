@@ -1,5 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import AWS from 'aws-sdk'
 import { Response } from 'express'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
@@ -117,38 +115,6 @@ export default class AgreementController {
 			senderWalletAddress: req.wallet.address
 		})
 
-		// if (config.DISABLE_ASYNC_MINTING) {
-		// 	try {
-		// 		await services.agreement.createAgreement({
-		// 			...req.body,
-		// 			senderWalletAddress: req.wallet.address
-		// 		})
-		// 	} catch (e) {
-		// 		log.crit(e)
-		// 		sockets?.emitError(
-		// 			config.errors.CONTRACT_CREATION_FAILED,
-		// 			req.wallet.address
-		// 		)
-		// 	}
-		// } else {
-		// 	const lambda = new AWS.Lambda({
-		// 		accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-		// 		secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-		// 		region: 'us-east-1'
-		// 	})
-
-		// 	await lambda
-		// 		.invoke({
-		// 			InvocationType: 'Event',
-		// 			FunctionName: config.LAMBDA_CREATE_CONTRACT_FUNCTION,
-		// 			Payload: JSON.stringify({
-		// 				...req.body,
-		// 				senderWalletAddress: req.wallet.address
-		// 			})
-		// 		})
-		// 		.promise()
-		// }
-
 		return res.json(result)
 	}
 
@@ -164,39 +130,13 @@ export default class AgreementController {
 
 		const { agreementId } = req.params
 
-		if (config.DISABLE_ASYNC_MINTING) {
-			try {
-				await services.agreement.updateAgreement({
-					...req.body,
-					agreementId,
-					senderWalletAddress: req.wallet.address
-				})
-			} catch (e) {
-				log.crit(e)
-				sockets?.emitError(config.errors.MINT_FAILED, req.wallet.address)
-			}
-		} else {
-			const lambda = new AWS.Lambda({
-				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-				region: 'us-east-1'
-			})
-			await lambda
-				.invoke({
-					InvocationType: 'Event',
-					FunctionName: config.LAMBDA_REINITIALIZE_FUNCTION_NAME,
-					Payload: JSON.stringify({
-						...req.body,
-						agreementId,
-						senderWalletAddress: req.wallet.address
-					})
-				})
-				.promise()
-		}
-
-		return res.json({
-			status: 'success'
+		const result = await services.agreement.updateAgreement({
+			...req.body,
+			agreementId,
+			senderWalletAddress: req.wallet.address
 		})
+
+		return res.json(result)
 	}
 
 	public static async createAgreementSafe(
@@ -211,38 +151,13 @@ export default class AgreementController {
 
 		const { agreementId } = req.params
 
-		if (config.DISABLE_ASYNC_MINTING) {
-			try {
-				await services.agreement.createAgreementSafe({
-					...req.body,
-					agreementId,
-					senderWalletAddress: req.wallet.address
-				})
-			} catch (e) {
-				log.crit(e)
-			}
-		} else {
-			const lambda = new AWS.Lambda({
-				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-				region: 'us-east-1'
-			})
-			await lambda
-				.invoke({
-					InvocationType: 'Event',
-					FunctionName: config.LAMBDA_CREATE_CLUB_SAFE_FUNCTION_NAME,
-					Payload: JSON.stringify({
-						...req.body,
-						agreementId,
-						senderWalletAddress: req.wallet.address
-					})
-				})
-				.promise()
-		}
-
-		return res.json({
-			status: 'success'
+		const result = await services.agreement.createAgreementSafe({
+			...req.body,
+			agreementId,
+			senderWalletAddress: req.wallet.address
 		})
+
+		return res.json(result)
 	}
 
 	public static async upgradeAgreement(
@@ -257,38 +172,13 @@ export default class AgreementController {
 
 		const { agreementId } = req.params
 
-		if (config.DISABLE_ASYNC_MINTING) {
-			try {
-				await services.agreement.upgradeAgreement({
-					...req.body,
-					agreementId,
-					senderWalletAddress: req.wallet.address
-				})
-			} catch (e) {
-				log.crit(e)
-			}
-		} else {
-			const lambda = new AWS.Lambda({
-				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-				region: 'us-east-1'
-			})
-			await lambda
-				.invoke({
-					InvocationType: 'Event',
-					FunctionName: config.UPGRADE_AGREEMENT_FUNCTION_NAME,
-					Payload: JSON.stringify({
-						...req.body,
-						agreementId,
-						senderWalletAddress: req.wallet.address
-					})
-				})
-				.promise()
-		}
-
-		return res.json({
-			status: 'success'
+		const result = await services.agreement.upgradeAgreement({
+			...req.body,
+			agreementId,
+			senderWalletAddress: req.wallet.address
 		})
+
+		return res.json(result)
 	}
 
 	public static async getMintingProof(
@@ -345,37 +235,12 @@ export default class AgreementController {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		if (config.DISABLE_ASYNC_MINTING) {
-			try {
-				await services.agreement.bulkMint({
-					...req.body,
-					mintedBy: req.wallet.address,
-					agreementId
-				})
-			} catch (e) {
-				log.crit(e)
-			}
-		} else {
-			const lambda = new AWS.Lambda({
-				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-				region: 'us-east-1'
-			})
-			await lambda
-				.invoke({
-					InvocationType: 'Event',
-					FunctionName: config.LAMBDA_AGREEMENT_BULK_MINT_FUNCTION,
-					Payload: JSON.stringify({
-						...req.body,
-						mintedBy: req.wallet.address,
-						agreementId
-					})
-				})
-				.promise()
-		}
-
-		return res.json({
-			status: 'success'
+		const result = await services.agreement.bulkMint({
+			...req.body,
+			mintedBy: req.wallet.address,
+			agreementId
 		})
+
+		return res.json(result)
 	}
 }

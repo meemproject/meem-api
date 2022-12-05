@@ -414,20 +414,18 @@ export interface IMetadataMeem extends IMeem {
 }
 
 export interface IERC721Metadata {
-	name?: string
-	image?: string
-	description?: string
+	[key: string]: any
 }
 
 // TODO: Define metadata types for extensions (e.g. type: APP, LINK)
 export interface IAgreementExtensionMetadata {
 	externalUrl?: string
-	[key: string]: unknown
+	[key: string]: any
 }
 
 // TODO: Define metadata types for extensions (e.g. type: APP, LINK)
 export interface IAgreementRoleExtensionMetadata {
-	[key: string]: unknown
+	[key: string]: any
 }
 
 export interface INFT {

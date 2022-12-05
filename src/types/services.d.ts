@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import Agreement from '../services/Agreement'
-import AgreementRole from '../services/AgreementRole'
 import Child from '../services/Child'
 import ContractEvents from '../services/ContractEvents'
 import Db from '../services/Db'
@@ -26,6 +25,8 @@ import Web3 from '../services/Web3'
 
 declare global {
 	namespace services {
+		let agreement: typeof Agreement
+		let agreementRole: typeof AgreementRole
 		let child: typeof Child
 		let contractEvents: typeof ContractEvents
 		let db: typeof Db
@@ -37,8 +38,6 @@ declare global {
 		let lint: typeof Lint
 		let lit: typeof Lit
 		let meem: typeof Meem
-		let agreement: typeof Agreement
-		let agreementRole: typeof AgreementRole
 		let meemId: typeof MeemId
 		let puppeteer: Puppeteer
 		let queue: typeof Queue

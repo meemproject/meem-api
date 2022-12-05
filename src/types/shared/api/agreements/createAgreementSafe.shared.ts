@@ -25,7 +25,8 @@ export namespace CreateAgreementSafe {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		/** The Transaction id */
+		txId: string
 	}
 
 	export interface IDefinition {
