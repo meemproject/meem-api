@@ -1,7 +1,7 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-/** Create an agreement safe */
-export namespace CreateAgreementSafe {
+/** Set the agreement safe address */
+export namespace SetAgreementSafeAddress {
 	export interface IPathParams {
 		agreementId: string
 	}
@@ -9,24 +9,20 @@ export namespace CreateAgreementSafe {
 	export const path = (options: IPathParams) =>
 		`/api/1.0/agreements/${options.agreementId}/safe`
 
-	export const method = HttpMethod.Post
+	export const method = HttpMethod.Patch
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Addresses of the safe owners */
-		safeOwners: string[]
+		/** The safe address */
+		address: string
 
 		/** Chain id of the safe */
 		chainId?: number
-
-		/** The number of signatures required */
-		threshold?: number
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The Transaction id */
-		txId: string
+		status: 'success'
 	}
 
 	export interface IDefinition {
@@ -42,7 +38,7 @@ export namespace CreateAgreementSafe {
 /** === OpenAPI Definition === */
 
 /**
- * 	@api [post] /agreements/{agreementId}/safe
+ * 	@api [patch] /agreements/{agreementId}/extensions
  * 	security:
  * 		- jwtAuth: []
  * 	summary: "Create an agreement safe"
@@ -52,7 +48,7 @@ export namespace CreateAgreementSafe {
  * 		content:
  * 			application/json:
  * 				schema:
- * 					$ref: '#/components/schemas/CreateAgreementSafeRequestBody'
+ * 					$ref: '#/components/schemas/SetAgreementSafeAddressRequestBody'
  * 	responses:
  * 		"200":
  * 			description: "Returns 'success' if safe is successfully created."
@@ -63,22 +59,17 @@ export namespace CreateAgreementSafe {
  **/
 
 /**
- *  @schema CreateAgreementSafeRequestBody
+ *  @schema SetAgreementSafeAddressRequestBody
  * 	required:
- * 		- safeOwners
- * 		- chainId
+ * 		- address
  *  properties:
- *  	safeOwners:
- * 			description: Addresses of the safe owners
- *  		type: array
- * 			items:
- * 				type: string
+
+ * 		address:
+ * 			description: The number of signatures required
+ * 			type: string
+ * 			example: 0x0000000000000000000000000000000000000000
  *  	chainId:
  * 			description: Chain id of the safe
  *  		type: integer
  * 			example: 421613
- * 		threshold:
- * 			description: The number of signatures required
- * 			type: integer
- * 			example: 2
  */

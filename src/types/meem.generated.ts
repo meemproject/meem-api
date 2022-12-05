@@ -875,7 +875,8 @@ export namespace BulkMintAgreementRoleTokens {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		/** The Transaction id */
+		txId: string
 	}
 
 	export interface IDefinition {
@@ -1159,7 +1160,7 @@ export namespace CreateAgreementSafe {
 		safeOwners: string[]
 
 		/** Chain id of the safe */
-		chainId: number
+		chainId?: number
 
 		/** The number of signatures required */
 		threshold?: number
@@ -1399,6 +1400,44 @@ export namespace ReInitializeAgreement {
 	export interface IResponseBody extends IApiResponseBody {
 		/** The Transaction id for updating the contract */
 		txId: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+
+/** Set the agreement safe address */
+export namespace SetAgreementSafeAddress {
+	export interface IPathParams {
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/safe`
+
+	export const method = HttpMethod.Patch
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The safe address */
+		address: string
+
+		/** Chain id of the safe */
+		chainId?: number
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
 	}
 
 	export interface IDefinition {
