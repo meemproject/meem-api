@@ -120,38 +120,6 @@ functions:
     events:
       - sqs: ${env:SQS_QUEUE_ARN, ''}
     timeout: 600
-  mint:
-    handler: build/serverless/mint.handle
-    timeout: 300
-    memorySize: 512
-  mintOriginal:
-    handler: build/serverless/mintOriginal.handle
-    timeout: 300
-    memorySize: 512
-  createContract:
-    handler: build/serverless/createContract.handle
-    timeout: 300
-    memorySize: 512
-  reInitialize:
-    handler: build/serverless/reInitialize.handle
-    timeout: 300
-    memorySize: 512
-  createAgreementSafe:
-    handler: build/serverless/createAgreementSafe.handle
-    timeout: 300
-    memorySize: 512
-  upgradeAgreement:
-    handler: build/serverless/upgradeAgreement.handle
-    timeout: 300
-    memorySize: 512
-  bulkMintAgreementTokens:
-    handler: build/serverless/bulkMintAgreementTokens.handle
-    timeout: 300
-    memorySize: 512
-  bulkMintAgreementRoleTokens:
-    handler: build/serverless/bulkMintAgreementRoleTokens.handle
-    timeout: 300
-    memorySize: 512
   images:
     handler: build/serverless/handler.handle
     memorySize: 768

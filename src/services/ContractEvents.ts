@@ -249,27 +249,10 @@ export default class ContractEvent {
 
 		if (!existingAgreementOrRole || !slug) {
 			try {
-				if (isRoleAgreement && metadata.meem_agreement_address) {
-					const agreement = await orm.models.Agreement.findOne({
-						where: {
-							address: metadata.meem_agreement_address,
-							chainId
-						}
-					})
-
-					if (agreement) {
-						slug = await services.agreementRole.generateSlug({
-							agreementId: agreement.id,
-							baseSlug: contractInfo.name as string,
-							chainId
-						})
-					}
-				} else {
-					slug = await services.agreement.generateSlug({
-						baseSlug: contractInfo.name as string,
-						chainId
-					})
-				}
+				slug = await services.agreement.generateSlug({
+					baseSlug: contractInfo.name as string,
+					chainId
+				})
 			} catch (e) {
 				log.crit('Something went wrong while creating slug', e)
 			}

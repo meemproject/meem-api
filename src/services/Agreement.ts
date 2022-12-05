@@ -582,19 +582,28 @@ export default class AgreementService {
 
 	/** Mint an Agreement Token */
 	public static async bulkMint(
-		data: MeemAPI.v1.BulkMintAgreementTokens.IRequestBody & {
-			mintedBy: string
+		data: (
+			| MeemAPI.v1.BulkMintAgreementTokens.IRequestBody
+			| MeemAPI.v1.BulkMintAgreementRoleTokens.IRequestBody
+		) & {
 			agreementId: string
+			agreementRoleId?: string
+			mintedBy: string
 		}
 	) {
-		if (!data.agreementId) {
+		const { agreementId, agreementRoleId, mintedBy } =
+			data as MeemAPI.v1.BulkMintAgreementRoleTokens.IRequestBody & {
+				mintedBy: string
+			}
+
+		if (!agreementId) {
 			throw new Error('MISSING_CONTRACT_ADDRESS')
 		}
 
 		const [agreement, minterWallet] = await Promise.all([
 			orm.models.Agreement.findOne({
 				where: {
-					id: data.agreementId
+					id: agreementId
 				}
 			}),
 			orm.models.Wallet.findByAddress<Wallet>(data.mintedBy)
@@ -625,7 +634,9 @@ export default class AgreementService {
 			}
 
 			const validator = new Validator({
-				meem_metadata_type: 'Meem_AgreementToken',
+				meem_metadata_type: agreementRoleId
+					? 'Meem_AgreementRoleToken'
+					: 'Meem_AgreementToken',
 				meem_metadata_version: token.metadata.meem_metadata_version
 			})
 			const validatorResult = validator.validate(token.metadata)
@@ -755,15 +766,8 @@ export default class AgreementService {
 			'0x0000000000000000000000000000000000000000'
 		])
 
-		// const tx = await services.ethers.runTransaction({
-		// 	chainId,
-		// 	fn: proxyContract.createProxy.bind(proxyContract),
-		// 	params: [config.GNOSIS_MASTER_CONTRACT_ADDRESS, safeSetupData],
-		// 	gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
-		// })
-
 		const txId = await services.ethers.queueTransaction({
-			chainId,
+			chainId: chainId ?? agreement.chainId,
 			functionSignature: 'createProxy(address, bytes)',
 			contractAddress: config.GNOSIS_MASTER_CONTRACT_ADDRESS,
 			inputValues: {
@@ -772,23 +776,6 @@ export default class AgreementService {
 			}
 		})
 
-		// TODO: Need to find this via event created or save in queue handler
-		// const receipt = await provider.core.getTransactionReceipt(tx.hash)
-
-		// if (receipt) {
-		// 	// Find the newly created Safe contract address in the transaction receipt
-		// 	for (let i = 0; i < receipt.logs.length; i += 1) {
-		// 		const receiptLog = receipt.logs[i]
-		// 		const foundTopic = receiptLog.topics.find(t => t === topic)
-		// 		if (foundTopic) {
-		// 			log.info(`address: ${receiptLog.address}`)
-		// 			agreement.gnosisSafeAddress = receiptLog.address
-		// 			break
-		// 		}
-		// 	}
-		// }
-
-		// await agreement.save()
 		return { txId }
 	}
 
