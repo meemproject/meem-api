@@ -79,6 +79,12 @@ export default class AgreementRoleController {
 			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
+		const isAdmin = await agreement.isAdmin(req.wallet.address)
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
 		const result = await services.agreement.createAgreement({
 			...req.body,
 			chainId: agreement.chainId,

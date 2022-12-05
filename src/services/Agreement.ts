@@ -614,6 +614,16 @@ export default class AgreementService {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
+		let agreementRole
+
+		if (agreementRoleId) {
+			agreementRole = await orm.models.AgreementRole.findOne({
+				where: {
+					id: agreementRoleId
+				}
+			})
+		}
+
 		const builtData: {
 			to: string
 			metadata: MeemAPI.IMeemMetadataLike
@@ -666,7 +676,7 @@ export default class AgreementService {
 			})
 		)
 
-		log.debug('Bulk Minting meem w/ params', { bulkParams })
+		log.debug('Bulk Minting w/ params', { bulkParams })
 
 		// const mintTx = await services.ethers.runTransaction({
 		// 	chainId: agreement.chainId,
@@ -688,7 +698,7 @@ export default class AgreementService {
 				agreementContract.interface.functions[
 					'bulkMint((address,string,uint8)[])'
 				].format(),
-			contractAddress: agreement.address,
+			contractAddress: agreementRole?.address ?? agreement.address,
 			inputValues: {
 				bulkParams
 			}
