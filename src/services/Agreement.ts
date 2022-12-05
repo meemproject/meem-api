@@ -12,9 +12,6 @@ import _ from 'lodash'
 import slug from 'slug'
 import { v4 as uuidv4 } from 'uuid'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
-import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
-import errors from '../config/errors'
-import IDiamondCut from '../lib/IDiamondCut'
 import type Agreement from '../models/Agreement'
 import AgreementWallet from '../models/AgreementWallet'
 import Wallet from '../models/Wallet'
@@ -90,66 +87,69 @@ export default class AgreementService {
 			senderWalletAddress: string
 			agreementId: string
 		}
-	): Promise<string> {
+	) {
 		const { senderWalletAddress, agreementId } = data
-		try {
-			const agreementInstance = await orm.models.Agreement.findOne({
-				where: {
-					id: agreementId
-				}
-			})
-
-			if (!agreementInstance) {
-				throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		const agreementInstance = await orm.models.Agreement.findOne({
+			where: {
+				id: agreementId
 			}
+		})
 
-			const { wallet, contractInitParams, fullMintPermissions } =
-				await this.prepareInitValues({
-					...data,
-					chainId: agreementInstance.chainId,
-					agreement: agreementInstance
-				})
-
-			const agreement = Mycontract__factory.connect(
-				agreementInstance.address,
-				wallet
-			)
-
-			const isAdmin = await this.isAgreementAdmin({
-				agreementId: agreementInstance.id,
-				walletAddress: senderWalletAddress
-			})
-
-			if (!isAdmin) {
-				throw new Error('NOT_AUTHORIZED')
-			}
-
-			agreementInstance.mintPermissions = fullMintPermissions
-
-			log.debug(contractInitParams)
-
-			const tx = await services.ethers.runTransaction({
-				chainId: agreementInstance.chainId,
-				fn: agreement.reinitialize.bind(agreement),
-				params: [contractInitParams],
-				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
-			})
-
-			await agreementInstance.save()
-
-			log.debug(`Reinitialize tx: ${tx.hash}`)
-
-			await tx.wait()
-
-			return agreement.address
-		} catch (e: any) {
-			log.crit(e)
-			await sockets?.emitError(
-				e?.message ?? config.errors.CONTRACT_UPDATE_FAILED,
-				senderWalletAddress
-			)
-			throw new Error('CONTRACT_UPDATE_FAILED')
+		if (!agreementInstance) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
+
+		const { wallet, contractInitParams, fullMintPermissions } =
+			await this.prepareInitValues({
+				...data,
+				chainId: agreementInstance.chainId,
+				agreement: agreementInstance
+			})
+
+		const agreement = Mycontract__factory.connect(
+			agreementInstance.address,
+			wallet
+		)
+
+		const isAdmin = await this.isAgreementAdmin({
+			agreementId: agreementInstance.id,
+			walletAddress: senderWalletAddress
+		})
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		agreementInstance.mintPermissions = fullMintPermissions
+
+		await agreementInstance.save()
+
+		log.debug(contractInitParams)
+
+		// TODO: REMOVE const tx = await services.ethers.runTransaction({
+		// 	chainId: agreementInstance.chainId,
+		// 	fn: agreement.reinitialize.bind(agreement),
+		// 	params: [contractInitParams],
+		// 	gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
+		// })
+		const chainId = agreementInstance.chainId
+
+		const agreementContract = await services.agreement.getAgreementContract({
+			chainId,
+			address: ethers.constants.AddressZero
+		})
+
+		const txId = await services.ethers.queueTransaction({
+			chainId,
+			functionSignature:
+				agreementContract.interface.functions[
+					'reinitialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256,bytes32)[],(address,uint256,address)[],bool))'
+				].format(),
+			contractAddress: agreement.address,
+			inputValues: contractInitParams
+		})
+
+		return { txId }
 	}
 
 	public static async createAgreement(
@@ -308,11 +308,13 @@ export default class AgreementService {
 				item.ipfs = `ipfs://${result.IpfsHash}`
 			}
 
-			const bulkParams = builtData.map(item => ({
-				to: item.to,
-				tokenType: MeemAPI.MeemType.Original,
-				tokenURI: item.ipfs as string
-			}))
+			const bulkParams: Parameters<Mycontract['bulkMint']>[0] = builtData.map(
+				item => ({
+					to: item.to,
+					tokenType: MeemAPI.MeemType.Original,
+					tokenURI: item.ipfs as string
+				})
+			)
 
 			mintTxId = await services.ethers.queueTransaction({
 				chainId,
@@ -585,102 +587,106 @@ export default class AgreementService {
 			agreementId: string
 		}
 	) {
-		try {
-			if (!data.agreementId) {
-				throw new Error('MISSING_CONTRACT_ADDRESS')
-			}
-
-			const [agreement, minterWallet] = await Promise.all([
-				orm.models.Agreement.findOne({
-					where: {
-						id: data.agreementId
-					}
-				}),
-				orm.models.Wallet.findByAddress<Wallet>(data.mintedBy)
-			])
-
-			if (!minterWallet) {
-				throw new Error('WALLET_NOT_FOUND')
-			}
-
-			if (!agreement) {
-				throw new Error('MEEM_CONTRACT_NOT_FOUND')
-			}
-
-			const builtData: {
-				to: string
-				metadata: MeemAPI.IMeemMetadataLike
-				ipfs?: string
-			}[] = []
-
-			// Validate metadata
-			data.tokens.forEach(token => {
-				if (!token.to) {
-					throw new Error('MISSING_ACCOUNT_ADDRESS')
-				}
-
-				if (!token.metadata) {
-					throw new Error('INVALID_METADATA')
-				}
-
-				const validator = new Validator({
-					meem_metadata_type: 'Meem_AgreementToken',
-					meem_metadata_version: token.metadata.meem_metadata_version
-				})
-				const validatorResult = validator.validate(token.metadata)
-
-				if (!validatorResult.valid) {
-					log.crit(validatorResult.errors.map((e: any) => e.message))
-					throw new Error('INVALID_METADATA')
-				}
-
-				builtData.push({
-					...token,
-					metadata: token.metadata
-				})
-			})
-
-			// Pin to IPFS
-			for (let i = 0; i < builtData.length; i++) {
-				const item = builtData[i]
-				const result = await services.web3.saveToPinata({
-					json: { ...item.metadata }
-				})
-				item.ipfs = `ipfs://${result.IpfsHash}`
-			}
-
-			const { wallet } = await services.ethers.getProvider({
-				chainId: agreement.chainId
-			})
-			const contract = Mycontract__factory.connect(agreement.address, wallet)
-
-			const mintParams: Parameters<Mycontract['bulkMint']> = [
-				builtData.map(item => ({
-					to: item.to,
-					tokenType: MeemAPI.MeemType.Original,
-					tokenURI: item.ipfs as string
-				}))
-			]
-
-			log.debug('Bulk Minting meem w/ params', { mintParams })
-
-			const mintTx = await services.ethers.runTransaction({
-				chainId: agreement.chainId,
-				fn: contract.bulkMint.bind(contract),
-				params: mintParams,
-				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
-			})
-
-			log.debug(`Bulk Minting w/ transaction hash: ${mintTx.hash}`)
-
-			await mintTx.wait()
-		} catch (e) {
-			const err = e as any
-			log.warn(err, data)
-
-			await sockets?.emitError(errors.SERVER_ERROR, data.mintedBy)
-			throw new Error('SERVER_ERROR')
+		if (!data.agreementId) {
+			throw new Error('MISSING_CONTRACT_ADDRESS')
 		}
+
+		const [agreement, minterWallet] = await Promise.all([
+			orm.models.Agreement.findOne({
+				where: {
+					id: data.agreementId
+				}
+			}),
+			orm.models.Wallet.findByAddress<Wallet>(data.mintedBy)
+		])
+
+		if (!minterWallet) {
+			throw new Error('WALLET_NOT_FOUND')
+		}
+
+		if (!agreement) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		const builtData: {
+			to: string
+			metadata: MeemAPI.IMeemMetadataLike
+			ipfs?: string
+		}[] = []
+
+		// Validate metadata
+		data.tokens.forEach(token => {
+			if (!token.to) {
+				throw new Error('MISSING_ACCOUNT_ADDRESS')
+			}
+
+			if (!token.metadata) {
+				throw new Error('INVALID_METADATA')
+			}
+
+			const validator = new Validator({
+				meem_metadata_type: 'Meem_AgreementToken',
+				meem_metadata_version: token.metadata.meem_metadata_version
+			})
+			const validatorResult = validator.validate(token.metadata)
+
+			if (!validatorResult.valid) {
+				log.crit(validatorResult.errors.map((e: any) => e.message))
+				throw new Error('INVALID_METADATA')
+			}
+
+			builtData.push({
+				...token,
+				metadata: token.metadata
+			})
+		})
+
+		// Pin to IPFS
+		for (let i = 0; i < builtData.length; i++) {
+			const item = builtData[i]
+			const result = await services.web3.saveToPinata({
+				json: { ...item.metadata }
+			})
+			item.ipfs = `ipfs://${result.IpfsHash}`
+		}
+
+		const bulkParams: Parameters<Mycontract['bulkMint']>[0] = builtData.map(
+			item => ({
+				to: item.to,
+				tokenType: MeemAPI.MeemType.Original,
+				tokenURI: item.ipfs as string
+			})
+		)
+
+		log.debug('Bulk Minting meem w/ params', { bulkParams })
+
+		// const mintTx = await services.ethers.runTransaction({
+		// 	chainId: agreement.chainId,
+		// 	fn: contract.bulkMint.bind(contract),
+		// 	params: mintParams,
+		// 	gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
+		// })
+
+		const chainId = agreement.chainId
+
+		const agreementContract = await services.agreement.getAgreementContract({
+			chainId,
+			address: ethers.constants.AddressZero
+		})
+
+		const txId = await services.ethers.queueTransaction({
+			chainId,
+			functionSignature:
+				agreementContract.interface.functions[
+					'bulkMint((address,string,uint8)[])'
+				].format(),
+			contractAddress: agreement.address,
+			inputValues: {
+				bulkParams
+			}
+		})
+
+		return { txId }
 	}
 
 	// Adapted from https://forum.openzeppelin.com/t/creating-gnosis-safes-via-the-api/12031/2
@@ -693,106 +699,97 @@ export default class AgreementService {
 		}
 	) {
 		const { agreementId, safeOwners, senderWalletAddress, chainId } = options
-		try {
-			const [agreement, senderWallet] = await Promise.all([
-				orm.models.Agreement.findOne({
-					where: {
-						id: agreementId
-					}
-				}),
-				orm.models.Wallet.findByAddress<Wallet>(senderWalletAddress)
-			])
-
-			if (!senderWallet) {
-				throw new Error('WALLET_NOT_FOUND')
-			}
-
-			if (!agreement) {
-				throw new Error('MEEM_CONTRACT_NOT_FOUND')
-			}
-
-			if (agreement.gnosisSafeAddress) {
-				throw new Error('CLUB_SAFE_ALREADY_EXISTS')
-			}
-
-			const isAdmin = await this.isAgreementAdmin({
-				agreementId: agreement.id,
-				walletAddress: senderWalletAddress
-			})
-
-			if (!isAdmin) {
-				throw new Error('NOT_AUTHORIZED')
-			}
-
-			// This is one of the topics emitted when a gnosis safe is created
-			const topic =
-				'0x141df868a6331af528e38c83b7aa03edc19be66e37ae67f9285bf4f8e3c6a1a8'
-
-			const threshold = options.threshold ?? 1
-
-			// gnosisSafeAbi is the Gnosis Safe ABI in JSON format,
-			const { provider, wallet } = await services.ethers.getProvider({
-				chainId
-			})
-			const proxyContract = new ethers.Contract(
-				config.GNOSIS_PROXY_CONTRACT_ADDRESS,
-				GnosisSafeProxyABI,
-				wallet
-			)
-			const gnosisInterface = new ethers.utils.Interface(GnosisSafeABI)
-			const safeSetupData = gnosisInterface.encodeFunctionData('setup', [
-				// Owners
-				safeOwners,
-				// Threshold of signers
-				threshold,
-				// to
-				'0x0000000000000000000000000000000000000000',
-				// data
-				'0x',
-				// Fallback handler
-				config.GNOSIS_DEFAULT_CALLBACK_HANDLER,
-				// Payment token
-				'0x0000000000000000000000000000000000000000',
-				// Payment
-				'0',
-				// Payment receiver
-				'0x0000000000000000000000000000000000000000'
-			])
-
-			const tx = await services.ethers.runTransaction({
-				chainId,
-				fn: proxyContract.createProxy.bind(proxyContract),
-				params: [config.GNOSIS_MASTER_CONTRACT_ADDRESS, safeSetupData],
-				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
-			})
-
-			await tx.wait()
-
-			const receipt = await provider.core.getTransactionReceipt(tx.hash)
-
-			if (receipt) {
-				// Find the newly created Safe contract address in the transaction receipt
-				for (let i = 0; i < receipt.logs.length; i += 1) {
-					const receiptLog = receipt.logs[i]
-					const foundTopic = receiptLog.topics.find(t => t === topic)
-					if (foundTopic) {
-						log.info(`address: ${receiptLog.address}`)
-						agreement.gnosisSafeAddress = receiptLog.address
-						break
-					}
+		const [agreement, senderWallet] = await Promise.all([
+			orm.models.Agreement.findOne({
+				where: {
+					id: agreementId
 				}
-			}
+			}),
+			orm.models.Wallet.findByAddress<Wallet>(senderWalletAddress)
+		])
 
-			await agreement.save()
-		} catch (e: any) {
-			// await services.ethers.releaseLock(chainId)
-			log.crit(e)
-			await sockets?.emitError(
-				config.errors.SAFE_CREATE_FAILED,
-				senderWalletAddress
-			)
-			throw new Error('SAFE_CREATE_FAILED')
+		if (!senderWallet) {
+			throw new Error('WALLET_NOT_FOUND')
 		}
+
+		if (!agreement) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		}
+
+		if (agreement.gnosisSafeAddress) {
+			throw new Error('CLUB_SAFE_ALREADY_EXISTS')
+		}
+
+		const isAdmin = await this.isAgreementAdmin({
+			agreementId: agreement.id,
+			walletAddress: senderWalletAddress
+		})
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		// This is one of the topics emitted when a gnosis safe is created
+		// const topic =
+		// 	'0x141df868a6331af528e38c83b7aa03edc19be66e37ae67f9285bf4f8e3c6a1a8'
+
+		const threshold = options.threshold ?? 1
+
+		const gnosisInterface = new ethers.utils.Interface(GnosisSafeABI)
+		const safeSetupData = gnosisInterface.encodeFunctionData('setup', [
+			// Owners
+			safeOwners,
+			// Threshold of signers
+			threshold,
+			// to
+			'0x0000000000000000000000000000000000000000',
+			// data
+			'0x',
+			// Fallback handler
+			config.GNOSIS_DEFAULT_CALLBACK_HANDLER,
+			// Payment token
+			'0x0000000000000000000000000000000000000000',
+			// Payment
+			'0',
+			// Payment receiver
+			'0x0000000000000000000000000000000000000000'
+		])
+
+		// const tx = await services.ethers.runTransaction({
+		// 	chainId,
+		// 	fn: proxyContract.createProxy.bind(proxyContract),
+		// 	params: [config.GNOSIS_MASTER_CONTRACT_ADDRESS, safeSetupData],
+		// 	gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
+		// })
+
+		const txId = await services.ethers.queueTransaction({
+			chainId,
+			functionSignature: 'createProxy(address, bytes)',
+			contractAddress: config.GNOSIS_MASTER_CONTRACT_ADDRESS,
+			inputValues: {
+				address: config.GNOSIS_MASTER_CONTRACT_ADDRESS,
+				data: safeSetupData
+			}
+		})
+
+		// TODO: Need to find this via event created or save in queue handler
+		// const receipt = await provider.core.getTransactionReceipt(tx.hash)
+
+		// if (receipt) {
+		// 	// Find the newly created Safe contract address in the transaction receipt
+		// 	for (let i = 0; i < receipt.logs.length; i += 1) {
+		// 		const receiptLog = receipt.logs[i]
+		// 		const foundTopic = receiptLog.topics.find(t => t === topic)
+		// 		if (foundTopic) {
+		// 			log.info(`address: ${receiptLog.address}`)
+		// 			agreement.gnosisSafeAddress = receiptLog.address
+		// 			break
+		// 		}
+		// 	}
+		// }
+
+		// await agreement.save()
+		return { txId }
 	}
 
 	public static async upgradeAgreement(
@@ -802,132 +799,120 @@ export default class AgreementService {
 		}
 	) {
 		const { agreementId, senderWalletAddress } = options
-		try {
-			const [agreement, senderWallet] = await Promise.all([
-				orm.models.Agreement.findOne({
-					where: {
-						id: agreementId
-					},
-					include: [orm.models.Wallet]
-				}),
+		const [agreement, senderWallet] = await Promise.all([
+			orm.models.Agreement.findOne({
+				where: {
+					id: agreementId
+				},
+				include: [orm.models.Wallet]
+			}),
 
-				orm.models.Wallet.findByAddress<Wallet>(senderWalletAddress)
-			])
+			orm.models.Wallet.findByAddress<Wallet>(senderWalletAddress)
+		])
 
-			if (!agreement) {
-				throw new Error('MEEM_CONTRACT_NOT_FOUND')
-			}
-
-			if (!senderWallet) {
-				throw new Error('WALLET_NOT_FOUND')
-			}
-
-			const [bundle, isAdmin] = await Promise.all([
-				orm.models.Bundle.findOne({
-					where: {
-						id: config.MEEM_BUNDLE_ID
-					},
-					include: [
-						{
-							model: orm.models.BundleContract,
-							include: [
-								{
-									model: orm.models.Contract,
-									include: [
-										{
-											model: orm.models.ContractInstance,
-											where: {
-												chainId: agreement.chainId
-											}
-										}
-									]
-								}
-							]
-						}
-					]
-				}),
-				this.isAgreementAdmin({
-					agreementId: agreement.id,
-					walletAddress: senderWalletAddress
-				})
-			])
-
-			if (!isAdmin) {
-				throw new Error('NOT_AUTHORIZED')
-			}
-
-			const fromVersion: IFacetVersion[] = []
-			const toVersion: IFacetVersion[] = []
-
-			const { wallet } = await services.ethers.getProvider({
-				chainId: agreement.chainId
-			})
-
-			const diamond = new ethers.Contract(agreement.address, diamondABI, wallet)
-
-			const facets = await diamond.facets()
-			facets.forEach((facet: { target: string; selectors: string[] }) => {
-				fromVersion.push({
-					address: facet.target,
-					functionSelectors: facet.selectors
-				})
-			})
-
-			bundle?.BundleContracts?.forEach(bc => {
-				if (
-					!bc.Contract?.ContractInstances ||
-					!bc.Contract?.ContractInstances[0]
-				) {
-					throw new Error('CONTRACT_INSTANCE_NOT_FOUND')
-				}
-				toVersion.push({
-					address: bc.Contract.ContractInstances[0].address,
-					functionSelectors: bc.functionSelectors
-				})
-			})
-			// const tx = await upgrade({
-			// 	signer,
-			// 	proxyContractAddress: agreement.address,
-			// 	toVersion,
-			// 	fromVersion,
-			// 	overrides: {
-			// 		gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
-			// 	}
-			// })
-			const cuts = getCuts({
-				proxyContractAddress: agreement.address,
-				toVersion,
-				fromVersion
-			})
-
-			if (cuts.length === 0) {
-				throw new Error('CONTRACT_ALREADY_UP_TO_DATE')
-			}
-
-			const diamondCut = new ethers.Contract(
-				agreement.address,
-				IDiamondCut.abi,
-				wallet
-			)
-
-			const tx = await services.ethers.runTransaction({
-				chainId: agreement.chainId,
-				fn: diamondCut.diamondCut.bind(diamondCut),
-				params: [cuts, ethers.constants.AddressZero, '0x'],
-				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
-			})
-
-			await tx.wait()
-
-			log.debug(`Upgrading agreement ${agreement.address} w/ tx ${tx?.hash}`)
-		} catch (e: any) {
-			log.crit(e)
-			await sockets?.emitError(
-				config.errors.UPGRADE_AGREEMENT_FAILED,
-				senderWalletAddress
-			)
-			throw new Error('UPGRADE_AGREEMENT_FAILED')
+		if (!agreement) {
+			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
+
+		if (!senderWallet) {
+			throw new Error('WALLET_NOT_FOUND')
+		}
+
+		const [bundle, isAdmin] = await Promise.all([
+			orm.models.Bundle.findOne({
+				where: {
+					id: config.MEEM_BUNDLE_ID
+				},
+				include: [
+					{
+						model: orm.models.BundleContract,
+						include: [
+							{
+								model: orm.models.Contract,
+								include: [
+									{
+										model: orm.models.ContractInstance,
+										where: {
+											chainId: agreement.chainId
+										}
+									}
+								]
+							}
+						]
+					}
+				]
+			}),
+			this.isAgreementAdmin({
+				agreementId: agreement.id,
+				walletAddress: senderWalletAddress
+			})
+		])
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const fromVersion: IFacetVersion[] = []
+		const toVersion: IFacetVersion[] = []
+
+		const { wallet } = await services.ethers.getProvider({
+			chainId: agreement.chainId
+		})
+
+		const diamond = new ethers.Contract(agreement.address, diamondABI, wallet)
+
+		const facets = await diamond.facets()
+		facets.forEach((facet: { target: string; selectors: string[] }) => {
+			fromVersion.push({
+				address: facet.target,
+				functionSelectors: facet.selectors
+			})
+		})
+
+		bundle?.BundleContracts?.forEach(bc => {
+			if (
+				!bc.Contract?.ContractInstances ||
+				!bc.Contract?.ContractInstances[0]
+			) {
+				throw new Error('CONTRACT_INSTANCE_NOT_FOUND')
+			}
+			toVersion.push({
+				address: bc.Contract.ContractInstances[0].address,
+				functionSelectors: bc.functionSelectors
+			})
+		})
+		// const tx = await upgrade({
+		// 	signer,
+		// 	proxyContractAddress: agreement.address,
+		// 	toVersion,
+		// 	fromVersion,
+		// 	overrides: {
+		// 		gasPrice: services.web3.gweiToWei(recommendedGwei).toNumber()
+		// 	}
+		// })
+		const cuts = getCuts({
+			proxyContractAddress: agreement.address,
+			toVersion,
+			fromVersion
+		})
+
+		if (cuts.length === 0) {
+			throw new Error('CONTRACT_ALREADY_UP_TO_DATE')
+		}
+
+		const txId = await services.ethers.queueTransaction({
+			chainId: agreement.chainId,
+			functionSignature:
+				'diamondCut((address, uint8, bytes4[])[], address, bytes)',
+			contractAddress: agreement.address,
+			inputValues: {
+				_diamondCut: cuts,
+				_init: ethers.constants.AddressZero,
+				_calldata: '0x'
+			}
+		})
+
+		return { txId }
 	}
 
 	public static async isAgreementAdmin(options: {
@@ -1107,7 +1092,7 @@ export default class AgreementService {
 		agreementId: string
 		admins: string[]
 		senderWallet: Wallet
-	}): Promise<string[]> {
+	}) {
 		const { agreementId, admins, senderWallet } = options
 
 		const isAdmin = await this.isAgreementAdmin({
@@ -1149,24 +1134,29 @@ export default class AgreementService {
 		}))
 
 		if (cleanAdmins.length > 0) {
-			const agreementContract = (await this.getAgreementContract({
-				address: agreement.address,
-				chainId: agreement.chainId
-			})) as unknown as Mycontract
-
-			const tx = await services.ethers.runTransaction({
-				chainId: agreement.chainId,
-				fn: agreementContract.bulkSetRoles.bind(agreementContract),
-				params: [cleanAdmins],
-				gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
-			})
-
-			await tx.wait()
-
-			log.debug(`bulkSetRoles tx: ${tx.hash}`)
+			throw new Error('NO_ADMIN_CHANGES')
 		}
 
-		return cleanAdmins.map(a => a.user)
+		const chainId = agreement.chainId
+
+		const agreementContract = await services.agreement.getAgreementContract({
+			chainId,
+			address: ethers.constants.AddressZero
+		})
+
+		const txId = await services.ethers.queueTransaction({
+			chainId,
+			functionSignature:
+				agreementContract.interface.functions[
+					'bulkSetRoles((address,bytes32,bool)[])'
+				].format(),
+			contractAddress: agreement.address,
+			inputValues: {
+				items: cleanAdmins
+			}
+		})
+
+		return { txId }
 	}
 
 	public static async getAgreementContract(options: {

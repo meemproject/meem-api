@@ -48,7 +48,8 @@ export namespace ReInitializeAgreement {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
+		/** The Transaction id for updating the contract */
+		txId: string
 	}
 
 	export interface IDefinition {

@@ -1,5 +1,5 @@
 import { diamondABI } from '@meemproject/meem-contracts'
-import { MeemMetadataLike, Validator } from '@meemproject/metadata'
+import { MeemMetadataLike } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 // import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'

@@ -74,42 +74,23 @@ export default class AgreementRoleController {
 
 		await req.wallet.enforceTXLimit()
 
-		if (config.DISABLE_ASYNC_MINTING) {
-			try {
-				await services.agreementRole.createAgreementRole({
-					...req.body,
-					agreementId: req.params.agreementId,
-					senderWalletAddress: req.wallet.address
-				})
-			} catch (e) {
-				log.crit(e)
-				sockets?.emitError(
-					config.errors.CONTRACT_CREATION_FAILED,
-					req.wallet.address
-				)
+		const agreement = await orm.models.Agreement.findOne({
+			where: {
+				id: req.params.agreementId
 			}
-		} else {
-			const lambda = new AWS.Lambda({
-				accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-				region: 'us-east-1'
-			})
-			await lambda
-				.invoke({
-					InvocationType: 'Event',
-					FunctionName: config.LAMBDA_CREATE_CONTRACT_FUNCTION,
-					Payload: JSON.stringify({
-						...req.body,
-						agreementId: req.params.agreementId,
-						senderWalletAddress: req.wallet.address
-					})
-				})
-				.promise()
+		})
+
+		if (!agreement) {
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
-		return res.json({
-			status: 'success'
+		const result = await services.agreement.createAgreement({
+			...req.body,
+			chainId: agreement.chainId,
+			senderWalletAddress: req.wallet.address
 		})
+
+		return res.json(result)
 	}
 
 	public static async updateAgreementRole(
@@ -217,174 +198,132 @@ export default class AgreementRoleController {
 			// }
 		}
 
-		let members = req.body.members?.map(m => m.toLowerCase())
+		// let members = req.body.members?.map(m => m.toLowerCase())
 
-		try {
-			if (agreementRole.isAdminRole && members) {
-				members = await services.agreement.updateAgreementAdmins({
-					agreementId: agreement.id,
-					admins: members,
-					senderWallet: req.wallet
-				})
-			}
-			// if (agreementRole.guildRoleId) {
-			// 	let guildRoleData
-			// 	let discordServerData
-			// 	const integrationsMetadata = agreementRole.integrationsMetadata
-			// 	const agreementRoleDiscordIntegrationDataIndex =
-			// 		integrationsMetadata?.findIndex(i => !!i.discordServerData)
-			// 	const guildRoleDiscordIntegrationData = roleIntegrationsData?.find(
-			// 		(d: any) => d.discordServerId
-			// 	)
-			// 	if (guildRoleDiscordIntegrationData) {
-			// 		const discordServerResult = await request
-			// 			.post(
-			// 				`https://api.guild.xyz/v1/discord/server/${guildRoleDiscordIntegrationData.discordServerId}`
-			// 			)
-			// 			.send({
-			// 				payload: {
-			// 					authorization:
-			// 						guildRoleDiscordIntegrationData.discordAccessToken
-			// 				}
-			// 			})
-			// 		discordServerData = discordServerResult.body
-			// 		// TODO: This creates a new role on discord no matter if isNew set to true or false
-			// 		guildRoleData = {
-			// 			rolePlatforms: [
-			// 				{
-			// 					guildPlatform: {
-			// 						platformName: 'DISCORD',
-			// 						platformGuildId:
-			// 							guildRoleDiscordIntegrationData.discordServerId,
-			// 						isNew: agreementRoleDiscordIntegrationDataIndex < 0
-			// 					},
-			// 					platformRoleData: {
-			// 						gatedChannels:
-			// 							guildRoleDiscordIntegrationData.discordGatedChannels ?? []
-			// 					}
-			// 				}
-			// 			]
-			// 		}
-			// 	}
+		// if (agreementRole.isAdminRole && members) {
+		// 	members = await services.agreement.updateAgreementAdmins({
+		// 		agreementId: agreement.id,
+		// 		admins: members,
+		// 		senderWallet: req.wallet
+		// 	})
+		// }
+		// if (agreementRole.guildRoleId) {
+		// 	let guildRoleData
+		// 	let discordServerData
+		// 	const integrationsMetadata = agreementRole.integrationsMetadata
+		// 	const agreementRoleDiscordIntegrationDataIndex =
+		// 		integrationsMetadata?.findIndex(i => !!i.discordServerData)
+		// 	const guildRoleDiscordIntegrationData = roleIntegrationsData?.find(
+		// 		(d: any) => d.discordServerId
+		// 	)
+		// 	if (guildRoleDiscordIntegrationData) {
+		// 		const discordServerResult = await request
+		// 			.post(
+		// 				`https://api.guild.xyz/v1/discord/server/${guildRoleDiscordIntegrationData.discordServerId}`
+		// 			)
+		// 			.send({
+		// 				payload: {
+		// 					authorization:
+		// 						guildRoleDiscordIntegrationData.discordAccessToken
+		// 				}
+		// 			})
+		// 		discordServerData = discordServerResult.body
+		// 		// TODO: This creates a new role on discord no matter if isNew set to true or false
+		// 		guildRoleData = {
+		// 			rolePlatforms: [
+		// 				{
+		// 					guildPlatform: {
+		// 						platformName: 'DISCORD',
+		// 						platformGuildId:
+		// 							guildRoleDiscordIntegrationData.discordServerId,
+		// 						isNew: agreementRoleDiscordIntegrationDataIndex < 0
+		// 					},
+		// 					platformRoleData: {
+		// 						gatedChannels:
+		// 							guildRoleDiscordIntegrationData.discordGatedChannels ?? []
+		// 					}
+		// 				}
+		// 			]
+		// 		}
+		// 	}
 
-			// 	await services.guild.updateAgreementGuildRole({
-			// 		guildRoleId: agreementRole.guildRoleId,
-			// 		agreementId: agreement.id,
-			// 		name: req.body.name,
-			// 		members,
-			// 		guildRoleData,
-			// 		senderWalletAddress: req.wallet.address
-			// 	})
+		// 	await services.guild.updateAgreementGuildRole({
+		// 		guildRoleId: agreementRole.guildRoleId,
+		// 		agreementId: agreement.id,
+		// 		name: req.body.name,
+		// 		members,
+		// 		guildRoleData,
+		// 		senderWalletAddress: req.wallet.address
+		// 	})
 
-			// 	if (guildRoleDiscordIntegrationData?.discordAccessToken) {
-			// 		const updatedDiscordServerResult = await request
-			// 			.post(
-			// 				`https://api.guild.xyz/v1/discord/server/${guildRoleDiscordIntegrationData.discordServerId}`
-			// 			)
-			// 			.send({
-			// 				payload: {
-			// 					authorization:
-			// 						guildRoleDiscordIntegrationData.discordAccessToken
-			// 				}
-			// 			})
+		// 	if (guildRoleDiscordIntegrationData?.discordAccessToken) {
+		// 		const updatedDiscordServerResult = await request
+		// 			.post(
+		// 				`https://api.guild.xyz/v1/discord/server/${guildRoleDiscordIntegrationData.discordServerId}`
+		// 			)
+		// 			.send({
+		// 				payload: {
+		// 					authorization:
+		// 						guildRoleDiscordIntegrationData.discordAccessToken
+		// 				}
+		// 			})
 
-			// 		discordServerData = updatedDiscordServerResult.body
+		// 		discordServerData = updatedDiscordServerResult.body
 
-			// 		if (agreementRoleDiscordIntegrationDataIndex > -1) {
-			// 			integrationsMetadata[agreementRoleDiscordIntegrationDataIndex] = {
-			// 				discordServerData
-			// 			}
-			// 		} else {
-			// 			integrationsMetadata.push({
-			// 				discordServerData
-			// 			})
-			// 		}
+		// 		if (agreementRoleDiscordIntegrationDataIndex > -1) {
+		// 			integrationsMetadata[agreementRoleDiscordIntegrationDataIndex] = {
+		// 				discordServerData
+		// 			}
+		// 		} else {
+		// 			integrationsMetadata.push({
+		// 				discordServerData
+		// 			})
+		// 		}
 
-			// 		agreementRole.integrationsMetadata = integrationsMetadata
-			// 		agreementRole.changed('integrationsMetadata', true)
+		// 		agreementRole.integrationsMetadata = integrationsMetadata
+		// 		agreementRole.changed('integrationsMetadata', true)
 
-			// 		await agreementRole.save()
-			// 	}
-			// }
+		// 		await agreementRole.save()
+		// 	}
+		// }
 
-			if (!_.isUndefined(req.body.isTokenTransferrable)) {
-				const roleAgreement = agreementRole.Agreement
+		const roleAgreement = agreementRole.Agreement
 
-				if (
-					roleAgreement &&
-					roleAgreement.isTransferrable !== req.body.isTokenTransferrable
-				) {
-					const { wallet } = await services.ethers.getProvider({
-						chainId: agreement.chainId
-					})
-
-					const roleSmartContract = Mycontract__factory.connect(
-						agreement.address,
-						wallet
-					)
-
-					const contractInfo = await roleSmartContract.getContractInfo()
-					const mintPermissions = contractInfo.mintPermissions.map(p => ({
-						permission: p.permission,
-						addresses: p.addresses,
-						numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
-						mintEndTimestamp: ethers.BigNumber.from(
-							p.mintEndTimestamp
-						).toHexString(),
-						mintStartTimestamp: ethers.BigNumber.from(
-							p.mintStartTimestamp
-						).toHexString(),
-						costWei: ethers.BigNumber.from(p.costWei).toHexString(),
-						merkleRoot: p.merkleRoot
-					}))
-
-					const roleContractAdmins = await roleSmartContract.getRoles(
-						config.ADMIN_ROLE
-					)
-
-					// TODO: Verify that admins who hold admin token can update the role contract
-					if (config.DISABLE_ASYNC_MINTING) {
-						try {
-							await services.agreement.updateAgreement({
-								admins: roleContractAdmins,
-								mintPermissions,
-								isTransferLocked: !req.body.isTokenTransferrable,
-								agreementId: roleAgreement.id,
-								senderWalletAddress: req.wallet.address
-							})
-						} catch (e) {
-							log.crit(e)
-							sockets?.emitError(config.errors.MINT_FAILED, req.wallet.address)
-						}
-					} else {
-						const lambda = new AWS.Lambda({
-							accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-							secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY,
-							region: 'us-east-1'
-						})
-						await lambda
-							.invoke({
-								InvocationType: 'Event',
-								FunctionName: config.LAMBDA_REINITIALIZE_FUNCTION_NAME,
-								Payload: JSON.stringify({
-									mintPermissions,
-									isTransferLocked: !req.body.isTokenTransferrable,
-									agreementId: roleAgreement.id,
-									senderWalletAddress: req.wallet.address
-								})
-							})
-							.promise()
-					}
-				}
-			}
-		} catch (e) {
-			log.crit(e)
-			throw new Error('SERVER_ERROR')
-		}
-
-		return res.json({
-			status: 'success'
+		const { wallet } = await services.ethers.getProvider({
+			chainId: agreement.chainId
 		})
+
+		const roleSmartContract = Mycontract__factory.connect(
+			agreement.address,
+			wallet
+		)
+
+		const contractInfo = await roleSmartContract.getContractInfo()
+		const mintPermissions = contractInfo.mintPermissions.map(p => ({
+			permission: p.permission,
+			addresses: p.addresses,
+			numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
+			mintEndTimestamp: ethers.BigNumber.from(p.mintEndTimestamp).toHexString(),
+			mintStartTimestamp: ethers.BigNumber.from(
+				p.mintStartTimestamp
+			).toHexString(),
+			costWei: ethers.BigNumber.from(p.costWei).toHexString(),
+			merkleRoot: p.merkleRoot
+		}))
+
+		const roleContractAdmins = await roleSmartContract.getRoles(
+			config.ADMIN_ROLE
+		)
+
+		const result = await services.agreement.updateAgreement({
+			admins: roleContractAdmins,
+			mintPermissions,
+			isTransferLocked: !req.body.isTokenTransferrable,
+			agreementId: roleAgreement.id,
+			senderWalletAddress: req.wallet.address
+		})
+
+		return res.json(result)
 	}
 
 	public static async deleteAgreementRole(
