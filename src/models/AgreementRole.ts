@@ -113,8 +113,7 @@ export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 		}
 	}
 
-	public async isAdmin(minter: string) {
-		// TODO: Update to check for AgreementRole admin token or AgreementRoleWallet
+	public async isAdmin(walletAddress: string) {
 		const agreementWallet = await orm.models.AgreementWallet.findOne({
 			where: {
 				AgreementId: this.id,
@@ -125,7 +124,7 @@ export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 					model: orm.models.Wallet,
 					where: orm.sequelize.where(
 						orm.sequelize.fn('lower', orm.sequelize.col('Wallet.address')),
-						minter.toLowerCase()
+						walletAddress.toLowerCase()
 					)
 				}
 			]

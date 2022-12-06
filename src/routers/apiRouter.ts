@@ -107,6 +107,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/roles/:agreementRoleId/bulkMint',
 		AgreementRoleController.bulkMint
 	)
+	router.postAsync(
+		'/agreements/:agreementId/roles/:agreementRoleId/upgrade',
+		AgreementController.upgradeAgreement
+	)
 
 	/** EPM Routes */
 

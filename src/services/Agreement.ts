@@ -127,10 +127,7 @@ export default class AgreementService {
 			wallet
 		)
 
-		const isAdmin = await this.isAgreementAdmin({
-			agreementId: agreementInstance.id,
-			walletAddress: senderWalletAddress
-		})
+		const isAdmin = await agreementInstance.isAdmin(senderWalletAddress)
 
 		if (!isAdmin) {
 			throw new Error('NOT_AUTHORIZED')
@@ -754,10 +751,7 @@ export default class AgreementService {
 			throw new Error('CLUB_SAFE_ALREADY_EXISTS')
 		}
 
-		const isAdmin = await this.isAgreementAdmin({
-			agreementId: agreement.id,
-			walletAddress: senderWalletAddress
-		})
+		const isAdmin = await agreement.isAdmin(senderWalletAddress)
 
 		if (!isAdmin) {
 			throw new Error('NOT_AUTHORIZED')
@@ -834,10 +828,7 @@ export default class AgreementService {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		const isAdmin = await this.isAgreementAdmin({
-			agreementId: agreement.id,
-			walletAddress: senderWalletAddress
-		})
+		const isAdmin = await agreement.isAdmin(senderWalletAddress)
 
 		if (!isAdmin) {
 			throw new Error('NOT_AUTHORIZED')
@@ -858,22 +849,30 @@ export default class AgreementService {
 	public static async upgradeAgreement(
 		options: MeemAPI.v1.UpgradeAgreement.IRequestBody & {
 			agreementId: string
+			agreementRoleId?: string
 			senderWalletAddress: string
 		}
 	) {
-		const { agreementId, senderWalletAddress } = options
-		const [agreement, senderWallet] = await Promise.all([
-			orm.models.Agreement.findOne({
-				where: {
-					id: agreementId
-				},
-				include: [orm.models.Wallet]
-			}),
+		const { agreementId, agreementRoleId, senderWalletAddress } = options
+		const [agreementOrRole, senderWallet] = await Promise.all([
+			agreementRoleId
+				? orm.models.AgreementRole.findOne({
+						where: {
+							id: agreementRoleId
+						},
+						include: [orm.models.Wallet]
+				  })
+				: orm.models.Agreement.findOne({
+						where: {
+							id: agreementId
+						},
+						include: [orm.models.Wallet]
+				  }),
 
 			orm.models.Wallet.findByAddress<Wallet>(senderWalletAddress)
 		])
 
-		if (!agreement) {
+		if (!agreementOrRole) {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
@@ -896,7 +895,7 @@ export default class AgreementService {
 									{
 										model: orm.models.ContractInstance,
 										where: {
-											chainId: agreement.chainId
+											chainId: agreementOrRole.chainId
 										}
 									}
 								]
@@ -905,10 +904,7 @@ export default class AgreementService {
 					}
 				]
 			}),
-			this.isAgreementAdmin({
-				agreementId: agreement.id,
-				walletAddress: senderWalletAddress
-			})
+			agreementOrRole.isAdmin(senderWalletAddress)
 		])
 
 		if (!isAdmin) {
@@ -919,10 +915,14 @@ export default class AgreementService {
 		const toVersion: IFacetVersion[] = []
 
 		const { wallet } = await services.ethers.getProvider({
-			chainId: agreement.chainId
+			chainId: agreementOrRole.chainId
 		})
 
-		const diamond = new ethers.Contract(agreement.address, diamondABI, wallet)
+		const diamond = new ethers.Contract(
+			agreementOrRole.address,
+			diamondABI,
+			wallet
+		)
 
 		const facets = await diamond.facets()
 		facets.forEach((facet: { target: string; selectors: string[] }) => {
@@ -954,7 +954,7 @@ export default class AgreementService {
 		// 	}
 		// })
 		const cuts = getCuts({
-			proxyContractAddress: agreement.address,
+			proxyContractAddress: agreementOrRole.address,
 			toVersion,
 			fromVersion
 		})
@@ -964,10 +964,10 @@ export default class AgreementService {
 		}
 
 		const txId = await services.ethers.queueTransaction({
-			chainId: agreement.chainId,
+			chainId: agreementOrRole.chainId,
 			functionSignature:
 				'diamondCut((address, uint8, bytes4[])[], address, bytes)',
-			contractAddress: agreement.address,
+			contractAddress: agreementOrRole.address,
 			inputValues: {
 				_diamondCut: cuts,
 				_init: ethers.constants.AddressZero,
@@ -976,34 +976,6 @@ export default class AgreementService {
 		})
 
 		return { txId }
-	}
-
-	public static async isAgreementAdmin(options: {
-		agreementId: string
-		walletAddress: string
-	}) {
-		const { agreementId, walletAddress } = options
-		const agreementWallet = await orm.models.AgreementWallet.findOne({
-			where: {
-				role: config.ADMIN_ROLE,
-				AgreementId: agreementId
-			},
-			include: [
-				{
-					model: orm.models.Wallet,
-					where: orm.sequelize.where(
-						orm.sequelize.fn('lower', orm.sequelize.col('address')),
-						walletAddress.toLowerCase()
-					)
-				}
-			]
-		})
-
-		if (agreementWallet) {
-			return true
-		}
-
-		return false
 	}
 
 	public static async getAgreementRoles(options: {
@@ -1158,15 +1130,6 @@ export default class AgreementService {
 	}) {
 		const { agreementId, admins, senderWallet } = options
 
-		const isAdmin = await this.isAgreementAdmin({
-			agreementId,
-			walletAddress: senderWallet.address
-		})
-
-		if (!isAdmin) {
-			throw new Error('NOT_AUTHORIZED')
-		}
-
 		const agreement = await orm.models.Agreement.findOne({
 			where: {
 				id: agreementId
@@ -1180,6 +1143,12 @@ export default class AgreementService {
 
 		if (!agreement) {
 			throw new Error('SERVER_ERROR')
+		}
+
+		const isAdmin = await agreement.isAdmin(senderWallet.address)
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
 		}
 
 		const { wallet } = await services.ethers.getProvider({

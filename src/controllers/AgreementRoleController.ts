@@ -94,238 +94,112 @@ export default class AgreementRoleController {
 		return res.json(result)
 	}
 
-	public static async updateAgreementRole(
-		req: IRequest<MeemAPI.v1.UpdateAgreementRole.IDefinition>,
-		res: IResponse<MeemAPI.v1.UpdateAgreementRole.IResponseBody>
+	public static async upgradeAgreementRole(
+		req: IRequest<MeemAPI.v1.UpgradeAgreementRole.IDefinition>,
+		res: IResponse<MeemAPI.v1.UpgradeAgreementRole.IResponseBody>
 	): Promise<Response> {
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { agreementId } = req.params
-		// const { roleIntegrationsData } = req.body
+		await req.wallet.enforceTXLimit()
 
-		// TODO: Check if the user has permission to update and not just admin contract role
+		const { agreementId, agreementRoleId } = req.params
 
-		const isAdmin = await services.agreement.isAgreementAdmin({
+		const result = await services.agreement.upgradeAgreement({
+			...req.body,
 			agreementId,
-			walletAddress: req.wallet.address
-		})
-
-		if (!isAdmin) {
-			throw new Error('NOT_AUTHORIZED')
-		}
-
-		const agreement = await orm.models.Agreement.findOne({
-			where: {
-				id: req.params.agreementId
-			},
-			include: [
-				{
-					model: orm.models.AgreementRole,
-					where: {
-						id: req.params.agreementRoleId
-					}
-				}
-			]
-		})
-
-		if (!agreement || !agreement.AgreementRoles) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
-		}
-
-		const agreementRole = agreement.AgreementRoles[0]
-
-		if (!agreementRole) {
-			throw new Error('MEEM_CONTRACT_ROLE_NOT_FOUND')
-		}
-
-		if (
-			!_.isUndefined(req.body.permissions) &&
-			_.isArray(req.body.permissions)
-		) {
-			// const promises: Promise<any>[] = []
-			// const t = await orm.sequelize.transaction()
-			// const permissions = req.body.permissions
-			// const roleIdsToAdd =
-			// 	permissions.filter(pid => {
-			// 		const existingPermission = agreementRole.RolePermissions?.find(
-			// 			rp => rp.id === pid
-			// 		)
-			// 		return !existingPermission
-			// 	}) ?? []
-			// const rolesToRemove: string[] =
-			// 	agreementRole.RolePermissions?.filter(rp => {
-			// 		const existingPermission = permissions.find(pid => rp.id === pid)
-			// 		return !existingPermission
-			// 	})?.map((rp: any) => {
-			// 		return rp.AgreementRolePermission.id as string
-			// 	}) ?? []
-			// if (rolesToRemove.length > 0) {
-			// 	promises.push(
-			// 		orm.models.AgreementRolePermission.destroy({
-			// 			where: {
-			// 				id: rolesToRemove
-			// 			},
-			// 			transaction: t
-			// 		})
-			// 	)
-			// }
-			// if (roleIdsToAdd.length > 0) {
-			// 	const agreementRolePermissionsData: {
-			// 		AgreementRoleId: string
-			// 		RolePermissionId: string
-			// 	}[] = roleIdsToAdd.map(rid => {
-			// 		return {
-			// 			AgreementRoleId: agreementRole.id,
-			// 			RolePermissionId: rid
-			// 		}
-			// 	})
-			// 	promises.push(
-			// 		orm.models.AgreementRolePermission.bulkCreate(
-			// 			agreementRolePermissionsData,
-			// 			{
-			// 				transaction: t
-			// 			}
-			// 		)
-			// 	)
-			// }
-			// try {
-			// 	await Promise.all(promises)
-			// 	await t.commit()
-			// } catch (e) {
-			// 	log.crit(e)
-			// 	throw new Error('SERVER_ERROR')
-			// }
-		}
-
-		// let members = req.body.members?.map(m => m.toLowerCase())
-
-		// if (agreementRole.isAdminRole && members) {
-		// 	members = await services.agreement.updateAgreementAdmins({
-		// 		agreementId: agreement.id,
-		// 		admins: members,
-		// 		senderWallet: req.wallet
-		// 	})
-		// }
-		// if (agreementRole.guildRoleId) {
-		// 	let guildRoleData
-		// 	let discordServerData
-		// 	const integrationsMetadata = agreementRole.integrationsMetadata
-		// 	const agreementRoleDiscordIntegrationDataIndex =
-		// 		integrationsMetadata?.findIndex(i => !!i.discordServerData)
-		// 	const guildRoleDiscordIntegrationData = roleIntegrationsData?.find(
-		// 		(d: any) => d.discordServerId
-		// 	)
-		// 	if (guildRoleDiscordIntegrationData) {
-		// 		const discordServerResult = await request
-		// 			.post(
-		// 				`https://api.guild.xyz/v1/discord/server/${guildRoleDiscordIntegrationData.discordServerId}`
-		// 			)
-		// 			.send({
-		// 				payload: {
-		// 					authorization:
-		// 						guildRoleDiscordIntegrationData.discordAccessToken
-		// 				}
-		// 			})
-		// 		discordServerData = discordServerResult.body
-		// 		// TODO: This creates a new role on discord no matter if isNew set to true or false
-		// 		guildRoleData = {
-		// 			rolePlatforms: [
-		// 				{
-		// 					guildPlatform: {
-		// 						platformName: 'DISCORD',
-		// 						platformGuildId:
-		// 							guildRoleDiscordIntegrationData.discordServerId,
-		// 						isNew: agreementRoleDiscordIntegrationDataIndex < 0
-		// 					},
-		// 					platformRoleData: {
-		// 						gatedChannels:
-		// 							guildRoleDiscordIntegrationData.discordGatedChannels ?? []
-		// 					}
-		// 				}
-		// 			]
-		// 		}
-		// 	}
-
-		// 	await services.guild.updateAgreementGuildRole({
-		// 		guildRoleId: agreementRole.guildRoleId,
-		// 		agreementId: agreement.id,
-		// 		name: req.body.name,
-		// 		members,
-		// 		guildRoleData,
-		// 		senderWalletAddress: req.wallet.address
-		// 	})
-
-		// 	if (guildRoleDiscordIntegrationData?.discordAccessToken) {
-		// 		const updatedDiscordServerResult = await request
-		// 			.post(
-		// 				`https://api.guild.xyz/v1/discord/server/${guildRoleDiscordIntegrationData.discordServerId}`
-		// 			)
-		// 			.send({
-		// 				payload: {
-		// 					authorization:
-		// 						guildRoleDiscordIntegrationData.discordAccessToken
-		// 				}
-		// 			})
-
-		// 		discordServerData = updatedDiscordServerResult.body
-
-		// 		if (agreementRoleDiscordIntegrationDataIndex > -1) {
-		// 			integrationsMetadata[agreementRoleDiscordIntegrationDataIndex] = {
-		// 				discordServerData
-		// 			}
-		// 		} else {
-		// 			integrationsMetadata.push({
-		// 				discordServerData
-		// 			})
-		// 		}
-
-		// 		agreementRole.integrationsMetadata = integrationsMetadata
-		// 		agreementRole.changed('integrationsMetadata', true)
-
-		// 		await agreementRole.save()
-		// 	}
-		// }
-
-		const roleAgreement = agreementRole.Agreement
-
-		const { wallet } = await services.ethers.getProvider({
-			chainId: agreement.chainId
-		})
-
-		const roleSmartContract = Mycontract__factory.connect(
-			agreement.address,
-			wallet
-		)
-
-		const contractInfo = await roleSmartContract.getContractInfo()
-		const mintPermissions = contractInfo.mintPermissions.map(p => ({
-			permission: p.permission,
-			addresses: p.addresses,
-			numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
-			mintEndTimestamp: ethers.BigNumber.from(p.mintEndTimestamp).toHexString(),
-			mintStartTimestamp: ethers.BigNumber.from(
-				p.mintStartTimestamp
-			).toHexString(),
-			costWei: ethers.BigNumber.from(p.costWei).toHexString(),
-			merkleRoot: p.merkleRoot
-		}))
-
-		const roleContractAdmins = await roleSmartContract.getRoles(
-			config.ADMIN_ROLE
-		)
-
-		const result = await services.agreement.updateAgreement({
-			admins: roleContractAdmins,
-			mintPermissions,
-			isTransferLocked: !req.body.isTokenTransferrable,
-			agreementId: roleAgreement.id,
+			agreementRoleId,
 			senderWalletAddress: req.wallet.address
 		})
 
 		return res.json(result)
 	}
+
+	// public static async updateAgreementRole(
+	// 	req: IRequest<MeemAPI.v1.UpdateAgreementRole.IDefinition>,
+	// 	res: IResponse<MeemAPI.v1.UpdateAgreementRole.IResponseBody>
+	// ): Promise<Response> {
+	// 	if (!req.wallet) {
+	// 		throw new Error('USER_NOT_LOGGED_IN')
+	// 	}
+
+	// 	const { agreementId } = req.params
+	// 	// const { roleIntegrationsData } = req.body
+
+	// 	// TODO: Check if the user has permission to update and not just admin contract role
+
+	// 	const isAdmin = await services.agreement.isAgreementAdmin({
+	// 		agreementId,
+	// 		walletAddress: req.wallet.address
+	// 	})
+
+	// 	if (!isAdmin) {
+	// 		throw new Error('NOT_AUTHORIZED')
+	// 	}
+
+	// 	const agreement = await orm.models.Agreement.findOne({
+	// 		where: {
+	// 			id: req.params.agreementId
+	// 		},
+	// 		include: [
+	// 			{
+	// 				model: orm.models.AgreementRole,
+	// 				where: {
+	// 					id: req.params.agreementRoleId
+	// 				}
+	// 			}
+	// 		]
+	// 	})
+
+	// 	if (!agreement || !agreement.AgreementRoles) {
+	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 	}
+
+	// 	const agreementRole = agreement.AgreementRoles[0]
+
+	// 	if (!agreementRole) {
+	// 		throw new Error('MEEM_CONTRACT_ROLE_NOT_FOUND')
+	// 	}
+
+	// 	const roleAgreement = agreementRole.Agreement
+
+	// 	const { wallet } = await services.ethers.getProvider({
+	// 		chainId: agreement.chainId
+	// 	})
+
+	// 	const roleSmartContract = Mycontract__factory.connect(
+	// 		agreement.address,
+	// 		wallet
+	// 	)
+
+	// 	const contractInfo = await roleSmartContract.getContractInfo()
+	// 	const mintPermissions = contractInfo.mintPermissions.map(p => ({
+	// 		permission: p.permission,
+	// 		addresses: p.addresses,
+	// 		numTokens: ethers.BigNumber.from(p.numTokens).toHexString(),
+	// 		mintEndTimestamp: ethers.BigNumber.from(p.mintEndTimestamp).toHexString(),
+	// 		mintStartTimestamp: ethers.BigNumber.from(
+	// 			p.mintStartTimestamp
+	// 		).toHexString(),
+	// 		costWei: ethers.BigNumber.from(p.costWei).toHexString(),
+	// 		merkleRoot: p.merkleRoot
+	// 	}))
+
+	// 	const roleContractAdmins = await roleSmartContract.getRoles(
+	// 		config.ADMIN_ROLE
+	// 	)
+
+	// 	const result = await services.agreement.updateAgreement({
+	// 		admins: roleContractAdmins,
+	// 		mintPermissions,
+	// 		isTransferLocked: !req.body.isTokenTransferrable,
+	// 		agreementId: roleAgreement.id,
+	// 		senderWalletAddress: req.wallet.address
+	// 	})
+
+	// 	return res.json(result)
+	// }
 
 	public static async deleteAgreementRole(
 		req: IRequest<MeemAPI.v1.DeleteAgreementRole.IDefinition>,
