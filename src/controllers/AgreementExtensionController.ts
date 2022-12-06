@@ -27,10 +27,7 @@ export default class AgreementExtensionController {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		const isAdmin = await services.agreement.isAgreementAdmin({
-			agreementId: agreement.id,
-			walletAddress: req.wallet.address
-		})
+		const isAdmin = await agreement.isAdmin(req.wallet.address)
 
 		if (!isAdmin) {
 			throw new Error('NOT_AUTHORIZED')
@@ -243,10 +240,7 @@ export default class AgreementExtensionController {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
-		const isAdmin = await services.agreement.isAgreementAdmin({
-			agreementId: agreement.id,
-			walletAddress: req.wallet.address
-		})
+		const isAdmin = await agreement.isAdmin(req.wallet.address)
 
 		if (!isAdmin) {
 			throw new Error('NOT_AUTHORIZED')

@@ -1,8 +1,5 @@
-import { ethers } from 'ethers'
 import { Response } from 'express'
-import _ from 'lodash'
 import { IRequest, IResponse } from '../types/app'
-import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 export default class AgreementRoleController {
 	// public static async createAgreementGuild(
@@ -209,22 +206,11 @@ export default class AgreementRoleController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { agreementId } = req.params
-
-		// TODO: Check if the user has permission to delete and not just admin contract role
-
-		const isAdmin = await services.agreement.isAgreementAdmin({
-			agreementId,
-			walletAddress: req.wallet.address
-		})
-
-		if (!isAdmin) {
-			throw new Error('NOT_AUTHORIZED')
-		}
+		const { agreementId, agreementRoleId } = req.params
 
 		const agreement = await orm.models.Agreement.findOne({
 			where: {
-				id: req.params.agreementId
+				id: agreementId
 			}
 		})
 
@@ -232,9 +218,15 @@ export default class AgreementRoleController {
 			throw new Error('MEEM_CONTRACT_NOT_FOUND')
 		}
 
+		const isAdmin = await agreement.isAdmin(req.wallet.address)
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
 		const agreementRole = await orm.models.AgreementRole.findOne({
 			where: {
-				id: req.params.agreementRoleId
+				id: agreementRoleId
 			}
 		})
 
