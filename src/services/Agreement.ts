@@ -28,15 +28,17 @@ export default class AgreementService {
 	public static async generateSlug(options: {
 		baseSlug: string
 		chainId: number
+		agreementId?: string
 		depth?: number
 	}): Promise<string> {
-		const { baseSlug, chainId, depth } = options
+		const { baseSlug, chainId, agreementId, depth } = options
 		const theSlug = slug(baseSlug, { lower: true })
 
 		try {
 			const isAvailable = await this.isSlugAvailable({
 				slugToCheck: theSlug,
-				chainId
+				chainId,
+				agreementId
 			})
 			if (isAvailable) {
 				return theSlug
@@ -59,6 +61,7 @@ export default class AgreementService {
 			const finalSlug = await this.generateSlug({
 				baseSlug: newSlug,
 				chainId,
+				agreementId,
 				depth: newDepth
 			})
 			return finalSlug
@@ -71,14 +74,27 @@ export default class AgreementService {
 	public static async isSlugAvailable(options: {
 		slugToCheck: string
 		chainId: number
+		agreementId?: string
 	}): Promise<boolean> {
-		const { slugToCheck, chainId } = options
-		const existingSlug = await orm.models.Agreement.findOne({
-			where: {
-				slug: slugToCheck,
-				chainId
-			}
-		})
+		const { slugToCheck, chainId, agreementId } = options
+		let existingSlug = null
+
+		if (agreementId) {
+			existingSlug = await orm.models.AgreementRole.findOne({
+				where: {
+					slug: slugToCheck,
+					AgreementId: agreementId,
+					chainId
+				}
+			})
+		} else {
+			existingSlug = await orm.models.Agreement.findOne({
+				where: {
+					slug: slugToCheck,
+					chainId
+				}
+			})
+		}
 		return !existingSlug
 	}
 

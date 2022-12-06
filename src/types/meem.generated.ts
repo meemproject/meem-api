@@ -1422,7 +1422,7 @@ export namespace SetAgreementAdminRole {
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/adminRole`
+		`/api/1.0/agreements/${options.agreementId}/setAdminRole`
 
 	export const method = HttpMethod.Patch
 

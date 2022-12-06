@@ -247,12 +247,24 @@ export default class ContractEvent {
 					}
 			  })
 
+		let roleParentAgreementId
+
+		if (isRoleAgreement && metadata.meem_agreement_address) {
+			const agreement = await orm.models.Agreement.findOne({
+				where: {
+					address: metadata.meem_agreement_address
+				}
+			})
+			roleParentAgreementId = agreement?.id
+		}
+
 		let slug = existingAgreementOrRole?.slug ?? uuidv4()
 
 		if (!existingAgreementOrRole || !slug) {
 			try {
 				slug = await services.agreement.generateSlug({
 					baseSlug: contractInfo.name as string,
+					agreementId: roleParentAgreementId,
 					chainId
 				})
 			} catch (e) {
@@ -321,18 +333,9 @@ export default class ContractEvent {
 
 		if (!existingAgreementOrRole) {
 			if (isRoleAgreement) {
-				let agreementId = null
-				if (agreementOrRoleData.metadata.meem_agreement_address) {
-					const agreement = await orm.models.Agreement.findOne({
-						where: {
-							address: agreementOrRoleData.metadata.meem_agreement_address
-						}
-					})
-					agreementId = agreement?.id ?? null
-				}
 				agreementOrRole = await orm.models.AgreementRole.create({
 					...agreementOrRoleData,
-					AgreementId: agreementId
+					AgreementId: roleParentAgreementId ?? null
 				})
 			} else {
 				agreementOrRole = await orm.models.Agreement.create(agreementOrRoleData)
