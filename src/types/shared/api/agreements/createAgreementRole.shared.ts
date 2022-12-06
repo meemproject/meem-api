@@ -100,7 +100,17 @@ export namespace CreateAgreementRole {
  * 			content:
  * 				application/json:
  * 					schema:
- * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ * 						type: object
+ * 						properties:
+ * 							deployContractTxId:
+ * 								type: string
+ * 								description: The transaction id for deploying the contract. Transaction #1
+ * 							cutTxId:
+ * 								type: string
+ * 								description: The transaction id for initializing the contract. Transaction #2
+ * 							mintTxId:
+ * 								type: string
+ * 								description: The transaction id for minting tokens. Transaction #3
  **/
 
 /**

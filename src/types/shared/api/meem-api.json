@@ -547,7 +547,21 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DefaultStatusResponseBody"
+                  "type": "object",
+                  "properties": {
+                    "deployContractTxId": {
+                      "type": "string",
+                      "description": "The transaction id for deploying the contract. Transaction"
+                    },
+                    "cutTxId": {
+                      "type": "string",
+                      "description": "The transaction id for initializing the contract. Transaction"
+                    },
+                    "mintTxId": {
+                      "type": "string",
+                      "description": "The transaction id for minting tokens. Transaction"
+                    }
+                  }
                 }
               }
             }
@@ -664,7 +678,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DefaultStatusResponseBody"
+                  "type": "object",
+                  "properties": {
+                    "txId": {
+                      "type": "string",
+                      "description": "The transaction id"
+                    }
+                  }
                 }
               }
             }
@@ -799,7 +819,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DefaultStatusResponseBody"
+                  "type": "object",
+                  "properties": {
+                    "txId": {
+                      "type": "string",
+                      "description": "The transaction id"
+                    }
+                  }
                 }
               }
             }
@@ -878,7 +904,21 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DefaultStatusResponseBody"
+                  "type": "object",
+                  "properties": {
+                    "deployContractTxId": {
+                      "type": "string",
+                      "description": "The transaction id for deploying the contract. Transaction"
+                    },
+                    "cutTxId": {
+                      "type": "string",
+                      "description": "The transaction id for initializing the contract. Transaction"
+                    },
+                    "mintTxId": {
+                      "type": "string",
+                      "description": "The transaction id for minting tokens. Transaction"
+                    }
+                  }
                 }
               }
             }
@@ -1013,7 +1053,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DefaultStatusResponseBody"
+                  "type": "object",
+                  "properties": {
+                    "txId": {
+                      "type": "string",
+                      "description": "The transaction id"
+                    }
+                  }
                 }
               }
             }
@@ -1055,7 +1101,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DefaultStatusResponseBody"
+                  "type": "object",
+                  "properties": {
+                    "txId": {
+                      "type": "string",
+                      "description": "The transaction id"
+                    }
+                  }
                 }
               }
             }
@@ -1137,7 +1189,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DefaultStatusResponseBody"
+                  "type": "object",
+                  "properties": {
+                    "txId": {
+                      "type": "string",
+                      "description": "The transaction id"
+                    }
+                  }
                 }
               }
             }
@@ -1179,7 +1237,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DefaultStatusResponseBody"
+                  "type": "object",
+                  "properties": {
+                    "txId": {
+                      "type": "string",
+                      "description": "The transaction id"
+                    }
+                  }
                 }
               }
             }
