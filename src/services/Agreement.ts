@@ -13,6 +13,7 @@ import slug from 'slug'
 import { v4 as uuidv4 } from 'uuid'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
 import type Agreement from '../models/Agreement'
+import AgreementRole from '../models/AgreementRole'
 import AgreementWallet from '../models/AgreementWallet'
 import Wallet from '../models/Wallet'
 import {
@@ -166,11 +167,15 @@ export default class AgreementService {
 	}
 
 	public static async createAgreement(
-		data: MeemAPI.v1.CreateAgreement.IRequestBody & {
+		data: (
+			| MeemAPI.v1.CreateAgreement.IRequestBody
+			| MeemAPI.v1.CreateAgreementRole.IRequestBody
+		) & {
 			senderWalletAddress: string
+			chainId: number
 		}
 	) {
-		const { shouldMintTokens, tokenMetadata, members, chainId, metadata } = data
+		const { shouldMintTokens, tokenMetadata, members, metadata, chainId } = data
 
 		const [dbContract, bundle] = await Promise.all([
 			orm.models.Contract.findOne({
@@ -357,7 +362,7 @@ export default class AgreementService {
 			mintPermissions?: Omit<MeemAPI.IMeemPermission, 'merkleRoot'>[]
 			chainId: number
 			senderWalletAddress: string
-			agreement?: Agreement
+			agreementOrRole?: Agreement | AgreementRole
 			shouldMintTokens?: boolean
 			tokenMetadata?: MeemAPI.IMeemMetadataLike
 		}
@@ -369,7 +374,7 @@ export default class AgreementService {
 			tokenMetadata,
 			senderWalletAddress,
 			chainId,
-			agreement
+			agreementOrRole
 		} = data
 
 		let senderWallet = await orm.models.Wallet.findByAddress<Wallet>(
@@ -386,26 +391,26 @@ export default class AgreementService {
 
 		let { metadata, symbol, name, maxSupply } = data
 
-		if (!symbol && !agreement && name) {
+		if (!symbol && !agreementOrRole && name) {
 			symbol = slug(name, { lower: true })
-		} else if (agreement) {
-			symbol = agreement.symbol
+		} else if (agreementOrRole) {
+			symbol = agreementOrRole.symbol
 		}
 
-		if (!name && agreement) {
-			name = agreement.name
+		if (!name && agreementOrRole) {
+			name = agreementOrRole.name
 		}
 
-		if (!maxSupply && agreement) {
-			maxSupply = agreement.maxSupply
+		if (!maxSupply && agreementOrRole) {
+			maxSupply = agreementOrRole.maxSupply
 		}
 
 		if (!symbol || !name || !maxSupply) {
 			throw new Error('MISSING_PARAMETERS')
 		}
 
-		if (!metadata && agreement) {
-			metadata = agreement.metadata
+		if (!metadata && agreementOrRole) {
+			metadata = agreementOrRole.metadata
 		}
 
 		const admins = data.admins ?? []
@@ -448,23 +453,40 @@ export default class AgreementService {
 
 		const uri = `ipfs://${result.IpfsHash}`
 
-		const agreementAdmins: AgreementWallet[] = []
-		const agreementMinters: AgreementWallet[] = []
-		let agreementWallets: AgreementWallet[] = []
+		const agreementOrRoleAdmins: { address: string; role: string }[] = []
+		const agreementOrRoleMinters: { address: string; role: string }[] = []
+		let agreementOrRoleWallets: { address: string; role: string }[] = []
 
-		if (agreement) {
-			agreementWallets = await orm.models.AgreementWallet.findAll({
-				where: {
-					AgreementId: agreement.id
-				},
-				include: [orm.models.Wallet]
+		if (agreementOrRole) {
+			const isRoleAgreement =
+				metadata.meem_metadata_type === 'Meem_AgreementRoleContract'
+
+			const agreemetOrRoleWalletsQuery = isRoleAgreement
+				? await orm.models.AgreementRoleWallet.findAll({
+						where: {
+							AgreementId: agreementOrRole.id
+						},
+						include: [orm.models.Wallet]
+				  })
+				: await orm.models.AgreementWallet.findAll({
+						where: {
+							AgreementId: agreementOrRole.id
+						},
+						include: [orm.models.Wallet]
+				  })
+
+			agreementOrRoleWallets = agreemetOrRoleWalletsQuery.map(aw => {
+				return {
+					address: aw.Wallet?.address ?? '',
+					role: aw.role
+				}
 			})
 
-			agreementWallets.forEach(w => {
+			agreementOrRoleWallets.forEach(w => {
 				if (w.role === config.ADMIN_ROLE) {
-					agreementAdmins.push(w)
+					agreementOrRoleAdmins.push(w)
 				} else if (w.role === config.MINTER_ROLE) {
-					agreementMinters.push(w)
+					agreementOrRoleMinters.push(w)
 				}
 			})
 		}
@@ -487,42 +509,37 @@ export default class AgreementService {
 			hasRole: true
 		}))
 
-		const agreementWalletIdsToRemove: string[] = []
 		const roles: SetRoleItemStruct[] = []
 
 		// Find roles to remove
-		agreementWallets.forEach(agreementWallet => {
+		agreementOrRoleWallets.forEach(agreementOrRoleWallet => {
 			let foundItem: SetRoleItemStruct | undefined
 
-			if (agreementWallet.role === config.ADMIN_ROLE) {
+			if (agreementOrRoleWallet.role === config.ADMIN_ROLE) {
 				foundItem = cleanAdmins.find(
 					c =>
-						c.user.toLowerCase() ===
-						agreementWallet.Wallet?.address.toLowerCase()
+						c.user.toLowerCase() === agreementOrRoleWallet.address.toLowerCase()
 				)
-			} else if (agreementWallet.role === config.MINTER_ROLE) {
+			} else if (agreementOrRoleWallet.role === config.MINTER_ROLE) {
 				foundItem = cleanMinters.find(
 					c =>
-						c.user.toLowerCase() ===
-						agreementWallet.Wallet?.address.toLowerCase()
+						c.user.toLowerCase() === agreementOrRoleWallet.address.toLowerCase()
 				)
 			}
 
-			if (!foundItem && agreementWallet.Wallet) {
+			if (!foundItem && agreementOrRoleWallet.address !== '') {
 				roles.push({
-					role: agreementWallet.role,
-					user: agreementWallet.Wallet.address,
+					role: agreementOrRoleWallet.role,
+					user: agreementOrRoleWallet.address,
 					hasRole: false
 				})
-
-				agreementWalletIdsToRemove.push(agreementWallet.id)
 			}
 		})
 
 		// Find roles to add
 		cleanAdmins.forEach(adminItem => {
-			const existingAdmin = agreementAdmins.find(
-				a => a.Wallet?.address.toLowerCase() === adminItem.user.toLowerCase()
+			const existingAdmin = agreementOrRoleAdmins.find(
+				a => a.address.toLowerCase() === adminItem.user.toLowerCase()
 			)
 			if (!existingAdmin) {
 				roles.push(adminItem)
@@ -530,10 +547,10 @@ export default class AgreementService {
 		})
 
 		cleanMinters.forEach(minterItem => {
-			const existingAdmin = agreementMinters.find(
-				a => a.Wallet?.address.toLowerCase() === minterItem.user.toLowerCase()
+			const existingMinter = agreementOrRoleMinters.find(
+				a => a.address.toLowerCase() === minterItem.user.toLowerCase()
 			)
-			if (!existingAdmin) {
+			if (!existingMinter) {
 				roles.push(minterItem)
 			}
 		})
@@ -1123,7 +1140,7 @@ export default class AgreementService {
 	// }
 	// }
 
-	public static async updateAgreementAdmins(options: {
+	public static async updateagreementOrRoleAdmins(options: {
 		agreementId: string
 		admins: string[]
 		senderWallet: Wallet

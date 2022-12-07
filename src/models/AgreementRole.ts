@@ -114,7 +114,7 @@ export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 	}
 
 	public async isAdmin(walletAddress: string) {
-		const agreementWallet = await orm.models.AgreementWallet.findOne({
+		const agreementRoleWallet = await orm.models.AgreementRoleWallet.findOne({
 			where: {
 				AgreementId: this.id,
 				role: config.ADMIN_ROLE
@@ -130,7 +130,7 @@ export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 			]
 		})
 
-		if (agreementWallet) {
+		if (agreementRoleWallet) {
 			return true
 		}
 

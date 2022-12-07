@@ -356,107 +356,155 @@ export default class ContractEvent {
 			log.error('getRoles function not available')
 		}
 
-		// TODO: How are we handling AgreementRole admins?
-		if (!isRoleAgreement) {
-			const [adminWallets, currentAdminsToRemove] = await Promise.all([
-				orm.models.Wallet.findAllBy({
-					addresses: admins,
-					agreementId: agreementOrRole.id
-				}),
-				orm.models.AgreementWallet.findAll({
-					where: {
-						role: adminRole
-					},
-					include: [
-						{
-							model: orm.models.Agreement,
-							where: orm.sequelize.where(
-								orm.sequelize.fn(
-									'lower',
-									orm.sequelize.col('Agreement.address')
-								),
-								agreementOrRole.address.toLowerCase()
-							)
-						},
-						{
-							model: orm.models.Wallet,
-							where: orm.sequelize.where(
-								orm.sequelize.fn('lower', orm.sequelize.col('Wallet.address')),
-								{ [Op.notIn]: admins.map(w => w.toLowerCase()) }
-							)
-						}
-					]
-				})
-			])
-
-			const walletsData: {
-				id: string
-				address: string
-				isDefault: boolean
-			}[] = []
-
-			const walletContractsData: {
-				AgreementId: string
-				WalletId: string
-				role: string
-			}[] = []
-
-			admins.forEach(adminAddress => {
-				const adminWallet = adminWallets.find(
-					aw => aw.address.toLowerCase() === adminAddress.toLowerCase()
-				)
-
-				const agreementWallet =
-					adminWallet?.AgreementWallets && adminWallet?.AgreementWallets[0]
-
-				if (!adminWallet) {
-					// Create the wallet
-					const walletId = uuidv4()
-					walletsData.push({
-						id: walletId,
-						address: adminAddress.toLowerCase(),
-						isDefault: true
-					})
-
-					walletContractsData.push({
-						AgreementId: agreementOrRole.id,
-						WalletId: walletId,
-						role: adminRole
-					})
-				} else if (adminWallet && !agreementWallet) {
-					// Create the association
-					walletContractsData.push({
-						AgreementId: agreementOrRole.id,
-						WalletId: adminWallet.id,
-						role: adminRole
-					})
-				}
-			})
-
-			log.debug(`Syncing Agreement data: ${agreementOrRole.address}`)
-
-			const promises: Promise<any>[] = []
-			if (currentAdminsToRemove.length > 0) {
-				promises.push(
-					orm.models.AgreementWallet.destroy({
+		const [adminWallets, currentAdminsToRemove] = await Promise.all([
+			orm.models.Wallet.findAllBy({
+				addresses: admins,
+				...(isRoleAgreement
+					? { agreementRoleId: agreementOrRole.id }
+					: { agreementId: agreementOrRole.id })
+			}),
+			isRoleAgreement
+				? orm.models.AgreementRoleWallet.findAll({
 						where: {
-							id: currentAdminsToRemove.map(a => a.id)
+							role: adminRole
 						},
-						transaction: t
-					})
-				)
-			}
-			if (walletsData.length > 0) {
-				promises.push(
-					orm.models.Wallet.bulkCreate(walletsData, {
-						transaction: t
-					})
-				)
-			}
+						include: [
+							{
+								model: orm.models.AgreementRole,
+								where: orm.sequelize.where(
+									orm.sequelize.fn(
+										'lower',
+										orm.sequelize.col('AgreementRole.address')
+									),
+									agreementOrRole.address.toLowerCase()
+								)
+							},
+							{
+								model: orm.models.Wallet,
+								where: orm.sequelize.where(
+									orm.sequelize.fn(
+										'lower',
+										orm.sequelize.col('Wallet.address')
+									),
+									{ [Op.notIn]: admins.map(w => w.toLowerCase()) }
+								)
+							}
+						]
+				  })
+				: orm.models.AgreementWallet.findAll({
+						where: {
+							role: adminRole
+						},
+						include: [
+							{
+								model: orm.models.Agreement,
+								where: orm.sequelize.where(
+									orm.sequelize.fn(
+										'lower',
+										orm.sequelize.col('Agreement.address')
+									),
+									agreementOrRole.address.toLowerCase()
+								)
+							},
+							{
+								model: orm.models.Wallet,
+								where: orm.sequelize.where(
+									orm.sequelize.fn(
+										'lower',
+										orm.sequelize.col('Wallet.address')
+									),
+									{ [Op.notIn]: admins.map(w => w.toLowerCase()) }
+								)
+							}
+						]
+				  })
+		])
 
-			await Promise.all(promises)
+		const walletsData: {
+			id: string
+			address: string
+			isDefault: boolean
+		}[] = []
 
-			if (walletContractsData.length > 0) {
+		const walletContractsData: {
+			AgreementId?: string
+			AgreementRoleId?: string
+			WalletId: string
+			role: string
+		}[] = []
+
+		admins.forEach(adminAddress => {
+			const adminWallet = adminWallets.find(
+				aw => aw.address.toLowerCase() === adminAddress.toLowerCase()
+			)
+
+			const agreementWallet =
+				adminWallet?.AgreementWallets && adminWallet?.AgreementWallets[0]
+
+			if (!adminWallet) {
+				// Create the wallet
+				const walletId = uuidv4()
+				walletsData.push({
+					id: walletId,
+					address: adminAddress.toLowerCase(),
+					isDefault: true
+				})
+
+				walletContractsData.push({
+					...(isRoleAgreement
+						? { AgreementRoleId: agreementOrRole.id }
+						: { AgreementId: agreementOrRole.id }),
+					WalletId: walletId,
+					role: adminRole
+				})
+			} else if (adminWallet && !agreementWallet) {
+				// Create the association
+				walletContractsData.push({
+					...(isRoleAgreement
+						? { AgreementRoleId: agreementOrRole.id }
+						: { AgreementId: agreementOrRole.id }),
+					WalletId: adminWallet.id,
+					role: adminRole
+				})
+			}
+		})
+
+		log.debug(`Syncing Agreement data: ${agreementOrRole.address}`)
+
+		const promises: Promise<any>[] = []
+		if (currentAdminsToRemove.length > 0) {
+			promises.push(
+				isRoleAgreement
+					? orm.models.AgreementRoleWallet.destroy({
+							where: {
+								id: currentAdminsToRemove.map(a => a.id)
+							},
+							transaction: t
+					  })
+					: orm.models.AgreementWallet.destroy({
+							where: {
+								id: currentAdminsToRemove.map(a => a.id)
+							},
+							transaction: t
+					  })
+			)
+		}
+		if (walletsData.length > 0) {
+			promises.push(
+				orm.models.Wallet.bulkCreate(walletsData, {
+					transaction: t
+				})
+			)
+		}
+
+		await Promise.all(promises)
+
+		if (walletContractsData.length > 0) {
+			if (isRoleAgreement) {
+				await orm.models.AgreementRoleWallet.bulkCreate(walletContractsData, {
+					transaction: t
+				})
+			} else {
 				await orm.models.AgreementWallet.bulkCreate(walletContractsData, {
 					transaction: t
 				})

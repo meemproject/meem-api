@@ -69,7 +69,13 @@ export default class AgreementRoleController {
 		const agreement = await orm.models.Agreement.findOne({
 			where: {
 				id: req.params.agreementId
-			}
+			},
+			include: [
+				{
+					model: orm.models.Wallet,
+					as: 'Owner'
+				}
+			]
 		})
 
 		if (!agreement) {
@@ -84,6 +90,7 @@ export default class AgreementRoleController {
 
 		const result = await services.agreement.createAgreement({
 			...req.body,
+			admins: agreement.Owner?.address ? [agreement.Owner?.address] : [],
 			chainId: agreement.chainId,
 			senderWalletAddress: req.wallet.address
 		})
