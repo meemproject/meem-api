@@ -58,7 +58,7 @@ class ContractInitTests extends BaseTest {
 			minters: [],
 			chainId: 5,
 			senderWalletAddress: '0xa44296DE313Fbc49bEFDa83b22E408A27182CFb7',
-			agreement
+			agreementOrRole: agreement
 		})
 
 		const apiAdmin = result.contractInitParams.roles.find(
@@ -83,7 +83,7 @@ class ContractInitTests extends BaseTest {
 			minters: [],
 			chainId: 5,
 			senderWalletAddress: '0xa44296DE313Fbc49bEFDa83b22E408A27182CFb7',
-			agreement
+			agreementOrRole: agreement
 		})
 
 		const user2Admin = result.contractInitParams.roles.find(
@@ -107,7 +107,7 @@ class ContractInitTests extends BaseTest {
 			minters: [],
 			chainId: 5,
 			senderWalletAddress: '0xa44296DE313Fbc49bEFDa83b22E408A27182CFb7',
-			agreement
+			agreementOrRole: agreement
 		})
 
 		const user1Admin = result.contractInitParams.roles.find(

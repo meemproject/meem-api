@@ -34,15 +34,6 @@ export namespace CreateAgreementRole {
 		/** The contract symbol. If omitted, will use slug generated from name */
 		symbol?: string
 
-		/** Contract admin addresses. */
-		admins?: string[]
-
-		/** Special minter permissions */
-		minters?: string[]
-
-		/** Minting permissions */
-		mintPermissions?: Omit<IMeemPermission, 'merkleRoot'>[]
-
 		/** Splits for minting / transfers */
 		splits?: IMeemSplit[]
 
@@ -100,7 +91,17 @@ export namespace CreateAgreementRole {
  * 			content:
  * 				application/json:
  * 					schema:
- * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ * 						type: object
+ * 						properties:
+ * 							deployContractTxId:
+ * 								type: string
+ * 								description: The transaction id for deploying the contract. Transaction #1
+ * 							cutTxId:
+ * 								type: string
+ * 								description: The transaction id for initializing the contract. Transaction #2
+ * 							mintTxId:
+ * 								type: string
+ * 								description: The transaction id for minting tokens. Transaction #3
  **/
 
 /**
@@ -126,21 +127,6 @@ export namespace CreateAgreementRole {
  *  	symbol:
  * 			description: The contract symbol. If omitted, will use slug generated from name.
  *  		type: string
- *  	admins:
- * 			description: Contract admin addresses
- *  		type: array
- * 			items:
- * 				type: string
- *  	minters:
- * 			description: Special minter permissions
- *  		type: array
- * 			items:
- * 				type: string
- *  	mintPermissions:
- * 			description: Minting permissions
- *  		type: array
- * 			items:
- * 				type: object
  *  	splits:
  * 			description: Splits for minting / transfers
  *  		type: array

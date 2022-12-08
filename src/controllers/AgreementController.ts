@@ -7,87 +7,22 @@ export default class AgreementController {
 		req: IRequest<MeemAPI.v1.IsSlugAvailable.IDefinition>,
 		res: IResponse<MeemAPI.v1.IsSlugAvailable.IResponseBody>
 	): Promise<Response> {
-		if (!req.body.slug) {
+		const { slug, chainId } = req.body
+		if (!slug) {
 			return res.json({
 				isSlugAvailable: false
 			})
 		}
 
 		const isSlugAvailable = await services.agreement.isSlugAvailable({
-			slugToCheck: req.body.slug,
-			chainId: req.body.chainId
+			slugToCheck: slug,
+			chainId
 		})
 
 		return res.json({
 			isSlugAvailable
 		})
 	}
-
-	// public static async updateAgreement(
-	// 	req: IRequest<MeemAPI.v1.UpdateAgreement.IDefinition>,
-	// 	res: IResponse<MeemAPI.v1.UpdateAgreement.IResponseBody>
-	// ): Promise<Response> {
-	// 	if (!req.wallet) {
-	// 		throw new Error('USER_NOT_LOGGED_IN')
-	// 	}
-
-	// 	await req.wallet.enforceTXLimit()
-
-	// 	const adminRole = config.ADMIN_ROLE
-	// 	const agreement = await orm.models.Agreement.findOne({
-	// 		where: {
-	// 			id: req.params.agreementId
-	// 		},
-	// 		include: [
-	// 			{
-	// 				model: orm.models.Wallet,
-	// 				where: {
-	// 					address: req.wallet.address
-	// 				},
-	// 				through: {
-	// 					where: {
-	// 						role: adminRole
-	// 					}
-	// 				}
-	// 			}
-	// 		]
-	// 	})
-
-	// 	if (!agreement) {
-	// 		throw new Error('AGREEMENT_NOT_FOUND')
-	// 	}
-
-	// 	if (agreement.Wallets && agreement.Wallets.length < 1) {
-	// 		throw new Error('NOT_AUTHORIZED')
-	// 	}
-
-	// 	if (req.body.slug && req.body.slug !== agreement.slug) {
-	// 		const isAvailable = await services.agreement.isSlugAvailable({
-	// 			slugToCheck: req.body.slug,
-	// 			chainId: agreement.chainId
-	// 		})
-	// 		if (!isAvailable) {
-	// 			throw new Error('SLUG_UNAVAILABLE')
-	// 		}
-
-	// 		const slug = await services.agreement.generateSlug({
-	// 			baseSlug: req.body.slug,
-	// 			chainId: agreement.chainId
-	// 		})
-
-	// 		if (req.body.slug !== slug) {
-	// 			throw new Error('INVALID_SLUG')
-	// 		}
-
-	// 		agreement.slug = slug
-	// 	}
-
-	// 	await agreement.save()
-
-	// 	return res.json({
-	// 		status: 'success'
-	// 	})
-	// }
 
 	public static async createAgreement(
 		req: IRequest<MeemAPI.v1.CreateAgreement.IDefinition>,

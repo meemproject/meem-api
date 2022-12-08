@@ -7,6 +7,7 @@ import AgreementRole from '../models/AgreementRole'
 import AgreementRoleExtension from '../models/AgreementRoleExtension'
 import AgreementRoleToken from '../models/AgreementRoleToken'
 import AgreementRoleTokenTransfer from '../models/AgreementRoleTokenTransfer'
+import AgreementRoleWallet from '../models/AgreementRoleWallet'
 import AgreementToken from '../models/AgreementToken'
 import AgreementTokenTransfer from '../models/AgreementTokenTransfer'
 import AgreementWallet from '../models/AgreementWallet'
@@ -49,6 +50,7 @@ export interface IModels {
 	AgreementExtensionRole: typeof AgreementExtensionRole
 	AgreementRoleExtension: typeof AgreementRoleExtension
 	AgreementWallet: typeof AgreementWallet
+	AgreementRoleWallet: typeof AgreementRoleWallet
 	Transaction: typeof Transaction
 	AgreementTokenTransfer: typeof AgreementTokenTransfer
 	AgreementRoleTokenTransfer: typeof AgreementRoleTokenTransfer

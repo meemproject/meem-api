@@ -1,27 +1,24 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-/** Create an agreement safe */
-export namespace CreateAgreementSafe {
+/** Upgrade an agreement role contract */
+export namespace UpgradeAgreementRole {
 	export interface IPathParams {
+		/** The id of the agreement */
 		agreementId: string
+		/** The id of the agreement role */
+		agreementRoleId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/safe`
+		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}/upgrade`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Addresses of the safe owners */
-		safeOwners: string[]
-
-		/** Chain id of the safe */
-		chainId?: number
-
-		/** The number of signatures required */
-		threshold?: number
+		/** Specify the bundle id to upgrade to. Defaults to latest Agreements bundle */
+		bundleId?: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -42,20 +39,21 @@ export namespace CreateAgreementSafe {
 /** === OpenAPI Definition === */
 
 /**
- * 	@api [post] /agreements/{agreementId}/safe
+ * 	@api [post] /agreements/{agreementId}/upgrade
  * 	security:
  * 		- jwtAuth: []
- * 	summary: "Create an agreement safe"
+ * 	summary: "Upgrade an agreement contract."
  * 	parameters:
  * 		- (path) agreementId* {string} The id of the agreement
+ * 		- (path) agreementRoleId* {string} The id of the agreement role
  * 	requestBody:
  * 		content:
  * 			application/json:
  * 				schema:
- * 					$ref: '#/components/schemas/CreateAgreementSafeRequestBody'
+ * 					$ref: '#/components/schemas/UpgradeAgreementRoleRequestBody'
  * 	responses:
  * 		"200":
- * 			description: "Returns 'success' if safe is successfully created."
+ * 			description: "Returns 'success' if upgrade agreement transaction is executed."
  * 			content:
  * 				application/json:
  * 					schema:
@@ -67,22 +65,9 @@ export namespace CreateAgreementSafe {
  **/
 
 /**
- *  @schema CreateAgreementSafeRequestBody
- * 	required:
- * 		- safeOwners
- * 		- chainId
+ *  @schema UpgradeAgreementRoleRequestBody
  *  properties:
- *  	safeOwners:
- * 			description: Addresses of the safe owners
- *  		type: array
- * 			items:
- * 				type: string
- *  	chainId:
- * 			description: Chain id of the safe
- *  		type: integer
- * 			example: 421613
- * 		threshold:
- * 			description: The number of signatures required
- * 			type: integer
- * 			example: 2
+ *  	bundleId:
+ *  		description: Specify the bundle id to upgrade to. Defaults to latest Agreements bundle
+ *  		type: string
  */
