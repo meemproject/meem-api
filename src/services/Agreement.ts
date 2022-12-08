@@ -14,7 +14,6 @@ import { v4 as uuidv4 } from 'uuid'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
 import type Agreement from '../models/Agreement'
 import AgreementRole from '../models/AgreementRole'
-import AgreementWallet from '../models/AgreementWallet'
 import Wallet from '../models/Wallet'
 import {
 	InitParamsStruct,
@@ -120,7 +119,7 @@ export default class AgreementService {
 			await this.prepareInitValues({
 				...data,
 				chainId: agreementInstance.chainId,
-				agreement: agreementInstance
+				agreementOrRole: agreementInstance
 			})
 
 		const agreement = Mycontract__factory.connect(
