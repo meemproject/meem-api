@@ -98,6 +98,28 @@ export default class AgreementRoleController {
 		return res.json(result)
 	}
 
+	public static async reinitialize(
+		req: IRequest<MeemAPI.v1.ReInitializeAgreementRole.IDefinition>,
+		res: IResponse<MeemAPI.v1.ReInitializeAgreementRole.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		await req.wallet.enforceTXLimit()
+
+		const { agreementId, agreementRoleId } = req.params
+
+		const result = await services.agreement.reinitializeAgreementOrRole({
+			...req.body,
+			agreementId,
+			agreementRoleId,
+			senderWalletAddress: req.wallet.address
+		})
+
+		return res.json(result)
+	}
+
 	public static async upgradeAgreementRole(
 		req: IRequest<MeemAPI.v1.UpgradeAgreementRole.IDefinition>,
 		res: IResponse<MeemAPI.v1.UpgradeAgreementRole.IResponseBody>
@@ -194,7 +216,7 @@ export default class AgreementRoleController {
 	// 		config.ADMIN_ROLE
 	// 	)
 
-	// 	const result = await services.agreement.updateAgreement({
+	// 	const result = await services.agreement.reinitializeAgreementOrRole({
 	// 		admins: roleContractAdmins,
 	// 		mintPermissions,
 	// 		isTransferLocked: !req.body.isTokenTransferrable,

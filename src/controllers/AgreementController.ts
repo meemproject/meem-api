@@ -66,7 +66,7 @@ export default class AgreementController {
 
 		const { agreementId } = req.params
 
-		const result = await services.agreement.updateAgreement({
+		const result = await services.agreement.reinitializeAgreementOrRole({
 			...req.body,
 			agreementId,
 			senderWalletAddress: req.wallet.address

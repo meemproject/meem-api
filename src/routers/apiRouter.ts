@@ -94,10 +94,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/roles',
 		AgreementRoleController.createAgreementRole
 	)
-	// router.postAsync(
-	// 	'/agreements/:agreementId/roles/:agreementRoleId',
-	// 	AgreementRoleController.updateAgreementRole
-	// )
+	router.postAsync(
+		'/agreements/:agreementId/roles/:agreementRoleId/reinitialize',
+		AgreementRoleController.reinitialize
+	)
 	// TODO: How do we handle deleting roles/role tokens?
 	// router.deleteAsync(
 	// 	'/agreements/:agreementId/roles/:agreementRoleId',
