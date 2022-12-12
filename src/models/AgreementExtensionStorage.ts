@@ -3,7 +3,8 @@ import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 import { IMeemMetadataLike } from '../types/shared/meem.shared'
-import Agreement from './Agreement'
+import type Agreement from './Agreement'
+import type Extension from './Extension'
 
 export default class AgreementExtensionStorage extends BaseModel<AgreementExtensionStorage> {
 	public static readonly modelName = 'AgreementExtensionStorage'
@@ -43,13 +44,13 @@ export default class AgreementExtensionStorage extends BaseModel<AgreementExtens
 
 	public metadata!: IMeemMetadataLike
 
-	public AgreementId!: string
+	public AgreementId!: string | null
 
 	public Agreement!: Agreement
 
-	public ExtensionId!: string
+	public ExtensionId!: string | null
 
-	public Extension!: Agreement
+	public Extension!: Extension
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.Extension)

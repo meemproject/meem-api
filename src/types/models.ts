@@ -2,6 +2,7 @@ import Agreement from '../models/Agreement'
 import AgreementExtension from '../models/AgreementExtension'
 import AgreementExtensionLink from '../models/AgreementExtensionLink'
 import AgreementExtensionRole from '../models/AgreementExtensionRole'
+import AgreementExtensionStorage from '../models/AgreementExtensionStorage'
 import AgreementExtensionWidget from '../models/AgreementExtensionWidget'
 import AgreementRole from '../models/AgreementRole'
 import AgreementRoleExtension from '../models/AgreementRoleExtension'
@@ -45,6 +46,7 @@ export interface IModels {
 	AgreementRole: typeof AgreementRole
 	AgreementRoleToken: typeof AgreementRoleToken
 	AgreementExtension: typeof AgreementExtension
+	AgreementExtensionStorage: typeof AgreementExtensionStorage
 	AgreementExtensionLink: typeof AgreementExtensionLink
 	AgreementExtensionWidget: typeof AgreementExtensionWidget
 	AgreementExtensionRole: typeof AgreementExtensionRole
