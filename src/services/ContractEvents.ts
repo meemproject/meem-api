@@ -1088,7 +1088,7 @@ export default class ContractEvent {
 				chainId
 			})) as Agreement
 			if (!agreementData) {
-				throw new Error('MEEM_CONTRACT_NOT_FOUND')
+				throw new Error('AGREEMENT_NOT_FOUND')
 			}
 		}
 

@@ -682,7 +682,40 @@ export enum TransactionStatus {
 export enum QueueEvent {
 	CallContract = 'callContract',
 	DeployContract = 'deployContract',
-	DiamondCut = 'diamondCut'
+	DiamondCut = 'diamondCut',
+	CreateTablelandTable = 'createTablelandTable'
+}
+
+export enum StorageDataType {
+	Integer = 'INTEGER',
+	Text = 'TEXT'
+}
+
+export enum StorageType {
+	Tableland = 'tableland'
+}
+
+export interface IExtensionStorageDefinition {
+	tableland?: {
+		tables?: {
+			[tableName: string]: {
+				[columnName: string]: StorageDataType
+			}
+		}
+	}
+}
+
+export interface IAgreementExtensionMetadata extends IMeemMetadataLike {
+	tableland?: {
+		/** The extension table name */
+		[extensionTableName: string]: {
+			/** The tableland table name */
+			tablelandTableName: string
+
+			/** The tableland table id */
+			tableId: string
+		}
+	}
 }
 
 export namespace v1 {
@@ -1025,10 +1058,12 @@ export namespace CreateAgreementExtension {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** The slug of the extension to enable */
-		slug: string
+		/** The extension to enable */
+		extensionId: string
+
 		/** Optional metadata associated with this extension */
 		metadata?: IMeemMetadataLike
+
 		/** Optional external link associated with this extension */
 		externalLink?: {
 			/** Url for the link */
@@ -1036,6 +1071,7 @@ export namespace CreateAgreementExtension {
 			/** The link label */
 			label?: string
 		}
+
 		/** Optional widget data associated with this extension */
 		widget?: {
 			/** Whether widget should be enabled */
@@ -1047,6 +1083,9 @@ export namespace CreateAgreementExtension {
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
+
+		/** The Transaction ids that must be completed as part of creating the extension. May be empty if no transactions are required. */
+		txIds: string[]
 	}
 
 	export interface IDefinition {
@@ -1065,6 +1104,7 @@ export namespace CreateAgreementExtension {
 /** Create an agreement role contract */
 export namespace CreateAgreementRole {
 	export interface IPathParams {
+		/** The id of the agreement */
 		agreementId: string
 	}
 

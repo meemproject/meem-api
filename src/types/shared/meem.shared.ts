@@ -627,5 +627,38 @@ export enum TransactionStatus {
 export enum QueueEvent {
 	CallContract = 'callContract',
 	DeployContract = 'deployContract',
-	DiamondCut = 'diamondCut'
+	DiamondCut = 'diamondCut',
+	CreateTablelandTable = 'createTablelandTable'
+}
+
+export enum StorageDataType {
+	Integer = 'INTEGER',
+	Text = 'TEXT'
+}
+
+export enum StorageType {
+	Tableland = 'tableland'
+}
+
+export interface IExtensionStorageDefinition {
+	tableland?: {
+		tables?: {
+			[tableName: string]: {
+				[columnName: string]: StorageDataType
+			}
+		}
+	}
+}
+
+export interface IAgreementExtensionMetadata extends IMeemMetadataLike {
+	tableland?: {
+		/** The extension table name */
+		[extensionTableName: string]: {
+			/** The tableland table name */
+			tablelandTableName: string
+
+			/** The tableland table id */
+			tableId: string
+		}
+	}
 }

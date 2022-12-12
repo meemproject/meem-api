@@ -179,7 +179,7 @@ export default class AgreementRoleController {
 	// 	})
 
 	// 	if (!agreement || !agreement.AgreementRoles) {
-	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 		throw new Error('AGREEMENT_NOT_FOUND')
 	// 	}
 
 	// 	const agreementRole = agreement.AgreementRoles[0]
@@ -244,7 +244,7 @@ export default class AgreementRoleController {
 		})
 
 		if (!agreement) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
 		const isAdmin = await agreement.isAdmin(req.wallet.address)
@@ -375,7 +375,7 @@ export default class AgreementRoleController {
 		})
 
 		if (!agreementRole) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
 		const canMint = await agreementRole.canMint(req.wallet.address)
@@ -478,7 +478,7 @@ export default class AgreementRoleController {
 	// 	})
 
 	// 	if (!agreement || !agreement.AgreementGuild) {
-	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 		throw new Error('AGREEMENT_NOT_FOUND')
 	// 	}
 
 	// 	const payload = {
@@ -526,7 +526,7 @@ export default class AgreementRoleController {
 	// 	})
 
 	// 	if (!agreement || !agreement.AgreementGuild) {
-	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 		throw new Error('AGREEMENT_NOT_FOUND')
 	// 	}
 
 	// 	// If user does not have a token, mint it before joining guild or request will fail.

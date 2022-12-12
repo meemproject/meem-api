@@ -11,10 +11,10 @@ export default class AgreementExtensionController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { slug, metadata, externalLink, widget } = req.body
+		const { extensionId, metadata, externalLink, widget } = req.body
 
-		if (!slug) {
-			throw new Error('INVALID_PARAMETERS')
+		if (!extensionId) {
+			throw new Error('MISSING_PARAMETERS')
 		}
 
 		const agreement = await orm.models.Agreement.findOne({
@@ -24,7 +24,7 @@ export default class AgreementExtensionController {
 		})
 
 		if (!agreement) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
 		const isAdmin = await agreement.isAdmin(req.wallet.address)
@@ -35,7 +35,7 @@ export default class AgreementExtensionController {
 
 		const extension = await orm.models.Extension.findOne({
 			where: {
-				slug
+				id: extensionId
 			}
 		})
 
@@ -52,102 +52,7 @@ export default class AgreementExtensionController {
 			})
 
 		if (existingAgreementExtension) {
-			return res.json({
-				status: 'success'
-			})
-		}
-
-		// Integration Verification
-		// Can allow for third-party endpoint requests to verify information and return custom metadata
-		switch (extension.id) {
-			case config.TWITTER_INTEGRATION_ID: {
-				// let twitterUsername = req.body.metadata?.twitterUsername
-				// 	? (req.body.metadata?.twitterUsername as string)
-				// 	: null
-				// twitterUsername = twitterUsername?.replace(/^@/g, '').trim() ?? null
-				// const integrationError = new Error('INTEGRATION_FAILED')
-				// integrationError.message = 'Twitter verification failed.'
-
-				// if (
-				// 	existingAgreementExtension &&
-				// 	existingAgreementExtension.metadata?.isVerified &&
-				// 	(!twitterUsername ||
-				// 		twitterUsername ===
-				// 			existingAgreementExtension.metadata?.twitterUsername)
-				// ) {
-				// 	break
-				// }
-
-				// if (!twitterUsername) {
-				// 	throw integrationError
-				// }
-
-				// metadata.isVerified = false
-
-				// const verifiedTwitter = await services.twitter.verifyAgreementTwitter({
-				// 	twitterUsername,
-				// 	agreement
-				// })
-
-				// if (!verifiedTwitter) {
-				// 	throw integrationError
-				// }
-
-				// metadata.isVerified = true
-				// metadata.twitterUsername = verifiedTwitter.username
-				// metadata.twitterProfileImageUrl =
-				// 	verifiedTwitter.profile_image_url
-				// metadata.twitterDisplayName = verifiedTwitter.name
-				// metadata.twitterUserId = verifiedTwitter.id
-				// metadata.externalUrl = `https://twitter.com/${verifiedTwitter.username}`
-
-				break
-			}
-			case 'guild': {
-				// let twitterUsername = req.body.metadata?.twitterUsername
-				// 	? (req.body.metadata?.twitterUsername as string)
-				// 	: null
-				// twitterUsername = twitterUsername?.replace(/^@/g, '').trim() ?? null
-				// const integrationError = new Error('INTEGRATION_FAILED')
-				// integrationError.message = 'Twitter verification failed.'
-
-				// if (
-				// 	existingAgreementExtension &&
-				// 	existingAgreementExtension.metadata?.isVerified &&
-				// 	(!twitterUsername ||
-				// 		twitterUsername ===
-				// 			existingAgreementExtension.metadata?.twitterUsername)
-				// ) {
-				// 	break
-				// }
-
-				// if (!twitterUsername) {
-				// 	throw integrationError
-				// }
-
-				// metadata.isVerified = false
-
-				// const verifiedTwitter = await services.twitter.verifyAgreementTwitter({
-				// 	twitterUsername,
-				// 	agreement
-				// })
-
-				// if (!verifiedTwitter) {
-				// 	throw integrationError
-				// }
-
-				// metadata.isVerified = true
-				// metadata.twitterUsername = verifiedTwitter.username
-				// metadata.twitterProfileImageUrl =
-				// 	verifiedTwitter.profile_image_url
-				// metadata.twitterDisplayName = verifiedTwitter.name
-				// metadata.twitterUserId = verifiedTwitter.id
-				// metadata.externalUrl = `https://twitter.com/${verifiedTwitter.username}`
-
-				break
-			}
-			default:
-				break
+			throw new Error('EXTENSION_ALREADY_ADDED')
 		}
 
 		// TODO: Validate widget/role/custom extension metadata?
@@ -172,6 +77,28 @@ export default class AgreementExtensionController {
 			ExtensionId: extension.id,
 			metadata
 		})
+
+		const txIds: string[] = []
+
+		// TODO: Finish tableland creation process
+		// if (extension.storageDefinition.tableland?.tables) {
+		// 	const tableNames = Object.keys(
+		// 		extension.storageDefinition.tableland?.tables
+		// 	)
+		// 	for (let i = 0; i < tableNames.length; i++) {
+		// 		const tableName = tableNames[i]
+
+		// 		// Create the tableland table
+		// 		const txId = await services.ethers.queueCreateTablelandTable({
+		// 			chainId: agreement.chainId,
+		// 			tableName,
+		// 			columns: extension.storageDefinition.tableland.tables[tableName],
+		// 			agreementExtensionId: agreementExtension.id
+		// 		})
+
+		// 		txIds.push(txId)
+		// 	}
+		// }
 
 		const t = await orm.sequelize.transaction()
 
@@ -211,7 +138,8 @@ export default class AgreementExtensionController {
 		await t.commit()
 
 		return res.json({
-			status: 'success'
+			status: 'success',
+			txIds
 		})
 	}
 
@@ -237,7 +165,7 @@ export default class AgreementExtensionController {
 		})
 
 		if (!agreement) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
 		const isAdmin = await agreement.isAdmin(req.wallet.address)

@@ -56,6 +56,10 @@ export default class EthersService {
 				alchemyProvider = new Alchemy({
 					apiKey: config.ALCHEMY_API_KEY_MAINNET
 				})
+
+				provider = new ethers.providers.JsonRpcProvider(
+					`https://eth-mainnet.g.alchemy.com/v2/${config.ALCHEMY_API_KEY_MAINNET}`
+				)
 				break
 			}
 
@@ -66,7 +70,7 @@ export default class EthersService {
 				})
 
 				provider = new ethers.providers.JsonRpcProvider(
-					'https://eth-goerli.g.alchemy.com/v2/m9i7qiVc6gngIGIVm6JR3dCwIGu9-0Dy'
+					`https://eth-goerli.g.alchemy.com/v2/${config.ALCHEMY_API_KEY_GOERLI}`
 				)
 				break
 			}
@@ -76,6 +80,10 @@ export default class EthersService {
 					apiKey: config.ALCHEMY_API_KEY_POLYGON,
 					network: Network.MATIC_MAINNET
 				})
+
+				provider = new ethers.providers.JsonRpcProvider(
+					`https://polygon-mainnet.g.alchemy.com/v2/${config.ALCHEMY_API_KEY_POLYGON}`
+				)
 				break
 			}
 
@@ -84,6 +92,10 @@ export default class EthersService {
 					apiKey: config.ALCHEMY_API_KEY_MUMBAI,
 					network: Network.MATIC_MUMBAI
 				})
+
+				provider = new ethers.providers.JsonRpcProvider(
+					`https://polygon-mumbai.g.alchemy.com/v2/${config.ALCHEMY_API_KEY_MUMBAI}`
+				)
 				break
 			}
 
@@ -92,6 +104,10 @@ export default class EthersService {
 					apiKey: config.ALCHEMY_API_KEY_ARBITRUM_GOERLI,
 					network: Network.ARB_GOERLI
 				})
+
+				provider = new ethers.providers.JsonRpcProvider(
+					`https://arb-goerli.g.alchemy.com/v2/${config.ALCHEMY_API_KEY_ARBITRUM_GOERLI}`
+				)
 				break
 			}
 
@@ -99,6 +115,8 @@ export default class EthersService {
 				alchemyProvider = new Alchemy({
 					url: config.JSON_RPC_CELO
 				})
+
+				provider = new ethers.providers.JsonRpcProvider(`??`)
 				break
 			}
 
@@ -107,11 +125,17 @@ export default class EthersService {
 					apiKey: config.ALCHEMY_API_KEY_OPTIMISM_GOERLI,
 					network: Network.OPT_GOERLI
 				})
+
+				provider = new ethers.providers.JsonRpcProvider(
+					`https://opt-goerli.g.alchemy.com/v2/${config.ALCHEMY_API_KEY_GOERLI}`
+				)
 				break
 			}
 
 			case 31337:
 				alchemyProvider = new Alchemy({ url: config.JSON_RPC_HARDHAT })
+
+				provider = new ethers.providers.JsonRpcProvider(`http://localhost:8545`)
 				break
 
 			default: {
@@ -154,6 +178,36 @@ export default class EthersService {
 		})
 
 		return sigHashes
+	}
+
+	public async queueCreateTablelandTable(options: {
+		chainId: number
+		tableName: string
+		columns: {
+			[columnName: string]: MeemAPI.StorageDataType
+		}
+		agreementExtensionId: string
+	}) {
+		const { chainId, tableName, columns, agreementExtensionId } = options
+
+		const txId = uuidv4()
+
+		await services.queue.sendMessage({
+			Id: txId,
+			MessageBody: JSON.stringify({
+				id: txId,
+				eventName: MeemAPI.QueueEvent.CreateTablelandTable,
+				chainId,
+				transactionInput: {
+					tableName,
+					columns,
+					agreementExtensionId
+				}
+			}),
+			MessageGroupId: '1'
+		})
+
+		return txId
 	}
 
 	public async queueDiamondCut(options: {

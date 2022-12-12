@@ -317,7 +317,7 @@ export default class TestController {
 	}
 
 	public static async releaseLock(req: Request, res: Response) {
-		// await services.ethers.releaseLock(+(req.query.chainId as string))
+		await services.ethers.releaseLock(+(req.query.chainId as string))
 
 		return res.json({
 			status: 'success'
@@ -421,6 +421,20 @@ export default class TestController {
 			encoded,
 			encoded2,
 			meemABI
+		})
+	}
+
+	public static async tablelandTest(req: Request, res: Response) {
+		const result = await services.storage.createTable({
+			chainId: 5,
+			schema: {
+				data: MeemAPI.StorageDataType.Text
+			}
+		})
+
+		return res.json({
+			result,
+			status: 'success'
 		})
 	}
 }

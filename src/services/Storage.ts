@@ -1,81 +1,125 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import AWS from 'aws-sdk'
-
-AWS.config.update({
-	region: 'us-east-1'
-})
+import { connect } from '@tableland/sdk'
+import type { Connection, NetworkName } from '@tableland/sdk'
+import { ethers } from 'ethers'
+import { MeemAPI } from '../types/meem.generated'
 
 export default class StorageService {
-	public static async putObject(options: {
-		path: string
-		data: AWS.S3.Body
-		acl?: AWS.S3.ObjectCannedACL
-		contentType?: string
+	public static shouldInitialize = true
+
+	private tablelands: {
+		[chainId: number]: Connection
+	} = {}
+
+	public async createTable(options: {
+		chainId: number
+		schema: {
+			[column: string]: MeemAPI.StorageDataType
+		}
 	}) {
-		const { path, data, acl } = options
-		const contentType = options.contentType ?? 'image/png'
-		const s3 = new AWS.S3({
-			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
+		const { chainId, schema } = options
+
+		const tableland = await this.getInstance({
+			chainId
 		})
 
-		log.debug(`PUT S3 Object: ${path}`)
+		let createSchema =
+			'id INTEGER PRIMARY KEY, updatedAt INTEGER, createdAt INTEGER'
 
-		const result = await s3
-			.putObject({
-				Bucket: config.S3_BUCKET,
-				Key: path,
-				Body: data,
-				ACL: acl ?? 'private',
-				Metadata: {
-					'Content-Type': contentType
-				},
-				ContentType: contentType
-			})
-			.promise()
+		Object.keys(schema).forEach(columnName => {
+			createSchema += `, ${columnName} ${schema[columnName]}`
+		})
 
-		log.debug('PUT object finished', { result })
+		const receipt = await tableland.create(createSchema, {})
 
-		return result
+		// tableland.setController()
+
+		/**
+		 * Receipt
+		 * {
+		 *   tableId: {
+		 *     type: "BigNumber",
+		 *     hex: "0x040a"
+		 *   },
+		 *   prefix: "",
+		 *   chainId: 5,
+		 *   txnHash: "0x62249c1dc89d2f4c54979f63829576cf9204fd1d107638ccd58f7686c897843b",
+		 *   blockNumber: 8081735,
+		 *   name: "_5_1034"
+		 * }
+		 */
+
+		return receipt
 	}
 
-	public static async getObject(options: { path: string }) {
-		const { path } = options
+	private async getInstance(options: {
+		chainId: number
+		network?: NetworkName
+	}) {
+		const { chainId, network } = options
+		if (!this.tablelands[chainId]) {
+			const { ethersProvider } = await services.ethers.getProvider({ chainId })
+			const wallet = new ethers.Wallet(config.WALLET_PRIVATE_KEY)
+			const signer = wallet.connect(ethersProvider)
 
-		const s3 = new AWS.S3({
-			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
-		})
-
-		log.debug(`GET S3 Object: ${path}`)
-
-		const result = await s3
-			.getObject({
-				Bucket: config.S3_BUCKET,
-				Key: path
+			const connection = await connect({
+				signer,
+				network: network ?? 'testnet',
+				chain: this.chainIdToTablelandChainName(chainId)
 			})
-			.promise()
+			this.tablelands[chainId] = connection
+		}
 
-		return result.Body as Buffer
+		return this.tablelands[chainId]
 	}
 
-	public static async deleteObject(options: { path: string }) {
-		const { path } = options
+	private chainIdToTablelandChainName(chainId: number) {
+		switch (chainId) {
+			case 1:
+				return 'ethereum'
+				break
 
-		const s3 = new AWS.S3({
-			accessKeyId: config.APP_AWS_ACCESS_KEY_ID,
-			secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
-		})
+			case 10:
+				return 'optimism'
+				break
 
-		log.debug(`DELETE S3 Object: ${path}`)
+			case 137:
+				return 'polygon'
+				break
 
-		const result = await s3
-			.deleteObject({
-				Bucket: config.S3_BUCKET,
-				Key: path
-			})
-			.promise()
+			case 42161:
+				return 'arbitrum'
+				break
 
-		return result
+			case 5:
+				return 'ethereum-goerli'
+				break
+
+			case 420:
+				return 'optimism-goerli'
+				break
+
+			case 421613:
+				return 'arbitrum-goerli'
+				break
+
+			case 80001:
+				return 'polygon-mumbai'
+				break
+
+			// case 1:
+			// 	return 'optimism-goerli-staging'
+			// 	break
+
+			// case 1:
+			// 	return 'local-tableland'
+			// 	break
+
+			// case 1:
+			// 	return 'custom'
+			// 	break
+
+			default:
+				throw new Error('CHAIN_NOT_SUPPORTED')
+		}
 	}
 }

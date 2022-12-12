@@ -3,8 +3,8 @@ import path from 'path'
 import log, { LogLevel } from '@kengoldfarb/log'
 import express, { Express } from 'express'
 import globby from 'globby'
+import fetch from 'node-fetch'
 import ProviderListener from '../listeners/ProviderListener'
-// import TwitterListener from '../listeners/TwitterListener'
 import Configuration from './Configuration'
 import errorMiddleware from './errorMiddleware'
 import Orm from './Orm'
@@ -197,6 +197,9 @@ export default async function start(options?: {
 		// eslint-disable-next-line global-require
 		require('../lib/SQSConsumer')
 	}
+
+	// Fetch polyfill
+	g.fetch = fetch
 
 	log.info(
 		`Server boot: ${(log.timerEnd(bootTimer) / 1000).toFixed(4)} seconds`
