@@ -1347,6 +1347,7 @@ export namespace IsSlugAvailable {
 /** Reinitialize an agreement contract */
 export namespace ReInitializeAgreement {
 	export interface IPathParams {
+		/** The id of the agreement */
 		agreementId: string
 	}
 
@@ -1378,6 +1379,60 @@ export namespace ReInitializeAgreement {
 
 		/** Minting permissions */
 		mintPermissions?: Omit<IMeemPermission, 'merkleRoot'>[]
+
+		/** Splits for minting / transfers */
+		splits?: IMeemSplit[]
+
+		/** Whether tokens can be transferred */
+		isTransferLocked?: boolean
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		/** The Transaction id for updating the contract */
+		txId: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+
+/** Reinitialize an agreement contract */
+export namespace ReInitializeAgreementRole {
+	export interface IPathParams {
+		/** The id of the agreement */
+		agreementId: string
+		/** The id of the agreement role */
+		agreementRoleId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}/reinitialize`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The name of the contract */
+		name?: string
+
+		/** The max number of tokens */
+		maxSupply?: string
+
+		/** Agreement role contract metadata */
+		metadata?: IMeemMetadataLike
+
+		/** The contract symbol. If omitted, will use slug generated from name */
+		symbol?: string
 
 		/** Splits for minting / transfers */
 		splits?: IMeemSplit[]
@@ -1658,6 +1713,73 @@ export namespace UpgradeAgreementRole {
 
 
 
+export namespace AuthenticateWithDiscord {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		user: { [key: string]: any }
+		accessToken: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetDiscordServers {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		accessToken: string
+	}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		discordServers: IDiscordServer[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
 export namespace CreateBundle {
 	export interface IPathParams {}
 
@@ -1846,73 +1968,6 @@ export namespace UpdateWalletContractInstance {
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace AuthenticateWithDiscord {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		user: { [key: string]: any }
-		accessToken: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetDiscordServers {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {
-		accessToken: string
-	}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		discordServers: IDiscordServer[]
 	}
 
 	export interface IDefinition {

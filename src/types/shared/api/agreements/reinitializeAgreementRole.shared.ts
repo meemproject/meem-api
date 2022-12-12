@@ -6,14 +6,16 @@ import {
 } from '../../meem.shared'
 
 /** Reinitialize an agreement contract */
-export namespace ReInitializeAgreement {
+export namespace ReInitializeAgreementRole {
 	export interface IPathParams {
 		/** The id of the agreement */
 		agreementId: string
+		/** The id of the agreement role */
+		agreementRoleId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/reinitialize`
+		`/api/1.0/agreements/${options.agreementId}/roles/${options.agreementRoleId}/reinitialize`
 
 	export const method = HttpMethod.Post
 
@@ -26,20 +28,11 @@ export namespace ReInitializeAgreement {
 		/** The max number of tokens */
 		maxSupply?: string
 
-		/** Agreement contract metadata */
+		/** Agreement role contract metadata */
 		metadata?: IMeemMetadataLike
 
 		/** The contract symbol. If omitted, will use slug generated from name */
 		symbol?: string
-
-		/** Contract admin addresses */
-		admins?: string[]
-
-		/** Special minter permissions */
-		minters?: string[]
-
-		/** Minting permissions */
-		mintPermissions?: Omit<IMeemPermission, 'merkleRoot'>[]
 
 		/** Splits for minting / transfers */
 		splits?: IMeemSplit[]
@@ -66,17 +59,18 @@ export namespace ReInitializeAgreement {
 /** === OpenAPI Definition === */
 
 /**
- * 	@api [post] /agreements/{agreementId}/reinitialize
+ * 	@api [post] /agreements/{agreementId}/roles/{agreementRoleId}/reinitialize
  * 	security:
  * 		- jwtAuth: []
- * 	summary: "Reinitialize an agreement contract."
+ * 	summary: "Reinitialize an agreement role contract."
  * 	parameters:
- * 		- (path) agreementId* {string} The id of the agreement to reinitialize
+ * 		- (path) agreementId* {string} The id of the agreement
+ * 		- (path) agreementRoleId* {string} The id of the agreement role to reinitialize
  * 	requestBody:
  * 		content:
  * 			application/json:
  * 				schema:
- * 					$ref: '#/components/schemas/ReinitializeAgreementRequestBody'
+ * 					$ref: '#/components/schemas/ReinitializeAgreementRoleRequestBody'
  * 	responses:
  * 		"200":
  * 			description: "Returns 'success' if reinitialize agreement transaction is executed."
@@ -91,7 +85,7 @@ export namespace ReInitializeAgreement {
  **/
 
 /**
- *  @schema ReinitializeAgreementRequestBody
+ *  @schema ReinitializeAgreementRoleRequestBody
  *  properties:
  *  	name:
  *  		description: The name of the contract
@@ -106,21 +100,6 @@ export namespace ReInitializeAgreement {
  *  	symbol:
  * 			description: The contract symbol. If omitted, will use slug generated from name.
  *  		type: string
- *  	admins:
- * 			description: Contract admin addresses
- *  		type: array
- * 			items:
- * 				type: string
- *  	minters:
- * 			description: Special minter permissions
- *  		type: array
- * 			items:
- * 				type: string
- *  	mintPermissions:
- * 			description: Minting permissions
- *  		type: array
- * 			items:
- * 				type: object
  *  	splits:
  * 			description: Splits for minting / transfers
  *  		type: array
