@@ -16,14 +16,18 @@ export namespace CreateAgreementExtension {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** The slug of the extension to enable */
-		slug: string
+		/** The extension to enable */
+		extensionId: string
+
 		/** Metadata to store for this extension */
 		metadata: IMeemMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
+
+		/** The Transaction ids that must be completed as part of creating the extension. May be empty if no transactions are required. */
+		txIds: string[]
 	}
 
 	export interface IDefinition {

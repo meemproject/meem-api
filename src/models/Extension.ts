@@ -1,6 +1,8 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
+import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
+import type Agreement from './Agreement'
 
 export default class Extension extends BaseModel<Extension> {
 	public static readonly modelName = 'Extension'
@@ -48,6 +50,11 @@ export default class Extension extends BaseModel<Extension> {
 			type: DataTypes.STRING,
 			allowNull: false,
 			defaultValue: ''
+		},
+		storageDefinition: {
+			type: DataTypes.JSONB,
+			allowNull: false,
+			defaultValue: {}
 		}
 	}
 
@@ -62,6 +69,10 @@ export default class Extension extends BaseModel<Extension> {
 	public icon!: string
 
 	public guideUrl!: string
+
+	public storageDefinition!: MeemAPI.IExtensionStorageDefinition
+
+	public Agreements!: Agreement[]
 
 	public static associate(models: IModels) {
 		this.belongsToMany(models.Agreement, {

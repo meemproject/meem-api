@@ -2,16 +2,18 @@ import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
+import { IMeemMetadataLike } from '../types/shared/meem.shared'
 import Agreement from './Agreement'
-export default class AgreementExtension extends BaseModel<AgreementExtension> {
-	public static readonly modelName = 'AgreementExtension'
+
+export default class AgreementExtensionStorage extends BaseModel<AgreementExtensionStorage> {
+	public static readonly modelName = 'AgreementExtensionStorage'
 
 	public static readonly paranoid: boolean = false
 
 	public static get indexes() {
 		return [
 			{
-				name: 'AgreementExtension_createdAt',
+				name: 'AgreementExtensionStorage_createdAt',
 				fields: ['createdAt']
 			}
 		]
@@ -23,10 +25,10 @@ export default class AgreementExtension extends BaseModel<AgreementExtension> {
 			defaultValue: DataTypes.UUIDV4,
 			primaryKey: true
 		},
-		isEnabled: {
-			type: DataTypes.BOOLEAN,
+		type: {
+			type: DataTypes.STRING,
 			allowNull: false,
-			defaultValue: false
+			defaultValue: MeemAPI.StorageType.Tableland
 		},
 		metadata: {
 			type: DataTypes.JSONB,
@@ -37,9 +39,9 @@ export default class AgreementExtension extends BaseModel<AgreementExtension> {
 
 	public id!: string
 
-	public isEnabled!: boolean
+	public type!: MeemAPI.StorageType
 
-	public metadata!: MeemAPI.IAgreementExtensionMetadata
+	public metadata!: IMeemMetadataLike
 
 	public AgreementId!: string
 

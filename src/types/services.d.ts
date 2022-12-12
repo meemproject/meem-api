@@ -42,7 +42,7 @@ declare global {
 		let puppeteer: Puppeteer
 		let queue: typeof Queue
 		let scraper: typeof Scraper
-		let storage: typeof Storage
+		let storage: Storage
 		let testing: Testing
 		let twitter: typeof Twitter
 		let types: typeof Types

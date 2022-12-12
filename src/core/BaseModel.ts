@@ -24,7 +24,7 @@ export abstract class BaseModel<T> extends Model {
 
 	public static readonly timestamps: boolean = true
 
-	public static readonly paranoid: boolean = true
+	public static readonly paranoid: boolean = false
 
 	public static readonly attributes: ModelAttributes = {
 		id: {

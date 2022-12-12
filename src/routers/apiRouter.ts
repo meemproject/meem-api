@@ -169,5 +169,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/getEthAddress', TestController.getEthAddress)
 		router.getAsync('/test/txEncoding', TestController.testTxEncoding)
 		router.getAsync('/test/testPinata', TestController.testPinata)
+		router.getAsync('/test/testTableland', TestController.tablelandTest)
 	}
 }

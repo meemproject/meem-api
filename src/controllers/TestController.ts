@@ -14,6 +14,7 @@ import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
 import meemABI from '../abis/Meem.json'
 import { Constructor } from '../serverless/cron'
+import { DataTypes } from '../services/Storage'
 import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -317,7 +318,7 @@ export default class TestController {
 	}
 
 	public static async releaseLock(req: Request, res: Response) {
-		// await services.ethers.releaseLock(+(req.query.chainId as string))
+		await services.ethers.releaseLock(+(req.query.chainId as string))
 
 		return res.json({
 			status: 'success'
@@ -421,6 +422,20 @@ export default class TestController {
 			encoded,
 			encoded2,
 			meemABI
+		})
+	}
+
+	public static async tablelandTest(req: Request, res: Response) {
+		const result = await services.storage.createTable({
+			chainId: 5,
+			schema: {
+				data: DataTypes.Text
+			}
+		})
+
+		return res.json({
+			result,
+			status: 'success'
 		})
 	}
 }

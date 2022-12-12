@@ -682,7 +682,40 @@ export enum TransactionStatus {
 export enum QueueEvent {
 	CallContract = 'callContract',
 	DeployContract = 'deployContract',
-	DiamondCut = 'diamondCut'
+	DiamondCut = 'diamondCut',
+	CreateTablelandTable = 'createTablelandTable'
+}
+
+export enum StorageDataType {
+	Integer = 'INTEGER',
+	Text = 'TEXT'
+}
+
+export enum StorageType {
+	Tableland = 'tableland'
+}
+
+export interface IExtensionStorageDefinition {
+	tableland?: {
+		tables?: {
+			[tableName: string]: {
+				[columnName: string]: StorageDataType
+			}
+		}
+	}
+}
+
+export interface IAgreementExtensionMetadata extends IMeemMetadataLike {
+	tableland?: {
+		/** The extension table name */
+		[extensionTableName: string]: {
+			/** The tableland table name */
+			tablelandTableName: string
+
+			/** The tableland table id */
+			tableId: string
+		}
+	}
 }
 
 export namespace v1 {
@@ -843,73 +876,6 @@ export namespace Login {
 	export type Response = IResponseBody | IError
 }
 
-
-
-
-export namespace AuthenticateWithDiscord {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		user: { [key: string]: any }
-		accessToken: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetDiscordServers {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {
-		accessToken: string
-	}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		discordServers: IDiscordServer[]
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
 
 
 
@@ -1092,14 +1058,18 @@ export namespace CreateAgreementExtension {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** The slug of the extension to enable */
-		slug: string
+		/** The extension to enable */
+		extensionId: string
+
 		/** Metadata to store for this extension */
 		metadata: IMeemMetadataLike
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
+
+		/** The Transaction ids that must be completed as part of creating the extension. May be empty if no transactions are required. */
+		txIds: string[]
 	}
 
 	export interface IDefinition {
@@ -1630,6 +1600,73 @@ export namespace UpgradeAgreement {
 	export type Response = IResponseBody | IError
 }
 
+
+
+
+export namespace AuthenticateWithDiscord {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		user: { [key: string]: any }
+		accessToken: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetDiscordServers {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		accessToken: string
+	}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		discordServers: IDiscordServer[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
 
 
 

@@ -55,102 +55,7 @@ export default class AgreementExtensionController {
 			})
 
 		if (existingAgreementExtension) {
-			return res.json({
-				status: 'success'
-			})
-		}
-
-		// Integration Verification
-		// Can allow for third-party endpoint requests to verify information and return custom metadata
-		switch (extension.id) {
-			case config.TWITTER_INTEGRATION_ID: {
-				// let twitterUsername = req.body.metadata?.twitterUsername
-				// 	? (req.body.metadata?.twitterUsername as string)
-				// 	: null
-				// twitterUsername = twitterUsername?.replace(/^@/g, '').trim() ?? null
-				// const integrationError = new Error('INTEGRATION_FAILED')
-				// integrationError.message = 'Twitter verification failed.'
-
-				// if (
-				// 	existingAgreementExtension &&
-				// 	existingAgreementExtension.metadata?.isVerified &&
-				// 	(!twitterUsername ||
-				// 		twitterUsername ===
-				// 			existingAgreementExtension.metadata?.twitterUsername)
-				// ) {
-				// 	break
-				// }
-
-				// if (!twitterUsername) {
-				// 	throw integrationError
-				// }
-
-				// metadata.isVerified = false
-
-				// const verifiedTwitter = await services.twitter.verifyAgreementTwitter({
-				// 	twitterUsername,
-				// 	agreement
-				// })
-
-				// if (!verifiedTwitter) {
-				// 	throw integrationError
-				// }
-
-				// metadata.isVerified = true
-				// metadata.twitterUsername = verifiedTwitter.username
-				// metadata.twitterProfileImageUrl =
-				// 	verifiedTwitter.profile_image_url
-				// metadata.twitterDisplayName = verifiedTwitter.name
-				// metadata.twitterUserId = verifiedTwitter.id
-				// metadata.externalUrl = `https://twitter.com/${verifiedTwitter.username}`
-
-				break
-			}
-			case 'guild': {
-				// let twitterUsername = req.body.metadata?.twitterUsername
-				// 	? (req.body.metadata?.twitterUsername as string)
-				// 	: null
-				// twitterUsername = twitterUsername?.replace(/^@/g, '').trim() ?? null
-				// const integrationError = new Error('INTEGRATION_FAILED')
-				// integrationError.message = 'Twitter verification failed.'
-
-				// if (
-				// 	existingAgreementExtension &&
-				// 	existingAgreementExtension.metadata?.isVerified &&
-				// 	(!twitterUsername ||
-				// 		twitterUsername ===
-				// 			existingAgreementExtension.metadata?.twitterUsername)
-				// ) {
-				// 	break
-				// }
-
-				// if (!twitterUsername) {
-				// 	throw integrationError
-				// }
-
-				// metadata.isVerified = false
-
-				// const verifiedTwitter = await services.twitter.verifyAgreementTwitter({
-				// 	twitterUsername,
-				// 	agreement
-				// })
-
-				// if (!verifiedTwitter) {
-				// 	throw integrationError
-				// }
-
-				// metadata.isVerified = true
-				// metadata.twitterUsername = verifiedTwitter.username
-				// metadata.twitterProfileImageUrl =
-				// 	verifiedTwitter.profile_image_url
-				// metadata.twitterDisplayName = verifiedTwitter.name
-				// metadata.twitterUserId = verifiedTwitter.id
-				// metadata.externalUrl = `https://twitter.com/${verifiedTwitter.username}`
-
-				break
-			}
-			default:
-				break
+			throw new Error('EXTENSION_ALREADY_ADDED')
 		}
 
 		try {
@@ -169,15 +74,37 @@ export default class AgreementExtensionController {
 			throw new Error('INVALID_METADATA')
 		}
 
-		await orm.models.AgreementExtension.create({
+		const agreementExtension = await orm.models.AgreementExtension.create({
 			AgreementId: agreement.id,
 			ExtensionId: extension.id,
 			isEnabled: true,
 			metadata
 		})
 
+		const txIds: string[] = []
+
+		if (extension.storageDefinition.tableland?.tables) {
+			const tableNames = Object.keys(
+				extension.storageDefinition.tableland?.tables
+			)
+			for (let i = 0; i < tableNames.length; i++) {
+				const tableName = tableNames[i]
+
+				// Create the tableland table
+				const txId = await services.ethers.queueCreateTablelandTable({
+					chainId: agreement.chainId,
+					tableName,
+					columns: extension.storageDefinition.tableland.tables[tableName],
+					agreementExtensionId: agreementExtension.id
+				})
+
+				txIds.push(txId)
+			}
+		}
+
 		return res.json({
-			status: 'success'
+			status: 'success',
+			txIds
 		})
 	}
 
