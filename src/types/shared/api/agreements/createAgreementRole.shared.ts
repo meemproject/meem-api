@@ -8,6 +8,7 @@ import {
 /** Create an agreement role contract */
 export namespace CreateAgreementRole {
 	export interface IPathParams {
+		/** The id of the agreement */
 		agreementId: string
 	}
 

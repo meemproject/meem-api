@@ -239,27 +239,6 @@
             "description": "The contract symbol. If omitted, will use slug generated from name.",
             "type": "string"
           },
-          "admins": {
-            "description": "Contract admin addresses",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "minters": {
-            "description": "Special minter permissions",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "mintPermissions": {
-            "description": "Minting permissions",
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          },
           "splits": {
             "description": "Splits for minting / transfers",
             "type": "array",
@@ -425,6 +404,38 @@
           }
         }
       },
+      "ReinitializeAgreementRoleRequestBody": {
+        "properties": {
+          "name": {
+            "description": "The name of the contract",
+            "type": "string",
+            "example": "My Agreement"
+          },
+          "metadata": {
+            "description": "The contract metadata `IMeemMetadataLike`",
+            "type": "object"
+          },
+          "maxSupply": {
+            "description": "The max number of tokens",
+            "type": "string"
+          },
+          "symbol": {
+            "description": "The contract symbol. If omitted, will use slug generated from name.",
+            "type": "string"
+          },
+          "splits": {
+            "description": "Splits for minting / transfers",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "isTransferLocked": {
+            "description": "Whether tokens can be transferred",
+            "type": "boolean"
+          }
+        }
+      },
       "SetAgreementSafeAddressRequestBody": {
         "required": [
           "address"
@@ -514,6 +525,14 @@
         }
       },
       "UpgradeAgreementRequestBody": {
+        "properties": {
+          "bundleId": {
+            "description": "Specify the bundle id to upgrade to. Defaults to latest Agreements bundle",
+            "type": "string"
+          }
+        }
+      },
+      "UpgradeAgreementRoleRequestBody": {
         "properties": {
           "bundleId": {
             "description": "Specify the bundle id to upgrade to. Defaults to latest Agreements bundle",
@@ -1067,6 +1086,63 @@
         }
       }
     },
+    "/agreements/{agreementId}/roles/{agreementRoleId}/reinitialize": {
+      "post": {
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "summary": "Reinitialize an agreement role contract.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agreementId",
+            "required": true,
+            "description": "The id of the agreement",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "agreementRoleId",
+            "required": true,
+            "description": "The id of the agreement role to reinitialize",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReinitializeAgreementRoleRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns 'success' if reinitialize agreement transaction is executed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "txId": {
+                      "type": "string",
+                      "description": "The transaction id"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/agreements/{agreementId}/safe": {
       "post": {
         "security": [
@@ -1216,7 +1292,16 @@
             "in": "path",
             "name": "agreementId",
             "required": true,
-            "description": "The ID of the agreement to upgrade",
+            "description": "The id of the agreement",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "agreementRoleId",
+            "required": true,
+            "description": "The id of the agreement role",
             "schema": {
               "type": "string"
             }
@@ -1226,7 +1311,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpgradeAgreementRequestBody"
+                "$ref": "#/components/schemas/UpgradeAgreementRoleRequestBody"
               }
             }
           }

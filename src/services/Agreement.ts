@@ -98,54 +98,67 @@ export default class AgreementService {
 		return !existingSlug
 	}
 
-	public static async updateAgreement(
-		data: MeemAPI.v1.ReInitializeAgreement.IRequestBody & {
+	public static async reinitializeAgreementOrRole(
+		data: (
+			| MeemAPI.v1.ReInitializeAgreement.IRequestBody
+			| MeemAPI.v1.ReInitializeAgreementRole.IRequestBody
+		) & {
 			senderWalletAddress: string
 			agreementId: string
+			agreementRoleId?: string
 		}
 	) {
-		const { senderWalletAddress, agreementId } = data
-		const agreementInstance = await orm.models.Agreement.findOne({
+		const { senderWalletAddress, agreementId, agreementRoleId } = data
+		const agreement = await orm.models.Agreement.findOne({
 			where: {
 				id: agreementId
 			}
 		})
 
-		if (!agreementInstance) {
+		const agreementRole = await orm.models.AgreementRole.findOne({
+			where: {
+				id: agreementRoleId
+			}
+		})
+
+		if (!agreement || (agreementRoleId && !agreementRole)) {
 			throw new Error('AGREEMENT_NOT_FOUND')
 		}
+
+		const agreementOrRole = agreementRole ?? agreement
 
 		const { wallet, contractInitParams, fullMintPermissions } =
 			await this.prepareInitValues({
 				...data,
-				chainId: agreementInstance.chainId,
-				agreementOrRole: agreementInstance
+				chainId: agreementOrRole.chainId,
+				agreementOrRole
 			})
 
-		const agreement = Mycontract__factory.connect(
-			agreementInstance.address,
+		const agreementOrRoleContract = Mycontract__factory.connect(
+			agreementOrRole.address,
 			wallet
 		)
 
-		const isAdmin = await agreementInstance.isAdmin(senderWalletAddress)
+		// Even if reinitializing role, check parent agreement for admin role.
+		const isAdmin = await agreement.isAdmin(senderWalletAddress)
 
 		if (!isAdmin) {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		agreementInstance.mintPermissions = fullMintPermissions
+		agreementOrRole.mintPermissions = fullMintPermissions
 
-		await agreementInstance.save()
+		await agreementOrRole.save()
 
 		log.debug(contractInitParams)
 
 		// TODO: REMOVE const tx = await services.ethers.runTransaction({
-		// 	chainId: agreementInstance.chainId,
+		// 	chainId: agreementOrRole.chainId,
 		// 	fn: agreement.reinitialize.bind(agreement),
 		// 	params: [contractInitParams],
 		// 	gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 		// })
-		const chainId = agreementInstance.chainId
+		const chainId = agreementOrRole.chainId
 
 		const agreementContract = await services.agreement.getAgreementContract({
 			chainId,
@@ -158,7 +171,7 @@ export default class AgreementService {
 				agreementContract.interface.functions[
 					'reinitialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256,bytes32)[],(address,uint256,address)[],bool))'
 				].format(),
-			contractAddress: agreement.address,
+			contractAddress: agreementOrRoleContract.address,
 			inputValues: contractInitParams
 		})
 
@@ -463,7 +476,7 @@ export default class AgreementService {
 			const agreemetOrRoleWalletsQuery = isRoleAgreement
 				? await orm.models.AgreementRoleWallet.findAll({
 						where: {
-							AgreementId: agreementOrRole.id
+							AgreementRoleId: agreementOrRole.id
 						},
 						include: [orm.models.Wallet]
 				  })
