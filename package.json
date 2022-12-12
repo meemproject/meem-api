@@ -91,6 +91,7 @@
 		"string-argv": "^0.3.1",
 		"superagent": "^8.0.0",
 		"supertest": "^6.2.4",
+		"tslib": "^2.4.1",
 		"twitter-api-v2": "^1.12.7",
 		"typechain": "^8.1.0",
 		"umzug": "^2.3.0",
