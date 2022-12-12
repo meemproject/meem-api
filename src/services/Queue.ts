@@ -113,7 +113,7 @@ export default class QueueService {
 									}
 								}
 							}
-						}
+						} as MeemAPI.IAgreementExtensionMetadata
 						agreementExtension.changed('metadata', true)
 
 						await transaction.save({ transaction: t })

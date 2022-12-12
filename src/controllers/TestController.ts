@@ -14,7 +14,6 @@ import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
 import meemABI from '../abis/Meem.json'
 import { Constructor } from '../serverless/cron'
-import { DataTypes } from '../services/Storage'
 import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -429,7 +428,7 @@ export default class TestController {
 		const result = await services.storage.createTable({
 			chainId: 5,
 			schema: {
-				data: DataTypes.Text
+				data: MeemAPI.StorageDataType.Text
 			}
 		})
 

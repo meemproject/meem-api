@@ -80,24 +80,25 @@ export default class AgreementExtensionController {
 
 		const txIds: string[] = []
 
-		if (extension.storageDefinition.tableland?.tables) {
-			const tableNames = Object.keys(
-				extension.storageDefinition.tableland?.tables
-			)
-			for (let i = 0; i < tableNames.length; i++) {
-				const tableName = tableNames[i]
+		// TODO: Finish tableland creation process
+		// if (extension.storageDefinition.tableland?.tables) {
+		// 	const tableNames = Object.keys(
+		// 		extension.storageDefinition.tableland?.tables
+		// 	)
+		// 	for (let i = 0; i < tableNames.length; i++) {
+		// 		const tableName = tableNames[i]
 
-				// Create the tableland table
-				const txId = await services.ethers.queueCreateTablelandTable({
-					chainId: agreement.chainId,
-					tableName,
-					columns: extension.storageDefinition.tableland.tables[tableName],
-					agreementExtensionId: agreementExtension.id
-				})
+		// 		// Create the tableland table
+		// 		const txId = await services.ethers.queueCreateTablelandTable({
+		// 			chainId: agreement.chainId,
+		// 			tableName,
+		// 			columns: extension.storageDefinition.tableland.tables[tableName],
+		// 			agreementExtensionId: agreementExtension.id
+		// 		})
 
-				txIds.push(txId)
-			}
-		}
+		// 		txIds.push(txId)
+		// 	}
+		// }
 
 		const t = await orm.sequelize.transaction()
 
