@@ -19,8 +19,24 @@ export namespace CreateAgreementExtension {
 		/** The extension to enable */
 		extensionId: string
 
-		/** Metadata to store for this extension */
-		metadata: IMeemMetadataLike
+		/** Optional metadata associated with this extension */
+		metadata?: IMeemMetadataLike
+
+		/** Optional external link associated with this extension */
+		externalLink?: {
+			/** Url for the link */
+			url: string
+			/** The link label */
+			label?: string
+		}
+
+		/** Optional widget data associated with this extension */
+		widget?: {
+			/** Whether widget should be enabled */
+			isEnabled: boolean
+			/** Metadata associated with the extension widget */
+			metadata?: IMeemMetadataLike
+		}
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -66,13 +82,36 @@ export namespace CreateAgreementExtension {
 /**
  *  @schema CreateAgreementExtensionRequestBody
  * 	required:
- * 		- slug
- * 		- metadata
+ * 		- extensionId
  *  properties:
- *  	slug:
- *  		description: The slug of the extension to enable
+ *  	extensionId:
+ *  		description: The id of the extension to enable
  *  		type: string
  * 		metadata:
- * 			description: Metadata associated with this extension
+ * 			description: Optional metadata associated with this extension
  * 			type: object
+ * 		externalLink:
+ * 			description: Optional external link associated with this extension
+ * 			type: object
+ * 			required:
+ * 				- url
+ * 			properties:
+ * 				url:
+ * 					description: The URL for the link
+ * 					type: string
+ * 				label:
+ * 					description: The link label
+ * 					type: string
+ * 		widget:
+ * 			description: Optional widget data associated with this extension
+ * 			type: object
+ * 			required:
+ * 				- isEnabled
+ * 			properties:
+ * 				isEnabled:
+ * 					description: Whether widget should be enabled
+ * 					type: boolean
+ * 				metadata:
+ * 					description: Metadata associated with the extension widget
+ * 					type: object
  */

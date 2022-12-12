@@ -104,9 +104,9 @@ export default class QueueService {
 						agreementExtension.metadata = {
 							...agreementExtension.metadata,
 							storage: {
-								...agreementExtension.metadata.storage,
+								...agreementExtension.metadata?.storage,
 								tableland: {
-									...agreementExtension.metadata.storage.tableland,
+									...agreementExtension.metadata?.storage.tableland,
 									[tableName]: {
 										tableId: result.tableId,
 										tablelandTableName: result.name

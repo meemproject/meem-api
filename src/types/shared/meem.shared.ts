@@ -547,7 +547,7 @@ export enum ContractType {
 	DiamondFacet = 'diamondFacet'
 }
 
-export interface IMeemIdentity {
+export interface IMeemUser {
 	id: string
 	displayName: string
 	profilePicUrl: string
@@ -568,7 +568,7 @@ export interface IAgreementRole {
 	name: string
 	isAdminRole: boolean
 	AgreementId: string
-	memberMeemIds: IMeemIdentity[]
+	members: IMeemUser[]
 }
 
 export interface IGuild {

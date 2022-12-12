@@ -1,9 +1,13 @@
 import Agreement from '../models/Agreement'
 import AgreementExtension from '../models/AgreementExtension'
+import AgreementExtensionLink from '../models/AgreementExtensionLink'
+import AgreementExtensionRole from '../models/AgreementExtensionRole'
+import AgreementExtensionWidget from '../models/AgreementExtensionWidget'
 import AgreementRole from '../models/AgreementRole'
 import AgreementRoleExtension from '../models/AgreementRoleExtension'
 import AgreementRoleToken from '../models/AgreementRoleToken'
 import AgreementRoleTokenTransfer from '../models/AgreementRoleTokenTransfer'
+import AgreementRoleWallet from '../models/AgreementRoleWallet'
 import AgreementToken from '../models/AgreementToken'
 import AgreementTokenTransfer from '../models/AgreementTokenTransfer'
 import AgreementWallet from '../models/AgreementWallet'
@@ -41,8 +45,12 @@ export interface IModels {
 	AgreementRole: typeof AgreementRole
 	AgreementRoleToken: typeof AgreementRoleToken
 	AgreementExtension: typeof AgreementExtension
+	AgreementExtensionLink: typeof AgreementExtensionLink
+	AgreementExtensionWidget: typeof AgreementExtensionWidget
+	AgreementExtensionRole: typeof AgreementExtensionRole
 	AgreementRoleExtension: typeof AgreementRoleExtension
 	AgreementWallet: typeof AgreementWallet
+	AgreementRoleWallet: typeof AgreementRoleWallet
 	Transaction: typeof Transaction
 	AgreementTokenTransfer: typeof AgreementTokenTransfer
 	AgreementRoleTokenTransfer: typeof AgreementRoleTokenTransfer

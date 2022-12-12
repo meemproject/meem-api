@@ -58,6 +58,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/safe',
 		AgreementController.setAgreementSafeAddress
 	)
+	router.patchAsync(
+		'/agreements/:agreementId/setAdminRole',
+		AgreementController.setAgreementAdminRole
+	)
 	router.postAsync(
 		'/agreements/:agreementId/bulkMint',
 		AgreementController.bulkMint
@@ -75,7 +79,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 		AgreementExtensionController.createAgreementExtension
 	)
 	router.putAsync(
-		'/agreements/:agreementId/extensions/:slug',
+		'/agreements/:agreementId/extensions/:agreementExtensionId',
 		AgreementExtensionController.updateAgreementExtension
 	)
 	router.getAsync(
@@ -102,6 +106,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync(
 		'/agreements/:agreementId/roles/:agreementRoleId/bulkMint',
 		AgreementRoleController.bulkMint
+	)
+	router.postAsync(
+		'/agreements/:agreementId/roles/:agreementRoleId/upgrade',
+		AgreementController.upgradeAgreement
 	)
 
 	/** EPM Routes */

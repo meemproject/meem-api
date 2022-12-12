@@ -64,7 +64,7 @@ export default class GuildService {
 	// 		]
 	// 	})
 	// 	if (!agreement) {
-	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 		throw new Error('AGREEMENT_NOT_FOUND')
 	// 	}
 	// 	if (agreement.AgreementGuild) {
 	// 		return {
@@ -183,7 +183,7 @@ export default class GuildService {
 	// 		]
 	// 	})
 	// 	if (!agreement || !agreement.AgreementGuild) {
-	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 		throw new Error('AGREEMENT_NOT_FOUND')
 	// 	}
 	// 	const { wallet } = await services.ethers.getProvider({
 	// 		chainId: agreement.chainId
@@ -473,7 +473,7 @@ export default class GuildService {
 	// 		r => r.guildRoleId === guildRoleId
 	// 	)
 	// 	if (!agreement || !agreementRole) {
-	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 		throw new Error('AGREEMENT_NOT_FOUND')
 	// 	}
 	// 	if (
 	// 		_.isUndefined(name) &&
@@ -672,7 +672,7 @@ export default class GuildService {
 	// 		r => r.guildRoleId === guildRoleId
 	// 	)
 	// 	if (!agreement || !agreementRole) {
-	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 		throw new Error('AGREEMENT_NOT_FOUND')
 	// 	}
 	// 	const { wallet } = await services.ethers.getProvider({
 	// 		chainId: agreement.chainId
@@ -712,7 +712,7 @@ export default class GuildService {
 	// 		}
 	// 	})
 	// 	if (!agreement) {
-	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 		throw new Error('AGREEMENT_NOT_FOUND')
 	// 	}
 	// 	const guilds = await orm.models.Guild.findAll({
 	// 		include: [
@@ -736,7 +736,7 @@ export default class GuildService {
 	// 		}
 	// 	})
 	// 	if (!agreement) {
-	// 		throw new Error('MEEM_CONTRACT_NOT_FOUND')
+	// 		throw new Error('AGREEMENT_NOT_FOUND')
 	// 	}
 	// 	const guilds = await orm.models.Guild.findAll({
 	// 		include: [

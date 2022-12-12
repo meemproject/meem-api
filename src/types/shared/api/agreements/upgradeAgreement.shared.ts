@@ -53,7 +53,11 @@ export namespace UpgradeAgreement {
  * 			content:
  * 				application/json:
  * 					schema:
- * 						$ref: '#/components/schemas/DefaultStatusResponseBody'
+ * 						type: object
+ * 						properties:
+ * 							txId:
+ * 								type: string
+ * 								description: The transaction id
  **/
 
 /**

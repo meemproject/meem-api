@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { Op, DataTypes } from 'sequelize'
 import ModelWithAddress from '../core/ModelWithAddress'
 import type { IModels } from '../types/models'
+import AgreementRoleWallet from './AgreementRoleWallet'
 import type AgreementWallet from './AgreementWallet'
 import User from './User'
 
@@ -66,12 +67,17 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 
 	public AgreementWallets!: AgreementWallet[]
 
+	public AgreementRoleWalletId!: string | null
+
+	public AgreementRoleWallets!: AgreementRoleWallet[]
+
 	public UserId!: string | null
 
 	public User!: User
 
 	public static associate(models: IModels) {
 		this.hasMany(models.AgreementWallet)
+		this.hasMany(models.AgreementRoleWallet)
 		this.belongsTo(models.User)
 		// this.hasOne(models.MeemIdentityWallet)
 	}
@@ -79,8 +85,9 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 	public static async findAllBy(options: {
 		addresses?: string[]
 		agreementId?: string
+		agreementRoleId?: string
 	}) {
-		const { addresses, agreementId } = options
+		const { addresses, agreementId, agreementRoleId } = options
 
 		const findAll: Record<string, any> = {}
 
@@ -98,6 +105,18 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 					model: orm.models.AgreementWallet,
 					where: {
 						AgreementId: agreementId
+					}
+				}
+			]
+		}
+
+		if (agreementRoleId) {
+			findAll.include = [
+				{
+					required: false,
+					model: orm.models.AgreementRoleWallet,
+					where: {
+						AgreementRoleId: agreementRoleId
 					}
 				}
 			]

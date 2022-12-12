@@ -1,5 +1,5 @@
 import { diamondABI } from '@meemproject/meem-contracts'
-import { MeemMetadataLike } from '@meemproject/metadata'
+import { MeemMetadataLike, Validator } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 // import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
@@ -22,6 +22,7 @@ import {
 	MeemAdminContractSetEvent
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
+import { IMeemMetadataLike } from '../types/shared/meem.shared'
 
 export default class ContractEvent {
 	// TODO: sync reactions?
@@ -206,27 +207,28 @@ export default class ContractEvent {
 		const instance = new ethers.Contract(address, diamondABI, wallet)
 
 		const [metadata, ownerAddress] = await Promise.all([
-			services.meem.getErc721Metadata(contractInfo.contractURI as string),
+			services.meem.getErc721Metadata(
+				contractInfo.contractURI as string
+			) as unknown as IMeemMetadataLike,
 			instance.owner()
 		])
 
-		// TODO: Fix validation
-		// if (metadata.meem_contract_type) {
-		// 	// Don't index contract if not a valid meem_contract_type
-		// 	const contractMetadataValidator = new Validator(metadata)
-		// 	const contractMetadataValidatorResult =
-		// 		contractMetadataValidator.validate(metadata)
+		if (metadata.meem_metadata_type) {
+			// Don't index contract if not a valid meem_contract_type
+			const contractMetadataValidator = new Validator(metadata)
+			const contractMetadataValidatorResult =
+				contractMetadataValidator.validate(metadata)
 
-		// 	if (!contractMetadataValidatorResult.valid) {
-		// 		log.crit(
-		// 			contractMetadataValidatorResult.errors.map((e: any) => e.message)
-		// 		)
-		// 		return null
-		// 	}
-		// } else {
-		// 	log.crit('Invalid metadata.')
-		// 	return null
-		// }
+			if (!contractMetadataValidatorResult.valid) {
+				log.crit(
+					contractMetadataValidatorResult.errors.map((e: any) => e.message)
+				)
+				return null
+			}
+		} else {
+			log.crit('Invalid metadata.')
+			return null
+		}
 
 		const isRoleAgreement =
 			metadata.meem_metadata_type === 'Meem_AgreementRoleContract'
@@ -245,12 +247,24 @@ export default class ContractEvent {
 					}
 			  })
 
+		let roleParentAgreementId
+
+		if (isRoleAgreement && metadata.meem_agreement_address) {
+			const agreement = await orm.models.Agreement.findOne({
+				where: {
+					address: metadata.meem_agreement_address
+				}
+			})
+			roleParentAgreementId = agreement?.id
+		}
+
 		let slug = existingAgreementOrRole?.slug ?? uuidv4()
 
 		if (!existingAgreementOrRole || !slug) {
 			try {
 				slug = await services.agreement.generateSlug({
 					baseSlug: contractInfo.name as string,
+					agreementId: roleParentAgreementId,
 					chainId
 				})
 			} catch (e) {
@@ -319,9 +333,10 @@ export default class ContractEvent {
 
 		if (!existingAgreementOrRole) {
 			if (isRoleAgreement) {
-				agreementOrRole = await orm.models.AgreementRole.create(
-					agreementOrRoleData
-				)
+				agreementOrRole = await orm.models.AgreementRole.create({
+					...agreementOrRoleData,
+					AgreementId: roleParentAgreementId ?? null
+				})
 			} else {
 				agreementOrRole = await orm.models.Agreement.create(agreementOrRoleData)
 			}
@@ -341,107 +356,155 @@ export default class ContractEvent {
 			log.error('getRoles function not available')
 		}
 
-		// TODO: How are we handling AgreementRole admins?
-		if (!isRoleAgreement) {
-			const [adminWallets, currentAdminsToRemove] = await Promise.all([
-				orm.models.Wallet.findAllBy({
-					addresses: admins,
-					agreementId: agreementOrRole.id
-				}),
-				orm.models.AgreementWallet.findAll({
-					where: {
-						role: adminRole
-					},
-					include: [
-						{
-							model: orm.models.Agreement,
-							where: orm.sequelize.where(
-								orm.sequelize.fn(
-									'lower',
-									orm.sequelize.col('Agreement.address')
-								),
-								agreementOrRole.address.toLowerCase()
-							)
-						},
-						{
-							model: orm.models.Wallet,
-							where: orm.sequelize.where(
-								orm.sequelize.fn('lower', orm.sequelize.col('Wallet.address')),
-								{ [Op.notIn]: admins.map(w => w.toLowerCase()) }
-							)
-						}
-					]
-				})
-			])
-
-			const walletsData: {
-				id: string
-				address: string
-				isDefault: boolean
-			}[] = []
-
-			const walletContractsData: {
-				AgreementId: string
-				WalletId: string
-				role: string
-			}[] = []
-
-			admins.forEach(adminAddress => {
-				const adminWallet = adminWallets.find(
-					aw => aw.address.toLowerCase() === adminAddress.toLowerCase()
-				)
-
-				const agreementWallet =
-					adminWallet?.AgreementWallets && adminWallet?.AgreementWallets[0]
-
-				if (!adminWallet) {
-					// Create the wallet
-					const walletId = uuidv4()
-					walletsData.push({
-						id: walletId,
-						address: adminAddress.toLowerCase(),
-						isDefault: true
-					})
-
-					walletContractsData.push({
-						AgreementId: agreementOrRole.id,
-						WalletId: walletId,
-						role: adminRole
-					})
-				} else if (adminWallet && !agreementWallet) {
-					// Create the association
-					walletContractsData.push({
-						AgreementId: agreementOrRole.id,
-						WalletId: adminWallet.id,
-						role: adminRole
-					})
-				}
-			})
-
-			log.debug(`Syncing Agreement data: ${agreementOrRole.address}`)
-
-			const promises: Promise<any>[] = []
-			if (currentAdminsToRemove.length > 0) {
-				promises.push(
-					orm.models.AgreementWallet.destroy({
+		const [adminWallets, currentAdminsToRemove] = await Promise.all([
+			orm.models.Wallet.findAllBy({
+				addresses: admins,
+				...(isRoleAgreement
+					? { agreementRoleId: agreementOrRole.id }
+					: { agreementId: agreementOrRole.id })
+			}),
+			isRoleAgreement
+				? orm.models.AgreementRoleWallet.findAll({
 						where: {
-							id: currentAdminsToRemove.map(a => a.id)
+							role: adminRole
 						},
-						transaction: t
-					})
-				)
-			}
-			if (walletsData.length > 0) {
-				promises.push(
-					orm.models.Wallet.bulkCreate(walletsData, {
-						transaction: t
-					})
-				)
-			}
+						include: [
+							{
+								model: orm.models.AgreementRole,
+								where: orm.sequelize.where(
+									orm.sequelize.fn(
+										'lower',
+										orm.sequelize.col('AgreementRole.address')
+									),
+									agreementOrRole.address.toLowerCase()
+								)
+							},
+							{
+								model: orm.models.Wallet,
+								where: orm.sequelize.where(
+									orm.sequelize.fn(
+										'lower',
+										orm.sequelize.col('Wallet.address')
+									),
+									{ [Op.notIn]: admins.map(w => w.toLowerCase()) }
+								)
+							}
+						]
+				  })
+				: orm.models.AgreementWallet.findAll({
+						where: {
+							role: adminRole
+						},
+						include: [
+							{
+								model: orm.models.Agreement,
+								where: orm.sequelize.where(
+									orm.sequelize.fn(
+										'lower',
+										orm.sequelize.col('Agreement.address')
+									),
+									agreementOrRole.address.toLowerCase()
+								)
+							},
+							{
+								model: orm.models.Wallet,
+								where: orm.sequelize.where(
+									orm.sequelize.fn(
+										'lower',
+										orm.sequelize.col('Wallet.address')
+									),
+									{ [Op.notIn]: admins.map(w => w.toLowerCase()) }
+								)
+							}
+						]
+				  })
+		])
 
-			await Promise.all(promises)
+		const walletsData: {
+			id: string
+			address: string
+			isDefault: boolean
+		}[] = []
 
-			if (walletContractsData.length > 0) {
+		const walletContractsData: {
+			AgreementId?: string
+			AgreementRoleId?: string
+			WalletId: string
+			role: string
+		}[] = []
+
+		admins.forEach(adminAddress => {
+			const adminWallet = adminWallets.find(
+				aw => aw.address.toLowerCase() === adminAddress.toLowerCase()
+			)
+
+			const agreementWallet =
+				adminWallet?.AgreementWallets && adminWallet?.AgreementWallets[0]
+
+			if (!adminWallet) {
+				// Create the wallet
+				const walletId = uuidv4()
+				walletsData.push({
+					id: walletId,
+					address: adminAddress.toLowerCase(),
+					isDefault: true
+				})
+
+				walletContractsData.push({
+					...(isRoleAgreement
+						? { AgreementRoleId: agreementOrRole.id }
+						: { AgreementId: agreementOrRole.id }),
+					WalletId: walletId,
+					role: adminRole
+				})
+			} else if (adminWallet && !agreementWallet) {
+				// Create the association
+				walletContractsData.push({
+					...(isRoleAgreement
+						? { AgreementRoleId: agreementOrRole.id }
+						: { AgreementId: agreementOrRole.id }),
+					WalletId: adminWallet.id,
+					role: adminRole
+				})
+			}
+		})
+
+		log.debug(`Syncing Agreement data: ${agreementOrRole.address}`)
+
+		const promises: Promise<any>[] = []
+		if (currentAdminsToRemove.length > 0) {
+			promises.push(
+				isRoleAgreement
+					? orm.models.AgreementRoleWallet.destroy({
+							where: {
+								id: currentAdminsToRemove.map(a => a.id)
+							},
+							transaction: t
+					  })
+					: orm.models.AgreementWallet.destroy({
+							where: {
+								id: currentAdminsToRemove.map(a => a.id)
+							},
+							transaction: t
+					  })
+			)
+		}
+		if (walletsData.length > 0) {
+			promises.push(
+				orm.models.Wallet.bulkCreate(walletsData, {
+					transaction: t
+				})
+			)
+		}
+
+		await Promise.all(promises)
+
+		if (walletContractsData.length > 0) {
+			if (isRoleAgreement) {
+				await orm.models.AgreementRoleWallet.bulkCreate(walletContractsData, {
+					transaction: t
+				})
+			} else {
 				await orm.models.AgreementWallet.bulkCreate(walletContractsData, {
 					transaction: t
 				})
@@ -514,7 +577,47 @@ export default class ContractEvent {
 		}
 
 		agreement.adminContractAddress = eventData.adminContract
+
 		await agreement.save()
+
+		let newAdminAgreementRole = await orm.models.AgreementRole.findOne({
+			where: {
+				address: eventData.adminContract
+			}
+		})
+
+		const existingAdminAgreementRole = await orm.models.AgreementRole.findOne({
+			where: {
+				AgreementId: agreement.id,
+				isAdminRole: true
+			}
+		})
+
+		if (!newAdminAgreementRole) {
+			newAdminAgreementRole = (await this.meemHandleContractInitialized({
+				address,
+				chainId
+			})) as AgreementRole
+		}
+
+		if (!newAdminAgreementRole) {
+			log.crit('Unable to find or create AgreementRole')
+			return
+		}
+
+		const t = await orm.sequelize.transaction()
+		const promises: Promise<any>[] = []
+
+		newAdminAgreementRole.isAdminRole = true
+		promises.push(newAdminAgreementRole.save({ transaction: t }))
+
+		if (existingAdminAgreementRole) {
+			existingAdminAgreementRole.isAdminRole = false
+			promises.push(existingAdminAgreementRole.save({ transaction: t }))
+		}
+
+		await Promise.all(promises)
+		await t.commit()
 	}
 
 	// public static async meemHandlePropertiesSet(args: {
@@ -985,7 +1088,7 @@ export default class ContractEvent {
 				chainId
 			})) as Agreement
 			if (!agreementData) {
-				throw new Error('MEEM_CONTRACT_NOT_FOUND')
+				throw new Error('AGREEMENT_NOT_FOUND')
 			}
 		}
 

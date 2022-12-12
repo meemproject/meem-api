@@ -1,5 +1,5 @@
-import { Validator } from '@meemproject/metadata'
 import { Response } from 'express'
+import _ from 'lodash'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 export default class AgreementExtensionController {
@@ -11,10 +11,10 @@ export default class AgreementExtensionController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { slug, metadata } = req.body
+		const { extensionId, metadata, externalLink, widget } = req.body
 
-		if (!slug || !metadata) {
-			throw new Error('INVALID_PARAMETERS')
+		if (!extensionId) {
+			throw new Error('MISSING_PARAMETERS')
 		}
 
 		const agreement = await orm.models.Agreement.findOne({
@@ -24,13 +24,10 @@ export default class AgreementExtensionController {
 		})
 
 		if (!agreement) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
-		const isAdmin = await services.agreement.isAgreementAdmin({
-			agreementId: agreement.id,
-			walletAddress: req.wallet.address
-		})
+		const isAdmin = await agreement.isAdmin(req.wallet.address)
 
 		if (!isAdmin) {
 			throw new Error('NOT_AUTHORIZED')
@@ -38,7 +35,7 @@ export default class AgreementExtensionController {
 
 		const extension = await orm.models.Extension.findOne({
 			where: {
-				slug
+				id: extensionId
 			}
 		})
 
@@ -58,26 +55,26 @@ export default class AgreementExtensionController {
 			throw new Error('EXTENSION_ALREADY_ADDED')
 		}
 
-		try {
-			const metadataValidator = new Validator({
-				meem_metadata_type: 'Meem_AgreementExtension',
-				meem_metadata_version: metadata.meem_metadata_version
-			})
-			const metadataValidatorResult = metadataValidator.validate(metadata)
+		// TODO: Validate widget/role/custom extension metadata?
+		// try {
+		// 	const metadataValidator = new Validator({
+		// 		meem_metadata_type: 'Meem_AgreementExtension',
+		// 		meem_metadata_version: metadata.meem_metadata_version
+		// 	})
+		// 	const metadataValidatorResult = metadataValidator.validate(metadata)
 
-			if (!metadataValidatorResult.valid) {
-				log.crit(metadataValidatorResult.errors.map((e: any) => e.message))
-				throw new Error('INVALID_METADATA')
-			}
-		} catch (e) {
-			log.crit(e)
-			throw new Error('INVALID_METADATA')
-		}
+		// 	if (!metadataValidatorResult.valid) {
+		// 		log.crit(metadataValidatorResult.errors.map((e: any) => e.message))
+		// 		throw new Error('INVALID_METADATA')
+		// 	}
+		// } catch (e) {
+		// 	log.crit(e)
+		// 	throw new Error('INVALID_METADATA')
+		// }
 
 		const agreementExtension = await orm.models.AgreementExtension.create({
 			AgreementId: agreement.id,
 			ExtensionId: extension.id,
-			isEnabled: true,
 			metadata
 		})
 
@@ -102,6 +99,43 @@ export default class AgreementExtensionController {
 			}
 		}
 
+		const t = await orm.sequelize.transaction()
+
+		const promises: Promise<any>[] = []
+
+		if (externalLink) {
+			promises.push(
+				orm.models.AgreementExtensionLink.create(
+					{
+						AgreementExtensionId: agreementExtension.id,
+						url: externalLink.url,
+						label: externalLink.label
+					},
+					{
+						transaction: t
+					}
+				)
+			)
+		}
+
+		if (widget) {
+			promises.push(
+				orm.models.AgreementExtensionWidget.create(
+					{
+						AgreementExtensionId: agreementExtension.id,
+						isEnabled: widget.isEnabled,
+						metadata: widget.metadata
+					},
+					{
+						transaction: t
+					}
+				)
+			)
+		}
+
+		await Promise.all(promises)
+		await t.commit()
+
 		return res.json({
 			status: 'success',
 			txIds
@@ -116,10 +150,10 @@ export default class AgreementExtensionController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { agreementId, slug } = req.params
-		const { metadata } = req.body
+		const { agreementId, agreementExtensionId } = req.params
+		const { metadata, externalLink, widget } = req.body
 
-		if (!agreementId || !slug || !metadata) {
+		if (!agreementId || !agreementExtensionId) {
 			throw new Error('INVALID_PARAMETERS')
 		}
 
@@ -130,58 +164,115 @@ export default class AgreementExtensionController {
 		})
 
 		if (!agreement) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
-		const isAdmin = await services.agreement.isAgreementAdmin({
-			agreementId: agreement.id,
-			walletAddress: req.wallet.address
-		})
+		const isAdmin = await agreement.isAdmin(req.wallet.address)
 
 		if (!isAdmin) {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		const extension = await orm.models.Extension.findOne({
-			where: {
-				slug
-			}
-		})
-
-		if (!extension) {
-			throw new Error('EXTENSION_NOT_FOUND')
-		}
-
 		const agreementExtension = await orm.models.AgreementExtension.findOne({
 			where: {
-				AgreementId: agreement.id,
-				ExtensionId: extension.id
-			}
+				id: agreementExtensionId
+			},
+			include: [
+				{
+					model: orm.models.AgreementExtensionLink
+				},
+				{
+					model: orm.models.AgreementExtensionWidget
+				}
+			]
 		})
 
 		if (!agreementExtension) {
 			throw new Error('EXTENSION_NOT_FOUND')
 		}
 
-		try {
-			const metadataValidator = new Validator({
-				meem_metadata_type: 'Meem_AgreementExtension',
-				meem_metadata_version: metadata.meem_metadata_version
-			})
-			const metadataValidatorResult = metadataValidator.validate(metadata)
+		// TODO: Validate extension metadata?
+		// try {
+		// 	const metadataValidator = new Validator({
+		// 		meem_metadata_type: 'Meem_AgreementExtension',
+		// 		meem_metadata_version: metadata.meem_metadata_version
+		// 	})
+		// 	const metadataValidatorResult = metadataValidator.validate(metadata)
 
-			if (!metadataValidatorResult.valid) {
-				log.crit(metadataValidatorResult.errors.map((e: any) => e.message))
-				throw new Error('INVALID_METADATA')
-			}
-		} catch (e) {
-			log.crit(e)
-			throw new Error('INVALID_METADATA')
+		// 	if (!metadataValidatorResult.valid) {
+		// 		log.crit(metadataValidatorResult.errors.map((e: any) => e.message))
+		// 		throw new Error('INVALID_METADATA')
+		// 	}
+		// } catch (e) {
+		// 	log.crit(e)
+		// 	throw new Error('INVALID_METADATA')
+		// }
+
+		const t = await orm.sequelize.transaction()
+
+		const promises: Promise<any>[] = []
+
+		if (metadata) {
+			agreementExtension.metadata = metadata
+			promises.push(agreementExtension.save({ transaction: t }))
 		}
 
-		agreementExtension.metadata = metadata
+		if (externalLink) {
+			if (agreementExtension.AgreementExtensionLink) {
+				agreementExtension.AgreementExtensionLink.label =
+					externalLink.label ?? agreementExtension.AgreementExtensionLink.label
+				agreementExtension.AgreementExtensionLink.url =
+					externalLink.url ?? agreementExtension.AgreementExtensionLink.url
+				promises.push(
+					agreementExtension.AgreementExtensionLink.save({ transaction: t })
+				)
+			} else {
+				promises.push(
+					orm.models.AgreementExtensionLink.create(
+						{
+							AgreementExtensionId: agreementExtension.id,
+							url: externalLink.url,
+							label: externalLink.label
+						},
+						{
+							transaction: t
+						}
+					)
+				)
+			}
+		}
 
-		await agreementExtension.save()
+		if (widget) {
+			if (agreementExtension.AgreementExtensionWidget) {
+				agreementExtension.AgreementExtensionWidget.isEnabled = !_.isUndefined(
+					widget.isEnabled
+				)
+					? widget.isEnabled
+					: agreementExtension.AgreementExtensionWidget.isEnabled
+				agreementExtension.AgreementExtensionWidget.metadata =
+					widget.metadata ??
+					agreementExtension.AgreementExtensionWidget.metadata
+				promises.push(
+					agreementExtension.AgreementExtensionWidget.save({ transaction: t })
+				)
+			} else {
+				promises.push(
+					orm.models.AgreementExtensionWidget.create(
+						{
+							AgreementExtensionId: agreementExtension.id,
+							isEnabled: widget.isEnabled,
+							metadata: widget.metadata
+						},
+						{
+							transaction: t
+						}
+					)
+				)
+			}
+		}
+
+		await Promise.all(promises)
+		await t.commit()
 
 		return res.json({
 			status: 'success'
