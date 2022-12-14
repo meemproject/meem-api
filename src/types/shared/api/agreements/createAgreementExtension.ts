@@ -1,5 +1,8 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
-import { IMeemMetadataLike } from '../../meem.shared'
+import {
+	IAgreementExtensionVisibility,
+	IMeemMetadataLike
+} from '../../meem.shared'
 
 /** Create an agreement extension */
 export namespace CreateAgreementExtension {
@@ -28,14 +31,16 @@ export namespace CreateAgreementExtension {
 			url: string
 			/** The link label */
 			label?: string
+			/** Visibility of the link extension */
+			visibility?: IAgreementExtensionVisibility
 		}
 
 		/** Optional widget data associated with this extension */
 		widget?: {
-			/** Whether widget should be enabled */
-			isEnabled: boolean
 			/** Metadata associated with the extension widget */
 			metadata?: IMeemMetadataLike
+			/** Visibility of the widget extension */
+			visibility?: IAgreementExtensionVisibility
 		}
 	}
 
@@ -102,16 +107,27 @@ export namespace CreateAgreementExtension {
  * 				label:
  * 					description: The link label
  * 					type: string
+ * 				visibility:
+ * 					description: Set the visibility type of the user identity integration
+ * 					type: string
+ * 					default: token-holders
+ * 					enum:
+ * 						- just-me
+ * 						- token-holders
+ * 						- anyone
  * 		widget:
  * 			description: Optional widget data associated with this extension
  * 			type: object
- * 			required:
- * 				- isEnabled
  * 			properties:
- * 				isEnabled:
- * 					description: Whether widget should be enabled
- * 					type: boolean
  * 				metadata:
  * 					description: Metadata associated with the extension widget
  * 					type: object
+ * 				visibility:
+ * 					description: Set the visibility type of the user identity integration
+ * 					type: string
+ * 					default: token-holders
+ * 					enum:
+ * 						- just-me
+ * 						- token-holders
+ * 						- anyone
  */

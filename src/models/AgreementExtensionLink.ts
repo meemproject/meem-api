@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
+import { IAgreementExtensionVisibility } from '../types/shared/meem.shared'
 import Agreement from './Agreement'
 export default class AgreementExtensionLink extends BaseModel<AgreementExtensionLink> {
 	public static readonly modelName = 'AgreementExtensionLink'
@@ -25,7 +26,7 @@ export default class AgreementExtensionLink extends BaseModel<AgreementExtension
 		isEnabled: {
 			type: DataTypes.BOOLEAN,
 			allowNull: false,
-			defaultValue: false
+			defaultValue: true
 		},
 		url: {
 			type: DataTypes.STRING,
@@ -35,6 +36,11 @@ export default class AgreementExtensionLink extends BaseModel<AgreementExtension
 		label: {
 			type: DataTypes.STRING,
 			allowNull: true
+		},
+		visibility: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: 'token-holders'
 		}
 	}
 
@@ -45,6 +51,8 @@ export default class AgreementExtensionLink extends BaseModel<AgreementExtension
 	public url!: string
 
 	public label!: string | null
+
+	public visibility!: IAgreementExtensionVisibility
 
 	public AgreementExtensionId!: string
 
