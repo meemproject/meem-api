@@ -1,7 +1,10 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import { IAgreementExtensionVisibility } from '../types/shared/meem.shared'
+import {
+	IAgreementExtensionMetadata,
+	IAgreementExtensionVisibility
+} from '../types/shared/meem.shared'
 import Agreement from './Agreement'
 export default class AgreementExtensionLink extends BaseModel<AgreementExtensionLink> {
 	public static readonly modelName = 'AgreementExtensionLink'
@@ -37,6 +40,9 @@ export default class AgreementExtensionLink extends BaseModel<AgreementExtension
 			type: DataTypes.STRING,
 			allowNull: true
 		},
+		metadata: {
+			type: DataTypes.JSONB
+		},
 		visibility: {
 			type: DataTypes.STRING,
 			allowNull: false,
@@ -51,6 +57,8 @@ export default class AgreementExtensionLink extends BaseModel<AgreementExtension
 	public url!: string
 
 	public label!: string | null
+
+	public metadata!: { [key: string]: any } | null
 
 	public visibility!: IAgreementExtensionVisibility
 

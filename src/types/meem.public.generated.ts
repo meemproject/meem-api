@@ -1512,6 +1512,7 @@ export namespace ReInitializeAgreementRole {
 /** Set the agreement admin role */
 export namespace SetAgreementAdminRole {
 	export interface IPathParams {
+		/** The id of the agreement */
 		agreementId: string
 	}
 
