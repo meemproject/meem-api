@@ -428,6 +428,14 @@ export interface IAgreementRoleExtensionMetadata {
 	[key: string]: any
 }
 
+export enum IAgreementExtensionVisibility {
+	/** Anyone can view the integration */
+	Anyone = 'anyone',
+
+	/** Users that are token-holders of the same agreement */
+	TokenHolders = 'token-holders'
+}
+
 export interface INFT {
 	/** The address of the contract of the NFT */
 	tokenAddress: string
@@ -492,8 +500,8 @@ export enum IntegrationVisibility {
 	/** Anyone can view the integration */
 	Anyone = 'anyone',
 
-	/** Users that are members of the same agreement */
-	MutualClubMembers = 'mutual-agreement-members',
+	/** Users that are token-holders of the same agreement */
+	TokenHolders = 'token-holders',
 
 	/** Private. Only the current user can view */
 	JustMe = 'just-me'

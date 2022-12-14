@@ -81,11 +81,11 @@
       },
       "CreateAgreementExtensionRequestBody": {
         "required": [
-          "slug"
+          "extensionId"
         ],
         "properties": {
-          "slug": {
-            "description": "The slug of the extension to enable",
+          "extensionId": {
+            "description": "The id of the extension to enable",
             "type": "string"
           },
           "metadata": {
@@ -106,23 +106,36 @@
               "label": {
                 "description": "The link label",
                 "type": "string"
+              },
+              "visibility": {
+                "description": "Set the visibility type of the user identity integration",
+                "type": "string",
+                "default": "token-holders",
+                "enum": [
+                  "just-me",
+                  "token-holders",
+                  "anyone"
+                ]
               }
             }
           },
           "widget": {
             "description": "Optional widget data associated with this extension",
             "type": "object",
-            "required": [
-              "isEnabled"
-            ],
             "properties": {
-              "isEnabled": {
-                "description": "Whether widget should be enabled",
-                "type": "boolean"
-              },
               "metadata": {
                 "description": "Metadata associated with the extension widget",
                 "type": "object"
+              },
+              "visibility": {
+                "description": "Set the visibility type of the user identity integration",
+                "type": "string",
+                "default": "token-holders",
+                "enum": [
+                  "just-me",
+                  "token-holders",
+                  "anyone"
+                ]
               }
             }
           }
@@ -484,23 +497,44 @@
               "label": {
                 "description": "The link label",
                 "type": "string"
+              },
+              "isEnabled": {
+                "description": "Whether link should be enabled",
+                "type": "boolean"
+              },
+              "visibility": {
+                "description": "Set the visibility type of the extension link",
+                "type": "string",
+                "default": "token-holders",
+                "enum": [
+                  "just-me",
+                  "token-holders",
+                  "anyone"
+                ]
               }
             }
           },
           "widget": {
             "description": "Optional widget data associated with this extension",
             "type": "object",
-            "required": [
-              "isEnabled"
-            ],
             "properties": {
+              "metadata": {
+                "description": "Metadata associated with the extension widget",
+                "type": "object"
+              },
               "isEnabled": {
                 "description": "Whether widget should be enabled",
                 "type": "boolean"
               },
-              "metadata": {
-                "description": "Metadata associated with the extension widget",
-                "type": "object"
+              "visibility": {
+                "description": "Set the visibility type of the extension widget",
+                "type": "string",
+                "default": "token-holders",
+                "enum": [
+                  "just-me",
+                  "token-holders",
+                  "anyone"
+                ]
               }
             }
           }
@@ -511,10 +545,10 @@
           "visibility": {
             "description": "Set the visibility type of the user identity integration",
             "type": "string",
-            "default": "mutual-agreement-members",
+            "default": "token-holders",
             "enum": [
               "just-me",
-              "mutual-agreement-members",
+              "token-holders",
               "anyone"
             ]
           },

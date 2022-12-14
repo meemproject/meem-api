@@ -110,7 +110,8 @@ export default class AgreementExtensionController {
 					{
 						AgreementExtensionId: agreementExtension.id,
 						url: externalLink.url,
-						label: externalLink.label
+						label: externalLink.label,
+						visibility: externalLink.visibility
 					},
 					{
 						transaction: t
@@ -124,8 +125,8 @@ export default class AgreementExtensionController {
 				orm.models.AgreementExtensionWidget.create(
 					{
 						AgreementExtensionId: agreementExtension.id,
-						isEnabled: widget.isEnabled,
-						metadata: widget.metadata
+						metadata: widget.metadata,
+						visibility: widget.visibility
 					},
 					{
 						transaction: t
@@ -220,10 +221,18 @@ export default class AgreementExtensionController {
 
 		if (externalLink) {
 			if (agreementExtension.AgreementExtensionLink) {
+				agreementExtension.AgreementExtensionLink.isEnabled = !_.isUndefined(
+					externalLink.isEnabled
+				)
+					? externalLink.isEnabled
+					: agreementExtension.AgreementExtensionLink.isEnabled
 				agreementExtension.AgreementExtensionLink.label =
 					externalLink.label ?? agreementExtension.AgreementExtensionLink.label
 				agreementExtension.AgreementExtensionLink.url =
 					externalLink.url ?? agreementExtension.AgreementExtensionLink.url
+				agreementExtension.AgreementExtensionLink.visibility =
+					externalLink.visibility ??
+					agreementExtension.AgreementExtensionLink.visibility
 				promises.push(
 					agreementExtension.AgreementExtensionLink.save({ transaction: t })
 				)

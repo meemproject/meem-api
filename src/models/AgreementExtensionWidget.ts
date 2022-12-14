@@ -1,7 +1,10 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import { IMeemMetadataLike } from '../types/shared/meem.shared'
+import {
+	IAgreementExtensionVisibility,
+	IMeemMetadataLike
+} from '../types/shared/meem.shared'
 import Agreement from './Agreement'
 export default class AgreementExtensionWidget extends BaseModel<AgreementExtensionWidget> {
 	public static readonly modelName = 'AgreementExtensionWidget'
@@ -26,11 +29,16 @@ export default class AgreementExtensionWidget extends BaseModel<AgreementExtensi
 		isEnabled: {
 			type: DataTypes.BOOLEAN,
 			allowNull: false,
-			defaultValue: false
+			defaultValue: true
 		},
 		metadata: {
 			type: DataTypes.JSONB,
 			allowNull: true
+		},
+		visibility: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: 'token-holders'
 		}
 	}
 
@@ -39,6 +47,8 @@ export default class AgreementExtensionWidget extends BaseModel<AgreementExtensi
 	public isEnabled!: boolean
 
 	public metadata!: IMeemMetadataLike | null
+
+	public visibility!: IAgreementExtensionVisibility
 
 	public AgreementExtensionId!: string
 
