@@ -483,6 +483,14 @@ export interface IAgreementRoleExtensionMetadata {
 	[key: string]: any
 }
 
+export enum IAgreementExtensionVisibility {
+	/** Anyone can view the integration */
+	Anyone = 'anyone',
+
+	/** Users that are token-holders of the same agreement */
+	TokenHolders = 'token-holders'
+}
+
 export interface INFT {
 	/** The address of the contract of the NFT */
 	tokenAddress: string
@@ -547,8 +555,8 @@ export enum IntegrationVisibility {
 	/** Anyone can view the integration */
 	Anyone = 'anyone',
 
-	/** Users that are members of the same agreement */
-	MutualClubMembers = 'mutual-agreement-members',
+	/** Users that are token-holders of the same agreement */
+	TokenHolders = 'token-holders',
 
 	/** Private. Only the current user can view */
 	JustMe = 'just-me'
@@ -1035,13 +1043,15 @@ export namespace CreateAgreementExtension {
 			url: string
 			/** The link label */
 			label?: string
+			/** Visibility of the link extension */
+			visibility?: IAgreementExtensionVisibility
 		}
 		/** Optional widget data associated with this extension */
 		widget?: {
-			/** Whether widget should be enabled */
-			isEnabled: boolean
 			/** Metadata associated with the extension widget */
 			metadata?: IMeemMetadataLike
+			/** Visibility of the widget extension */
+			visibility?: IAgreementExtensionVisibility
 		}
 	}
 
@@ -1065,6 +1075,7 @@ export namespace CreateAgreementExtension {
 /** Create an agreement role contract */
 export namespace CreateAgreementRole {
 	export interface IPathParams {
+		/** The id of the agreement */
 		agreementId: string
 	}
 
@@ -1557,13 +1568,19 @@ export namespace UpdateAgreementExtension {
 			url: string
 			/** The link label */
 			label?: string
+			/** Whether link should be enabled */
+			isEnabled?: boolean
+			/** Visibility of the extension link */
+			visibility?: IAgreementExtensionVisibility
 		}
 		/** Optional widget data associated with this extension */
 		widget?: {
-			/** Whether widget should be enabled */
-			isEnabled: boolean
 			/** Metadata associated with the extension widget */
 			metadata?: IMeemMetadataLike
+			/** Whether widget should be enabled */
+			isEnabled?: boolean
+			/** Visibility of the extension widget */
+			visibility?: IAgreementExtensionVisibility
 		}
 	}
 

@@ -483,6 +483,14 @@ export interface IAgreementRoleExtensionMetadata {
 	[key: string]: any
 }
 
+export enum IAgreementExtensionVisibility {
+	/** Anyone can view the integration */
+	Anyone = 'anyone',
+
+	/** Users that are token-holders of the same agreement */
+	TokenHolders = 'token-holders'
+}
+
 export interface INFT {
 	/** The address of the contract of the NFT */
 	tokenAddress: string
@@ -547,8 +555,8 @@ export enum IntegrationVisibility {
 	/** Anyone can view the integration */
 	Anyone = 'anyone',
 
-	/** Users that are members of the same agreement */
-	MutualClubMembers = 'mutual-agreement-members',
+	/** Users that are token-holders of the same agreement */
+	TokenHolders = 'token-holders',
 
 	/** Private. Only the current user can view */
 	JustMe = 'just-me'
@@ -1037,13 +1045,15 @@ export namespace CreateAgreementExtension {
 			url: string
 			/** The link label */
 			label?: string
+			/** Visibility of the link extension */
+			visibility?: IAgreementExtensionVisibility
 		}
 		/** Optional widget data associated with this extension */
 		widget?: {
-			/** Whether widget should be enabled */
-			isEnabled: boolean
 			/** Metadata associated with the extension widget */
 			metadata?: IMeemMetadataLike
+			/** Visibility of the widget extension */
+			visibility?: IAgreementExtensionVisibility
 		}
 	}
 
@@ -1067,6 +1077,7 @@ export namespace CreateAgreementExtension {
 /** Create an agreement role contract */
 export namespace CreateAgreementRole {
 	export interface IPathParams {
+		/** The id of the agreement */
 		agreementId: string
 	}
 
@@ -1559,13 +1570,19 @@ export namespace UpdateAgreementExtension {
 			url: string
 			/** The link label */
 			label?: string
+			/** Whether link should be enabled */
+			isEnabled?: boolean
+			/** Visibility of the extension link */
+			visibility?: IAgreementExtensionVisibility
 		}
 		/** Optional widget data associated with this extension */
 		widget?: {
-			/** Whether widget should be enabled */
-			isEnabled: boolean
 			/** Metadata associated with the extension widget */
 			metadata?: IMeemMetadataLike
+			/** Whether widget should be enabled */
+			isEnabled?: boolean
+			/** Visibility of the extension widget */
+			visibility?: IAgreementExtensionVisibility
 		}
 	}
 
@@ -1712,73 +1729,6 @@ export namespace UpgradeAgreementRole {
 	export type Response = IResponseBody | IError
 }
 
-
-
-
-export namespace AuthenticateWithDiscord {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		user: { [key: string]: any }
-		accessToken: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetDiscordServers {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {
-		accessToken: string
-	}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		discordServers: IDiscordServer[]
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
 
 
 
@@ -1970,6 +1920,73 @@ export namespace UpdateWalletContractInstance {
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace AuthenticateWithDiscord {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		user: { [key: string]: any }
+		accessToken: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetDiscordServers {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		accessToken: string
+	}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		discordServers: IDiscordServer[]
 	}
 
 	export interface IDefinition {

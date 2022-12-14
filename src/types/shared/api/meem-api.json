@@ -86,11 +86,11 @@
         "properties": {
           "slug": {
             "description": "The slug of the extension to enable",
-            "type": "string"
-          },
-          "metadata": {
-            "description": "Optional metadata associated with this extension",
-            "type": "object"
+            "type": "string",
+            "metadata": {
+              "description": "Optional metadata associated with this extension",
+              "type": "object"
+            }
           },
           "externalLink": {
             "description": "Optional external link associated with this extension",
@@ -106,15 +106,22 @@
               "label": {
                 "description": "The link label",
                 "type": "string"
+              },
+              "visibility": {
+                "description": "Set the visibility type of the user identity integration",
+                "type": "string",
+                "default": "token-holders",
+                "enum": [
+                  "just-me",
+                  "token-holders",
+                  "anyone"
+                ]
               }
             }
           },
           "widget": {
             "description": "Optional widget data associated with this extension",
             "type": "object",
-            "required": [
-              "isEnabled"
-            ],
             "properties": {
               "isEnabled": {
                 "description": "Whether widget should be enabled",
@@ -123,6 +130,16 @@
               "metadata": {
                 "description": "Metadata associated with the extension widget",
                 "type": "object"
+              },
+              "visibility": {
+                "description": "Set the visibility type of the user identity integration",
+                "type": "string",
+                "default": "token-holders",
+                "enum": [
+                  "just-me",
+                  "token-holders",
+                  "anyone"
+                ]
               }
             }
           }
@@ -477,6 +494,10 @@
               "url"
             ],
             "properties": {
+              "isEnabled": {
+                "description": "Whether link should be enabled",
+                "type": "boolean"
+              },
               "url": {
                 "description": "The URL for the link",
                 "type": "string"
@@ -484,15 +505,22 @@
               "label": {
                 "description": "The link label",
                 "type": "string"
+              },
+              "visibility": {
+                "description": "Set the visibility type of the extension link",
+                "type": "string",
+                "default": "token-holders",
+                "enum": [
+                  "just-me",
+                  "token-holders",
+                  "anyone"
+                ]
               }
             }
           },
           "widget": {
             "description": "Optional widget data associated with this extension",
             "type": "object",
-            "required": [
-              "isEnabled"
-            ],
             "properties": {
               "isEnabled": {
                 "description": "Whether widget should be enabled",
@@ -501,6 +529,16 @@
               "metadata": {
                 "description": "Metadata associated with the extension widget",
                 "type": "object"
+              },
+              "visibility": {
+                "description": "Set the visibility type of the extension widget",
+                "type": "string",
+                "default": "token-holders",
+                "enum": [
+                  "just-me",
+                  "token-holders",
+                  "anyone"
+                ]
               }
             }
           }
@@ -511,10 +549,10 @@
           "visibility": {
             "description": "Set the visibility type of the user identity integration",
             "type": "string",
-            "default": "mutual-agreement-members",
+            "default": "token-holders",
             "enum": [
               "just-me",
-              "mutual-agreement-members",
+              "token-holders",
               "anyone"
             ]
           },

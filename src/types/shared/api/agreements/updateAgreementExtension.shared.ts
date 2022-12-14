@@ -1,5 +1,8 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
-import { IMeemMetadataLike } from '../../meem.shared'
+import {
+	IAgreementExtensionVisibility,
+	IMeemMetadataLike
+} from '../../meem.shared'
 
 /** Update an agreement extension */
 export namespace UpdateAgreementExtension {
@@ -27,13 +30,19 @@ export namespace UpdateAgreementExtension {
 			url: string
 			/** The link label */
 			label?: string
+			/** Whether link should be enabled */
+			isEnabled?: boolean
+			/** Visibility of the extension link */
+			visibility?: IAgreementExtensionVisibility
 		}
 		/** Optional widget data associated with this extension */
 		widget?: {
-			/** Whether widget should be enabled */
-			isEnabled: boolean
 			/** Metadata associated with the extension widget */
 			metadata?: IMeemMetadataLike
+			/** Whether widget should be enabled */
+			isEnabled?: boolean
+			/** Visibility of the extension widget */
+			visibility?: IAgreementExtensionVisibility
 		}
 	}
 
@@ -93,16 +102,33 @@ export namespace UpdateAgreementExtension {
  * 				label:
  * 					description: The link label
  * 					type: string
+ * 				isEnabled:
+ * 					description: Whether link should be enabled
+ * 					type: boolean
+ * 				visibility:
+ * 					description: Set the visibility type of the extension link
+ * 					type: string
+ * 					default: token-holders
+ * 					enum:
+ * 						- just-me
+ * 						- token-holders
+ * 						- anyone
  * 		widget:
  * 			description: Optional widget data associated with this extension
  * 			type: object
- * 			required:
- * 				- isEnabled
  * 			properties:
- * 				isEnabled:
- * 					description: Whether widget should be enabled
- * 					type: boolean
  * 				metadata:
  * 					description: Metadata associated with the extension widget
  * 					type: object
+ * 				isEnabled:
+ * 					description: Whether widget should be enabled
+ * 					type: boolean
+ * 				visibility:
+ * 					description: Set the visibility type of the extension widget
+ * 					type: string
+ * 					default: token-holders
+ * 					enum:
+ * 						- just-me
+ * 						- token-holders
+ * 						- anyone
  */

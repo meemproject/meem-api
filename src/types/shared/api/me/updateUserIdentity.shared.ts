@@ -70,10 +70,10 @@ export namespace UpdateUserIdentity {
  *  	visibility:
  *  		description: Set the visibility type of the user identity integration
  *  		type: string
- * 			default: mutual-agreement-members
+ * 			default: token-holders
  * 			enum:
  * 				- just-me
- * 				- mutual-agreement-members
+ * 				- token-holders
  * 				- anyone
  *  	metadata:
  * 			description: Metadata associated with this user identity integration
