@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
+import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
-import { IMeemMetadataLike } from '../types/shared/meem.shared'
 import Agreement from './Agreement'
 import AgreementExtensionLink from './AgreementExtensionLink'
 import AgreementExtensionRole from './AgreementExtensionRole'
@@ -27,14 +27,14 @@ export default class AgreementExtension extends BaseModel<AgreementExtension> {
 			primaryKey: true
 		},
 		metadata: {
-			type: DataTypes.JSONB,
-			allowNull: true
+			type: DataTypes.JSONB
 		}
 	}
 
 	public id!: string
 
-	public metadata!: IMeemMetadataLike | null
+	// public metadata!: MeemAPI.IMeemMetadataLike | null
+	public metadata!: MeemAPI.IAgreementExtensionMetadata | null
 
 	public AgreementId!: string
 

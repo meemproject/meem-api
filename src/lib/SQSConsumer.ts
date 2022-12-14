@@ -1,5 +1,5 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import https from 'https'
-// eslint-disable-next-line import/no-extraneous-dependencies
 import AWS from 'aws-sdk'
 import { Consumer } from 'sqs-consumer'
 

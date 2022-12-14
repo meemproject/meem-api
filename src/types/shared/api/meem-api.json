@@ -81,16 +81,16 @@
       },
       "CreateAgreementExtensionRequestBody": {
         "required": [
-          "slug"
+          "extensionId"
         ],
         "properties": {
-          "slug": {
-            "description": "The slug of the extension to enable",
-            "type": "string",
-            "metadata": {
-              "description": "Optional metadata associated with this extension",
-              "type": "object"
-            }
+          "extensionId": {
+            "description": "The id of the extension to enable",
+            "type": "string"
+          },
+          "metadata": {
+            "description": "Optional metadata associated with this extension",
+            "type": "object"
           },
           "externalLink": {
             "description": "Optional external link associated with this extension",
@@ -123,10 +123,6 @@
             "description": "Optional widget data associated with this extension",
             "type": "object",
             "properties": {
-              "isEnabled": {
-                "description": "Whether widget should be enabled",
-                "type": "boolean"
-              },
               "metadata": {
                 "description": "Metadata associated with the extension widget",
                 "type": "object"
@@ -494,10 +490,6 @@
               "url"
             ],
             "properties": {
-              "isEnabled": {
-                "description": "Whether link should be enabled",
-                "type": "boolean"
-              },
               "url": {
                 "description": "The URL for the link",
                 "type": "string"
@@ -505,6 +497,10 @@
               "label": {
                 "description": "The link label",
                 "type": "string"
+              },
+              "isEnabled": {
+                "description": "Whether link should be enabled",
+                "type": "boolean"
               },
               "visibility": {
                 "description": "Set the visibility type of the extension link",
@@ -522,13 +518,13 @@
             "description": "Optional widget data associated with this extension",
             "type": "object",
             "properties": {
-              "isEnabled": {
-                "description": "Whether widget should be enabled",
-                "type": "boolean"
-              },
               "metadata": {
                 "description": "Metadata associated with the extension widget",
                 "type": "object"
+              },
+              "isEnabled": {
+                "description": "Whether widget should be enabled",
+                "type": "boolean"
               },
               "visibility": {
                 "description": "Set the visibility type of the extension widget",

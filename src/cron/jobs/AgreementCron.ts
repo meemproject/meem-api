@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-await-in-loop */
+/* eslint-disable import/no-extraneous-dependencies */
 import { diamondABI } from '@meemproject/meem-contracts'
 import { Alchemy, Wallet as AlchemyWallet } from 'alchemy-sdk'
 import Cron from 'cron'

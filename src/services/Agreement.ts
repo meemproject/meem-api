@@ -122,7 +122,7 @@ export default class AgreementService {
 		})
 
 		if (!agreement || (agreementRoleId && !agreementRole)) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
 		const agreementOrRole = agreementRole ?? agreement
@@ -653,7 +653,7 @@ export default class AgreementService {
 		}
 
 		if (!agreement) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
 		let agreementRole
@@ -773,7 +773,7 @@ export default class AgreementService {
 		}
 
 		if (!agreement) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
 		if (agreement.gnosisSafeAddress) {
@@ -850,11 +850,11 @@ export default class AgreementService {
 		}
 
 		if (!agreement) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
 		if (!agreementRole) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
 		const isAdmin = await agreement.isAdmin(senderWalletAddress)
@@ -902,7 +902,7 @@ export default class AgreementService {
 		])
 
 		if (!agreementOrRole) {
-			throw new Error('MEEM_CONTRACT_NOT_FOUND')
+			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
 		if (!senderWallet) {

@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-await-in-loop */
+/* eslint-disable import/no-extraneous-dependencies */
 import Cron from 'cron'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'

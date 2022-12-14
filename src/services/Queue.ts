@@ -29,6 +29,16 @@ export interface ICallContractInput
 	inputValues: Record<string, any>
 }
 
+export interface ICreateTablelandTableInput
+	extends Partial<CallContractTransactionInput> {
+	id: string
+	tableName: string
+	agreementExtensionId: string
+	columns: {
+		[columnName: string]: MeemAPI.StorageDataType
+	}
+}
+
 export interface IEvent {
 	eventName: MeemAPI.QueueEvent
 	id: string
@@ -37,6 +47,7 @@ export interface IEvent {
 		| ICallContractInput
 		| IDeployTransactionInput
 		| IDiamondCutTransactionInput
+		| ICreateTablelandTableInput
 	customABI?: Record<string, any>[]
 }
 
@@ -60,6 +71,64 @@ export default class QueueService {
 			})
 
 			switch (eventName) {
+				case MeemAPI.QueueEvent.CreateTablelandTable: {
+					try {
+						const t = await orm.sequelize.transaction()
+
+						const { tableName, columns, agreementExtensionId } =
+							transactionInput as ICreateTablelandTableInput
+
+						const agreementExtension =
+							await orm.models.AgreementExtension.findOne({
+								where: {
+									id: agreementExtensionId
+								},
+								transaction: t
+							})
+
+						if (!agreementExtension) {
+							log.crit(
+								`Agreement extension not found for id: ${agreementExtensionId}`
+							)
+							throw new Error('AGREEMENT_EXTENSION_NOT_FOUND')
+						}
+
+						const result = await services.storage.createTable({
+							chainId,
+							schema: columns
+						})
+
+						transaction.status = MeemAPI.TransactionStatus.Success
+						transaction.hash = result.txnHash
+
+						agreementExtension.metadata = {
+							...agreementExtension.metadata,
+							storage: {
+								...agreementExtension.metadata?.storage,
+								tableland: {
+									...agreementExtension.metadata?.storage.tableland,
+									[tableName]: {
+										tableId: result.tableId,
+										tablelandTableName: result.name
+									}
+								}
+							}
+						} as MeemAPI.IAgreementExtensionMetadata
+						agreementExtension.changed('metadata', true)
+
+						await transaction.save({ transaction: t })
+						await agreementExtension.save({ transaction: t })
+
+						await t.commit()
+					} catch (e) {
+						log.crit(e)
+						transaction.status = MeemAPI.TransactionStatus.Failure
+						await transaction.save()
+					}
+
+					break
+				}
+
 				case MeemAPI.QueueEvent.CallContract: {
 					const { nonce } = await services.ethers.aquireLockAndNonce(chainId)
 					const { contractTxId, functionSignature, inputValues } =

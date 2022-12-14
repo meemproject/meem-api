@@ -19,10 +19,12 @@ export namespace CreateAgreementExtension {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** The slug of the extension to enable */
-		slug: string
+		/** The extension to enable */
+		extensionId: string
+
 		/** Optional metadata associated with this extension */
 		metadata?: IMeemMetadataLike
+
 		/** Optional external link associated with this extension */
 		externalLink?: {
 			/** Url for the link */
@@ -32,6 +34,7 @@ export namespace CreateAgreementExtension {
 			/** Visibility of the link extension */
 			visibility?: IAgreementExtensionVisibility
 		}
+
 		/** Optional widget data associated with this extension */
 		widget?: {
 			/** Metadata associated with the extension widget */
@@ -43,6 +46,9 @@ export namespace CreateAgreementExtension {
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
+
+		/** The Transaction ids that must be completed as part of creating the extension. May be empty if no transactions are required. */
+		txIds: string[]
 	}
 
 	export interface IDefinition {
@@ -81,14 +87,14 @@ export namespace CreateAgreementExtension {
 /**
  *  @schema CreateAgreementExtensionRequestBody
  * 	required:
- * 		- slug
+ * 		- extensionId
  *  properties:
- * 		slug:
- * 			description: The slug of the extension to enable
- * 			type: string
- * 			metadata:
- * 				description: Optional metadata associated with this extension
- * 				type: object
+ *  	extensionId:
+ *  		description: The id of the extension to enable
+ *  		type: string
+ * 		metadata:
+ * 			description: Optional metadata associated with this extension
+ * 			type: object
  * 		externalLink:
  * 			description: Optional external link associated with this extension
  * 			type: object
