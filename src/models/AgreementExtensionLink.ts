@@ -37,6 +37,9 @@ export default class AgreementExtensionLink extends BaseModel<AgreementExtension
 			type: DataTypes.STRING,
 			allowNull: true
 		},
+		metadata: {
+			type: DataTypes.JSONB
+		},
 		visibility: {
 			type: DataTypes.STRING,
 			allowNull: false,
@@ -51,6 +54,8 @@ export default class AgreementExtensionLink extends BaseModel<AgreementExtension
 	public url!: string
 
 	public label!: string | null
+
+	public metadata!: { [key: string]: any } | null
 
 	public visibility!: IAgreementExtensionVisibility
 
