@@ -650,11 +650,24 @@ export enum StorageType {
 
 export interface IExtensionStorageDefinition {
 	tableland?: {
-		tables?: {
-			[tableName: string]: {
-				[columnName: string]: StorageDataType
+		tables?: [
+			{
+				name: string
+				schema: {
+					[columnName: string]: StorageDataType
+				}
+				permissions: {
+					adminRoleContract: string
+					canInsert: boolean
+					insertRoleContract: string
+					canUpdate: boolean
+					updateRoleContract: string
+					canDelete: boolean
+					deleteRoleContract: string
+					updateableColumns: string[]
+				}
 			}
-		}
+		]
 	}
 }
 

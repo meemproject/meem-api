@@ -70,13 +70,13 @@ export default class MeemIdentityService {
 		/** Auth0 access token */
 		accessToken?: string
 
-		/** Wallet address */
-		address?: string
+		/** The message that was signed */
+		message?: string
 
 		/** Wallet signature */
 		signature?: string
 	}) {
-		const { attachToUser, accessToken, address, signature } = options
+		const { attachToUser, accessToken, message, signature } = options
 
 		let wallet: Wallet | undefined | null
 		let user: User | undefined | null = attachToUser
@@ -89,8 +89,8 @@ export default class MeemIdentityService {
 			})
 		}
 
-		if (address && signature) {
-			wallet = await this.verifySignature({ address, signature })
+		if (message && signature) {
+			wallet = await this.verifySignature({ message, signature })
 
 			if (wallet.UserId) {
 				user = await orm.models.User.findOne({
@@ -236,23 +236,19 @@ export default class MeemIdentityService {
 	}
 
 	public static async verifySignature(options: {
-		address: string
+		message: string
 		signature: string
 	}) {
 		const ethers = services.ethers.getInstance()
-		const { address, signature } = options
+		const { message, signature } = options
 
-		const wallet = await orm.models.Wallet.findByAddress<Wallet>(address)
+		const address = ethers.utils.verifyMessage(message, signature)
+		let wallet = await orm.models.Wallet.findByAddress<Wallet>(address)
 
-		if (!wallet || !wallet.nonce) {
-			throw new Error('WALLET_NOT_FOUND')
-		}
-
-		if (!config.TESTING) {
-			const signingAddress = ethers.utils.verifyMessage(wallet.nonce, signature)
-			if (signingAddress.toLowerCase() !== address.toLowerCase()) {
-				throw new Error('SIGNATURE_FAILED')
-			}
+		if (!wallet) {
+			wallet = await orm.models.Wallet.create({
+				address
+			})
 		}
 
 		return wallet

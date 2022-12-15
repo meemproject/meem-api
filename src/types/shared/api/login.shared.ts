@@ -13,10 +13,10 @@ export namespace Login {
 		/** Login w/ access token provided by Auth0 magic link */
 		accessToken?: string
 
-		/** Login w/ wallet. Both address and signature must be provided */
-		address?: string
+		/** Login w/ wallet. Both message and signature must be provided */
+		message?: string
 
-		/** Login w/ wallet. Both address and signature must be provided */
+		/** Login w/ wallet. Both message and signature must be provided */
 		signature?: string
 
 		/** Whether to connect the login method with the currently authenticated user */

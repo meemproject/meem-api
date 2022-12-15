@@ -15,8 +15,9 @@ export default class StorageService {
 		schema: {
 			[column: string]: MeemAPI.StorageDataType
 		}
+		controllerAddress: string
 	}) {
-		const { chainId, schema } = options
+		const { chainId, schema, controllerAddress } = options
 
 		const tableland = await this.getInstance({
 			chainId
@@ -31,7 +32,20 @@ export default class StorageService {
 
 		const receipt = await tableland.create(createSchema, {})
 
-		// tableland.setController()
+		log.debug(receipt)
+
+		if (receipt.name) {
+			try {
+				await tableland.setController(controllerAddress, receipt.name, {
+					rpcRelay: false
+				})
+			} catch (e) {
+				log.warn(
+					`Error setting controller for tableland table: ${receipt.name} to controller contract: ${controllerAddress}`
+				)
+				log.warn(e)
+			}
+		}
 
 		/**
 		 * Receipt
@@ -72,6 +86,7 @@ export default class StorageService {
 		return this.tablelands[chainId]
 	}
 
+	// TODO: Pull in this function from @meemproject/utils
 	private chainIdToTablelandChainName(chainId: number) {
 		switch (chainId) {
 			case 1:

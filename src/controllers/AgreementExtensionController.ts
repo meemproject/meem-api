@@ -1,3 +1,5 @@
+import { IFacetVersion } from '@meemproject/meem-contracts'
+import { ethers } from 'ethers'
 import { Response } from 'express'
 import _ from 'lodash'
 import { IRequest, IResponse } from '../types/app'
@@ -72,35 +74,113 @@ export default class AgreementExtensionController {
 		// 	throw new Error('INVALID_METADATA')
 		// }
 
-		const agreementExtension = await orm.models.AgreementExtension.create({
-			AgreementId: agreement.id,
-			ExtensionId: extension.id,
-			metadata
-		})
+		const [dbContract, bundle] = await Promise.all([
+			orm.models.Contract.findOne({
+				where: {
+					id: config.MEEM_PROXY_CONTRACT_ID
+				}
+			}),
+			orm.models.Bundle.findOne({
+				where: {
+					id: config.TABLELAND_CONTROLLER_BUNDLE_ID
+				},
+				include: [
+					{
+						model: orm.models.BundleContract,
+						include: [
+							{
+								model: orm.models.Contract,
+								include: [
+									{
+										model: orm.models.ContractInstance,
+										where: {
+											chainId: agreement.chainId
+										}
+									}
+								]
+							}
+						]
+					}
+				]
+			})
+		])
+
+		const t = await orm.sequelize.transaction()
+
+		if (!dbContract || !bundle) {
+			throw new Error('CONTRACT_NOT_FOUND')
+		}
+
+		const agreementExtension = await orm.models.AgreementExtension.create(
+			{
+				AgreementId: agreement.id,
+				ExtensionId: extension.id,
+				metadata
+			},
+			{
+				transaction: t
+			}
+		)
 
 		const txIds: string[] = []
 
+		const toVersion: IFacetVersion[] = []
+
+		bundle?.BundleContracts?.forEach(bc => {
+			if (
+				!bc.Contract?.ContractInstances ||
+				!bc.Contract?.ContractInstances[0]
+			) {
+				throw new Error('CONTRACT_INSTANCE_NOT_FOUND')
+			}
+			toVersion.push({
+				address: bc.Contract.ContractInstances[0].address,
+				functionSelectors: bc.functionSelectors
+			})
+		})
+
 		// TODO: Finish tableland creation process
-		// if (extension.storageDefinition.tableland?.tables) {
-		// 	const tableNames = Object.keys(
-		// 		extension.storageDefinition.tableland?.tables
-		// 	)
-		// 	for (let i = 0; i < tableNames.length; i++) {
-		// 		const tableName = tableNames[i]
+		if (extension.storageDefinition.tableland?.tables) {
+			for (
+				let i = 0;
+				i < extension.storageDefinition.tableland.tables.length;
+				i++
+			) {
+				const def = extension.storageDefinition.tableland.tables[i]
 
-		// 		// Create the tableland table
-		// 		const txId = await services.ethers.queueCreateTablelandTable({
-		// 			chainId: agreement.chainId,
-		// 			tableName,
-		// 			columns: extension.storageDefinition.tableland.tables[tableName],
-		// 			agreementExtensionId: agreementExtension.id
-		// 		})
+				const iFace = new ethers.utils.Interface(bundle.abi)
 
-		// 		txIds.push(txId)
-		// 	}
-		// }
+				// By default we'll let any agreement member insert data and let admins manage
+				const functionCall = iFace.encodeFunctionData('initialize', [
+					{
+						...def.permissions,
+						insertRoleContract: agreement.address,
+						adminRoleContract:
+							agreement.adminContractAddress ?? ethers.constants.AddressZero
+					}
+				])
 
-		const t = await orm.sequelize.transaction()
+				const { wallet } = await services.ethers.getProvider({
+					chainId: agreement.chainId
+				})
+
+				// Create the tableland table
+				const txId = await services.ethers.queueCreateTablelandTable({
+					chainId: agreement.chainId,
+					tableName: def.name,
+					columns: def.schema,
+					agreementExtensionId: agreementExtension.id,
+					abi: dbContract.abi,
+					args: [req.wallet.address, [req.wallet.address, wallet.address]],
+					bytecode: dbContract.bytecode,
+					fromVersion: [],
+					toVersion,
+					functionCall
+				})
+
+				txIds.push(txId)
+			}
+		}
 
 		const promises: Promise<any>[] = []
 

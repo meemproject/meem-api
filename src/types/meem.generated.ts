@@ -705,11 +705,24 @@ export enum StorageType {
 
 export interface IExtensionStorageDefinition {
 	tableland?: {
-		tables?: {
-			[tableName: string]: {
-				[columnName: string]: StorageDataType
+		tables?: [
+			{
+				name: string
+				schema: {
+					[columnName: string]: StorageDataType
+				}
+				permissions: {
+					adminRoleContract: string
+					canInsert: boolean
+					insertRoleContract: string
+					canUpdate: boolean
+					updateRoleContract: string
+					canDelete: boolean
+					deleteRoleContract: string
+					updateableColumns: string[]
+				}
 			}
-		}
+		]
 	}
 }
 
@@ -861,10 +874,10 @@ export namespace Login {
 		/** Login w/ access token provided by Auth0 magic link */
 		accessToken?: string
 
-		/** Login w/ wallet. Both address and signature must be provided */
-		address?: string
+		/** Login w/ wallet. Both message and signature must be provided */
+		message?: string
 
-		/** Login w/ wallet. Both address and signature must be provided */
+		/** Login w/ wallet. Both message and signature must be provided */
 		signature?: string
 
 		/** Whether to connect the login method with the currently authenticated user */
@@ -1772,6 +1785,73 @@ export namespace UpgradeAgreementRole {
 
 
 
+export namespace AuthenticateWithDiscord {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		user: { [key: string]: any }
+		accessToken: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetDiscordServers {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		accessToken: string
+	}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		discordServers: IDiscordServer[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
 export namespace CreateBundle {
 	export interface IPathParams {}
 
@@ -1960,73 +2040,6 @@ export namespace UpdateWalletContractInstance {
 
 	export interface IResponseBody extends IApiResponseBody {
 		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace AuthenticateWithDiscord {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		user: { [key: string]: any }
-		accessToken: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetDiscordServers {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {
-		accessToken: string
-	}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		discordServers: IDiscordServer[]
 	}
 
 	export interface IDefinition {
@@ -2320,6 +2333,44 @@ export namespace UpdateUserIdentity {
 
 	export type Response = IResponseBody | IError
 }
+
+
+
+
+/** Save some data to IPFS */
+export namespace SaveToIPFS {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/ipfs`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The data to save. Only one of "data" or "json" should be sent */
+		data?: string
+
+		/** The JSON to save. Only one of "data" or "json" should be sent */
+		json?: Record<string, any>
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		/** The IPFS hash for the saved data */
+		ipfsHash: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+// TODO: How to specify json in OpenAPI definition
 
 
 

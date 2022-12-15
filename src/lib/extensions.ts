@@ -1,3 +1,5 @@
+import { ethers } from 'ethers'
+
 export default [
 	{
 		id: 'c0478003-8ae7-4b24-9517-a459ba1f35a5',
@@ -8,22 +10,64 @@ export default [
 		slug: 'discussions',
 		storageDefinition: {
 			tableland: {
-				tables: {
-					posts: {
-						data: 'text',
-						accessControlConditions: 'text'
+				tables: [
+					{
+						name: 'posts',
+						schema: {
+							data: 'text',
+							accessControlConditions: 'text',
+							encryptedSymmetricKey: 'text'
+						},
+						permissions: {
+							adminRoleContract: ethers.constants.AddressZero,
+							canInsert: true,
+							insertRoleContract: ethers.constants.AddressZero,
+							canUpdate: false,
+							updateRoleContract: ethers.constants.AddressZero,
+							canDelete: false,
+							deleteRoleContract: ethers.constants.AddressZero,
+							updateableColumns: []
+						}
 					},
-					comments: {
-						data: 'text',
-						accessControlConditions: 'text',
-						refId: 'integer'
+					{
+						name: 'comments',
+						schema: {
+							data: 'text',
+							accessControlConditions: 'text',
+							encryptedSymmetricKey: 'text',
+							refId: 'integer'
+						},
+						permissions: {
+							adminRoleContract: ethers.constants.AddressZero,
+							canInsert: true,
+							insertRoleContract: ethers.constants.AddressZero,
+							canUpdate: false,
+							updateRoleContract: ethers.constants.AddressZero,
+							canDelete: false,
+							deleteRoleContract: ethers.constants.AddressZero,
+							updateableColumns: []
+						}
 					},
-					reactions: {
-						data: 'text',
-						accessControlConditions: 'text',
-						refId: 'integer'
+					{
+						name: 'reactions',
+						schema: {
+							data: 'text',
+							accessControlConditions: 'text',
+							encryptedSymmetricKey: 'text',
+							refId: 'integer'
+						},
+						permissions: {
+							adminRoleContract: ethers.constants.AddressZero,
+							canInsert: true,
+							insertRoleContract: ethers.constants.AddressZero,
+							canUpdate: false,
+							updateRoleContract: ethers.constants.AddressZero,
+							canDelete: false,
+							deleteRoleContract: ethers.constants.AddressZero,
+							updateableColumns: []
+						}
 					}
-				}
+				]
 			}
 		}
 	},

@@ -30,8 +30,8 @@ export interface ICallContractInput
 }
 
 export interface ICreateTablelandTableInput
-	extends Partial<CallContractTransactionInput> {
-	id: string
+	extends IDeployTransactionInput,
+		IDiamondCutTransactionInput {
 	tableName: string
 	agreementExtensionId: string
 	columns: {
@@ -72,20 +72,35 @@ export default class QueueService {
 
 			switch (eventName) {
 				case MeemAPI.QueueEvent.CreateTablelandTable: {
+					if (!customABI) {
+						log.crit('Missing ABI for DeployContract task')
+						throw new Error('MISSING_PARAMETERS')
+					}
+
+					const { wallet } = await services.ethers.getProvider({ chainId })
+
+					const {
+						args,
+						bytecode,
+						fromVersion,
+						toVersion,
+						functionCall,
+						tableName,
+						columns,
+						agreementExtensionId
+					} = transactionInput as ICreateTablelandTableInput
+
+					const t = await orm.sequelize.transaction()
+
+					const agreementExtension =
+						await orm.models.AgreementExtension.findOne({
+							where: {
+								id: agreementExtensionId
+							},
+							transaction: t
+						})
+
 					try {
-						const t = await orm.sequelize.transaction()
-
-						const { tableName, columns, agreementExtensionId } =
-							transactionInput as ICreateTablelandTableInput
-
-						const agreementExtension =
-							await orm.models.AgreementExtension.findOne({
-								where: {
-									id: agreementExtensionId
-								},
-								transaction: t
-							})
-
 						if (!agreementExtension) {
 							log.crit(
 								`Agreement extension not found for id: ${agreementExtensionId}`
@@ -93,9 +108,69 @@ export default class QueueService {
 							throw new Error('AGREEMENT_EXTENSION_NOT_FOUND')
 						}
 
+						// Deploy proxy
+						const proxyContractFactory = new ethers.ContractFactory(
+							customABI,
+							{
+								object: bytecode
+							},
+							wallet
+						)
+
+						const { nonce: deployNonce } =
+							await services.ethers.aquireLockAndNonce(chainId)
+
+						const deployTx = await proxyContractFactory.deploy(...args, {
+							nonce: deployNonce,
+							gasPrice: services.web3.gweiToWei(recommendedGwei),
+							gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
+						})
+
+						await services.ethers.releaseLockAndNonce({
+							chainId,
+							nonce: deployNonce
+						})
+
+						// Init proxy
+						const { nonce: cutNonce } =
+							await services.ethers.aquireLockAndNonce(chainId)
+
+						const cuts = getCuts({
+							proxyContractAddress: deployTx.address,
+							fromVersion,
+							toVersion
+						})
+
+						const facetCuts = cuts.map(c => ({
+							target: c.facetAddress,
+							action: c.action,
+							selectors: c.functionSelectors
+						}))
+
+						const cutTx = await deployTx.diamondCut(
+							facetCuts,
+							deployTx.address,
+							functionCall,
+							{
+								nonce: cutNonce,
+								gasPrice: services.web3.gweiToWei(recommendedGwei),
+								gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
+							}
+						)
+
+						log.debug(`Diamond cut w/ tx: ${cutTx.hash}`)
+
+						await cutTx.wait()
+
+						await services.ethers.releaseLockAndNonce({
+							chainId,
+							nonce: cutNonce
+						})
+
 						const result = await services.storage.createTable({
 							chainId,
-							schema: columns
+							schema: columns,
+							controllerAddress: deployTx.address
 						})
 
 						transaction.status = MeemAPI.TransactionStatus.Success
@@ -108,7 +183,7 @@ export default class QueueService {
 								tableland: {
 									...agreementExtension.metadata?.storage.tableland,
 									[tableName]: {
-										tableId: result.tableId,
+										tableId: result.tableId?.toHexString(),
 										tablelandTableName: result.name
 									}
 								}

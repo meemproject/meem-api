@@ -6,6 +6,7 @@ import { Alchemy, Network, Wallet } from 'alchemy-sdk'
 import { ethers } from 'ethers'
 import { v4 as uuidv4 } from 'uuid'
 import { MeemAPI } from '../types/meem.generated'
+import { ICreateTablelandTableInput } from './Queue'
 
 export default class EthersService {
 	public static shouldInitialize = true
@@ -187,10 +188,38 @@ export default class EthersService {
 			[columnName: string]: MeemAPI.StorageDataType
 		}
 		agreementExtensionId: string
+		abi: Record<string, any>[]
+		bytecode: string
+		args: any[]
+		functionCall: string
+		fromVersion: IFacetVersion[]
+		toVersion: IFacetVersion[]
 	}) {
-		const { chainId, tableName, columns, agreementExtensionId } = options
+		const {
+			chainId,
+			tableName,
+			columns,
+			agreementExtensionId,
+			args,
+			abi,
+			bytecode,
+			functionCall,
+			fromVersion,
+			toVersion
+		} = options
 
 		const txId = uuidv4()
+
+		const transactionInput: ICreateTablelandTableInput = {
+			tableName,
+			columns,
+			agreementExtensionId,
+			args,
+			bytecode,
+			functionCall,
+			fromVersion,
+			toVersion
+		}
 
 		await services.queue.sendMessage({
 			Id: txId,
@@ -198,11 +227,8 @@ export default class EthersService {
 				id: txId,
 				eventName: MeemAPI.QueueEvent.CreateTablelandTable,
 				chainId,
-				transactionInput: {
-					tableName,
-					columns,
-					agreementExtensionId
-				}
+				customABI: abi,
+				transactionInput
 			}),
 			MessageGroupId: '1'
 		})
@@ -455,6 +481,35 @@ export default class EthersService {
 		const newNonce = providerTxCount > 0 ? nonce + 1 : 0
 
 		return { nonce: newNonce }
+	}
+
+	public async releaseLockAndNonce(options: {
+		chainId: number
+		nonce: number
+	}) {
+		const { chainId, nonce } = options
+		const chainNonce = await orm.models.ChainNonce.findOne({
+			where: {
+				chainId
+			}
+		})
+
+		const promises: Promise<any>[] = []
+
+		if (!chainNonce) {
+			promises.push(
+				orm.models.ChainNonce.create({
+					chainId,
+					nonce
+				})
+			)
+		} else {
+			chainNonce.nonce = nonce
+			promises.push(chainNonce.save())
+		}
+
+		promises.push(this.releaseLock(chainId))
+		await Promise.all(promises)
 	}
 
 	public async acquireLock(chainId: number) {
