@@ -358,7 +358,7 @@ export default class MeemIdentityService {
 	public static async createUserIdentity(data: {
 		identityProviderId: string
 		metadata?: any
-		visibility?: MeemAPI.UserIdentityVisibility
+		visibility?: MeemAPI.IUserIdentityVisibility
 		user: User
 	}): Promise<UserIdentity> {
 		const { user, identityProviderId, metadata, visibility } = data
@@ -379,11 +379,11 @@ export default class MeemIdentityService {
 
 		try {
 			const meemIdUserIdentityVisibility =
-				visibility ?? MeemAPI.UserIdentityVisibility.JustMe
+				visibility ?? MeemAPI.IUserIdentityVisibility.JustMe
 
 			if (
 				visibility &&
-				Object.values(MeemAPI.UserIdentityVisibility).includes(
+				Object.values(MeemAPI.IUserIdentityVisibility).includes(
 					meemIdUserIdentityVisibility
 				)
 			) {
@@ -406,7 +406,7 @@ export default class MeemIdentityService {
 	public static async updateUserIdentity(data: {
 		userIdentityId: string
 		metadata?: any
-		visibility?: MeemAPI.UserIdentityVisibility
+		visibility?: MeemAPI.IUserIdentityVisibility
 		user: User
 	}): Promise<UserIdentity> {
 		const { user, userIdentityId, metadata, visibility } = data
@@ -427,11 +427,11 @@ export default class MeemIdentityService {
 
 		try {
 			const meemIdUserIdentityVisibility =
-				visibility ?? MeemAPI.UserIdentityVisibility.JustMe
+				visibility ?? MeemAPI.IUserIdentityVisibility.JustMe
 
 			if (
 				visibility &&
-				Object.values(MeemAPI.UserIdentityVisibility).includes(
+				Object.values(MeemAPI.IUserIdentityVisibility).includes(
 					meemIdUserIdentityVisibility
 				)
 			) {

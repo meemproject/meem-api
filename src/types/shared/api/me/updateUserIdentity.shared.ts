@@ -1,11 +1,11 @@
 import { MeemAPI } from '../../../meem.generated'
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
-import { UserIdentityVisibility } from '../../meem.shared'
+import { IUserIdentityVisibility } from '../../meem.shared'
 
 /** Update current user identity */
 export namespace UpdateUserIdentity {
 	export interface IPathParams {
-		/** The user identities id to update */
+		/** The id of the user identity to update */
 		userIdentityId: string
 	}
 
@@ -18,7 +18,7 @@ export namespace UpdateUserIdentity {
 
 	export interface IRequestBody {
 		/** Set the visibility type of the user identity */
-		visibility?: UserIdentityVisibility
+		visibility?: IUserIdentityVisibility
 		/** Metadata associated with this user identity */
 		metadata?: { [key: string]: unknown }
 	}
@@ -45,7 +45,7 @@ export namespace UpdateUserIdentity {
  * 		- jwtAuth: []
  * 	summary: "Update current user identity"
  * 	parameters:
- * 		- (path) userIdentityId* {string} The user identity id to update
+ * 		- (path) userIdentityId* {string} The id of the user identity to update
  * 	requestBody:
  * 		content:
  * 			application/json:

@@ -317,27 +317,6 @@
           }
         }
       },
-      "CreateUserIdentityRequestBody": {
-        "parameters": [
-          "(path) connectionId* {string} he id of the identity provider connection"
-        ],
-        "properties": {
-          "visibility": {
-            "description": "Set the visibility type of the user identity",
-            "type": "string",
-            "default": "token-holders",
-            "enum": [
-              "just-me",
-              "token-holders",
-              "anyone"
-            ]
-          },
-          "metadata": {
-            "description": "Metadata associated with this user identity",
-            "type": "string"
-          }
-        }
-      },
       "DefaultStatusResponseBody": {
         "type": "object",
         "properties": {
@@ -1528,43 +1507,6 @@
         }
       }
     },
-    "/me/identity": {
-      "post": {
-        "security": [
-          {
-            "jwtAuth": []
-          }
-        ],
-        "summary": "Update current user identity",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUserIdentityRequestBody"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns a generated message to sign",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "userIdentity": {
-                      "description": "The new or updated user identity",
-                      "type": "object"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/me/identity/{userIdentityId}": {
       "patch": {
         "security": [
@@ -1578,7 +1520,7 @@
             "in": "path",
             "name": "userIdentityId",
             "required": true,
-            "description": "The user identity id to update",
+            "description": "The id of the user identity to update",
             "schema": {
               "type": "string"
             }
@@ -1626,7 +1568,7 @@
             "in": "path",
             "name": "userIdentityId",
             "required": true,
-            "description": "The user identity id to remove",
+            "description": "The id of the user identity to remove",
             "schema": {
               "type": "string"
             }

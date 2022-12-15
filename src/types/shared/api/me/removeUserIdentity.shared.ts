@@ -1,9 +1,9 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
 /** Remove a user identity from the current user */
-export namespace DetachUserIdentity {
+export namespace RemoveUserIdentity {
 	export interface IPathParams {
-		/** The user identity id to remove */
+		/** The id of the user identity to remove */
 		userIdentityId: string
 	}
 
@@ -38,7 +38,7 @@ export namespace DetachUserIdentity {
  * 		- jwtAuth: []
  * 	summary: "Remove a user identity from the current user"
  * 	parameters:
- * 		- (path) userIdentityId* {string} The user identity id to remove
+ * 		- (path) userIdentityId* {string} The id of the user identity to remove
  * 	responses:
  * 		"200":
  * 			description: "Returns 'success' if user identity was removed"

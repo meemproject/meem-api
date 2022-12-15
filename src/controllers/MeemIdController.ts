@@ -52,8 +52,8 @@ export default class MeemIdController {
 	}
 
 	public static async removeUserIdentity(
-		req: IRequest<MeemAPI.v1.DetachUserIdentity.IDefinition>,
-		res: IResponse<MeemAPI.v1.DetachUserIdentity.IResponseBody>
+		req: IRequest<MeemAPI.v1.RemoveUserIdentity.IDefinition>,
+		res: IResponse<MeemAPI.v1.RemoveUserIdentity.IResponseBody>
 	): Promise<Response> {
 		const { userIdentityId } = req.params
 

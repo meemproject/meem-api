@@ -19,7 +19,7 @@ export namespace CreateAgreementExtension {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** The extension to enable */
+		/** The id of the extension to enable */
 		extensionId: string
 
 		/** Optional metadata associated with this extension */
