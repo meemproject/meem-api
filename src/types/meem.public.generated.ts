@@ -887,73 +887,6 @@ export namespace Login {
 
 
 
-export namespace AuthenticateWithDiscord {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		user: { [key: string]: any }
-		accessToken: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetDiscordServers {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {
-		accessToken: string
-	}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		discordServers: IDiscordServer[]
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
 /** Bulk mint agreement role tokens */
 export namespace BulkMintAgreementRoleTokens {
 	export interface IPathParams {
@@ -2039,6 +1972,73 @@ export namespace UpdateWalletContractInstance {
 
 
 
+export namespace AuthenticateWithDiscord {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		user: { [key: string]: any }
+		accessToken: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetDiscordServers {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		accessToken: string
+	}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		discordServers: IDiscordServer[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
 export namespace GetJoinGuildMessage {
 	export interface IPathParams {
 		/** The Agreement id */
@@ -2162,6 +2162,7 @@ export namespace CreateOrUpdateUser {
 /** Remove a user identity from the current user */
 export namespace DetachUserIdentity {
 	export interface IPathParams {
+		/** The user identity id to remove */
 		userIdentityId: string
 	}
 
@@ -2286,14 +2287,14 @@ export namespace RefreshENS {
 /** Update current user identity */
 export namespace UpdateUserIdentity {
 	export interface IPathParams {
-		/** The user identitys id to connect or update */
+		/** The user identities id to update */
 		userIdentityId: string
 	}
 
 	export const path = (options: IPathParams) =>
 		`/api/1.0/me/identity/${options.userIdentityId}`
 
-	export const method = HttpMethod.Post
+	export const method = HttpMethod.Patch
 
 	export interface IQueryParams {}
 

@@ -5,14 +5,14 @@ import { UserIdentityVisibility } from '../../meem.shared'
 /** Update current user identity */
 export namespace UpdateUserIdentity {
 	export interface IPathParams {
-		/** The user identitys id to connect or update */
+		/** The user identities id to update */
 		userIdentityId: string
 	}
 
 	export const path = (options: IPathParams) =>
 		`/api/1.0/me/identity/${options.userIdentityId}`
 
-	export const method = HttpMethod.Post
+	export const method = HttpMethod.Patch
 
 	export interface IQueryParams {}
 
@@ -40,12 +40,12 @@ export namespace UpdateUserIdentity {
 /** === OpenAPI Definition === */
 
 /**
- * 	@api [post] /me/identity/{userIdentityId}
+ * 	@api [patch] /me/identity/{userIdentityId}
  * 	security:
  * 		- jwtAuth: []
  * 	summary: "Update current user identity"
  * 	parameters:
- * 		- (path) userIdentityId* {string} The user identity id to connect or update
+ * 		- (path) userIdentityId* {string} The user identity id to update
  * 	requestBody:
  * 		content:
  * 			application/json:

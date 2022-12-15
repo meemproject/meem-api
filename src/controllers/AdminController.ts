@@ -177,9 +177,7 @@ export default class AdminController {
 
 		for (let i = 0; i < identityProviders.length; i += 1) {
 			try {
-				log.debug(
-					`Syncing ${i + 1} / ${identityProviders.length} integrations`
-				)
+				log.debug(`Syncing ${i + 1} / ${identityProviders.length} integrations`)
 				const existingExtension =
 					// eslint-disable-next-line no-await-in-loop
 					await orm.models.IdentityProvider.findOne({

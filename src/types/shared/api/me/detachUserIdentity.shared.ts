@@ -3,6 +3,7 @@ import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 /** Remove a user identity from the current user */
 export namespace DetachUserIdentity {
 	export interface IPathParams {
+		/** The user identity id to remove */
 		userIdentityId: string
 	}
 

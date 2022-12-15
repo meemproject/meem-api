@@ -2164,6 +2164,7 @@ export namespace CreateOrUpdateUser {
 /** Remove a user identity from the current user */
 export namespace DetachUserIdentity {
 	export interface IPathParams {
+		/** The user identity id to remove */
 		userIdentityId: string
 	}
 
@@ -2288,14 +2289,14 @@ export namespace RefreshENS {
 /** Update current user identity */
 export namespace UpdateUserIdentity {
 	export interface IPathParams {
-		/** The user identitys id to connect or update */
+		/** The user identities id to update */
 		userIdentityId: string
 	}
 
 	export const path = (options: IPathParams) =>
 		`/api/1.0/me/identity/${options.userIdentityId}`
 
-	export const method = HttpMethod.Post
+	export const method = HttpMethod.Patch
 
 	export interface IQueryParams {}
 

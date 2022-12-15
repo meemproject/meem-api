@@ -49,16 +49,16 @@ export default class MeemIdentityService {
 		await item.save()
 	}
 
-	public static async detachUserIdentity(options: {
+	public static async removeUserIdentity(options: {
 		userId: string
-		identityProviderId: string
+		userIdentityId: string
 	}) {
-		const { userId, identityProviderId } = options
+		const { userId, userIdentityId } = options
 
 		await orm.models.UserIdentity.destroy({
 			where: {
 				UserId: userId,
-				IdentityProviderId: identityProviderId
+				id: userIdentityId
 			}
 		})
 	}
@@ -355,58 +355,97 @@ export default class MeemIdentityService {
 		return user
 	}
 
-	public static async updateUserIdentity(data: {
+	public static async createUserIdentity(data: {
 		identityProviderId: string
 		metadata?: any
 		visibility?: MeemAPI.UserIdentityVisibility
 		user: User
 	}): Promise<UserIdentity> {
-		const { identityProviderId, metadata, visibility, user } = data
+		const { user, identityProviderId, metadata, visibility } = data
 
-		const integration = await orm.models.IdentityProvider.findOne({
+		const userIdentity = await orm.models.UserIdentity.findOne({
 			where: {
-				id: identityProviderId
+				IdentityProviderId: identityProviderId
 			}
 		})
 
-		if (!integration) {
+		if (!userIdentity) {
 			throw new Error('INTEGRATION_NOT_FOUND')
 		}
 
-		let identityProvider: UserIdentity
-		try {
-			const existingMeemIdIntegration = await orm.models.UserIdentity.findOne({
-				where: {
-					UserId: user.id,
-					IdentityProviderId: integration.id
-				}
-			})
+		if (userIdentity.UserId !== user.id) {
+			throw new Error('NOT_AUTHORIZED')
+		}
 
+		try {
 			const meemIdUserIdentityVisibility =
 				visibility ?? MeemAPI.UserIdentityVisibility.JustMe
 
-			if (!existingMeemIdIntegration) {
-				throw new Error('INTEGRATION_NOT_FOUND')
-			} else {
-				identityProvider = existingMeemIdIntegration
-				if (
-					visibility &&
-					Object.values(MeemAPI.UserIdentityVisibility).includes(
-						meemIdUserIdentityVisibility
-					)
-				) {
-					existingMeemIdIntegration.visibility = meemIdUserIdentityVisibility
-				}
-
-				// TODO: Typecheck metadata
-				existingMeemIdIntegration.metadata = {
-					...existingMeemIdIntegration.metadata,
-					...metadata
-				}
-
-				await existingMeemIdIntegration.save()
+			if (
+				visibility &&
+				Object.values(MeemAPI.UserIdentityVisibility).includes(
+					meemIdUserIdentityVisibility
+				)
+			) {
+				userIdentity.visibility = meemIdUserIdentityVisibility
 			}
-			return identityProvider
+
+			// TODO: Typecheck metadata
+			userIdentity.metadata = {
+				...userIdentity.metadata,
+				...metadata
+			}
+
+			await userIdentity.save()
+			return userIdentity
+		} catch (e) {
+			throw new Error('SERVER_ERROR')
+		}
+	}
+
+	public static async updateUserIdentity(data: {
+		userIdentityId: string
+		metadata?: any
+		visibility?: MeemAPI.UserIdentityVisibility
+		user: User
+	}): Promise<UserIdentity> {
+		const { user, userIdentityId, metadata, visibility } = data
+
+		const userIdentity = await orm.models.UserIdentity.findOne({
+			where: {
+				id: userIdentityId
+			}
+		})
+
+		if (!userIdentity) {
+			throw new Error('INTEGRATION_NOT_FOUND')
+		}
+
+		if (userIdentity.UserId !== user.id) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		try {
+			const meemIdUserIdentityVisibility =
+				visibility ?? MeemAPI.UserIdentityVisibility.JustMe
+
+			if (
+				visibility &&
+				Object.values(MeemAPI.UserIdentityVisibility).includes(
+					meemIdUserIdentityVisibility
+				)
+			) {
+				userIdentity.visibility = meemIdUserIdentityVisibility
+			}
+
+			// TODO: Typecheck metadata
+			userIdentity.metadata = {
+				...userIdentity.metadata,
+				...metadata
+			}
+
+			await userIdentity.save()
+			return userIdentity
 		} catch (e) {
 			throw new Error('SERVER_ERROR')
 		}
