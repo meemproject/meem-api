@@ -496,7 +496,7 @@ export interface IMeemId {
 	}
 }
 
-export enum IntegrationVisibility {
+export enum UserIdentityVisibility {
 	/** Anyone can view the integration */
 	Anyone = 'anyone',
 

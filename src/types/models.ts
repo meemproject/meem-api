@@ -19,7 +19,7 @@ import ContractInstance from '../models/ContractInstance'
 import Discord from '../models/Discord'
 import Extension from '../models/Extension'
 import Hashtag from '../models/Hashtag'
-import IdentityIntegration from '../models/IdentityIntegration'
+import IdentityProvider from '../models/IdentityProvider'
 import Transaction from '../models/Transaction'
 import Tweet from '../models/Tweet'
 import TweetHashtag from '../models/TweetHashtag'
@@ -40,7 +40,7 @@ export interface IModels {
 	Extension: typeof Extension
 	AgreementToken: typeof AgreementToken
 	Agreement: typeof Agreement
-	IdentityIntegration: typeof IdentityIntegration
+	IdentityProvider: typeof IdentityProvider
 	UserIdentity: typeof UserIdentity
 	AgreementRole: typeof AgreementRole
 	AgreementRoleToken: typeof AgreementRoleToken

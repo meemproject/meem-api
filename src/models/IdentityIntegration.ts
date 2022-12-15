@@ -2,19 +2,19 @@ import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
 
-export default class IdentityIntegration extends BaseModel<IdentityIntegration> {
-	public static readonly modelName = 'IdentityIntegration'
+export default class IdentityProvider extends BaseModel<IdentityProvider> {
+	public static readonly modelName = 'IdentityProvider'
 
 	public static readonly paranoid = false
 
 	public static get indexes() {
 		return [
 			{
-				name: 'IdentityIntegration_createdAt',
+				name: 'IdentityProvider_createdAt',
 				fields: ['createdAt']
 			},
 			{
-				name: 'IdentityIntegration_name',
+				name: 'IdentityProvider_name',
 				fields: ['name']
 			}
 		]

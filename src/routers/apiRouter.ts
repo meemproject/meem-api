@@ -29,13 +29,13 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/me', MeemIdController.getMe)
 	router.postAsync('/me', MeemIdController.createOrUpdateUser)
 	router.deleteAsync(
-		'/me/integrations/:integrationId',
+		'/me/identity/:userIdentityId',
 		MeemIdController.detachUserIdentity
 	)
 	router.postAsync('/me/refreshENS', MeemIdController.refreshENS)
 	router.getAsync('/me/apiKey', MeemIdController.getApiKey)
 	router.postAsync(
-		'/me/integrations/:integrationId',
+		'/me/identity/:userIdentityId',
 		MeemIdController.updateUserIdentity
 	)
 

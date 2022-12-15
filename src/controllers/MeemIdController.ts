@@ -63,7 +63,7 @@ export default class MeemIdController {
 
 		await services.meemId.detachUserIdentity({
 			userId: req.wallet.UserId,
-			identityIntegrationId: integrationId
+			identityProviderId: integrationId
 		})
 
 		return res.json({
@@ -164,7 +164,7 @@ export default class MeemIdController {
 				user,
 				metadata,
 				visibility,
-				identityIntegrationId: integrationId
+				identityProviderId: integrationId
 			})
 
 			return res.json({

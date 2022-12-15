@@ -1,13 +1,13 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 
-/** Remove a user identity integration from the current user identity */
+/** Remove a user identity from the current user */
 export namespace DetachUserIdentity {
 	export interface IPathParams {
-		integrationId: string
+		userIdentityId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/me/integrations/${options.integrationId}`
+		`/api/1.0/me/identity/${options.userIdentityId}`
 
 	export const method = HttpMethod.Delete
 
@@ -32,15 +32,15 @@ export namespace DetachUserIdentity {
 /** === OpenAPI Definition === */
 
 /**
- * 	@api [delete] /me/integrations/{integrationId}
+ * 	@api [delete] /me/integrations/{userIdentityId}
  * 	security:
  * 		- jwtAuth: []
- * 	summary: "Remove a user identity integration from the current user identity"
+ * 	summary: "Remove a user identity from the current user"
  * 	parameters:
- * 		- (path) integrationId* {string} The user identity integration id to remove
+ * 		- (path) userIdentityId* {string} The user identity id to remove
  * 	responses:
  * 		"200":
- * 			description: "Returns 'success' if user identity integration was removed"
+ * 			description: "Returns 'success' if user identity was removed"
  * 			content:
  * 				application/json:
  * 					schema:

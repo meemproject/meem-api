@@ -50,7 +50,7 @@ export default class UserIdentity extends BaseModel<UserIdentity> {
 	public User!: User | null
 
 	public static associate(models: IModels) {
-		this.belongsTo(models.IdentityIntegration)
+		this.belongsTo(models.IdentityProvider)
 
 		this.belongsTo(models.User)
 	}

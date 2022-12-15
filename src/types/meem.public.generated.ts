@@ -551,7 +551,7 @@ export interface IMeemId {
 	}
 }
 
-export enum IntegrationVisibility {
+export enum UserIdentityVisibility {
 	/** Anyone can view the integration */
 	Anyone = 'anyone',
 
@@ -2158,14 +2158,14 @@ export namespace CreateOrUpdateUser {
 
 
 
-/** Remove a user identity integration from the current user identity */
+/** Remove a user identity from the current user */
 export namespace DetachUserIdentity {
 	export interface IPathParams {
-		integrationId: string
+		userIdentityId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/me/integrations/${options.integrationId}`
+		`/api/1.0/me/identity/${options.userIdentityId}`
 
 	export const method = HttpMethod.Delete
 
@@ -2285,21 +2285,21 @@ export namespace RefreshENS {
 /** Update current user identity */
 export namespace UpdateUserIdentity {
 	export interface IPathParams {
-		/** The user identity integration id to connect or update */
-		integrationId: string
+		/** The user identitys id to connect or update */
+		userIdentityId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/me/integrations/${options.integrationId}`
+		`/api/1.0/me/identity/${options.userIdentityId}`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Set the visibility type of the user identity integration */
-		visibility?: IntegrationVisibility
-		/** Metadata associated with this user identity integration */
+		/** Set the visibility type of the user identity */
+		visibility?: UserIdentityVisibility
+		/** Metadata associated with this user identity */
 		metadata?: { [key: string]: unknown }
 	}
 

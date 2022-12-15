@@ -146,11 +146,11 @@ export default class AdminController {
 	// 	})
 	// }
 
-	public static async seedIdentityIntegrations(
+	public static async seedIdentityProviders(
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		const identityIntegrations = [
+		const identityProviders = [
 			{
 				name: 'Twitter',
 				icon: 'integration-twitter.png',
@@ -171,33 +171,33 @@ export default class AdminController {
 			}
 		]
 
-		// await orm.models.IdentityIntegration.sync({ force: true })
+		// await orm.models.IdentityProvider.sync({ force: true })
 
 		const failedIntegratiosn: any[] = []
 
-		for (let i = 0; i < identityIntegrations.length; i += 1) {
+		for (let i = 0; i < identityProviders.length; i += 1) {
 			try {
 				log.debug(
-					`Syncing ${i + 1} / ${identityIntegrations.length} integrations`
+					`Syncing ${i + 1} / ${identityProviders.length} integrations`
 				)
 				const existingExtension =
 					// eslint-disable-next-line no-await-in-loop
-					await orm.models.IdentityIntegration.findOne({
+					await orm.models.IdentityProvider.findOne({
 						where: {
-							name: identityIntegrations[i].name
+							name: identityProviders[i].name
 						}
 					})
 				if (!existingExtension) {
 					// eslint-disable-next-line no-await-in-loop
-					await orm.models.IdentityIntegration.create(identityIntegrations[i])
+					await orm.models.IdentityProvider.create(identityProviders[i])
 				} else {
 					// eslint-disable-next-line no-await-in-loop
-					await existingExtension.update(identityIntegrations[i])
+					await existingExtension.update(identityProviders[i])
 				}
 			} catch (e) {
-				failedIntegratiosn.push(identityIntegrations[i])
+				failedIntegratiosn.push(identityProviders[i])
 				log.crit(e)
-				log.debug(identityIntegrations[i])
+				log.debug(identityProviders[i])
 			}
 		}
 

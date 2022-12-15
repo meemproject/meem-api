@@ -108,7 +108,7 @@ export namespace CreateAgreementExtension {
  * 					description: The link label
  * 					type: string
  * 				visibility:
- * 					description: Set the visibility type of the user identity integration
+ * 					description: Set the visibility type of the extension link
  * 					type: string
  * 					default: token-holders
  * 					enum:
@@ -123,7 +123,7 @@ export namespace CreateAgreementExtension {
  * 					description: Metadata associated with the extension widget
  * 					type: object
  * 				visibility:
- * 					description: Set the visibility type of the user identity integration
+ * 					description: Set the visibility type of the extension widget
  * 					type: string
  * 					default: token-holders
  * 					enum:

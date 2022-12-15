@@ -108,7 +108,7 @@
                 "type": "string"
               },
               "visibility": {
-                "description": "Set the visibility type of the user identity integration",
+                "description": "Set the visibility type of the extension link",
                 "type": "string",
                 "default": "token-holders",
                 "enum": [
@@ -128,7 +128,7 @@
                 "type": "object"
               },
               "visibility": {
-                "description": "Set the visibility type of the user identity integration",
+                "description": "Set the visibility type of the extension widget",
                 "type": "string",
                 "default": "token-holders",
                 "enum": [
@@ -543,7 +543,7 @@
       "UpdateUserIdentityRequestBody": {
         "properties": {
           "visibility": {
-            "description": "Set the visibility type of the user identity integration",
+            "description": "Set the visibility type of the user identity",
             "type": "string",
             "default": "token-holders",
             "enum": [
@@ -553,7 +553,7 @@
             ]
           },
           "metadata": {
-            "description": "Metadata associated with this user identity integration",
+            "description": "Metadata associated with this user identity",
             "type": "string"
           }
         }
@@ -1507,7 +1507,7 @@
         }
       }
     },
-    "/me/integrations/{integrationId}": {
+    "/me/identity/{userIdentityId}": {
       "post": {
         "security": [
           {
@@ -1518,9 +1518,9 @@
         "parameters": [
           {
             "in": "path",
-            "name": "integrationId",
+            "name": "userIdentityId",
             "required": true,
-            "description": "The user identity integration id to connect or update",
+            "description": "The user identity id to connect or update",
             "schema": {
               "type": "string"
             }
@@ -1553,20 +1553,22 @@
             }
           }
         }
-      },
+      }
+    },
+    "/me/integrations/{userIdentityId}": {
       "delete": {
         "security": [
           {
             "jwtAuth": []
           }
         ],
-        "summary": "Remove a user identity integration from the current user identity",
+        "summary": "Remove a user identity from the current user",
         "parameters": [
           {
             "in": "path",
-            "name": "integrationId",
+            "name": "userIdentityId",
             "required": true,
-            "description": "The user identity integration id to remove",
+            "description": "The user identity id to remove",
             "schema": {
               "type": "string"
             }
@@ -1574,7 +1576,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Returns 'success' if user identity integration was removed",
+            "description": "Returns 'success' if user identity was removed",
             "content": {
               "application/json": {
                 "schema": {
