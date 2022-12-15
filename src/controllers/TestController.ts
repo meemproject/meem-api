@@ -425,15 +425,15 @@ export default class TestController {
 	}
 
 	public static async tablelandTest(req: Request, res: Response) {
-		const result = await services.storage.createTable({
-			chainId: 5,
-			schema: {
-				data: MeemAPI.StorageDataType.Text
-			}
-		})
+		// const result = await services.storage.createTable({
+		// 	chainId: 5,
+		// 	schema: {
+		// 		data: MeemAPI.StorageDataType.Text
+		// 	}
+		// })
 
 		return res.json({
-			result,
+			// result,
 			status: 'success'
 		})
 	}
