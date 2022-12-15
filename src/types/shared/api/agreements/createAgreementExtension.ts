@@ -19,7 +19,7 @@ export namespace CreateAgreementExtension {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** The extension to enable */
+		/** The id of the extension to enable */
 		extensionId: string
 
 		/** Optional metadata associated with this extension */
@@ -108,7 +108,7 @@ export namespace CreateAgreementExtension {
  * 					description: The link label
  * 					type: string
  * 				visibility:
- * 					description: Set the visibility type of the user identity integration
+ * 					description: Set the visibility type of the extension link
  * 					type: string
  * 					default: token-holders
  * 					enum:
@@ -123,7 +123,7 @@ export namespace CreateAgreementExtension {
  * 					description: Metadata associated with the extension widget
  * 					type: object
  * 				visibility:
- * 					description: Set the visibility type of the user identity integration
+ * 					description: Set the visibility type of the extension widget
  * 					type: string
  * 					default: token-holders
  * 					enum:

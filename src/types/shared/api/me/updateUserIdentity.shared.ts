@@ -1,25 +1,25 @@
 import { MeemAPI } from '../../../meem.generated'
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
-import { IntegrationVisibility } from '../../meem.shared'
+import { IUserIdentityVisibility } from '../../meem.shared'
 
 /** Update current user identity */
 export namespace UpdateUserIdentity {
 	export interface IPathParams {
-		/** The user identity integration id to connect or update */
-		integrationId: string
+		/** The id of the user identity to update */
+		userIdentityId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/me/integrations/${options.integrationId}`
+		`/api/1.0/me/identity/${options.userIdentityId}`
 
-	export const method = HttpMethod.Post
+	export const method = HttpMethod.Patch
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** Set the visibility type of the user identity integration */
-		visibility?: IntegrationVisibility
-		/** Metadata associated with this user identity integration */
+		/** Set the visibility type of the user identity */
+		visibility?: IUserIdentityVisibility
+		/** Metadata associated with this user identity */
 		metadata?: { [key: string]: unknown }
 	}
 
@@ -40,12 +40,12 @@ export namespace UpdateUserIdentity {
 /** === OpenAPI Definition === */
 
 /**
- * 	@api [post] /me/integrations/{integrationId}
+ * 	@api [patch] /me/identity/{userIdentityId}
  * 	security:
  * 		- jwtAuth: []
  * 	summary: "Update current user identity"
  * 	parameters:
- * 		- (path) integrationId* {string} The user identity integration id to connect or update
+ * 		- (path) userIdentityId* {string} The id of the user identity to update
  * 	requestBody:
  * 		content:
  * 			application/json:
@@ -68,7 +68,7 @@ export namespace UpdateUserIdentity {
  *  @schema UpdateUserIdentityRequestBody
  *  properties:
  *  	visibility:
- *  		description: Set the visibility type of the user identity integration
+ *  		description: Set the visibility type of the user identity
  *  		type: string
  * 			default: token-holders
  * 			enum:
@@ -76,6 +76,6 @@ export namespace UpdateUserIdentity {
  * 				- token-holders
  * 				- anyone
  *  	metadata:
- * 			description: Metadata associated with this user identity integration
+ * 			description: Metadata associated with this user identity
  *  		type: string
  **/

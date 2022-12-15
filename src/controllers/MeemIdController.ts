@@ -51,19 +51,19 @@ export default class MeemIdController {
 		})
 	}
 
-	public static async detachUserIdentity(
-		req: IRequest<MeemAPI.v1.DetachUserIdentity.IDefinition>,
-		res: IResponse<MeemAPI.v1.DetachUserIdentity.IResponseBody>
+	public static async removeUserIdentity(
+		req: IRequest<MeemAPI.v1.RemoveUserIdentity.IDefinition>,
+		res: IResponse<MeemAPI.v1.RemoveUserIdentity.IResponseBody>
 	): Promise<Response> {
-		const { integrationId } = req.params
+		const { userIdentityId } = req.params
 
 		if (!req.wallet?.UserId) {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		await services.meemId.detachUserIdentity({
+		await services.meemId.removeUserIdentity({
 			userId: req.wallet.UserId,
-			identityIntegrationId: integrationId
+			userIdentityId
 		})
 
 		return res.json({
@@ -156,7 +156,7 @@ export default class MeemIdController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 		const { metadata, visibility } = req.body
-		const { integrationId } = req.params
+		const { userIdentityId } = req.params
 		const user = await services.meemId.getUserForWallet(req.wallet)
 
 		try {
@@ -164,7 +164,7 @@ export default class MeemIdController {
 				user,
 				metadata,
 				visibility,
-				identityIntegrationId: integrationId
+				userIdentityId
 			})
 
 			return res.json({
