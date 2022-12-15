@@ -56,13 +56,14 @@
 		"fetchMeemContracts": "tsnd --transpile-only src/scripts/fetchMeemContracts.ts",
 		"fetchMeemIdContracts": "tsnd --transpile-only src/scripts/fetchMeemIdContracts.ts",
 		"fetchContracts": "yarn fetchMeemContracts && yarn fetchMeemIdContracts",
-		"swagger": "npx swagger-inline 'src/types/shared/api/**/*.ts' --base 'src/types/shared/api/swaggerBase.yaml' --format .json > 'src/types/shared/api/meem-api.json'"
+		"swagger": "npx swagger-inline 'src/types/shared/api/**/*.ts' --base 'src/types/shared/api/swaggerBase.yaml' --format .json > 'src/types/shared/api/meem-api.json'",
+		"generateHasuraMetadata": "tsnd --transpile-only src/scripts/generateHasuraMetadata.ts"
 	},
 	"dependencies": {
 		"@guildxyz/sdk": "^1.1.1",
 		"@kengoldfarb/log": "^1.0.3",
-		"@meemproject/meem-contracts": "^0.10.2",
-		"@meemproject/metadata": "^0.10.2",
+		"@meemproject/meem-contracts": "^0.11.0",
+		"@meemproject/metadata": "^0.11.0",
 		"@pinata/sdk": "^1.1.26",
 		"@tableland/sdk": "^3.1.5",
 		"@typechain/ethers-v5": "^10.1.0",

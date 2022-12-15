@@ -28,7 +28,7 @@ export default class MeemIdController {
 		req: IRequest<MeemAPI.v1.Login.IDefinition>,
 		res: IResponse<MeemAPI.v1.Login.IResponseBody>
 	): Promise<Response> {
-		const { accessToken, address, signature, shouldConnectUser } = req.body
+		const { accessToken, message, signature, shouldConnectUser } = req.body
 
 		let user: User | null = null
 
@@ -42,7 +42,7 @@ export default class MeemIdController {
 		const { jwt } = await services.meemId.login({
 			attachToUser: user,
 			accessToken,
-			address,
+			message,
 			signature
 		})
 
