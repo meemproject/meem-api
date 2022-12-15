@@ -1,10 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
-import {
-	IAgreementExtensionMetadata,
-	IAgreementExtensionVisibility
-} from '../types/shared/meem.shared'
+import { IAgreementExtensionVisibility } from '../types/shared/meem.shared'
 import Agreement from './Agreement'
 export default class AgreementExtensionLink extends BaseModel<AgreementExtensionLink> {
 	public static readonly modelName = 'AgreementExtensionLink'
