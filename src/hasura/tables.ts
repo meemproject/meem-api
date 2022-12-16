@@ -690,7 +690,8 @@ export const tables = [
 						'tokenId',
 						'tokenURI'
 					],
-					filter: {}
+					filter: {},
+					allow_aggregations: true
 				}
 			}
 		]
@@ -1214,7 +1215,51 @@ export const tables = [
 		table: {
 			name: 'IdentityProviders',
 			schema: 'public'
-		}
+		},
+		select_permissions: [
+			{
+				role: 'anonymous',
+				permission: {
+					columns: [
+						'connectionId',
+						'connectionName',
+						'description',
+						'icon',
+						'id',
+						'name'
+					],
+					filter: {}
+				}
+			},
+			{
+				role: 'mutualClubMember',
+				permission: {
+					columns: [
+						'connectionId',
+						'connectionName',
+						'description',
+						'icon',
+						'id',
+						'name'
+					],
+					filter: {}
+				}
+			},
+			{
+				role: 'user',
+				permission: {
+					columns: [
+						'connectionId',
+						'connectionName',
+						'description',
+						'icon',
+						'id',
+						'name'
+					],
+					filter: {}
+				}
+			}
+		]
 	},
 	{
 		table: {
@@ -1489,20 +1534,80 @@ export const tables = [
 		],
 		select_permissions: [
 			{
-				role: 'user',
+				role: 'anonymous',
 				permission: {
 					columns: [
 						'IdentityProviderId',
 						'UserId',
-						'createdAt',
 						'id',
 						'metadata',
-						'updatedAt',
 						'visibility'
 					],
 					filter: {
 						visibility: {
 							_eq: 'anyone'
+						}
+					}
+				}
+			},
+			{
+				role: 'mutualClubMember',
+				permission: {
+					columns: [
+						'IdentityProviderId',
+						'UserId',
+						'id',
+						'metadata',
+						'visibility'
+					],
+					filter: {
+						_or: [
+							{
+								visibility: {
+									_eq: 'anyone'
+								}
+							},
+							{
+								_and: [
+									{
+										visibility: {
+											_eq: 'mutualClubMembers'
+										}
+									},
+									{
+										User: {
+											Wallets: {
+												AgreementTokens: {
+													Agreement: {
+														AgreementTokens: {
+															OwnerId: {
+																_eq: 'x-hasura-user-id'
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				role: 'user',
+				permission: {
+					columns: [
+						'IdentityProviderId',
+						'UserId',
+						'id',
+						'metadata',
+						'visibility'
+					],
+					filter: {
+						UserId: {
+							_eq: 'x-hasura-user-id'
 						}
 					}
 				}

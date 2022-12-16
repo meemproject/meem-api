@@ -94,6 +94,7 @@ provider:
     MIN_GASE_PRICE_GWEI: ${env:MIN_GASE_PRICE_GWEI, '2'}
     SQS_QUEUE_URL: ${env:SQS_QUEUE_URL, ''}
     SQS_QUEUE_ARN: ${env:SQS_QUEUE_ARN, ''}
+    TABLELAND_CONTROLLER_BUNDLE_ID: ${env:TABLELAND_CONTROLLER_BUNDLE_ID, ''}
 
 package:
   excludeDevDependencies: true
