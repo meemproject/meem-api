@@ -691,7 +691,9 @@ export enum QueueEvent {
 	CallContract = 'callContract',
 	DeployContract = 'deployContract',
 	DiamondCut = 'diamondCut',
-	CreateTablelandTable = 'createTablelandTable'
+	CreateTablelandTable = 'createTablelandTable',
+	CreateAgreementRole = 'createAgreementRole',
+	SetAgreementAdminContract = 'setAgreementAdminContract'
 }
 
 export enum StorageDataType {
@@ -1040,6 +1042,9 @@ export namespace CreateAgreement {
 
 		/** Token metadata to use if shouldMintTokens is true */
 		tokenMetadata?: IMeemMetadataLike
+
+		/** If true, will create an admin role contract and set it as the admin contract for this agreement */
+		shouldCreateAdminRole?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

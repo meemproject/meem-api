@@ -57,6 +57,9 @@ export namespace CreateAgreement {
 
 		/** Token metadata to use if shouldMintTokens is true */
 		tokenMetadata?: IMeemMetadataLike
+
+		/** If true, will create an admin role contract and set it as the admin contract for this agreement */
+		shouldCreateAdminRole?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -173,4 +176,7 @@ export namespace CreateAgreement {
  *  	tokenMetadata:
  * 			description: Token metadata to use if shouldMintTokens is true
  *  		type: object
+ * 		shouldCreateAdminRole:
+ * 			description: If true, will create an admin role contract and set it as the admin contract for this agreement
+ * 			type: boolean
  */
