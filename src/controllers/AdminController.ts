@@ -155,19 +155,29 @@ export default class AdminController {
 				name: 'Twitter',
 				icon: 'integration-twitter.png',
 				description: 'Verify your Twitter account.',
-				connectionName: 'twitter'
+				connectionName: 'twitter',
+				connectionId: 'twitter'
 			},
 			{
 				name: 'Discord',
 				icon: 'integration-discord.png',
 				description: 'Verify your Discord account.',
-				connectionName: 'discord'
+				connectionName: 'discord',
+				connectionId: 'discord'
 			},
 			{
 				name: 'Email',
 				icon: 'integration-email.png',
 				description: 'Verify your Email.',
-				connectionName: 'email'
+				connectionName: 'Username-Password-Authentication',
+				connectionId: 'auth0'
+			},
+			{
+				name: 'Google',
+				icon: 'integration-google.png',
+				description: 'Verify your Google account.',
+				connectionName: 'google-oauth2',
+				connectionId: 'google-oauth2'
 			}
 		]
 
