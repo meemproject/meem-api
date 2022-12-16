@@ -131,6 +131,7 @@ export default class MeemIdentityService {
 			// 	clientSecret: config.AUTH0_CLIENT_SECRET
 			// })
 			const userInfo = await authClient.getProfile(accessToken)
+
 			log.debug(userInfo)
 
 			if (!userInfo.sub) {
