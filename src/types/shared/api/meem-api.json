@@ -88,6 +88,10 @@
             "description": "The id of the extension to enable",
             "type": "string"
           },
+          "isInitialized": {
+            "description": "Whether the extension initialization is complete",
+            "type": "boolean"
+          },
           "metadata": {
             "description": "Optional metadata associated with this extension",
             "type": "object"
@@ -491,6 +495,10 @@
       },
       "UpdateAgreementExtensionRequestBody": {
         "properties": {
+          "isInitialized": {
+            "description": "Whether the extension initialization is complete",
+            "type": "boolean"
+          },
           "metadata": {
             "description": "Optional metadata associated with this extension",
             "type": "object"
