@@ -253,7 +253,7 @@ export default class QueueService {
 							const adminContractTransaction =
 								await orm.models.Transaction.findOne({
 									where: {
-										id: contractTxId
+										id: inputValues.newAdminContractTxId
 									}
 								})
 
