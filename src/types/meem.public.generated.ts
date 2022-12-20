@@ -473,12 +473,6 @@ export interface IERC721Metadata {
 }
 
 // TODO: Define metadata types for extensions (e.g. type: APP, LINK)
-export interface IAgreementExtensionMetadata {
-	externalUrl?: string
-	[key: string]: any
-}
-
-// TODO: Define metadata types for extensions (e.g. type: APP, LINK)
 export interface IAgreementRoleExtensionMetadata {
 	[key: string]: any
 }
@@ -726,7 +720,8 @@ export interface IExtensionStorageDefinition {
 	}
 }
 
-export interface IAgreementExtensionMetadata extends IMeemMetadataLike {
+export interface IAgreementExtensionMetadata {
+	externalUrl?: string
 	tableland?: {
 		/** The extension table name */
 		[extensionTableName: string]: {
@@ -737,6 +732,12 @@ export interface IAgreementExtensionMetadata extends IMeemMetadataLike {
 			tableId: string
 		}
 	}
+	transactions?: {
+		/** The Transaction id */
+		TransactionId: string
+		status: TransactionStatus
+	}[]
+	[key: string]: any
 }
 
 export namespace v1 {
@@ -2136,44 +2137,6 @@ export namespace JoinGuild {
 
 
 
-/** Save some data to IPFS */
-export namespace SaveToIPFS {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/ipfs`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The data to save. Only one of "data" or "json" should be sent */
-		data?: string
-
-		/** The JSON to save. Only one of "data" or "json" should be sent */
-		json?: Record<string, any>
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		/** The IPFS hash for the saved data */
-		ipfsHash: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-// TODO: How to specify json in OpenAPI definition
-
-
-
-
 /** Create or update the current user */
 export namespace CreateOrUpdateUser {
 	export interface IPathParams {}
@@ -2369,6 +2332,44 @@ export namespace UpdateUserIdentity {
 
 	export type Response = IResponseBody | IError
 }
+
+
+
+
+/** Save some data to IPFS */
+export namespace SaveToIPFS {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/ipfs`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The data to save. Only one of "data" or "json" should be sent */
+		data?: string
+
+		/** The JSON to save. Only one of "data" or "json" should be sent */
+		json?: Record<string, any>
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		/** The IPFS hash for the saved data */
+		ipfsHash: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+// TODO: How to specify json in OpenAPI definition
 
 
 }
