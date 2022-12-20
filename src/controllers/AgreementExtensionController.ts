@@ -13,7 +13,8 @@ export default class AgreementExtensionController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { extensionId, metadata, externalLink, widget } = req.body
+		const { extensionId, isInitialized, metadata, externalLink, widget } =
+			req.body
 
 		if (!extensionId) {
 			throw new Error('MISSING_PARAMETERS')
@@ -115,7 +116,8 @@ export default class AgreementExtensionController {
 			{
 				AgreementId: agreement.id,
 				ExtensionId: extension.id,
-				metadata
+				metadata,
+				isInitialized: isInitialized ?? false
 			},
 			{
 				transaction: t
@@ -233,7 +235,7 @@ export default class AgreementExtensionController {
 		}
 
 		const { agreementId, agreementExtensionId } = req.params
-		const { metadata, externalLink, widget } = req.body
+		const { isInitialized, metadata, externalLink, widget } = req.body
 
 		if (!agreementId || !agreementExtensionId) {
 			throw new Error('INVALID_PARAMETERS')
@@ -297,6 +299,10 @@ export default class AgreementExtensionController {
 		if (metadata) {
 			agreementExtension.metadata = metadata
 			promises.push(agreementExtension.save({ transaction: t }))
+		}
+
+		if (!_.isUndefined(isInitialized)) {
+			agreementExtension.isInitialized = isInitialized
 		}
 
 		if (externalLink) {
