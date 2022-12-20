@@ -22,6 +22,8 @@ export namespace UpdateAgreementExtension {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
+		/** Whether the extension initialization is complete */
+		isInitialized?: boolean
 		/** Optional metadata associated with this extension */
 		metadata?: IMeemMetadataLike
 		/** Optional external link associated with this extension */
@@ -87,6 +89,9 @@ export namespace UpdateAgreementExtension {
 /**
  *  @schema UpdateAgreementExtensionRequestBody
  *  properties:
+ *  	isInitialized:
+ *  		description: Whether the extension initialization is complete
+ *  		type: boolean
  * 		metadata:
  * 			description: Optional metadata associated with this extension
  * 			type: object

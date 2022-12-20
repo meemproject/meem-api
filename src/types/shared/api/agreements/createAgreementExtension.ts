@@ -22,6 +22,9 @@ export namespace CreateAgreementExtension {
 		/** The id of the extension to enable */
 		extensionId: string
 
+		/** Whether the extension initialization is complete */
+		isInitialized?: boolean
+
 		/** Optional metadata associated with this extension */
 		metadata?: IMeemMetadataLike
 
@@ -92,6 +95,9 @@ export namespace CreateAgreementExtension {
  *  	extensionId:
  *  		description: The id of the extension to enable
  *  		type: string
+ *  	isInitialized:
+ *  		description: Whether the extension initialization is complete
+ *  		type: boolean
  * 		metadata:
  * 			description: Optional metadata associated with this extension
  * 			type: object
