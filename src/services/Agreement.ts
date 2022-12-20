@@ -187,7 +187,15 @@ export default class AgreementService {
 			chainId: number
 		}
 	) {
-		const { shouldMintTokens, tokenMetadata, members, metadata, chainId } = data
+		const {
+			shouldMintTokens,
+			tokenMetadata,
+			shouldCreateAdminRole,
+			senderWalletAddress,
+			members,
+			metadata,
+			chainId
+		} = data
 
 		const [dbContract, bundle] = await Promise.all([
 			orm.models.Contract.findOne({
@@ -306,19 +314,16 @@ export default class AgreementService {
 			})
 		})
 
-		const iFace = new ethers.utils.Interface(bundle.abi)
-
-		const functionCall = iFace.encodeFunctionData('initialize', [
-			contractInitParams
-		])
-
 		const cutTxId = await services.ethers.queueDiamondCut({
+			bundleABI: bundle.abi,
 			chainId,
 			contractTxId: deployContractTxId,
 			fromVersion: [],
 			toVersion,
-			functionCall,
-			abi: dbContract.abi
+			abi: dbContract.abi,
+			contractInitParams,
+			metadata,
+			senderWalletAddress
 		})
 
 		let mintTxId
@@ -359,10 +364,65 @@ export default class AgreementService {
 			})
 		}
 
+		let adminRoleContractTxIds:
+			| {
+					deployContractTxId: string
+					cutTxId: string
+					mintTxId?: string
+			  }
+			| undefined
+		let setAdminRoleTxId
+
+		if (shouldCreateAdminRole) {
+			const createAdminRoleResult: {
+				deployContractTxId: string
+				cutTxId: string
+				mintTxId?: string
+			} = await this.createAgreement({
+				name: `${metadata.name} Admin Role`,
+				chainId,
+				maxSupply: '0',
+				admins: cleanAdmins.map(a => a.user),
+				metadata: {
+					meem_metadata_type: 'Meem_AgreementRoleContract',
+					meem_metadata_version: '20221116',
+					image: metadata.image,
+					name: `${metadata.name} Admin Role`,
+					description: `Admin role for the ${metadata.name} agreement.`,
+					meem_agreement_address: '', // This will be set in the transaction queue
+					external_url: ''
+				},
+				senderWalletAddress,
+				shouldMintTokens: true,
+				tokenMetadata: {
+					meem_metadata_type: 'Meem_AgreementRoleToken',
+					meem_metadata_version: '20221116',
+					name: `${metadata.name} Admin Role`,
+					description: `Admin role for the ${metadata.name} agreement.`,
+					external_url: ''
+				}
+			})
+
+			adminRoleContractTxIds = createAdminRoleResult
+
+			setAdminRoleTxId = await services.ethers.queueTransaction({
+				chainId,
+				functionSignature: 'setAdminContract(address)',
+				contractTxId: deployContractTxId,
+				inputValues: {
+					newAdminContractTxId: createAdminRoleResult.deployContractTxId
+				}
+			})
+		}
+
 		return {
 			deployContractTxId,
 			cutTxId,
-			mintTxId
+			mintTxId,
+			adminRoleDeployContractTxId: adminRoleContractTxIds?.deployContractTxId,
+			adminRoleCutTxId: adminRoleContractTxIds?.cutTxId,
+			adminRoleMintTxId: adminRoleContractTxIds?.mintTxId,
+			setAdminRoleTxId
 		}
 	}
 
@@ -375,18 +435,17 @@ export default class AgreementService {
 			chainId: number
 			senderWalletAddress: string
 			agreementOrRole?: Agreement | AgreementRole
-			shouldMintTokens?: boolean
-			tokenMetadata?: MeemAPI.IMeemMetadataLike
+			contractURI?: string
 		}
 	) {
 		const {
 			mintPermissions,
 			splits,
 			isTransferLocked,
-			tokenMetadata,
 			senderWalletAddress,
 			chainId,
-			agreementOrRole
+			agreementOrRole,
+			contractURI
 		} = data
 
 		let senderWallet = await orm.models.Wallet.findByAddress<Wallet>(
@@ -428,7 +487,7 @@ export default class AgreementService {
 		const admins = data.admins ?? []
 		const minters = data.minters ?? []
 
-		if (!metadata?.meem_metadata_version) {
+		if (!metadata?.meem_metadata_version || !metadata?.meem_metadata_type) {
 			throw new Error('INVALID_METADATA')
 		}
 
@@ -443,27 +502,9 @@ export default class AgreementService {
 			throw new Error('INVALID_METADATA')
 		}
 
-		if (data.shouldMintTokens && tokenMetadata) {
-			const tokenMetadataValidator = new Validator(tokenMetadata)
-			const tokenMetadataValidatorResult =
-				tokenMetadataValidator.validate(tokenMetadata)
-
-			if (!tokenMetadataValidatorResult.valid) {
-				log.crit(tokenMetadataValidatorResult.errors.map((e: any) => e.message))
-				throw new Error('INVALID_METADATA')
-			}
-		}
-
-		const result = await services.web3.saveToPinata({
-			json: {
-				...metadata
-			}
-		})
 		const { provider, wallet } = await services.ethers.getProvider({
 			chainId
 		})
-
-		const uri = `ipfs://${result.IpfsHash}`
 
 		const agreementOrRoleAdmins: { address: string; role: string }[] = []
 		const agreementOrRoleMinters: { address: string; role: string }[] = []
@@ -595,7 +636,8 @@ export default class AgreementService {
 		const contractInitParams: InitParamsStruct = {
 			symbol,
 			name,
-			contractURI: uri,
+			// Metadata will be saved to ipfs and replace contractURI in queued transaction
+			contractURI: contractURI ?? '',
 			roles: [
 				...roles,
 				// Give ourselves the upgrader role by default
