@@ -124,6 +124,18 @@ export namespace CreateAgreement {
  * 							mintTxId:
  * 								type: string
  * 								description: The transaction id for minting tokens. Transaction #3
+ * 							adminRoleDeployContractTxId:
+ * 								type: string
+ * 								description: The Transaction id for deploying the admin role contract. Transaction #4
+ * 							adminRoleCutTxId:
+ * 								type: string
+ * 								description: The Transaction id for initializing the admin role contract. Transaction #5
+ * 							adminRoleSetAdminContractTxId:
+ * 								type: string
+ * 								description: The Transaction id for setting the role contract as the admin contract on the agreement. Transaction #6
+ * 							adminRoleMintTxId:
+ * 								type: string
+ * 								description: The Transaction id for minting admin role tokens. Transaction #7
  **/
 
 /**

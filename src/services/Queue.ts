@@ -34,9 +34,12 @@ export interface ICallContractInput
 	inputValues: Record<string, any>
 }
 
-export interface ICreateTablelandTableInput
-	extends IDeployTransactionInput,
-		IDiamondCutTransactionInput {
+export interface ICreateTablelandTableInput extends IDeployTransactionInput {
+	bundleABI: Record<string, any>[]
+	fromVersion: IFacetVersion[]
+	toVersion: IFacetVersion[]
+	contractTxId?: string
+	contractAddress?: string
 	tableName: string
 	agreementExtensionId: string
 	functionCall: string
