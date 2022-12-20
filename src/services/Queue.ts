@@ -117,30 +117,6 @@ export default class QueueService {
 								throw new Error('AGREEMENT_EXTENSION_NOT_FOUND')
 							}
 
-<<<<<<< HEAD
-					const { wallet } = await services.ethers.getProvider({ chainId })
-
-					const {
-						args,
-						bytecode,
-						fromVersion,
-						toVersion,
-						tableName,
-						columns,
-						agreementExtensionId,
-						functionCall
-					} = transactionInput as ICreateTablelandTableInput
-
-					const t = await orm.sequelize.transaction()
-
-					const agreementExtension =
-						await orm.models.AgreementExtension.findOne({
-							where: {
-								id: agreementExtensionId
-							},
-							transaction: t
-						})
-=======
 							// Deploy proxy
 							const proxyContractFactory = new ethers.ContractFactory(
 								customABI,
@@ -149,7 +125,6 @@ export default class QueueService {
 								},
 								wallet
 							)
->>>>>>> dev
 
 							const { nonce: deployNonce } =
 								await services.ethers.aquireLockAndNonce(chainId)
@@ -306,14 +281,6 @@ export default class QueueService {
 
 						await transaction.save()
 
-<<<<<<< HEAD
-				case MeemAPI.QueueEvent.CallContract: {
-					const { nonce } = await services.ethers.aquireLockAndNonce(chainId)
-					const { contractTxId, functionSignature } =
-						transactionInput as ICallContractInput
-					let { contractAddress, inputValues } =
-						transactionInput as ICallContractInput
-=======
 						try {
 							// Update the transaction status in the db
 							await tx.wait()
@@ -326,7 +293,6 @@ export default class QueueService {
 						}
 						break
 					}
->>>>>>> dev
 
 					case MeemAPI.QueueEvent.DeployContract: {
 						if (!customABI) {
@@ -349,83 +315,7 @@ export default class QueueService {
 							wallet
 						)
 
-<<<<<<< HEAD
-					// Special check for admin contract address transaction
-					if (
-						functionSignature.includes('setAdminContract') &&
-						inputValues.newAdminContractTxId
-					) {
-						const adminContractTransaction =
-							await orm.models.Transaction.findOne({
-								where: {
-									id: inputValues.newAdminContractTxId
-								}
-							})
-
-						if (!adminContractTransaction) {
-							log.crit('Admin contract transaction not found')
-							throw new Error('TRANSACTION_NOT_FOUND')
-						}
-
-						const result = await provider.core.getTransactionReceipt(
-							adminContractTransaction.hash
-						)
-
-						inputValues = {
-							newAdminContract: result?.contractAddress
-						}
-					}
-
-					// Encode and send the transaction
-					log.debug({
-						id,
-						value: '0',
-						type: TransactionType.callContract,
-						to: contractAddress,
-						functionSignature,
-						inputValues
-					})
-					const encoded = encodeSingle({
-						id,
-						abi: customABI
-							? JSON.stringify(customABI)
-							: JSON.stringify(meemABI),
-						value: '0',
-						type: TransactionType.callContract,
-						to: contractAddress,
-						functionSignature,
-						inputValues
-					})
-
-					const signedTx = await wallet.signTransaction({
-						...encoded,
-						gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT),
-						gasPrice: services.web3.gweiToWei(recommendedGwei),
-						nonce
-					})
-
-					const tx = await provider.transact.sendTransaction(signedTx)
-					transaction.hash = tx.hash
-
-					log.debug(`Running ${functionSignature} w/ hash: ${tx.hash}`)
-
-					await transaction.save()
-
-					try {
-						// Update the transaction status in the db
-						await tx.wait()
-						transaction.status = MeemAPI.TransactionStatus.Success
-						await transaction.save()
-					} catch (e) {
-						log.warn(e)
-						transaction.status = MeemAPI.TransactionStatus.Failure
-						await transaction.save()
-					}
-					break
-				}
-=======
 						const { nonce } = await services.ethers.aquireLockAndNonce(chainId)
->>>>>>> dev
 
 						const unsignedTx = proxyContractFactory.getDeployTransaction(
 							...args,
@@ -476,26 +366,12 @@ export default class QueueService {
 						let { contractAddress } =
 							transactionInput as IDiamondCutTransactionInput
 
-<<<<<<< HEAD
-					const {
-						bundleABI,
-						contractTxId,
-						fromVersion,
-						toVersion,
-						metadata,
-						parentContractTxtId,
-						contractInitParams
-					} = transactionInput as IDiamondCutTransactionInput
-					let { contractAddress } =
-						transactionInput as IDiamondCutTransactionInput
-=======
 						if (!contractAddress) {
 							const contractTransaction = await orm.models.Transaction.findOne({
 								where: {
 									id: contractTxId
 								}
 							})
->>>>>>> dev
 
 							if (!contractTransaction) {
 								log.crit('Contract transaction not found')
@@ -520,84 +396,11 @@ export default class QueueService {
 
 						const { nonce } = await services.ethers.aquireLockAndNonce(chainId)
 
-<<<<<<< HEAD
-					let parentContractAddress: string | undefined
-
-					if (parentContractTxtId) {
-						const parentContractTransaction =
-							await orm.models.Transaction.findOne({
-								where: {
-									id: parentContractTxtId
-								}
-							})
-
-						if (!parentContractTransaction) {
-							log.crit('Contract transaction not found')
-							throw new Error('TRANSACTION_NOT_FOUND')
-						}
-
-						const result = await provider.core.getTransactionReceipt(
-							parentContractTransaction.hash
-						)
-						parentContractAddress = result?.contractAddress
-					}
-
-					if (metadata && contractInitParams.contractURI === '') {
-						if (parentContractAddress) {
-							metadata.meem_agreement_address = parentContractAddress
-						}
-
-						const result = await services.web3.saveToPinata({
-							json: {
-								...metadata
-							}
-						})
-
-						contractInitParams.contractURI = `ipfs://${result.IpfsHash}`
-					}
-
-					const iFace = new ethers.utils.Interface(bundleABI)
-					const functionCall = iFace.encodeFunctionData('initialize', [
-						contractInitParams
-					])
-
-					const proxyContract = new ethers.Contract(
-						contractAddress,
-						customABI,
-						wallet
-					)
-
-					const { nonce } = await services.ethers.aquireLockAndNonce(chainId)
-
-					const cuts = getCuts({
-						proxyContractAddress: proxyContract.address,
-						fromVersion,
-						toVersion
-					})
-
-					const facetCuts = cuts.map(c => ({
-						target: c.facetAddress,
-						action: c.action,
-						selectors: c.functionSelectors
-					}))
-
-					const tx = await proxyContract.diamondCut(
-						facetCuts,
-						contractAddress,
-						functionCall,
-						{
-							nonce,
-							gasPrice: services.web3.gweiToWei(recommendedGwei),
-							gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
-						}
-					)
-=======
 						const cuts = getCuts({
 							proxyContractAddress: proxyContract.address,
 							fromVersion,
 							toVersion
 						})
->>>>>>> dev
 
 						const facetCuts = cuts.map(c => ({
 							target: c.facetAddress,
