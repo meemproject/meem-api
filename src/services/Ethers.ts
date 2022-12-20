@@ -5,6 +5,7 @@ import { IFacetVersion } from '@meemproject/meem-contracts'
 import { Alchemy, Network, Wallet } from 'alchemy-sdk'
 import { ethers } from 'ethers'
 import { v4 as uuidv4 } from 'uuid'
+import { InitParamsStruct } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 import { ICreateTablelandTableInput } from './Queue'
 
@@ -239,20 +240,28 @@ export default class EthersService {
 	public async queueDiamondCut(options: {
 		chainId: number
 		abi: Record<string, any>[]
-		functionCall: string
+		bundleABI: Record<string, any>[]
 		fromVersion: IFacetVersion[]
 		toVersion: IFacetVersion[]
+		contractInitParams: InitParamsStruct
+		senderWalletAddress: string
+		metadata: MeemAPI.IMeemMetadataLike
 		contractTxId?: string
 		contractAddress?: string
+		parentContractTxtId?: string
 	}) {
 		const {
 			chainId,
 			abi,
-			functionCall,
+			bundleABI,
 			fromVersion,
 			toVersion,
 			contractAddress,
-			contractTxId
+			contractTxId,
+			contractInitParams,
+			metadata,
+			senderWalletAddress,
+			parentContractTxtId
 		} = options
 
 		if (!contractAddress && !contractTxId) {
@@ -269,11 +278,15 @@ export default class EthersService {
 				chainId,
 				customABI: abi,
 				transactionInput: {
-					functionCall,
+					bundleABI,
 					fromVersion,
 					toVersion,
 					contractTxId,
-					contractAddress
+					contractAddress,
+					contractInitParams,
+					metadata,
+					senderWalletAddress,
+					parentContractTxtId
 				}
 			}),
 			MessageGroupId: '1'
