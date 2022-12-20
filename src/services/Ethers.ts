@@ -248,6 +248,7 @@ export default class EthersService {
 		metadata: MeemAPI.IMeemMetadataLike
 		contractTxId?: string
 		contractAddress?: string
+		parentContractTxtId?: string
 	}) {
 		const {
 			chainId,
@@ -259,7 +260,8 @@ export default class EthersService {
 			contractTxId,
 			contractInitParams,
 			metadata,
-			senderWalletAddress
+			senderWalletAddress,
+			parentContractTxtId
 		} = options
 
 		if (!contractAddress && !contractTxId) {
@@ -283,7 +285,8 @@ export default class EthersService {
 					contractAddress,
 					contractInitParams,
 					metadata,
-					senderWalletAddress
+					senderWalletAddress,
+					parentContractTxtId
 				}
 			}),
 			MessageGroupId: '1'

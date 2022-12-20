@@ -185,6 +185,8 @@ export default class AgreementService {
 		) & {
 			senderWalletAddress: string
 			chainId: number
+			shouldCreateAdminRole?: boolean
+			parentContractTxtId?: string
 		}
 	) {
 		const {
@@ -194,7 +196,8 @@ export default class AgreementService {
 			senderWalletAddress,
 			members,
 			metadata,
-			chainId
+			chainId,
+			parentContractTxtId
 		} = data
 
 		const [dbContract, bundle] = await Promise.all([
@@ -258,7 +261,10 @@ export default class AgreementService {
 		}[] = []
 
 		if (shouldMintTokens && tokenMetadata) {
-			const addresses = [...cleanAdmins.map(a => a.user), ...(members ?? [])]
+			const addresses = [
+				...cleanAdmins.map(a => a.user),
+				...(members ?? [])
+			].filter(a => a.toLowerCase() !== wallet.address.toLowerCase())
 
 			const tokens = addresses.map(a => {
 				return {
@@ -323,7 +329,8 @@ export default class AgreementService {
 			abi: dbContract.abi,
 			contractInitParams,
 			metadata,
-			senderWalletAddress
+			senderWalletAddress,
+			parentContractTxtId
 		})
 
 		let mintTxId
@@ -383,6 +390,7 @@ export default class AgreementService {
 				chainId,
 				maxSupply: '0',
 				admins: cleanAdmins.map(a => a.user),
+				parentContractTxtId: deployContractTxId,
 				metadata: {
 					meem_metadata_type: 'Meem_AgreementRoleContract',
 					meem_metadata_version: '20221116',
@@ -410,7 +418,7 @@ export default class AgreementService {
 				functionSignature: 'setAdminContract(address)',
 				contractTxId: deployContractTxId,
 				inputValues: {
-					newAdminContractTxId: createAdminRoleResult.deployContractTxId
+					newAdminContractTxId: adminRoleContractTxIds.deployContractTxId
 				}
 			})
 		}
