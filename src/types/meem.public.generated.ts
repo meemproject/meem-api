@@ -1039,6 +1039,9 @@ export namespace CreateAgreement {
 
 		/** Token metadata to use if shouldMintTokens is true */
 		tokenMetadata?: IMeemMetadataLike
+
+		/** If true, will create an admin role contract and set it as the admin contract for this agreement */
+		shouldCreateAdminRole?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -1050,6 +1053,18 @@ export namespace CreateAgreement {
 
 		/** The Transaction id for minting tokens. Transaction #3 */
 		mintTxId?: string
+
+		/** The Transaction id for deploying the admin role contract. Transaction #4 */
+		adminRoleDeployContractTxId?: string
+
+		/** The Transaction id for initializing the admin role contract. Transaction #5 */
+		adminRoleCutTxId?: string
+
+		/** The Transaction id for setting the role contract as the admin contract on the agreement. Transaction #6 */
+		adminRoleSetAdminContractTxId?: string
+
+		/** The Transaction id for minting admin role tokens. Transaction #7 */
+		adminRoleMintTxId?: string
 	}
 
 	export interface IDefinition {
@@ -1082,6 +1097,9 @@ export namespace CreateAgreementExtension {
 	export interface IRequestBody {
 		/** The id of the extension to enable */
 		extensionId: string
+
+		/** Whether the extension initialization is complete */
+		isInitialized?: boolean
 
 		/** Optional metadata associated with this extension */
 		metadata?: IMeemMetadataLike
@@ -1614,6 +1632,8 @@ export namespace UpdateAgreementExtension {
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
+		/** Whether the extension initialization is complete */
+		isInitialized?: boolean
 		/** Optional metadata associated with this extension */
 		metadata?: IMeemMetadataLike
 		/** Optional external link associated with this extension */

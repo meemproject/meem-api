@@ -45,6 +45,10 @@ export default class UserIdentity extends BaseModel<UserIdentity> {
 
 	public metadata!: { [key: string]: unknown }
 
+	public IdentityProviderId!: string | null
+
+	public IdentityProvider!: string | null
+
 	public UserId!: string | null
 
 	public User!: User | null

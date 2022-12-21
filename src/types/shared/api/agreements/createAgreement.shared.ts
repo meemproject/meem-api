@@ -57,6 +57,9 @@ export namespace CreateAgreement {
 
 		/** Token metadata to use if shouldMintTokens is true */
 		tokenMetadata?: IMeemMetadataLike
+
+		/** If true, will create an admin role contract and set it as the admin contract for this agreement */
+		shouldCreateAdminRole?: boolean
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
@@ -68,6 +71,18 @@ export namespace CreateAgreement {
 
 		/** The Transaction id for minting tokens. Transaction #3 */
 		mintTxId?: string
+
+		/** The Transaction id for deploying the admin role contract. Transaction #4 */
+		adminRoleDeployContractTxId?: string
+
+		/** The Transaction id for initializing the admin role contract. Transaction #5 */
+		adminRoleCutTxId?: string
+
+		/** The Transaction id for setting the role contract as the admin contract on the agreement. Transaction #6 */
+		adminRoleSetAdminContractTxId?: string
+
+		/** The Transaction id for minting admin role tokens. Transaction #7 */
+		adminRoleMintTxId?: string
 	}
 
 	export interface IDefinition {
@@ -109,6 +124,18 @@ export namespace CreateAgreement {
  * 							mintTxId:
  * 								type: string
  * 								description: The transaction id for minting tokens. Transaction #3
+ * 							adminRoleDeployContractTxId:
+ * 								type: string
+ * 								description: The Transaction id for deploying the admin role contract. Transaction #4
+ * 							adminRoleCutTxId:
+ * 								type: string
+ * 								description: The Transaction id for initializing the admin role contract. Transaction #5
+ * 							adminRoleSetAdminContractTxId:
+ * 								type: string
+ * 								description: The Transaction id for setting the role contract as the admin contract on the agreement. Transaction #6
+ * 							adminRoleMintTxId:
+ * 								type: string
+ * 								description: The Transaction id for minting admin role tokens. Transaction #7
  **/
 
 /**
@@ -173,4 +200,7 @@ export namespace CreateAgreement {
  *  	tokenMetadata:
  * 			description: Token metadata to use if shouldMintTokens is true
  *  		type: object
+ * 		shouldCreateAdminRole:
+ * 			description: If true, will create an admin role contract and set it as the admin contract for this agreement
+ * 			type: boolean
  */

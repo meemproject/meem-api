@@ -5,6 +5,7 @@ import { ethers } from 'ethers'
 import { encodeSingle, TransactionType } from 'ethers-multisend'
 import type { CallContractTransactionInput } from 'ethers-multisend'
 import meemABI from '../abis/Meem.json'
+import { InitParamsStruct } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
 export interface IDeployTransactionInput {
@@ -13,11 +14,15 @@ export interface IDeployTransactionInput {
 }
 
 export interface IDiamondCutTransactionInput {
+	bundleABI: Record<string, any>[]
 	fromVersion: IFacetVersion[]
 	toVersion: IFacetVersion[]
+	contractInitParams: InitParamsStruct
+	senderWalletAddress: string
+	metadata: MeemAPI.IMeemMetadataLike
 	contractTxId?: string
 	contractAddress?: string
-	functionCall: string
+	parentContractTxtId?: string
 }
 
 export interface ICallContractInput
@@ -29,11 +34,14 @@ export interface ICallContractInput
 	inputValues: Record<string, any>
 }
 
-export interface ICreateTablelandTableInput
-	extends IDeployTransactionInput,
-		IDiamondCutTransactionInput {
+export interface ICreateTablelandTableInput extends IDeployTransactionInput {
+	fromVersion: IFacetVersion[]
+	toVersion: IFacetVersion[]
+	contractTxId?: string
+	contractAddress?: string
 	tableName: string
 	agreementExtensionId: string
+	functionCall: string
 	columns: {
 		[columnName: string]: MeemAPI.StorageDataType
 	}
@@ -203,6 +211,18 @@ export default class QueueService {
 									}
 								}
 							} as MeemAPI.IAgreementExtensionMetadata
+
+							let isInitialized = true
+
+							if (Array.isArray(agreementExtension.metadata.transactions)) {
+								agreementExtension.metadata.transactions.forEach(t => {
+									if (t.status !== MeemAPI.TransactionStatus.Success) {
+										isInitialized = false
+									}
+								})
+							}
+
+							agreementExtension.isInitialized = isInitialized
 							agreementExtension.changed('metadata', true)
 
 							await transaction.save({ transaction: t })
@@ -241,9 +261,10 @@ export default class QueueService {
 
 					case MeemAPI.QueueEvent.CallContract: {
 						const { nonce } = await services.ethers.aquireLockAndNonce(chainId)
-						const { contractTxId, functionSignature, inputValues } =
+						const { contractTxId, functionSignature } =
 							transactionInput as ICallContractInput
-						let { contractAddress } = transactionInput as ICallContractInput
+						let { contractAddress, inputValues } =
+							transactionInput as ICallContractInput
 
 						const { provider, wallet } = await services.ethers.getProvider({
 							chainId
@@ -269,6 +290,32 @@ export default class QueueService {
 
 						if (!contractAddress) {
 							throw new Error('CONTRACT_ADDRESS_NOT_FOUND')
+						}
+
+						// Special check for admin contract address transaction
+						if (
+							functionSignature.includes('setAdminContract') &&
+							inputValues.newAdminContractTxId
+						) {
+							const adminContractTransaction =
+								await orm.models.Transaction.findOne({
+									where: {
+										id: inputValues.newAdminContractTxId
+									}
+								})
+
+							if (!adminContractTransaction) {
+								log.crit('Admin contract transaction not found')
+								throw new Error('TRANSACTION_NOT_FOUND')
+							}
+
+							const result = await provider.core.getTransactionReceipt(
+								adminContractTransaction.hash
+							)
+
+							inputValues = {
+								newAdminContract: result?.contractAddress
+							}
 						}
 
 						// Encode and send the transaction
@@ -387,8 +434,16 @@ export default class QueueService {
 							chainId
 						})
 
-						const { contractTxId, fromVersion, toVersion, functionCall } =
-							transactionInput as IDiamondCutTransactionInput
+						const {
+							bundleABI,
+							contractTxId,
+							fromVersion,
+							toVersion,
+							metadata,
+							parentContractTxtId,
+							contractInitParams
+						} = transactionInput as IDiamondCutTransactionInput
+
 						let { contractAddress } =
 							transactionInput as IDiamondCutTransactionInput
 
@@ -413,6 +468,46 @@ export default class QueueService {
 						if (!contractAddress) {
 							throw new Error('CONTRACT_ADDRESS_NOT_FOUND')
 						}
+
+						let parentContractAddress: string | undefined
+
+						if (parentContractTxtId) {
+							const parentContractTransaction =
+								await orm.models.Transaction.findOne({
+									where: {
+										id: parentContractTxtId
+									}
+								})
+
+							if (!parentContractTransaction) {
+								log.crit('Contract transaction not found')
+								throw new Error('TRANSACTION_NOT_FOUND')
+							}
+
+							const result = await provider.core.getTransactionReceipt(
+								parentContractTransaction.hash
+							)
+							parentContractAddress = result?.contractAddress
+						}
+
+						if (metadata && contractInitParams.contractURI === '') {
+							if (parentContractAddress) {
+								metadata.meem_agreement_address = parentContractAddress
+							}
+
+							const result = await services.web3.saveToPinata({
+								json: {
+									...metadata
+								}
+							})
+
+							contractInitParams.contractURI = `ipfs://${result.IpfsHash}`
+						}
+
+						const iFace = new ethers.utils.Interface(bundleABI)
+						const functionCall = iFace.encodeFunctionData('initialize', [
+							contractInitParams
+						])
 
 						const proxyContract = new ethers.Contract(
 							contractAddress,

@@ -88,6 +88,10 @@
             "description": "The id of the extension to enable",
             "type": "string"
           },
+          "isInitialized": {
+            "description": "Whether the extension initialization is complete",
+            "type": "boolean"
+          },
           "metadata": {
             "description": "Optional metadata associated with this extension",
             "type": "object"
@@ -221,6 +225,10 @@
           "tokenMetadata": {
             "description": "Token metadata to use if shouldMintTokens is true",
             "type": "object"
+          },
+          "shouldCreateAdminRole": {
+            "description": "If true, will create an admin role contract and set it as the admin contract for this agreement",
+            "type": "boolean"
           }
         }
       },
@@ -449,6 +457,14 @@
           }
         }
       },
+      "SaveToIPFSRequestBody": {
+        "properties": {
+          "data": {
+            "description": "The data to save to IPFS",
+            "type": "string"
+          }
+        }
+      },
       "SetAgreementSafeAddressRequestBody": {
         "required": [
           "address"
@@ -479,6 +495,10 @@
       },
       "UpdateAgreementExtensionRequestBody": {
         "properties": {
+          "isInitialized": {
+            "description": "Whether the extension initialization is complete",
+            "type": "boolean"
+          },
           "metadata": {
             "description": "Optional metadata associated with this extension",
             "type": "object"
@@ -613,6 +633,22 @@
                     "mintTxId": {
                       "type": "string",
                       "description": "The transaction id for minting tokens. Transaction"
+                    },
+                    "adminRoleDeployContractTxId": {
+                      "type": "string",
+                      "description": "The Transaction id for deploying the admin role contract. Transaction"
+                    },
+                    "adminRoleCutTxId": {
+                      "type": "string",
+                      "description": "The Transaction id for initializing the admin role contract. Transaction"
+                    },
+                    "adminRoleSetAdminContractTxId": {
+                      "type": "string",
+                      "description": "The Transaction id for setting the role contract as the admin contract on the agreement. Transaction"
+                    },
+                    "adminRoleMintTxId": {
+                      "type": "string",
+                      "description": "The Transaction id for minting admin role tokens. Transaction"
                     }
                   }
                 }
@@ -1394,6 +1430,39 @@
                   "properties": {
                     "nonce": {
                       "description": "The generated message to sign",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ipfs": {
+      "post": {
+        "summary": "Save data to IPFS",
+        "description": "Save data to IPFS",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveToIPFSRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the IPFS hash",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ipfsHash": {
+                      "description": "The IPFS hash",
                       "type": "string"
                     }
                   }
