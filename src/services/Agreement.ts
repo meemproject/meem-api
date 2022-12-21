@@ -115,11 +115,13 @@ export default class AgreementService {
 			}
 		})
 
-		const agreementRole = await orm.models.AgreementRole.findOne({
-			where: {
-				id: agreementRoleId
-			}
-		})
+		const agreementRole = agreementRoleId
+			? await orm.models.AgreementRole.findOne({
+					where: {
+						id: agreementRoleId
+					}
+			  })
+			: null
 
 		if (!agreement || (agreementRoleId && !agreementRole)) {
 			throw new Error('AGREEMENT_NOT_FOUND')
@@ -452,9 +454,10 @@ export default class AgreementService {
 			isTransferLocked,
 			senderWalletAddress,
 			chainId,
-			agreementOrRole,
-			contractURI
+			agreementOrRole
 		} = data
+
+		let { contractURI } = data
 
 		let senderWallet = await orm.models.Wallet.findByAddress<Wallet>(
 			senderWalletAddress
@@ -639,6 +642,10 @@ export default class AgreementService {
 					fullMintPermissions.push(perm)
 				}
 			})
+		}
+
+		if (agreementOrRole && !contractURI) {
+			contractURI = agreementOrRole.contractURI
 		}
 
 		const contractInitParams: InitParamsStruct = {
