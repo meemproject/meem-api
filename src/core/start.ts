@@ -3,6 +3,7 @@ import path from 'path'
 import log, { LogLevel } from '@kengoldfarb/log'
 import express, { Express } from 'express'
 import globby from 'globby'
+import Gun from 'gun'
 import fetch from 'node-fetch'
 import ProviderListener from '../listeners/ProviderListener'
 import Configuration from './Configuration'
@@ -152,6 +153,8 @@ export default async function start(options?: {
 			canSubscribe: socketsConfig.canSubscribe,
 			adapters: socketsConfig.adapters
 		})
+
+		g.gun = Gun({ web: server })
 	}
 
 	if (config.GENERATE_SHARED_TYPES) {

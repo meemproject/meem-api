@@ -60,3 +60,6 @@ tmp/*
 .diamond/
 contracts/cache/
 contracts/artifacts/
+
+# GunDB
+radata/
