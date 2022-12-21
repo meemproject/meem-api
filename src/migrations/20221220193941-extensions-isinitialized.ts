@@ -4,11 +4,9 @@ import { tryPromise } from './lib/utils'
 export default {
 	up: async (queryInterface: QueryInterface, _sequelize: Sequelize) => {
 		await tryPromise(
-			queryInterface.addColumn('Extensions', 'slug', {
-				type: DataTypes.STRING,
-				defaultValue: '',
-				allowNull: false,
-				primaryKey: true
+			queryInterface.addColumn('AgreementExtensions', 'isInitialized', {
+				type: DataTypes.BOOLEAN,
+				defaultValue: false
 			})
 		)
 	},

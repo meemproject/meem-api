@@ -42,7 +42,7 @@ export const tables = [
 							},
 							{
 								visibility: {
-									_eq: 'token-holders'
+									_in: ['token-holders', 'anyone']
 								}
 							}
 						]
@@ -139,7 +139,7 @@ export const tables = [
 							},
 							{
 								visibility: {
-									_eq: 'token-holders'
+									_in: ['token-holders', 'anyone']
 								}
 							}
 						]
@@ -247,13 +247,14 @@ export const tables = [
 				role: 'anonymous',
 				permission: {
 					columns: [
-						'metadata',
-						'createdAt',
-						'updatedAt',
 						'AgreementId',
 						'AgreementRoleId',
 						'ExtensionId',
-						'id'
+						'createdAt',
+						'id',
+						'isInitialized',
+						'metadata',
+						'updatedAt'
 					],
 					filter: {}
 				}
@@ -262,13 +263,14 @@ export const tables = [
 				role: 'mutualClubMember',
 				permission: {
 					columns: [
-						'metadata',
-						'createdAt',
-						'updatedAt',
 						'AgreementId',
 						'AgreementRoleId',
 						'ExtensionId',
-						'id'
+						'createdAt',
+						'id',
+						'isInitialized',
+						'metadata',
+						'updatedAt'
 					],
 					filter: {}
 				}
@@ -277,13 +279,14 @@ export const tables = [
 				role: 'user',
 				permission: {
 					columns: [
-						'metadata',
-						'createdAt',
-						'updatedAt',
 						'AgreementId',
 						'AgreementRoleId',
 						'ExtensionId',
-						'id'
+						'createdAt',
+						'id',
+						'isInitialized',
+						'metadata',
+						'updatedAt'
 					],
 					filter: {}
 				}
