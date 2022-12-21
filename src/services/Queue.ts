@@ -215,8 +215,8 @@ export default class QueueService {
 							let isInitialized = true
 
 							if (Array.isArray(agreementExtension.metadata.transactions)) {
-								agreementExtension.metadata.transactions.forEach(t => {
-									if (t.status !== MeemAPI.TransactionStatus.Success) {
+								agreementExtension.metadata.transactions.forEach(tx => {
+									if (tx.status !== MeemAPI.TransactionStatus.Success) {
 										isInitialized = false
 									}
 								})
