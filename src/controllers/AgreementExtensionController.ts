@@ -112,17 +112,12 @@ export default class AgreementExtensionController {
 			throw new Error('CONTRACT_NOT_FOUND')
 		}
 
-		const agreementExtension = await orm.models.AgreementExtension.create(
-			{
-				AgreementId: agreement.id,
-				ExtensionId: extension.id,
-				metadata,
-				isInitialized: isInitialized ?? false
-			},
-			{
-				transaction: t
-			}
-		)
+		const agreementExtension = await orm.models.AgreementExtension.build({
+			AgreementId: agreement.id,
+			ExtensionId: extension.id,
+			metadata,
+			isInitialized: isInitialized ?? false
+		})
 
 		const txIds: string[] = []
 
@@ -184,7 +179,19 @@ export default class AgreementExtensionController {
 			}
 		}
 
-		const promises: Promise<any>[] = []
+		agreementExtension.metadata = {
+			...agreementExtension.metadata,
+			transactions: txIds.map(txId => ({
+				TransactionId: txId,
+				status: MeemAPI.TransactionStatus.Pending
+			}))
+		}
+
+		const promises: Promise<any>[] = [
+			agreementExtension.save({
+				transaction: t
+			})
+		]
 
 		if (externalLink) {
 			promises.push(

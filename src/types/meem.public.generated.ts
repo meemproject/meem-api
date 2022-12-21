@@ -473,12 +473,6 @@ export interface IERC721Metadata {
 }
 
 // TODO: Define metadata types for extensions (e.g. type: APP, LINK)
-export interface IAgreementExtensionMetadata {
-	externalUrl?: string
-	[key: string]: any
-}
-
-// TODO: Define metadata types for extensions (e.g. type: APP, LINK)
 export interface IAgreementRoleExtensionMetadata {
 	[key: string]: any
 }
@@ -726,7 +720,8 @@ export interface IExtensionStorageDefinition {
 	}
 }
 
-export interface IAgreementExtensionMetadata extends IMeemMetadataLike {
+export interface IAgreementExtensionMetadata {
+	externalUrl?: string
 	tableland?: {
 		/** The extension table name */
 		[extensionTableName: string]: {
@@ -737,6 +732,12 @@ export interface IAgreementExtensionMetadata extends IMeemMetadataLike {
 			tableId: string
 		}
 	}
+	transactions?: {
+		/** The Transaction id */
+		TransactionId: string
+		status: TransactionStatus
+	}[]
+	[key: string]: any
 }
 
 export namespace v1 {

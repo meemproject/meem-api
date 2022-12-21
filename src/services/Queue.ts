@@ -184,12 +184,26 @@ export default class QueueService {
 							transaction.status = MeemAPI.TransactionStatus.Success
 							transaction.hash = result.txnHash
 
+							const transactions = agreementExtension.metadata?.transactions
+							if (Array.isArray(agreementExtension.metadata?.transactions)) {
+								const idx = transactions?.findIndex(
+									tx => tx.TransactionId === transaction.id
+								)
+								if (transactions && typeof idx !== 'undefined' && idx > -1) {
+									transactions[idx] = {
+										...transactions[idx],
+										status: MeemAPI.TransactionStatus.Success
+									}
+								}
+							}
+
 							agreementExtension.metadata = {
 								...agreementExtension.metadata,
+								transactions,
 								storage: {
 									...agreementExtension.metadata?.storage,
 									tableland: {
-										...agreementExtension.metadata?.storage.tableland,
+										...agreementExtension.metadata?.storage?.tableland,
 										[tableName]: {
 											tableId: result.tableId?.toHexString(),
 											tablelandTableName: result.name
@@ -197,6 +211,18 @@ export default class QueueService {
 									}
 								}
 							} as MeemAPI.IAgreementExtensionMetadata
+
+							let isInitialized = true
+
+							if (Array.isArray(agreementExtension.metadata.transactions)) {
+								agreementExtension.metadata.transactions.forEach(tx => {
+									if (tx.status !== MeemAPI.TransactionStatus.Success) {
+										isInitialized = false
+									}
+								})
+							}
+
+							agreementExtension.isInitialized = isInitialized
 							agreementExtension.changed('metadata', true)
 
 							await transaction.save({ transaction: t })
@@ -205,6 +231,27 @@ export default class QueueService {
 							await t.commit()
 						} catch (e) {
 							log.crit(e)
+							if (agreementExtension) {
+								const transactions = agreementExtension.metadata?.transactions
+								if (Array.isArray(agreementExtension.metadata?.transactions)) {
+									const idx = transactions?.findIndex(
+										tx => tx.TransactionId === transaction.id
+									)
+									if (transactions && typeof idx !== 'undefined' && idx > -1) {
+										transactions[idx] = {
+											...transactions[idx],
+											status: MeemAPI.TransactionStatus.Failure
+										}
+									}
+								}
+
+								agreementExtension.metadata = {
+									...agreementExtension.metadata,
+									transactions
+								} as MeemAPI.IAgreementExtensionMetadata
+								agreementExtension.changed('metadata', true)
+							}
+
 							transaction.status = MeemAPI.TransactionStatus.Failure
 							await transaction.save()
 						}

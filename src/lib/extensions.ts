@@ -2,12 +2,12 @@ import { ethers } from 'ethers'
 
 export default [
 	{
-		id: 'c0478003-8ae7-4b24-9517-a459ba1f35a5',
+		id: '3d7cca32-3a82-4f0c-85e7-a285976f3f46',
 		name: 'Discussions',
 		description: 'Discuss things!',
 		icon: 'integration-discussions.png',
 		guideUrl: '',
-		slug: 'discussions',
+		slug: 'discussion',
 		storageDefinition: {
 			tableland: {
 				tables: [
@@ -54,6 +54,7 @@ export default [
 							data: 'text',
 							accessControlConditions: 'text',
 							encryptedSymmetricKey: 'text',
+							refTable: 'text',
 							refId: 'integer'
 						},
 						permissions: {
