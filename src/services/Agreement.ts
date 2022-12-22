@@ -174,7 +174,9 @@ export default class AgreementService {
 					'reinitialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256,bytes32)[],(address,uint256,address)[],bool))'
 				].format(),
 			contractAddress: agreementOrRoleContract.address,
-			inputValues: contractInitParams
+			inputValues: {
+				params: contractInitParams
+			}
 		})
 
 		return { txId }
