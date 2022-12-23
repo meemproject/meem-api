@@ -1,52 +1,64 @@
+import Agreement from '../models/Agreement'
+import AgreementExtension from '../models/AgreementExtension'
+import AgreementExtensionLink from '../models/AgreementExtensionLink'
+import AgreementExtensionRole from '../models/AgreementExtensionRole'
+import AgreementExtensionWidget from '../models/AgreementExtensionWidget'
+import AgreementRole from '../models/AgreementRole'
+import AgreementRoleExtension from '../models/AgreementRoleExtension'
+import AgreementRoleToken from '../models/AgreementRoleToken'
+import AgreementRoleTokenTransfer from '../models/AgreementRoleTokenTransfer'
+import AgreementRoleWallet from '../models/AgreementRoleWallet'
+import AgreementToken from '../models/AgreementToken'
+import AgreementTokenTransfer from '../models/AgreementTokenTransfer'
+import AgreementWallet from '../models/AgreementWallet'
 import Bundle from '../models/Bundle'
 import BundleContract from '../models/BundleContract'
-import Clipping from '../models/Clipping'
+import ChainNonce from '../models/ChainNonce'
 import Contract from '../models/Contract'
 import ContractInstance from '../models/ContractInstance'
 import Discord from '../models/Discord'
+import Extension from '../models/Extension'
 import Hashtag from '../models/Hashtag'
-import IdentityIntegration from '../models/IdentityIntegration'
-import Integration from '../models/Integration'
-import Meem from '../models/Meem'
-import MeemContract from '../models/MeemContract'
-import MeemContractIntegration from '../models/MeemContractIntegration'
-import MeemContractWallet from '../models/MeemContractWallet'
-import MeemIdentity from '../models/MeemIdentity'
-import MeemIdentityIntegration from '../models/MeemIdentityIntegration'
-import MeemIdentityWallet from '../models/MeemIdentityWallet'
-import Reaction from '../models/Reaction'
+import IdentityProvider from '../models/IdentityProvider'
 import Transaction from '../models/Transaction'
-import Transfer from '../models/Transfer'
 import Tweet from '../models/Tweet'
 import TweetHashtag from '../models/TweetHashtag'
 import Twitter from '../models/Twitter'
+import User from '../models/User'
+import UserIdentity from '../models/UserIdentity'
 import Wallet from '../models/Wallet'
 import WalletContractInstance from '../models/WalletContractInstance'
 
 export interface IModels {
 	Bundle: typeof Bundle
 	BundleContract: typeof BundleContract
-	Clipping: typeof Clipping
+	ChainNonce: typeof ChainNonce
 	Contract: typeof Contract
 	ContractInstance: typeof ContractInstance
 	Discord: typeof Discord
 	Hashtag: typeof Hashtag
-	Integration: typeof Integration
-	Meem: typeof Meem
-	MeemContract: typeof MeemContract
-	IdentityIntegration: typeof IdentityIntegration
-	MeemIdentityIntegration: typeof MeemIdentityIntegration
-	MeemContractIntegration: typeof MeemContractIntegration
-	MeemContractWallet: typeof MeemContractWallet
-	Reaction: typeof Reaction
+	Extension: typeof Extension
+	AgreementToken: typeof AgreementToken
+	Agreement: typeof Agreement
+	IdentityProvider: typeof IdentityProvider
+	UserIdentity: typeof UserIdentity
+	AgreementRole: typeof AgreementRole
+	AgreementRoleToken: typeof AgreementRoleToken
+	AgreementExtension: typeof AgreementExtension
+	AgreementExtensionLink: typeof AgreementExtensionLink
+	AgreementExtensionWidget: typeof AgreementExtensionWidget
+	AgreementExtensionRole: typeof AgreementExtensionRole
+	AgreementRoleExtension: typeof AgreementRoleExtension
+	AgreementWallet: typeof AgreementWallet
+	AgreementRoleWallet: typeof AgreementRoleWallet
 	Transaction: typeof Transaction
-	Transfer: typeof Transfer
+	AgreementTokenTransfer: typeof AgreementTokenTransfer
+	AgreementRoleTokenTransfer: typeof AgreementRoleTokenTransfer
 	Tweet: typeof Tweet
 	TweetHashtag: typeof TweetHashtag
 	Twitter: typeof Twitter
+	User: typeof User
 	Wallet: typeof Wallet
-	MeemIdentity: typeof MeemIdentity
-	MeemIdentityWallet: typeof MeemIdentityWallet
 	WalletContractInstance: typeof WalletContractInstance
 }
 

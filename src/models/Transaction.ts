@@ -1,7 +1,8 @@
+import type { TransactionInput } from 'ethers-multisend'
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
+import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
-import type Wallet from './Wallet'
 
 export default class Transaction extends BaseModel<Transaction> {
 	public static readonly modelName = 'Transaction'
@@ -28,12 +29,28 @@ export default class Transaction extends BaseModel<Transaction> {
 			primaryKey: true
 		},
 		hash: {
-			type: DataTypes.STRING,
-			allowNull: false
+			type: DataTypes.STRING
 		},
 		chainId: {
 			type: DataTypes.INTEGER,
 			allowNull: false
+		},
+		status: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: MeemAPI.TransactionStatus.Pending
+		},
+		transactionInput: {
+			type: DataTypes.JSONB,
+			allowNull: false
+		},
+		transactionType: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: MeemAPI.QueueEvent.CallContract
+		},
+		customABI: {
+			type: DataTypes.JSONB
 		}
 	}
 
@@ -41,9 +58,15 @@ export default class Transaction extends BaseModel<Transaction> {
 
 	public hash!: string
 
-	public WalletId!: string | null
+	public chainId!: number
 
-	public Wallet!: Wallet | null
+	public status!: MeemAPI.TransactionStatus
+
+	public transactionInput!: TransactionInput
+
+	public transactionType!: MeemAPI.QueueEvent
+
+	public customABI!: Record<string, any>[]
 
 	public static associate(models: IModels) {
 		this.belongsTo(models.Wallet)

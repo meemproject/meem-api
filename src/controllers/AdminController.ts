@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
-import integrations from '../lib/integrations'
+import extensionsData from '../lib/extensions'
+// import permissionsData from '../lib/permissions'
 
 export default class AdminController {
 	public static async runMigrations(
@@ -14,18 +15,20 @@ export default class AdminController {
 	}
 
 	public static async runSync(req: Request, res: Response): Promise<Response> {
-		await orm.runSync()
+		await orm.runSync({
+			force: req.query.force === 'true'
+		})
 
 		return res.json({
 			status: 'success'
 		})
 	}
 
-	public static async meemContractSync(
+	public static async agreementSync(
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		await services.contractEvents.meemContractSync()
+		// await services.contractEvents.agreementSync()
 
 		return res.json({
 			status: 'success'
@@ -33,7 +36,7 @@ export default class AdminController {
 	}
 
 	public static async meemSync(req: Request, res: Response): Promise<Response> {
-		await services.contractEvents.meemSync()
+		// await services.contractEvents.meemSync()
 
 		return res.json({
 			status: 'success'
@@ -73,34 +76,32 @@ export default class AdminController {
 		})
 	}
 
-	public static async syncIntegrations(
+	public static async syncExtensions(
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		await orm.models.Integration.sync({ force: true })
+		const failedExtensions: any[] = []
 
-		const failedIntegrations: any[] = []
-
-		for (let i = 0; i < integrations.length; i += 1) {
+		for (let i = 0; i < extensionsData.length; i += 1) {
 			try {
-				log.debug(`Syncing ${i + 1} / ${integrations.length} integrations`)
+				log.debug(`Syncing ${i + 1} / ${extensionsData.length} extensions`)
 				// eslint-disable-next-line no-await-in-loop
-				const existingIntegration = await orm.models.Integration.findOne({
+				const existingExtension = await orm.models.Extension.findOne({
 					where: {
-						name: integrations[i].name
+						name: extensionsData[i].name
 					}
 				})
-				if (!existingIntegration) {
+				if (!existingExtension) {
 					// eslint-disable-next-line no-await-in-loop
-					await orm.models.Integration.create(integrations[i])
+					await orm.models.Extension.create(extensionsData[i])
 				} else {
 					// eslint-disable-next-line no-await-in-loop
-					await existingIntegration.update(integrations[i])
+					await existingExtension.update(extensionsData[i])
 				}
 			} catch (e) {
-				failedIntegrations.push(integrations[i])
+				failedExtensions.push(extensionsData[i])
 				log.crit(e)
-				log.debug(integrations[i])
+				log.debug(extensionsData[i])
 			}
 		}
 
@@ -109,55 +110,102 @@ export default class AdminController {
 		})
 	}
 
-	public static async seedIdentityIntegrations(
+	// public static async syncPermissions(
+	// 	req: Request,
+	// 	res: Response
+	// ): Promise<Response> {
+	// 	// await orm.models.RolePermission.sync({ force: true })
+
+	// 	const failedPermissions: any[] = []
+
+	// 	for (let i = 0; i < permissionsData.length; i += 1) {
+	// 		try {
+	// 			log.debug(`Syncing ${i + 1} / ${permissionsData.length} permissions`)
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			const existingPermission = await orm.models.RolePermission.findOne({
+	// 				where: {
+	// 					id: permissionsData[i].id
+	// 				}
+	// 			})
+	// 			if (!existingPermission) {
+	// 				// eslint-disable-next-line no-await-in-loop
+	// 				await orm.models.RolePermission.create(permissionsData[i])
+	// 			} else {
+	// 				// eslint-disable-next-line no-await-in-loop
+	// 				await existingPermission.update(permissionsData[i])
+	// 			}
+	// 		} catch (e) {
+	// 			failedPermissions.push(permissionsData[i])
+	// 			log.crit(e)
+	// 			log.debug(permissionsData[i])
+	// 		}
+	// 	}
+
+	// 	return res.json({
+	// 		status: 'success'
+	// 	})
+	// }
+
+	public static async seedIdentityProviders(
 		req: Request,
 		res: Response
 	): Promise<Response> {
-		const identityIntegrations = [
+		const identityProviders = [
 			{
 				name: 'Twitter',
 				icon: 'integration-twitter.png',
-				description: 'Verify your Twitter account.'
+				description: 'Verify your Twitter account.',
+				connectionName: 'twitter',
+				connectionId: 'twitter'
 			},
 			{
 				name: 'Discord',
 				icon: 'integration-discord.png',
-				description: 'Verify your Discord account.'
+				description: 'Verify your Discord account.',
+				connectionName: 'discord',
+				connectionId: 'discord'
 			},
 			{
 				name: 'Email',
 				icon: 'integration-email.png',
-				description: 'Verify your Email.'
+				description: 'Verify your Email.',
+				connectionName: 'Username-Password-Authentication',
+				connectionId: 'auth0'
+			},
+			{
+				name: 'Google',
+				icon: 'integration-google.png',
+				description: 'Verify your Google account.',
+				connectionName: 'google-oauth2',
+				connectionId: 'google-oauth2'
 			}
 		]
 
-		await orm.models.IdentityIntegration.sync({ force: true })
+		// await orm.models.IdentityProvider.sync({ force: true })
 
 		const failedIntegratiosn: any[] = []
 
-		for (let i = 0; i < identityIntegrations.length; i += 1) {
+		for (let i = 0; i < identityProviders.length; i += 1) {
 			try {
-				log.debug(
-					`Syncing ${i + 1} / ${identityIntegrations.length} integrations`
-				)
-				const existingIntegration =
+				log.debug(`Syncing ${i + 1} / ${identityProviders.length} integrations`)
+				const existingExtension =
 					// eslint-disable-next-line no-await-in-loop
-					await orm.models.IdentityIntegration.findOne({
+					await orm.models.IdentityProvider.findOne({
 						where: {
-							name: identityIntegrations[i].name
+							name: identityProviders[i].name
 						}
 					})
-				if (!existingIntegration) {
+				if (!existingExtension) {
 					// eslint-disable-next-line no-await-in-loop
-					await orm.models.IdentityIntegration.create(identityIntegrations[i])
+					await orm.models.IdentityProvider.create(identityProviders[i])
 				} else {
 					// eslint-disable-next-line no-await-in-loop
-					await existingIntegration.update(identityIntegrations[i])
+					await existingExtension.update(identityProviders[i])
 				}
 			} catch (e) {
-				failedIntegratiosn.push(identityIntegrations[i])
+				failedIntegratiosn.push(identityProviders[i])
 				log.crit(e)
-				log.debug(identityIntegrations[i])
+				log.debug(identityProviders[i])
 			}
 		}
 

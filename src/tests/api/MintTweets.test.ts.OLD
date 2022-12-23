@@ -37,7 +37,7 @@ class MintTweetsTests extends BaseTest {
 	}
 
 	private async mintTweet() {
-		const meemContract = await services.meem.getMeemContract()
+		const meemContract = await services.meem.getAgreement()
 
 		await services.meem.createMeemProject({
 			name: 'Twitter project',
@@ -101,7 +101,7 @@ class MintTweetsTests extends BaseTest {
 	}
 
 	private async claimTweet() {
-		const meemContract = await services.meem.getMeemContract()
+		const meemContract = await services.meem.getAgreement()
 
 		await services.meem.createMeemProject({
 			name: 'Twitter project',
@@ -167,7 +167,7 @@ class MintTweetsTests extends BaseTest {
 	}
 
 	private async claimWrappedMeem() {
-		const meemContract = await services.meem.getMeemContract()
+		const meemContract = await services.meem.getAgreement()
 
 		await services.meem.mintWrappedMeem({
 			tokenAddress: '0x6444070d9b4776a2363d1bac287571db11d692eb',
@@ -258,7 +258,7 @@ class MintTweetsTests extends BaseTest {
 	}
 
 	private async claimTweetNonOwner() {
-		const meemContract = await services.meem.getMeemContract()
+		const meemContract = await services.meem.getAgreement()
 
 		await services.meem.createMeemProject({
 			name: 'Twitter project',
@@ -312,7 +312,7 @@ class MintTweetsTests extends BaseTest {
 	}
 
 	private async mintAndRemixTweet() {
-		const meemContract = await services.meem.getMeemContract()
+		const meemContract = await services.meem.getAgreement()
 
 		await services.meem.createMeemProject({
 			name: 'Twitter project',

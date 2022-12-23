@@ -2,7 +2,9 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Validator } from '@meemproject/metadata'
+import { Wallet as AlchemyWallet } from 'alchemy-sdk'
 import { ethers, ethers as Ethers } from 'ethers'
+import { encodeSingle, TransactionType } from 'ethers-multisend'
 import { Request, Response } from 'express'
 import keccak256 from 'keccak256'
 import { DateTime, Duration } from 'luxon'
@@ -10,218 +12,12 @@ import { MerkleTree } from 'merkletreejs'
 import { Op } from 'sequelize'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
+import meemABI from '../abis/Meem.json'
 import { Constructor } from '../serverless/cron'
+import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class TestController {
-	public static async testData(req: Request, res: Response): Promise<Response> {
-		// const data = JSON.parse(
-		// 	`{"id":"7b569b90-42ff-4867-a3ff-e27e4af91748","tokenId":"0x0186a0","owner":"0xde19C037a85A609ec33Fc747bE9Db8809175C3a5","parentChain":4,"parent":"0xBAbFc60D17EF8185Cdf3d4Fe4C62d9738745d542","parentTokenId":"0x0186c3","rootChain":4,"root":"0xBAbFc60D17EF8185Cdf3d4Fe4C62d9738745d542","rootTokenId":"0x0186c3","generation":{"type":"BigNumber","hex":"0x00"},"mintedAt":1637160478,"metadata":{"name":"Meem - NFT Faucet - 20","description":"Meem Content DescriptionMeem Content DescriptionHashmask #20Meem Content DetailsContract Address: 0x3d60efffc36bcdd32f8966a0339b6f78aaff121eToken ID: 20View on Etherscan: https://etherscan.io/token/0x3d60efffc36bcdd32f8966a0339b6f78aaff121e?a=20Meem Content DetailsContract Address: 0xbabfc60d17ef8185cdf3d4fe4c62d9738745d542Token ID: 100035View on Etherscan: https://etherscan.io/token/0xbabfc60d17ef8185cdf3d4fe4c62d9738745d542?a=100035","external_url":"https://meem.wtf/meem/b894fcda-52a5-46f0-912b-490f3c4aca36","meem_properties":{"root_token_uri":"https://raw.githubusercontent.com/meemproject/metadata/test/meem/e9a51861-4f32-4a9e-b333-793cf56ab0f6.json","root_token_address":"0xbabfc60d17ef8185cdf3d4fe4c62d9738745d542","root_token_id":100035,"root_token_metadata":{"name":"NFT Faucet - 20","description":"Meem Content DescriptionHashmask #20Meem Content DetailsContract Address: 0x3d60efffc36bcdd32f8966a0339b6f78aaff121eToken ID: 20View on Etherscan: https://etherscan.io/token/0x3d60efffc36bcdd32f8966a0339b6f78aaff121e?a=20","external_url":"https://meem.wtf/meem/e9a51861-4f32-4a9e-b333-793cf56ab0f6","meem_properties":{"generation":0,"root_token_uri":"https://hashmap.azurewebsites.net/getMask/20","root_token_address":"0x3d60efffc36bcdd32f8966a0339b6f78aaff121e","root_token_id":20,"root_token_metadata":{"description":"Hashmask #20","external_url":"https://www.thehashmasks.com/detail/20","image":"https://hashmasksstore.blob.core.windows.net/hashmasks/10161.jpg","attributes":[{"trait_type":"Character","value":"Male"},{"trait_type":"Mask","value":"Basic"},{"trait_type":"Skin Color","value":"Gray"},{"trait_type":"Eye Color","value":"Blue"},{"trait_type":"Item","value":"No Item"},{"trait_type":"Background","value":"Mystery Night"},{"trait_type":"Glyph","value":"Greek Symbol"}]},"parent_token_uri":"https://hashmap.azurewebsites.net/getMask/20","parent_token_id":20,"parent_token_address":"0x3d60efffc36bcdd32f8966a0339b6f78aaff121e","parent_token_metadata":{"description":"Hashmask #20","external_url":"https://www.thehashmasks.com/detail/20","image":"https://hashmasksstore.blob.core.windows.net/hashmasks/10161.jpg","attributes":[{"trait_type":"Character","value":"Male"},{"trait_type":"Mask","value":"Basic"},{"trait_type":"Skin Color","value":"Gray"},{"trait_type":"Eye Color","value":"Blue"},{"trait_type":"Item","value":"No Item"},{"trait_type":"Background","value":"Mystery Night"},{"trait_type":"Glyph","value":"Greek Symbol"}]}},"image":"https://raw.githubusercontent.com/meemproject/metadata/test/meem/images/e9a51861-4f32-4a9e-b333-793cf56ab0f6.png","image_original":"https://hashmasksstore.blob.core.windows.net/hashmasks/10161.jpg","attributes":[{"display_type":"number","trait_type":"Meem Generation","value":0}]},"parent_token_uri":"https://raw.githubusercontent.com/meemproject/metadata/test/meem/e9a51861-4f32-4a9e-b333-793cf56ab0f6.json","parent_token_id":100035,"parent_token_address":"0xbabfc60d17ef8185cdf3d4fe4c62d9738745d542","parent_token_metadata":{"name":"NFT Faucet - 20","description":"Meem Content DescriptionHashmask #20Meem Content DetailsContract Address: 0x3d60efffc36bcdd32f8966a0339b6f78aaff121eToken ID: 20View on Etherscan: https://etherscan.io/token/0x3d60efffc36bcdd32f8966a0339b6f78aaff121e?a=20","external_url":"https://meem.wtf/meem/e9a51861-4f32-4a9e-b333-793cf56ab0f6","meem_properties":{"generation":0,"root_token_uri":"https://hashmap.azurewebsites.net/getMask/20","root_token_address":"0x3d60efffc36bcdd32f8966a0339b6f78aaff121e","root_token_id":20,"root_token_metadata":{"description":"Hashmask #20","external_url":"https://www.thehashmasks.com/detail/20","image":"https://hashmasksstore.blob.core.windows.net/hashmasks/10161.jpg","attributes":[{"trait_type":"Character","value":"Male"},{"trait_type":"Mask","value":"Basic"},{"trait_type":"Skin Color","value":"Gray"},{"trait_type":"Eye Color","value":"Blue"},{"trait_type":"Item","value":"No Item"},{"trait_type":"Background","value":"Mystery Night"},{"trait_type":"Glyph","value":"Greek Symbol"}]},"parent_token_uri":"https://hashmap.azurewebsites.net/getMask/20","parent_token_id":20,"parent_token_address":"0x3d60efffc36bcdd32f8966a0339b6f78aaff121e","parent_token_metadata":{"description":"Hashmask #20","external_url":"https://www.thehashmasks.com/detail/20","image":"https://hashmasksstore.blob.core.windows.net/hashmasks/10161.jpg","attributes":[{"trait_type":"Character","value":"Male"},{"trait_type":"Mask","value":"Basic"},{"trait_type":"Skin Color","value":"Gray"},{"trait_type":"Eye Color","value":"Blue"},{"trait_type":"Item","value":"No Item"},{"trait_type":"Background","value":"Mystery Night"},{"trait_type":"Glyph","value":"Greek Symbol"}]}},"image":"https://raw.githubusercontent.com/meemproject/metadata/test/meem/images/e9a51861-4f32-4a9e-b333-793cf56ab0f6.png","image_original":"https://hashmasksstore.blob.core.windows.net/hashmasks/10161.jpg","attributes":[{"display_type":"number","trait_type":"Meem Generation","value":0}]},"generation":0,"token_id":100000},"image":"https://raw.githubusercontent.com/meemproject/metadata/test/meem/images/b894fcda-52a5-46f0-912b-490f3c4aca36.png","image_original":"https://raw.githubusercontent.com/meemproject/metadata/test/meem/images/e9a51861-4f32-4a9e-b333-793cf56ab0f6.png","attributes":[{"display_type":"number","trait_type":"Meem Generation","value":0}]},"data":"","PropertiesId":"dc9652b0-e433-4982-872d-a37876d17020","ChildPropertiesId":"f673127a-c0fc-4e56-b05d-6c247998a14d","properties":{"id":"dc9652b0-e433-4982-872d-a37876d17020","totalChildren":"-0x01","totalChildrenLockedBy":"0x0000000000000000000000000000000000000000","childrenPerWallet":"-0x01","childrenPerWalletLockedBy":"0x0000000000000000000000000000000000000000","copyPermissions":{"0":{"lockedBy":"0x0000000000000000000000000000000000000000","addresses":{},"numTokens":"0x00","permission":1}},"remixPermissions":{"0":{"lockedBy":"0x0000000000000000000000000000000000000000","addresses":{},"numTokens":"0x00","permission":1}},"readPermissions":{"0":{"lockedBy":"0x0000000000000000000000000000000000000000","addresses":{},"numTokens":"0x00","permission":1}},"copyPermissionsLockedBy":"0x0000000000000000000000000000000000000000","remixPermissionsLockedBy":"0x0000000000000000000000000000000000000000","readPermissionsLockedBy":"0x0000000000000000000000000000000000000000","splits":{"0":{"amount":9900,"lockedBy":"0x0000000000000000000000000000000000000000","toAddress":"0xde19C037a85A609ec33Fc747bE9Db8809175C3a5"},"1":{"amount":100,"lockedBy":"0x0000000000000000000000000000000000000000","toAddress":"0x40c6BeE45d94063c5B05144489cd8A9879899592"}},"splitsLockedBy":"0x0000000000000000000000000000000000000000","updatedAt":null,"createdAt":null,"deletedAt":null},"childProperties":{"id":"f673127a-c0fc-4e56-b05d-6c247998a14d","totalChildren":"0x00","totalChildrenLockedBy":"0x0000000000000000000000000000000000000000","childrenPerWallet":"-0x01","childrenPerWalletLockedBy":"0x0000000000000000000000000000000000000000","copyPermissions":{"0":{"lockedBy":"0x0000000000000000000000000000000000000000","addresses":{},"numTokens":"0x00","permission":1}},"remixPermissions":{"0":{"lockedBy":"0x0000000000000000000000000000000000000000","addresses":{},"numTokens":"0x00","permission":1}},"readPermissions":{"0":{"lockedBy":"0x0000000000000000000000000000000000000000","addresses":{},"numTokens":"0x00","permission":1}},"copyPermissionsLockedBy":"0x0000000000000000000000000000000000000000","remixPermissionsLockedBy":"0x0000000000000000000000000000000000000000","readPermissionsLockedBy":"0x0000000000000000000000000000000000000000","splits":{"0":{"amount":9900,"lockedBy":"0x0000000000000000000000000000000000000000","toAddress":"0xde19C037a85A609ec33Fc747bE9Db8809175C3a5"},"1":{"amount":100,"lockedBy":"0x0000000000000000000000000000000000000000","toAddress":"0x40c6BeE45d94063c5B05144489cd8A9879899592"}},"splitsLockedBy":"0x0000000000000000000000000000000000000000","updatedAt":null,"createdAt":null,"deletedAt":null}}`
-		// )
-
-		// const meem = await orm.models.Meem.findOne({
-		// 	where: {
-		// 		tokenId: req.query.tokenId as string
-		// 	},
-		// 	include: [
-		// 		{
-		// 			model: orm.models.MeemProperties,
-		// 			as: 'Properties'
-		// 		},
-		// 		{
-		// 			model: orm.models.MeemProperties,
-		// 			as: 'ChildProperties'
-		// 		}
-		// 	]
-		// })
-
-		// if (!meem) {
-		// 	return res.json({})
-		// }
-
-		// const meemData = {
-		// 	...meem.get({ plain: true })
-		// }
-
-		// const token = services.contractEvents.saveToGun({
-		// 	path: `test3`,
-		// 	data: meemData
-		// })
-
-		// const cleanData = services.contractEvents.toPureObject(meemData)
-		// // const cleanData = services.contractEvents.toPureObject(data)
-		// // console.log(JSON.stringify(cleanData))
-
-		// // await services.contractEvents.createNewMeem('0x018712')
-
-		// const result = gun.get('meems/0x018711')
-		// result.once(m => console.log(m))
-
-		// return res.json(cleanData)
-		// const test = gun.user().get('testing').put({
-		// 	some: 'testdata'
-		// })
-
-		// test.get('subdata').put({
-		// 	more: 'data'
-		// })
-
-		// const ethers = services.ethers.getInstance()
-
-		// gun
-		// 	.user(
-		// 		'4u6CF0hDCxli0LwUH_vidDL7PMEeV0Tsr3DLEuq0FEY.8uGPk-HtTjDC7TkbESqIexGSj0pStPoWv2shy-fXzWQ'
-		// 	)
-		// 	.get('meems')
-		// 	// .get(ethers.BigNumber.from('100033').toHexString())
-		// 	.get('0x0186c3')
-		// 	// .get('properties')
-		// 	.once(d => console.log(d))
-
-		// await services.contractEvents.createNewMeem(
-		// 	// ethers.BigNumber.from('100033').toHexString()
-		// 	'0x0186c3'
-		// )
-
-		// gun
-		// 	.user()
-		// 	.get('testing')
-		// 	.put(
-		// 		{
-		// 			description: `something something\nother thing`
-		// 		},
-		// 		ack => console.log(ack)
-		// 	)
-		// gun
-		// 	.user()
-		// 	.get('testing')
-		// 	.once(d => console.log(d))
-		// gun
-		// 	.user()
-		// 	.get('testing')
-		// 	.put(
-		// 		{
-		// 			description: 'something somethingother thing'
-		// 		},
-		// 		ack => console.log(ack)
-		// 	)
-
-		const meemContract = await services.meem.getMeemContract({
-			walletPrivateKey: config.TWITTER_WALLET_PRIVATE_KEY
-		})
-
-		const inter = services.meem.meemInterface()
-		try {
-			// const tx = await meemContract.mint(
-			// 	{
-			// 		to: '0x62ce12ac21d213f1ecae84d2c31ad308da92102a',
-			// 		mTokenURI:
-			// 			'ipfs://QmWvNhj3UdF5G9oAmTaNpRyDyaRMEUTEdhLdMQr3pKYj1h/c0542660-24fb-4de5-9352-8baf19889e86/metadata.json',
-			// 		parentChain: 1,
-			// 		parent: '0x82aC441F3276ede5db366704866d2E0fD9c2cFA8',
-			// 		parentTokenId: '100000',
-			// 		meemType: 2,
-			// 		data: '{"tweetId":"1491070904016973824","text":"good &gt;meem","username":"notnotrealreal","userId":"1442900159008964610"}',
-			// 		isVerified: true,
-			// 		mintedBy: '0x62ce12ac21d213f1ecae84d2c31ad308da92102a'
-			// 	},
-			// 	{
-			// 		copyPermissions: [],
-			// 		remixPermissions: [
-			// 			{
-			// 				permission: 1,
-			// 				addresses: [],
-			// 				numTokens: '0',
-			// 				lockedBy: '0x0000000000000000000000000000000000000000'
-			// 			}
-			// 		],
-			// 		readPermissions: [
-			// 			{
-			// 				permission: 1,
-			// 				addresses: [],
-			// 				numTokens: '0x00',
-			// 				lockedBy: '0x0000000000000000000000000000000000000000'
-			// 			}
-			// 		],
-			// 		copyPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-			// 		remixPermissionsLockedBy:
-			// 			'0x0000000000000000000000000000000000000000',
-			// 		readPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-			// 		splits: [
-			// 			{
-			// 				toAddress: '0x9C5ceC7a99D19a9f1754C202aBA01BBFEDECC561',
-			// 				amount: 100,
-			// 				lockedBy: '0xde19C037a85A609ec33Fc747bE9Db8809175C3a5'
-			// 			}
-			// 		],
-			// 		splitsLockedBy: '0x0000000000000000000000000000000000000000',
-			// 		copiesPerWallet: '-0x01',
-			// 		copiesPerWalletLockedBy: '0x0000000000000000000000000000000000000000',
-			// 		totalCopies: '0x00',
-			// 		totalCopiesLockedBy: '0x0000000000000000000000000000000000000000',
-			// 		totalRemixes: '-0x01',
-			// 		remixesPerWallet: '-0x01',
-			// 		remixesPerWalletLockedBy:
-			// 			'0x0000000000000000000000000000000000000000',
-			// 		totalRemixesLockedBy: '0x0000000000000000000000000000000000000000'
-			// 	},
-			// 	{
-			// 		copyPermissions: [],
-			// 		remixPermissions: [
-			// 			{
-			// 				permission: 1,
-			// 				addresses: [],
-			// 				numTokens: '0',
-			// 				lockedBy: '0x0000000000000000000000000000000000000000'
-			// 			}
-			// 		],
-			// 		readPermissions: [
-			// 			{
-			// 				permission: 1,
-			// 				addresses: [],
-			// 				numTokens: '0x00',
-			// 				lockedBy: '0x0000000000000000000000000000000000000000'
-			// 			}
-			// 		],
-			// 		copyPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-			// 		remixPermissionsLockedBy:
-			// 			'0x0000000000000000000000000000000000000000',
-			// 		readPermissionsLockedBy: '0x0000000000000000000000000000000000000000',
-			// 		splits: [
-			// 			{
-			// 				toAddress: '0x9C5ceC7a99D19a9f1754C202aBA01BBFEDECC561',
-			// 				amount: 100,
-			// 				lockedBy: '0xde19C037a85A609ec33Fc747bE9Db8809175C3a5'
-			// 			}
-			// 		],
-			// 		splitsLockedBy: '0x0000000000000000000000000000000000000000',
-			// 		copiesPerWallet: '-0x01',
-			// 		copiesPerWalletLockedBy: '0x0000000000000000000000000000000000000000',
-			// 		totalCopies: '0x00',
-			// 		totalCopiesLockedBy: '0x0000000000000000000000000000000000000000',
-			// 		totalRemixes: '-0x01',
-			// 		remixesPerWallet: '-0x01',
-			// 		remixesPerWalletLockedBy:
-			// 			'0x0000000000000000000000000000000000000000',
-			// 		totalRemixesLockedBy: '0x0000000000000000000000000000000000000000'
-			// 	},
-			// 	{
-			// 		gasLimit: '1600000',
-			// 		gasPrice: 32000000000
-			// 	}
-			// )
-			// console.log(`TX: ${tx.hash}`)
-			// console.log(`Nonce: ${tx.nonce}`)
-			// await tx.wait()
-		} catch (e) {
-			console.log(e)
-		}
-
-		return res.json({
-			status: 'success'
-		})
-	}
-
 	public static async testEmit(req: Request, res: Response): Promise<Response> {
 		// sockets?.emit
 
@@ -389,7 +185,8 @@ export default class TestController {
 
 	public static async syncContract(req: Request, res: Response) {
 		await services.contractEvents.meemHandleContractInitialized({
-			address: req.query.address as string
+			address: req.query.address as string,
+			chainId: +(req.query.chainId as string) as number
 		})
 
 		return res.json({
@@ -398,12 +195,9 @@ export default class TestController {
 	}
 
 	public static async metadata(req: Request, res: Response) {
-		const contractMetadataValidator = new Validator(
-			'MeemClub_Contract_20220718'
-		)
-		const contractMetadataValidatorResult = contractMetadataValidator.validate({
-			meem_contract_type: 'meem-club',
-			meem_metadata_version: 'MeemClub_Contract_20220718',
+		const metadata = {
+			meem_metadata_type: 'MeemAgreement_Contract',
+			meem_metadata_version: '20221116',
 			name: 'metadataaaa',
 			description: 'asdfasdf',
 			image:
@@ -411,7 +205,11 @@ export default class TestController {
 			associations: [],
 			external_url: '',
 			application_instructions: ''
-		})
+		}
+
+		const contractMetadataValidator = new Validator(metadata)
+		const contractMetadataValidatorResult =
+			contractMetadataValidator.validate(metadata)
 
 		return res.json({
 			status: 'success',
@@ -432,12 +230,14 @@ export default class TestController {
 
 		// gnosisSafeAbi is the Gnosis Safe ABI in JSON format,
 		// you can find an example here: https://github.com/gnosis/safe-deployments/blob/main/src/assets/v1.1.1/gnosis_safe.json#L16
-		const provider = await services.ethers.getProvider()
-		const signer = new ethers.Wallet(config.WALLET_PRIVATE_KEY, provider)
+		const { provider, wallet } = await services.ethers.getProvider({
+			chainId: +(req.query.chainId as string) as number
+		})
+
 		const proxyContract = new ethers.Contract(
 			proxyContractAddress,
 			GnosisSafeProxyABI,
-			signer
+			wallet
 		)
 		const gnosisInterface = new ethers.utils.Interface(GnosisSafeABI)
 		const safeSetupData = gnosisInterface.encodeFunctionData('setup', [
@@ -463,17 +263,19 @@ export default class TestController {
 
 		await tx.wait()
 
-		const receipt = await provider.getTransactionReceipt(
+		const receipt = await provider.core.getTransactionReceipt(
 			'0xd5c3e5899aca336f95e1ea40d94d11c27fc45cc9865fb4a0c59225e775578062'
 		)
 
-		// Find the newly created Safe contract address in the transaction receipt
-		for (let i = 0; i < receipt.logs.length; i += 1) {
-			const receiptLog = receipt.logs[i]
-			const foundTopic = receiptLog.topics.find(t => t === topic)
-			if (foundTopic) {
-				log.info(`address: ${receiptLog.address}`)
-				break
+		if (receipt) {
+			// Find the newly created Safe contract address in the transaction receipt
+			for (let i = 0; i < receipt.logs.length; i += 1) {
+				const receiptLog = receipt.logs[i]
+				const foundTopic = receiptLog.topics.find(t => t === topic)
+				if (foundTopic) {
+					log.info(`address: ${receiptLog.address}`)
+					break
+				}
 			}
 		}
 
@@ -511,6 +313,128 @@ export default class TestController {
 			isVerified,
 			merkleTree: merkleTree.toString(),
 			proof
+		})
+	}
+
+	public static async releaseLock(req: Request, res: Response) {
+		await services.ethers.releaseLock(+(req.query.chainId as string))
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
+	public static async mintPKP(req: Request, res: Response) {
+		const tx = await services.lit.mintPKP()
+
+		return res.json({
+			status: 'success',
+			tx
+		})
+	}
+
+	public static async getEthAddress(req: Request, res: Response) {
+		const ethAddress = await services.lit.getEthAddress(
+			req.query.tokenId as string
+		)
+
+		return res.json({
+			status: 'success',
+			ethAddress
+		})
+	}
+
+	public static async testPinata(req: Request, res: Response) {
+		const result = await services.web3.saveToPinata({
+			json: {
+				meem_metadata_type: 'Meem_AgreementContract',
+				meem_metadata_version: '20221116',
+				name: 'aqer',
+				description: 'asdfgscfg',
+				image:
+					'data:image/png;base64,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',
+				associations: [],
+				external_url: '',
+				application_instructions: []
+			}
+		})
+
+		return res.json({
+			status: 'success',
+			result
+		})
+	}
+
+	public static async testTxEncoding(req: Request, res: Response) {
+		// const functionSignature = ethers.utils
+		// 	.id('mint((address,string,uint8))')
+		// 	.substring(0, 10)
+		const m = await services.agreement.getAgreementContract({
+			chainId: 5,
+			address: '0xf5a0fD628AFe07D8c3736762Bd65Ae009F23e335'
+		})
+
+		const encoded = encodeSingle({
+			id: '1',
+			abi: JSON.stringify(meemABI),
+			functionSignature: 'bulkMint((address,string,uint8)[])',
+			to: '0xf5a0fD628AFe07D8c3736762Bd65Ae009F23e335',
+			value: '0',
+			inputValues: {
+				bulkParams: [
+					{
+						to: '0xbA343C26ad4387345edBB3256e62f4bB73d68a04',
+						tokenType: '0',
+						tokenURI: 'ipfs://QmTFk4Wgka3VfwpMJzjbHA9ZsKjG7bbRcbbDoPnHYVV3Gv'
+					},
+					{
+						to: '0x1e6c71F7338276524D646dB2F04a49fA88458cF2',
+						tokenType: '0',
+						tokenURI: 'ipfs://QmTFk4Wgka3VfwpMJzjbHA9ZsKjG7bbRcbbDoPnHYVV3Gv'
+					}
+				]
+			},
+			type: TransactionType.callContract
+		})
+		// const x = m.interface.functions['setMaxSupply(uint256)'].format()
+
+		const encoded2 = encodeSingle({
+			id: '1',
+			abi: JSON.stringify(meemABI),
+			functionSignature: 'mint((address,string,uint8))',
+			to: '0xf5a0fD628AFe07D8c3736762Bd65Ae009F23e335',
+			value: '0',
+			inputValues: {
+				params: [
+					'0xbA343C26ad4387345edBB3256e62f4bB73d68a04',
+					'https://meem.wtf',
+					'0'
+				]
+			},
+			type: TransactionType.callContract
+		})
+
+		// console.log({ x, encoded })
+
+		return res.json({
+			status: 'success',
+			encoded,
+			encoded2,
+			meemABI
+		})
+	}
+
+	public static async tablelandTest(req: Request, res: Response) {
+		// const result = await services.storage.createTable({
+		// 	chainId: 5,
+		// 	schema: {
+		// 		data: MeemAPI.StorageDataType.Text
+		// 	}
+		// })
+
+		return res.json({
+			// result,
+			status: 'success'
 		})
 	}
 }

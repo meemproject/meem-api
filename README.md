@@ -28,7 +28,7 @@ Create a `.env` file and fill out details (see `.env.example`)
 
 Get an ethers instance of the Meem contract:
 
-`services.meem.getMeemContract()`
+`services.meem.getAgreement()`
 
 ### Invoke serverless function locally
 

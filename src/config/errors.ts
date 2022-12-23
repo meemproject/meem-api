@@ -142,12 +142,13 @@ const errors = {
 	},
 	SAFE_CREATE_FAILED: {
 		httpCode: 400,
+		code: 'SAFE_CREATE_FAILED',
 		status: 'failure',
 		reason: 'The club safe could not be created.',
 		friendlyReason: 'The club safe could not be created.'
 	},
-	UPGRADE_CLUB_FAILED: {
-		code: 'UPGRADE_CLUB_FAILED',
+	UPGRADE_AGREEMENT_FAILED: {
+		code: 'UPGRADE_AGREEMENT_FAILED',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'The club could not be upgraded.',
@@ -159,6 +160,19 @@ const errors = {
 		reason: "You've hit your transaction limit for the day. Try again later.",
 		friendlyReason:
 			"You've hit your transaction limit for the day. Try again later."
+	},
+	INTEGRATION_NOT_FOUND: {
+		httpCode: 404,
+		status: 'failure',
+		reason: 'The integration could not be found.',
+		friendlyReason: 'The integration could not be found.'
+	},
+	IDENTITY_ASSOCIATED_TO_ANOTHER_USER: {
+		httpCode: 400,
+		status: 'failure',
+		reason: 'The identity is already associated to another user.',
+		friendlyReason:
+			'This identity is already associated to another user. Disconnect the identity before adding to a new profile.'
 	},
 	// Contract errors
 	UNKNOWN_CONTRACT_ERROR: {
@@ -343,8 +357,8 @@ const errors = {
 		reason: 'Unverified Meems can not be remixed.',
 		friendlyReason: 'Unverified Meems can not be remixed.'
 	},
-	MEEM_CONTRACT_NOT_FOUND: {
-		contractErrorCode: 'MeemContractNotFound',
+	AGREEMENT_NOT_FOUND: {
+		contractErrorCode: 'AgreementNotFound',
 		httpCode: 400,
 		status: 'failure',
 		reason: 'The Meem contract could not be found.',

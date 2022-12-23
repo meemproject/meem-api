@@ -2,7 +2,9 @@ import { DateTime } from 'luxon'
 import { Op, DataTypes } from 'sequelize'
 import ModelWithAddress from '../core/ModelWithAddress'
 import type { IModels } from '../types/models'
-import type MeemContractWallet from './MeemContractWallet'
+import AgreementRoleWallet from './AgreementRoleWallet'
+import type AgreementWallet from './AgreementWallet'
+import User from './User'
 
 export default class Wallet extends ModelWithAddress<Wallet> {
 	public static readonly modelName = 'Wallet'
@@ -39,6 +41,9 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 			defaultValue: 5
+		},
+		pkpTokenId: {
+			type: DataTypes.STRING
 		}
 	}
 
@@ -56,20 +61,33 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 
 	public dailyTXLimit!: number
 
-	public MeemContractWalletId!: string | null
+	public pkpTokenId!: string | null
 
-	public MeemContractWallets!: MeemContractWallet[]
+	public AgreementWalletId!: string | null
+
+	public AgreementWallets!: AgreementWallet[]
+
+	public AgreementRoleWalletId!: string | null
+
+	public AgreementRoleWallets!: AgreementRoleWallet[]
+
+	public UserId!: string | null
+
+	public User!: User
 
 	public static associate(models: IModels) {
-		this.hasMany(models.MeemContractWallet)
-		this.hasOne(models.MeemIdentityWallet)
+		this.hasMany(models.AgreementWallet)
+		this.hasMany(models.AgreementRoleWallet)
+		this.belongsTo(models.User)
+		// this.hasOne(models.MeemIdentityWallet)
 	}
 
 	public static async findAllBy(options: {
 		addresses?: string[]
-		meemContractId?: string
+		agreementId?: string
+		agreementRoleId?: string
 	}) {
-		const { addresses, meemContractId } = options
+		const { addresses, agreementId, agreementRoleId } = options
 
 		const findAll: Record<string, any> = {}
 
@@ -80,13 +98,25 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 			)
 		}
 
-		if (meemContractId) {
+		if (agreementId) {
 			findAll.include = [
 				{
 					required: false,
-					model: orm.models.MeemContractWallet,
+					model: orm.models.AgreementWallet,
 					where: {
-						MeemContractId: meemContractId
+						AgreementId: agreementId
+					}
+				}
+			]
+		}
+
+		if (agreementRoleId) {
+			findAll.include = [
+				{
+					required: false,
+					model: orm.models.AgreementRoleWallet,
+					where: {
+						AgreementRoleId: agreementRoleId
 					}
 				}
 			]

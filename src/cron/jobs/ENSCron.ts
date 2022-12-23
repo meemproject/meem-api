@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-await-in-loop */
+/* eslint-disable import/no-extraneous-dependencies */
 import Cron from 'cron'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
@@ -22,13 +23,8 @@ export default class ENSCron extends CronJob {
 	public async run() {
 		log.info('Running ENSCron!')
 		log.info(new Date())
-
-		const provider = await services.ethers.getProvider({
-			chainId: 1
-		})
-
-		const [meemContracts, wallets] = await Promise.all([
-			orm.models.MeemContract.findAll({
+		const [agreements, wallets] = await Promise.all([
+			orm.models.Agreement.findAll({
 				where: {
 					[Op.or]: [
 						{
@@ -36,7 +32,7 @@ export default class ENSCron extends CronJob {
 						},
 						{
 							ensFetchedAt: {
-								[Op.lt]: DateTime.now()
+								[Op.gt]: DateTime.now()
 									.plus({
 										days: 7
 									})
@@ -56,7 +52,7 @@ export default class ENSCron extends CronJob {
 						},
 						{
 							ensFetchedAt: {
-								[Op.lt]: DateTime.now()
+								[Op.gt]: DateTime.now()
 									.plus({
 										days: 7
 									})
@@ -70,14 +66,18 @@ export default class ENSCron extends CronJob {
 			})
 		])
 
-		const itemsToCheck = [...meemContracts, ...wallets]
+		const itemsToCheck = [...agreements, ...wallets]
 
 		for (let i = 0; i < itemsToCheck.length; i += 1) {
 			const item = itemsToCheck[i]
-			const ens = await provider.lookupAddress(item.address)
-			log.debug({ address: item.address, ens })
-			if (ens) {
-				item.ens = ens
+			try {
+				const ens = await services.ethers.lookupAddress(item.address)
+				log.debug({ address: item.address, ens })
+				if (ens) {
+					item.ens = ens
+				}
+			} catch (e) {
+				log.warn(e)
 			}
 			item.ensFetchedAt = DateTime.now().toJSDate()
 			await item.save()
