@@ -1325,59 +1325,6 @@ export const tables = [
 	},
 	{
 		table: {
-			name: 'RolePermissions',
-			schema: 'public'
-		},
-		select_permissions: [
-			{
-				role: 'anonymous',
-				permission: {
-					columns: [
-						'description',
-						'id',
-						'name',
-						'createdAt',
-						'deletedAt',
-						'updatedAt'
-					],
-					filter: {},
-					allow_aggregations: true
-				}
-			},
-			{
-				role: 'mutualClubMember',
-				permission: {
-					columns: [
-						'description',
-						'id',
-						'name',
-						'createdAt',
-						'deletedAt',
-						'updatedAt'
-					],
-					filter: {},
-					allow_aggregations: true
-				}
-			},
-			{
-				role: 'user',
-				permission: {
-					columns: [
-						'description',
-						'id',
-						'name',
-						'createdAt',
-						'deletedAt',
-						'updatedAt'
-					],
-					filter: {},
-					allow_aggregations: true
-				}
-			}
-		]
-	},
-	{
-		table: {
 			name: 'SequelizeMeta',
 			schema: 'public'
 		}
