@@ -1,3 +1,25 @@
+# [1.12.0](https://github.com/meemproject/meem-api-aws/compare/v1.11.4...v1.12.0) (2022-12-23)
+
+
+### Bug Fixes
+
+* add explicit gasLimit to fix optimism ([1c7c23a](https://github.com/meemproject/meem-api-aws/commit/1c7c23a))
+* create api wallet record if not found; handle 0 nonce ([eadb933](https://github.com/meemproject/meem-api-aws/commit/eadb933))
+* increase gas for arbitrum goerli ([6ce6ea7](https://github.com/meemproject/meem-api-aws/commit/6ce6ea7))
+* race condition for nonce ([cd5b809](https://github.com/meemproject/meem-api-aws/commit/cd5b809))
+* set admins diff on contract during re-init ([8fb4d8a](https://github.com/meemproject/meem-api-aws/commit/8fb4d8a))
+* set proper chainId ([5cc414c](https://github.com/meemproject/meem-api-aws/commit/5cc414c))
+* set roles diff properly ([79880f3](https://github.com/meemproject/meem-api-aws/commit/79880f3))
+* use Alchemy sdk to help prevent connection / rate limit issues ([0410c32](https://github.com/meemproject/meem-api-aws/commit/0410c32))
+* use eip-155 transactions ([33acddb](https://github.com/meemproject/meem-api-aws/commit/33acddb))
+
+
+### Features
+
+* keep track of admin token for MeemContract ([949d27e](https://github.com/meemproject/meem-api-aws/commit/949d27e))
+* migrate fully to queued transactions ([760aa94](https://github.com/meemproject/meem-api-aws/commit/760aa94))
+* multi-chain support ([37bff2b](https://github.com/meemproject/meem-api-aws/commit/37bff2b))
+
 ## [1.11.4](https://github.com/meemproject/meem-api-aws/compare/v1.11.3...v1.11.4) (2022-10-11)
 
 ## [1.11.3](https://github.com/meemproject/meem-api-aws/compare/v1.11.2...v1.11.3) (2022-09-21)
