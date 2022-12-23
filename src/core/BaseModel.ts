@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable guard-for-in */
 import { Sequelize, Model, ModelAttributes, DataTypes } from 'sequelize'
-import { Fn } from 'sequelize/types/lib/utils'
+import { Fn } from 'sequelize/types/utils'
 
 // TODO: Enhancement of strict attribute checking https://sequelize.org/master/manual/typescript.html
 
@@ -24,7 +24,7 @@ export abstract class BaseModel<T> extends Model {
 
 	public static readonly timestamps: boolean = true
 
-	public static readonly paranoid: boolean = true
+	public static readonly paranoid: boolean = false
 
 	public static readonly attributes: ModelAttributes = {
 		id: {

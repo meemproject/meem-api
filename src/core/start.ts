@@ -3,8 +3,8 @@ import path from 'path'
 import log, { LogLevel } from '@kengoldfarb/log'
 import express, { Express } from 'express'
 import globby from 'globby'
+import fetch from 'node-fetch'
 import ProviderListener from '../listeners/ProviderListener'
-// import TwitterListener from '../listeners/TwitterListener'
 import Configuration from './Configuration'
 import errorMiddleware from './errorMiddleware'
 import Orm from './Orm'
@@ -106,7 +106,10 @@ async function loadAllMiddleware(app: Express) {
 	log.info(`Load Afterware: ${(log.timerEnd(timer) / 1000).toFixed(4)} seconds`)
 }
 
-export default async function start() {
+export default async function start(options?: {
+	isListeningDisabled?: boolean
+}) {
+	const isListeningDisabled = options?.isListeningDisabled === true
 	const g = global as any
 	g.configuration = new Configuration()
 	g.config = await configuration.load()
@@ -134,7 +137,10 @@ export default async function start() {
 		port = 1337
 	}
 
-	const server = config.SERVER_LISTENING ? await listen(app) : undefined
+	const server =
+		config.SERVER_LISTENING && !isListeningDisabled
+			? await listen(app)
+			: undefined
 
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	const Sockets = (await import('./Sockets')).default
@@ -186,6 +192,14 @@ export default async function start() {
 
 	// 	g.listeners.twitter.start()
 	// }
+
+	if (config.ENABLE_SQS_CONSUMER) {
+		// eslint-disable-next-line global-require
+		require('../lib/SQSConsumer')
+	}
+
+	// Fetch polyfill
+	g.fetch = fetch
 
 	log.info(
 		`Server boot: ${(log.timerEnd(bootTimer) / 1000).toFixed(4)} seconds`

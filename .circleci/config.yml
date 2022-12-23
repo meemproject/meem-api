@@ -7,42 +7,62 @@ orbs:
 jobs:
   deploy_sls_dev:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
+      - run: touch .env
+      - run: echo 'export JWT_PUB="$(echo $JWT_RSA_PUBLIC_KEY | base64 -d)"' >> $BASH_ENV
+      - run: echo 'export JWT_PRIVATE="$(echo $JWT_RSA_PRIVATE_KEY | base64 -d)"' >> $BASH_ENV
+      - run: echo "JWT_RSA_PUBLIC_KEY=\"${JWT_PUB}\"" >> .env
+      - run: echo "JWT_RSA_PRIVATE_KEY=\"${JWT_PRIVATE}\"" >> .env
       - run: cp .yarnclean.ci .yarnclean
       - run: yarn install --frozen-lockfile
       - run: yarn build
       - run: yarn deploy:dev
   deploy_sls_stage:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
+      - run: touch .env
+      - run: echo 'export JWT_PUB="$(echo $JWT_RSA_PUBLIC_KEY | base64 -d)"' >> $BASH_ENV
+      - run: echo 'export JWT_PRIVATE="$(echo $JWT_RSA_PRIVATE_KEY | base64 -d)"' >> $BASH_ENV
+      - run: echo "JWT_RSA_PUBLIC_KEY=\"${JWT_PUB}\"" >> .env
+      - run: echo "JWT_RSA_PRIVATE_KEY=\"${JWT_PRIVATE}\"" >> .env
       - run: cp .yarnclean.ci .yarnclean
       - run: yarn install --frozen-lockfile
       - run: yarn build
       - run: yarn deploy:staging
   deploy_sls_prod:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
+      - run: touch .env
+      - run: echo 'export JWT_PUB="$(echo $JWT_RSA_PUBLIC_KEY | base64 -d)"' >> $BASH_ENV
+      - run: echo 'export JWT_PRIVATE="$(echo $JWT_RSA_PRIVATE_KEY | base64 -d)"' >> $BASH_ENV
+      - run: echo "JWT_RSA_PUBLIC_KEY=\"${JWT_PUB}\"" >> .env
+      - run: echo "JWT_RSA_PRIVATE_KEY=\"${JWT_PRIVATE}\"" >> .env
       - run: cp .yarnclean.ci .yarnclean
       - run: yarn install --frozen-lockfile
       - run: yarn build
       - run: yarn deploy:production
   test:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
+      - run: touch .env
+      - run: echo 'export JWT_PUB="$(echo $JWT_RSA_PUBLIC_KEY | base64 -d)"' >> $BASH_ENV
+      - run: echo 'export JWT_PRIVATE="$(echo $JWT_RSA_PRIVATE_KEY | base64 -d)"' >> $BASH_ENV
+      - run: echo "JWT_RSA_PUBLIC_KEY=\"${JWT_PUB}\"" >> .env
+      - run: echo "JWT_RSA_PRIVATE_KEY=\"${JWT_PRIVATE}\"" >> .env
       - run: yarn install --frozen-lockfile
       - run: yarn run lint
       - run: yarn run test
   release:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
       - run: yarn install --frozen-lockfile

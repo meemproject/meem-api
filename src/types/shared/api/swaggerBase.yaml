@@ -1,0 +1,24 @@
+openapi: 3.0.0
+info:
+  title: Meem API
+  description: Meem Protocol REST API.
+  version: 0.1.0
+servers:
+  - url: https://api.meem.wtf/api/1.0
+    description: Main (production) API
+  - url: https://dev-api.meem.wtf/api/1.0
+    description: Development server for testing
+components:
+  securitySchemes:
+    jwtAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Specify the token value with the `JWT` prefix, e.g. "JWT xxxxx"
+  schemas:
+    DefaultStatusResponseBody:
+      type: object
+      properties:
+        status:
+          description: The response status.
+          type: string

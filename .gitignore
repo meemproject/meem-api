@@ -60,3 +60,5 @@ tmp/*
 .diamond/
 contracts/cache/
 contracts/artifacts/
+
+radata/

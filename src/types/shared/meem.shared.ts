@@ -191,41 +191,8 @@ export interface IMeemSplit {
 	amount: number
 	lockedBy: string
 }
-
-export interface IMeemMetadataProperties {
-	root_token_uri?: string | null
-	root_token_address?: string | null
-	root_token_id?: string | null
-	root_token_metadata?: Record<string, any> | null
-	parent_token_uri?: string | null
-	parent_token_address?: string | null
-	parent_token_id?: string | null
-	parent_token_metadata?: Record<string, any> | null
-}
-
-export interface IMeemContractAssociation {
-	meem_contract_type: string
-	address: string
-	tokenIds?: string[]
-}
-export interface IMeemMetadata {
-	name: string
-	description: string
-	external_url: string
-	image: string
-	image_original?: string
-	meem_id?: string
-	meem_properties?: IMeemMetadataProperties
-	extension_properties?: Record<string, any>
-	associations?: IMeemContractAssociation[]
-}
-
 export interface IMeemMetadataLike {
-	meem_metadata_version: string
-	[key: string]: any
-}
-export interface IMeemContractMetadataLike {
-	meem_contract_type: string
+	meem_metadata_type: string
 	meem_metadata_version: string
 	[key: string]: any
 }
@@ -276,48 +243,48 @@ export interface IEnjinProperties {
 }
 
 /** Based on Opensea metadata standards: https://docs.opensea.io/docs/metadata-standards */
-export interface ICreateMeemMetadata {
-	/** Name of the item. */
-	name: string
+// export interface ICreateMeemMetadata {
+// 	/** Name of the item. */
+// 	name: string
 
-	/** A human readable description of the item. Markdown is supported. */
-	description: string
+// 	/** A human readable description of the item. Markdown is supported. */
+// 	description: string
 
-	/** Background color of the item. Must be a six-character hexadecimal without a pre-pended #. */
-	background_color?: string
+// 	/** Background color of the item. Must be a six-character hexadecimal without a pre-pended #. */
+// 	background_color?: string
 
-	/** An external URL */
-	external_url?: string
+// 	/** An external URL */
+// 	external_url?: string
 
-	/**
-	 * A URL to a multi-media attachment for the item. The file extensions GLTF, GLB, WEBM, MP4, M4V, OGV, and OGG are supported, along with the audio-only extensions MP3, WAV, and OGA.
-	 *
-	 * Animation_url also supports HTML pages, allowing you to build rich experiences and interactive NFTs using JavaScript canvas, WebGL, and more. Scripts and relative paths within the HTML page are now supported. However, access to browser extensions is not supported. */
-	animation_url?: string
+// 	/**
+// 	 * A URL to a multi-media attachment for the item. The file extensions GLTF, GLB, WEBM, MP4, M4V, OGV, and OGG are supported, along with the audio-only extensions MP3, WAV, and OGA.
+// 	 *
+// 	 * Animation_url also supports HTML pages, allowing you to build rich experiences and interactive NFTs using JavaScript canvas, WebGL, and more. Scripts and relative paths within the HTML page are now supported. However, access to browser extensions is not supported. */
+// 	animation_url?: string
 
-	/** A URL to a YouTube video. */
-	youtube_url?: string
+// 	/** A URL to a YouTube video. */
+// 	youtube_url?: string
 
-	/** Opensea metadata standard attributes */
-	attributes?: (
-		| IOpenseaStringTrait
-		| IOpenseaNumericTrait
-		| IOpenseaDateTrait
-	)[]
+// 	/** Opensea metadata standard attributes */
+// 	attributes?: (
+// 		| IOpenseaStringTrait
+// 		| IOpenseaNumericTrait
+// 		| IOpenseaDateTrait
+// 	)[]
 
-	properties?: IEnjinProperties
+// 	properties?: IEnjinProperties
 
-	generation?: number
+// 	generation?: number
 
-	/** UUID to associate w/ this Meem */
-	meem_id?: string
+// 	/** UUID to associate w/ this Meem */
+// 	meem_id?: string
 
-	/** Additional meem properties. For trusted minters only. */
-	meem_properties?: IMeemMetadataProperties
+// 	/** Additional meem properties. For trusted minters only. */
+// 	meem_properties?: IMeemMetadataLikeProperties
 
-	/** Extension properties. For trusted minters only. */
-	extension_properties?: Record<string, any>
-}
+// 	/** Extension properties. For trusted minters only. */
+// 	extension_properties?: Record<string, any>
+// }
 
 export interface IMeemPermission {
 	permission: Permission
@@ -359,7 +326,7 @@ export interface IMeemProperties {
 	transferLockupUntilLockedBy: string
 }
 
-export interface IMeemContractBaseProperties {
+export interface IAgreementBaseProperties {
 	/** BigNumber hex string */
 	totalOriginalsSupply: string
 	totalOriginalsSupplyLockedBy: string
@@ -379,7 +346,7 @@ export interface IMeemContractBaseProperties {
 	transferLockupUntilLockedBy: string
 }
 
-export interface IMeemContractInitParams {
+export interface IAgreementInitParams {
 	symbol?: string
 	name: string
 	contractURI: string
@@ -437,7 +404,7 @@ export interface IMetadataMeem extends IMeem {
 	numCopies: number
 	numRemixes: number
 	addressReactions?: IReaction[]
-	metadata: IMeemMetadata
+	metadata: IMeemMetadataLike
 	defaultTwitterUser?: {
 		id: string
 		username: string
@@ -447,14 +414,20 @@ export interface IMetadataMeem extends IMeem {
 }
 
 export interface IERC721Metadata {
-	name?: string
-	image?: string
-	description?: string
+	[key: string]: any
 }
 
-export interface IMeemContractIntegrationMetadata {
-	externalUrl?: string
-	[key: string]: unknown
+// TODO: Define metadata types for extensions (e.g. type: APP, LINK)
+export interface IAgreementRoleExtensionMetadata {
+	[key: string]: any
+}
+
+export enum IAgreementExtensionVisibility {
+	/** Anyone can view the integration */
+	Anyone = 'anyone',
+
+	/** Users that are token-holders of the same agreement */
+	TokenHolders = 'token-holders'
 }
 
 export interface INFT {
@@ -517,9 +490,14 @@ export interface IMeemId {
 	}
 }
 
-export enum IMeemIdIntegrationVisibility {
+export enum IUserIdentityVisibility {
+	/** Anyone can view the integration */
 	Anyone = 'anyone',
-	MutualClubMembers = 'mutual-club-members',
+
+	/** Users that are token-holders of the same agreement */
+	TokenHolders = 'token-holders',
+
+	/** Private. Only the current user can view */
 	JustMe = 'just-me'
 }
 
@@ -569,4 +547,140 @@ export enum ContractType {
 	Regular = 'regular',
 	DiamondProxy = 'diamondProxy',
 	DiamondFacet = 'diamondFacet'
+}
+
+export interface IMeemUser {
+	id: string
+	displayName: string
+	profilePicUrl: string
+	DefaultWalletId: string
+	Wallets: {
+		id: string
+		address: string
+		ens: string
+	}[]
+	DefaultWallet: {
+		id: string
+		address: string
+		ens: string
+	}
+}
+export interface IAgreementRole {
+	id: string
+	name: string
+	isAdminRole: boolean
+	AgreementId: string
+	members: IMeemUser[]
+}
+
+export interface IGuild {
+	id: number
+	name: string
+	guildPlatforms: {
+		id: number
+		platformId: number
+		platformGuildId: string
+		platformGuildData?: any
+		platformGuildName?: string
+		invite?: string
+	}[]
+}
+export interface IDiscordServer {
+	id: string
+	name: string
+	icon: string
+	owner: boolean
+	guildData: {
+		connectedGuildId: number
+		serverIcon: string
+		serverName: string
+		serverId: string
+		categories: {
+			id: string
+			name: string
+			channels: {
+				id: string
+				name: string
+				roles: any[]
+			}[]
+		}[]
+		roles: {
+			guild: string
+			icon: string | null
+			unicodeEmoji: string | null
+			id: string
+			name: string
+		}[]
+		isAdmin: boolean
+		membersWithoutRole: number
+		channels: {
+			id: string
+			name: string
+		}[]
+	}
+}
+
+export enum TransactionStatus {
+	Pending = 'pending',
+	Success = 'success',
+	Failure = 'failure'
+}
+
+export enum QueueEvent {
+	CallContract = 'callContract',
+	DeployContract = 'deployContract',
+	DiamondCut = 'diamondCut',
+	CreateTablelandTable = 'createTablelandTable'
+}
+
+export enum StorageDataType {
+	Integer = 'INTEGER',
+	Text = 'TEXT'
+}
+
+export enum StorageType {
+	Tableland = 'tableland'
+}
+
+export interface IExtensionStorageDefinition {
+	tableland?: {
+		tables?: [
+			{
+				name: string
+				schema: {
+					[columnName: string]: StorageDataType
+				}
+				permissions: {
+					adminRoleContract: string
+					canInsert: boolean
+					insertRoleContract: string
+					canUpdate: boolean
+					updateRoleContract: string
+					canDelete: boolean
+					deleteRoleContract: string
+					updateableColumns: string[]
+				}
+			}
+		]
+	}
+}
+
+export interface IAgreementExtensionMetadata {
+	externalUrl?: string
+	tableland?: {
+		/** The extension table name */
+		[extensionTableName: string]: {
+			/** The tableland table name */
+			tablelandTableName: string
+
+			/** The tableland table id */
+			tableId: string
+		}
+	}
+	transactions?: {
+		/** The Transaction id */
+		TransactionId: string
+		status: TransactionStatus
+	}[]
+	[key: string]: any
 }

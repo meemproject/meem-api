@@ -1,14 +1,16 @@
-import type { Log } from '@ethersproject/abstract-provider'
-import { MeemContractMetadataLike } from '@meemproject/metadata'
-import { Contract, ethers, utils } from 'ethers'
+import { diamondABI } from '@meemproject/meem-contracts'
+import { MeemMetadataLike, Validator } from '@meemproject/metadata'
+import { ethers } from 'ethers'
 // import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
 import { Op } from 'sequelize'
 import { v4 as uuidv4 } from 'uuid'
-import meemABI from '../abis/Meem.json'
-import { wait } from '../lib/utils'
-import Meem from '../models/Meem'
-import MeemContract from '../models/MeemContract'
+// import meemABI from '../abis/Meem.json'
+// import { wait } from '../lib/utils'
+import Agreement from '../models/Agreement'
+import AgreementRole from '../models/AgreementRole'
+import AgreementRoleToken from '../models/AgreementRoleToken'
+import AgreementToken from '../models/AgreementToken'
 import Wallet from '../models/Wallet'
 import {
 	ContractInfoStruct,
@@ -16,9 +18,11 @@ import {
 	MeemSplitsSetEvent,
 	MeemTransferEvent,
 	SplitStructOutput,
-	Mycontract
+	Mycontract,
+	MeemAdminContractSetEvent
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
+import { IMeemMetadataLike } from '../types/shared/meem.shared'
 
 export default class ContractEvent {
 	// TODO: sync reactions?
@@ -26,8 +30,8 @@ export default class ContractEvent {
 	// 	log.debug('Syncing reactions...')
 	// 	const provider = await services.ethers.getProvider()
 
-	// 	const genericMeemContract = new Contract(MeemAPI.zeroAddress, meemABI)
-	// 	// ) as unknown as MeemContractType
+	// 	const genericAgreement = new Contract(MeemAPI.zeroAddress, meemABI)
+	// 	// ) as unknown as AgreementType
 
 	// 	const topics = {
 	// 		MeemTokenReactionAdded: `MeemTokenReactionAdded(uint256,address,string,uint256)`,
@@ -49,7 +53,7 @@ export default class ContractEvent {
 
 	// 	for (let i = 0; i < logs.length; i += 1) {
 	// 		try {
-	// 			const parsedLog = genericMeemContract.interface.parseLog({
+	// 			const parsedLog = genericAgreement.interface.parseLog({
 	// 				data: logs[i].data,
 	// 				topics: logs[i].topics
 	// 			})
@@ -83,139 +87,188 @@ export default class ContractEvent {
 	// 	}
 	// }
 
-	public static async meemContractSync(specificEvents?: Log[]) {
-		log.debug('Syncing MeemContracts...')
-		const provider = await services.ethers.getProvider()
-		const logs =
-			specificEvents ??
-			(await provider.getLogs({
-				fromBlock: 0,
-				toBlock: 'latest',
-				topics: [[utils.id('MeemContractInitialized(address)')]]
-			}))
+	// public static async agreementSync(specificEvents?: Log[]) {
+	// 	log.debug('Syncing Agreements...')
+	// 	const provider = await services.ethers.getProvider()
+	// 	const logs =
+	// 		specificEvents ??
+	// 		(await provider.getLogs({
+	// 			fromBlock: 0,
+	// 			toBlock: 'latest',
+	// 			topics: [[utils.id('AgreementInitialized(address)')]]
+	// 		}))
 
-		log.debug(`Syncing ${logs.length} initialized events`)
+	// 	log.debug(`Syncing ${logs.length} initialized events`)
 
-		const failedEvents: Log[] = []
+	// 	const failedEvents: Log[] = []
 
-		for (let i = 0; i < logs.length; i += 1) {
-			try {
-				log.debug(`Syncing ${i + 1} / ${logs.length} events`)
+	// 	for (let i = 0; i < logs.length; i += 1) {
+	// 		try {
+	// 			log.debug(`Syncing ${i + 1} / ${logs.length} events`)
 
-				// eslint-disable-next-line no-await-in-loop
-				await this.meemHandleContractInitialized({
-					address: logs[i].address
-				})
-				// eslint-disable-next-line no-await-in-loop
-				await wait(500)
-			} catch (e) {
-				failedEvents.push(logs[i])
-				log.crit(e)
-				log.debug(logs[i])
-			}
-		}
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			await this.meemHandleContractInitialized({
+	// 				address: logs[i].address
+	// 			})
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			await wait(500)
+	// 		} catch (e) {
+	// 			failedEvents.push(logs[i])
+	// 			log.crit(e)
+	// 			log.debug(logs[i])
+	// 		}
+	// 	}
 
-		if (failedEvents.length > 0) {
-			log.debug(`Completed with ${failedEvents.length} failed events`)
-			// log.debug(`Retrying ${failedEvents.length} events`)
-			// await this.meemContractSync(failedEvents)
-		}
-	}
+	// 	if (failedEvents.length > 0) {
+	// 		log.debug(`Completed with ${failedEvents.length} failed events`)
+	// 		// log.debug(`Retrying ${failedEvents.length} events`)
+	// 		// await this.agreementSync(failedEvents)
+	// 	}
+	// }
 
-	public static async meemSync(specificEvents?: Log[]) {
-		log.debug('Syncing meems...')
-		const provider = await services.ethers.getProvider()
+	// public static async meemSync(specificEvents?: Log[]) {
+	// 	log.debug('Syncing meems...')
+	// 	const provider = await services.ethers.getProvider()
 
-		const genericMeemContract = new Contract(
-			MeemAPI.zeroAddress,
-			meemABI
-		) as unknown as Mycontract
+	// 	const genericAgreement = new Contract(
+	// 		MeemAPI.zeroAddress,
+	// 		meemABI
+	// 	) as unknown as Mycontract
 
-		const logs =
-			specificEvents ??
-			(await provider.getLogs({
-				fromBlock: 0,
-				toBlock: 'latest',
-				topics: [[utils.id('MeemTransfer(address,address,uint256)')]]
-			}))
+	// 	const logs =
+	// 		specificEvents ??
+	// 		(await provider.getLogs({
+	// 			fromBlock: 0,
+	// 			toBlock: 'latest',
+	// 			topics: [[utils.id('MeemTransfer(address,address,uint256)')]]
+	// 		}))
 
-		const failedEvents: Log[] = []
+	// 	const failedEvents: Log[] = []
 
-		for (let i = 0; i < logs.length; i += 1) {
-			try {
-				log.debug(`Syncing ${i + 1} / ${logs.length} events`)
+	// 	for (let i = 0; i < logs.length; i += 1) {
+	// 		try {
+	// 			log.debug(`Syncing ${i + 1} / ${logs.length} events`)
 
-				const parsedLog = genericMeemContract.interface.parseLog({
-					data: logs[i].data,
-					topics: logs[i].topics
-				})
+	// 			const parsedLog = genericAgreement.interface.parseLog({
+	// 				data: logs[i].data,
+	// 				topics: logs[i].topics
+	// 			})
 
-				const eventData = parsedLog.args as MeemTransferEvent['args']
+	// 			const eventData = parsedLog.args as MeemTransferEvent['args']
 
-				// eslint-disable-next-line no-await-in-loop
-				const block = await provider.getBlock(logs[i].blockHash)
-				// eslint-disable-next-line no-await-in-loop
-				await this.meemHandleTransfer({
-					address: logs[i].address,
-					transactionHash: logs[i].transactionHash,
-					transactionTimestamp: block.timestamp,
-					eventData
-				})
-				// eslint-disable-next-line no-await-in-loop
-				await wait(500)
-			} catch (e) {
-				failedEvents.push(logs[i])
-				log.crit(e)
-				log.debug(logs[i])
-			}
-		}
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			const block = await provider.getBlock(logs[i].blockHash)
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			await this.meemHandleTransfer({
+	// 				address: logs[i].address,
+	// 				transactionHash: logs[i].transactionHash,
+	// 				transactionTimestamp: block.timestamp,
+	// 				eventData
+	// 			})
+	// 			// eslint-disable-next-line no-await-in-loop
+	// 			await wait(500)
+	// 		} catch (e) {
+	// 			failedEvents.push(logs[i])
+	// 			log.crit(e)
+	// 			log.debug(logs[i])
+	// 		}
+	// 	}
 
-		if (failedEvents.length > 0) {
-			log.debug(`Completed with ${failedEvents.length} failed events`)
-			// log.debug(`Retrying ${failedEvents.length} events`)
-			// await this.meemSync(failedEvents)
-		}
-	}
+	// 	if (failedEvents.length > 0) {
+	// 		log.debug(`Completed with ${failedEvents.length} failed events`)
+	// 		// log.debug(`Retrying ${failedEvents.length} events`)
+	// 		// await this.meemSync(failedEvents)
+	// 	}
+	// }
 
 	public static async meemHandleContractInitialized(args: {
 		address: string
-	}): Promise<MeemContract | null> {
-		const { address } = args
-		const meemContract = (await services.meem.getMeemContract({
-			address
+		chainId: number
+		transactionHash?: string
+	}): Promise<Agreement | AgreementRole | null> {
+		const { address, chainId, transactionHash } = args
+		const agreementOrRoleContract = (await services.meem.getAgreement({
+			address,
+			chainId
 		})) as unknown as Mycontract
 
 		let contractInfo: ContractInfoStruct
 
-		// TODO: Parse metadata and create database models for contract type (Check if exist first)
-		// TODO: Parse associations from metadata and create database associations (Check if exist first)
-
 		try {
-			contractInfo = await meemContract.getContractInfo()
+			contractInfo = await agreementOrRoleContract.getContractInfo()
 		} catch (e) {
 			log.debug(e)
 			log.debug('getContractInfo function not available. Skipping')
 			return null
 		}
 
-		const existingMeemContract = await orm.models.MeemContract.findOne({
-			where: {
-				address
+		const { wallet } = await services.ethers.getProvider({ chainId })
+
+		const instance = new ethers.Contract(address, diamondABI, wallet)
+
+		const [metadata, ownerAddress] = await Promise.all([
+			services.meem.getErc721Metadata(
+				contractInfo.contractURI as string
+			) as unknown as IMeemMetadataLike,
+			instance.owner()
+		])
+
+		if (metadata.meem_metadata_type) {
+			// Don't index contract if not a valid meem_contract_type
+			const contractMetadataValidator = new Validator(metadata)
+			const contractMetadataValidatorResult =
+				contractMetadataValidator.validate(metadata)
+
+			if (!contractMetadataValidatorResult.valid) {
+				log.crit(
+					contractMetadataValidatorResult.errors.map((e: any) => e.message)
+				)
+				return null
 			}
-		})
+		} else {
+			log.crit('Invalid metadata.')
+			return null
+		}
 
-		let slug = existingMeemContract?.slug
+		const isRoleAgreement =
+			metadata.meem_metadata_type === 'Meem_AgreementRoleContract'
 
-		const metadata = (await services.meem.getErc721Metadata(
-			contractInfo.contractURI
-		)) as MeemContractMetadataLike
+		const existingAgreementOrRole = isRoleAgreement
+			? await orm.models.AgreementRole.findOne({
+					where: {
+						address,
+						chainId
+					}
+			  })
+			: await orm.models.Agreement.findOne({
+					where: {
+						address,
+						chainId
+					}
+			  })
 
-		if (!existingMeemContract || !slug) {
+		let roleParentAgreementId
+
+		if (isRoleAgreement && metadata.meem_agreement_address) {
+			const agreement = await orm.models.Agreement.findOne({
+				where: {
+					address: metadata.meem_agreement_address
+				}
+			})
+			roleParentAgreementId = agreement?.id
+		}
+
+		let slug = existingAgreementOrRole?.slug ?? uuidv4()
+
+		if (!existingAgreementOrRole || !slug) {
 			try {
-				slug = await services.meemContract.generateSlug(contractInfo.name)
+				slug = await services.agreement.generateSlug({
+					baseSlug: contractInfo.name as string,
+					agreementId: roleParentAgreementId,
+					chainId
+				})
 			} catch (e) {
 				log.crit('Something went wrong while creating slug', e)
-				slug = uuidv4()
 			}
 		}
 
@@ -232,10 +285,10 @@ export default class ContractEvent {
 		}))
 
 		// Merge addresses by merkle root if we can
-		if (existingMeemContract) {
+		if (existingAgreementOrRole) {
 			mintPermissions.forEach(mp => {
 				const existingMintPermission =
-					existingMeemContract.mintPermissions.find(
+					existingAgreementOrRole.mintPermissions.find(
 						emp => emp.merkleRoot === mp.merkleRoot
 					)
 				if (existingMintPermission) {
@@ -245,7 +298,16 @@ export default class ContractEvent {
 			})
 		}
 
-		const meemContractData = {
+		const [transaction, owner] = await Promise.all([
+			orm.models.Transaction.findOne({
+				where: {
+					hash: transactionHash
+				}
+			}),
+			orm.models.Wallet.findByAddress<Wallet>(ownerAddress)
+		])
+
+		const agreementOrRoleData = {
 			slug,
 			symbol: contractInfo.symbol,
 			name: contractInfo.name,
@@ -259,27 +321,37 @@ export default class ContractEvent {
 				amount: ethers.BigNumber.from(s.amount).toNumber(),
 				lockedBy: s.lockedBy
 			})),
-			isTransferrable: !contractInfo.isTransferLocked
+			isTransferrable: !contractInfo.isTransferLocked,
+			chainId,
+			OwnerId: owner?.id,
+			TransactionId: transaction?.id
 		}
 
 		const t = await orm.sequelize.transaction()
 
-		let theMeemContract: MeemContract
+		let agreementOrRole: Agreement | AgreementRole
 
-		if (!existingMeemContract) {
-			theMeemContract = await orm.models.MeemContract.create(meemContractData, {
-				transaction: t
-			})
+		if (!existingAgreementOrRole) {
+			if (isRoleAgreement) {
+				agreementOrRole = await orm.models.AgreementRole.create({
+					...agreementOrRoleData,
+					AgreementId: roleParentAgreementId ?? null
+				})
+			} else {
+				agreementOrRole = await orm.models.Agreement.create(agreementOrRoleData)
+			}
 		} else {
-			theMeemContract = await existingMeemContract.update(meemContractData)
+			agreementOrRole = await existingAgreementOrRole.update(
+				agreementOrRoleData
+			)
 		}
 
-		const adminRole = await meemContract.ADMIN_ROLE()
+		const adminRole = await agreementOrRoleContract.ADMIN_ROLE()
 
 		let admins: string[] = []
 
 		try {
-			admins = await meemContract.getRoles(adminRole)
+			admins = await agreementOrRoleContract.getRoles(adminRole)
 		} catch (e) {
 			log.error('getRoles function not available')
 		}
@@ -287,32 +359,65 @@ export default class ContractEvent {
 		const [adminWallets, currentAdminsToRemove] = await Promise.all([
 			orm.models.Wallet.findAllBy({
 				addresses: admins,
-				meemContractId: theMeemContract.id
+				...(isRoleAgreement
+					? { agreementRoleId: agreementOrRole.id }
+					: { agreementId: agreementOrRole.id })
 			}),
-			orm.models.MeemContractWallet.findAll({
-				where: {
-					role: adminRole
-				},
-				include: [
-					{
-						model: orm.models.MeemContract,
-						where: orm.sequelize.where(
-							orm.sequelize.fn(
-								'lower',
-								orm.sequelize.col('MeemContract.address')
-							),
-							theMeemContract.address.toLowerCase()
-						)
-					},
-					{
-						model: orm.models.Wallet,
-						where: orm.sequelize.where(
-							orm.sequelize.fn('lower', orm.sequelize.col('Wallet.address')),
-							{ [Op.notIn]: admins.map(w => w.toLowerCase()) }
-						)
-					}
-				]
-			})
+			isRoleAgreement
+				? orm.models.AgreementRoleWallet.findAll({
+						where: {
+							role: adminRole
+						},
+						include: [
+							{
+								model: orm.models.AgreementRole,
+								where: orm.sequelize.where(
+									orm.sequelize.fn(
+										'lower',
+										orm.sequelize.col('AgreementRole.address')
+									),
+									agreementOrRole.address.toLowerCase()
+								)
+							},
+							{
+								model: orm.models.Wallet,
+								where: orm.sequelize.where(
+									orm.sequelize.fn(
+										'lower',
+										orm.sequelize.col('Wallet.address')
+									),
+									{ [Op.notIn]: admins.map(w => w.toLowerCase()) }
+								)
+							}
+						]
+				  })
+				: orm.models.AgreementWallet.findAll({
+						where: {
+							role: adminRole
+						},
+						include: [
+							{
+								model: orm.models.Agreement,
+								where: orm.sequelize.where(
+									orm.sequelize.fn(
+										'lower',
+										orm.sequelize.col('Agreement.address')
+									),
+									agreementOrRole.address.toLowerCase()
+								)
+							},
+							{
+								model: orm.models.Wallet,
+								where: orm.sequelize.where(
+									orm.sequelize.fn(
+										'lower',
+										orm.sequelize.col('Wallet.address')
+									),
+									{ [Op.notIn]: admins.map(w => w.toLowerCase()) }
+								)
+							}
+						]
+				  })
 		])
 
 		const walletsData: {
@@ -322,20 +427,21 @@ export default class ContractEvent {
 		}[] = []
 
 		const walletContractsData: {
-			MeemContractId: string
+			AgreementId?: string
+			AgreementRoleId?: string
 			WalletId: string
 			role: string
 		}[] = []
 
 		admins.forEach(adminAddress => {
-			const wallet = adminWallets.find(
+			const adminWallet = adminWallets.find(
 				aw => aw.address.toLowerCase() === adminAddress.toLowerCase()
 			)
 
-			const meemContractWallet =
-				wallet?.MeemContractWallets && wallet?.MeemContractWallets[0]
+			const agreementWallet =
+				adminWallet?.AgreementWallets && adminWallet?.AgreementWallets[0]
 
-			if (!wallet) {
+			if (!adminWallet) {
 				// Create the wallet
 				const walletId = uuidv4()
 				walletsData.push({
@@ -345,31 +451,42 @@ export default class ContractEvent {
 				})
 
 				walletContractsData.push({
-					MeemContractId: theMeemContract.id,
+					...(isRoleAgreement
+						? { AgreementRoleId: agreementOrRole.id }
+						: { AgreementId: agreementOrRole.id }),
 					WalletId: walletId,
 					role: adminRole
 				})
-			} else if (wallet && !meemContractWallet) {
+			} else if (adminWallet && !agreementWallet) {
 				// Create the association
 				walletContractsData.push({
-					MeemContractId: theMeemContract.id,
-					WalletId: wallet.id,
+					...(isRoleAgreement
+						? { AgreementRoleId: agreementOrRole.id }
+						: { AgreementId: agreementOrRole.id }),
+					WalletId: adminWallet.id,
 					role: adminRole
 				})
 			}
 		})
 
-		log.debug(`Syncing MeemContract data: ${theMeemContract.address}`)
+		log.debug(`Syncing Agreement data: ${agreementOrRole.address}`)
 
 		const promises: Promise<any>[] = []
 		if (currentAdminsToRemove.length > 0) {
 			promises.push(
-				orm.models.MeemContractWallet.destroy({
-					where: {
-						id: currentAdminsToRemove.map(a => a.id)
-					},
-					transaction: t
-				})
+				isRoleAgreement
+					? orm.models.AgreementRoleWallet.destroy({
+							where: {
+								id: currentAdminsToRemove.map(a => a.id)
+							},
+							transaction: t
+					  })
+					: orm.models.AgreementWallet.destroy({
+							where: {
+								id: currentAdminsToRemove.map(a => a.id)
+							},
+							transaction: t
+					  })
 			)
 		}
 		if (walletsData.length > 0) {
@@ -383,32 +500,41 @@ export default class ContractEvent {
 		await Promise.all(promises)
 
 		if (walletContractsData.length > 0) {
-			await orm.models.MeemContractWallet.bulkCreate(walletContractsData, {
-				transaction: t
-			})
+			if (isRoleAgreement) {
+				await orm.models.AgreementRoleWallet.bulkCreate(walletContractsData, {
+					transaction: t
+				})
+			} else {
+				await orm.models.AgreementWallet.bulkCreate(walletContractsData, {
+					transaction: t
+				})
+			}
 		}
 
 		await t.commit()
 
 		// Update ENS
-		await services.meemId.updateENS(theMeemContract)
+		if (!isRoleAgreement) {
+			await services.meemId.updateENS(agreementOrRole as Agreement)
+		}
 
-		return theMeemContract
+		return agreementOrRole
 	}
 
 	public static async meemHandleSplitsSet(_args: {
 		address: string
 		eventData: MeemSplitsSetEvent['args']
+		chainId: number
 	}) {
 		// const tokenId = args.eventData.tokenId.toHexString()
 		// const { splits } = args.eventData
-		// const meem = await orm.models.Meem.findOne({
+		// const meem = await orm.models.AgreementToken.findOne({
 		// 	where: {
 		// 		tokenId
 		// 	},
 		// 	include: [
 		// 		{
-		// 			model: orm.models.MeemContract,
+		// 			model: orm.models.Agreement,
 		// 			where: {
 		// 				address: args.address
 		// 			}
@@ -429,19 +555,84 @@ export default class ContractEvent {
 		// }
 	}
 
+	// TODO: update to handle agreement and agreement roles
+	public static async meemHandleAdminContractSet(args: {
+		address: string
+		eventData: MeemAdminContractSetEvent['args']
+		chainId: number
+	}) {
+		const { address, eventData, chainId } = args
+		let agreement = await orm.models.Agreement.findByAddress<Agreement>(address)
+
+		if (!agreement) {
+			agreement = (await this.meemHandleContractInitialized({
+				address,
+				chainId
+			})) as Agreement
+		}
+
+		if (!agreement) {
+			log.crit('Unable to find or create Agreement')
+			return
+		}
+
+		agreement.adminContractAddress = eventData.adminContract
+
+		await agreement.save()
+
+		let newAdminAgreementRole = await orm.models.AgreementRole.findOne({
+			where: {
+				address: eventData.adminContract
+			}
+		})
+
+		const existingAdminAgreementRole = await orm.models.AgreementRole.findOne({
+			where: {
+				AgreementId: agreement.id,
+				isAdminRole: true
+			}
+		})
+
+		if (!newAdminAgreementRole) {
+			newAdminAgreementRole = (await this.meemHandleContractInitialized({
+				address,
+				chainId
+			})) as AgreementRole
+		}
+
+		if (!newAdminAgreementRole) {
+			log.crit('Unable to find or create AgreementRole')
+			return
+		}
+
+		const t = await orm.sequelize.transaction()
+		const promises: Promise<any>[] = []
+
+		newAdminAgreementRole.isAdminRole = true
+		promises.push(newAdminAgreementRole.save({ transaction: t }))
+
+		if (existingAdminAgreementRole) {
+			existingAdminAgreementRole.isAdminRole = false
+			promises.push(existingAdminAgreementRole.save({ transaction: t }))
+		}
+
+		await Promise.all(promises)
+		await t.commit()
+	}
+
 	// public static async meemHandlePropertiesSet(args: {
 	// 	address: string
 	// 	eventData: MeemPropertiesSetEventObject
 	// }) {
 	// 	const tokenId = args.eventData.tokenId.toHexString()
 	// 	const { propertyType, props } = args.eventData
-	// 	const meem = await orm.models.Meem.findOne({
+	// 	const meem = await orm.models.AgreementToken.findOne({
 	// 		where: {
 	// 			tokenId
 	// 		},
 	// 		include: [
 	// 			{
-	// 				model: orm.models.MeemContract,
+	// 				model: orm.models.Agreement,
 	// 				where: {
 	// 					address: args.address
 	// 				}
@@ -472,13 +663,13 @@ export default class ContractEvent {
 	// }) {
 	// 	const tokenId = args.eventData.tokenId.toHexString()
 	// 	const { propertyType, permissionType, permission } = args.eventData
-	// 	const meem = await orm.models.Meem.findOne({
+	// 	const meem = await orm.models.AgreementToken.findOne({
 	// 		where: {
 	// 			tokenId
 	// 		},
 	// 		include: [
 	// 			{
-	// 				model: orm.models.MeemContract,
+	// 				model: orm.models.Agreement,
 	// 				where: {
 	// 					address: args.address
 	// 				}
@@ -534,13 +725,13 @@ export default class ContractEvent {
 
 	// 	const [wallet, meem] = await Promise.all([
 	// 		orm.models.Wallet.findByAddress<Wallet>(addy) as unknown as Wallet | null,
-	// 		orm.models.Meem.findOne({
+	// 		orm.models.AgreementToken.findOne({
 	// 			where: {
 	// 				tokenId
 	// 			},
 	// 			include: [
 	// 				{
-	// 					model: orm.models.MeemContract,
+	// 					model: orm.models.Agreement,
 	// 					where: {
 	// 						address: args.address
 	// 					}
@@ -576,13 +767,13 @@ export default class ContractEvent {
 	// 	const tokenId = args.eventData.tokenId.toHexString()
 	// 	const { addy } = args.eventData
 
-	// 	const meem = await orm.models.Meem.findOne({
+	// 	const meem = await orm.models.AgreementToken.findOne({
 	// 		where: {
 	// 			tokenId
 	// 		},
 	// 		include: [
 	// 			{
-	// 				model: orm.models.MeemContract,
+	// 				model: orm.models.Agreement,
 	// 				where: {
 	// 					address: args.address
 	// 				}
@@ -612,13 +803,13 @@ export default class ContractEvent {
 	// 	log.debug(`Adding "${reaction}" reaction for ${addy} on token ${tokenId}`)
 
 	// 	const [meem, wallet] = await Promise.all([
-	// 		orm.models.Meem.findOne({
+	// 		orm.models.AgreementToken.findOne({
 	// 			where: {
 	// 				tokenId
 	// 			},
 	// 			include: [
 	// 				{
-	// 					model: orm.models.MeemContract,
+	// 					model: orm.models.Agreement,
 	// 					where: {
 	// 						address: args.address
 	// 					}
@@ -668,13 +859,13 @@ export default class ContractEvent {
 
 	// 	log.debug(`Removing "${reaction}" reaction for ${addy} on token ${tokenId}`)
 
-	// 	const meem = await orm.models.Meem.findOne({
+	// 	const meem = await orm.models.AgreementToken.findOne({
 	// 		where: {
 	// 			tokenId
 	// 		},
 	// 		include: [
 	// 			{
-	// 				model: orm.models.MeemContract,
+	// 				model: orm.models.Agreement,
 	// 				where: {
 	// 					address: args.address
 	// 				}
@@ -710,13 +901,13 @@ export default class ContractEvent {
 
 	// 	log.debug(`Reaction types set for token ${tokenId}`)
 
-	// 	const meem = await orm.models.Meem.findOne({
+	// 	const meem = await orm.models.AgreementToken.findOne({
 	// 		where: {
 	// 			tokenId
 	// 		},
 	// 		include: [
 	// 			{
-	// 				model: orm.models.MeemContract,
+	// 				model: orm.models.Agreement,
 	// 				where: {
 	// 					address: args.address
 	// 				}
@@ -737,151 +928,285 @@ export default class ContractEvent {
 		transactionHash: string
 		transactionTimestamp: number
 		eventData: MeemTransferEvent['args']
+		chainId: number
 	}) {
 		const tokenId = args.eventData.tokenId.toHexString()
-		let meem = await orm.models.Meem.findOne({
-			where: {
-				tokenId
-			},
-			include: [
-				{
-					model: orm.models.MeemContract,
-					where: {
-						address: args.address
-					}
-				}
-			]
+		const { chainId, address, transactionHash } = args
+
+		const agreement = await services.agreement.getAgreementContract({
+			address,
+			chainId
 		})
 
-		if (!meem) {
-			log.debug(`Creating new meem: ${tokenId}`)
-			meem = await this.createNewMeem(args.address, tokenId)
-		} else {
-			log.debug(`Updating meem: ${tokenId}`)
-			let wallet = await orm.models.Wallet.findByAddress<Wallet>(
-				args.eventData.to
-			)
+		const contractURI = await agreement.contractURI()
+		const metadata = (await services.meem.getErc721Metadata(
+			contractURI
+		)) as MeemMetadataLike
 
-			if (!wallet) {
-				wallet = await orm.models.Wallet.create({
-					address: args.eventData.to
+		if (metadata.meem_metadata_type === 'Meem_AgreementContract') {
+			let token = await orm.models.AgreementToken.findOne({
+				where: {
+					tokenId
+				},
+				include: [
+					{
+						model: orm.models.Agreement,
+						where: {
+							address: args.address
+						}
+					}
+				]
+			})
+
+			if (!token) {
+				log.debug(`Creating new token: ${tokenId}`)
+				token = await this.createNewAgreementToken({
+					address: args.address,
+					tokenId,
+					chainId,
+					transactionHash
 				})
-				await services.meemId.createOrUpdateMeemIdentity({
-					wallet
-				})
+			} else {
+				log.debug(`Updating token: ${tokenId}`)
+				let wallet = await orm.models.Wallet.findByAddress<Wallet>(
+					args.eventData.to
+				)
+
+				if (!wallet) {
+					wallet = await orm.models.Wallet.create({
+						address: args.eventData.to
+					})
+				}
+
+				token.OwnerId = wallet.id
+				await token.save()
 			}
 
-			meem.OwnerId = wallet.id
-			await meem.save()
-			// if (!meem.metadata) {
-			// 	await this.updateMeem({ meem })
-			// }
+			const transferredAt = DateTime.fromSeconds(
+				args.transactionTimestamp
+			).toJSDate()
+
+			await orm.models.AgreementTokenTransfer.create({
+				from: args.eventData.from,
+				to: args.eventData.to,
+				transactionHash,
+				transferredAt,
+				AgreementTokenId: token.id
+			})
+		} else if (metadata.meem_metadata_type === 'Meem_AgreementRoleContract') {
+			let token = await orm.models.AgreementRoleToken.findOne({
+				where: {
+					tokenId
+				},
+				include: [
+					{
+						model: orm.models.Agreement,
+						where: {
+							address: args.address
+						}
+					}
+				]
+			})
+
+			if (!token) {
+				log.debug(`Creating new token: ${tokenId}`)
+				token = await this.createNewAgreementRoleToken({
+					address: args.address,
+					tokenId,
+					chainId
+				})
+			} else {
+				log.debug(`Updating token: ${tokenId}`)
+				let wallet = await orm.models.Wallet.findByAddress<Wallet>(
+					args.eventData.to
+				)
+
+				if (!wallet) {
+					wallet = await orm.models.Wallet.create({
+						address: args.eventData.to
+					})
+				}
+
+				token.OwnerId = wallet.id
+				await token.save()
+			}
+
+			const transferredAt = DateTime.fromSeconds(
+				args.transactionTimestamp
+			).toJSDate()
+
+			await orm.models.AgreementRoleTokenTransfer.create({
+				from: args.eventData.from,
+				to: args.eventData.to,
+				transactionHash: args.transactionHash,
+				transferredAt,
+				AgreementRoleTokenId: token.id
+			})
 		}
-
-		const transferredAt = DateTime.fromSeconds(
-			args.transactionTimestamp
-		).toJSDate()
-
-		await orm.models.Transfer.create({
-			from: args.eventData.from,
-			to: args.eventData.to,
-			transactionHash: args.transactionHash,
-			transferredAt,
-			MeemId: meem.id
-		})
-
-		// if (config.ENABLE_GUNDB) {
-		// 	const transfer = gun
-		// 		.user()
-		// 		.get('transfers')
-		// 		.get(evt.transactionHash)
-		// 		.put({
-		// 			event: evt.event,
-		// 			from: args.eventData.from,
-		// 			to: args.eventData.to,
-		// 			tokenId: args.eventData.tokenId,
-		// 			blockHash: evt.blockHash,
-		// 			blockNumber: evt.blockNumber,
-		// 			data: evt.data,
-		// 			transactionHash: evt.transactionHash
-		// 		})
-
-		// 	const token = gun.user().get('meems').get(tokenId)
-		// 	token.get('transfers').put(transfer)
-		// 	transfer.get('token').put(token)
-		// }
 	}
 
-	public static async createNewMeem(address: string, tokenId: string) {
-		const meemContract = await services.meem.getMeemContract({
-			address
+	public static async createNewAgreementToken(options: {
+		address: string
+		tokenId: string
+		chainId: number
+		transactionHash: string
+	}) {
+		const { address, tokenId, chainId, transactionHash } = options
+		const agreement = await services.agreement.getAgreementContract({
+			address,
+			chainId
 		})
 
-		log.debug(`Fetching meem from contract: ${tokenId}`)
+		const transaction = await orm.models.Transaction.findOne({
+			where: {
+				hash: transactionHash
+			}
+		})
 
-		// Fetch the meem data and create it
-		const [meemData, tokenURI] = await Promise.all([
-			meemContract.getMeem(tokenId),
-			meemContract.tokenURI(tokenId)
+		log.debug(`Fetching AgreementToken from contract: ${tokenId}`)
+
+		// Fetch the token data and create it
+		const [tokenData, tokenURI] = await Promise.all([
+			agreement.getMeem(tokenId),
+			agreement.tokenURI(tokenId)
 		])
 
-		log.debug(`Meem found`, tokenURI, meemData)
+		log.debug(`AgreementToken found`, tokenURI, tokenData)
 
-		let [meemContractData, wallet] = await Promise.all([
-			orm.models.MeemContract.findOne({
+		let [agreementData, wallet] = await Promise.all([
+			orm.models.Agreement.findOne({
 				where: {
 					address
 				}
 			}),
-			orm.models.Wallet.findByAddress<Wallet>(meemData.owner)
+			orm.models.Wallet.findByAddress<Wallet>(tokenData.owner)
 		])
 
-		if (!meemContractData) {
-			meemContractData = await this.meemHandleContractInitialized({
-				address
-			})
-			if (!meemContractData) {
-				throw new Error('MEEM_CONTRACT_NOT_FOUND')
+		if (!agreementData) {
+			agreementData = (await this.meemHandleContractInitialized({
+				address,
+				chainId
+			})) as Agreement
+			if (!agreementData) {
+				throw new Error('AGREEMENT_NOT_FOUND')
 			}
 		}
 
 		if (!wallet) {
 			wallet = await orm.models.Wallet.create({
-				address: meemData.owner
-			})
-			await services.meemId.createOrUpdateMeemIdentity({
-				wallet
+				address: tokenData.owner
 			})
 		}
 
 		const metadata = (await services.meem.getErc721Metadata(
 			tokenURI
-		)) as MeemAPI.IMeemMetadata
+		)) as MeemAPI.IMeemMetadataLike
 
 		const data: Record<string, any> = {
 			id: uuidv4(),
 			tokenId,
 			tokenURI,
-			mintedAt: DateTime.fromSeconds(meemData.mintedAt.toNumber()).toJSDate(),
+			mintedAt: DateTime.fromSeconds(tokenData.mintedAt.toNumber()).toJSDate(),
 			metadata,
-			meemType: meemData.tokenType,
-			mintedBy: meemData.mintedBy,
-			MeemContractId: meemContractData.id,
-			OwnerId: wallet.id
+			mintedBy: tokenData.mintedBy,
+			AgreementId: agreementData.id,
+			OwnerId: wallet.id,
+			TransactionId: transaction?.id
 		}
 
-		log.debug(`Saving meem to db: ${tokenId}`)
+		log.debug(`Saving AgreementToken to db: ${tokenId}`)
 		const t = await orm.sequelize.transaction()
 
-		const createUpdatePromises: Promise<any>[] = [
-			orm.models.Meem.create(data, { transaction: t })
+		const createUpdatePromises: Promise<AgreementToken>[] = [
+			orm.models.AgreementToken.create(data, { transaction: t })
 		]
 
-		const [meem] = (await Promise.all(createUpdatePromises)) as [Meem]
+		const [token] = await Promise.all(createUpdatePromises)
 
 		await t.commit()
 
-		return meem
+		return token
+	}
+
+	public static async createNewAgreementRoleToken(options: {
+		address: string
+		tokenId: string
+		chainId: number
+	}) {
+		const { address, tokenId, chainId } = options
+		const agreementContract = await services.agreement.getAgreementContract({
+			address,
+			chainId
+		})
+
+		log.debug(`Fetching AgreementRoleToken from contract: ${tokenId}`)
+
+		// Fetch the meem data and create it
+		const [tokenData, tokenURI] = await Promise.all([
+			agreementContract.getMeem(tokenId),
+			agreementContract.tokenURI(tokenId)
+		])
+
+		log.debug(`AgreementRoleToken found`, tokenURI, tokenData)
+
+		let [agreementRoleData, wallet] = await Promise.all([
+			orm.models.AgreementRole.findOne({
+				where: {
+					address
+				},
+				include: [
+					{
+						model: orm.models.Agreement
+					}
+				]
+			}),
+			orm.models.Wallet.findByAddress<Wallet>(tokenData.owner)
+		])
+
+		if (!agreementRoleData) {
+			agreementRoleData = (await this.meemHandleContractInitialized({
+				address,
+				chainId
+			})) as AgreementRole | null
+			if (!agreementRoleData) {
+				throw new Error('AGREEMENT_ROLE_NOT_FOUND')
+			}
+		}
+
+		if (!wallet) {
+			wallet = await orm.models.Wallet.create({
+				address: tokenData.owner
+			})
+		}
+
+		const metadata = (await services.meem.getErc721Metadata(
+			tokenURI
+		)) as MeemAPI.IMeemMetadataLike
+
+		const data: Record<string, any> = {
+			id: uuidv4(),
+			tokenId,
+			tokenURI,
+			mintedAt: DateTime.fromSeconds(tokenData.mintedAt.toNumber()).toJSDate(),
+			metadata,
+			mintedBy: tokenData.mintedBy,
+			AgreementId: agreementRoleData.Agreement.id,
+			AgreementRoleId: agreementRoleData.id,
+			OwnerId: wallet.id
+		}
+
+		log.debug(`Saving AgreementRoleToken to db: ${tokenId}`)
+		const t = await orm.sequelize.transaction()
+
+		const createUpdatePromises: Promise<AgreementRoleToken>[] = [
+			orm.models.AgreementRoleToken.create(data, { transaction: t })
+		]
+
+		const [token] = await Promise.all(createUpdatePromises)
+
+		await t.commit()
+
+		return token
 	}
 
 	// public static saveToGun(options: {
@@ -939,18 +1264,18 @@ export default class ContractEvent {
 	// private static async updateMeem(options: { meem: Meem }) {
 	// 	const { meem } = options
 	// 	log.debug(`Syncing meem tokenId: ${meem.tokenId}`)
-	// 	const meemContract = await services.meem.getMeemContract({
-	// 		address: meem.MeemContract.address
+	// 	const agreement = await services.meem.getAgreement({
+	// 		address: meem.Agreement.address
 	// 	})
 	// 	// Fetch the meem data and create it
 	// 	const [meemData, tokenURI] = await Promise.all([
-	// 		meemContract.getMeem(meem.tokenId),
-	// 		meemContract.tokenURI(meem.tokenId)
+	// 		agreement.getMeem(meem.tokenId),
+	// 		agreement.tokenURI(meem.tokenId)
 	// 	])
 
 	// 	const metadata = (await services.meem.getErc721Metadata(
 	// 		tokenURI
-	// 	)) as MeemAPI.IMeemMetadata
+	// 	)) as MeemAPI.IMeemMetadataLike
 
 	// 	// meem.data = meemData.data
 	// 	meem.metadata = metadata

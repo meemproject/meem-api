@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import { TwitterApi, UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
+import Agreement from '../models/Agreement'
 import Hashtag from '../models/Hashtag'
-import MeemContract from '../models/MeemContract'
 import Tweet from '../models/Tweet'
 import Twitter from '../models/Twitter'
 
@@ -41,9 +41,9 @@ export default class TwitterService {
 		return tweets
 	}
 
-	public static async verifyMeemContractTwitter(data: {
+	public static async verifyAgreementTwitter(data: {
 		twitterUsername: string
-		meemContract: MeemContract
+		agreement: Agreement
 	}): Promise<UserV2> {
 		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
 
@@ -75,7 +75,7 @@ export default class TwitterService {
 
 			if (clubUrl) {
 				const clubSlug = _.last(clubUrl.expanded_url.split('/'))
-				isClubsTweet = clubSlug?.toLowerCase() === data.meemContract.slug
+				isClubsTweet = clubSlug?.toLowerCase() === data.agreement.slug
 			}
 
 			return isClubsTweet
