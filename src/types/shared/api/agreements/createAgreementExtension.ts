@@ -26,7 +26,9 @@ export namespace CreateAgreementExtension {
 		isInitialized?: boolean
 
 		/** Optional metadata associated with this extension */
-		metadata?: IMeemMetadataLike
+		metadata?: {
+			[key: string]: any
+		}
 
 		/** Optional external link associated with this extension */
 		externalLink?: {
