@@ -61,4 +61,5 @@ tmp/*
 contracts/cache/
 contracts/artifacts/
 
+# GunDB
 radata/

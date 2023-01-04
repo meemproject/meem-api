@@ -7,7 +7,7 @@ export default [
 		description: 'Discuss things!',
 		icon: 'integration-discussions.png',
 		guideUrl: '',
-		slug: 'discussion',
+		slug: 'discussions',
 		storageDefinition: {
 			tableland: {
 				tables: [
