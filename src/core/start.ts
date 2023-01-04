@@ -154,7 +154,18 @@ export default async function start(options?: {
 			adapters: socketsConfig.adapters
 		})
 
-		g.gun = Gun({ web: server })
+		if (config.ENABLE_GUNDB) {
+			g.gun = Gun({
+				web: server,
+				peers: [],
+				s3: {
+					bucket: config.GUNDB_S3_BUCKET,
+					key: config.APP_AWS_ACCESS_KEY_ID,
+					secret: config.APP_AWS_SECRET_ACCESS_KEY,
+					region: 'us-east-1'
+				}
+			})
+		}
 	}
 
 	if (config.GENERATE_SHARED_TYPES) {
