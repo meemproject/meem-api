@@ -5683,9 +5683,9 @@ graphlib@^2.1.8:
   dependencies:
     lodash "^4.17.15"
 
-"gun@https://github.com/amark/gun.git#master":
-  version "0.2020.1238"
-  resolved "https://github.com/amark/gun.git#5bf2a6b0b234bb2ceae5dd013a919b286dec8f0e"
+"gun@https://github.com/amark/gun.git#9ceb86b208d9bea899682aa570064eb3cdecfc9c":
+  version "0.2020.1239"
+  resolved "https://github.com/amark/gun.git#9ceb86b208d9bea899682aa570064eb3cdecfc9c"
   dependencies:
     ws "^7.2.1"
   optionalDependencies:
