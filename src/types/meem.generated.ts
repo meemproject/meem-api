@@ -477,7 +477,7 @@ export interface IAgreementRoleExtensionMetadata {
 	[key: string]: any
 }
 
-export enum IAgreementExtensionVisibility {
+export enum AgreementExtensionVisibility {
 	/** Anyone can view the integration */
 	Anyone = 'anyone',
 
@@ -718,6 +718,13 @@ export interface IExtensionStorageDefinition {
 			}
 		]
 	}
+}
+
+export interface IExtensionWidgetDefinition {
+	widgets: {
+		metadata: Record<string, any>
+		visibility: AgreementExtensionVisibility
+	}[]
 }
 
 export interface IAgreementExtensionMetadata {
@@ -1115,7 +1122,7 @@ export namespace CreateAgreementExtension {
 			/** The link label */
 			label?: string
 			/** Visibility of the link extension */
-			visibility?: IAgreementExtensionVisibility
+			visibility?: AgreementExtensionVisibility
 		}
 
 		/** Optional widget data associated with this extension */
@@ -1123,7 +1130,7 @@ export namespace CreateAgreementExtension {
 			/** Metadata associated with the extension widget */
 			metadata?: IMeemMetadataLike
 			/** Visibility of the widget extension */
-			visibility?: IAgreementExtensionVisibility
+			visibility?: AgreementExtensionVisibility
 		}
 	}
 
@@ -1651,7 +1658,7 @@ export namespace UpdateAgreementExtension {
 			/** Whether link should be enabled */
 			isEnabled?: boolean
 			/** Visibility of the extension link */
-			visibility?: IAgreementExtensionVisibility
+			visibility?: AgreementExtensionVisibility
 		}
 		/** Optional widget data associated with this extension */
 		widget?: {
@@ -1660,7 +1667,7 @@ export namespace UpdateAgreementExtension {
 			/** Whether widget should be enabled */
 			isEnabled?: boolean
 			/** Visibility of the extension widget */
-			visibility?: IAgreementExtensionVisibility
+			visibility?: AgreementExtensionVisibility
 		}
 	}
 

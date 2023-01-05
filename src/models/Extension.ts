@@ -55,6 +55,11 @@ export default class Extension extends BaseModel<Extension> {
 			type: DataTypes.JSONB,
 			allowNull: false,
 			defaultValue: {}
+		},
+		widgetDefinition: {
+			type: DataTypes.JSONB,
+			allowNull: false,
+			defaultValue: {}
 		}
 	}
 
@@ -71,6 +76,8 @@ export default class Extension extends BaseModel<Extension> {
 	public guideUrl!: string
 
 	public storageDefinition!: MeemAPI.IExtensionStorageDefinition
+
+	public widgetDefinition!: MeemAPI.IExtensionWidgetDefinition
 
 	public Agreements!: Agreement[]
 

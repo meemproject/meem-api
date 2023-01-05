@@ -1,6 +1,6 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 import {
-	IAgreementExtensionVisibility,
+	AgreementExtensionVisibility,
 	IMeemMetadataLike
 } from '../../meem.shared'
 
@@ -37,7 +37,7 @@ export namespace CreateAgreementExtension {
 			/** The link label */
 			label?: string
 			/** Visibility of the link extension */
-			visibility?: IAgreementExtensionVisibility
+			visibility?: AgreementExtensionVisibility
 		}
 
 		/** Optional widget data associated with this extension */
@@ -45,7 +45,7 @@ export namespace CreateAgreementExtension {
 			/** Metadata associated with the extension widget */
 			metadata?: IMeemMetadataLike
 			/** Visibility of the widget extension */
-			visibility?: IAgreementExtensionVisibility
+			visibility?: AgreementExtensionVisibility
 		}
 	}
 

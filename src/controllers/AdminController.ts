@@ -96,6 +96,7 @@ export default class AdminController {
 					await orm.models.Extension.create(extensionsData[i])
 				} else {
 					// eslint-disable-next-line no-await-in-loop
+					log.debug('Update extension', extensionsData[i])
 					await existingExtension.update(extensionsData[i])
 				}
 			} catch (e) {
