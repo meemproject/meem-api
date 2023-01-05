@@ -13,7 +13,7 @@ export default class AgreementExtensionController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { extensionId, isInitialized, metadata, externalLink, widget } =
+		const { extensionId, isInitialized, metadata, externalLink /*, widget */ } =
 			req.body
 
 		if (!extensionId) {
@@ -209,20 +209,41 @@ export default class AgreementExtensionController {
 			)
 		}
 
-		if (widget) {
-			promises.push(
-				orm.models.AgreementExtensionWidget.create(
-					{
-						AgreementExtensionId: agreementExtension.id,
-						metadata: widget.metadata,
-						visibility: widget.visibility
-					},
-					{
-						transaction: t
-					}
+		if (
+			extension.widgetDefinition &&
+			extension.widgetDefinition.widgets &&
+			extension.widgetDefinition.widgets.length > 0
+		) {
+			extension.widgetDefinition.widgets.forEach(w => {
+				promises.push(
+					orm.models.AgreementExtensionWidget.create(
+						{
+							AgreementExtensionId: agreementExtension.id,
+							metadata: w.metadata,
+							visibility: w.visibility
+						},
+						{
+							transaction: t
+						}
+					)
 				)
-			)
+			})
 		}
+
+		// if (widget) {
+		// 	promises.push(
+		// 		orm.models.AgreementExtensionWidget.create(
+		// 			{
+		// 				AgreementExtensionId: agreementExtension.id,
+		// 				metadata: widget.metadata,
+		// 				visibility: widget.visibility
+		// 			},
+		// 			{
+		// 				transaction: t
+		// 			}
+		// 		)
+		// 	)
+		// }
 
 		await Promise.all(promises)
 		await t.commit()

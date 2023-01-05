@@ -1,5 +1,3 @@
-import { ethers } from 'ethers'
-
 export default [
 	{
 		id: '3d7cca32-3a82-4f0c-85e7-a285976f3f46',
@@ -8,68 +6,14 @@ export default [
 		icon: 'integration-discussions.png',
 		guideUrl: '',
 		slug: 'discussions',
-		storageDefinition: {
-			tableland: {
-				tables: [
-					{
-						name: 'posts',
-						schema: {
-							data: 'text',
-							accessControlConditions: 'text',
-							encryptedSymmetricKey: 'text'
-						},
-						permissions: {
-							adminRoleContract: ethers.constants.AddressZero,
-							canInsert: true,
-							insertRoleContract: ethers.constants.AddressZero,
-							canUpdate: false,
-							updateRoleContract: ethers.constants.AddressZero,
-							canDelete: false,
-							deleteRoleContract: ethers.constants.AddressZero,
-							updateableColumns: []
-						}
-					},
-					{
-						name: 'comments',
-						schema: {
-							data: 'text',
-							accessControlConditions: 'text',
-							encryptedSymmetricKey: 'text',
-							refId: 'integer'
-						},
-						permissions: {
-							adminRoleContract: ethers.constants.AddressZero,
-							canInsert: true,
-							insertRoleContract: ethers.constants.AddressZero,
-							canUpdate: false,
-							updateRoleContract: ethers.constants.AddressZero,
-							canDelete: false,
-							deleteRoleContract: ethers.constants.AddressZero,
-							updateableColumns: []
-						}
-					},
-					{
-						name: 'reactions',
-						schema: {
-							data: 'text',
-							accessControlConditions: 'text',
-							encryptedSymmetricKey: 'text',
-							refTable: 'text',
-							refId: 'integer'
-						},
-						permissions: {
-							adminRoleContract: ethers.constants.AddressZero,
-							canInsert: true,
-							insertRoleContract: ethers.constants.AddressZero,
-							canUpdate: false,
-							updateRoleContract: ethers.constants.AddressZero,
-							canDelete: false,
-							deleteRoleContract: ethers.constants.AddressZero,
-							updateableColumns: []
-						}
-					}
-				]
-			}
+		storageDefinition: {},
+		widgetDefinition: {
+			widgets: [
+				{
+					metadata: {},
+					visibility: 'token-holders'
+				}
+			]
 		}
 	},
 	{
