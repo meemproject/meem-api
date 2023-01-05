@@ -422,7 +422,7 @@ export interface IAgreementRoleExtensionMetadata {
 	[key: string]: any
 }
 
-export enum IAgreementExtensionVisibility {
+export enum AgreementExtensionVisibility {
 	/** Anyone can view the integration */
 	Anyone = 'anyone',
 
@@ -663,6 +663,13 @@ export interface IExtensionStorageDefinition {
 			}
 		]
 	}
+}
+
+export interface IExtensionWidgetDefinition {
+	widgets: {
+		metadata: Record<string, any>
+		visibility: AgreementExtensionVisibility
+	}[]
 }
 
 export interface IAgreementExtensionMetadata {
