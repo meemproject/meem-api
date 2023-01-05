@@ -1111,7 +1111,9 @@ export namespace CreateAgreementExtension {
 		isInitialized?: boolean
 
 		/** Optional metadata associated with this extension */
-		metadata?: IMeemMetadataLike
+		metadata?: {
+			[key: string]: any
+		}
 
 		/** Optional external link associated with this extension */
 		externalLink?: {
@@ -1644,7 +1646,9 @@ export namespace UpdateAgreementExtension {
 		/** Whether the extension initialization is complete */
 		isInitialized?: boolean
 		/** Optional metadata associated with this extension */
-		metadata?: IMeemMetadataLike
+		metadata?: {
+			[key: string]: any
+		}
 		/** Optional external link associated with this extension */
 		externalLink?: {
 			/** Url for the link */
