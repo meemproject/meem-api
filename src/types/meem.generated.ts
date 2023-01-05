@@ -1654,7 +1654,7 @@ export namespace UpdateAgreementExtension {
 			/** Whether link should be enabled */
 			isEnabled?: boolean
 			/** Visibility of the extension link */
-			visibility?: IAgreementExtensionVisibility
+			visibility?: AgreementExtensionVisibility
 		}
 		/** Optional widget data associated with this extension */
 		widget?: {
@@ -1663,7 +1663,7 @@ export namespace UpdateAgreementExtension {
 			/** Whether widget should be enabled */
 			isEnabled?: boolean
 			/** Visibility of the extension widget */
-			visibility?: IAgreementExtensionVisibility
+			visibility?: AgreementExtensionVisibility
 		}
 	}
 
