@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/meemproject/meem-api-aws/compare/v1.12.0...v1.13.0) (2023-01-06)
+
+
+### Features
+
+* extensions widget definition ([b14d319](https://github.com/meemproject/meem-api-aws/commit/b14d319))
+
 # [1.12.0](https://github.com/meemproject/meem-api-aws/compare/v1.11.4...v1.12.0) (2022-12-23)
 
 
