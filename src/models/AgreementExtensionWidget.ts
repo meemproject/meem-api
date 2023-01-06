@@ -1,10 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
+import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
-import {
-	IAgreementExtensionVisibility,
-	IMeemMetadataLike
-} from '../types/shared/meem.shared'
 import Agreement from './Agreement'
 export default class AgreementExtensionWidget extends BaseModel<AgreementExtensionWidget> {
 	public static readonly modelName = 'AgreementExtensionWidget'
@@ -46,9 +43,9 @@ export default class AgreementExtensionWidget extends BaseModel<AgreementExtensi
 
 	public isEnabled!: boolean
 
-	public metadata!: IMeemMetadataLike | null
+	public metadata!: MeemAPI.IMeemMetadataLike | null
 
-	public visibility!: IAgreementExtensionVisibility
+	public visibility!: MeemAPI.AgreementExtensionVisibility
 
 	public AgreementExtensionId!: string
 

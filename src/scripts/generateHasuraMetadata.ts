@@ -15,7 +15,7 @@ const run = async () => {
 			version: 3,
 			sources: [
 				{
-					name: 'Meem ALPHA DB',
+					name: process.env.DATABASE_NAME,
 					kind: 'postgres',
 					tables,
 					configuration: {
