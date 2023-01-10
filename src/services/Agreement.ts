@@ -108,7 +108,7 @@ export default class AgreementService {
 			agreementRoleId?: string
 		}
 	) {
-		const { senderWalletAddress, agreementId, agreementRoleId } = data
+		const { senderWalletAddress, agreementId, agreementRoleId, metadata } = data
 		const agreement = await orm.models.Agreement.findOne({
 			where: {
 				id: agreementId
@@ -135,6 +135,16 @@ export default class AgreementService {
 				chainId: agreementOrRole.chainId,
 				agreementOrRole
 			})
+
+		if (metadata) {
+			const result = await services.web3.saveToPinata({
+				json: {
+					...metadata
+				}
+			})
+
+			contractInitParams.contractURI = `ipfs://${result.IpfsHash}`
+		}
 
 		const agreementOrRoleContract = Mycontract__factory.connect(
 			agreementOrRole.address,
