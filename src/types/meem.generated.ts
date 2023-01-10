@@ -1715,7 +1715,7 @@ export namespace UpdateAgreementExtension {
 		/** Optional metadata associated with this extension */
 		metadata?: {
 			[key: string]: any
-		}
+		} | null
 		/** Optional external link associated with this extension */
 		externalLink?: {
 			/** Url for the link */
@@ -1726,7 +1726,7 @@ export namespace UpdateAgreementExtension {
 			isEnabled?: boolean
 			/** Visibility of the extension link */
 			visibility?: AgreementExtensionVisibility
-		}
+		} | null
 		/** Optional widget data associated with this extension */
 		widget?: {
 			/** Metadata associated with the extension widget */
@@ -1735,7 +1735,7 @@ export namespace UpdateAgreementExtension {
 			isEnabled?: boolean
 			/** Visibility of the extension widget */
 			visibility?: AgreementExtensionVisibility
-		}
+		} | null
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

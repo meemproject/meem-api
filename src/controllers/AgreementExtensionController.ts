@@ -333,8 +333,8 @@ export default class AgreementExtensionController {
 			agreementExtension.isInitialized = isInitialized
 		}
 
-		if (externalLink) {
-			if (agreementExtension.AgreementExtensionLink) {
+		if (!_.isUndefined(externalLink)) {
+			if (externalLink && agreementExtension.AgreementExtensionLink) {
 				agreementExtension.AgreementExtensionLink.isEnabled = !_.isUndefined(
 					externalLink.isEnabled
 				)
@@ -350,7 +350,12 @@ export default class AgreementExtensionController {
 				promises.push(
 					agreementExtension.AgreementExtensionLink.save({ transaction: t })
 				)
-			} else {
+			} else if (
+				externalLink === null &&
+				agreementExtension.AgreementExtensionLink
+			) {
+				await agreementExtension.AgreementExtensionLink.destroy()
+			} else if (externalLink) {
 				promises.push(
 					orm.models.AgreementExtensionLink.create(
 						{
@@ -366,8 +371,8 @@ export default class AgreementExtensionController {
 			}
 		}
 
-		if (widget) {
-			if (agreementExtension.AgreementExtensionWidget) {
+		if (!_.isUndefined(widget)) {
+			if (widget && agreementExtension.AgreementExtensionWidget) {
 				agreementExtension.AgreementExtensionWidget.isEnabled = !_.isUndefined(
 					widget.isEnabled
 				)
@@ -379,7 +384,12 @@ export default class AgreementExtensionController {
 				promises.push(
 					agreementExtension.AgreementExtensionWidget.save({ transaction: t })
 				)
-			} else {
+			} else if (
+				widget === null &&
+				agreementExtension.AgreementExtensionWidget
+			) {
+				await agreementExtension.AgreementExtensionWidget.destroy()
+			} else if (widget) {
 				promises.push(
 					orm.models.AgreementExtensionWidget.create(
 						{
