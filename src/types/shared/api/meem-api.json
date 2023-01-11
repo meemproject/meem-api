@@ -560,6 +560,14 @@
           }
         }
       },
+      "UpdateAgreementRequestBody": {
+        "properties": {
+          "isLaunched": {
+            "description": "Whether the agreement is launched and visible to members",
+            "type": "boolean"
+          }
+        }
+      },
       "UpdateUserIdentityRequestBody": {
         "properties": {
           "visibility": {
@@ -726,6 +734,46 @@
                       }
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "summary": "Update off-chain agreement data",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agreementId",
+            "required": true,
+            "description": "The id of the agreement",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAgreementRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns 'success' if update succeeds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultStatusResponseBody"
                 }
               }
             }

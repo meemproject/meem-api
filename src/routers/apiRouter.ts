@@ -50,6 +50,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/reinitialize',
 		AgreementController.reInitialize
 	)
+	router.patchAsync(
+		'/agreements/:agreementId',
+		AgreementController.updateAgreement
+	)
 	router.postAsync(
 		'/agreements/:agreementId/safe',
 		AgreementController.createAgreementSafe
