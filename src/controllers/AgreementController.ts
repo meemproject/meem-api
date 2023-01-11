@@ -75,6 +75,29 @@ export default class AgreementController {
 		return res.json(result)
 	}
 
+	public static async updateAgreement(
+		req: IRequest<MeemAPI.v1.UpdateAgreement.IDefinition>,
+		res: IResponse<MeemAPI.v1.UpdateAgreement.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		await req.wallet.enforceTXLimit()
+
+		const { agreementId } = req.params
+
+		await services.agreement.updateAgreement({
+			agreementId,
+			senderWalletAddress: req.wallet.address,
+			updates: req.body
+		})
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
 	public static async setAgreementAdminRole(
 		req: IRequest<MeemAPI.v1.SetAgreementAdminRole.IDefinition>,
 		res: IResponse<MeemAPI.v1.SetAgreementAdminRole.IResponseBody>

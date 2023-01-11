@@ -894,6 +894,49 @@ export default class AgreementService {
 		return { txId }
 	}
 
+	public static async updateAgreement(options: {
+		agreementId: string
+		senderWalletAddress: string
+		updates: MeemAPI.v1.UpdateAgreement.IRequestBody
+	}): Promise<Agreement> {
+		const { agreementId, senderWalletAddress, updates } = options
+		const [agreement, senderWallet] = await Promise.all([
+			orm.models.Agreement.findOne({
+				where: {
+					id: agreementId
+				}
+			}),
+			orm.models.Wallet.findByAddress<Wallet>(senderWalletAddress)
+		])
+
+		if (!senderWallet) {
+			throw new Error('WALLET_NOT_FOUND')
+		}
+
+		if (!agreement) {
+			throw new Error('AGREEMENT_NOT_FOUND')
+		}
+
+		const isAdmin = await agreement.isAdmin(senderWalletAddress)
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		if (!_.isUndefined(updates.isLaunched)) {
+			agreement.isLaunched = updates.isLaunched
+		}
+
+		try {
+			await agreement.save()
+		} catch (e) {
+			log.crit('Error saving agreement', e)
+			throw new Error('UPDATE_AGREEMENT_FAILED')
+		}
+
+		return agreement
+	}
+
 	public static async setAgreemetAdminRole(options: {
 		agreementId: string
 		adminAgreementRoleId: string
