@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/meemproject/meem-api-aws/compare/v1.13.0...v1.13.1) (2023-01-12)
+
+
+### Bug Fixes
+
+* allow removal of extension links and widgets ([9de53c2](https://github.com/meemproject/meem-api-aws/commit/9de53c2))
+
 # [1.13.0](https://github.com/meemproject/meem-api-aws/compare/v1.12.0...v1.13.0) (2023-01-06)
 
 
