@@ -32,7 +32,7 @@ export default [
 		slug: 'twitter',
 		name: 'Twitter',
 		description: 'Add a link to your community Twitter',
-		icon: 'integration-guild.png',
+		icon: 'integration-twitter.png',
 		guideUrl: '',
 		createdAt: '2022-06-08 21:42:45.558+00',
 		updatedAt: '2022-06-08 21:42:45.558+00'
@@ -42,7 +42,7 @@ export default [
 		slug: 'discord',
 		name: 'Discord',
 		description: 'Add a link to your community Discord',
-		icon: 'integration-guild.png',
+		icon: 'integration-discord.png',
 		guideUrl: '',
 		createdAt: '2022-06-08 21:42:45.558+00',
 		updatedAt: '2022-06-08 21:42:45.558+00'
