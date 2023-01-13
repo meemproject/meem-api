@@ -26,5 +26,25 @@ export default [
 			'https://meemproject.notion.site/Guild-7c6f030bd5b4485998899d521fc3694a',
 		createdAt: '2022-06-08 21:42:45.558+00',
 		updatedAt: '2022-06-08 21:42:45.558+00'
+	},
+	{
+		id: '98dc0377-ba51-4069-bad8-7113d4f68009',
+		slug: 'twitter',
+		name: 'Twitter',
+		description: 'Add a link to your community Twitter',
+		icon: 'integration-guild.png',
+		guideUrl: '',
+		createdAt: '2022-06-08 21:42:45.558+00',
+		updatedAt: '2022-06-08 21:42:45.558+00'
+	},
+	{
+		id: 'ef49de65-4421-495a-b292-f7d12feac2fd',
+		slug: 'discord',
+		name: 'Discord',
+		description: 'Add a link to your community Discord',
+		icon: 'integration-guild.png',
+		guideUrl: '',
+		createdAt: '2022-06-08 21:42:45.558+00',
+		updatedAt: '2022-06-08 21:42:45.558+00'
 	}
 ]
