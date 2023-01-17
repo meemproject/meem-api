@@ -818,6 +818,64 @@ export default class AgreementService {
 		return { txId }
 	}
 
+	/** Burn an Agreement Token */
+	public static async bulkBurn(
+		data: (
+			| MeemAPI.v1.BulkBurnAgreementTokens.IRequestBody
+			| MeemAPI.v1.BulkBurnAgreementRoleTokens.IRequestBody
+		) & {
+			agreementId: string
+			agreementRoleId?: string
+		}
+	) {
+		const { agreementId, agreementRoleId, tokenIds } = data
+
+		if (!agreementId) {
+			throw new Error('MISSING_CONTRACT_ADDRESS')
+		}
+
+		const agreement = await orm.models.Agreement.findOne({
+			where: {
+				id: agreementId
+			}
+		})
+
+		if (!agreement) {
+			throw new Error('AGREEMENT_NOT_FOUND')
+		}
+
+		let agreementRole
+
+		if (agreementRoleId) {
+			agreementRole = await orm.models.AgreementRole.findOne({
+				where: {
+					id: agreementRoleId
+				}
+			})
+		}
+
+		log.debug('Bulk burning tokens', { tokenIds })
+
+		const chainId = agreement.chainId
+
+		const agreementContract = await services.agreement.getAgreementContract({
+			chainId,
+			address: ethers.constants.AddressZero
+		})
+
+		const txId = await services.ethers.queueTransaction({
+			chainId,
+			functionSignature:
+				agreementContract.interface.functions['bulkBurn(uint256[])'].format(),
+			contractAddress: agreementRole?.address ?? agreement.address,
+			inputValues: {
+				tokenIds: tokenIds.map(t => ethers.BigNumber.from(t).toHexString())
+			}
+		})
+
+		return { txId }
+	}
+
 	// Adapted from https://forum.openzeppelin.com/t/creating-gnosis-safes-via-the-api/12031/2
 	// Gnosis safe deployments / abi: https://github.com/safe-global/safe-deployments/blob/main/src/assets/v1.3.0/gnosis_safe.json
 	// Gnosis proxy factory deployments / abi: https://github.com/safe-global/safe-deployments/blob/main/src/assets/v1.3.0/proxy_factory.json
