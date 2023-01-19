@@ -1,3 +1,11 @@
+# [1.14.0](https://github.com/meemproject/meem-api-aws/compare/v1.13.1...v1.14.0) (2023-01-19)
+
+
+### Features
+
+* bulk burn tokens ([5a6c0e2](https://github.com/meemproject/meem-api-aws/commit/5a6c0e2))
+* update extensions list ([cb647c9](https://github.com/meemproject/meem-api-aws/commit/cb647c9))
+
 ## [1.13.1](https://github.com/meemproject/meem-api-aws/compare/v1.13.0...v1.13.1) (2023-01-12)
 
 
