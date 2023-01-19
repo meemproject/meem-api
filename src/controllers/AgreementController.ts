@@ -75,6 +75,29 @@ export default class AgreementController {
 		return res.json(result)
 	}
 
+	public static async updateAgreement(
+		req: IRequest<MeemAPI.v1.UpdateAgreement.IDefinition>,
+		res: IResponse<MeemAPI.v1.UpdateAgreement.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		await req.wallet.enforceTXLimit()
+
+		const { agreementId } = req.params
+
+		await services.agreement.updateAgreement({
+			agreementId,
+			senderWalletAddress: req.wallet.address,
+			updates: req.body
+		})
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
 	public static async setAgreementAdminRole(
 		req: IRequest<MeemAPI.v1.SetAgreementAdminRole.IDefinition>,
 		res: IResponse<MeemAPI.v1.SetAgreementAdminRole.IResponseBody>
@@ -232,6 +255,41 @@ export default class AgreementController {
 		const result = await services.agreement.bulkMint({
 			...req.body,
 			mintedBy: req.wallet.address,
+			agreementId
+		})
+
+		return res.json(result)
+	}
+
+	public static async bulkBurn(
+		req: IRequest<MeemAPI.v1.BulkBurnAgreementTokens.IDefinition>,
+		res: IResponse<MeemAPI.v1.BulkBurnAgreementTokens.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		await req.wallet.enforceTXLimit()
+
+		const { agreementId } = req.params
+
+		const agreement = await orm.models.Agreement.findOne({
+			where: {
+				id: agreementId
+			}
+		})
+
+		if (!agreement) {
+			throw new Error('AGREEMENT_NOT_FOUND')
+		}
+
+		const canBurn = await agreement.isAdmin(req.wallet.address)
+		if (!canBurn) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const result = await services.agreement.bulkBurn({
+			...req.body,
 			agreementId
 		})
 

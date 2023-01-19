@@ -50,6 +50,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/reinitialize',
 		AgreementController.reInitialize
 	)
+	router.patchAsync(
+		'/agreements/:agreementId',
+		AgreementController.updateAgreement
+	)
 	router.postAsync(
 		'/agreements/:agreementId/safe',
 		AgreementController.createAgreementSafe
@@ -65,6 +69,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync(
 		'/agreements/:agreementId/bulkMint',
 		AgreementController.bulkMint
+	)
+	router.postAsync(
+		'/agreements/:agreementId/bulkBurn',
+		AgreementController.bulkBurn
 	)
 	router.postAsync(
 		'/agreements/:agreementId/upgrade',

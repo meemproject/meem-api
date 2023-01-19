@@ -13,7 +13,7 @@ export default class AgreementExtensionController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { extensionId, isInitialized, metadata, externalLink, widget } =
+		const { extensionId, isInitialized, metadata, externalLink /*, widget */ } =
 			req.body
 
 		if (!extensionId) {
@@ -209,20 +209,41 @@ export default class AgreementExtensionController {
 			)
 		}
 
-		if (widget) {
-			promises.push(
-				orm.models.AgreementExtensionWidget.create(
-					{
-						AgreementExtensionId: agreementExtension.id,
-						metadata: widget.metadata,
-						visibility: widget.visibility
-					},
-					{
-						transaction: t
-					}
+		if (
+			extension.widgetDefinition &&
+			extension.widgetDefinition.widgets &&
+			extension.widgetDefinition.widgets.length > 0
+		) {
+			extension.widgetDefinition.widgets.forEach(w => {
+				promises.push(
+					orm.models.AgreementExtensionWidget.create(
+						{
+							AgreementExtensionId: agreementExtension.id,
+							metadata: w.metadata,
+							visibility: w.visibility
+						},
+						{
+							transaction: t
+						}
+					)
 				)
-			)
+			})
 		}
+
+		// if (widget) {
+		// 	promises.push(
+		// 		orm.models.AgreementExtensionWidget.create(
+		// 			{
+		// 				AgreementExtensionId: agreementExtension.id,
+		// 				metadata: widget.metadata,
+		// 				visibility: widget.visibility
+		// 			},
+		// 			{
+		// 				transaction: t
+		// 			}
+		// 		)
+		// 	)
+		// }
 
 		await Promise.all(promises)
 		await t.commit()
@@ -312,8 +333,8 @@ export default class AgreementExtensionController {
 			agreementExtension.isInitialized = isInitialized
 		}
 
-		if (externalLink) {
-			if (agreementExtension.AgreementExtensionLink) {
+		if (!_.isUndefined(externalLink)) {
+			if (externalLink && agreementExtension.AgreementExtensionLink) {
 				agreementExtension.AgreementExtensionLink.isEnabled = !_.isUndefined(
 					externalLink.isEnabled
 				)
@@ -329,7 +350,12 @@ export default class AgreementExtensionController {
 				promises.push(
 					agreementExtension.AgreementExtensionLink.save({ transaction: t })
 				)
-			} else {
+			} else if (
+				externalLink === null &&
+				agreementExtension.AgreementExtensionLink
+			) {
+				await agreementExtension.AgreementExtensionLink.destroy()
+			} else if (externalLink) {
 				promises.push(
 					orm.models.AgreementExtensionLink.create(
 						{
@@ -345,8 +371,8 @@ export default class AgreementExtensionController {
 			}
 		}
 
-		if (widget) {
-			if (agreementExtension.AgreementExtensionWidget) {
+		if (!_.isUndefined(widget)) {
+			if (widget && agreementExtension.AgreementExtensionWidget) {
 				agreementExtension.AgreementExtensionWidget.isEnabled = !_.isUndefined(
 					widget.isEnabled
 				)
@@ -358,7 +384,12 @@ export default class AgreementExtensionController {
 				promises.push(
 					agreementExtension.AgreementExtensionWidget.save({ transaction: t })
 				)
-			} else {
+			} else if (
+				widget === null &&
+				agreementExtension.AgreementExtensionWidget
+			) {
+				await agreementExtension.AgreementExtensionWidget.destroy()
+			} else if (widget) {
 				promises.push(
 					orm.models.AgreementExtensionWidget.create(
 						{

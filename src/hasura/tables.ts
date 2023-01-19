@@ -14,6 +14,27 @@ export const tables = [
 		],
 		select_permissions: [
 			{
+				role: 'anonymous',
+				permission: {
+					columns: [
+						'isEnabled',
+						'label',
+						'url',
+						'visibility',
+						'metadata',
+						'createdAt',
+						'updatedAt',
+						'AgreementExtensionId',
+						'id'
+					],
+					filter: {
+						visibility: {
+							_eq: 'anyone'
+						}
+					}
+				}
+			},
+			{
 				role: 'mutualClubMember',
 				permission: {
 					columns: [
@@ -112,6 +133,25 @@ export const tables = [
 			}
 		],
 		select_permissions: [
+			{
+				role: 'anonymous',
+				permission: {
+					columns: [
+						'isEnabled',
+						'visibility',
+						'metadata',
+						'createdAt',
+						'updatedAt',
+						'AgreementExtensionId',
+						'id'
+					],
+					filter: {
+						visibility: {
+							_eq: 'anyone'
+						}
+					}
+				}
+			},
 			{
 				role: 'mutualClubMember',
 				permission: {
@@ -373,6 +413,35 @@ export const tables = [
 						table: {
 							name: 'AgreementRoleTokenTransfers',
 							schema: 'public'
+						}
+					}
+				}
+			}
+		],
+		select_permissions: [
+			{
+				role: 'mutualClubMember',
+				permission: {
+					columns: [
+						'mintedBy',
+						'tokenId',
+						'metadata',
+						'tokenURI',
+						'createdAt',
+						'mintedAt',
+						'updatedAt',
+						'AgreementId',
+						'AgreementRoleId',
+						'id',
+						'OwnerId'
+					],
+					filter: {
+						Agreement: {
+							AgreementTokens: {
+								OwnerId: {
+									_eq: 'x-hasura-wallet-id'
+								}
+							}
 						}
 					}
 				}
@@ -855,6 +924,7 @@ export const tables = [
 						'createdAt',
 						'ens',
 						'id',
+						'isLaunched',
 						'isTransferrable',
 						'maxSupply',
 						'metadata',
@@ -871,26 +941,27 @@ export const tables = [
 				role: 'mutualClubMember',
 				permission: {
 					columns: [
-						'isTransferrable',
+						'OwnerId',
 						'address',
 						'adminContractAddress',
-						'ens',
-						'gnosisSafeAddress',
-						'maxSupply',
-						'name',
-						'slug',
-						'symbol',
 						'chainId',
-						'metadata',
-						'mintPermissions',
-						'splits',
 						'contractURI',
 						'createdAt',
+						'ens',
 						'ensFetchedAt',
-						'ownerFetchedAt',
-						'updatedAt',
+						'gnosisSafeAddress',
 						'id',
-						'OwnerId'
+						'isLaunched',
+						'isTransferrable',
+						'maxSupply',
+						'metadata',
+						'mintPermissions',
+						'name',
+						'ownerFetchedAt',
+						'slug',
+						'splits',
+						'symbol',
+						'updatedAt'
 					],
 					filter: {
 						AgreementTokens: {
@@ -914,6 +985,7 @@ export const tables = [
 						'ens',
 						'gnosisSafeAddress',
 						'id',
+						'isLaunched',
 						'isTransferrable',
 						'maxSupply',
 						'metadata',
