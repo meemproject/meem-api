@@ -260,4 +260,39 @@ export default class AgreementController {
 
 		return res.json(result)
 	}
+
+	public static async bulkBurn(
+		req: IRequest<MeemAPI.v1.BulkBurnAgreementTokens.IDefinition>,
+		res: IResponse<MeemAPI.v1.BulkBurnAgreementTokens.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		await req.wallet.enforceTXLimit()
+
+		const { agreementId } = req.params
+
+		const agreement = await orm.models.Agreement.findOne({
+			where: {
+				id: agreementId
+			}
+		})
+
+		if (!agreement) {
+			throw new Error('AGREEMENT_NOT_FOUND')
+		}
+
+		const canBurn = await agreement.isAdmin(req.wallet.address)
+		if (!canBurn) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const result = await services.agreement.bulkBurn({
+			...req.body,
+			agreementId
+		})
+
+		return res.json(result)
+	}
 }
