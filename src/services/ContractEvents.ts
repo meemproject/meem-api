@@ -1000,7 +1000,7 @@ export default class ContractEvent {
 				},
 				include: [
 					{
-						model: orm.models.Agreement,
+						model: orm.models.AgreementRole,
 						where: {
 							address: args.address
 						}
