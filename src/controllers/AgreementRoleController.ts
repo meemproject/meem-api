@@ -310,6 +310,44 @@ export default class AgreementRoleController {
 		})
 	}
 
+	public static async bulkBurn(
+		req: IRequest<MeemAPI.v1.BulkBurnAgreementRoleTokens.IDefinition>,
+		res: IResponse<MeemAPI.v1.BulkBurnAgreementRoleTokens.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		await req.wallet.enforceTXLimit()
+
+		const { agreementId, agreementRoleId } = req.params
+
+		const agreementRole = await orm.models.AgreementRole.findOne({
+			where: {
+				id: agreementRoleId
+			}
+		})
+
+		if (!agreementRole) {
+			throw new Error('AGREEMENT_NOT_FOUND')
+		}
+
+		const canMint = await agreementRole.canMint(req.wallet.address)
+		if (!canMint) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const { txId } = await services.agreement.bulkBurn({
+			...req.body,
+			agreementId,
+			agreementRoleId
+		})
+
+		return res.json({
+			txId
+		})
+	}
+
 	public static async getAgreementRoles(
 		req: IRequest<MeemAPI.v1.GetAgreementRoles.IDefinition>,
 		res: IResponse<MeemAPI.v1.GetAgreementRoles.IResponseBody>
