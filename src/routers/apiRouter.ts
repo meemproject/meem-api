@@ -116,6 +116,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		AgreementRoleController.bulkMint
 	)
 	router.postAsync(
+		'/agreements/:agreementId/roles/:agreementRoleId/bulkBurn',
+		AgreementRoleController.bulkBurn
+	)
+	router.postAsync(
 		'/agreements/:agreementId/roles/:agreementRoleId/upgrade',
 		AgreementController.upgradeAgreement
 	)
