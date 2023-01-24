@@ -19,7 +19,9 @@ import {
 	MeemTransferEvent,
 	SplitStructOutput,
 	Mycontract,
-	MeemAdminContractSetEvent
+	MeemAdminContractSetEvent,
+	MeemRoleRevokedEvent,
+	MeemRoleGrantedEvent
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 import { IMeemMetadataLike } from '../types/shared/meem.shared'
@@ -922,6 +924,147 @@ export default class ContractEvent {
 	// 	meem.reactionTypes = reactionTypes
 	// 	await meem.save()
 	// }
+
+	public static async meemHandleRoleGranted(args: {
+		address: string
+		transactionHash: string
+		transactionTimestamp: number
+		eventData: MeemRoleGrantedEvent['args']
+		chainId: number
+	}) {
+		const { chainId, address } = args
+
+		const agreementOrRoleContract =
+			await services.agreement.getAgreementContract({
+				address,
+				chainId
+			})
+
+		const contractURI = await agreementOrRoleContract.contractURI()
+		const metadata = (await services.meem.getErc721Metadata(
+			contractURI
+		)) as MeemMetadataLike
+
+		// const adminRole = await agreementOrRoleContract.ADMIN_ROLE()
+
+		const wallet = await orm.models.Wallet.findByAddress<Wallet>(
+			args.eventData.user
+		)
+
+		if (!wallet) {
+			throw new Error('WALLET_NOT_FOUND')
+		}
+
+		if (metadata.meem_metadata_type === 'Meem_AgreementContract') {
+			const agreement = await orm.models.Agreement.findOne({
+				where: {
+					address,
+					chainId: args.chainId
+				}
+			})
+
+			if (!agreement) {
+				throw new Error('AGREEMENT_NOT_FOUND')
+			}
+
+			await orm.models.AgreementWallet.create({
+				AgreementId: agreement.id,
+				WalletId: wallet.id,
+				role: args.eventData.role
+			})
+		} else if (metadata.meem_metadata_type === 'Meem_AgreementRoleContract') {
+			const agreementRole = await orm.models.AgreementRole.findOne({
+				where: {
+					address,
+					chainId: args.chainId
+				}
+			})
+
+			if (!agreementRole) {
+				throw new Error('AGREEMENT_NOT_FOUND')
+			}
+
+			await orm.models.AgreementRoleWallet.create({
+				AgreementId: agreementRole.Agreement.id,
+				AgreementRoleId: agreementRole.id,
+				WalletId: wallet.id,
+				role: args.eventData.role
+			})
+		}
+	}
+
+	public static async meemHandleRoleRevoked(args: {
+		address: string
+		transactionHash: string
+		transactionTimestamp: number
+		eventData: MeemRoleRevokedEvent['args']
+		chainId: number
+	}) {
+		const { chainId, address } = args
+
+		const agreementOrRoleContract =
+			await services.agreement.getAgreementContract({
+				address,
+				chainId
+			})
+
+		const contractURI = await agreementOrRoleContract.contractURI()
+		const metadata = (await services.meem.getErc721Metadata(
+			contractURI
+		)) as MeemMetadataLike
+
+		// const adminRole = await agreementOrRoleContract.ADMIN_ROLE()
+
+		const wallet = await orm.models.Wallet.findByAddress<Wallet>(
+			args.eventData.user
+		)
+
+		if (!wallet) {
+			throw new Error('WALLET_NOT_FOUND')
+		}
+
+		if (metadata.meem_metadata_type === 'Meem_AgreementContract') {
+			const agreement = await orm.models.Agreement.findOne({
+				where: {
+					address,
+					chainId: args.chainId
+				}
+			})
+
+			if (!agreement) {
+				throw new Error('AGREEMENT_NOT_FOUND')
+			}
+
+			const agreementWallet = await orm.models.AgreementWallet.findOne({
+				where: {
+					AgreementId: agreement.id,
+					WalletId: wallet.id
+				}
+			})
+
+			await agreementWallet?.destroy()
+		} else if (metadata.meem_metadata_type === 'Meem_AgreementRoleContract') {
+			const agreementRole = await orm.models.AgreementRole.findOne({
+				where: {
+					address,
+					chainId: args.chainId
+				}
+			})
+
+			if (!agreementRole) {
+				throw new Error('AGREEMENT_NOT_FOUND')
+			}
+
+			const agreementWallet = await orm.models.AgreementRoleWallet.findOne({
+				where: {
+					AgreementRoleId: agreementRole.id,
+					WalletId: wallet.id
+				}
+			})
+
+			await agreementWallet?.destroy()
+		}
+	}
 
 	public static async meemHandleTransfer(args: {
 		address: string
