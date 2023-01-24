@@ -1,3 +1,16 @@
+# [1.15.0](https://github.com/meemproject/meem-api-aws/compare/v1.14.0...v1.15.0) (2023-01-24)
+
+
+### Bug Fixes
+
+* bulk burn role tokens ([d49e15c](https://github.com/meemproject/meem-api-aws/commit/d49e15c))
+* burn agreement role tokens db update ([e5b6f79](https://github.com/meemproject/meem-api-aws/commit/e5b6f79))
+
+
+### Features
+
+* Add role grant/remove event handlers ([9d053c9](https://github.com/meemproject/meem-api-aws/commit/9d053c9))
+
 # [1.14.0](https://github.com/meemproject/meem-api-aws/compare/v1.13.1...v1.14.0) (2023-01-19)
 
 
