@@ -5,6 +5,7 @@ import { DateTime } from 'luxon'
 import meemABI from '../abis/Meem.json'
 import {
 	MeemAdminContractSetEvent,
+	MeemRoleGrantedEvent,
 	MeemRoleRevokedEvent,
 	MeemSplitsSetEvent,
 	MeemTransferEvent
