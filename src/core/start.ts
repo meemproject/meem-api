@@ -157,6 +157,7 @@ export default async function start(options?: {
 		if (config.ENABLE_GUNDB) {
 			g.gun = Gun({
 				web: server,
+				axe: false,
 				peers: [],
 				s3: {
 					bucket: config.GUNDB_S3_BUCKET,
