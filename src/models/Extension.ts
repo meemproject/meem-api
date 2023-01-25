@@ -16,6 +16,14 @@ export default class Extension extends BaseModel<Extension> {
 			{
 				name: 'Extension_name',
 				fields: ['name']
+			},
+			{
+				name: 'Extension_category',
+				fields: ['category']
+			},
+			{
+				name: 'Extension_capabilities',
+				fields: ['capabilities']
 			}
 		]
 	}
@@ -46,6 +54,21 @@ export default class Extension extends BaseModel<Extension> {
 			allowNull: false,
 			defaultValue: ''
 		},
+		category: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: 'none'
+		},
+		capabilities: {
+			type: DataTypes.JSONB,
+			allowNull: false,
+			defaultValue: []
+		},
+		isSetupRequired: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: true
+		},
 		slug: {
 			type: DataTypes.STRING,
 			allowNull: false,
@@ -74,6 +97,12 @@ export default class Extension extends BaseModel<Extension> {
 	public icon!: string
 
 	public guideUrl!: string
+
+	public category!: string
+
+	public capabilities!: string[]
+
+	public isSetupRequired!: boolean
 
 	public storageDefinition!: MeemAPI.IExtensionStorageDefinition
 

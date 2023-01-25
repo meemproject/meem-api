@@ -26,6 +26,11 @@ export default class AgreementExtension extends BaseModel<AgreementExtension> {
 			defaultValue: DataTypes.UUIDV4,
 			primaryKey: true
 		},
+		isSetupComplete: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: false
+		},
 		isInitialized: {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false
@@ -41,6 +46,8 @@ export default class AgreementExtension extends BaseModel<AgreementExtension> {
 	public metadata!: MeemAPI.IAgreementExtensionMetadata | null
 
 	public isInitialized!: boolean
+
+	public isSetupComplete!: boolean
 
 	public AgreementId!: string
 
