@@ -293,6 +293,7 @@ export const tables = [
 						'createdAt',
 						'id',
 						'isInitialized',
+						'isSetupComplete',
 						'metadata',
 						'updatedAt'
 					],
@@ -309,6 +310,7 @@ export const tables = [
 						'createdAt',
 						'id',
 						'isInitialized',
+						'isSetupComplete',
 						'metadata',
 						'updatedAt'
 					],
@@ -325,6 +327,7 @@ export const tables = [
 						'createdAt',
 						'id',
 						'isInitialized',
+						'isSetupComplete',
 						'metadata',
 						'updatedAt'
 					],
@@ -1237,15 +1240,19 @@ export const tables = [
 				role: 'anonymous',
 				permission: {
 					columns: [
+						'capabilities',
+						'category',
+						'createdAt',
 						'description',
 						'guideUrl',
 						'icon',
+						'id',
+						'isSetupRequired',
 						'name',
 						'slug',
 						'storageDefinition',
-						'createdAt',
 						'updatedAt',
-						'id'
+						'widgetDefinition'
 					],
 					filter: {}
 				}
@@ -1254,15 +1261,19 @@ export const tables = [
 				role: 'mutualClubMember',
 				permission: {
 					columns: [
+						'capabilities',
+						'category',
+						'createdAt',
 						'description',
 						'guideUrl',
 						'icon',
+						'id',
+						'isSetupRequired',
 						'name',
 						'slug',
 						'storageDefinition',
-						'createdAt',
 						'updatedAt',
-						'id'
+						'widgetDefinition'
 					],
 					filter: {}
 				}
@@ -1271,15 +1282,19 @@ export const tables = [
 				role: 'user',
 				permission: {
 					columns: [
+						'capabilities',
+						'category',
+						'createdAt',
 						'description',
 						'guideUrl',
 						'icon',
+						'id',
+						'isSetupRequired',
 						'name',
 						'slug',
 						'storageDefinition',
-						'createdAt',
 						'updatedAt',
-						'id'
+						'widgetDefinition'
 					],
 					filter: {}
 				}
