@@ -206,17 +206,12 @@ export default class AgreementRoleController {
 			})
 		)
 
-		try {
-			await Promise.all(promises)
-			await t.commit()
+		await Promise.all(promises)
+		await t.commit()
 
-			return res.json({
-				status: 'success'
-			})
-		} catch (e) {
-			log.crit(e)
-			throw new Error('SERVER_ERROR')
-		}
+		return res.json({
+			status: 'success'
+		})
 	}
 
 	// public static async getAgreementGuild(
@@ -356,17 +351,12 @@ export default class AgreementRoleController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		try {
-			const roles = await services.agreement.getAgreementRoles({
-				agreementId: req.params.agreementId
-			})
-			return res.json({
-				roles
-			})
-		} catch (e) {
-			log.crit(e)
-			throw new Error('SERVER_ERROR')
-		}
+		const roles = await services.agreement.getAgreementRoles({
+			agreementId: req.params.agreementId
+		})
+		return res.json({
+			roles
+		})
 	}
 
 	public static async getAgreementRole(
@@ -377,18 +367,13 @@ export default class AgreementRoleController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		try {
-			const roles = await services.agreement.getAgreementRoles({
-				agreementId: req.params.agreementId,
-				agreementRoleId: req.params.agreementRoleId
-			})
-			return res.json({
-				role: roles[0]
-			})
-		} catch (e) {
-			log.crit(e)
-			throw new Error('SERVER_ERROR')
-		}
+		const roles = await services.agreement.getAgreementRoles({
+			agreementId: req.params.agreementId,
+			agreementRoleId: req.params.agreementRoleId
+		})
+		return res.json({
+			role: roles[0]
+		})
 	}
 
 	// public static async getUserAgreementRolesAccess(

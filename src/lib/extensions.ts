@@ -427,5 +427,18 @@ export default [
 		updatedAt: '2023-01-19 10:30:45.558+00',
 		storageDefinition: {},
 		widgetDefinition: {}
+	},
+	{
+		id: 'd891826d-561d-4a97-8735-7e7f22ab6431',
+		slug: 'steward',
+		name: 'Steward',
+		description:
+			'Community curated posts using reactions in Discord to publish on Twitter and (soon) Farcaster',
+		icon: 'integration-steward.png',
+		guideUrl: '',
+		createdAt: '2022-06-08 21:42:45.558+00',
+		updatedAt: '2022-06-08 21:42:45.558+00',
+		storageDefinition: {},
+		widgetDefinition: {}
 	}
 ]
