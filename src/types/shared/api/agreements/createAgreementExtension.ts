@@ -25,6 +25,9 @@ export namespace CreateAgreementExtension {
 		/** Whether the extension initialization is complete */
 		isInitialized?: boolean
 
+		/** Whether the extension setup is complete */
+		isSetupComplete?: boolean
+
 		/** Optional metadata associated with this extension */
 		metadata?: {
 			[key: string]: any
@@ -99,6 +102,9 @@ export namespace CreateAgreementExtension {
  *  		type: string
  *  	isInitialized:
  *  		description: Whether the extension initialization is complete
+ *  		type: boolean
+ *  	isSetupComplete:
+ *  		description: Whether the extension setup is complete
  *  		type: boolean
  * 		metadata:
  * 			description: Optional metadata associated with this extension

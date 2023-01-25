@@ -13,8 +13,13 @@ export default class AgreementExtensionController {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		const { extensionId, isInitialized, metadata, externalLink /*, widget */ } =
-			req.body
+		const {
+			extensionId,
+			isInitialized,
+			isSetupComplete,
+			metadata,
+			externalLink /*, widget */
+		} = req.body
 
 		if (!extensionId) {
 			throw new Error('MISSING_PARAMETERS')
@@ -116,7 +121,8 @@ export default class AgreementExtensionController {
 			AgreementId: agreement.id,
 			ExtensionId: extension.id,
 			metadata,
-			isInitialized: isInitialized ?? false
+			isInitialized: isInitialized ?? false,
+			isSetupComplete: isSetupComplete ?? false
 		})
 
 		const txIds: string[] = []
