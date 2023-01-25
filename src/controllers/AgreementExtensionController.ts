@@ -263,7 +263,8 @@ export default class AgreementExtensionController {
 		}
 
 		const { agreementId, agreementExtensionId } = req.params
-		const { isInitialized, metadata, externalLink, widget } = req.body
+		const { isInitialized, isSetupComplete, metadata, externalLink, widget } =
+			req.body
 
 		if (!agreementId || !agreementExtensionId) {
 			throw new Error('INVALID_PARAMETERS')
@@ -331,6 +332,10 @@ export default class AgreementExtensionController {
 
 		if (!_.isUndefined(isInitialized)) {
 			agreementExtension.isInitialized = isInitialized
+		}
+
+		if (!_.isUndefined(isSetupComplete)) {
+			agreementExtension.isSetupComplete = isSetupComplete
 		}
 
 		if (!_.isUndefined(externalLink)) {
