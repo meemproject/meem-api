@@ -82,6 +82,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/proof',
 		AgreementController.getMintingProof
 	)
+	router.getAsync(
+		'/agreements/:agreementId/isAdmin',
+		AgreementController.checkIsAgreementAdmin
+	)
 	router.postAsync(
 		'/agreements/:agreementId/extensions',
 		AgreementExtensionController.createAgreementExtension

@@ -295,4 +295,31 @@ export default class AgreementController {
 
 		return res.json(result)
 	}
+
+	public static async checkIsAgreementAdmin(
+		req: IRequest<MeemAPI.v1.CheckIsAgreementAdmin.IDefinition>,
+		res: IResponse<MeemAPI.v1.CheckIsAgreementAdmin.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const { agreementId } = req.params
+
+		const agreement = await orm.models.Agreement.findOne({
+			where: {
+				id: agreementId
+			}
+		})
+
+		if (!agreement) {
+			throw new Error('AGREEMENT_NOT_FOUND')
+		}
+
+		const isAdmin = await agreement.isAdmin(req.wallet.address)
+
+		return res.json({
+			isAdmin
+		})
+	}
 }
