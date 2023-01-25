@@ -28,7 +28,7 @@ export default {
 			queryInterface.addColumn('AgreementExtensions', 'isSetupComplete', {
 				type: DataTypes.BOOLEAN,
 				allowNull: false,
-				defaultValue: false
+				defaultValue: true
 			})
 		)
 	},
