@@ -697,6 +697,17 @@ export enum StorageType {
 	Tableland = 'tableland'
 }
 
+export enum ExtensionCategory {
+	Basics = 'basics',
+	Communications = 'communications',
+	Commerce = 'commerce',
+	Finance = 'finance',
+	Organization = 'organization',
+	Publishing = 'publishing',
+	RoleManagement = 'roleManagement',
+	SocialMedia = 'socialMedia'
+}
+
 export enum ExtensionCapability {
 	Link = 'link',
 	DApp = 'dapp',
