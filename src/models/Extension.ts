@@ -100,7 +100,7 @@ export default class Extension extends BaseModel<Extension> {
 
 	public category!: string
 
-	public capabilities!: string[]
+	public capabilities!: MeemAPI.ExtensionCapability[]
 
 	public isSetupRequired!: boolean
 
