@@ -508,7 +508,7 @@ export default [
 		guideUrl: '',
 		createdAt: '2022-06-08 21:42:45.558+00',
 		updatedAt: '2022-06-08 21:42:45.558+00',
-		category: 'basics',
+		category: 'publishing',
 		capabilities: ['dapp'],
 		storageDefinition: {},
 		widgetDefinition: {}
