@@ -8,6 +8,7 @@ export default [
 		slug: 'guild',
 		createdAt: '2022-06-08 21:42:45.558+00',
 		updatedAt: '2022-12-14 13:44:09.181+00',
+		capabilities: ['auth', 'link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -20,6 +21,7 @@ export default [
 		slug: 'discourse',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -32,6 +34,7 @@ export default [
 		slug: 'email',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -44,6 +47,7 @@ export default [
 		slug: 'etsy',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -56,6 +60,7 @@ export default [
 		slug: 'discussions',
 		createdAt: '2022-12-21 19:04:05.671+00',
 		updatedAt: '2023-01-05 18:10:17.718+00',
+		capabilities: ['dapp', 'widget'],
 		storageDefinition: {},
 		widgetDefinition: {
 			widgets: [{ metadata: {}, visibility: 'token-holders' }]
@@ -70,6 +75,7 @@ export default [
 		slug: 'twitter',
 		createdAt: '2022-06-08 21:42:45.558+00',
 		updatedAt: '2023-01-13 17:46:40.643+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -82,6 +88,7 @@ export default [
 		slug: 'android',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -94,6 +101,7 @@ export default [
 		slug: 'calendar',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -106,6 +114,7 @@ export default [
 		slug: 'clarity',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -118,6 +127,7 @@ export default [
 		slug: 'gdrive',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -130,6 +140,7 @@ export default [
 		slug: 'discord',
 		createdAt: '2022-06-08 21:42:45.558+00',
 		updatedAt: '2023-01-13 17:46:40.756+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -142,6 +153,7 @@ export default [
 		slug: 'github',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -155,6 +167,7 @@ export default [
 		slug: 'gnosis',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -167,6 +180,7 @@ export default [
 		slug: 'instagram',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -179,6 +193,7 @@ export default [
 		slug: 'ios',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -191,6 +206,7 @@ export default [
 		slug: 'linkedin',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -203,6 +219,7 @@ export default [
 		slug: 'mirror',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -216,6 +233,7 @@ export default [
 		slug: 'myco',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -228,6 +246,7 @@ export default [
 		slug: 'notion',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -240,6 +259,7 @@ export default [
 		slug: 'opensea',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -253,6 +273,7 @@ export default [
 		slug: 'address',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -266,6 +287,7 @@ export default [
 		slug: 'paragraph',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -278,6 +300,7 @@ export default [
 		slug: 'phone',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -290,6 +313,7 @@ export default [
 		slug: 'reddit',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -302,6 +326,7 @@ export default [
 		slug: 'slack',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -314,6 +339,7 @@ export default [
 		slug: 'sliksafe',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -326,6 +352,7 @@ export default [
 		slug: 'telegram',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -338,6 +365,7 @@ export default [
 		slug: 'tellie',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -350,6 +378,7 @@ export default [
 		slug: 'vimeo',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -362,6 +391,7 @@ export default [
 		slug: 'website',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -374,6 +404,7 @@ export default [
 		slug: 'whatsapp',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -387,6 +418,7 @@ export default [
 		slug: 'gather-town',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -400,6 +432,7 @@ export default [
 		slug: 'gitcoin',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -412,6 +445,7 @@ export default [
 		slug: 'youtube',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -425,6 +459,7 @@ export default [
 		slug: 'metropolis',
 		createdAt: '2023-01-19 10:30:45.558+00',
 		updatedAt: '2023-01-19 10:30:45.558+00',
+		capabilities: ['link'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	},
@@ -438,6 +473,7 @@ export default [
 		guideUrl: '',
 		createdAt: '2022-06-08 21:42:45.558+00',
 		updatedAt: '2022-06-08 21:42:45.558+00',
+		capabilities: ['dapp'],
 		storageDefinition: {},
 		widgetDefinition: {}
 	}

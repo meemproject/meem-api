@@ -642,6 +642,13 @@ export enum StorageType {
 	Tableland = 'tableland'
 }
 
+export enum ExtensionCapability {
+	Link = 'link',
+	DApp = 'dapp',
+	Auth = 'auth',
+	Widget = 'widget'
+}
+
 export interface IExtensionStorageDefinition {
 	tableland?: {
 		tables?: [
