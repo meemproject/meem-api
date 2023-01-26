@@ -338,10 +338,12 @@ export default class AgreementExtensionController {
 
 		if (!_.isUndefined(isInitialized)) {
 			agreementExtension.isInitialized = isInitialized
+			promises.push(agreementExtension.save({ transaction: t }))
 		}
 
 		if (!_.isUndefined(isSetupComplete)) {
 			agreementExtension.isSetupComplete = isSetupComplete
+			promises.push(agreementExtension.save({ transaction: t }))
 		}
 
 		if (!_.isUndefined(externalLink)) {
