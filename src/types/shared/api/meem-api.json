@@ -25,6 +25,34 @@
       }
     },
     "schemas": {
+      "BulkBurnAgreementRoleTokensRequestBody": {
+        "required": [
+          "tokens"
+        ],
+        "properties": {
+          "tokens": {
+            "description": "The token",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "BulkBurnAgreementTokensRequestBody": {
+        "required": [
+          "tokens"
+        ],
+        "properties": {
+          "tokens": {
+            "description": "The token",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "BulkMintAgreementRoleTokensRequestBody": {
         "required": [
           "tokens"
@@ -90,6 +118,10 @@
           },
           "isInitialized": {
             "description": "Whether the extension initialization is complete",
+            "type": "boolean"
+          },
+          "isSetupComplete": {
+            "description": "Whether the extension setup is complete",
             "type": "boolean"
           },
           "metadata": {
@@ -499,6 +531,10 @@
             "description": "Whether the extension initialization is complete",
             "type": "boolean"
           },
+          "isSetupComplete": {
+            "description": "Whether the extension setup is complete",
+            "type": "boolean"
+          },
           "metadata": {
             "description": "Optional metadata associated with this extension",
             "type": "object"
@@ -774,6 +810,54 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DefaultStatusResponseBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agreements/{agreementId}/bulkBurn": {
+      "post": {
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "summary": "Bulk burn agreement tokens",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agreementId",
+            "required": true,
+            "description": "The id of the agreement",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkBurnAgreementTokensRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns 'success' if bulk mint transaction is executed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "txId": {
+                      "type": "string",
+                      "description": "The transaction id"
+                    }
+                  }
                 }
               }
             }
@@ -1140,6 +1224,63 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DefaultStatusResponseBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agreements/{agreementId}/roles/{agreementRoleId}/bulkBurn": {
+      "post": {
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "summary": "Bulk burn agreement role tokens",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "agreementId",
+            "required": true,
+            "description": "The id of the agreement",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "agreementRoleId",
+            "required": true,
+            "description": "The id of the agreement role",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkBurnAgreementRoleTokensRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns 'success' if bulk mint transaction is executed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "txId": {
+                      "type": "string",
+                      "description": "The transaction id"
+                    }
+                  }
                 }
               }
             }
