@@ -1,3 +1,20 @@
+# [1.16.0](https://github.com/meemproject/meem-api-aws/compare/v1.15.0...v1.16.0) (2023-01-27)
+
+
+### Bug Fixes
+
+* actually update agreementExtension ([efc3651](https://github.com/meemproject/meem-api-aws/commit/efc3651))
+* set agreement extension isSetupComplete to true on migration by default ([2831f8c](https://github.com/meemproject/meem-api-aws/commit/2831f8c))
+* udpate symphony category ([9bff154](https://github.com/meemproject/meem-api-aws/commit/9bff154))
+
+
+### Features
+
+* add additional extension properties ([97edaf1](https://github.com/meemproject/meem-api-aws/commit/97edaf1))
+* add isSetupComplete to createAgreementExtension ([17d01a3](https://github.com/meemproject/meem-api-aws/commit/17d01a3))
+* endpoint to check if agreement admin ([bb1346c](https://github.com/meemproject/meem-api-aws/commit/bb1346c))
+* extension categories ([75fcafc](https://github.com/meemproject/meem-api-aws/commit/75fcafc))
+
 # [1.15.0](https://github.com/meemproject/meem-api-aws/compare/v1.14.0...v1.15.0) (2023-01-24)
 
 
