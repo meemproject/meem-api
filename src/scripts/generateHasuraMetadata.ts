@@ -15,12 +15,12 @@ const run = async () => {
 			version: 3,
 			sources: [
 				{
-					name: process.env.DATABASE_NAME,
+					name: process.env.HASURA_DATABASE_NAME,
 					kind: 'postgres',
 					tables,
 					configuration: {
 						connection_info: {
-							database_url: process.env.DATABASE_URL,
+							database_url: process.env.HASURA_DATABASE_URL,
 							isolation_level: 'read-committed',
 							pool_settings: {
 								connection_lifetime: 600,
