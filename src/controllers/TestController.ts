@@ -263,9 +263,7 @@ export default class TestController {
 
 		await tx.wait()
 
-		const receipt = await provider.core.getTransactionReceipt(
-			'0xd5c3e5899aca336f95e1ea40d94d11c27fc45cc9865fb4a0c59225e775578062'
-		)
+		const receipt = await provider.core.getTransactionReceipt(tx.hash)
 
 		if (receipt) {
 			// Find the newly created Safe contract address in the transaction receipt
