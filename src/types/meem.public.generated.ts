@@ -685,7 +685,8 @@ export enum QueueEvent {
 	CallContract = 'callContract',
 	DeployContract = 'deployContract',
 	DiamondCut = 'diamondCut',
-	CreateTablelandTable = 'createTablelandTable'
+	CreateTablelandTable = 'createTablelandTable',
+	DeploySafe = 'deploySafe'
 }
 
 export enum StorageDataType {

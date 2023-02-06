@@ -51,6 +51,7 @@ export interface IEvent {
 	eventName: MeemAPI.QueueEvent
 	id: string
 	chainId: number
+	agreementId?: string
 	transactionInput:
 		| ICallContractInput
 		| IDeployTransactionInput
@@ -259,6 +260,7 @@ export default class QueueService {
 						break
 					}
 
+					case MeemAPI.QueueEvent.DeploySafe:
 					case MeemAPI.QueueEvent.CallContract: {
 						const { nonce } = await services.ethers.aquireLockAndNonce(chainId)
 						const { contractTxId, functionSignature } =
@@ -364,6 +366,45 @@ export default class QueueService {
 							transaction.status = MeemAPI.TransactionStatus.Failure
 							await transaction.save()
 						}
+
+						if (eventName === MeemAPI.QueueEvent.DeploySafe) {
+							const receipt = await provider.core.getTransactionReceipt(tx.hash)
+
+							if (receipt) {
+								const { agreementId } = event
+								const agreement = await orm.models.Agreement.findOne({
+									where: {
+										id: agreementId
+									}
+								})
+
+								if (!agreement) {
+									log.crit(
+										`Unable to update safe address. Agreement not found: ${agreementId}`
+									)
+									throw new Error('AGREEMENT_NOT_FOUND')
+								}
+
+								// Gnosis safe contract creation topic
+								const topic =
+									'0x141df868a6331af528e38c83b7aa03edc19be66e37ae67f9285bf4f8e3c6a1a8'
+
+								// Find the newly created Safe contract address in the transaction receipt
+								for (let i = 0; i < receipt.logs.length; i += 1) {
+									const receiptLog = receipt.logs[i]
+									const foundTopic = receiptLog.topics.find(t => t === topic)
+									if (foundTopic) {
+										log.debug(
+											`Setting safe address: ${receiptLog.address} for agreement: ${agreement.id}`
+										)
+										agreement.gnosisSafeAddress = receiptLog.address
+										await agreement?.save()
+										break
+									}
+								}
+							}
+						}
+
 						break
 					}
 

@@ -12,6 +12,7 @@ import _ from 'lodash'
 import slug from 'slug'
 import { v4 as uuidv4 } from 'uuid'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
+import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
 import type Agreement from '../models/Agreement'
 import AgreementRole from '../models/AgreementRole'
 import Wallet from '../models/Wallet'
@@ -940,11 +941,14 @@ export default class AgreementService {
 		])
 
 		const txId = await services.ethers.queueTransaction({
+			eventName: MeemAPI.QueueEvent.DeploySafe,
+			agreementId: agreement.id,
 			chainId: chainId ?? agreement.chainId,
-			functionSignature: 'createProxy(address, bytes)',
-			contractAddress: config.GNOSIS_MASTER_CONTRACT_ADDRESS,
+			functionSignature: 'createProxy(address,bytes)',
+			contractAddress: config.GNOSIS_PROXY_CONTRACT_ADDRESS,
+			abi: GnosisSafeProxyABI,
 			inputValues: {
-				address: config.GNOSIS_MASTER_CONTRACT_ADDRESS,
+				singleton: config.GNOSIS_MASTER_CONTRACT_ADDRESS,
 				data: safeSetupData
 			}
 		})
