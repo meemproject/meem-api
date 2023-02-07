@@ -155,16 +155,27 @@ export default async function start(options?: {
 		})
 
 		if (config.ENABLE_GUNDB) {
+			const gunDbPeers = config.GUN_DB_PEERS.split(',')
 			g.gun = Gun({
 				web: server,
+				multicast: false,
+				radisk: false,
 				axe: false,
-				peers: [],
+				peers: gunDbPeers,
 				s3: {
 					bucket: config.GUNDB_S3_BUCKET,
 					key: config.APP_AWS_ACCESS_KEY_ID,
 					secret: config.APP_AWS_SECRET_ACCESS_KEY,
 					region: 'us-east-1'
 				}
+			})
+
+			g.gun.on('hi', (peer: any) => {
+				log.trace(`Gun peer connected: ${peer?.url}`)
+			})
+
+			g.gun.on('bye', (peer: any) => {
+				log.trace('Gun peer disconnected: ', peer?.url)
 			})
 		}
 	}
