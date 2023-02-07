@@ -1,3 +1,15 @@
+# [1.17.0](https://github.com/meemproject/meem-api-aws/compare/v1.16.0...v1.17.0) (2023-02-07)
+
+
+### Bug Fixes
+
+* create gnosis safe ([c69b4fe](https://github.com/meemproject/meem-api-aws/commit/c69b4fe))
+
+
+### Features
+
+* add gundb peers config ([d827e32](https://github.com/meemproject/meem-api-aws/commit/d827e32))
+
 # [1.16.0](https://github.com/meemproject/meem-api-aws/compare/v1.15.0...v1.16.0) (2023-01-27)
 
 
