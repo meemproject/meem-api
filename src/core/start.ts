@@ -155,7 +155,7 @@ export default async function start(options?: {
 		})
 
 		if (config.ENABLE_GUNDB) {
-			const gunDbPeers = config.GUN_DB_PEERS.split(',')
+			// const gunDbPeers = config.GUN_DB_PEERS.split(',')
 			g.gun = Gun({
 				web: server,
 				multicast: false,
