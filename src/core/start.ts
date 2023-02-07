@@ -161,6 +161,7 @@ export default async function start(options?: {
 				multicast: false,
 				radisk: false,
 				axe: false,
+				super: true,
 				peers: gunDbPeers,
 				s3: {
 					bucket: config.GUNDB_S3_BUCKET,
