@@ -214,5 +214,6 @@ export default {
 		'0x86062B7a01B8b2e22619dBE0C15cbe3F7EBd0E92',
 	PKP_MINT_COST: process.env.PKP_MINT_COST ?? '0.0001',
 	SQS_QUEUE_URL: process.env.SQS_QUEUE_URL ?? '',
-	ENABLE_SQS_CONSUMER: process.env.ENABLE_SQS_CONSUMER === 'true'
+	ENABLE_SQS_CONSUMER: process.env.ENABLE_SQS_CONSUMER === 'true',
+	GUN_DB_PEERS: process.env.GUN_DB_PEERS ?? ''
 }

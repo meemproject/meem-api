@@ -330,6 +330,9 @@ export default class EthersService {
 		contractAddress?: string
 		inputValues: Record<string, any>
 		chainId: number
+		eventName?: MeemAPI.QueueEvent
+		/** Necessary when QueueEvent == DeploySafe */
+		agreementId?: string
 	}) {
 		const {
 			abi,
@@ -337,7 +340,9 @@ export default class EthersService {
 			contractAddress,
 			contractTxId,
 			inputValues,
-			chainId
+			chainId,
+			eventName,
+			agreementId
 		} = options
 
 		if (!contractAddress && !contractTxId) {
@@ -350,7 +355,8 @@ export default class EthersService {
 			Id: id,
 			MessageBody: JSON.stringify({
 				id,
-				eventName: MeemAPI.QueueEvent.CallContract,
+				eventName: eventName ?? MeemAPI.QueueEvent.CallContract,
+				agreementId,
 				chainId,
 				customABI: abi,
 				transactionInput: {
