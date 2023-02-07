@@ -159,10 +159,11 @@ export default async function start(options?: {
 			g.gun = Gun({
 				web: server,
 				multicast: false,
-				radisk: false,
+				// radisk: false,
 				axe: false,
-				super: true,
-				peers: gunDbPeers,
+				// super: true,
+				// peers: gunDbPeers,
+				peers: [],
 				s3: {
 					bucket: config.GUNDB_S3_BUCKET,
 					key: config.APP_AWS_ACCESS_KEY_ID,
