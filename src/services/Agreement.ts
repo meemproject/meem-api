@@ -276,10 +276,9 @@ export default class AgreementService {
 		}[] = []
 
 		if (shouldMintTokens && tokenMetadata) {
-			const addresses = [
-				...cleanAdmins.map(a => a.user),
-				...(members ?? [])
-			].filter(a => a.toLowerCase() !== wallet.address.toLowerCase())
+			const addresses = (members ?? []).filter(
+				a => a.toLowerCase() !== wallet.address.toLowerCase()
+			)
 
 			const tokens = addresses.map(a => {
 				return {
