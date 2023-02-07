@@ -161,7 +161,7 @@ export default async function start(options?: {
 				multicast: false,
 				// radisk: false,
 				axe: false,
-				// super: true,
+				super: true,
 				// peers: gunDbPeers,
 				peers: [],
 				s3: {

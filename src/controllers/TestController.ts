@@ -435,4 +435,11 @@ export default class TestController {
 			status: 'success'
 		})
 	}
+
+	public static async gunTest(req: Request, res: Response) {
+		return res.json({
+			// result,
+			status: 'success'
+		})
+	}
 }
