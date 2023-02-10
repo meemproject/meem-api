@@ -404,6 +404,7 @@ export default class AgreementService {
 				chainId,
 				maxSupply: '0',
 				admins: cleanAdmins.map(a => a.user),
+				members: cleanAdmins.map(a => a.user),
 				parentContractTxtId: deployContractTxId,
 				metadata: {
 					meem_metadata_type: 'Meem_AgreementRoleContract',
