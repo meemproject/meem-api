@@ -254,7 +254,8 @@ export default class ContractEvent {
 		if (isRoleAgreement && metadata.meem_agreement_address) {
 			const agreement = await orm.models.Agreement.findOne({
 				where: {
-					address: metadata.meem_agreement_address
+					address: metadata.meem_agreement_address,
+					chainId
 				}
 			})
 			roleParentAgreementId = agreement?.id
@@ -584,7 +585,8 @@ export default class ContractEvent {
 
 		let newAdminAgreementRole = await orm.models.AgreementRole.findOne({
 			where: {
-				address: eventData.adminContract
+				address: eventData.adminContract,
+				chainId
 			}
 		})
 
@@ -1219,7 +1221,8 @@ export default class ContractEvent {
 		let [agreementData, wallet] = await Promise.all([
 			orm.models.Agreement.findOne({
 				where: {
-					address
+					address,
+					chainId
 				}
 			}),
 			orm.models.Wallet.findByAddress<Wallet>(tokenData.owner)
@@ -1295,7 +1298,8 @@ export default class ContractEvent {
 		let [agreementRoleData, wallet] = await Promise.all([
 			orm.models.AgreementRole.findOne({
 				where: {
-					address
+					address,
+					chainId
 				},
 				include: [
 					{
