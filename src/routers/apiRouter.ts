@@ -140,6 +140,11 @@ export default (app: Express, _express: typeof coreExpress) => {
 		userLoggedInPolicy,
 		EPMController.addContractInstance
 	)
+	router.deleteAsync(
+		'/epm/contractInstances/:contractInstanceId',
+		userLoggedInPolicy,
+		EPMController.removeContractInstance
+	)
 	router.postAsync(
 		'/epm/bundles',
 		userLoggedInPolicy,

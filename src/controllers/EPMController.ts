@@ -125,9 +125,11 @@ export default class EPMController {
 				}
 			})
 
-		if (walletContractInstance) {
-			await walletContractInstance.destroy()
+		if (!walletContractInstance) {
+			throw new Error('WALLET_CONTRACT_INSTANCE_NOT_FOUND')
 		}
+
+		await walletContractInstance.destroy()
 
 		return res.json({
 			status: 'success'
