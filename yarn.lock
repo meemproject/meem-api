@@ -706,6 +706,18 @@
   resolved "https://registry.npmjs.org/@kwsites/promise-deferred/-/promise-deferred-1.1.1.tgz"
   integrity sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==
 
+"@lukeed/csprng@^1.0.0":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@lukeed/csprng/-/csprng-1.0.1.tgz#625e93a0edb2c830e3c52ce2d67b9d53377c6a66"
+  integrity sha512-uSvJdwQU5nK+Vdf6zxcWAY2A8r7uqe+gePwLWzJ+fsQehq18pc0I2hJKwypZ2aLM90+Er9u1xn4iLJPZ+xlL4g==
+
+"@lukeed/uuid@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@lukeed/uuid/-/uuid-2.0.0.tgz#1c0f33c071cb6902bc3b9e475782ada7314ef9bd"
+  integrity sha512-dUz8OmYvlY5A9wXaroHIMSPASpSYRLCqbPvxGSyHguhtTQIy24lC+EGxQlwv71AhRCO55WOtgwhzQLpw27JaJQ==
+  dependencies:
+    "@lukeed/csprng" "^1.0.0"
+
 "@mapbox/node-pre-gyp@^1.0.0":
   version "1.0.6"
   resolved "https://registry.npmjs.org/@mapbox/node-pre-gyp/-/node-pre-gyp-1.0.6.tgz"
@@ -1098,6 +1110,26 @@
   version "1.4.1"
   resolved "https://registry.npmjs.org/@remusao/trie/-/trie-1.4.1.tgz"
   integrity sha512-yvwa+aCyYI/UjeD39BnpMypG8N06l86wIDW1/PAc6ihBRnodIfZDwccxQN3n1t74wduzaz74m4ZMHZnB06567Q==
+
+"@segment/analytics-core@1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-core/-/analytics-core-1.2.2.tgz#46b1465181e089bd75890d37c68c58de36fa6c44"
+  integrity sha512-zVWSDcyh7Rp32xL5v2fuEk2yZxxy+JA93vF1L3EF9XAYLSra/uEHJEswOWieXSdDHVRHes7APORp136usFE/tw==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    dset "^3.1.2"
+    tslib "^2.4.1"
+
+"@segment/analytics-node@^1.0.0-beta.23":
+  version "1.0.0-beta.23"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-node/-/analytics-node-1.0.0-beta.23.tgz#d80af3b0710d5ce9ca4e3e464bc6163dde3915ef"
+  integrity sha512-S1P6opKo1WfBxzX2MeBqFmZ9ViMUmP3RpXNFqeCnkM2c7hqY3FEZJNV7CrOdH3ej5W1S8cUE2/U6dJgzt6jv3g==
+  dependencies:
+    "@segment/analytics-core" "1.2.2"
+    buffer "^6.0.3"
+    node-fetch "^2.6.7"
+    tslib "^2.4.1"
+    uuid "^9.0.0"
 
 "@semantic-release/changelog@^5.0.0":
   version "5.0.1"
@@ -4010,6 +4042,11 @@ dottie@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/dottie/-/dottie-2.0.2.tgz#cc91c0726ce3a054ebf11c55fbc92a7f266dd154"
   integrity sha512-fmrwR04lsniq/uSr8yikThDTrM7epXHBAAjH9TbeH3rEA8tdCO7mRzB9hdmdGyJCxF8KERo9CITcm3kGuoyMhg==
+
+dset@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/dset/-/dset-3.1.2.tgz#89c436ca6450398396dc6538ea00abc0c54cd45a"
+  integrity sha512-g/M9sqy3oHe477Ar4voQxWtaPIFw1jTdKZuomOjhCcBx9nHUNn0pu6NopuFFrTh/TRZIKEj+76vLWFu9BNKk+Q==
 
 duplexer2@~0.1.0:
   version "0.1.4"

@@ -96,6 +96,7 @@ provider:
     SQS_QUEUE_ARN: ${env:SQS_QUEUE_ARN, ''}
     TABLELAND_CONTROLLER_BUNDLE_ID: ${env:TABLELAND_CONTROLLER_BUNDLE_ID, ''}
     GUN_DB_PEERS: ${env:GUN_DB_PEERS, ''}
+    SEGMENT_WRITE_KEY: ${env:SEGMENT_WRITE_KEY, ''}
 
 package:
   excludeDevDependencies: true

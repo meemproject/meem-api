@@ -65,6 +65,7 @@
 		"@meemproject/meem-contracts": "^0.17.1",
 		"@meemproject/metadata": "^0.17.1",
 		"@pinata/sdk": "^1.1.26",
+		"@segment/analytics-node": "^1.0.0-beta.23",
 		"@tableland/sdk": "^3.1.5",
 		"@typechain/ethers-v5": "^10.1.0",
 		"alchemy-sdk": "^2.1.1",

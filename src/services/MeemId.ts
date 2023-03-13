@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import { Readable } from 'stream'
+import Analytics from '@segment/analytics-node'
 import {
 	AuthenticationClient,
 	ManagementClient,
@@ -19,6 +20,8 @@ import type User from '../models/User'
 import UserIdentity from '../models/UserIdentity'
 import type Wallet from '../models/Wallet'
 import { MeemAPI } from '../types/meem.generated'
+
+const analytics = new Analytics({ writeKey: config.SEGMENT_WRITE_KEY })
 export default class MeemIdentityService {
 	public static async getNonce(options: { address: string }) {
 		// Generate a nonce and save it for the wallet
@@ -115,6 +118,11 @@ export default class MeemIdentityService {
 				})
 
 				await t.commit()
+
+				analytics.track({
+					userId: user.id,
+					event: 'Account Created'
+				})
 			}
 		}
 
