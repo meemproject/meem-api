@@ -9,6 +9,7 @@ export default {
 	version: packageJSON.version as string,
 	errors,
 	PORT: process.env.PORT ?? 1313,
+	API_URL: process.env.API_URL ?? 1313,
 	MEEM_DOMAIN:
 		process.env.MEEM_DOMAIN ?? process.env.NETWORK === 'rinkeby'
 			? 'https://dev.meem.wtf'
@@ -147,10 +148,6 @@ export default {
 	MINT_GAS_LIMIT: process.env.MINT_GAS_LIMIT
 		? process.env.MINT_GAS_LIMIT
 		: '6000000',
-	ENABLE_GUNDB: process.env.ENABLE_GUNDB === 'true',
-	GUNDB_S3_BUCKET: process.env.GUNDB_S3_BUCKET ?? '',
-	GUNDB_PASSWORD: process.env.GUNDB_PASSWORD ?? '',
-	GUNDB_USER: process.env.GUNDB_USER ?? '',
 	ENABLE_PROMPTS: process.env.ENABLE_PROMPTS === 'true',
 	TWITTER_PROMPTS_PROJECT_TOKEN_ID:
 		process.env.TWITTER_PROMPTS_PROJECT_TOKEN_ID ?? '',
@@ -216,5 +213,33 @@ export default {
 	SQS_QUEUE_URL: process.env.SQS_QUEUE_URL ?? '',
 	ENABLE_SQS_CONSUMER: process.env.ENABLE_SQS_CONSUMER === 'true',
 	GUN_DB_PEERS: process.env.GUN_DB_PEERS ?? '',
-	SEGMENT_WRITE_KEY: process.env.SEGMENT_WRITE_KEY ?? ''
+	SEGMENT_WRITE_KEY: process.env.SEGMENT_WRITE_KEY ?? '',
+	DISCORD_PUBLIC_KEY: process.env.DISCORD_PUBLIC_KEY ?? '',
+	DISCORD_APP_ID: process.env.DISCORD_APP_ID ?? '',
+	DISCORD_APP_TOKEN: process.env.DISCORD_APP_TOKEN ?? '',
+	DISCORD_DEV_SERVER: process.env.DISCORD_DEV_SERVER ?? '',
+	DISCORD_BOT_ROLE_NAME: process.env.DISCORD_BOT_ROLE_NAME ?? '',
+	TWITTER_OAUTH_CLIENT_ID: process.env.TWITTER_OAUTH_CLIENT_ID ?? '',
+	TWITTER_OAUTH_CLIENT_SECRET: process.env.TWITTER_OAUTH_CLIENT_SECRET ?? '',
+	TWITTER_OAUTH_CALLBACK_URL: process.env.TWITTER_OAUTH_CALLBACK_URL ?? '',
+	ENCRYPTION_KEY: process.env.ENCRYPTION_KEY
+		? (JSON.parse(process.env.ENCRYPTION_KEY) as JsonWebKey)
+		: ('' as JsonWebKey),
+	TWITTER_AUTH_SCOPES: [
+		'tweet.write',
+		'tweet.read',
+		'users.read',
+		'offline.access'
+	],
+	SLACK_CLIENT_ID: process.env.SLACK_CLIENT_ID ?? '',
+	SLACK_CLIENT_SECRET: process.env.SLACK_CLIENT_SECRET ?? '',
+	SLACK_SCOPES:
+		process.env.SLACK_SCOPES ??
+		'channels:join,channels:read,channels:history,im:history,mpim:history,commands,reactions:read,chat:write,chat:write.public,chat:write.customize,emoji:read,team:read',
+	SLACK_STATE_SECRET:
+		process.env.SLACK_STATE_SECRET ?? 'wfLbmv@sLwzDh!3UprsVLx!vm',
+	GA_API_KEY: process.env.GA_API_KEY ?? '',
+	GA_MEASUREMENT_ID: process.env.GA_MEASUREMENT_ID ?? '',
+	GA_CLIENT_ID:
+		process.env.GA_CLIENT_ID ?? 'b8f756de-97f5-4ef1-8bd0-f579f9df7406'
 }
