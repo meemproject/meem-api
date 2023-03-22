@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import { Readable } from 'stream'
-import Analytics from '@segment/analytics-node'
+import { Analytics } from '@segment/analytics-node'
 import {
 	AuthenticationClient,
 	ManagementClient,
