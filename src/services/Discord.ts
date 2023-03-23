@@ -358,7 +358,7 @@ export default class Discord {
 				const rules = await orm.models.Rule.findAll({
 					where: {
 						input: MeemAPI.RuleIo.Discord,
-						agreementId
+						AgreementId: agreementId
 					}
 				})
 

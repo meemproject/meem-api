@@ -158,6 +158,7 @@ export default class ORM {
 			await this.sequelize.sync(options)
 			log.info(`ORM Sync: ${(log.timerEnd(timer) / 1000).toFixed(4)} seconds`)
 		} catch (e) {
+			console.log(e)
 			log.warn(e)
 		}
 	}

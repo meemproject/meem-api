@@ -33,7 +33,7 @@ export default class DiscordController {
 
 		let agreementDiscord = await orm.models.AgreementDiscord.findOne({
 			where: {
-				agreementId,
+				AgreementId: agreementId,
 				DiscordId: null
 			}
 		})
@@ -44,7 +44,7 @@ export default class DiscordController {
 			agreementDiscord.code = code
 		} else {
 			agreementDiscord = orm.models.AgreementDiscord.build({
-				agreementId,
+				AgreementId: agreementId,
 				code
 			})
 		}

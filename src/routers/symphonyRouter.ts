@@ -1,5 +1,4 @@
 import coreExpress, { Express } from 'express'
-import ConfigController from '../controllers/ConfigController'
 import DiscordController from '../controllers/DiscordController'
 import RuleController from '../controllers/RuleController'
 import SlackController from '../controllers/SlackController'
@@ -12,7 +11,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	app.use('/api/1.0/symphony/', router)
 
-	router.getAsync('/config', ConfigController.getConfig)
 	router.postAsync(
 		'/webhooks/discord/interactions',
 		WebhookController.handleDiscordWebhook

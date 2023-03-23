@@ -57,7 +57,8 @@
 		"fetchMeemIdContracts": "tsnd --transpile-only src/scripts/fetchMeemIdContracts.ts",
 		"fetchContracts": "yarn fetchMeemContracts && yarn fetchMeemIdContracts",
 		"swagger": "npx swagger-inline 'src/types/shared/api/**/*.ts' --base 'src/types/shared/api/swaggerBase.yaml' --format .json > 'src/types/shared/api/meem-api.json'",
-		"generateHasuraMetadata": "tsnd --transpile-only src/scripts/generateHasuraMetadata.ts"
+		"generateHasuraMetadata": "tsnd --transpile-only src/scripts/generateHasuraMetadata.ts",
+		"migrateSymphony": "tsnd --transpile-only src/scripts/migrateSymphony.ts"
 	},
 	"dependencies": {
 		"@discordjs/rest": "^1.6.0",

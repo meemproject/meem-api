@@ -11,10 +11,6 @@ export default class Discord extends BaseModel<Discord> {
 
 	public static readonly indexes = [
 		{
-			name: 'Discord_agreementId',
-			fields: ['agreementId']
-		},
-		{
 			name: 'Discord_guildId',
 			fields: ['guildId']
 		}

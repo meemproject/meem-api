@@ -26,7 +26,7 @@ export default class RuleService {
 
 		const message = await orm.models.Message.findOne({
 			where: {
-				agreementId,
+				AgreementId: agreementId,
 				messageId
 			}
 		})
@@ -192,7 +192,7 @@ export default class RuleService {
 		if (shouldMarkAsHandled) {
 			log.debug(`Marking message as handled: ${messageId}`)
 			await orm.models.Message.create({
-				agreementId: rule.AgreementId,
+				AgreementId: rule.AgreementId,
 				messageId,
 				inputType: rule.input,
 				status: MeemAPI.MessageStatus.Handled

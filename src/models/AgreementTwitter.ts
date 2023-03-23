@@ -11,8 +11,8 @@ export default class AgreementTwitter extends BaseModel<AgreementTwitter> {
 
 	public static readonly indexes = [
 		{
-			name: 'AgreementTwitter_agreementId',
-			fields: ['agreementId']
+			name: 'AgreementTwitter_AgreementId',
+			fields: ['AgreementId']
 		}
 	]
 
@@ -25,8 +25,6 @@ export default class AgreementTwitter extends BaseModel<AgreementTwitter> {
 	}
 
 	public id!: string
-
-	public agreementId!: string
 
 	public TwitterId!: string | null
 

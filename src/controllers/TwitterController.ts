@@ -155,14 +155,14 @@ export default class TwitterController {
 
 		let agreementTwiter = await orm.models.AgreementTwitter.findOne({
 			where: {
-				agreementId,
+				AgreementId: agreementId,
 				TwitterId: twitter.id
 			}
 		})
 
 		if (!agreementTwiter) {
 			agreementTwiter = await orm.models.AgreementTwitter.create({
-				agreementId,
+				AgreementId: agreementId,
 				TwitterId: twitter.id
 			})
 		}
@@ -218,7 +218,7 @@ export default class TwitterController {
 		services.analytics.track([
 			{
 				name: Events.TwitterDisconnected,
-				agreementId: agreementTwitter.agreementId,
+				agreementId: agreementTwitter.AgreementId,
 				params: {
 					agreementTwitterId: agreementTwitter.id
 				}

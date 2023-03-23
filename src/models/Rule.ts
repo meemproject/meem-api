@@ -11,8 +11,8 @@ export default class Rule extends BaseModel<Rule> {
 
 	public static readonly indexes = [
 		{
-			name: 'Rule_agreementId',
-			fields: ['agreementId']
+			name: 'Rule_AgreementId',
+			fields: ['AgreementId']
 		}
 	]
 

@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
+import Agreement from './Agreement'
 
 export default class Message extends BaseModel<Message> {
 	public static readonly modelName = 'Message'
@@ -10,8 +11,8 @@ export default class Message extends BaseModel<Message> {
 
 	public static readonly indexes = [
 		{
-			name: 'Message_agreementId',
-			fields: ['agreementId']
+			name: 'Message_AgreementId',
+			fields: ['AgreementId']
 		},
 		{
 			name: 'Message_messageId',
@@ -36,16 +37,10 @@ export default class Message extends BaseModel<Message> {
 		inputType: {
 			type: DataTypes.STRING,
 			allowNull: false
-		},
-		agreementId: {
-			type: DataTypes.UUID,
-			allowNull: false
 		}
 	}
 
 	public id!: string
-
-	public agreementId!: string
 
 	public messageId!: string
 
@@ -53,5 +48,11 @@ export default class Message extends BaseModel<Message> {
 
 	public inputType!: MeemAPI.RuleIo
 
-	public static associate(_models: IModels) {}
+	public AgreementId!: string | null
+
+	public Agreement?: Agreement | null
+
+	public static associate(models: IModels) {
+		this.belongsTo(models.Agreement)
+	}
 }

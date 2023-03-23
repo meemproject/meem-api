@@ -8,12 +8,7 @@ export default class Twitter extends BaseModel<Twitter> {
 
 	public static readonly paranoid: boolean = false
 
-	public static readonly indexes = [
-		{
-			name: 'Twitter_agreementId',
-			fields: ['agreementId']
-		}
-	]
+	public static readonly indexes = []
 
 	public static readonly attributes = {
 		id: {
@@ -29,7 +24,7 @@ export default class Twitter extends BaseModel<Twitter> {
 			allowNull: false
 		},
 		twitterId: {
-			type: DataTypes.UUID,
+			type: DataTypes.STRING,
 			allowNull: false,
 			defaultValue: ''
 		}

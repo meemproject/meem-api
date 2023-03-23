@@ -11,10 +11,6 @@ export default class Slack extends BaseModel<Slack> {
 
 	public static readonly indexes = [
 		{
-			name: 'Slack_agreementId',
-			fields: ['agreementId']
-		},
-		{
 			name: 'Slack_teamId',
 			fields: ['teamId']
 		}

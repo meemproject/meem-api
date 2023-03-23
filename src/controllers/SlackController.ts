@@ -138,13 +138,13 @@ export default class SlackController {
 			let agreementSlack = await orm.models.AgreementSlack.findOne({
 				where: {
 					SlackId: slack.id,
-					agreementId
+					AgreementId: agreementId
 				}
 			})
 
 			if (!agreementSlack) {
 				agreementSlack = await orm.models.AgreementSlack.create({
-					agreementId,
+					AgreementId: agreement.id,
 					SlackId: slack.id
 				})
 			}
