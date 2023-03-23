@@ -3,7 +3,7 @@ import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 export namespace InviteDiscordBot {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/discord/inviteBot'
+	export const path = () => '/api/1.0/symphony/discord/inviteBot'
 
 	export const method = HttpMethod.Get
 

@@ -332,7 +332,7 @@ export default class RuleService {
 						services.discord.sendMessage({
 							channelId,
 							message: {
-								content: rule.description,
+								content: rule.description ?? '',
 								components: services.discord.getMessageComponents([
 									{
 										slug: agreement?.slug,

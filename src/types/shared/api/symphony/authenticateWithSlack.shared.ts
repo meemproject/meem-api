@@ -4,7 +4,7 @@ import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 export namespace AuthenticateWithSlack {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/slack/auth'
+	export const path = () => '/api/1.0/symphony/slack/auth'
 
 	export const method = HttpMethod.Get
 

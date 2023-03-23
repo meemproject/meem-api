@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
+import { MeemAPI } from '../types/meem.generated'
 import type { IModels } from '../types/models'
 
 export default class Message extends BaseModel<Message> {
@@ -48,9 +49,9 @@ export default class Message extends BaseModel<Message> {
 
 	public messageId!: string
 
-	public status!: API.MessageStatus
+	public status!: MeemAPI.MessageStatus
 
-	public inputType!: API.RuleIo
+	public inputType!: MeemAPI.RuleIo
 
 	public static associate(_models: IModels) {}
 }

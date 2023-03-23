@@ -4,7 +4,7 @@ import { ISlackChannel } from '../../symphony.shared'
 export namespace GetSlackChannels {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/slack/channels'
+	export const path = () => '/api/1.0/symphony/slack/channels'
 
 	export const method = HttpMethod.Get
 

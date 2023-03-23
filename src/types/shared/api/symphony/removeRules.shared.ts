@@ -3,7 +3,7 @@ import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 export namespace RemoveRules {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/removeRules'
+	export const path = () => '/api/1.0/symphony/removeRules'
 
 	export const method = HttpMethod.Post
 

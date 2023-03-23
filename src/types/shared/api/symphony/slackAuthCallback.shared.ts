@@ -3,7 +3,7 @@ import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 export namespace SlackAuthCallback {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/slack/callback'
+	export const path = () => '/api/1.0/symphony/slack/callback'
 
 	export const method = HttpMethod.Get
 

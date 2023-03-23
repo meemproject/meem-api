@@ -3,7 +3,7 @@ import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 export namespace GetDiscordEmojis {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/discord/emojis'
+	export const path = () => '/api/1.0/symphony/discord/emojis'
 
 	export const method = HttpMethod.Get
 

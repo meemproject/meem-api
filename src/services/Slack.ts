@@ -3,6 +3,7 @@ import type { Message } from '@slack/web-api/dist/response/ConversationsHistoryR
 import emojiMap from 'emoji-name-map'
 import Rule from '../models/Rule'
 import Slack from '../models/Slack'
+import { MeemAPI } from '../types/meem.generated'
 
 export default class SlackService {
 	public static getClient(accessToken: string) {
@@ -16,9 +17,9 @@ export default class SlackService {
 	}) {
 		const { content, channelIds, slack } = options
 
-		const decrypted = await services.meem.sdk.storage.decrypt({
+		const decrypted = await services.data.decrypt({
 			strToDecrypt: slack.encryptedAccessToken,
-			privateKey: services.meem.privateKey
+			privateKey: config.ENCRYPTION_KEY
 		})
 
 		const client = this.getClient(decrypted.data.accessToken)
@@ -66,13 +67,14 @@ export default class SlackService {
 						if (unicode) {
 							const isApproverEmoji =
 								(rule.definition.publishType ===
-									API.PublishType.PublishImmediately ||
-									(rule.definition.publishType === API.PublishType.Proposal &&
+									MeemAPI.PublishType.PublishImmediately ||
+									(rule.definition.publishType ===
+										MeemAPI.PublishType.Proposal &&
 										rule.definition.proposalShareChannel === channelId)) &&
 								rule.definition.approverEmojis &&
 								rule.definition.approverEmojis.includes(unicode)
 							const isProposerEmoji =
-								rule.definition.publishType === API.PublishType.Proposal &&
+								rule.definition.publishType === MeemAPI.PublishType.Proposal &&
 								rule.definition.proposalShareChannel !== channelId &&
 								rule.definition.proposerEmojis &&
 								rule.definition.proposerEmojis.includes(unicode)

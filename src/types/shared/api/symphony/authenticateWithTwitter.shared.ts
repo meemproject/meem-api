@@ -3,7 +3,7 @@ import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 export namespace AuthenticateWithTwitter {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/twitter/auth'
+	export const path = () => '/api/1.0/symphony/twitter/auth'
 
 	export const method = HttpMethod.Get
 

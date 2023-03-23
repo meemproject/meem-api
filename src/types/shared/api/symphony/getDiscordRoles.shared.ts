@@ -4,7 +4,7 @@ import { IDiscordRole } from '../../symphony.shared'
 export namespace GetDiscordRoles {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/discord/roles'
+	export const path = () => '/api/1.0/symphony/discord/roles'
 
 	export const method = HttpMethod.Get
 

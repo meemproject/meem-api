@@ -40,9 +40,9 @@ export default class Twitter {
 			throw new Error('TWITTER_NOT_FOUND')
 		}
 
-		const decrypted = await services.meem.sdk.storage.decrypt({
+		const decrypted = await services.data.decrypt({
 			strToDecrypt: twitter.encryptedAccessToken,
-			privateKey: services.meem.privateKey
+			privateKey: config.ENCRYPTION_KEY
 		})
 
 		const authClient = new auth.OAuth2User({
@@ -65,9 +65,9 @@ export default class Twitter {
 				log.debug('Refreshed Twitter token', { token })
 				authClient.token = token
 
-				const encryptedData = await services.meem.sdk.storage.encrypt({
+				const encryptedData = await services.data.encrypt({
 					data: token,
-					key: services.meem.privateKey
+					key: config.ENCRYPTION_KEY
 				})
 
 				const user = await client.users.findMyUser()

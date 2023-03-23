@@ -3,7 +3,7 @@ import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 export namespace DisconnectTwitter {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/twitter'
+	export const path = () => '/api/1.0/symphony/twitter'
 
 	export const method = HttpMethod.Delete
 

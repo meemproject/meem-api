@@ -32,7 +32,6 @@ export default class WebhookController {
 		)
 		log.debug({
 			body: req.body,
-			rawBody: req.rawBody,
 			headers: req.headers,
 			signature,
 			timestamp,

@@ -1,6 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import {
 	ActionRowBuilder,
+	BaseMessageOptions,
 	ButtonBuilder,
 	ButtonInteraction,
 	ButtonStyle,
@@ -14,7 +15,6 @@ import {
 	IntentsBitField,
 	Interaction,
 	Message,
-	MessageOptions,
 	MessagePayload,
 	MessageReaction,
 	PartialMessageReaction,
@@ -23,8 +23,10 @@ import {
 	TextChannel
 } from 'discord.js'
 import _ from 'lodash'
+import { Op } from 'sequelize'
 import request from 'superagent'
 import type Rule from '../models/Rule'
+import { MeemAPI } from '../types/meem.generated'
 import { Events } from './Analytics'
 
 export default class Discord {
@@ -63,7 +65,7 @@ export default class Discord {
 
 	public async sendMessage(options: {
 		channelId: string
-		message: string | MessagePayload | MessageOptions
+		message: string | MessagePayload | BaseMessageOptions
 	}) {
 		const { channelId, message } = options
 		const channel = await this.client.channels.fetch(channelId)
@@ -255,9 +257,9 @@ export default class Discord {
 			const guildsWithData = await Promise.all(
 				guilds.map(async (g: any) => {
 					const [guildDataResult, platformDataResult] = await Promise.all([
-						request.post(`https://api.guild.xyz/v1/discord/server/${g.id}`),
+						request.post(`https://Meemapi.guild.xyz/v1/discord/server/${g.id}`),
 						request.get(
-							`https://api.guild.xyz/v1/guild/platform/DISCORD/${g.id}`
+							`https://Meemapi.guild.xyz/v1/guild/platform/DISCORD/${g.id}`
 						)
 					])
 
@@ -300,11 +302,17 @@ export default class Discord {
 				throw new Error('DISCORD_NOT_FOUND')
 			}
 
-			const promises = discord.AgreementDiscords.map(async ad => {
-				return this.handleMessageReactionForAgreement({
-					agreementId: ad.agreementId,
-					reaction
-				})
+			const promises: Promise<any>[] = []
+
+			discord.AgreementDiscords.forEach(async ad => {
+				if (ad.AgreementId) {
+					promises.push(
+						this.handleMessageReactionForAgreement({
+							agreementId: ad.AgreementId,
+							reaction
+						})
+					)
+				}
 			})
 
 			const results = await Promise.allSettled(promises)
@@ -349,7 +357,7 @@ export default class Discord {
 			if (agreementId) {
 				const rules = await orm.models.Rule.findAll({
 					where: {
-						input: API.RuleIo.Discord,
+						input: MeemAPI.RuleIo.Discord,
 						agreementId
 					}
 				})
@@ -411,14 +419,14 @@ export default class Discord {
 						})
 						const isApproverEmoji =
 							(rule.definition.publishType ===
-								API.PublishType.PublishImmediately ||
-								(rule.definition.publishType === API.PublishType.Proposal &&
+								MeemAPI.PublishType.PublishImmediately ||
+								(rule.definition.publishType === MeemAPI.PublishType.Proposal &&
 									rule.definition.proposalShareChannel ===
 										message.channelId)) &&
 							rule.definition.approverEmojis &&
 							rule.definition.approverEmojis.includes(unicode)
 						const isProposerEmoji =
-							rule.definition.publishType === API.PublishType.Proposal &&
+							rule.definition.publishType === MeemAPI.PublishType.Proposal &&
 							rule.definition.proposalShareChannel !== message.channelId &&
 							rule.definition.proposerEmojis &&
 							rule.definition.proposerEmojis.includes(unicode)
@@ -593,9 +601,11 @@ export default class Discord {
 				// }
 
 				if (agreementDiscord) {
-					const agreement = await services.meem.getAgreementById(
-						agreementDiscord.agreementId
-					)
+					const agreement = await orm.models.Agreement.findOne({
+						where: {
+							id: agreementDiscord.AgreementId
+						}
+					})
 					agreementDiscord.code = null
 					agreementDiscord.DiscordId = discord.id
 					discord.guildId = interaction.guildId
@@ -616,7 +626,7 @@ export default class Discord {
 					services.analytics.track([
 						{
 							name: Events.DiscordBotActivated,
-							agreementId: agreementDiscord.agreementId,
+							agreementId: agreementDiscord.AgreementId,
 							params: {
 								guildId: interaction.guildId as string
 							}
@@ -648,27 +658,20 @@ export default class Discord {
 
 				const rules = await orm.models.Rule.findAll({
 					where: {
-						input: API.RuleIo.Discord,
+						input: MeemAPI.RuleIo.Discord,
 						inputRef: discord.id
 					}
 				})
 
-				const agreementIds = _.uniq(rules.map(r => r.agreementId))
-				const agreementPromises = agreementIds.map(id =>
-					services.meem.getAgreementById(id)
-				)
+				const agreementIds = _.uniq(rules.map(r => r.AgreementId))
 
-				const agreements = await Promise.all(agreementPromises)
-
-				// const [rules, agreement] = await Promise.all([
-				// 	orm.models.Rule.findAll({
-				// 		where: {
-				// 			input: API.RuleIo.Discord,
-				// 			inputRef: discord.id
-				// 		}
-				// 	}),
-				// 	services.meem.getAgreementById(discord.agreementId)
-				// ])
+				const agreements = await orm.models.Agreement.findAll({
+					where: {
+						id: {
+							[Op.in]: agreementIds
+						}
+					}
+				})
 
 				const channelRules = rules.filter(
 					r =>

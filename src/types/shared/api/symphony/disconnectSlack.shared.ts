@@ -3,7 +3,7 @@ import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 export namespace DisconnectSlack {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/slack'
+	export const path = () => '/api/1.0/symphony/slack'
 
 	export const method = HttpMethod.Delete
 

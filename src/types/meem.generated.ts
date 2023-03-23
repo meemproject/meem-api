@@ -2617,7 +2617,7 @@ export namespace UpdateUserIdentity {
 export namespace AuthenticateWithSlack {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/slack/auth'
+	export const path = () => '/api/1.0/symphony/slack/auth'
 
 	export const method = HttpMethod.Get
 
@@ -2648,7 +2648,7 @@ export namespace AuthenticateWithSlack {
 export namespace AuthenticateWithTwitter {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/twitter/auth'
+	export const path = () => '/api/1.0/symphony/twitter/auth'
 
 	export const method = HttpMethod.Get
 
@@ -2679,7 +2679,7 @@ export namespace AuthenticateWithTwitter {
 export namespace DisconnectDiscord {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/discord'
+	export const path = () => '/api/1.0/symphony/discord'
 
 	export const method = HttpMethod.Delete
 
@@ -2709,7 +2709,7 @@ export namespace DisconnectDiscord {
 export namespace DisconnectSlack {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/slack'
+	export const path = () => '/api/1.0/symphony/slack'
 
 	export const method = HttpMethod.Delete
 
@@ -2739,7 +2739,7 @@ export namespace DisconnectSlack {
 export namespace DisconnectTwitter {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/twitter'
+	export const path = () => '/api/1.0/symphony/twitter'
 
 	export const method = HttpMethod.Delete
 
@@ -2769,7 +2769,7 @@ export namespace DisconnectTwitter {
 export namespace GetDiscordChannels {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/discord/channels'
+	export const path = () => '/api/1.0/symphony/discord/channels'
 
 	export const method = HttpMethod.Get
 
@@ -2798,7 +2798,7 @@ export namespace GetDiscordChannels {
 export namespace GetDiscordEmojis {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/discord/emojis'
+	export const path = () => '/api/1.0/symphony/discord/emojis'
 
 	export const method = HttpMethod.Get
 
@@ -2830,7 +2830,7 @@ export namespace GetDiscordEmojis {
 export namespace GetDiscordRoles {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/discord/roles'
+	export const path = () => '/api/1.0/symphony/discord/roles'
 
 	export const method = HttpMethod.Get
 
@@ -2859,7 +2859,7 @@ export namespace GetDiscordRoles {
 export namespace GetSlackChannels {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/slack/channels'
+	export const path = () => '/api/1.0/symphony/slack/channels'
 
 	export const method = HttpMethod.Get
 
@@ -2888,7 +2888,7 @@ export namespace GetSlackChannels {
 export namespace InviteDiscordBot {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/discord/inviteBot'
+	export const path = () => '/api/1.0/symphony/discord/inviteBot'
 
 	export const method = HttpMethod.Get
 
@@ -2921,7 +2921,7 @@ export namespace InviteDiscordBot {
 export namespace RemoveRules {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/removeRules'
+	export const path = () => '/api/1.0/symphony/removeRules'
 
 	export const method = HttpMethod.Post
 
@@ -2951,7 +2951,7 @@ export namespace RemoveRules {
 export namespace SaveRule {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/saveRule'
+	export const path = () => '/api/1.0/symphony/saveRule'
 
 	export const method = HttpMethod.Post
 
@@ -2981,7 +2981,7 @@ export namespace SaveRule {
 export namespace SlackAuthCallback {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/slack/callback'
+	export const path = () => '/api/1.0/symphony/slack/callback'
 
 	export const method = HttpMethod.Get
 

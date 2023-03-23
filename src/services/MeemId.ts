@@ -9,11 +9,9 @@ import {
 import jsonwebtoken, { SignOptions } from 'jsonwebtoken'
 import _ from 'lodash'
 import { DateTime } from 'luxon'
-import request from 'superagent'
 import { TwitterApi, UserV2 } from 'twitter-api-v2'
 import { v4 as uuidv4 } from 'uuid'
 import type Agreement from '../models/Agreement'
-import Discord from '../models/Discord'
 import Twitter from '../models/Twitter'
 import MeemIdentity from '../models/User'
 import type User from '../models/User'
@@ -599,64 +597,6 @@ export default class MeemIdentityService {
 		}
 
 		return twitterUserResult.data
-	}
-
-	public static async verifyDiscord(options: {
-		discordAuthCode: string
-		redirectUri?: string
-	}): Promise<Discord> {
-		const { discordAuthCode, redirectUri } = options
-
-		try {
-			const discordAuthResult = await request
-				.post('https://discord.com/api/oauth2/token')
-				.field('client_id', config.DISCORD_CLIENT_ID)
-				.field('client_secret', config.DISCORD_CLIENT_SECRET)
-				.field('grant_type', 'authorization_code')
-				.field('redirect_uri', redirectUri ?? config.DISCORD_AUTH_CALLBACK_URL)
-				.field('code', discordAuthCode)
-
-			if (!discordAuthResult.body.access_token) {
-				throw new Error('NOT_AUTHORIZED')
-			}
-
-			const discordUserResult = await request
-				.get('https://discord.com/api/oauth2/@me')
-				.auth(discordAuthResult.body.access_token, {
-					type: 'bearer'
-				})
-
-			if (!discordUserResult.body.user?.id) {
-				throw new Error('NOT_AUTHORIZED')
-			}
-
-			const discordUser = discordUserResult.body.user
-			let discord: Discord
-
-			const existingDiscord = await orm.models.Discord.findOne({
-				where: {
-					discordId: discordUser.id
-				}
-			})
-
-			if (existingDiscord) {
-				existingDiscord.username = discordUser.username
-				existingDiscord.avatar = discordUser.avatar
-				const updatedDiscord = await existingDiscord.save()
-				discord = updatedDiscord
-			} else {
-				discord = await orm.models.Discord.create({
-					discordId: discordUser.id,
-					username: discordUser.username,
-					avatar: discordUser.avatar
-				})
-			}
-
-			return discord
-		} catch (e) {
-			log.crit(e)
-			throw new Error('SERVER_ERROR')
-		}
 	}
 
 	public static async verifyEmail(options: {

@@ -3,7 +3,7 @@ import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
 export namespace DisconnectDiscord {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/discord'
+	export const path = () => '/api/1.0/symphony/discord'
 
 	export const method = HttpMethod.Delete
 

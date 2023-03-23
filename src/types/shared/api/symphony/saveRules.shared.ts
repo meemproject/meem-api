@@ -4,7 +4,7 @@ import { IRuleToSave } from '../../symphony.shared'
 export namespace SaveRule {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/saveRule'
+	export const path = () => '/api/1.0/symphony/saveRule'
 
 	export const method = HttpMethod.Post
 

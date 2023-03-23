@@ -4,7 +4,7 @@ import { IDiscordChannel } from '../../symphony.shared'
 export namespace GetDiscordChannels {
 	export interface IPathParams {}
 
-	export const path = () => '/api/1.0/discord/channels'
+	export const path = () => '/api/1.0/symphony/discord/channels'
 
 	export const method = HttpMethod.Get
 

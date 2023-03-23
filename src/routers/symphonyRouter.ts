@@ -10,7 +10,7 @@ import extendedRouter from '../core/router'
 export default (app: Express, _express: typeof coreExpress) => {
 	const router = extendedRouter()
 
-	app.use('/api/1.0/', router)
+	app.use('/api/1.0/symphony/', router)
 
 	router.getAsync('/config', ConfigController.getConfig)
 	router.postAsync(
