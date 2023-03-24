@@ -35,7 +35,7 @@ export default class RuleController {
 				? orm.models.Rule.findOne({
 						where: {
 							id: rule.ruleId,
-							agreementId
+							AgreementId: agreementId
 						}
 				  })
 				: Promise.resolve(null),
@@ -110,7 +110,7 @@ export default class RuleController {
 			// }
 		} else {
 			const newRule = orm.models.Rule.build({
-				agreementId,
+				AgreementId: agreementId,
 				definition,
 				input: rule.input,
 				output: rule.output,
@@ -182,7 +182,7 @@ export default class RuleController {
 				id: {
 					[Op.in]: ruleIds
 				},
-				agreementId
+				AgreementId: agreementId
 			}
 		})
 

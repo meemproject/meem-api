@@ -5,6 +5,7 @@ import SlackController from '../controllers/SlackController'
 import TwitterController from '../controllers/TwitterController'
 import WebhookController from '../controllers/WebhookController'
 import extendedRouter from '../core/router'
+import userLoggedInPolicy from '../policies/UserLoggedInPolicy'
 
 export default (app: Express, _express: typeof coreExpress) => {
 	const router = extendedRouter()
@@ -13,21 +14,62 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	router.postAsync(
 		'/webhooks/discord/interactions',
+		userLoggedInPolicy,
 		WebhookController.handleDiscordWebhook
 	)
 
-	router.getAsync('/discord/channels', DiscordController.getChannels)
-	router.getAsync('/discord/roles', DiscordController.getRoles)
-	router.getAsync('/discord/emojis', DiscordController.getEmojis)
-	router.getAsync('/discord/inviteBot', DiscordController.inviteBot)
-	router.deleteAsync('/discord', DiscordController.disconnect)
-	router.getAsync('/twitter/auth', TwitterController.auth)
-	router.getAsync('/twitter/callback', TwitterController.callback)
-	router.getAsync('/slack/auth', SlackController.auth)
-	router.getAsync('/slack/callback', SlackController.callback)
-	router.getAsync('/slack/channels', SlackController.getSlackChannels)
-	router.postAsync('/slack/events', SlackController.events)
-	router.deleteAsync('/twitter', TwitterController.disconnect)
-	router.postAsync('/saveRule', RuleController.saveRule)
-	router.postAsync('/removeRules', RuleController.removeRules)
+	router.getAsync(
+		'/discord/channels',
+		userLoggedInPolicy,
+		DiscordController.getChannels
+	)
+	router.getAsync(
+		'/discord/roles',
+		userLoggedInPolicy,
+		DiscordController.getRoles
+	)
+	router.getAsync(
+		'/discord/emojis',
+		userLoggedInPolicy,
+		DiscordController.getEmojis
+	)
+	router.getAsync(
+		'/discord/inviteBot',
+		userLoggedInPolicy,
+		DiscordController.inviteBot
+	)
+	router.deleteAsync(
+		'/discord',
+		userLoggedInPolicy,
+		DiscordController.disconnect
+	)
+	router.getAsync('/twitter/auth', userLoggedInPolicy, TwitterController.auth)
+	router.getAsync(
+		'/twitter/callback',
+		userLoggedInPolicy,
+		TwitterController.callback
+	)
+	router.getAsync('/slack/auth', userLoggedInPolicy, SlackController.auth)
+	router.getAsync(
+		'/slack/callback',
+		userLoggedInPolicy,
+		SlackController.callback
+	)
+	router.getAsync(
+		'/slack/channels',
+		userLoggedInPolicy,
+		SlackController.getSlackChannels
+	)
+	router.postAsync('/slack/events', userLoggedInPolicy, SlackController.events)
+	router.deleteAsync(
+		'/twitter',
+		userLoggedInPolicy,
+		TwitterController.disconnect
+	)
+	router.postAsync('/saveRule', userLoggedInPolicy, RuleController.saveRule)
+	router.postAsync(
+		'/removeRules',
+		userLoggedInPolicy,
+		RuleController.removeRules
+	)
 }

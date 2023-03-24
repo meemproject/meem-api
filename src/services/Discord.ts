@@ -161,7 +161,7 @@ export default class Discord {
 					components.push(
 						new ButtonBuilder()
 							.setLabel(ctaText)
-							.setURL(url ?? `${process.env.MEEM_APP_URL}/${slug}`)
+							.setURL(url ?? `${config.MEEM_DOMAIN}/${slug}`)
 							.setStyle(ButtonStyle.Link)
 					)
 				}
