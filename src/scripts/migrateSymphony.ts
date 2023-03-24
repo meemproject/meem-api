@@ -19,7 +19,7 @@ function objToInsert(obj: Record<string, any>) {
 				return `'${JSON.stringify(value)}'`
 			}
 
-			return `'${value}'`
+			return `'${value.replace("'", '')}'`
 		})
 		.join(', ')
 	return `(${keyString}) VALUES (${valueString})`

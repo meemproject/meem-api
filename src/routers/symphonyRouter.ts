@@ -14,7 +14,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	router.postAsync(
 		'/webhooks/discord/interactions',
-		userLoggedInPolicy,
 		WebhookController.handleDiscordWebhook
 	)
 
@@ -60,7 +59,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 		userLoggedInPolicy,
 		SlackController.getSlackChannels
 	)
-	router.postAsync('/slack/events', userLoggedInPolicy, SlackController.events)
+	router.postAsync('/slack/events', SlackController.events)
 	router.deleteAsync(
 		'/twitter',
 		userLoggedInPolicy,
