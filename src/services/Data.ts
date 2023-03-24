@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+import { webcrypto } from 'crypto'
 
 export default class DataService {
 	/** Encrypt data using a public key */
@@ -13,7 +13,7 @@ export default class DataService {
 			| HmacImportParams
 			| AesKeyAlgorithm
 
-		/** The algorithm params to pass to crypto.subtle.decrypt(...). Default AES-CTR length 128 */
+		/** The algorithm params to pass to webcrypto.subtle.decrypt(...). Default AES-CTR length 128 */
 		algorithmParams?:
 			| AlgorithmIdentifier
 			| RsaOaepParams
@@ -23,7 +23,7 @@ export default class DataService {
 	}) {
 		const { data, key, algorithm, algorithmParams } = options
 
-		const cryptoKey = await crypto.subtle.importKey(
+		const cryptoKey = await webcrypto.subtle.importKey(
 			'jwk',
 			key,
 			algorithm ?? { name: 'AES-CTR' },
@@ -31,7 +31,7 @@ export default class DataService {
 			['encrypt']
 		)
 
-		const encrypted = await crypto.subtle.encrypt(
+		const encrypted = await webcrypto.subtle.encrypt(
 			algorithmParams ?? {
 				name: 'AES-CTR',
 				counter: new Uint8Array(16),
@@ -59,7 +59,7 @@ export default class DataService {
 			| HmacImportParams
 			| AesKeyAlgorithm
 
-		/** The algorithm params to pass to crypto.subtle.decrypt(...). Default AES-CTR length 128 */
+		/** The algorithm params to pass to webcrypto.subtle.decrypt(...). Default AES-CTR length 128 */
 		algorithmParams?:
 			| AlgorithmIdentifier
 			| RsaOaepParams
@@ -69,7 +69,7 @@ export default class DataService {
 	}) {
 		const { strToDecrypt, privateKey, algorithm, algorithmParams } = options
 
-		const cryptoKey = await crypto.subtle.importKey(
+		const cryptoKey = await webcrypto.subtle.importKey(
 			'jwk',
 			privateKey,
 			algorithm ?? { name: 'AES-CTR', hash: { name: 'SHA-256' } },
@@ -77,7 +77,7 @@ export default class DataService {
 			['decrypt']
 		)
 
-		const decryptedString = await crypto.subtle.decrypt(
+		const decryptedString = await webcrypto.subtle.decrypt(
 			algorithmParams ?? {
 				name: 'AES-CTR',
 				counter: new Uint8Array(16),
