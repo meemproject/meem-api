@@ -1,3 +1,5 @@
+import crypto from 'crypto'
+
 export default class DataService {
 	/** Encrypt data using a public key */
 	public static async encrypt(options: {
