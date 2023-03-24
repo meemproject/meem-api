@@ -54,7 +54,9 @@ export default class Discord {
 		this.restClient = new REST()
 		this.restClient.setToken(config.DISCORD_APP_TOKEN)
 
-		this.setupListeners()
+		if (config.DISCORD_ENABLE_LISTENERS) {
+			this.setupListeners()
+		}
 
 		this.client.login(config.DISCORD_APP_TOKEN)
 	}
