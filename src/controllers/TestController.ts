@@ -81,42 +81,6 @@ export default class TestController {
 		})
 	}
 
-	public static async testTweets(
-		req: Request,
-		res: Response
-	): Promise<Response> {
-		const tweet = await orm.models.Tweet.findOne({
-			where: {
-				tweetId: 'blahblah'
-			}
-		})
-
-		const since = DateTime.now().minus(
-			Duration.fromObject({
-				hours: 1
-			})
-		)
-
-		const tweets = await orm.models.Tweet.findAll({
-			where: {
-				createdAt: {
-					[Op.gt]: since.toJSDate()
-				}
-			}
-		})
-
-		const tweetWithHashtags = await orm.models.Tweet.findOne({
-			where: {
-				tweetId: 'blahblah'
-			},
-			include: [orm.models.Hashtag]
-		})
-
-		return res.json({
-			status: 'success'
-		})
-	}
-
 	public static async testSaveSubscription(
 		req: Request,
 		res: Response

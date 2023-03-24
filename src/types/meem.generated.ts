@@ -767,6 +767,100 @@ export interface IAgreementExtensionMetadata {
 }
 
 
+export enum RuleIo {
+	Discord = 'discord',
+	Slack = 'slack',
+	Webhook = 'webhook',
+	Twitter = 'twitter'
+}
+
+export enum PublishType {
+	Proposal = 'proposal',
+	PublishImmediately = 'publishImmediately'
+}
+
+export interface IRule {
+	publishType: PublishType
+	proposerRoles: string[]
+	proposerEmojis: string[]
+	approverRoles: string[]
+	approverEmojis: string[]
+	vetoerRoles: string[]
+	vetoerEmojis: string[]
+	proposalChannels: string[]
+	proposalShareChannel: string
+	canVeto: boolean
+	votes: number
+	vetoVotes: number
+	proposeVotes: number
+	shouldReply: boolean
+	ruleId?: string
+	isEnabled: boolean
+}
+
+export interface IRuleToSave extends IRule {
+	input: RuleIo
+	output: RuleIo
+	inputRef?: string | null
+	outputRef?: string | null
+	webhookUrl?: string
+	webhookSecret?: string
+}
+
+export interface ISavedRule
+	extends Omit<
+		IRule,
+		| 'proposerRoles'
+		| 'proposerEmojis'
+		| 'approverRoles'
+		| 'approverEmojis'
+		| 'vetoerRoles'
+		| 'vetoerEmojis'
+		| 'proposalChannels'
+	> {
+	proposerRoles: string
+	proposerEmojis: string
+	approverRoles: string
+	approverEmojis: string
+	vetoerRoles: string
+	vetoerEmojis: string
+	proposalChannels: string
+}
+
+export interface IDiscordRole {
+	id: string
+	name: string
+	managed: boolean
+	color: number
+	icon: string | null
+}
+
+export interface IDiscordChannel {
+	id: string
+	name: string
+	canSend: boolean
+	canView: boolean
+}
+
+export interface ISlackChannel {
+	id: string
+	name: string
+	isMember: boolean
+	numMembers: number
+}
+
+export enum MessageStatus {
+	Pending = 'pending',
+	Handled = 'handled'
+}
+
+export interface IWebhookBody {
+	secret: string
+	rule: Omit<IRuleToSave, 'webhookUrl' | 'webhookSecret'>
+	content: string
+}
+
+
 
 export namespace v1 {
 
@@ -926,6 +1020,157 @@ export namespace Login {
 	export type Response = IResponseBody | IError
 }
 
+
+
+
+export namespace AuthenticateWithDiscord {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		user: { [key: string]: any }
+		accessToken: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetDiscordServers {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		accessToken: string
+	}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		discordServers: IDiscordServer[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetJoinGuildMessage {
+	export interface IPathParams {
+		/** The Agreement id */
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/getJoinGuildMessage`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		message: string
+		params: {
+			chainId?: string
+			msg: string
+			method: number
+			addr: string
+			nonce: string
+			hash?: string
+			ts: string
+		}
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace JoinGuild {
+	export interface IPathParams {
+		/** The Agreement id */
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/joinGuild`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		message: string
+		params: {
+			chainId?: string
+			msg: string
+			method: number
+			addr: string
+			nonce: string
+			hash?: string
+			ts: string
+		}
+		sig: string
+		mintToken?: boolean
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
 
 
 
@@ -2131,25 +2376,27 @@ export namespace UpdateWalletContractInstance {
 
 
 
-export namespace AuthenticateWithDiscord {
+/** Save some data to IPFS */
+export namespace SaveToIPFS {
 	export interface IPathParams {}
 
-	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
+	export const path = () => `/api/1.0/ipfs`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
+		/** The data to save. Only one of "data" or "json" should be sent */
+		data?: string
+
+		/** The JSON to save. Only one of "data" or "json" should be sent */
+		json?: Record<string, any>
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		user: { [key: string]: any }
-		accessToken: string
+		/** The IPFS hash for the saved data */
+		ipfsHash: string
 	}
 
 	export interface IDefinition {
@@ -2162,123 +2409,8 @@ export namespace AuthenticateWithDiscord {
 	export type Response = IResponseBody | IError
 }
 
+// TODO: How to specify json in OpenAPI definition
 
-
-export namespace GetDiscordServers {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {
-		accessToken: string
-	}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		discordServers: IDiscordServer[]
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetJoinGuildMessage {
-	export interface IPathParams {
-		/** The Agreement id */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/getJoinGuildMessage`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		message: string
-		params: {
-			chainId?: string
-			msg: string
-			method: number
-			addr: string
-			nonce: string
-			hash?: string
-			ts: string
-		}
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace JoinGuild {
-	export interface IPathParams {
-		/** The Agreement id */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/joinGuild`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		message: string
-		params: {
-			chainId?: string
-			msg: string
-			method: number
-			addr: string
-			nonce: string
-			hash?: string
-			ts: string
-		}
-		sig: string
-		mintToken?: boolean
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
 
 
 
@@ -2481,27 +2613,85 @@ export namespace UpdateUserIdentity {
 
 
 
-/** Save some data to IPFS */
-export namespace SaveToIPFS {
+/** Redirect the user to this endpoint to authenticate w/ slack */
+export namespace AuthenticateWithSlack {
 	export interface IPathParams {}
 
-	export const path = () => `/api/1.0/ipfs`
+	export const path = () => '/api/1.0/symphony/slack/auth'
 
-	export const method = HttpMethod.Post
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		/** The agreement id to associate the twitter account with */
+		agreementId: string
+
+		/** The url to return the user to after authentication */
+		returnUrl: string
+	}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace AuthenticateWithTwitter {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/symphony/twitter/auth'
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		/** The agreement id to associate the twitter account with */
+		agreementId: string
+
+		/** The url to return the user to after authentication */
+		returnUrl: string
+	}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace DisconnectDiscord {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/symphony/discord'
+
+	export const method = HttpMethod.Delete
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		/** The data to save. Only one of "data" or "json" should be sent */
-		data?: string
-
-		/** The JSON to save. Only one of "data" or "json" should be sent */
-		json?: Record<string, any>
+		/** The agreement discord to disconnect */
+		agreementDiscordId: string
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The IPFS hash for the saved data */
-		ipfsHash: string
+		status: 'success'
 	}
 
 	export interface IDefinition {
@@ -2514,8 +2704,307 @@ export namespace SaveToIPFS {
 	export type Response = IResponseBody | IError
 }
 
-// TODO: How to specify json in OpenAPI definition
 
+
+export namespace DisconnectSlack {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/symphony/slack'
+
+	export const method = HttpMethod.Delete
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The agreement slack to disconnect */
+		agreementSlackId: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace DisconnectTwitter {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/symphony/twitter'
+
+	export const method = HttpMethod.Delete
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The agreement twitter to disconnect */
+		agreementTwitterId: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetDiscordChannels {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/symphony/discord/channels'
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		agreementDiscordId: string
+	}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		channels: IDiscordChannel[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetDiscordEmojis {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/symphony/discord/emojis'
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		agreementDiscordId: string
+	}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		emojis: {
+			id: string
+			name: string
+		}[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetDiscordRoles {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/symphony/discord/roles'
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		agreementDiscordId: string
+	}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		roles: IDiscordRole[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetSlackChannels {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/symphony/slack/channels'
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		agreementSlackId: string
+	}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		channels: ISlackChannel[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace InviteDiscordBot {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/symphony/discord/inviteBot'
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		agreementId: string
+	}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		/** The url to invite the bot to your discord */
+		inviteUrl: string
+
+		/** The code to activate the bot using /activateSteward command */
+		code: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace RemoveRules {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/symphony/removeRules'
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		agreementId: string
+		ruleIds: string[]
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace SaveRule {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/symphony/saveRule'
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		agreementId: string
+		rule: IRuleToSave
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace SlackAuthCallback {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/symphony/slack/callback'
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		/** The code to exchange for an access token */
+		code: string
+	}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
 
 
 

@@ -1,13 +1,20 @@
 import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
-// import type { IModels } from '../types/models'
+import type { IModels } from '../types/models'
+import Agreement from './Agreement'
+import AgreementDiscord from './AgreementDiscord'
 
 export default class Discord extends BaseModel<Discord> {
 	public static readonly modelName = 'Discord'
 
-	public static get indexes() {
-		return []
-	}
+	public static readonly paranoid: boolean = false
+
+	public static readonly indexes = [
+		{
+			name: 'Discord_guildId',
+			fields: ['guildId']
+		}
+	]
 
 	public static readonly attributes = {
 		id: {
@@ -15,27 +22,33 @@ export default class Discord extends BaseModel<Discord> {
 			defaultValue: DataTypes.UUIDV4,
 			primaryKey: true
 		},
-		discordId: {
-			type: DataTypes.STRING,
-			allowNull: false
+		guildId: {
+			type: DataTypes.STRING
 		},
-		username: {
-			type: DataTypes.STRING,
-			allowNull: false
+		name: {
+			type: DataTypes.STRING
 		},
-		avatar: {
-			type: DataTypes.STRING,
-			allowNull: true
+		icon: {
+			type: DataTypes.STRING
 		}
 	}
 
 	public id!: string
 
-	public discordId!: string
+	public guildId?: string | null
 
-	public username!: string
+	public name?: string | null
 
-	public avatar!: string | null
+	public icon?: string | null
 
-	public static associate() {}
+	public AgreementDiscords?: AgreementDiscord[]
+
+	public Agreements?: Agreement[] | null
+
+	public static associate(models: IModels) {
+		this.belongsToMany(models.Agreement, {
+			through: models.AgreementDiscord
+		})
+		this.hasMany(models.AgreementDiscord)
+	}
 }

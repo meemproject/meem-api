@@ -1,131 +1,110 @@
-import _ from 'lodash'
-import { TwitterApi, UserV2 } from 'twitter-api-v2'
-import { v4 as uuidv4 } from 'uuid'
-import Agreement from '../models/Agreement'
-import Hashtag from '../models/Hashtag'
-import Tweet from '../models/Tweet'
-import Twitter from '../models/Twitter'
+import { auth, Client } from 'twitter-api-sdk'
+import { OAuth2Scopes } from 'twitter-api-sdk/dist/OAuth2User'
 
-export default class TwitterService {
-	public static async getUser(options: {
-		accessToken: string
-		accessSecret: string
+export interface ICreateTweetResult {
+	username?: string
+	data?:
+		| {
+				id: string
+				text: string
+		  }
+		| undefined
+	errors?:
+		| {
+				detail?: string | undefined
+				status?: number | undefined
+				title: string
+				type: string
+		  }[]
+		| undefined
+}
+
+export default class Twitter {
+	public static async sendTweet(options: {
+		agreementTwitterId: string
+		body: string
 	}) {
-		if (config.TESTING) {
-			return services.testing.getTwitterUserV1()
-		}
-		const { accessToken, accessSecret } = options
-		const api = new TwitterApi({
-			appKey: config.TWITTER_CONSUMER_KEY,
-			appSecret: config.TWITTER_CONSUMER_SECRET,
-			accessToken,
-			accessSecret
-		})
-		const user = await api.currentUser()
-		return user
-	}
+		log.debug('Send Tweet', { options })
+		const { agreementTwitterId, body } = options
 
-	public static async getTweets(): Promise<Tweet[]> {
-		const tweets = await orm.models.Tweet.findAll({
-			include: {
-				model: Hashtag,
-				attributes: ['id', 'tag'],
-				through: {
-					attributes: []
-				}
-			},
-			limit: 100,
-			order: [['createdAt', 'DESC']]
-		})
-
-		return tweets
-	}
-
-	public static async verifyAgreementTwitter(data: {
-		twitterUsername: string
-		agreement: Agreement
-	}): Promise<UserV2> {
-		const client = new TwitterApi(config.TWITTER_BEARER_TOKEN)
-
-		const twitterUserResult = await client.v2.userByUsername(
-			data.twitterUsername,
-			{
-				'user.fields': ['id', 'username', 'name', 'profile_image_url']
-			}
-		)
-
-		if (!twitterUserResult) {
-			log.crit('No Twitter user found for username')
-			throw new Error('SERVER_ERROR')
-		}
-
-		const usersLatestTweets = await client.v2.userTimeline(
-			twitterUserResult.data.id,
-			{
-				'tweet.fields': ['created_at', 'entities']
-			}
-		)
-
-		const clubsTweet = usersLatestTweets.data.data.find(tweet => {
-			let isClubsTweet = false
-
-			const clubUrl = tweet.entities?.urls?.find(url => {
-				return /clubs\.link/.test(url.expanded_url)
-			})
-
-			if (clubUrl) {
-				const clubSlug = _.last(clubUrl.expanded_url.split('/'))
-				isClubsTweet = clubSlug?.toLowerCase() === data.agreement.slug
-			}
-
-			return isClubsTweet
-		})
-
-		if (!clubsTweet) {
-			log.crit('Unable to find verification tweet')
-			throw new Error('SERVER_ERROR')
-		}
-
-		let twitter: Twitter | undefined
-		const existingTwitter = await orm.models.Twitter.findOne({
+		const agreementTwitter = await orm.models.AgreementTwitter.findOne({
 			where: {
-				twitterId: twitterUserResult.data.id
-			}
+				id: agreementTwitterId
+			},
+			include: [orm.models.Twitter]
 		})
 
-		if (!existingTwitter) {
-			twitter = await orm.models.Twitter.create({
-				id: uuidv4(),
-				twitterId: twitterUserResult.data.id
-			})
-		} else {
-			twitter = existingTwitter
-		}
+		const twitter = agreementTwitter?.Twitter
 
 		if (!twitter) {
-			log.crit('Twitter not found or created')
-			throw new Error('SERVER_ERROR')
+			throw new Error('TWITTER_NOT_FOUND')
 		}
 
-		return twitterUserResult.data
-	}
+		const decrypted = await services.data.decrypt({
+			strToDecrypt: twitter.encryptedAccessToken,
+			privateKey: config.ENCRYPTION_KEY
+		})
 
-	private static decodeEntities(encodedString: string) {
-		const symbols = /&(nbsp|amp|quot|lt|gt);/g
-		const translate: { [key: string]: string } = {
-			nbsp: ' ',
-			amp: '&',
-			quot: '"',
-			lt: '<',
-			gt: '>'
+		const authClient = new auth.OAuth2User({
+			client_id: config.TWITTER_OAUTH_CLIENT_ID,
+			client_secret: config.TWITTER_OAUTH_CLIENT_SECRET,
+			callback: config.TWITTER_OAUTH_CALLBACK_URL,
+			scopes: config.TWITTER_AUTH_SCOPES as OAuth2Scopes[],
+			token: decrypted.data
+		})
+
+		const client: Client = new Client(authClient)
+
+		const isAccessTokenExpired = authClient.isAccessTokenExpired()
+
+		log.debug({ isAccessTokenExpired, token: decrypted.data })
+
+		try {
+			if (isAccessTokenExpired) {
+				const { token } = await authClient.refreshAccessToken()
+				log.debug('Refreshed Twitter token', { token })
+				authClient.token = token
+
+				const encryptedData = await services.data.encrypt({
+					data: token,
+					key: config.ENCRYPTION_KEY
+				})
+
+				const user = await client.users.findMyUser()
+
+				// Save new auth token
+				twitter.encryptedAccessToken = encryptedData
+				twitter.username = user.data?.username
+				await twitter.save()
+			}
+
+			// TODO: Split tweet into tweet thread if it's more than 280 characters
+			const createTweetResult = await client.tweets.createTweet({
+				text: body.substring(0, 279)
+			})
+
+			log.debug(createTweetResult)
+
+			return { ...createTweetResult, username: twitter.username }
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.log(e)
+			// @ts-ignore
+			if (e?.error?.error === 'invalid_request') {
+				await Promise.all([
+					orm.models.Twitter.destroy({
+						where: {
+							id: twitter.id
+						}
+					}),
+					orm.models.AgreementTwitter.destroy({
+						where: {
+							TwitterId: twitter.id
+						}
+					})
+				])
+			}
+			throw e
 		}
-		return encodedString
-			.replace(symbols, (match, entity) => {
-				return translate[entity]
-			})
-			.replace(/&#(\d+);/gi, (match, numStr) => {
-				const num = parseInt(numStr, 10)
-				return String.fromCharCode(num)
-			})
 	}
 }

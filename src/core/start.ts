@@ -3,7 +3,6 @@ import path from 'path'
 import log, { LogLevel } from '@kengoldfarb/log'
 import express, { Express } from 'express'
 import globby from 'globby'
-import Gun from 'gun'
 import fetch from 'node-fetch'
 import ProviderListener from '../listeners/ProviderListener'
 import Configuration from './Configuration'
@@ -153,33 +152,6 @@ export default async function start(options?: {
 			canSubscribe: socketsConfig.canSubscribe,
 			adapters: socketsConfig.adapters
 		})
-
-		if (config.ENABLE_GUNDB) {
-			// const gunDbPeers = config.GUN_DB_PEERS.split(',')
-			g.gun = Gun({
-				web: server,
-				multicast: false,
-				// radisk: false,
-				axe: false,
-				super: true,
-				// peers: gunDbPeers,
-				peers: [],
-				s3: {
-					bucket: config.GUNDB_S3_BUCKET,
-					key: config.APP_AWS_ACCESS_KEY_ID,
-					secret: config.APP_AWS_SECRET_ACCESS_KEY,
-					region: 'us-east-1'
-				}
-			})
-
-			g.gun.on('hi', (peer: any) => {
-				log.trace(`Gun peer connected: ${peer?.url}`)
-			})
-
-			g.gun.on('bye', (peer: any) => {
-				log.trace('Gun peer disconnected: ', peer?.url)
-			})
-		}
 	}
 
 	if (config.GENERATE_SHARED_TYPES) {

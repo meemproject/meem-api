@@ -1,4 +1,5 @@
 import Agreement from '../models/Agreement'
+import AgreementDiscord from '../models/AgreementDiscord'
 import AgreementExtension from '../models/AgreementExtension'
 import AgreementExtensionLink from '../models/AgreementExtensionLink'
 import AgreementExtensionRole from '../models/AgreementExtensionRole'
@@ -8,8 +9,10 @@ import AgreementRoleExtension from '../models/AgreementRoleExtension'
 import AgreementRoleToken from '../models/AgreementRoleToken'
 import AgreementRoleTokenTransfer from '../models/AgreementRoleTokenTransfer'
 import AgreementRoleWallet from '../models/AgreementRoleWallet'
+import AgreementSlack from '../models/AgreementSlack'
 import AgreementToken from '../models/AgreementToken'
 import AgreementTokenTransfer from '../models/AgreementTokenTransfer'
+import AgreementTwitter from '../models/AgreementTwitter'
 import AgreementWallet from '../models/AgreementWallet'
 import Bundle from '../models/Bundle'
 import BundleContract from '../models/BundleContract'
@@ -18,11 +21,11 @@ import Contract from '../models/Contract'
 import ContractInstance from '../models/ContractInstance'
 import Discord from '../models/Discord'
 import Extension from '../models/Extension'
-import Hashtag from '../models/Hashtag'
 import IdentityProvider from '../models/IdentityProvider'
+import Message from '../models/Message'
+import Rule from '../models/Rule'
+import Slack from '../models/Slack'
 import Transaction from '../models/Transaction'
-import Tweet from '../models/Tweet'
-import TweetHashtag from '../models/TweetHashtag'
 import Twitter from '../models/Twitter'
 import User from '../models/User'
 import UserIdentity from '../models/UserIdentity'
@@ -30,32 +33,35 @@ import Wallet from '../models/Wallet'
 import WalletContractInstance from '../models/WalletContractInstance'
 
 export interface IModels {
+	Agreement: typeof Agreement
+	AgreementDiscord: typeof AgreementDiscord
+	AgreementExtension: typeof AgreementExtension
+	AgreementExtensionLink: typeof AgreementExtensionLink
+	AgreementExtensionRole: typeof AgreementExtensionRole
+	AgreementExtensionWidget: typeof AgreementExtensionWidget
+	AgreementRole: typeof AgreementRole
+	AgreementRoleExtension: typeof AgreementRoleExtension
+	AgreementRoleToken: typeof AgreementRoleToken
+	AgreementSlack: typeof AgreementSlack
+	AgreementToken: typeof AgreementToken
+	AgreementTwitter: typeof AgreementTwitter
+	AgreementWallet: typeof AgreementWallet
+	AgreementRoleTokenTransfer: typeof AgreementRoleTokenTransfer
+	AgreementRoleWallet: typeof AgreementRoleWallet
+	AgreementTokenTransfer: typeof AgreementTokenTransfer
 	Bundle: typeof Bundle
 	BundleContract: typeof BundleContract
 	ChainNonce: typeof ChainNonce
 	Contract: typeof Contract
 	ContractInstance: typeof ContractInstance
 	Discord: typeof Discord
-	Hashtag: typeof Hashtag
 	Extension: typeof Extension
-	AgreementToken: typeof AgreementToken
-	Agreement: typeof Agreement
 	IdentityProvider: typeof IdentityProvider
+	Message: typeof Message
 	UserIdentity: typeof UserIdentity
-	AgreementRole: typeof AgreementRole
-	AgreementRoleToken: typeof AgreementRoleToken
-	AgreementExtension: typeof AgreementExtension
-	AgreementExtensionLink: typeof AgreementExtensionLink
-	AgreementExtensionWidget: typeof AgreementExtensionWidget
-	AgreementExtensionRole: typeof AgreementExtensionRole
-	AgreementRoleExtension: typeof AgreementRoleExtension
-	AgreementWallet: typeof AgreementWallet
-	AgreementRoleWallet: typeof AgreementRoleWallet
 	Transaction: typeof Transaction
-	AgreementTokenTransfer: typeof AgreementTokenTransfer
-	AgreementRoleTokenTransfer: typeof AgreementRoleTokenTransfer
-	Tweet: typeof Tweet
-	TweetHashtag: typeof TweetHashtag
+	Rule: typeof Rule
+	Slack: typeof Slack
 	Twitter: typeof Twitter
 	User: typeof User
 	Wallet: typeof Wallet
