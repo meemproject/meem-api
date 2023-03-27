@@ -42,18 +42,10 @@ export default (app: Express, _express: typeof coreExpress) => {
 		userLoggedInPolicy,
 		DiscordController.disconnect
 	)
-	router.getAsync('/twitter/auth', userLoggedInPolicy, TwitterController.auth)
-	router.getAsync(
-		'/twitter/callback',
-		userLoggedInPolicy,
-		TwitterController.callback
-	)
-	router.getAsync('/slack/auth', userLoggedInPolicy, SlackController.auth)
-	router.getAsync(
-		'/slack/callback',
-		userLoggedInPolicy,
-		SlackController.callback
-	)
+	router.getAsync('/twitter/auth', TwitterController.auth)
+	router.getAsync('/twitter/callback', TwitterController.callback)
+	router.getAsync('/slack/auth', SlackController.auth)
+	router.getAsync('/slack/callback', SlackController.callback)
 	router.getAsync(
 		'/slack/channels',
 		userLoggedInPolicy,

@@ -42,7 +42,7 @@ export default class SlackController {
 
 		const authUrl = await installer.generateInstallUrl({
 			scopes: config.SLACK_SCOPES.split(','),
-			redirectUri: `${config.API_URL}/api/1.0/slack/callback`,
+			redirectUri: `${config.API_URL}/api/1.0/symphony/slack/callback`,
 			metadata: ''
 		})
 
@@ -99,7 +99,7 @@ export default class SlackController {
 				client_id: config.SLACK_CLIENT_ID,
 				client_secret: config.SLACK_CLIENT_SECRET,
 				code,
-				redirect_uri: `${config.API_URL}/api/1.0/slack/callback`
+				redirect_uri: `${config.API_URL}/api/1.0/symphony/slack/callback`
 			})
 
 			if (!result.access_token || result.error) {

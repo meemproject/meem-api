@@ -50,18 +50,42 @@ export default class RuleService {
 			return
 		}
 
+		const attachments: MeemAPI.IWebhookAttachment[] = []
+
+		if (typeof (message as DiscordMessage).guildId === 'string') {
+			const m = message as DiscordMessage
+			m.attachments?.forEach(a => {
+				attachments.push({
+					url: a.url,
+					mimeType: a.contentType,
+					width: a.width,
+					height: a.height,
+					name: a.name,
+					description: a.description
+				})
+			})
+		} else if (typeof (message as SlackMessage).team === 'string') {
+			const m = message as SlackMessage
+			m.attachments?.forEach(a => {
+				attachments.push({
+					url: a.url,
+					mimeType: a.mimetype,
+					width: a.image_width,
+					height: a.image_height,
+					name: a.title
+				})
+			})
+		} else {
+			log.crit('Message is not a DiscordMessage or SlackMessage', {
+				message
+			})
+			return
+		}
+
+		log.debug({ message })
+
 		const messageId =
 			(message as DiscordMessage).id ?? (message as SlackMessage).ts
-
-		// const isHandled = await services.rule.isMessageHandled({
-		// 	agreementId: rule.agreementId,
-		// 	messageId
-		// })
-
-		// if (isHandled) {
-		// 	log.debug(`Message w/ id ${messageId} has already been handled`)
-		// 	return
-		// }
 
 		let totalApprovals = 0
 		let totalProposers = 0
@@ -119,6 +143,11 @@ export default class RuleService {
 		const { shouldPublish } = ruleResult
 		const { shouldMarkAsHandled } = ruleResult
 
+		// const ms = message as SlackMessage
+		// const md = message as DiscordMessage
+
+		// ms.attachments
+
 		if (shouldPublish) {
 			switch (rule.output) {
 				case MeemAPI.RuleIo.Twitter: {
@@ -152,6 +181,8 @@ export default class RuleService {
 					try {
 						const body: MeemAPI.IWebhookBody = {
 							secret: rule.webhookSecret,
+							attachments,
+							channelId,
 							rule: {
 								...rule.definition,
 								input: rule.input,

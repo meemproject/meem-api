@@ -18,122 +18,6 @@ import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class TestController {
-	public static async testEmit(req: Request, res: Response): Promise<Response> {
-		// sockets?.emit
-
-		// await services.db.getSubscriptions({
-		// 	subscriptionKey: '1234'
-		// })
-
-		// await services.db.removeSubscriptions({
-		// 	connectionId: '1234'
-		// })
-
-		await sockets?.emit({
-			subscription: MeemAPI.MeemEvent.MeemMinted,
-			eventName: MeemAPI.MeemEvent.MeemMinted,
-			data: {
-				tokenId: '234',
-				transactionHash: 'balksjdflakjdsf'
-			}
-		})
-
-		return res.json({
-			config: { version: config.version }
-		})
-	}
-
-	public static async testError(
-		req: Request,
-		res: Response
-	): Promise<Response> {
-		// sockets?.emit
-
-		// await services.db.getSubscriptions({
-		// 	subscriptionKey: '1234'
-		// })
-
-		// await services.db.removeSubscriptions({
-		// 	connectionId: '1234'
-		// })
-
-		await sockets?.emitError(
-			config.errors.CONTRACT_CREATION_FAILED,
-			req.query.address as string
-		)
-
-		return res.json({
-			config: { version: config.version }
-		})
-	}
-
-	public static async testWrapped(
-		req: Request,
-		res: Response
-	): Promise<Response> {
-		// log.debug(ethers.BigNumber.from(-1))
-		// log.debug(services.web3.toBigNumber(-1))
-
-		// await services.twitter.getUser()
-
-		return res.json({
-			status: 'success'
-		})
-	}
-
-	public static async testSaveSubscription(
-		req: Request,
-		res: Response
-	): Promise<Response> {
-		const { connectionId, walletAddress, key } = req.query as Record<
-			string,
-			string
-		>
-
-		await services.db.saveSubscription({
-			connectionId,
-			walletAddress,
-			events: [
-				{
-					key
-				}
-			]
-		})
-
-		return res.json({
-			status: 'success'
-		})
-	}
-
-	public static async testGetSubscriptions(
-		req: Request,
-		res: Response
-	): Promise<Response> {
-		const { walletAddress, key } = req.query as Record<string, string>
-
-		const subscriptions = await services.db.getSubscriptions({
-			subscriptionKey: key,
-			walletAddress
-		})
-
-		return res.json({
-			subscriptions
-		})
-	}
-
-	public static async testGetUserJWT(
-		req: Request,
-		res: Response
-	): Promise<Response> {
-		const { walletAddress } = req.query as Record<string, string>
-
-		const jwt = await services.meemId.generateJWT({
-			walletAddress
-		})
-
-		return res.json({ jwt })
-	}
-
 	public static async testCron(req: Request, res: Response): Promise<Response> {
 		// eslint-disable-next-line
 		const cronConstructor = require(`../cron/jobs/${req.query.job}`)
@@ -386,24 +270,11 @@ export default class TestController {
 		})
 	}
 
-	public static async tablelandTest(req: Request, res: Response) {
-		// const result = await services.storage.createTable({
-		// 	chainId: 5,
-		// 	schema: {
-		// 		data: MeemAPI.StorageDataType.Text
-		// 	}
-		// })
-
+	public static async testCallback(req: Request, res: Response) {
 		return res.json({
-			// result,
-			status: 'success'
-		})
-	}
-
-	public static async gunTest(req: Request, res: Response) {
-		return res.json({
-			// result,
-			status: 'success'
+			status: 'success',
+			query: req.query,
+			body: req.body
 		})
 	}
 }
