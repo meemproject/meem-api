@@ -172,18 +172,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 	/** Test Routes */
 
 	if (config.ENABLE_TEST_ENDPOINTS) {
-		router.getAsync('/test/emit', TestController.testEmit)
-		router.getAsync('/test/error', TestController.testError)
-		router.getAsync('/test/wrapped', TestController.testWrapped)
-		router.getAsync(
-			'/test/saveSubscription',
-			TestController.testSaveSubscription
-		)
-		router.getAsync(
-			'/test/getSubscriptions',
-			TestController.testGetSubscriptions
-		)
-		router.getAsync('/test/getUserJWT', TestController.testGetUserJWT)
 		router.getAsync('/test/gnosis', TestController.testGnosis)
 		router.getAsync('/test/testCron', TestController.testCron)
 		router.getAsync('/test/syncContract', TestController.syncContract)
@@ -194,6 +182,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/getEthAddress', TestController.getEthAddress)
 		router.getAsync('/test/txEncoding', TestController.testTxEncoding)
 		router.getAsync('/test/testPinata', TestController.testPinata)
-		router.getAsync('/test/testTableland', TestController.tablelandTest)
+		router.getAsync('/test/callback', TestController.testCallback)
 	}
 }

@@ -85,8 +85,19 @@ export enum MessageStatus {
 	Handled = 'handled'
 }
 
+export interface IWebhookAttachment {
+	url?: string | null
+	width?: number | null
+	height?: number | null
+	mimeType?: string | null
+	description?: string | null
+	name?: string | null
+}
+
 export interface IWebhookBody {
 	secret: string
+	channelId: string
 	rule: Omit<IRuleToSave, 'webhookUrl' | 'webhookSecret'>
 	content: string
+	attachments: IWebhookAttachment[]
 }
