@@ -1,6 +1,7 @@
 import { WebClient } from '@slack/web-api'
 import type { Message } from '@slack/web-api/dist/response/ConversationsHistoryResponse'
 import emojiMap from 'emoji-name-map'
+import { Op } from 'sequelize'
 import Rule from '../models/Rule'
 import Slack from '../models/Slack'
 import { MeemAPI } from '../types/meem.generated'
@@ -8,6 +9,72 @@ import { MeemAPI } from '../types/meem.generated'
 export default class SlackService {
 	public static getClient(accessToken: string) {
 		return new WebClient(accessToken)
+	}
+
+	public static async getRulesText(options: {
+		agreementSlackIds: string[]
+		channelId?: string
+	}) {
+		const { agreementSlackIds, channelId } = options
+		const rules = await orm.models.Rule.findAll({
+			where: {
+				input: MeemAPI.RuleIo.Slack,
+				inputRef: {
+					[Op.in]: agreementSlackIds
+				}
+			}
+		})
+
+		// const agreementIds = _.uniq(rules.map(r => r.AgreementId))
+
+		// const agreements = await orm.models.Agreement.findAll({
+		// 	where: {
+		// 		id: {
+		// 			[Op.in]: agreementIds
+		// 		}
+		// 	}
+		// })
+
+		const channelRules = rules.filter(
+			r =>
+				typeof channelId === 'undefined' ||
+				r.definition.proposalChannels.includes(channelId) ||
+				r.definition.proposalChannels.includes('all') ||
+				r.definition.proposalShareChannel === channelId
+		)
+
+		let rulesTxt = ''
+
+		if (channelRules.length > 0) {
+			rulesTxt = channelRules
+				.map((rule, i) => `${i + 1}) ${rule.description}`)
+				.join('\n\n')
+		}
+
+		const content =
+			rules.length > 0
+				? `There ${rules.length === 1 ? 'is' : 'are'} ${rules.length} ${
+						rules.length === 1 ? 'total rule' : 'total rules'
+				  } and ${channelRules.length} ${
+						channelRules.length === 1 ? 'rule' : 'rules'
+				  } in this channel:\n\n${rulesTxt}`
+				: 'No publishing rules have been set up. Create one now!'
+
+		// const buttons: {
+		// 	slug: string
+		// 	ctaText: string
+		// }[] = []
+
+		// agreements.forEach(agreement => {
+		// 	if (agreement && agreement.slug) {
+		// 		buttons.push({
+		// 			slug: agreement.slug,
+		// 			ctaText: `Manage Rules (${agreement.name})`
+		// 		})
+		// 	}
+		// })
+
+		return { content }
 	}
 
 	public static async getUser(options: { slack: Slack; userId: string }) {

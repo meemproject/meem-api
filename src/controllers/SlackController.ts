@@ -2,6 +2,7 @@ import { InstallProvider } from '@slack/oauth'
 import { WebClient } from '@slack/web-api'
 import { Request, Response } from 'express'
 import { Op } from 'sequelize'
+import request from 'superagent'
 import { IAuthenticatedRequest, IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
@@ -259,7 +260,15 @@ export default class SlackController {
 	}
 
 	public static async events(req: Request, res: Response): Promise<any> {
-		const { challenge, token, type, team_id: teamId, event } = req.body
+		const {
+			challenge,
+			token,
+			type,
+			team_id: teamId,
+			event,
+			command,
+			response_url: responseUrl
+		} = req.body
 
 		log.debug({
 			body: req.body,
@@ -269,70 +278,109 @@ export default class SlackController {
 		})
 
 		if (teamId) {
-			switch (event.type) {
-				case 'reaction_added': {
-					const slack = await orm.models.Slack.findOne({
+			if (event?.type === 'reaction_added') {
+				const slack = await orm.models.Slack.findOne({
+					where: {
+						teamId
+					},
+					include: [orm.models.AgreementSlack]
+				})
+
+				if (slack && event.item?.type === 'message') {
+					const rules = await orm.models.Rule.findAll({
 						where: {
-							teamId
-						},
-						include: [orm.models.AgreementSlack]
-					})
-
-					if (slack && event.item?.type === 'message') {
-						const rules = await orm.models.Rule.findAll({
-							where: {
-								input: MeemAPI.RuleIo.Slack,
-								inputRef: {
-									[Op.in]: slack.AgreementSlacks?.map(a => a.id)
-								}
-							}
-						})
-						const decrypted = await services.data.decrypt({
-							strToDecrypt: slack.encryptedAccessToken,
-							privateKey: config.ENCRYPTION_KEY
-						})
-
-						const client = services.slack.getClient(decrypted.data.accessToken)
-
-						const history = await client.conversations.history({
-							channel: event.item.channel,
-							latest: event.item.ts,
-							limit: 1,
-							inclusive: true
-						})
-
-						if (history.messages && history.messages[0]) {
-							const message = history.messages[0]
-							for (let i = 0; i < rules.length; i++) {
-								const rule = rules[i]
-								const isHandled = await services.rule.isMessageHandled({
-									agreementId: rule.AgreementId,
-									messageId: message.ts
-								})
-
-								if (isHandled) {
-									log.debug(
-										`Message w/ id ${message.ts} has already been handled`
-									)
-									return
-								}
-								await services.rule.processRule({
-									channelId: event.item.channel,
-									rule,
-									message: {
-										...message,
-										team: teamId
-									}
-								})
+							input: MeemAPI.RuleIo.Slack,
+							inputRef: {
+								[Op.in]: slack.AgreementSlacks?.map(a => a.id)
 							}
 						}
-					}
-					break
-				}
+					})
+					const decrypted = await services.data.decrypt({
+						strToDecrypt: slack.encryptedAccessToken,
+						privateKey: config.ENCRYPTION_KEY
+					})
 
-				default:
-					log.warn(`No handler for Slack event type: ${type}`)
-					break
+					const client = services.slack.getClient(decrypted.data.accessToken)
+
+					const history = await client.conversations.history({
+						channel: event.item.channel,
+						latest: event.item.ts,
+						limit: 1,
+						inclusive: true
+					})
+
+					if (history.messages && history.messages[0]) {
+						const message = history.messages[0]
+						for (let i = 0; i < rules.length; i++) {
+							const rule = rules[i]
+							const isHandled = await services.rule.isMessageHandled({
+								agreementId: rule.AgreementId,
+								messageId: message.ts
+							})
+
+							if (isHandled) {
+								log.debug(
+									`Message w/ id ${message.ts} has already been handled`
+								)
+								return
+							}
+							await services.rule.processRule({
+								channelId: event.item.channel,
+								rule,
+								message: {
+									...message,
+									team: teamId
+								}
+							})
+						}
+					}
+				}
+			} else if (command) {
+				switch (command) {
+					case '/rules': {
+						const slack = await orm.models.Slack.findOne({
+							where: {
+								teamId
+							},
+							include: [orm.models.AgreementSlack]
+						})
+						if (!slack) {
+							throw new Error('SLACK_NOT_FOUND')
+						}
+						const { content } = await services.slack.getRulesText({
+							agreementSlackIds: slack.AgreementSlacks?.map(a => a.id) ?? []
+						})
+
+						// await request.post(responseUrl).send({
+						// 	response_type: 'in_channel',
+						// 	blocks: [
+						// 		{
+						// 			type: 'section',
+						// 			text: {
+						// 				type: 'mrkdwn',
+						// 				text: content
+						// 			}
+						// 		}
+						// 	]
+						// })
+						return res.json({
+							response_type: 'in_channel',
+							blocks: [
+								{
+									type: 'section',
+									text: {
+										type: 'mrkdwn',
+										text: content
+									}
+								}
+							]
+						})
+						break
+					}
+
+					default:
+						log.warn(`No handler for command ${command}`)
+				}
 			}
 		}
 
