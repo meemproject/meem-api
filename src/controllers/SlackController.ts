@@ -265,8 +265,8 @@ export default class SlackController {
 			type,
 			team_id: teamId,
 			event,
-			command,
-			response_url: responseUrl
+			command
+			// response_url: responseUrl
 		} = req.body
 
 		log.debug({
