@@ -336,6 +336,8 @@ export default class SlackController {
 				}
 			} else if (command) {
 				switch (command) {
+					case '/ruleslocal':
+					case '/rulesdev':
 					case '/rules': {
 						const slack = await orm.models.Slack.findOne({
 							where: {
