@@ -10,6 +10,21 @@ export default class SlackService {
 		return new WebClient(accessToken)
 	}
 
+	public static async getUser(options: { slack: Slack; userId: string }) {
+		const { slack, userId } = options
+		const decrypted = await services.data.decrypt({
+			strToDecrypt: slack.encryptedAccessToken,
+			privateKey: config.ENCRYPTION_KEY
+		})
+
+		const client = this.getClient(decrypted.data.accessToken)
+		const result = await client.users.info({
+			user: userId
+		})
+
+		return result.user
+	}
+
 	public static async joinChannels(options: {
 		slack: Slack
 		channelIds: string[]
@@ -56,7 +71,7 @@ export default class SlackService {
 		const result = await client.conversations.list({
 			team_id: teamId,
 			exclude_archived: true,
-			types: 'public_channel,private_channel',
+			// types: 'public_channel,private_channel',
 			// Max limit is 1000
 			limit: 800
 		})
