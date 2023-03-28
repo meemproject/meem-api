@@ -1,4 +1,5 @@
 import { Op } from 'sequelize'
+import AgreementSlack from '../models/AgreementSlack'
 import { Events } from '../services/Analytics'
 import { IAuthenticatedRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
@@ -132,6 +133,18 @@ export default class RuleController {
 			promises.push(
 				services.rule.sendRuleNotification({ rule: newRule, agreement })
 			)
+		}
+
+		if (rule.input === MeemAPI.RuleIo.Slack) {
+			const slack = (io.input as AgreementSlack).Slack
+			if (slack) {
+				promises.push(
+					services.slack.joinChannels({
+						slack,
+						channelIds: [...rule.proposalChannels, rule.proposalShareChannel]
+					})
+				)
+			}
 		}
 
 		await Promise.all(promises)

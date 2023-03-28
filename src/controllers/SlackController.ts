@@ -319,7 +319,10 @@ export default class SlackController {
 								await services.rule.processRule({
 									channelId: event.item.channel,
 									rule,
-									message
+									message: {
+										...message,
+										team: teamId
+									}
 								})
 							}
 						}

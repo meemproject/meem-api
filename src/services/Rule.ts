@@ -1,5 +1,6 @@
 import { Message as SlackMessage } from '@slack/web-api/dist/response/ConversationsHistoryResponse'
 import { Message as DiscordMessage } from 'discord.js'
+import emojiMap from 'emoji-name-map'
 import request from 'superagent'
 import Agreement from '../models/Agreement'
 import AgreementDiscord from '../models/AgreementDiscord'
@@ -47,38 +48,6 @@ export default class RuleService {
 
 		if (!rule.input || !rule.output) {
 			log.crit(`Rule ${rule.id} has no input or output`)
-			return
-		}
-
-		const attachments: MeemAPI.IWebhookAttachment[] = []
-
-		if (typeof (message as DiscordMessage).guildId === 'string') {
-			const m = message as DiscordMessage
-			m.attachments?.forEach(a => {
-				attachments.push({
-					url: a.url,
-					mimeType: a.contentType,
-					width: a.width,
-					height: a.height,
-					name: a.name,
-					description: a.description
-				})
-			})
-		} else if (typeof (message as SlackMessage).team === 'string') {
-			const m = message as SlackMessage
-			m.attachments?.forEach(a => {
-				attachments.push({
-					url: a.url,
-					mimeType: a.mimetype,
-					width: a.image_width,
-					height: a.image_height,
-					name: a.title
-				})
-			})
-		} else {
-			log.crit('Message is not a DiscordMessage or SlackMessage', {
-				message
-			})
 			return
 		}
 
@@ -178,11 +147,128 @@ export default class RuleService {
 						break
 					}
 
+					const partialResponse: Partial<MeemAPI.IWebhookBody> & {
+						reactions: MeemAPI.IWebhookReaction[]
+						createdTimestamp?: number
+					} = {
+						reactions: []
+					}
+
+					const attachments: MeemAPI.IWebhookAttachment[] = []
+
+					if (typeof (message as DiscordMessage).guildId === 'string') {
+						const m = message as DiscordMessage
+						partialResponse.createdTimestamp = m.createdTimestamp
+						m.reactions.cache.forEach(r => {
+							if (r.emoji.name) {
+								partialResponse.reactions.push({
+									name: r.emoji.name,
+									emoji: r.emoji.name,
+									unicode: this.emojiToUnicode(r.emoji.name),
+									count: r.count
+								})
+							}
+						})
+
+						partialResponse.user = {
+							id: m.author.id,
+							username: m.author.username
+						}
+
+						m.embeds.forEach(a => {
+							attachments.push({
+								url: a.url,
+								name: a.title,
+								description: a.description
+							})
+						})
+
+						m.attachments?.forEach(a => {
+							attachments.push({
+								url: a.url,
+								mimeType: a.contentType,
+								width: a.width,
+								height: a.height,
+								name: a.name,
+								description: a.description
+							})
+						})
+					} else if (typeof (message as SlackMessage).team === 'string') {
+						const m = message as SlackMessage
+
+						const slack = await orm.models.Slack.findOne({
+							where: {
+								teamId: m.team
+							}
+						})
+
+						if (!slack) {
+							throw new Error('SLACK_NOT_FOUND')
+						}
+						if (m.user) {
+							const user = await services.slack.getUser({
+								slack,
+								userId: m.user
+							})
+							partialResponse.user = {
+								id: user?.id,
+								username: user?.name,
+								realName: user?.real_name,
+								isAdmin: user?.is_admin,
+								isOwner: user?.is_owner,
+								locale: user?.locale,
+								timezone: user?.tz
+							}
+						}
+
+						partialResponse.createdTimestamp = m.ts ? +m.ts : 0
+
+						m.reactions?.forEach(r => {
+							if (r.name) {
+								const emoji = emojiMap.get(r.name)
+								const unicode = emoji ? this.emojiToUnicode(emoji) : undefined
+								partialResponse.reactions.push({
+									name: r.name,
+									emoji,
+									unicode,
+									count: r.count ?? 0
+								})
+							}
+						})
+						m.files?.forEach(a => {
+							attachments.push({
+								url: a.url_private,
+								mimeType: a.mimetype,
+								width: a.original_w ? +a.original_w : undefined,
+								height: a.original_h ? +a.original_h : undefined,
+								name: a.title
+							})
+						})
+						m.attachments?.forEach(a => {
+							attachments.push({
+								url: a.url,
+								mimeType: a.mimetype,
+								width: a.image_width,
+								height: a.image_height,
+								name: a.title
+							})
+						})
+					} else {
+						log.crit('Message is not a DiscordMessage or SlackMessage', {
+							message
+						})
+						return
+					}
+
 					try {
 						const body: MeemAPI.IWebhookBody = {
+							...partialResponse,
 							secret: rule.webhookSecret,
 							attachments,
 							channelId,
+							totalApprovals,
+							totalProposers,
+							totalVetoers,
 							rule: {
 								...rule.definition,
 								input: rule.input,
@@ -192,6 +278,7 @@ export default class RuleService {
 							},
 							content: messageContent
 						}
+						log.debug('Sending webhook', body)
 						await request.post(rule.webhookUrl).timeout(5000).send(body)
 						await this.sendInputReply({
 							rule,

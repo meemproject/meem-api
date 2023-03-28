@@ -10,6 +10,79 @@ export default class SlackService {
 		return new WebClient(accessToken)
 	}
 
+	public static async getUser(options: { slack: Slack; userId: string }) {
+		const { slack, userId } = options
+		const decrypted = await services.data.decrypt({
+			strToDecrypt: slack.encryptedAccessToken,
+			privateKey: config.ENCRYPTION_KEY
+		})
+
+		const client = this.getClient(decrypted.data.accessToken)
+		const result = await client.users.info({
+			user: userId
+		})
+
+		return result.user
+	}
+
+	public static async joinChannels(options: {
+		slack: Slack
+		channelIds: string[]
+	}) {
+		const { slack, channelIds } = options
+		const decrypted = await services.data.decrypt({
+			strToDecrypt: slack.encryptedAccessToken,
+			privateKey: config.ENCRYPTION_KEY
+		})
+
+		const client = this.getClient(decrypted.data.accessToken)
+
+		if (!slack.teamId) {
+			log.crit('Slack teamId not found', { slack })
+			throw new Error('SLACK_NOT_FOUND')
+		}
+
+		const channels = await this.getSlackChannels({
+			teamId: slack.teamId,
+			client
+		})
+
+		const promises: Promise<any>[] = []
+		channelIds.forEach(channelId => {
+			const channel = channels?.find(c => c.id === channelId)
+			if (!channel?.is_member) {
+				promises.push(
+					client.conversations.join({
+						channel: channelId
+					})
+				)
+			}
+		})
+
+		await Promise.allSettled(promises)
+	}
+
+	public static async getSlackChannels(options: {
+		client: WebClient
+		teamId: string
+	}) {
+		const { client, teamId } = options
+		// https://api.slack.com/methods/conversations.list
+		const result = await client.conversations.list({
+			team_id: teamId,
+			exclude_archived: true,
+			// types: 'public_channel,private_channel',
+			// Max limit is 1000
+			limit: 800
+		})
+
+		if (result.response_metadata?.next_cursor) {
+			// TODO: handle pagination
+		}
+
+		return result.channels
+	}
+
 	public static async sendMessage(options: {
 		content: string
 		channelIds: string[]

@@ -92,6 +92,14 @@ export interface IWebhookAttachment {
 	mimeType?: string | null
 	description?: string | null
 	name?: string | null
+	createdAt?: number | null
+}
+
+export interface IWebhookReaction {
+	name: string
+	emoji?: string | null
+	unicode?: string | null
+	count: number
 }
 
 export interface IWebhookBody {
@@ -100,4 +108,18 @@ export interface IWebhookBody {
 	rule: Omit<IRuleToSave, 'webhookUrl' | 'webhookSecret'>
 	content: string
 	attachments: IWebhookAttachment[]
+	user?: {
+		id?: string
+		username?: string
+		realName?: string
+		isAdmin?: boolean
+		isOwner?: boolean
+		locale?: string
+		timezone?: string
+	}
+	totalApprovals: number
+	totalProposers: number
+	totalVetoers: number
+	reactions: IWebhookReaction[]
+	createdTimestamp?: number
 }
