@@ -1,6 +1,7 @@
 import { Response } from 'express'
 import { auth, Client } from 'twitter-api-sdk'
 import { OAuth2Scopes } from 'twitter-api-sdk/dist/OAuth2User'
+import { v4 as uuidv4 } from 'uuid'
 import { Events } from '../services/Analytics'
 import { IAuthenticatedRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
@@ -37,12 +38,12 @@ export default class TwitterController {
 		const authClient = new auth.OAuth2User({
 			client_id: config.TWITTER_OAUTH_CLIENT_ID,
 			client_secret: config.TWITTER_OAUTH_CLIENT_SECRET,
-			callback: config.TWITTER_OAUTH_CALLBACK_URL,
+			callback: `${config.API_URL}/api/1.0/symphony/twitter/callback`,
 			scopes: config.TWITTER_AUTH_SCOPES as OAuth2Scopes[]
 		})
 
-		const state = crypto.randomUUID()
-		const challenge = crypto.randomUUID()
+		const state = uuidv4()
+		const challenge = uuidv4()
 
 		const authUrl = authClient.generateAuthURL({
 			code_challenge_method: 'plain',
@@ -88,7 +89,7 @@ export default class TwitterController {
 		const authClient = new auth.OAuth2User({
 			client_id: config.TWITTER_OAUTH_CLIENT_ID,
 			client_secret: config.TWITTER_OAUTH_CLIENT_SECRET,
-			callback: config.TWITTER_OAUTH_CALLBACK_URL,
+			callback: `${config.API_URL}/api/1.0/symphony/twitter/callback`,
 			scopes: config.TWITTER_AUTH_SCOPES as OAuth2Scopes[]
 		})
 		log.debug(
