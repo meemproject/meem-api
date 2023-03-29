@@ -1,3 +1,10 @@
+## [1.18.6](https://github.com/meemproject/meem-api-aws/compare/v1.18.5...v1.18.6) (2023-03-29)
+
+
+### Bug Fixes
+
+* slack disconnect not hooked up ([c3be700](https://github.com/meemproject/meem-api-aws/commit/c3be700))
+
 ## [1.18.5](https://github.com/meemproject/meem-api-aws/compare/v1.18.4...v1.18.5) (2023-03-29)
 
 ## [1.18.4](https://github.com/meemproject/meem-api-aws/compare/v1.18.3...v1.18.4) (2023-03-29)
