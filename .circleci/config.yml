@@ -109,24 +109,24 @@ workflows:
                 - stage
                 - master
       # Uncomment to deploy via serverless
-      - deploy_sls_dev:
-          context: api_dev
-          filters:
-            branches:
-              only:
-                - dev
-      - deploy_sls_stage:
-          context: api_stage
-          filters:
-            branches:
-              only:
-                - stage
-      - deploy_sls_prod:
-          context: api_prod
-          filters:
-            branches:
-              only:
-                - master
+      # - deploy_sls_dev:
+      #     context: api_dev
+      #     filters:
+      #       branches:
+      #         only:
+      #           - dev
+      # - deploy_sls_stage:
+      #     context: api_stage
+      #     filters:
+      #       branches:
+      #         only:
+      #           - stage
+      # - deploy_sls_prod:
+      #     context: api_prod
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
       - deploy_heroku_dev:
           context: api_dev
           filters:
