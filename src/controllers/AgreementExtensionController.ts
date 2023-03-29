@@ -394,6 +394,9 @@ export default class AgreementExtensionController {
 				agreementExtension.AgreementExtensionWidget.metadata =
 					widget.metadata ??
 					agreementExtension.AgreementExtensionWidget.metadata
+				agreementExtension.AgreementExtensionWidget.visibility =
+					widget.visibility ??
+					agreementExtension.AgreementExtensionWidget.visibility
 				promises.push(
 					agreementExtension.AgreementExtensionWidget.save({ transaction: t })
 				)

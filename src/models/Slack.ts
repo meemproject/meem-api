@@ -2,13 +2,19 @@ import { DataTypes } from 'sequelize'
 import { BaseModel } from '../core/BaseModel'
 import type { IModels } from '../types/models'
 import Agreement from './Agreement'
+import AgreementSlack from './AgreementSlack'
 
-export default class Twitter extends BaseModel<Twitter> {
-	public static readonly modelName = 'Twitter'
+export default class Slack extends BaseModel<Slack> {
+	public static readonly modelName = 'Slack'
 
 	public static readonly paranoid: boolean = false
 
-	public static readonly indexes = []
+	public static readonly indexes = [
+		{
+			name: 'Slack_teamId',
+			fields: ['teamId']
+		}
+	]
 
 	public static readonly attributes = {
 		id: {
@@ -16,34 +22,39 @@ export default class Twitter extends BaseModel<Twitter> {
 			defaultValue: DataTypes.UUIDV4,
 			primaryKey: true
 		},
-		username: {
+		teamId: {
+			type: DataTypes.STRING
+		},
+		name: {
 			type: DataTypes.STRING
 		},
 		encryptedAccessToken: {
 			type: DataTypes.TEXT,
 			allowNull: false
 		},
-		twitterId: {
-			type: DataTypes.STRING,
-			allowNull: false,
-			defaultValue: ''
+		icon: {
+			type: DataTypes.STRING
 		}
 	}
 
 	public id!: string
 
-	public username?: string | null
+	public teamId?: string | null
+
+	public name?: string | null
 
 	public encryptedAccessToken!: string
 
-	public twitterId!: string
+	public icon?: string | null
+
+	public AgreementSlacks?: AgreementSlack[] | null
 
 	public Agreements?: Agreement[] | null
 
 	public static associate(models: IModels) {
 		this.belongsToMany(models.Agreement, {
-			through: models.AgreementTwitter
+			through: models.AgreementSlack
 		})
-		this.hasMany(models.AgreementTwitter)
+		this.hasMany(models.AgreementSlack)
 	}
 }

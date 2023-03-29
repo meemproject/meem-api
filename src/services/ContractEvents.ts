@@ -1,5 +1,6 @@
 import { diamondABI } from '@meemproject/meem-contracts'
 import { MeemMetadataLike, Validator } from '@meemproject/metadata'
+import { Analytics } from '@segment/analytics-node'
 import { ethers } from 'ethers'
 // import { IGunChainReference } from 'gun/types/chain'
 import { DateTime } from 'luxon'
@@ -25,6 +26,8 @@ import {
 } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 import { IMeemMetadataLike } from '../types/shared/meem.shared'
+
+const analytics = new Analytics({ writeKey: config.SEGMENT_WRITE_KEY })
 
 export default class ContractEvent {
 	// TODO: sync reactions?
@@ -342,6 +345,16 @@ export default class ContractEvent {
 				})
 			} else {
 				agreementOrRole = await orm.models.Agreement.create(agreementOrRoleData)
+				analytics.track({
+					...(owner?.UserId
+						? { userId: owner.UserId }
+						: { anonymousId: uuidv4() }),
+					event: 'Community Created',
+					properties: {
+						communityId: agreementOrRole.id,
+						communityName: agreementOrRole.name
+					}
+				})
 			}
 		} else {
 			agreementOrRole = await existingAgreementOrRole.update(

@@ -82,6 +82,20 @@ export default class Wallet extends ModelWithAddress<Wallet> {
 		// this.hasOne(models.MeemIdentityWallet)
 	}
 
+	public static async getByJWT(jwt: string) {
+		const jwtData = services.meemId.verifyJWT(jwt)
+		if (jwtData.walletAddress) {
+			const wallet = await orm.models.Wallet.findOne({
+				where: {
+					address: jwtData.walletAddress
+				}
+			})
+			return wallet
+		}
+
+		return null
+	}
+
 	public static async findAllBy(options: {
 		addresses?: string[]
 		agreementId?: string
