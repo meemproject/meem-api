@@ -57,6 +57,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 		userLoggedInPolicy,
 		TwitterController.disconnect
 	)
+	router.deleteAsync('/slack', userLoggedInPolicy, SlackController.disconnect)
 	router.postAsync('/saveRule', userLoggedInPolicy, RuleController.saveRule)
 	router.postAsync(
 		'/removeRules',
