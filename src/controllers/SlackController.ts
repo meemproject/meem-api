@@ -62,12 +62,12 @@ export default class SlackController {
 	}
 
 	public static async callback(
-		req: IRequest<MeemAPI.v1.SlackAuthCallback.IDefinition>,
+		req: IAuthenticatedRequest<MeemAPI.v1.SlackAuthCallback.IDefinition>,
 		res: IResponse<MeemAPI.v1.SlackAuthCallback.IResponseBody>
 	): Promise<any> {
 		const code = req.query.code as string
 
-		const { agreementId, meemJwt, returnUrl } = req.cookies
+		const { agreementId, returnUrl } = req.cookies
 
 		try {
 			const agreement = await orm.models.Agreement.findOne({
@@ -80,14 +80,7 @@ export default class SlackController {
 				throw new Error('AGREEMENT_NOT_FOUND')
 			}
 
-			// Check that the user is an admin of the agreement
-			const wallet = await orm.models.Wallet.getByJWT(meemJwt)
-
-			if (!wallet) {
-				throw new Error('USER_NOT_LOGGED_IN')
-			}
-
-			const isAdmin = await agreement.isAdmin(wallet.address)
+			const isAdmin = await agreement.isAdmin(req.wallet.address)
 
 			if (!isAdmin) {
 				throw new Error('NOT_AUTHORIZED')
