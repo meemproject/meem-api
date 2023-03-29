@@ -2,7 +2,7 @@ import { InstallProvider } from '@slack/oauth'
 import { WebClient } from '@slack/web-api'
 import { Request, Response } from 'express'
 import { Op } from 'sequelize'
-import { IAuthenticatedRequest, IRequest, IResponse } from '../types/app'
+import { IAuthenticatedRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class SlackController {
