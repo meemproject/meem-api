@@ -1,3 +1,17 @@
+# [1.18.0](https://github.com/meemproject/meem-api-aws/compare/v1.17.3...v1.18.0) (2023-03-29)
+
+
+### Bug Fixes
+
+* handle conflicting slash commands ([ec8c8fd](https://github.com/meemproject/meem-api-aws/commit/ec8c8fd))
+
+
+### Features
+
+* /rules for slack ([bcdf3d8](https://github.com/meemproject/meem-api-aws/commit/bcdf3d8))
+* attachments, reactions, user in webhook ([116313f](https://github.com/meemproject/meem-api-aws/commit/116313f))
+* join slack channels on rule creation ([10f5638](https://github.com/meemproject/meem-api-aws/commit/10f5638))
+
 ## [1.17.3](https://github.com/meemproject/meem-api-aws/compare/v1.17.2...v1.17.3) (2023-02-23)
 
 
