@@ -89,7 +89,7 @@ export default class TwitterController {
 		const authClient = new auth.OAuth2User({
 			client_id: config.TWITTER_OAUTH_CLIENT_ID,
 			client_secret: config.TWITTER_OAUTH_CLIENT_SECRET,
-			callback: config.TWITTER_OAUTH_CALLBACK_URL,
+			callback: `${config.API_URL}/api/1.0/symphony/twitter/callback`,
 			scopes: config.TWITTER_AUTH_SCOPES as OAuth2Scopes[]
 		})
 		log.debug(
