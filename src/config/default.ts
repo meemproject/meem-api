@@ -191,7 +191,7 @@ export default {
 	SLACK_CLIENT_SECRET: process.env.SLACK_CLIENT_SECRET ?? '',
 	SLACK_SCOPES:
 		process.env.SLACK_SCOPES ??
-		'channels:join,channels:read,channels:history,im:history,mpim:history,commands,reactions:read,chat:write,chat:write.public,chat:write.customize,emoji:read,team:read',
+		'channels:join,channels:read,channels:history,im:history,mpim:history,commands,reactions:read,chat:write,chat:write.public,chat:write.customize,emoji:read,team:read,users:read',
 	SLACK_STATE_SECRET:
 		process.env.SLACK_STATE_SECRET ?? 'wfLbmv@sLwzDh!3UprsVLx!vm',
 	GA_API_KEY: process.env.GA_API_KEY ?? '',

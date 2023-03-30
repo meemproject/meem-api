@@ -183,5 +183,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/txEncoding', TestController.testTxEncoding)
 		router.getAsync('/test/testPinata', TestController.testPinata)
 		router.getAsync('/test/callback', TestController.testCallback)
+		router.postAsync('/test/callback', TestController.testCallback)
 	}
 }

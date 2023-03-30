@@ -271,10 +271,12 @@ export default class TestController {
 	}
 
 	public static async testCallback(req: Request, res: Response) {
-		return res.json({
-			status: 'success',
+		log.debug({
 			query: req.query,
 			body: req.body
+		})
+		return res.json({
+			status: 'success'
 		})
 	}
 }
