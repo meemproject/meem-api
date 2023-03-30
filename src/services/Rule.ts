@@ -206,18 +206,24 @@ export default class RuleService {
 							throw new Error('SLACK_NOT_FOUND')
 						}
 						if (m.user) {
-							const user = await services.slack.getUser({
-								slack,
-								userId: m.user
-							})
-							partialResponse.user = {
-								id: user?.id,
-								username: user?.name,
-								realName: user?.real_name,
-								isAdmin: user?.is_admin,
-								isOwner: user?.is_owner,
-								locale: user?.locale,
-								timezone: user?.tz
+							try {
+								const user = await services.slack.getUser({
+									slack,
+									userId: m.user
+								})
+								partialResponse.user = {
+									id: user?.id,
+									username: user?.name,
+									realName: user?.real_name,
+									isAdmin: user?.is_admin,
+									isOwner: user?.is_owner,
+									locale: user?.locale,
+									timezone: user?.tz
+								}
+							} catch (e) {
+								log.warn('Failed to get slack user')
+								// eslint-disable-next-line no-console
+								console.log(e)
 							}
 						}
 
