@@ -138,7 +138,7 @@ export default class AgreementService {
 				agreementOrRole
 			})
 
-		if (metadata) {
+		if (metadata && agreement.isOnChain) {
 			const result = await services.web3.saveToPinata({
 				json: {
 					...metadata
@@ -411,7 +411,7 @@ export default class AgreementService {
 				item => ({
 					to: item.to,
 					tokenType: MeemAPI.MeemType.Original,
-					tokenURI: item.ipfs as string
+					tokenURI: (item.ipfs as string) ?? ''
 				})
 			)
 
@@ -819,19 +819,21 @@ export default class AgreementService {
 		})
 
 		// Pin to IPFS
-		for (let i = 0; i < builtData.length; i++) {
-			const item = builtData[i]
-			const result = await services.web3.saveToPinata({
-				json: { ...item.metadata }
-			})
-			item.ipfs = `ipfs://${result.IpfsHash}`
+		if (agreement.isOnChain) {
+			for (let i = 0; i < builtData.length; i++) {
+				const item = builtData[i]
+				const result = await services.web3.saveToPinata({
+					json: { ...item.metadata }
+				})
+				item.ipfs = `ipfs://${result.IpfsHash}`
+			}
 		}
 
 		const bulkParams: Parameters<Mycontract['bulkMint']>[0] = builtData.map(
 			item => ({
 				to: item.to,
 				tokenType: MeemAPI.MeemType.Original,
-				tokenURI: item.ipfs as string
+				tokenURI: (item.ipfs as string) ?? ''
 			})
 		)
 
@@ -925,7 +927,7 @@ export default class AgreementService {
 				return {
 					id: uuidv4(),
 					tokenId: services.web3.toBigNumber(itemId),
-					tokenURI: item.ipfs,
+					tokenURI: item.ipfs ?? '',
 					mintedAt: now,
 					metadata: item.metadata,
 					mintedBy,
