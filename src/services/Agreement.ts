@@ -411,7 +411,7 @@ export default class AgreementService {
 				item => ({
 					to: item.to,
 					tokenType: MeemAPI.MeemType.Original,
-					tokenURI: item.ipfs as string
+					tokenURI: (item.ipfs as string) ?? ''
 				})
 			)
 
@@ -833,7 +833,7 @@ export default class AgreementService {
 			item => ({
 				to: item.to,
 				tokenType: MeemAPI.MeemType.Original,
-				tokenURI: item.ipfs as string
+				tokenURI: (item.ipfs as string) ?? ''
 			})
 		)
 
@@ -927,7 +927,7 @@ export default class AgreementService {
 				return {
 					id: uuidv4(),
 					tokenId: services.web3.toBigNumber(itemId),
-					tokenURI: item.ipfs,
+					tokenURI: item.ipfs ?? '',
 					mintedAt: now,
 					metadata: item.metadata,
 					mintedBy,
