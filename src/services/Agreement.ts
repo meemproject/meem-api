@@ -867,11 +867,17 @@ export default class AgreementService {
 			})
 		} else {
 			let [tokenId, wallets] = await Promise.all([
-				orm.models.AgreementToken.count({
-					where: {
-						AgreementId: agreementRole?.id ?? agreement.id
-					}
-				}),
+				agreementRole
+					? orm.models.AgreementRoleToken.count({
+							where: {
+								AgreementId: agreement.id
+							}
+					  })
+					: orm.models.AgreementToken.count({
+							where: {
+								AgreementId: agreement.id
+							}
+					  }),
 				orm.models.Wallet.findAll({
 					where: {
 						address: {
@@ -880,6 +886,10 @@ export default class AgreementService {
 					}
 				})
 			])
+
+			if (tokenId === 0) {
+				tokenId = 1
+			}
 
 			const missingWalletAddresses = toAddresses.filter(a => {
 				const foundWallet = wallets.find(w => w.address === a)
