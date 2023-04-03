@@ -1142,8 +1142,8 @@ export namespace BulkBurnAgreementRoleTokens {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The Transaction id */
-		txId: string
+		/** The Transaction id. Only if the agreement is on-chain */
+		txId?: string
 	}
 
 	export interface IDefinition {
@@ -1178,8 +1178,8 @@ export namespace BulkBurnAgreementTokens {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The Transaction id */
-		txId: string
+		/** The Transaction id. Only if the agreement is on-chain */
+		txId?: string
 	}
 
 	export interface IDefinition {
@@ -1222,8 +1222,8 @@ export namespace BulkMintAgreementRoleTokens {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The Transaction id */
-		txId: string
+		/** The Transaction id. Only if the agreement is on-chain */
+		txId?: string
 	}
 
 	export interface IDefinition {
@@ -1264,8 +1264,8 @@ export namespace BulkMintAgreementTokens {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The Transaction id */
-		txId: string
+		/** The Transaction id. Only if the agreement is on-chain */
+		txId?: string
 	}
 
 	export interface IDefinition {
@@ -1330,11 +1330,17 @@ export namespace CreateAgreement {
 		/** Agreement contract metadata */
 		metadata: IMeemMetadataLike
 
+		/** If true, will deploy the contract on the chain. Default false */
+		isOnChain?: boolean
+
+		/** If true a contract will be deployed. Default false */
+		shouldCreateContract?: boolean
+
 		/** The contract chain id */
-		chainId: number
+		chainId?: number
 
 		/** The max number of tokens */
-		maxSupply: string
+		maxSupply?: string
 
 		/** Whether the max number of tokens is locked */
 		isMaxSupplyLocked?: boolean
@@ -1372,10 +1378,10 @@ export namespace CreateAgreement {
 
 	export interface IResponseBody extends IApiResponseBody {
 		/** The Transaction id for deploying the contract. Transaction #1 */
-		deployContractTxId: string
+		deployContractTxId?: string
 
 		/** The Transaction id for initializing the contract. Transaction #2 */
-		cutTxId: string
+		cutTxId?: string
 
 		/** The Transaction id for minting tokens. Transaction #3 */
 		mintTxId?: string
@@ -1391,6 +1397,15 @@ export namespace CreateAgreement {
 
 		/** The Transaction id for minting admin role tokens. Transaction #7 */
 		adminRoleMintTxId?: string
+
+		/** The agreement id. Available only if isOnChain=false */
+		agreementId?: string
+
+		/** The admin agreement id. Available only if isOnChain=false */
+		adminAgreementId?: string
+
+		/** The slug for the agreement. Available only if isOnChain=false */
+		slug?: string
 	}
 
 	export interface IDefinition {
@@ -2606,44 +2621,6 @@ export namespace UpdateUserIdentity {
 
 
 
-/** Save some data to IPFS */
-export namespace SaveToIPFS {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/ipfs`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The data to save. Only one of "data" or "json" should be sent */
-		data?: string
-
-		/** The JSON to save. Only one of "data" or "json" should be sent */
-		json?: Record<string, any>
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		/** The IPFS hash for the saved data */
-		ipfsHash: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-// TODO: How to specify json in OpenAPI definition
-
-
-
-
 /** Redirect the user to this endpoint to authenticate w/ slack */
 export namespace AuthenticateWithSlack {
 	export interface IPathParams {}
@@ -3036,6 +3013,44 @@ export namespace SlackAuthCallback {
 
 	export type Response = IResponseBody | IError
 }
+
+
+
+/** Save some data to IPFS */
+export namespace SaveToIPFS {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/ipfs`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The data to save. Only one of "data" or "json" should be sent */
+		data?: string
+
+		/** The JSON to save. Only one of "data" or "json" should be sent */
+		json?: Record<string, any>
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		/** The IPFS hash for the saved data */
+		ipfsHash: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+// TODO: How to specify json in OpenAPI definition
+
 
 }
 export enum MeemEvent {
