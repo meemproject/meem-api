@@ -110,6 +110,11 @@ export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false,
 			allowNull: false
+		},
+		isOnChain: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: true,
+			allowNull: false
 		}
 	}
 
@@ -330,6 +335,8 @@ export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 	public adminContractAddress!: string | null
 
 	public isAdminRole!: boolean
+
+	public isOnChain!: boolean
 
 	public Agreement!: Agreement
 
