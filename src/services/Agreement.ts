@@ -785,6 +785,8 @@ export default class AgreementService {
 			ipfs?: string
 		}[] = []
 
+		const toAddresses: string[] = []
+
 		// Validate metadata
 		tokens.forEach(token => {
 			if (!token.to) {
@@ -807,6 +809,8 @@ export default class AgreementService {
 				log.crit(validatorResult.errors.map((e: any) => e.message))
 				throw new Error('INVALID_METADATA')
 			}
+
+			toAddresses.push(token.to)
 
 			builtData.push({
 				...token,
@@ -862,15 +866,62 @@ export default class AgreementService {
 				}
 			})
 		} else {
-			let tokenId = await orm.models.AgreementToken.count({
-				where: {
-					AgreementId: agreementRole?.id ?? agreement.id
+			let [tokenId, wallets] = await Promise.all([
+				agreementRole
+					? orm.models.AgreementRoleToken.count({
+							where: {
+								AgreementId: agreement.id
+							}
+					  })
+					: orm.models.AgreementToken.count({
+							where: {
+								AgreementId: agreement.id
+							}
+					  }),
+				orm.models.Wallet.findAll({
+					where: {
+						address: {
+							[Op.in]: toAddresses
+						}
+					}
+				})
+			])
+
+			if (tokenId === 0) {
+				tokenId = 1
+			}
+
+			const missingWalletAddresses = toAddresses.filter(a => {
+				const foundWallet = wallets.find(w => w.address === a)
+				if (foundWallet) {
+					return false
 				}
+
+				return true
 			})
+
+			if (missingWalletAddresses.length > 0) {
+				await orm.models.Wallet.bulkCreate(
+					missingWalletAddresses.map(a => ({ address: a }))
+				)
+
+				wallets = await orm.models.Wallet.findAll({
+					where: {
+						address: {
+							[Op.in]: toAddresses
+						}
+					}
+				})
+			}
+
 			const now = new Date()
 			const insertData = builtData.map(item => {
 				const itemId = tokenId
 				tokenId++
+				const wallet = wallets.find(w => w.address === item.to)
+				if (!wallet) {
+					log.crit('Wallet not found', { item })
+				}
 				return {
 					id: uuidv4(),
 					tokenId: services.web3.toBigNumber(itemId),
@@ -880,7 +931,7 @@ export default class AgreementService {
 					mintedBy,
 					AgreementId: agreement.id,
 					AgreementRoleId: agreementRole?.id,
-					OwnerId: minterWallet.id
+					OwnerId: wallet?.id
 				}
 			})
 			if (agreementRole) {

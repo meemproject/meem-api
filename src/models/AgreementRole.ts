@@ -220,7 +220,17 @@ export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 	}
 
 	public async canMint(minter: string) {
-		const isAdmin = await this.isAdmin(minter)
+		let agreement: Agreement | null
+		if (this.Agreement) {
+			agreement = this.Agreement
+		} else {
+			agreement = await orm.models.Agreement.findOne({
+				where: {
+					id: this.AgreementId
+				}
+			})
+		}
+		const isAdmin = await agreement?.isAdmin(minter)
 		if (isAdmin) {
 			return true
 		}
@@ -339,6 +349,8 @@ export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 	public isOnChain!: boolean
 
 	public Agreement!: Agreement
+
+	public AgreementId!: string | null
 
 	public OwnerId!: string | null
 
