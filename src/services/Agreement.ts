@@ -138,7 +138,7 @@ export default class AgreementService {
 				agreementOrRole
 			})
 
-		if (metadata) {
+		if (metadata && agreement.isOnChain) {
 			const result = await services.web3.saveToPinata({
 				json: {
 					...metadata
@@ -819,12 +819,14 @@ export default class AgreementService {
 		})
 
 		// Pin to IPFS
-		for (let i = 0; i < builtData.length; i++) {
-			const item = builtData[i]
-			const result = await services.web3.saveToPinata({
-				json: { ...item.metadata }
-			})
-			item.ipfs = `ipfs://${result.IpfsHash}`
+		if (agreement.isOnChain) {
+			for (let i = 0; i < builtData.length; i++) {
+				const item = builtData[i]
+				const result = await services.web3.saveToPinata({
+					json: { ...item.metadata }
+				})
+				item.ipfs = `ipfs://${result.IpfsHash}`
+			}
 		}
 
 		const bulkParams: Parameters<Mycontract['bulkMint']>[0] = builtData.map(
