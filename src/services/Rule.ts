@@ -158,6 +158,7 @@ export default class RuleService {
 
 					if (typeof (message as DiscordMessage).guildId === 'string') {
 						const m = message as DiscordMessage
+						partialResponse.messageId = m.id
 						partialResponse.createdTimestamp = m.createdTimestamp
 						m.reactions.cache.forEach(r => {
 							if (r.emoji.name) {
@@ -195,6 +196,7 @@ export default class RuleService {
 						})
 					} else if (typeof (message as SlackMessage).team === 'string') {
 						const m = message as SlackMessage
+						partialResponse.messageId = m.ts
 
 						const slack = await orm.models.Slack.findOne({
 							where: {
