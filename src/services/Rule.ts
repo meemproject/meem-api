@@ -271,6 +271,7 @@ export default class RuleService {
 					try {
 						const body: MeemAPI.IWebhookBody = {
 							...partialResponse,
+							messageId: partialResponse.messageId ?? '',
 							secret: rule.webhookSecret,
 							attachments,
 							channelId,
