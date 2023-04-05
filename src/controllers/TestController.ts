@@ -18,6 +18,21 @@ import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class TestController {
+	public static async testWebhook(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		log.debug({
+			body: req.body,
+			query: req.query,
+			params: req.params
+		})
+
+		return res.json({
+			status: 'success'
+		})
+	}
+
 	public static async testCron(req: Request, res: Response): Promise<Response> {
 		// eslint-disable-next-line
 		const cronConstructor = require(`../cron/jobs/${req.query.job}`)

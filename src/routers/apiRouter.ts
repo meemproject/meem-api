@@ -170,6 +170,8 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/meem-api.json', TypesController.getOpenAPIFile)
 
 	/** Test Routes */
+	router.getAsync('/test/webhook', TestController.testWebhook)
+	router.postAsync('/test/webhook', TestController.testWebhook)
 
 	if (config.ENABLE_TEST_ENDPOINTS) {
 		router.getAsync('/test/gnosis', TestController.testGnosis)

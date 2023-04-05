@@ -217,7 +217,8 @@ export default class AgreementService {
 			splits: [],
 			chainId,
 			OwnerId: owner?.id,
-			isOnChain: false
+			isOnChain: false,
+			isLaunched: true
 		}
 
 		const agreement = await orm.models.Agreement.create(agreementData)
