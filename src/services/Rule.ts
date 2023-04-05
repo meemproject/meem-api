@@ -147,53 +147,58 @@ export default class RuleService {
 						break
 					}
 
-					const partialResponse: Partial<MeemAPI.IWebhookBody> & {
+					let partialResponse: Partial<MeemAPI.IWebhookBody> & {
 						reactions: MeemAPI.IWebhookReaction[]
 						createdTimestamp?: number
+						attachments: MeemAPI.IWebhookAttachment[]
 					} = {
-						reactions: []
+						reactions: [],
+						attachments: []
 					}
 
 					const attachments: MeemAPI.IWebhookAttachment[] = []
 
 					if (typeof (message as DiscordMessage).guildId === 'string') {
-						const m = message as DiscordMessage
-						partialResponse.messageId = m.id
-						partialResponse.createdTimestamp = m.createdTimestamp
-						m.reactions.cache.forEach(r => {
-							if (r.emoji.name) {
-								partialResponse.reactions.push({
-									name: r.emoji.name,
-									emoji: r.emoji.name,
-									unicode: this.emojiToUnicode(r.emoji.name),
-									count: r.count
-								})
-							}
-						})
+						partialResponse = services.discord.parseMessageForWebhook(
+							message as DiscordMessage
+						)
+						// const m = message as DiscordMessage
+						// partialResponse.messageId = m.id
+						// partialResponse.createdTimestamp = m.createdTimestamp
+						// m.reactions.cache.forEach(r => {
+						// 	if (r.emoji.name) {
+						// 		partialResponse.reactions.push({
+						// 			name: r.emoji.name,
+						// 			emoji: r.emoji.name,
+						// 			unicode: this.emojiToUnicode(r.emoji.name),
+						// 			count: r.count
+						// 		})
+						// 	}
+						// })
 
-						partialResponse.user = {
-							id: m.author.id,
-							username: m.author.username
-						}
+						// partialResponse.user = {
+						// 	id: m.author.id,
+						// 	username: m.author.username
+						// }
 
-						m.embeds.forEach(a => {
-							attachments.push({
-								url: a.url,
-								name: a.title,
-								description: a.description
-							})
-						})
+						// m.embeds.forEach(a => {
+						// 	attachments.push({
+						// 		url: a.url,
+						// 		name: a.title,
+						// 		description: a.description
+						// 	})
+						// })
 
-						m.attachments?.forEach(a => {
-							attachments.push({
-								url: a.url,
-								mimeType: a.contentType,
-								width: a.width,
-								height: a.height,
-								name: a.name,
-								description: a.description
-							})
-						})
+						// m.attachments?.forEach(a => {
+						// 	attachments.push({
+						// 		url: a.url,
+						// 		mimeType: a.contentType,
+						// 		width: a.width,
+						// 		height: a.height,
+						// 		name: a.name,
+						// 		description: a.description
+						// 	})
+						// })
 					} else if (typeof (message as SlackMessage).team === 'string') {
 						const m = message as SlackMessage
 						partialResponse.messageId = m.ts
@@ -273,7 +278,7 @@ export default class RuleService {
 							...partialResponse,
 							messageId: partialResponse.messageId ?? '',
 							secret: rule.webhookSecret,
-							attachments,
+							// attachments,
 							channelId,
 							totalApprovals,
 							totalProposers,

@@ -108,6 +108,7 @@ export default class Discord {
 
 	public async getChannels(guildId: string) {
 		const guild = await this.client.guilds.fetch(guildId)
+		await guild.channels.fetch()
 
 		const channels = guild.channels.cache
 			.filter(channel => channel.type === 0)
@@ -282,6 +283,55 @@ export default class Discord {
 			log.crit(e)
 			throw new Error('SERVER_ERROR')
 		}
+	}
+
+	public parseMessageForWebhook(message: Message) {
+		const partialResponse: Partial<MeemAPI.IWebhookBody> & {
+			reactions: MeemAPI.IWebhookReaction[]
+			attachments: MeemAPI.IWebhookAttachment[]
+			createdTimestamp?: number
+		} = {
+			reactions: [],
+			attachments: []
+		}
+		partialResponse.messageId = message.id
+		partialResponse.createdTimestamp = message.createdTimestamp
+		message.reactions.cache.forEach(r => {
+			if (r.emoji.name) {
+				partialResponse.reactions.push({
+					name: r.emoji.name,
+					emoji: r.emoji.name,
+					unicode: services.rule.emojiToUnicode(r.emoji.name),
+					count: r.count
+				})
+			}
+		})
+
+		partialResponse.user = {
+			id: message.author.id,
+			username: message.author.username
+		}
+
+		message.embeds.forEach(a => {
+			partialResponse.attachments.push({
+				url: a.url,
+				name: a.title,
+				description: a.description
+			})
+		})
+
+		message.attachments?.forEach(a => {
+			partialResponse.attachments.push({
+				url: a.url,
+				mimeType: a.contentType,
+				width: a.width,
+				height: a.height,
+				name: a.name,
+				description: a.description
+			})
+		})
+
+		return partialResponse
 	}
 
 	private async handleMessageReaction(
@@ -770,14 +820,51 @@ export default class Discord {
 		}
 	}
 
+	private async handleMessageCreate(message: Message<boolean>) {
+		if (
+			message.author.id !== config.DISCORD_BOT_ID &&
+			message.mentions.has(config.DISCORD_BOT_ID)
+		) {
+			log.debug('Sending message to Meem')
+			const content = `From ${message.guild?.name}: ${message.content}`
+
+			await this.sendMessage({
+				channelId: config.DISCORD_MEEM_CHANNEL_ID,
+				message: {
+					...message,
+					content
+				}
+			})
+
+			log.debug('Sending webhook')
+			const partialResponse = this.parseMessageForWebhook(message)
+
+			const body: Omit<
+				MeemAPI.IWebhookBody,
+				'rule' | 'totalApprovals' | 'totalProposers' | 'totalVetoers'
+			> = {
+				...partialResponse,
+				messageId: partialResponse.messageId ?? '',
+				secret: '',
+				channelId: message.channelId,
+				content: message.content
+			}
+
+			await request
+				.post(config.DISCORD_MENTIONS_WEBHOOK_URL)
+				.timeout(5000)
+				.send(body)
+		}
+	}
+
 	private setupListeners() {
 		this.client.on('ready', () => {
 			log.info('Discord client is ready!')
 		})
-		// this.client.on(
-		// 	DiscordEvents.MessageCreate,
-		// 	this.handleMessageCreate.bind(this)
-		// )
+		this.client.on(
+			DiscordEvents.MessageCreate,
+			this.handleMessageCreate.bind(this)
+		)
 		this.client.on(
 			DiscordEvents.MessageReactionAdd,
 			this.handleMessageReaction.bind(this)
