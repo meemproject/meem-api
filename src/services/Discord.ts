@@ -666,7 +666,7 @@ export default class Discord {
 					await Promise.all([agreementDiscord.save(), discord.save()])
 
 					await interaction.editReply({
-						content: `Greetings, I’m Symphony Bot! \n\nI can help automate publishing for your community by allowing you to vote on what gets posted to your shared Twitter account.\n\nTap below to set up your publishing logic.`,
+						content: `Greetings, I’m Meem Bot! \n\nI can help automate publishing for your community by allowing you to vote on what gets posted to your shared Twitter account.\n\nTap below to set up your publishing logic.`,
 						components: this.getMessageComponents([
 							{
 								slug: agreement?.slug,
@@ -704,7 +704,7 @@ export default class Discord {
 				})
 
 				if (!discord || !interaction.guildId) {
-					await interaction.editReply('Symphony needs to be activated')
+					await interaction.editReply('Meem Bot needs to be activated')
 					return
 				}
 
@@ -821,40 +821,44 @@ export default class Discord {
 	}
 
 	private async handleMessageCreate(message: Message<boolean>) {
-		log.debug('handleMessageCreate')
-		if (
-			message.author.id !== config.DISCORD_BOT_ID &&
-			message.mentions.has(config.DISCORD_BOT_ID)
-		) {
-			log.debug('Sending message to Meem')
-			const content = `\`@${message.author.tag}\` (${message.guild?.name}): ${message.content}`
+		try {
+			log.debug('handleMessageCreate')
+			if (
+				message.author.id !== config.DISCORD_BOT_ID &&
+				message.mentions.has(config.DISCORD_BOT_ID)
+			) {
+				log.debug('Sending message to Meem')
+				const content = `\`@${message.author.tag}\` (${message.guild?.name}): ${message.content}`
 
-			await this.sendMessage({
-				channelId: config.DISCORD_MEEM_CHANNEL_ID,
-				message: {
-					...message,
-					content
+				await this.sendMessage({
+					channelId: config.DISCORD_MEEM_CHANNEL_ID,
+					message: {
+						...message,
+						content
+					}
+				})
+
+				log.debug('Sending webhook')
+				const partialResponse = this.parseMessageForWebhook(message)
+
+				const body: Omit<
+					MeemAPI.IWebhookBody,
+					'rule' | 'totalApprovals' | 'totalProposers' | 'totalVetoers'
+				> = {
+					...partialResponse,
+					messageId: partialResponse.messageId ?? '',
+					secret: '',
+					channelId: message.channelId,
+					content: message.content
 				}
-			})
 
-			log.debug('Sending webhook')
-			const partialResponse = this.parseMessageForWebhook(message)
-
-			const body: Omit<
-				MeemAPI.IWebhookBody,
-				'rule' | 'totalApprovals' | 'totalProposers' | 'totalVetoers'
-			> = {
-				...partialResponse,
-				messageId: partialResponse.messageId ?? '',
-				secret: '',
-				channelId: message.channelId,
-				content: message.content
+				await request
+					.post(config.DISCORD_MENTIONS_WEBHOOK_URL)
+					.timeout(5000)
+					.send(body)
 			}
-
-			await request
-				.post(config.DISCORD_MENTIONS_WEBHOOK_URL)
-				.timeout(5000)
-				.send(body)
+		} catch (e) {
+			log.warn(e)
 		}
 	}
 
