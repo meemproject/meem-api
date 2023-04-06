@@ -204,5 +204,7 @@ export default {
 	GA_API_KEY: process.env.GA_API_KEY ?? '',
 	GA_MEASUREMENT_ID: process.env.GA_MEASUREMENT_ID ?? '',
 	GA_CLIENT_ID:
-		process.env.GA_CLIENT_ID ?? 'b8f756de-97f5-4ef1-8bd0-f579f9df7406'
+		process.env.GA_CLIENT_ID ?? 'b8f756de-97f5-4ef1-8bd0-f579f9df7406',
+	OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? '',
+	OPENAI_ORGANIZATION_ID: process.env.OPENAI_ORGANIZATION_ID ?? ''
 }

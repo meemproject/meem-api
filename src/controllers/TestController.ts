@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Validator } from '@meemproject/metadata'
 import { Wallet as AlchemyWallet } from 'alchemy-sdk'
+import { TextChannel } from 'discord.js'
 import { ethers, ethers as Ethers } from 'ethers'
 import { encodeSingle, TransactionType } from 'ethers-multisend'
 import { Request, Response } from 'express'
@@ -18,6 +19,57 @@ import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
 
 export default class TestController {
+	public static async testSummary(
+		req: Request,
+		res: Response
+	): Promise<Response> {
+		const client = services.discord.client
+		const guild = await client.guilds.fetch('887371146171920475')
+		const channel = (await guild.channels.fetch(
+			'888127909468962856'
+		)) as TextChannel
+
+		const messages = await channel.messages.fetch({
+			limit: 50
+		})
+
+		const formattedMessages: Record<string, any>[] = []
+
+		messages.forEach(message => {
+			formattedMessages.push(services.discord.parseMessageForWebhook(message))
+		})
+
+		const completion = await services.openai.getCompletion({
+			messages: [
+				{
+					role: 'system',
+					content:
+						"You are a content curator. You will be ingesting messages from the chat rooms of a community. You will then analyze the messages for the best content. You should consider the emoji reactions for each message as well as surrounding context and discussion. Finally, you should summarize the best content and links into a newsletter format where the writer's voice is playful and engaging. You should also include a few jokes and memes."
+				},
+				{
+					role: 'user',
+					content: `Here's a bunch of messages in JSON to curate and create a newsletter: ${JSON.stringify(
+						formattedMessages
+					)}`
+				}
+			]
+		})
+		// const completion = await services.openai.getCompletion({
+		// 	messages: [
+		// 		{
+		// 			role: 'user',
+		// 			content: `Hello`
+		// 		}
+		// 	]
+		// })
+
+		return res.json({
+			status: 'success',
+			stopReason: completion.data.choices[0].finish_reason,
+			completion: completion.data.choices[0].message
+		})
+	}
+
 	public static async testWebhook(
 		req: Request,
 		res: Response
