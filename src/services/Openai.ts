@@ -24,6 +24,7 @@ export default class OpenAI {
 
 			return completion
 		} catch (e) {
+			// eslint-disable-next-line no-console
 			console.log(e)
 			throw e
 		}
