@@ -821,12 +821,13 @@ export default class Discord {
 	}
 
 	private async handleMessageCreate(message: Message<boolean>) {
+		log.debug('handleMessageCreate')
 		if (
 			message.author.id !== config.DISCORD_BOT_ID &&
 			message.mentions.has(config.DISCORD_BOT_ID)
 		) {
 			log.debug('Sending message to Meem')
-			const content = `From ${message.guild?.name}: ${message.content}`
+			const content = `\`@${message.author.tag}\` (${message.guild?.name}): ${message.content}`
 
 			await this.sendMessage({
 				channelId: config.DISCORD_MEEM_CHANNEL_ID,
