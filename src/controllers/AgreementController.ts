@@ -343,7 +343,7 @@ export default class AgreementController {
 			}),
 			orm.models.AgreementToken.findAll({
 				where: {
-					id: {
+					tokenId: {
 						[Op.in]: req.body.tokenIds
 					}
 				}
