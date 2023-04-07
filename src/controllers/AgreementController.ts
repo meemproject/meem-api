@@ -1,5 +1,6 @@
 import { ethers } from 'ethers'
 import { Response } from 'express'
+import { Op } from 'sequelize'
 import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 export default class AgreementController {
@@ -334,19 +335,32 @@ export default class AgreementController {
 
 		const { agreementId } = req.params
 
-		const agreement = await orm.models.Agreement.findOne({
-			where: {
-				id: agreementId
-			}
-		})
+		const [agreement, agreementTokens] = await Promise.all([
+			orm.models.Agreement.findOne({
+				where: {
+					id: agreementId
+				}
+			}),
+			orm.models.AgreementToken.findAll({
+				where: {
+					id: {
+						[Op.in]: req.body.tokenIds
+					}
+				}
+			})
+		])
 
 		if (!agreement) {
 			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
-		const canBurn = await agreement.isAdmin(req.wallet.address)
-		if (!canBurn) {
-			throw new Error('NOT_AUTHORIZED')
+		const isAdmin = await agreement.isAdmin(req.wallet.address)
+		if (!isAdmin) {
+			agreementTokens.forEach(token => {
+				if (token.OwnerId !== req.wallet?.id) {
+					throw new Error('NOT_AUTHORIZED')
+				}
+			})
 		}
 
 		const result = await services.agreement.bulkBurn({
