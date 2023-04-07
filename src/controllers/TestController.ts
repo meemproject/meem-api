@@ -14,6 +14,7 @@ import { Op } from 'sequelize'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
 import GnosisSafeProxyABI from '../abis/GnosisSafeProxy.json'
 import meemABI from '../abis/Meem.json'
+import { prompt1, prompt2 } from '../lib/gptPrompts'
 import { Constructor } from '../serverless/cron'
 import { Mycontract__factory } from '../types/Meem'
 import { MeemAPI } from '../types/meem.generated'
@@ -43,8 +44,10 @@ export default class TestController {
 			messages: [
 				{
 					role: 'system',
-					content:
-						"You are a content curator. You will be ingesting messages from the chat rooms of a community. You will then analyze the messages for the best content. You should consider the emoji reactions for each message as well as surrounding context and discussion. Finally, you should summarize the best content and links into a newsletter format where the writer's voice is playful and engaging. You should also include a few jokes and memes."
+					content: prompt2({
+						brandName: 'Tiffany and Co',
+						brandVoice: 'Absurd and weird'
+					})
 				},
 				{
 					role: 'user',

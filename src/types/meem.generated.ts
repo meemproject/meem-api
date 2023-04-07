@@ -1819,8 +1819,8 @@ export namespace ReInitializeAgreement {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The Transaction id for updating the contract */
-		txId: string
+		/** The Transaction id for updating the contract. Only available if agreement is on chain */
+		txId?: string
 	}
 
 	export interface IDefinition {
@@ -1873,8 +1873,8 @@ export namespace ReInitializeAgreementRole {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The Transaction id for updating the contract */
-		txId: string
+		/** The Transaction id for updating the contract. Only available if agreement is on chain */
+		txId?: string
 	}
 
 	export interface IDefinition {
