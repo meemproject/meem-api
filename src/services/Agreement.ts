@@ -172,26 +172,29 @@ export default class AgreementService {
 		// 	params: [contractInitParams],
 		// 	gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 		// })
-		const chainId = agreementOrRole.chainId
+		if (agreementOrRole.isOnChain) {
+			const chainId = agreementOrRole.chainId
 
-		const agreementContract = await services.agreement.getAgreementContract({
-			chainId,
-			address: ethers.constants.AddressZero
-		})
+			const agreementContract = await services.agreement.getAgreementContract({
+				chainId,
+				address: ethers.constants.AddressZero
+			})
 
-		const txId = await services.ethers.queueTransaction({
-			chainId,
-			functionSignature:
-				agreementContract.interface.functions[
-					'reinitialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256,bytes32)[],(address,uint256,address)[],bool))'
-				].format(),
-			contractAddress: agreementOrRoleContract.address,
-			inputValues: {
-				params: contractInitParams
-			}
-		})
+			const txId = await services.ethers.queueTransaction({
+				chainId,
+				functionSignature:
+					agreementContract.interface.functions[
+						'reinitialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256,bytes32)[],(address,uint256,address)[],bool))'
+					].format(),
+				contractAddress: agreementOrRoleContract.address,
+				inputValues: {
+					params: contractInitParams
+				}
+			})
+			return { txId }
+		}
 
-		return { txId }
+		return {}
 	}
 
 	public static async createAgreementWithoutContract(options: {
