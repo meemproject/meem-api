@@ -202,7 +202,15 @@ export default class AgreementService {
 		owner: Wallet
 	}) {
 		const { body, owner } = options
-		const { metadata, name, symbol, chainId, shouldCreateAdminRole } = body
+		const {
+			metadata,
+			name,
+			symbol,
+			chainId,
+			shouldCreateAdminRole,
+			mintPermissions,
+			splits
+		} = body
 
 		const agreementSlug = await this.generateSlug({
 			baseSlug: name,
@@ -216,8 +224,8 @@ export default class AgreementService {
 			address: ethers.constants.AddressZero,
 			metadata,
 			maxSupply: 0,
-			mintPermissions: [],
-			splits: [],
+			mintPermissions,
+			splits,
 			chainId,
 			OwnerId: owner?.id,
 			isOnChain: false,
