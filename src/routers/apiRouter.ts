@@ -72,6 +72,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	)
 	router.postAsync(
 		'/agreements/:agreementId/bulkBurn',
+		userLoggedInPolicy,
 		AgreementController.bulkBurn
 	)
 	router.postAsync(
