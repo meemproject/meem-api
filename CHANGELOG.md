@@ -1,3 +1,24 @@
+# [1.19.0](https://github.com/meemproject/meem-api-aws/compare/v1.18.8...v1.19.0) (2023-04-10)
+
+
+### Bug Fixes
+
+* ability to leave/burn own tokens ([097e9d3](https://github.com/meemproject/meem-api-aws/commit/097e9d3))
+* bulkburn fix ([0da054c](https://github.com/meemproject/meem-api-aws/commit/0da054c))
+* bulkMint ([3cb942c](https://github.com/meemproject/meem-api-aws/commit/3cb942c))
+* mint permissions for contractless ([44bfc2c](https://github.com/meemproject/meem-api-aws/commit/44bfc2c))
+* reinitialize for non-contract agreements ([8b9ce1f](https://github.com/meemproject/meem-api-aws/commit/8b9ce1f))
+* tokenId count ([9d607f6](https://github.com/meemproject/meem-api-aws/commit/9d607f6))
+* tokenId wrong in mint; burn permission check ([baab89b](https://github.com/meemproject/meem-api-aws/commit/baab89b))
+
+
+### Features
+
+* add messageId to webhook ([d2c810c](https://github.com/meemproject/meem-api-aws/commit/d2c810c))
+* contractless agreement creation; updated bulk mint/burn ([ef46330](https://github.com/meemproject/meem-api-aws/commit/ef46330))
+* get feedback sent to bot and send webhook ([8471e8e](https://github.com/meemproject/meem-api-aws/commit/8471e8e))
+* update bot copy ([1826fef](https://github.com/meemproject/meem-api-aws/commit/1826fef))
+
 ## [1.18.8](https://github.com/meemproject/meem-api-aws/compare/v1.18.7...v1.18.8) (2023-03-30)
 
 ## [1.18.7](https://github.com/meemproject/meem-api-aws/compare/v1.18.6...v1.18.7) (2023-03-30)
