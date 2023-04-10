@@ -28,8 +28,8 @@ export namespace BulkMintAgreementRoleTokens {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The Transaction id */
-		txId: string
+		/** The Transaction id. Only if the agreement is on-chain */
+		txId?: string
 	}
 
 	export interface IDefinition {

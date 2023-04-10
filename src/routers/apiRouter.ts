@@ -72,6 +72,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	)
 	router.postAsync(
 		'/agreements/:agreementId/bulkBurn',
+		userLoggedInPolicy,
 		AgreementController.bulkBurn
 	)
 	router.postAsync(
@@ -170,6 +171,8 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/meem-api.json', TypesController.getOpenAPIFile)
 
 	/** Test Routes */
+	router.getAsync('/test/webhook', TestController.testWebhook)
+	router.postAsync('/test/webhook', TestController.testWebhook)
 
 	if (config.ENABLE_TEST_ENDPOINTS) {
 		router.getAsync('/test/gnosis', TestController.testGnosis)
@@ -184,5 +187,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/testPinata', TestController.testPinata)
 		router.getAsync('/test/callback', TestController.testCallback)
 		router.postAsync('/test/callback', TestController.testCallback)
+		router.getAsync('/test/summary', TestController.testSummary)
 	}
 }

@@ -22,11 +22,17 @@ export namespace CreateAgreement {
 		/** Agreement contract metadata */
 		metadata: IMeemMetadataLike
 
+		/** If true, will deploy the contract on the chain. Default false */
+		isOnChain?: boolean
+
+		/** If true a contract will be deployed. Default false */
+		shouldCreateContract?: boolean
+
 		/** The contract chain id */
-		chainId: number
+		chainId?: number
 
 		/** The max number of tokens */
-		maxSupply: string
+		maxSupply?: string
 
 		/** Whether the max number of tokens is locked */
 		isMaxSupplyLocked?: boolean
@@ -64,10 +70,10 @@ export namespace CreateAgreement {
 
 	export interface IResponseBody extends IApiResponseBody {
 		/** The Transaction id for deploying the contract. Transaction #1 */
-		deployContractTxId: string
+		deployContractTxId?: string
 
 		/** The Transaction id for initializing the contract. Transaction #2 */
-		cutTxId: string
+		cutTxId?: string
 
 		/** The Transaction id for minting tokens. Transaction #3 */
 		mintTxId?: string
@@ -83,6 +89,15 @@ export namespace CreateAgreement {
 
 		/** The Transaction id for minting admin role tokens. Transaction #7 */
 		adminRoleMintTxId?: string
+
+		/** The agreement id. Available only if isOnChain=false */
+		agreementId?: string
+
+		/** The admin agreement id. Available only if isOnChain=false */
+		adminAgreementId?: string
+
+		/** The slug for the agreement. Available only if isOnChain=false */
+		slug?: string
 	}
 
 	export interface IDefinition {

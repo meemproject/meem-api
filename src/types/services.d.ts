@@ -15,6 +15,7 @@ import Lint from '../services/Lint'
 import Lit from '../services/Lit'
 import Meem from '../services/Meem'
 import MeemId from '../services/MeemId'
+import Openai from '../services/Openai'
 import Puppeteer from '../services/Puppeteer'
 import Queue from '../services/Queue'
 import Rule from '../services/Rule'
@@ -44,6 +45,7 @@ declare global {
 		let lit: typeof Lit
 		let meem: typeof Meem
 		let meemId: typeof MeemId
+		let openai: typeof Openai
 		let puppeteer: Puppeteer
 		let queue: typeof Queue
 		let rule: typeof Rule

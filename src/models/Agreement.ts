@@ -114,6 +114,11 @@ export default class Agreement extends ModelWithAddress<Agreement> {
 			type: DataTypes.BOOLEAN,
 			allowNull: false,
 			defaultValue: false
+		},
+		isOnChain: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: true
 		}
 	}
 
@@ -361,6 +366,8 @@ export default class Agreement extends ModelWithAddress<Agreement> {
 	public adminContractAddress!: string | null
 
 	public isLaunched!: boolean
+
+	public isOnChain!: boolean
 
 	public OwnerId!: string | null
 

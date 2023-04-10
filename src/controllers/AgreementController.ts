@@ -1,6 +1,7 @@
 import { ethers } from 'ethers'
 import { Response } from 'express'
-import { IRequest, IResponse } from '../types/app'
+import { Op } from 'sequelize'
+import { IAuthenticatedRequest, IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 export default class AgreementController {
 	public static async isSlugAvailable(
@@ -28,28 +29,89 @@ export default class AgreementController {
 		req: IRequest<MeemAPI.v1.CreateAgreement.IDefinition>,
 		res: IResponse<MeemAPI.v1.CreateAgreement.IResponseBody>
 	): Promise<Response> {
+		const { name, metadata, isOnChain, chainId, tokenMetadata } = req.body
+
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
 		}
 
-		if (!req.body.name) {
+		if (!name) {
 			throw new Error('MISSING_PARAMETERS')
 		}
 
-		if (!req.body.metadata) {
+		if (!metadata) {
 			throw new Error('MISSING_PARAMETERS')
 		}
 
-		if (!req.body.metadata) {
+		if (!metadata) {
 			throw new Error('INVALID_METADATA')
 		}
 
 		await req.wallet.enforceTXLimit()
 
-		const result = await services.agreement.createAgreement({
-			...req.body,
-			senderWalletAddress: req.wallet.address
-		})
+		let result:
+			| {
+					deployContractTxId: string
+					cutTxId: string
+					mintTxId: string | undefined
+					adminRoleDeployContractTxId: string | undefined
+					adminRoleCutTxId: string | undefined
+					adminRoleMintTxId: string | undefined
+					setAdminRoleTxId: string | undefined
+			  }
+			| {
+					agreementId: string
+					slug: string
+					adminAgreementId?: string
+			  }
+
+		if (isOnChain) {
+			if (!chainId) {
+				throw new Error('MISSING_PARAMETERS')
+			}
+			result = await services.agreement.createAgreement({
+				...req.body,
+				chainId,
+				senderWalletAddress: req.wallet.address
+			})
+		} else {
+			const { agreement, adminAgreement } =
+				await services.agreement.createAgreementWithoutContract({
+					body: req.body,
+					owner: req.wallet
+				})
+
+			await Promise.all([
+				services.agreement.bulkMint({
+					agreementId: agreement.id,
+					mintedBy: req.wallet.address,
+					tokens: [
+						{
+							to: req.wallet.address,
+							metadata: tokenMetadata
+						}
+					]
+				}),
+				adminAgreement
+					? services.agreement.bulkMint({
+							agreementId: agreement.id,
+							agreementRoleId: adminAgreement.id,
+							mintedBy: req.wallet.address,
+							tokens: [
+								{
+									to: req.wallet.address,
+									metadata: tokenMetadata
+								}
+							]
+					  })
+					: Promise.resolve(null)
+			])
+			result = {
+				agreementId: agreement.id,
+				slug: agreement.slug,
+				adminAgreementId: adminAgreement?.id
+			}
+		}
 
 		return res.json(result)
 	}
@@ -262,30 +324,39 @@ export default class AgreementController {
 	}
 
 	public static async bulkBurn(
-		req: IRequest<MeemAPI.v1.BulkBurnAgreementTokens.IDefinition>,
+		req: IAuthenticatedRequest<MeemAPI.v1.BulkBurnAgreementTokens.IDefinition>,
 		res: IResponse<MeemAPI.v1.BulkBurnAgreementTokens.IResponseBody>
 	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
-
-		await req.wallet.enforceTXLimit()
-
 		const { agreementId } = req.params
 
-		const agreement = await orm.models.Agreement.findOne({
-			where: {
-				id: agreementId
-			}
-		})
+		const [agreement, agreementTokens] = await Promise.all([
+			orm.models.Agreement.findOne({
+				where: {
+					id: agreementId
+				}
+			}),
+			orm.models.AgreementToken.findAll({
+				where: {
+					AgreementId: agreementId,
+					tokenId: {
+						[Op.in]: req.body.tokenIds
+					},
+					OwnerId: req.wallet.id
+				}
+			})
+		])
 
 		if (!agreement) {
 			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
-		const canBurn = await agreement.isAdmin(req.wallet.address)
-		if (!canBurn) {
-			throw new Error('NOT_AUTHORIZED')
+		const isAdmin = await agreement.isAdmin(req.wallet.address)
+		if (!isAdmin) {
+			agreementTokens.forEach(token => {
+				if (token.OwnerId !== req.wallet?.id) {
+					throw new Error('NOT_AUTHORIZED')
+				}
+			})
 		}
 
 		const result = await services.agreement.bulkBurn({

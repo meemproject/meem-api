@@ -9,6 +9,7 @@ import { Validator } from '@meemproject/metadata'
 // eslint-disable-next-line import/named
 import { ethers } from 'ethers'
 import _ from 'lodash'
+import { Op } from 'sequelize'
 import slug from 'slug'
 import { v4 as uuidv4 } from 'uuid'
 import GnosisSafeABI from '../abis/GnosisSafe.json'
@@ -137,7 +138,7 @@ export default class AgreementService {
 				agreementOrRole
 			})
 
-		if (metadata) {
+		if (metadata && agreement.isOnChain) {
 			const result = await services.web3.saveToPinata({
 				json: {
 					...metadata
@@ -171,26 +172,80 @@ export default class AgreementService {
 		// 	params: [contractInitParams],
 		// 	gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 		// })
-		const chainId = agreementOrRole.chainId
+		if (agreementOrRole.isOnChain) {
+			const chainId = agreementOrRole.chainId
 
-		const agreementContract = await services.agreement.getAgreementContract({
+			const agreementContract = await services.agreement.getAgreementContract({
+				chainId,
+				address: ethers.constants.AddressZero
+			})
+
+			const txId = await services.ethers.queueTransaction({
+				chainId,
+				functionSignature:
+					agreementContract.interface.functions[
+						'reinitialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256,bytes32)[],(address,uint256,address)[],bool))'
+					].format(),
+				contractAddress: agreementOrRoleContract.address,
+				inputValues: {
+					params: contractInitParams
+				}
+			})
+			return { txId }
+		}
+
+		return {}
+	}
+
+	public static async createAgreementWithoutContract(options: {
+		body: MeemAPI.v1.CreateAgreement.IRequestBody
+		owner: Wallet
+	}) {
+		const { body, owner } = options
+		const {
+			metadata,
+			name,
+			symbol,
 			chainId,
-			address: ethers.constants.AddressZero
+			shouldCreateAdminRole,
+			mintPermissions,
+			splits
+		} = body
+
+		const agreementSlug = await this.generateSlug({
+			baseSlug: name,
+			chainId: chainId ?? 0
 		})
 
-		const txId = await services.ethers.queueTransaction({
+		const agreementData = {
+			slug: agreementSlug,
+			symbol: symbol ?? agreementSlug,
+			name,
+			address: ethers.constants.AddressZero,
+			metadata,
+			maxSupply: 0,
+			mintPermissions,
+			splits,
 			chainId,
-			functionSignature:
-				agreementContract.interface.functions[
-					'reinitialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256,bytes32)[],(address,uint256,address)[],bool))'
-				].format(),
-			contractAddress: agreementOrRoleContract.address,
-			inputValues: {
-				params: contractInitParams
-			}
-		})
+			OwnerId: owner?.id,
+			isOnChain: false,
+			isLaunched: true
+		}
 
-		return { txId }
+		const agreement = await orm.models.Agreement.create(agreementData)
+
+		let adminAgreement: AgreementRole | undefined
+
+		if (shouldCreateAdminRole) {
+			adminAgreement = await orm.models.AgreementRole.create({
+				...agreementData,
+				name: `${name} Admin Role`,
+				AgreementId: agreement.id,
+				isAdminRole: true
+			})
+		}
+
+		return { agreement, adminAgreement }
 	}
 
 	public static async createAgreement(
@@ -368,7 +423,7 @@ export default class AgreementService {
 				item => ({
 					to: item.to,
 					tokenType: MeemAPI.MeemType.Original,
-					tokenURI: item.ipfs as string
+					tokenURI: (item.ipfs as string) ?? ''
 				})
 			)
 
@@ -726,7 +781,7 @@ export default class AgreementService {
 			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
-		let agreementRole
+		let agreementRole: AgreementRole | undefined | null
 
 		if (agreementRoleId) {
 			agreementRole = await orm.models.AgreementRole.findOne({
@@ -741,6 +796,8 @@ export default class AgreementService {
 			metadata: MeemAPI.IMeemMetadataLike
 			ipfs?: string
 		}[] = []
+
+		const toAddresses: string[] = []
 
 		// Validate metadata
 		tokens.forEach(token => {
@@ -765,6 +822,8 @@ export default class AgreementService {
 				throw new Error('INVALID_METADATA')
 			}
 
+			toAddresses.push(token.to)
+
 			builtData.push({
 				...token,
 				metadata: token.metadata
@@ -772,19 +831,21 @@ export default class AgreementService {
 		})
 
 		// Pin to IPFS
-		for (let i = 0; i < builtData.length; i++) {
-			const item = builtData[i]
-			const result = await services.web3.saveToPinata({
-				json: { ...item.metadata }
-			})
-			item.ipfs = `ipfs://${result.IpfsHash}`
+		if (agreement.isOnChain) {
+			for (let i = 0; i < builtData.length; i++) {
+				const item = builtData[i]
+				const result = await services.web3.saveToPinata({
+					json: { ...item.metadata }
+				})
+				item.ipfs = `ipfs://${result.IpfsHash}`
+			}
 		}
 
 		const bulkParams: Parameters<Mycontract['bulkMint']>[0] = builtData.map(
 			item => ({
 				to: item.to,
 				tokenType: MeemAPI.MeemType.Original,
-				tokenURI: item.ipfs as string
+				tokenURI: (item.ipfs as string) ?? ''
 			})
 		)
 
@@ -804,17 +865,91 @@ export default class AgreementService {
 			address: ethers.constants.AddressZero
 		})
 
-		const txId = await services.ethers.queueTransaction({
-			chainId,
-			functionSignature:
-				agreementContract.interface.functions[
-					'bulkMint((address,string,uint8)[])'
-				].format(),
-			contractAddress: agreementRole?.address ?? agreement.address,
-			inputValues: {
-				bulkParams
+		let txId: string | undefined
+
+		if (agreement.isOnChain) {
+			txId = await services.ethers.queueTransaction({
+				chainId,
+				functionSignature:
+					agreementContract.interface.functions[
+						'bulkMint((address,string,uint8)[])'
+					].format(),
+				contractAddress: agreementRole?.address ?? agreement.address,
+				inputValues: {
+					bulkParams
+				}
+			})
+		} else {
+			let [tokenId, wallets] = await Promise.all([
+				agreementRole
+					? orm.models.AgreementRoleToken.count({
+							where: {
+								AgreementId: agreementRole.id
+							}
+					  })
+					: orm.models.AgreementToken.count({
+							where: {
+								AgreementId: agreement.id
+							}
+					  }),
+				orm.models.Wallet.findAll({
+					where: {
+						address: {
+							[Op.in]: toAddresses
+						}
+					}
+				})
+			])
+
+			const missingWalletAddresses = toAddresses.filter(a => {
+				const foundWallet = wallets.find(w => w.address === a)
+				if (foundWallet) {
+					return false
+				}
+
+				return true
+			})
+
+			if (missingWalletAddresses.length > 0) {
+				await orm.models.Wallet.bulkCreate(
+					missingWalletAddresses.map(a => ({ address: a }))
+				)
+
+				wallets = await orm.models.Wallet.findAll({
+					where: {
+						address: {
+							[Op.in]: toAddresses
+						}
+					}
+				})
 			}
-		})
+
+			const now = new Date()
+			const insertData = builtData.map(item => {
+				const itemId = tokenId + 1
+				tokenId++
+				const wallet = wallets.find(w => w.address === item.to)
+				if (!wallet) {
+					log.crit('Wallet not found', { item })
+				}
+				return {
+					id: uuidv4(),
+					tokenId: services.web3.toBigNumber(itemId),
+					tokenURI: item.ipfs ?? '',
+					mintedAt: now,
+					metadata: item.metadata,
+					mintedBy,
+					AgreementId: agreement.id,
+					AgreementRoleId: agreementRole?.id,
+					OwnerId: wallet?.id
+				}
+			})
+			if (agreementRole) {
+				await orm.models.AgreementRoleToken.bulkCreate(insertData)
+			} else {
+				await orm.models.AgreementToken.bulkCreate(insertData)
+			}
+		}
 
 		return { txId }
 	}
@@ -864,15 +999,37 @@ export default class AgreementService {
 			address: ethers.constants.AddressZero
 		})
 
-		const txId = await services.ethers.queueTransaction({
-			chainId,
-			functionSignature:
-				agreementContract.interface.functions['bulkBurn(uint256[])'].format(),
-			contractAddress: agreementRole?.address ?? agreement.address,
-			inputValues: {
-				tokenIds: tokenIds.map(t => ethers.BigNumber.from(t).toHexString())
-			}
-		})
+		let txId: string | undefined
+
+		if (agreementRole && !agreementRole.isOnChain) {
+			await orm.models.AgreementRoleToken.destroy({
+				where: {
+					AgreementRoleId: agreementRole.id,
+					tokenId: {
+						[Op.in]: tokenIds
+					}
+				}
+			})
+		} else if (agreement && !agreement.isOnChain) {
+			await orm.models.AgreementToken.destroy({
+				where: {
+					AgreementId: agreement.id,
+					tokenId: {
+						[Op.in]: tokenIds
+					}
+				}
+			})
+		} else {
+			txId = await services.ethers.queueTransaction({
+				chainId,
+				functionSignature:
+					agreementContract.interface.functions['bulkBurn(uint256[])'].format(),
+				contractAddress: agreementRole?.address ?? agreement.address,
+				inputValues: {
+					tokenIds: tokenIds.map(t => ethers.BigNumber.from(t).toHexString())
+				}
+			})
+		}
 
 		return { txId }
 	}
