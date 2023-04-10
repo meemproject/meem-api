@@ -901,10 +901,6 @@ export default class AgreementService {
 				})
 			])
 
-			if (tokenId === 0) {
-				tokenId = 1
-			}
-
 			const missingWalletAddresses = toAddresses.filter(a => {
 				const foundWallet = wallets.find(w => w.address === a)
 				if (foundWallet) {
