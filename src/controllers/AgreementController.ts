@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 import { Response } from 'express'
 import { Op } from 'sequelize'
-import { IRequest, IResponse } from '../types/app'
+import { IAuthenticatedRequest, IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 export default class AgreementController {
 	public static async isSlugAvailable(
@@ -324,15 +324,9 @@ export default class AgreementController {
 	}
 
 	public static async bulkBurn(
-		req: IRequest<MeemAPI.v1.BulkBurnAgreementTokens.IDefinition>,
+		req: IAuthenticatedRequest<MeemAPI.v1.BulkBurnAgreementTokens.IDefinition>,
 		res: IResponse<MeemAPI.v1.BulkBurnAgreementTokens.IResponseBody>
 	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
-
-		await req.wallet.enforceTXLimit()
-
 		const { agreementId } = req.params
 
 		const [agreement, agreementTokens] = await Promise.all([
@@ -343,9 +337,11 @@ export default class AgreementController {
 			}),
 			orm.models.AgreementToken.findAll({
 				where: {
+					AgreementId: agreementId,
 					tokenId: {
 						[Op.in]: req.body.tokenIds
-					}
+					},
+					OwnerId: req.wallet.id
 				}
 			})
 		])

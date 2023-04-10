@@ -884,7 +884,7 @@ export default class AgreementService {
 				agreementRole
 					? orm.models.AgreementRoleToken.count({
 							where: {
-								AgreementId: agreement.id
+								AgreementId: agreementRole.id
 							}
 					  })
 					: orm.models.AgreementToken.count({
@@ -930,7 +930,7 @@ export default class AgreementService {
 
 			const now = new Date()
 			const insertData = builtData.map(item => {
-				const itemId = tokenId
+				const itemId = tokenId + 1
 				tokenId++
 				const wallet = wallets.find(w => w.address === item.to)
 				if (!wallet) {
