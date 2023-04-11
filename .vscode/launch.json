@@ -36,32 +36,25 @@
 				"-r",
 				"ts-node/register/transpile-only",
 				"--exit",
+				// "--inspect-brk",
 				"${relativeFile}"
-				// "${workspaceRoot}/**/*.test.ts"
 			],
-			// "runtimeArgs": [
-			// 	"${workspaceRoot}/node_modules/.bin/hardhat",
-			// 	"test",
-			// 	"--network",
-			// 	"hardhat",
-			// 	"${relativeFile}"
-			// ],
 			"runtimeExecutable": "${env:NVM_BIN}/node",
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "neverOpen",
 			"cwd": "${workspaceRoot}",
 			"env": {
-				"DATABASE_URL": "sqlite:${workspaceRoot}/tmp/testing.db",
 				"NODE_ENV": "local",
-				"PORT": "4004",
-				"BLUEBIRD_W_FORGOTTEN_RETURN": "0",
-				"TESTING": "true",
-				"GENERATE_SHARED_TYPES": "false",
 				"DISABLE_MIGRATIONS": "true",
-				"ENABLE_SWAGGER_DOCS": "true",
-				"ENABLE_GUNDB": "false",
-				"NETWORK": "hardhat",
-				"ENABLE_CONTRACT_LISTENERS": "false"
+				"ALLOW_NON_SSL": "true",
+				"ORM_LOGGING": "false",
+				"LOG_LEVEL": "debug",
+				"TESTING": "true",
+				"DISCORD_ENABLE_LISTENERS": "false",
+				"PORT": "",
+				"BLUEBIRD_W_FORGOTTEN_RETURN": "0",
+				"DISABLE_ORM_SYNC": "true",
+				"GENERATE_SHARED_TYPES": "false"
 			}
 		}
 	]
