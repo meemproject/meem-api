@@ -851,6 +851,15 @@ Finally, Meem has even more community tools in the hopper and we’d love to col
 					}
 				})
 
+				if (
+					!config.DISCORD_MENTIONS_WEBHOOK_URL ||
+					config.DISCORD_MENTIONS_WEBHOOK_URL.length === 0
+				) {
+					log.debug(
+						'Not sending feedback webhook because DISCORD_MENTIONS_WEBHOOK_URL is not set'
+					)
+					return
+				}
 				log.debug('Sending webhook')
 				const partialResponse = this.parseMessageForWebhook(message)
 

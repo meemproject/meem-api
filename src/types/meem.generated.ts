@@ -2425,44 +2425,6 @@ export namespace JoinGuild {
 
 
 
-/** Save some data to IPFS */
-export namespace SaveToIPFS {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/ipfs`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The data to save. Only one of "data" or "json" should be sent */
-		data?: string
-
-		/** The JSON to save. Only one of "data" or "json" should be sent */
-		json?: Record<string, any>
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		/** The IPFS hash for the saved data */
-		ipfsHash: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-// TODO: How to specify json in OpenAPI definition
-
-
-
-
 /** Create or update the current user */
 export namespace CreateOrUpdateUser {
 	export interface IPathParams {}
@@ -2658,6 +2620,44 @@ export namespace UpdateUserIdentity {
 
 	export type Response = IResponseBody | IError
 }
+
+
+
+
+/** Save some data to IPFS */
+export namespace SaveToIPFS {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/ipfs`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The data to save. Only one of "data" or "json" should be sent */
+		data?: string
+
+		/** The JSON to save. Only one of "data" or "json" should be sent */
+		json?: Record<string, any>
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		/** The IPFS hash for the saved data */
+		ipfsHash: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+// TODO: How to specify json in OpenAPI definition
 
 
 
