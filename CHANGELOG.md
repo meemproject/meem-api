@@ -1,3 +1,10 @@
+## [1.19.1](https://github.com/meemproject/meem-api-aws/compare/v1.19.0...v1.19.1) (2023-04-11)
+
+
+### Bug Fixes
+
+* only send mention webhook if set ([66f1174](https://github.com/meemproject/meem-api-aws/commit/66f1174))
+
 # [1.19.0](https://github.com/meemproject/meem-api-aws/compare/v1.18.8...v1.19.0) (2023-04-10)
 
 
