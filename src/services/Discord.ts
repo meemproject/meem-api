@@ -453,6 +453,16 @@ export default class Discord {
 
 		const { rule, message } = options
 
+		const approverEmojis = rule.definition.approverEmojis.map(e => {
+			return e.split('-')[0]
+		})
+		const proposerEmojis = rule.definition.proposerEmojis.map(e => {
+			return e.split('-')[0]
+		})
+		const vetoerEmojis = rule.definition.vetoerEmojis.map(e => {
+			return e.split('-')[0]
+		})
+
 		if (
 			rule.definition.proposalChannels.includes('all') ||
 			rule.definition.proposalChannels.includes(message.channelId) ||
@@ -475,16 +485,14 @@ export default class Discord {
 								(rule.definition.publishType === MeemAPI.PublishType.Proposal &&
 									rule.definition.proposalShareChannel ===
 										message.channelId)) &&
-							rule.definition.approverEmojis &&
-							rule.definition.approverEmojis.includes(unicode)
+							approverEmojis &&
+							approverEmojis.includes(unicode)
 						const isProposerEmoji =
 							rule.definition.publishType === MeemAPI.PublishType.Proposal &&
 							rule.definition.proposalShareChannel !== message.channelId &&
-							rule.definition.proposerEmojis &&
-							rule.definition.proposerEmojis.includes(unicode)
-						const isVetoerEmoji =
-							rule.definition.vetoerEmojis &&
-							rule.definition.vetoerEmojis.includes(unicode)
+							proposerEmojis &&
+							proposerEmojis.includes(unicode)
+						const isVetoerEmoji = vetoerEmojis && vetoerEmojis.includes(unicode)
 
 						log.debug({
 							isApproverEmoji,
