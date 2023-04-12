@@ -1,3 +1,10 @@
+## [1.19.2](https://github.com/meemproject/meem-api-aws/compare/v1.19.1...v1.19.2) (2023-04-12)
+
+
+### Bug Fixes
+
+* remove variant when converting to emoji ([1a2c6a4](https://github.com/meemproject/meem-api-aws/commit/1a2c6a4))
+
 ## [1.19.1](https://github.com/meemproject/meem-api-aws/compare/v1.19.0...v1.19.1) (2023-04-11)
 
 
