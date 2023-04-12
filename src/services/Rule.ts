@@ -926,7 +926,7 @@ export default class RuleService {
 
 	public static unicodeToEmoji(unicode: string) {
 		const [baseCode] = unicode.split('-')
-		log.debug(`Converting unicode to emoji: ${baseCode}`)
+		log.trace(`Converting unicode to emoji: ${baseCode}`)
 		// @ts-ignore
 		return String.fromCodePoint(`0x${baseCode}`)
 	}
