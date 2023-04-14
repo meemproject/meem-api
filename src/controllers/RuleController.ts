@@ -137,7 +137,6 @@ export default class RuleController {
 				services.rule.sendRuleNotification({ rule: newRule, agreement })
 			)
 		}
-		c
 
 		if (rule.input === MeemAPI.RuleIo.Slack) {
 			const slack = (io.input as AgreementSlack).Slack
