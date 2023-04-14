@@ -20,7 +20,8 @@ import {
 	PartialMessageReaction,
 	Partials,
 	REST,
-	TextChannel
+	TextChannel,
+	ThreadChannel
 } from 'discord.js'
 import _ from 'lodash'
 import { Op } from 'sequelize'
@@ -821,39 +822,63 @@ export default class Discord {
 	}
 
 	private async handleMessageCreate(message: Message<boolean>) {
-		if (
-			message.author.id !== config.DISCORD_BOT_ID &&
-			message.mentions.has(config.DISCORD_BOT_ID)
-		) {
-			log.debug('Sending message to Meem')
-			const content = `From ${message.guild?.name}: ${message.content}`
+		// if (
+		// 	message.author.id !== config.DISCORD_BOT_ID &&
+		// 	message.mentions.has(config.DISCORD_BOT_ID)
+		// ) {
+		// log.debug('Sending message to Meem')
+		// const content = `From ${message.guild?.name}: ${message.content}`
 
-			await this.sendMessage({
-				channelId: config.DISCORD_MEEM_CHANNEL_ID,
-				message: {
-					...message,
-					content
-				}
-			})
+		// await this.sendMessage({
+		// 	channelId: config.DISCORD_MEEM_CHANNEL_ID,
+		// 	message: {
+		// 		...message,
+		// 		content
+		// 	}
+		// })
 
-			log.debug('Sending webhook')
-			const partialResponse = this.parseMessageForWebhook(message)
+		log.debug('Sending webhook')
+		const partialResponse = this.parseMessageForWebhook(message)
 
-			const body: Omit<
-				MeemAPI.IWebhookBody,
-				'rule' | 'totalApprovals' | 'totalProposers' | 'totalVetoers'
-			> = {
-				...partialResponse,
-				messageId: partialResponse.messageId ?? '',
-				secret: '',
-				channelId: message.channelId,
-				content: message.content
-			}
+		const body: Omit<
+			MeemAPI.IWebhookBody,
+			'rule' | 'totalApprovals' | 'totalProposers' | 'totalVetoers'
+		> = {
+			...partialResponse,
+			guildId: message.guildId ?? '',
+			messageId: partialResponse.messageId ?? '',
+			secret: '',
+			channelId: message.channelId,
+			content: message.content,
+			mentions: message.mentions
+		}
 
+		await request
+			.post(config.DISCORD_MENTIONS_WEBHOOK_URL)
+			.timeout(5000)
+			.send(body)
+		// }
+	}
+
+	private async handleThreadCreate(
+		thread: ThreadChannel<boolean>,
+		newlyCreated: boolean
+	) {
+		log.debug(thread)
+		const body = {
+			eventType: 'threadCreated',
+			thread,
+			secret: ''
+		}
+
+		try {
 			await request
 				.post(config.DISCORD_MENTIONS_WEBHOOK_URL)
+				.disableTLSCerts()
 				.timeout(5000)
 				.send(body)
+		} catch (e) {
+			log.error(e)
 		}
 	}
 
@@ -861,6 +886,10 @@ export default class Discord {
 		this.client.on('ready', () => {
 			log.info('Discord client is ready!')
 		})
+		// this.client.on(
+		// 	DiscordEvents.ThreadCreate,
+		// 	this.handleThreadCreate.bind(this)
+		// )
 		this.client.on(
 			DiscordEvents.MessageCreate,
 			this.handleMessageCreate.bind(this)
