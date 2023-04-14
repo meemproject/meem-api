@@ -59,6 +59,7 @@ export default class RuleService {
 		let totalApprovals = 0
 		let totalProposers = 0
 		let totalVetoers = 0
+		let totalEditors = 0
 		let messageContent = ''
 
 		switch (rule.input) {
@@ -85,6 +86,7 @@ export default class RuleService {
 					totalApprovals = r.totalApprovals
 					totalProposers = r.totalProposers
 					totalVetoers = r.totalVetoers
+					totalEditors = r.totalEditors
 					messageContent = (message as DiscordMessage).content
 				}
 				break
@@ -99,7 +101,8 @@ export default class RuleService {
 			channelId,
 			totalApprovals,
 			totalProposers,
-			totalVetoers
+			totalVetoers,
+			totalEditors
 		})
 
 		log.debug({
