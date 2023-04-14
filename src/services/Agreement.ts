@@ -172,26 +172,29 @@ export default class AgreementService {
 		// 	params: [contractInitParams],
 		// 	gasLimit: ethers.BigNumber.from(config.MINT_GAS_LIMIT)
 		// })
-		const chainId = agreementOrRole.chainId
+		if (agreementOrRole.isOnChain) {
+			const chainId = agreementOrRole.chainId
 
-		const agreementContract = await services.agreement.getAgreementContract({
-			chainId,
-			address: ethers.constants.AddressZero
-		})
+			const agreementContract = await services.agreement.getAgreementContract({
+				chainId,
+				address: ethers.constants.AddressZero
+			})
 
-		const txId = await services.ethers.queueTransaction({
-			chainId,
-			functionSignature:
-				agreementContract.interface.functions[
-					'reinitialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256,bytes32)[],(address,uint256,address)[],bool))'
-				].format(),
-			contractAddress: agreementOrRoleContract.address,
-			inputValues: {
-				params: contractInitParams
-			}
-		})
+			const txId = await services.ethers.queueTransaction({
+				chainId,
+				functionSignature:
+					agreementContract.interface.functions[
+						'reinitialize((string,string,string,(address,bytes32,bool)[],uint256,(uint8,address[],uint256,uint256,uint256,uint256,bytes32)[],(address,uint256,address)[],bool))'
+					].format(),
+				contractAddress: agreementOrRoleContract.address,
+				inputValues: {
+					params: contractInitParams
+				}
+			})
+			return { txId }
+		}
 
-		return { txId }
+		return {}
 	}
 
 	public static async createAgreementWithoutContract(options: {
@@ -199,7 +202,15 @@ export default class AgreementService {
 		owner: Wallet
 	}) {
 		const { body, owner } = options
-		const { metadata, name, symbol, chainId, shouldCreateAdminRole } = body
+		const {
+			metadata,
+			name,
+			symbol,
+			chainId,
+			shouldCreateAdminRole,
+			mintPermissions,
+			splits
+		} = body
 
 		const agreementSlug = await this.generateSlug({
 			baseSlug: name,
@@ -213,8 +224,8 @@ export default class AgreementService {
 			address: ethers.constants.AddressZero,
 			metadata,
 			maxSupply: 0,
-			mintPermissions: [],
-			splits: [],
+			mintPermissions,
+			splits,
 			chainId,
 			OwnerId: owner?.id,
 			isOnChain: false,
@@ -873,7 +884,7 @@ export default class AgreementService {
 				agreementRole
 					? orm.models.AgreementRoleToken.count({
 							where: {
-								AgreementId: agreement.id
+								AgreementId: agreementRole.id
 							}
 					  })
 					: orm.models.AgreementToken.count({
@@ -889,10 +900,6 @@ export default class AgreementService {
 					}
 				})
 			])
-
-			if (tokenId === 0) {
-				tokenId = 1
-			}
 
 			const missingWalletAddresses = toAddresses.filter(a => {
 				const foundWallet = wallets.find(w => w.address === a)
@@ -919,7 +926,7 @@ export default class AgreementService {
 
 			const now = new Date()
 			const insertData = builtData.map(item => {
-				const itemId = tokenId
+				const itemId = tokenId + 1
 				tokenId++
 				const wallet = wallets.find(w => w.address === item.to)
 				if (!wallet) {

@@ -72,6 +72,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	)
 	router.postAsync(
 		'/agreements/:agreementId/bulkBurn',
+		userLoggedInPolicy,
 		AgreementController.bulkBurn
 	)
 	router.postAsync(
@@ -186,5 +187,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/testPinata', TestController.testPinata)
 		router.getAsync('/test/callback', TestController.testCallback)
 		router.postAsync('/test/callback', TestController.testCallback)
+		router.getAsync('/test/summary', TestController.testSummary)
 	}
 }

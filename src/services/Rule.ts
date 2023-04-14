@@ -59,6 +59,7 @@ export default class RuleService {
 		let totalApprovals = 0
 		let totalProposers = 0
 		let totalVetoers = 0
+		let totalEditors = 0
 		let messageContent = ''
 
 		switch (rule.input) {
@@ -85,6 +86,7 @@ export default class RuleService {
 					totalApprovals = r.totalApprovals
 					totalProposers = r.totalProposers
 					totalVetoers = r.totalVetoers
+					totalEditors = r.totalEditors
 					messageContent = (message as DiscordMessage).content
 				}
 				break
@@ -99,7 +101,8 @@ export default class RuleService {
 			channelId,
 			totalApprovals,
 			totalProposers,
-			totalVetoers
+			totalVetoers,
+			totalEditors
 		})
 
 		log.debug({
@@ -391,9 +394,16 @@ export default class RuleService {
 		totalApprovals: number
 		totalProposers: number
 		totalVetoers: number
+		totalEditors?: number
 	}) {
-		const { channelId, rule, totalApprovals, totalProposers, totalVetoers } =
-			options
+		const {
+			channelId,
+			rule,
+			totalApprovals,
+			totalProposers,
+			totalVetoers,
+			totalEditors
+		} = options
 		let shouldPublish = false
 		let shouldMarkAsHandled = false
 
@@ -406,6 +416,38 @@ export default class RuleService {
 				(rule.definition.vetoVotes && totalVetoers < rule.definition.vetoVotes))
 		) {
 			log.debug('Rule matched publish immediately')
+			// Publish it
+			shouldPublish = true
+			shouldMarkAsHandled = true
+		} else if (
+			rule.definition.publishType ===
+				MeemAPI.PublishType.PublishAfterApproval &&
+			(rule.definition.proposalChannels.includes(channelId) ||
+				rule.definition.proposalChannels.includes('all')) &&
+			totalApprovals >= rule.definition.votes &&
+			totalEditors &&
+			rule.definition.editorVotes &&
+			totalEditors >= rule.definition.editorVotes &&
+			(!rule.definition.canVeto ||
+				(rule.definition.vetoVotes && totalVetoers < rule.definition.vetoVotes))
+		) {
+			log.debug('Rule matched publish after approval')
+			// Publish it
+			shouldPublish = true
+			shouldMarkAsHandled = true
+		} else if (
+			rule.definition.publishType ===
+				MeemAPI.PublishType.PublishImmediatelyOrEditorApproval &&
+			(rule.definition.proposalChannels.includes(channelId) ||
+				rule.definition.proposalChannels.includes('all')) &&
+			(totalApprovals >= rule.definition.votes ||
+				(totalEditors &&
+					rule.definition.editorVotes &&
+					totalEditors >= rule.definition.editorVotes)) &&
+			(!rule.definition.canVeto ||
+				(rule.definition.vetoVotes && totalVetoers < rule.definition.vetoVotes))
+		) {
+			log.debug('Rule matched publish immediately or after approval')
 			// Publish it
 			shouldPublish = true
 			shouldMarkAsHandled = true
@@ -925,7 +967,9 @@ export default class RuleService {
 	}
 
 	public static unicodeToEmoji(unicode: string) {
+		const [baseCode] = unicode.split('-')
+		log.trace(`Converting unicode to emoji: ${baseCode}`)
 		// @ts-ignore
-		return String.fromCodePoint(`0x${unicode}`)
+		return String.fromCodePoint(`0x${baseCode}`)
 	}
 }

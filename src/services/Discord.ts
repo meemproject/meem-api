@@ -20,8 +20,7 @@ import {
 	PartialMessageReaction,
 	Partials,
 	REST,
-	TextChannel,
-	ThreadChannel
+	TextChannel
 } from 'discord.js'
 import _ from 'lodash'
 import { Op } from 'sequelize'
@@ -405,7 +404,7 @@ export default class Discord {
 				reaction.message.id
 			)
 
-			log.debug({ message })
+			this.logMessage(message)
 
 			if (agreementId) {
 				const rules = await orm.models.Rule.findAll({
@@ -443,16 +442,33 @@ export default class Discord {
 			approver: { [unifiedEmojiCode: string]: number }
 			proposer: { [unifiedEmojiCode: string]: number }
 			vetoer: { [unifiedEmojiCode: string]: number }
+			editor: { [unifiedEmojiCode: string]: number }
 		} = {
 			totalApprovals: 0,
 			totalProposers: 0,
 			totalVetoers: 0,
 			approver: {},
 			proposer: {},
-			vetoer: {}
+			vetoer: {},
+			editor: {}
 		}
 
 		const { rule, message } = options
+
+		const approverEmojis = rule.definition.approverEmojis.map(e => {
+			return e.split('-')[0]
+		})
+		const proposerEmojis = rule.definition.proposerEmojis.map(e => {
+			return e.split('-')[0]
+		})
+		const vetoerEmojis = rule.definition.vetoerEmojis.map(e => {
+			return e.split('-')[0]
+		})
+		const editorEmojis = rule.definition.editorEmojis
+			? rule.definition.editorEmojis.map(e => {
+					return e.split('-')[0]
+			  })
+			: []
 
 		if (
 			rule.definition.proposalChannels.includes('all') ||
@@ -470,22 +486,27 @@ export default class Discord {
 							name: messageReaction.emoji.name,
 							unicode
 						})
+
 						const isApproverEmoji =
-							(rule.definition.publishType ===
-								MeemAPI.PublishType.PublishImmediately ||
+							([
+								MeemAPI.PublishType.PublishImmediately,
+								MeemAPI.PublishType.PublishAfterApproval,
+								MeemAPI.PublishType.PublishImmediatelyOrEditorApproval
+							].includes(rule.definition.publishType) ||
 								(rule.definition.publishType === MeemAPI.PublishType.Proposal &&
 									rule.definition.proposalShareChannel ===
 										message.channelId)) &&
-							rule.definition.approverEmojis &&
-							rule.definition.approverEmojis.includes(unicode)
+							approverEmojis &&
+							approverEmojis.includes(unicode)
+
 						const isProposerEmoji =
 							rule.definition.publishType === MeemAPI.PublishType.Proposal &&
 							rule.definition.proposalShareChannel !== message.channelId &&
-							rule.definition.proposerEmojis &&
-							rule.definition.proposerEmojis.includes(unicode)
-						const isVetoerEmoji =
-							rule.definition.vetoerEmojis &&
-							rule.definition.vetoerEmojis.includes(unicode)
+							proposerEmojis &&
+							proposerEmojis.includes(unicode)
+
+						const isVetoerEmoji = vetoerEmojis && vetoerEmojis.includes(unicode)
+						const isEditorEmoji = editorEmojis && editorEmojis.includes(unicode)
 
 						log.debug({
 							isApproverEmoji,
@@ -493,9 +514,16 @@ export default class Discord {
 							isVetoerEmoji
 						})
 
-						if (isApproverEmoji || isProposerEmoji || isVetoerEmoji) {
+						if (
+							isApproverEmoji ||
+							isProposerEmoji ||
+							isVetoerEmoji ||
+							isEditorEmoji
+						) {
 							// Valid emoji to count
-							await messageReaction?.users.fetch()
+							if (!config.TESTING) {
+								await messageReaction?.users.fetch()
+							}
 
 							log.debug('Found valid emoji reaction. Checking user roles')
 							// Now count the number of users that have a valid role
@@ -531,6 +559,15 @@ export default class Discord {
 											messageReactions.vetoer[unicode] = 0
 										}
 										messageReactions.vetoer[unicode] += 1
+									} else if (
+										isEditorEmoji &&
+										rule.definition.editorRoles &&
+										rule.definition.editorRoles.includes(role.id)
+									) {
+										if (!messageReactions.editor[unicode]) {
+											messageReactions.editor[unicode] = 0
+										}
+										messageReactions.editor[unicode] += 1
 									}
 								})
 							})
@@ -559,10 +596,16 @@ export default class Discord {
 			0
 		)
 
+		const totalEditors = Object.values(messageReactions.editor).reduce(
+			(acc, curr) => acc + curr,
+			0
+		)
+
 		return {
 			totalApprovals,
 			totalProposers,
 			totalVetoers,
+			totalEditors,
 			messageReactions
 		}
 	}
@@ -665,9 +708,22 @@ export default class Discord {
 					discord.name = interaction.guild?.name
 					discord.icon = interaction.guild?.iconURL({ size: 256 })
 					await Promise.all([agreementDiscord.save(), discord.save()])
+					/*
+Greetings, I’m Meem Bot!
+
+I can help automate publishing for your community by allowing you to vote on what gets posted to your shared Twitter account.
+
+Tap below to set up your publishing logic.
+
+<Manage Rules>
+
+If you need help at any time or have feedback on how I could work better, just @MeemBot with your question or idea.
+
+Finally, Meem has even more community tools in the hopper and we’d love to collaborate with you! See what we’re up to and share your thoughts: https://form.typeform.com/to/TyeFu5om
+					*/
 
 					await interaction.editReply({
-						content: `Greetings, I’m Symphony Bot! \n\nI can help automate publishing for your community by allowing you to vote on what gets posted to your shared Twitter account.\n\nTap below to set up your publishing logic.`,
+						content: `Greetings, I’m Meem Bot! \n\nI can help automate publishing for your community by allowing you to vote on what gets posted to your shared Twitter account.\n\nIf you need help at any time or have feedback on how I could work better, just @MeemBot with your question or idea.\n\nFinally, Meem has even more community tools in the hopper and we’d love to collaborate with you! See what we’re up to and share your thoughts: <https://form.typeform.com/to/TyeFu5om>\n\nTap below to set up your publishing logic.`,
 						components: this.getMessageComponents([
 							{
 								slug: agreement?.slug,
@@ -705,7 +761,7 @@ export default class Discord {
 				})
 
 				if (!discord || !interaction.guildId) {
-					await interaction.editReply('Symphony needs to be activated')
+					await interaction.editReply('Meem Bot needs to be activated')
 					return
 				}
 
@@ -822,63 +878,53 @@ export default class Discord {
 	}
 
 	private async handleMessageCreate(message: Message<boolean>) {
-		// if (
-		// 	message.author.id !== config.DISCORD_BOT_ID &&
-		// 	message.mentions.has(config.DISCORD_BOT_ID)
-		// ) {
-		// log.debug('Sending message to Meem')
-		// const content = `From ${message.guild?.name}: ${message.content}`
-
-		// await this.sendMessage({
-		// 	channelId: config.DISCORD_MEEM_CHANNEL_ID,
-		// 	message: {
-		// 		...message,
-		// 		content
-		// 	}
-		// })
-
-		log.debug('Sending webhook')
-		const partialResponse = this.parseMessageForWebhook(message)
-
-		const body: Omit<
-			MeemAPI.IWebhookBody,
-			'rule' | 'totalApprovals' | 'totalProposers' | 'totalVetoers'
-		> = {
-			...partialResponse,
-			guildId: message.guildId ?? '',
-			messageId: partialResponse.messageId ?? '',
-			secret: '',
-			channelId: message.channelId,
-			content: message.content,
-			mentions: message.mentions
-		}
-
-		await request
-			.post(config.DISCORD_MENTIONS_WEBHOOK_URL)
-			.timeout(5000)
-			.send(body)
-		// }
-	}
-
-	private async handleThreadCreate(
-		thread: ThreadChannel<boolean>,
-		newlyCreated: boolean
-	) {
-		log.debug(thread)
-		const body = {
-			eventType: 'threadCreated',
-			thread,
-			secret: ''
-		}
-
 		try {
-			await request
-				.post(config.DISCORD_MENTIONS_WEBHOOK_URL)
-				.disableTLSCerts()
-				.timeout(5000)
-				.send(body)
+			log.debug('handleMessageCreate')
+			if (
+				message.author.id !== config.DISCORD_BOT_ID &&
+				message.mentions.has(config.DISCORD_BOT_ID)
+			) {
+				log.debug('Sending message to Meem')
+				const content = `\`@${message.author.tag}\` (${message.guild?.name}): ${message.content}`
+
+				await this.sendMessage({
+					channelId: config.DISCORD_MEEM_CHANNEL_ID,
+					message: {
+						...message,
+						content
+					}
+				})
+
+				if (
+					!config.DISCORD_MENTIONS_WEBHOOK_URL ||
+					config.DISCORD_MENTIONS_WEBHOOK_URL.length === 0
+				) {
+					log.debug(
+						'Not sending feedback webhook because DISCORD_MENTIONS_WEBHOOK_URL is not set'
+					)
+					return
+				}
+				log.debug('Sending webhook')
+				const partialResponse = this.parseMessageForWebhook(message)
+
+				const body: Omit<
+					MeemAPI.IWebhookBody,
+					'rule' | 'totalApprovals' | 'totalProposers' | 'totalVetoers'
+				> = {
+					...partialResponse,
+					messageId: partialResponse.messageId ?? '',
+					secret: '',
+					channelId: message.channelId,
+					content: message.content
+				}
+
+				await request
+					.post(config.DISCORD_MENTIONS_WEBHOOK_URL)
+					.timeout(5000)
+					.send(body)
+			}
 		} catch (e) {
-			log.error(e)
+			log.warn(e)
 		}
 	}
 
@@ -886,10 +932,6 @@ export default class Discord {
 		this.client.on('ready', () => {
 			log.info('Discord client is ready!')
 		})
-		// this.client.on(
-		// 	DiscordEvents.ThreadCreate,
-		// 	this.handleThreadCreate.bind(this)
-		// )
 		this.client.on(
 			DiscordEvents.MessageCreate,
 			this.handleMessageCreate.bind(this)
@@ -918,5 +960,20 @@ export default class Discord {
 			this.handleInteraction.bind(this)
 		)
 		this.client.on(DiscordEvents.GuildDelete, this.handleGuildDelete.bind(this))
+	}
+
+	private logMessage(message: Message) {
+		const reactions = message.reactions.cache.map(r => {
+			const users = r.users.cache.map(u => ({
+				username: u.username,
+				id: u.id,
+				tag: u.tag
+			}))
+			return { count: r.count, name: r.emoji.name, users }
+		})
+		log.debug({
+			...message,
+			reactions
+		})
 	}
 }

@@ -1,6 +1,7 @@
 import { ethers } from 'ethers'
 import { Response } from 'express'
-import { IRequest, IResponse } from '../types/app'
+import { Op } from 'sequelize'
+import { IAuthenticatedRequest, IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 export default class AgreementController {
 	public static async isSlugAvailable(
@@ -323,30 +324,39 @@ export default class AgreementController {
 	}
 
 	public static async bulkBurn(
-		req: IRequest<MeemAPI.v1.BulkBurnAgreementTokens.IDefinition>,
+		req: IAuthenticatedRequest<MeemAPI.v1.BulkBurnAgreementTokens.IDefinition>,
 		res: IResponse<MeemAPI.v1.BulkBurnAgreementTokens.IResponseBody>
 	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
-
-		await req.wallet.enforceTXLimit()
-
 		const { agreementId } = req.params
 
-		const agreement = await orm.models.Agreement.findOne({
-			where: {
-				id: agreementId
-			}
-		})
+		const [agreement, agreementTokens] = await Promise.all([
+			orm.models.Agreement.findOne({
+				where: {
+					id: agreementId
+				}
+			}),
+			orm.models.AgreementToken.findAll({
+				where: {
+					AgreementId: agreementId,
+					tokenId: {
+						[Op.in]: req.body.tokenIds
+					},
+					OwnerId: req.wallet.id
+				}
+			})
+		])
 
 		if (!agreement) {
 			throw new Error('AGREEMENT_NOT_FOUND')
 		}
 
-		const canBurn = await agreement.isAdmin(req.wallet.address)
-		if (!canBurn) {
-			throw new Error('NOT_AUTHORIZED')
+		const isAdmin = await agreement.isAdmin(req.wallet.address)
+		if (!isAdmin) {
+			agreementTokens.forEach(token => {
+				if (token.OwnerId !== req.wallet?.id) {
+					throw new Error('NOT_AUTHORIZED')
+				}
+			})
 		}
 
 		const result = await services.agreement.bulkBurn({

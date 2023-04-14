@@ -776,7 +776,9 @@ export enum RuleIo {
 
 export enum PublishType {
 	Proposal = 'proposal',
-	PublishImmediately = 'publishImmediately'
+	PublishImmediately = 'publishImmediately',
+	PublishAfterApproval = 'publishAfterApproval',
+	PublishImmediatelyOrEditorApproval = 'publishImmediatelyOrEditorApproval'
 }
 
 export interface IRule {
@@ -787,11 +789,14 @@ export interface IRule {
 	approverEmojis: string[]
 	vetoerRoles: string[]
 	vetoerEmojis: string[]
+	editorRoles?: string[]
+	editorEmojis?: string[]
 	proposalChannels: string[]
 	proposalShareChannel: string
 	canVeto: boolean
 	votes: number
 	vetoVotes: number
+	editorVotes?: number
 	proposeVotes: number
 	shouldReply: boolean
 	ruleId?: string
@@ -805,26 +810,6 @@ export interface IRuleToSave extends IRule {
 	outputRef?: string | null
 	webhookUrl?: string
 	webhookSecret?: string
-}
-
-export interface ISavedRule
-	extends Omit<
-		IRule,
-		| 'proposerRoles'
-		| 'proposerEmojis'
-		| 'approverRoles'
-		| 'approverEmojis'
-		| 'vetoerRoles'
-		| 'vetoerEmojis'
-		| 'proposalChannels'
-	> {
-	proposerRoles: string
-	proposerEmojis: string
-	approverRoles: string
-	approverEmojis: string
-	vetoerRoles: string
-	vetoerEmojis: string
-	proposalChannels: string
 }
 
 export interface IDiscordRole {
@@ -1054,6 +1039,73 @@ export namespace Login {
 	export type Response = IResponseBody | IError
 }
 
+
+
+
+export namespace AuthenticateWithDiscord {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		user: { [key: string]: any }
+		accessToken: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetDiscordServers {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		accessToken: string
+	}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		discordServers: IDiscordServer[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
 
 
 
@@ -1752,8 +1804,8 @@ export namespace ReInitializeAgreement {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The Transaction id for updating the contract */
-		txId: string
+		/** The Transaction id for updating the contract. Only available if agreement is on chain */
+		txId?: string
 	}
 
 	export interface IDefinition {
@@ -1806,8 +1858,8 @@ export namespace ReInitializeAgreementRole {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The Transaction id for updating the contract */
-		txId: string
+		/** The Transaction id for updating the contract. Only available if agreement is on chain */
+		txId?: string
 	}
 
 	export interface IDefinition {
@@ -2069,73 +2121,6 @@ export namespace UpgradeAgreementRole {
 	export type Response = IResponseBody | IError
 }
 
-
-
-
-export namespace AuthenticateWithDiscord {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		user: { [key: string]: any }
-		accessToken: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetDiscordServers {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {
-		accessToken: string
-	}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		discordServers: IDiscordServer[]
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
 
 
 

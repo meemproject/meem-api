@@ -57,6 +57,8 @@ export default class RuleController {
 			proposerEmojis: rule.proposerEmojis,
 			approverRoles: rule.approverRoles,
 			approverEmojis: rule.approverEmojis,
+			editorRoles: rule.editorRoles,
+			editorEmojis: rule.editorEmojis,
 			vetoerRoles: rule.vetoerRoles,
 			vetoerEmojis: rule.vetoerEmojis,
 			proposalChannels: rule.proposalChannels,
@@ -65,6 +67,7 @@ export default class RuleController {
 			votes: rule.votes,
 			vetoVotes: rule.vetoVotes,
 			proposeVotes: rule.proposeVotes,
+			editorVotes: rule.editorVotes,
 			shouldReply: rule.shouldReply,
 			isEnabled: rule.isEnabled
 		}
