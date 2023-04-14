@@ -404,7 +404,7 @@ export default class Discord {
 				reaction.message.id
 			)
 
-			log.debug({ message })
+			this.logMessage(message)
 
 			if (agreementId) {
 				const rules = await orm.models.Rule.findAll({
@@ -521,7 +521,9 @@ export default class Discord {
 							isEditorEmoji
 						) {
 							// Valid emoji to count
-							await messageReaction?.users.fetch()
+							if (!config.TESTING) {
+								await messageReaction?.users.fetch()
+							}
 
 							log.debug('Found valid emoji reaction. Checking user roles')
 							// Now count the number of users that have a valid role
@@ -958,5 +960,20 @@ Finally, Meem has even more community tools in the hopper and we’d love to col
 			this.handleInteraction.bind(this)
 		)
 		this.client.on(DiscordEvents.GuildDelete, this.handleGuildDelete.bind(this))
+	}
+
+	private logMessage(message: Message) {
+		const reactions = message.reactions.cache.map(r => {
+			const users = r.users.cache.map(u => ({
+				username: u.username,
+				id: u.id,
+				tag: u.tag
+			}))
+			return { count: r.count, name: r.emoji.name, users }
+		})
+		log.debug({
+			...message,
+			reactions
+		})
 	}
 }
