@@ -442,13 +442,15 @@ export default class Discord {
 			approver: { [unifiedEmojiCode: string]: number }
 			proposer: { [unifiedEmojiCode: string]: number }
 			vetoer: { [unifiedEmojiCode: string]: number }
+			editor: { [unifiedEmojiCode: string]: number }
 		} = {
 			totalApprovals: 0,
 			totalProposers: 0,
 			totalVetoers: 0,
 			approver: {},
 			proposer: {},
-			vetoer: {}
+			vetoer: {},
+			editor: {}
 		}
 
 		const { rule, message } = options
@@ -462,6 +464,11 @@ export default class Discord {
 		const vetoerEmojis = rule.definition.vetoerEmojis.map(e => {
 			return e.split('-')[0]
 		})
+		const editorEmojis = rule.definition.editorEmojis
+			? rule.definition.editorEmojis.map(e => {
+					return e.split('-')[0]
+			  })
+			: []
 
 		if (
 			rule.definition.proposalChannels.includes('all') ||
@@ -479,20 +486,27 @@ export default class Discord {
 							name: messageReaction.emoji.name,
 							unicode
 						})
+
 						const isApproverEmoji =
-							(rule.definition.publishType ===
-								MeemAPI.PublishType.PublishImmediately ||
+							([
+								MeemAPI.PublishType.PublishImmediately,
+								MeemAPI.PublishType.PublishAfterApproval,
+								MeemAPI.PublishType.PublishImmediatelyOrEditorApproval
+							].includes(rule.definition.publishType) ||
 								(rule.definition.publishType === MeemAPI.PublishType.Proposal &&
 									rule.definition.proposalShareChannel ===
 										message.channelId)) &&
 							approverEmojis &&
 							approverEmojis.includes(unicode)
+
 						const isProposerEmoji =
 							rule.definition.publishType === MeemAPI.PublishType.Proposal &&
 							rule.definition.proposalShareChannel !== message.channelId &&
 							proposerEmojis &&
 							proposerEmojis.includes(unicode)
+
 						const isVetoerEmoji = vetoerEmojis && vetoerEmojis.includes(unicode)
+						const isEditorEmoji = editorEmojis && editorEmojis.includes(unicode)
 
 						log.debug({
 							isApproverEmoji,
@@ -500,7 +514,12 @@ export default class Discord {
 							isVetoerEmoji
 						})
 
-						if (isApproverEmoji || isProposerEmoji || isVetoerEmoji) {
+						if (
+							isApproverEmoji ||
+							isProposerEmoji ||
+							isVetoerEmoji ||
+							isEditorEmoji
+						) {
 							// Valid emoji to count
 							await messageReaction?.users.fetch()
 
@@ -538,6 +557,15 @@ export default class Discord {
 											messageReactions.vetoer[unicode] = 0
 										}
 										messageReactions.vetoer[unicode] += 1
+									} else if (
+										isEditorEmoji &&
+										rule.definition.editorRoles &&
+										rule.definition.editorRoles.includes(role.id)
+									) {
+										if (!messageReactions.editor[unicode]) {
+											messageReactions.editor[unicode] = 0
+										}
+										messageReactions.editor[unicode] += 1
 									}
 								})
 							})
@@ -566,10 +594,16 @@ export default class Discord {
 			0
 		)
 
+		const totalEditors = Object.values(messageReactions.editor).reduce(
+			(acc, curr) => acc + curr,
+			0
+		)
+
 		return {
 			totalApprovals,
 			totalProposers,
 			totalVetoers,
+			totalEditors,
 			messageReactions
 		}
 	}
