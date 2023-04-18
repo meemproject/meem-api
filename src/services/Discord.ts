@@ -880,20 +880,17 @@ Finally, Meem has even more community tools in the hopper and we’d love to col
 	private async handleMessageCreate(message: Message<boolean>) {
 		try {
 			log.debug('handleMessageCreate')
-			if (
-				message.author.id !== config.DISCORD_BOT_ID &&
-				message.mentions.has(config.DISCORD_BOT_ID)
-			) {
+			if (message.author.id !== config.DISCORD_BOT_ID) {
 				log.debug('Sending message to Meem')
 				const content = `\`@${message.author.tag}\` (${message.guild?.name}): ${message.content}`
 
-				await this.sendMessage({
-					channelId: config.DISCORD_MEEM_CHANNEL_ID,
-					message: {
-						...message,
-						content
-					}
-				})
+				// await this.sendMessage({
+				// 	channelId: config.DISCORD_MEEM_CHANNEL_ID,
+				// 	message: {
+				// 		...message,
+				// 		content
+				// 	}
+				// })
 
 				if (
 					!config.DISCORD_MENTIONS_WEBHOOK_URL ||
@@ -912,6 +909,8 @@ Finally, Meem has even more community tools in the hopper and we’d love to col
 					'rule' | 'totalApprovals' | 'totalProposers' | 'totalVetoers'
 				> = {
 					...partialResponse,
+					guildId: message.guildId ?? '',
+					mentions: message.mentions,
 					messageId: partialResponse.messageId ?? '',
 					secret: '',
 					channelId: message.channelId,
