@@ -1,5 +1,8 @@
 import { Message as SlackMessage } from '@slack/web-api/dist/response/ConversationsHistoryResponse'
-import { Message as DiscordMessage } from 'discord.js'
+import {
+	Message as DiscordMessage,
+	ChannelType as DiscordChannelType
+} from 'discord.js'
 import emojiMap from 'emoji-name-map'
 import request from 'superagent'
 import Agreement from '../models/Agreement'
@@ -56,6 +59,8 @@ export default class RuleService {
 		const messageId =
 			(message as DiscordMessage).id ?? (message as SlackMessage).ts
 
+		let parentChannelId: string | undefined
+
 		let totalApprovals = 0
 		let totalProposers = 0
 		let totalVetoers = 0
@@ -79,6 +84,7 @@ export default class RuleService {
 
 			case MeemAPI.RuleIo.Discord:
 				{
+					const discordMessage = message as DiscordMessage
 					const r = await services.discord.countReactions({
 						message: message as DiscordMessage,
 						rule
@@ -87,7 +93,15 @@ export default class RuleService {
 					totalProposers = r.totalProposers
 					totalVetoers = r.totalVetoers
 					totalEditors = r.totalEditors
-					messageContent = (message as DiscordMessage).content
+					messageContent = discordMessage.content
+
+					if (
+						discordMessage.channel.type === DiscordChannelType.PublicThread &&
+						discordMessage.channel.parent?.type ===
+							DiscordChannelType.GuildForum
+					) {
+						parentChannelId = discordMessage.channel.parent.id
+					}
 				}
 				break
 
@@ -98,7 +112,7 @@ export default class RuleService {
 
 		const ruleResult = services.rule.evaluateRule({
 			rule,
-			channelId,
+			channelId: parentChannelId ?? channelId,
 			totalApprovals,
 			totalProposers,
 			totalVetoers,
@@ -283,6 +297,7 @@ export default class RuleService {
 							secret: rule.webhookSecret,
 							// attachments,
 							channelId,
+							channelName: partialResponse.channelName,
 							totalApprovals,
 							totalProposers,
 							totalVetoers,

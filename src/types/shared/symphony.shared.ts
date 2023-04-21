@@ -90,6 +90,7 @@ export interface IWebhookReaction {
 export interface IWebhookBody {
 	secret: string
 	channelId: string
+	channelName?: string
 	messageId: string
 	rule: Omit<IRuleToSave, 'webhookUrl' | 'webhookSecret'>
 	content: string
