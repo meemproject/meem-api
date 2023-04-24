@@ -899,7 +899,7 @@ Finally, Meem has even more community tools in the hopper and we’d love to col
 			log.debug('handleMessageCreate')
 			if (message.author.id !== config.DISCORD_BOT_ID) {
 				log.debug('Sending message to Meem')
-				const content = `\`@${message.author.tag}\` (${message.guild?.name}): ${message.content}`
+				// const content = `\`@${message.author.tag}\` (${message.guild?.name}): ${message.content}`
 
 				// await this.sendMessage({
 				// 	channelId: config.DISCORD_MEEM_CHANNEL_ID,

@@ -3,8 +3,8 @@ import {
 	Message as DiscordMessage,
 	ChannelType as DiscordChannelType
 } from 'discord.js'
-import emojiMap from 'emoji-name-map'
 import request from 'superagent'
+import slackEmojis from '../lib/slackEmojis.json'
 import Agreement from '../models/Agreement'
 import AgreementDiscord from '../models/AgreementDiscord'
 import AgreementSlack from '../models/AgreementSlack'
@@ -255,8 +255,12 @@ export default class RuleService {
 
 						m.reactions?.forEach(r => {
 							if (r.name) {
-								const emoji = emojiMap.get(r.name)
-								const unicode = emoji ? this.emojiToUnicode(emoji) : undefined
+								const emojiData = slackEmojis.find(e => e.short_name === r.name)
+								const unicode: string | undefined =
+									emojiData?.unified?.toLowerCase()
+								const emoji = unicode
+									? String.fromCodePoint(parseInt(unicode, 16))
+									: undefined
 								partialResponse.reactions.push({
 									name: r.name,
 									emoji,
