@@ -1,4 +1,4 @@
-import { Message } from 'discord.js'
+import { Message, ChannelType } from 'discord.js'
 
 export const discordMessageSingleUser = () => {
 	const users: {
@@ -101,6 +101,9 @@ export const discordMessageSingleUser = () => {
 		position: null,
 		roleSubscriptionData: null,
 		editedTimestamp: null,
+		channel: {
+			type: ChannelType.GuildText
+		},
 		mentions: {
 			everyone: false,
 			users: [],

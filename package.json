@@ -58,7 +58,8 @@
 		"fetchContracts": "yarn fetchMeemContracts && yarn fetchMeemIdContracts",
 		"swagger": "npx swagger-inline 'src/types/shared/api/**/*.ts' --base 'src/types/shared/api/swaggerBase.yaml' --format .json > 'src/types/shared/api/meem-api.json'",
 		"generateHasuraMetadata": "tsnd --transpile-only src/scripts/generateHasuraMetadata.ts",
-		"migrateSymphony": "tsnd --transpile-only src/scripts/migrateSymphony.ts"
+		"migrateSymphony": "tsnd --transpile-only src/scripts/migrateSymphony.ts",
+		"syncDiscordCommands": "tsnd --transpile-only src/scripts/syncDiscordCommands.ts"
 	},
 	"dependencies": {
 		"@discordjs/rest": "^1.6.0",
@@ -81,7 +82,6 @@
 		"discord-interactions": "^3.3.0",
 		"discord.js": "^14.8.0",
 		"dotenv": "^16.0.2",
-		"emoji-name-map": "^1.2.9",
 		"ethers": "^5.7.1",
 		"ethers-multisend": "^2.4.0",
 		"express": "^4.18.1",

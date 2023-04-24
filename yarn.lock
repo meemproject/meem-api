@@ -1737,6 +1737,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/iterate-object@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@types/iterate-object/-/iterate-object-1.3.0.tgz#5d0505fa2b36efcfdd8322a90d3b517e52929b41"
+  integrity sha512-djw8kxdxIGymuX1WW45WGQnmC315KyLLi3fXtmv0xbawpttUiCAhx2pcBis+ATMUa86yvpqCnkLPVJ55BVcqBA==
+
 "@types/json-schema@^7.0.11", "@types/json-schema@^7.0.6", "@types/json-schema@^7.0.9":
   version "7.0.11"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.11.tgz#d421b6c527a3037f7c84433fd2c4229e016863d3"
@@ -4281,6 +4286,11 @@ emojilib@^2.0.2:
   resolved "https://registry.yarnpkg.com/emojilib/-/emojilib-2.4.0.tgz#ac518a8bb0d5f76dda57289ccb2fdf9d39ae721e"
   integrity sha512-5U0rVMU5Y2n2+ykNLQqMoqklN9ICBT/KsvC1Gz6vqHbz2AXXGkG+Pm5rMWk/8Vjrr/mY9985Hi8DYzn1F09Nyw==
 
+emojilib@^3.0.10:
+  version "3.0.10"
+  resolved "https://registry.yarnpkg.com/emojilib/-/emojilib-3.0.10.tgz#e2f9baaee5fabbc1e011ebd3aa2761b65e4da02f"
+  integrity sha512-VQtCRroFykPTJaoEBEGFg5tI+rEluabjuaVDDbSftDtiRJ5GuqRG/LGV1mmDzkJP4bh5rzuEBOafMN68/YXQcQ==
+
 encodeurl@~1.0.2:
   version "1.0.2"
   resolved "https://registry.npmjs.org/encodeurl/-/encodeurl-1.0.2.tgz"
@@ -6693,7 +6703,7 @@ iterate-iterator@^1.0.1:
   resolved "https://registry.yarnpkg.com/iterate-iterator/-/iterate-iterator-1.0.2.tgz#551b804c9eaa15b847ea6a7cdc2f5bf1ec150f91"
   integrity sha512-t91HubM4ZDQ70M9wqp+pcNpu8OyJ9UAtXntT/Bcsvp5tZMnz9vRa+IunKXeI8AnfZMTv0jNuVEmGeLSMjVvfPw==
 
-iterate-object@^1.3.0, iterate-object@^1.3.1:
+iterate-object@^1.3.0, iterate-object@^1.3.1, iterate-object@^1.3.4:
   version "1.3.4"
   resolved "https://registry.yarnpkg.com/iterate-object/-/iterate-object-1.3.4.tgz#fa50b1d9e58e340a7dd6b4c98c8a5e182e790096"
   integrity sha512-4dG1D1x/7g8PwHS9aK6QV5V94+ZvyP4+d19qDv43EzImmrndysIl4prmJ1hWWIGCqrZHyaHBm6BSEWHOLnpoNw==
@@ -7535,7 +7545,7 @@ make-fetch-happen@^9.0.1, make-fetch-happen@^9.1.0:
     socks-proxy-agent "^6.0.0"
     ssri "^8.0.0"
 
-map-o@^2.0.1:
+map-o@^2.0.1, map-o@^2.0.10:
   version "2.0.10"
   resolved "https://registry.yarnpkg.com/map-o/-/map-o-2.0.10.tgz#b656a75cead939a936c338fb5df8c9d55f0dbb23"
   integrity sha512-BxazE81fVByHWasyXhqKeo2m7bFKYu+ZbEfiuexMOnklXW+tzDvnlTi/JaklEeuuwqcqJzPaf9q+TWptSGXeLg==

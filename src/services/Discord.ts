@@ -6,6 +6,7 @@ import {
 	ButtonInteraction,
 	ButtonStyle,
 	CacheType,
+	ChannelType,
 	ChatInputCommandInteraction,
 	Client,
 	ClientOptions,
@@ -75,7 +76,9 @@ export default class Discord {
 			throw new Error('CHANNEL_NOT_FOUND')
 		}
 
-		await (channel as TextChannel).send(message)
+		if (channel.type === ChannelType.GuildText) {
+			await (channel as TextChannel)?.send(message)
+		}
 	}
 
 	public async joinChannel(options: { guildId: string; channelId: string }) {
@@ -111,7 +114,9 @@ export default class Discord {
 		await guild.channels.fetch()
 
 		const channels = guild.channels.cache
-			.filter(channel => channel.type === 0)
+			.filter(channel =>
+				[ChannelType.GuildText, ChannelType.GuildForum].includes(channel.type)
+			)
 			.map(c => {
 				let canSend = false
 				let canView = false
@@ -295,6 +300,10 @@ export default class Discord {
 			attachments: []
 		}
 		partialResponse.messageId = message.id
+		partialResponse.channelName =
+			message.channel.type === ChannelType.PublicThread
+				? message.channel.name
+				: undefined
 		partialResponse.createdTimestamp = message.createdTimestamp
 		message.reactions.cache.forEach(r => {
 			if (r.emoji.name) {
@@ -470,10 +479,19 @@ export default class Discord {
 			  })
 			: []
 
+		let ruleChannelId = message.channelId
+
+		if (
+			message.channel.type === ChannelType.PublicThread &&
+			message.channel.parent?.type === ChannelType.GuildForum
+		) {
+			ruleChannelId = message.channel.parent.id
+		}
+
 		if (
 			rule.definition.proposalChannels.includes('all') ||
-			rule.definition.proposalChannels.includes(message.channelId) ||
-			rule.definition.proposalShareChannel === message.channelId
+			rule.definition.proposalChannels.includes(ruleChannelId) ||
+			rule.definition.proposalShareChannel === ruleChannelId
 		) {
 			for (let i = 0; i < message.reactions.cache.size; i += 1) {
 				const messageReaction = message.reactions.cache.at(i)
@@ -494,14 +512,13 @@ export default class Discord {
 								MeemAPI.PublishType.PublishImmediatelyOrEditorApproval
 							].includes(rule.definition.publishType) ||
 								(rule.definition.publishType === MeemAPI.PublishType.Proposal &&
-									rule.definition.proposalShareChannel ===
-										message.channelId)) &&
+									rule.definition.proposalShareChannel === ruleChannelId)) &&
 							approverEmojis &&
 							approverEmojis.includes(unicode)
 
 						const isProposerEmoji =
 							rule.definition.publishType === MeemAPI.PublishType.Proposal &&
-							rule.definition.proposalShareChannel !== message.channelId &&
+							rule.definition.proposalShareChannel !== ruleChannelId &&
 							proposerEmojis &&
 							proposerEmojis.includes(unicode)
 
@@ -880,20 +897,17 @@ Finally, Meem has even more community tools in the hopper and we’d love to col
 	private async handleMessageCreate(message: Message<boolean>) {
 		try {
 			log.debug('handleMessageCreate')
-			if (
-				message.author.id !== config.DISCORD_BOT_ID &&
-				message.mentions.has(config.DISCORD_BOT_ID)
-			) {
+			if (message.author.id !== config.DISCORD_BOT_ID) {
 				log.debug('Sending message to Meem')
-				const content = `\`@${message.author.tag}\` (${message.guild?.name}): ${message.content}`
+				// const content = `\`@${message.author.tag}\` (${message.guild?.name}): ${message.content}`
 
-				await this.sendMessage({
-					channelId: config.DISCORD_MEEM_CHANNEL_ID,
-					message: {
-						...message,
-						content
-					}
-				})
+				// await this.sendMessage({
+				// 	channelId: config.DISCORD_MEEM_CHANNEL_ID,
+				// 	message: {
+				// 		...message,
+				// 		content
+				// 	}
+				// })
 
 				if (
 					!config.DISCORD_MENTIONS_WEBHOOK_URL ||
@@ -904,24 +918,26 @@ Finally, Meem has even more community tools in the hopper and we’d love to col
 					)
 					return
 				}
-				log.debug('Sending webhook')
-				const partialResponse = this.parseMessageForWebhook(message)
+				// log.debug('Sending webhook')
+				// const partialResponse = this.parseMessageForWebhook(message)
 
-				const body: Omit<
-					MeemAPI.IWebhookBody,
-					'rule' | 'totalApprovals' | 'totalProposers' | 'totalVetoers'
-				> = {
-					...partialResponse,
-					messageId: partialResponse.messageId ?? '',
-					secret: '',
-					channelId: message.channelId,
-					content: message.content
-				}
+				// const body: Omit<
+				// 	MeemAPI.IWebhookBody,
+				// 	'rule' | 'totalApprovals' | 'totalProposers' | 'totalVetoers'
+				// > = {
+				// 	...partialResponse,
+				// 	guildId: message.guildId ?? '',
+				// 	mentions: message.mentions,
+				// 	messageId: partialResponse.messageId ?? '',
+				// 	secret: '',
+				// 	channelId: message.channelId,
+				// 	content: message.content
+				// }
 
-				await request
-					.post(config.DISCORD_MENTIONS_WEBHOOK_URL)
-					.timeout(5000)
-					.send(body)
+				// await request
+				// 	.post(config.DISCORD_MENTIONS_WEBHOOK_URL)
+				// 	.timeout(5000)
+				// 	.send(body)
 			}
 		} catch (e) {
 			log.warn(e)
