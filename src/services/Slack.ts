@@ -1,7 +1,7 @@
 import { WebClient } from '@slack/web-api'
 import type { Message } from '@slack/web-api/dist/response/ConversationsHistoryResponse'
-import emojiMap from 'emoji-name-map'
 import { Op } from 'sequelize'
+import slackEmojis from '../lib/slackEmojis.json'
 import Rule from '../models/Rule'
 import Slack from '../models/Slack'
 import { MeemAPI } from '../types/meem.generated'
@@ -210,9 +210,9 @@ export default class SlackService {
 		if (message.reactions) {
 			message.reactions.forEach(reaction => {
 				if (reaction.name) {
-					const emoji = emojiMap.get(reaction.name)
+					const emoji = slackEmojis.find(e => e.short_name === reaction.name)
 					if (emoji) {
-						const unicode = services.rule.emojiToUnicode(emoji)
+						const unicode = emoji.unified?.toLowerCase()
 
 						if (unicode) {
 							const isApproverEmoji =
