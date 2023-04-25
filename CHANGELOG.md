@@ -1,3 +1,10 @@
+# [1.20.0](https://github.com/meemproject/meem-api-aws/compare/v1.19.2...v1.20.0) (2023-04-25)
+
+
+### Features
+
+* new publish types ([4edc4a3](https://github.com/meemproject/meem-api-aws/commit/4edc4a3))
+
 ## [1.19.2](https://github.com/meemproject/meem-api-aws/compare/v1.19.1...v1.19.2) (2023-04-12)
 
 
