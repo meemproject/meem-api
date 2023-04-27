@@ -17,6 +17,8 @@ export namespace GetDiscordEmojis {
 		emojis: {
 			id: string
 			name: string
+			url?: string
+			isAnimated?: boolean | null
 		}[]
 	}
 

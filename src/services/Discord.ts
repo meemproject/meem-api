@@ -464,19 +464,11 @@ export default class Discord {
 
 		const { rule, message } = options
 
-		const approverEmojis = rule.definition.approverEmojis.map(e => {
-			return e.split('-')[0]
-		})
-		const proposerEmojis = rule.definition.proposerEmojis.map(e => {
-			return e.split('-')[0]
-		})
-		const vetoerEmojis = rule.definition.vetoerEmojis.map(e => {
-			return e.split('-')[0]
-		})
+		const approverEmojis = rule.definition.approverEmojis
+		const proposerEmojis = rule.definition.proposerEmojis
+		const vetoerEmojis = rule.definition.vetoerEmojis
 		const editorEmojis = rule.definition.editorEmojis
-			? rule.definition.editorEmojis.map(e => {
-					return e.split('-')[0]
-			  })
+			? rule.definition.editorEmojis
 			: []
 
 		let ruleChannelId = message.channelId
@@ -496,6 +488,7 @@ export default class Discord {
 			for (let i = 0; i < message.reactions.cache.size; i += 1) {
 				const messageReaction = message.reactions.cache.at(i)
 				if (messageReaction?.emoji.name) {
+					const isCustomEmoji = !!messageReaction.emoji.id
 					const unicode = services.rule.emojiToUnicode(
 						messageReaction.emoji.name
 					)
@@ -514,16 +507,36 @@ export default class Discord {
 								(rule.definition.publishType === MeemAPI.PublishType.Proposal &&
 									rule.definition.proposalShareChannel === ruleChannelId)) &&
 							approverEmojis &&
-							approverEmojis.includes(unicode)
+							approverEmojis.some(e =>
+								isCustomEmoji
+									? e.name === messageReaction.emoji.name
+									: e.unified === unicode
+							)
 
 						const isProposerEmoji =
 							rule.definition.publishType === MeemAPI.PublishType.Proposal &&
 							rule.definition.proposalShareChannel !== ruleChannelId &&
 							proposerEmojis &&
-							proposerEmojis.includes(unicode)
+							proposerEmojis.some(e =>
+								isCustomEmoji
+									? e.name === messageReaction.emoji.name
+									: e.unified === unicode
+							)
 
-						const isVetoerEmoji = vetoerEmojis && vetoerEmojis.includes(unicode)
-						const isEditorEmoji = editorEmojis && editorEmojis.includes(unicode)
+						const isVetoerEmoji =
+							vetoerEmojis &&
+							vetoerEmojis.some(e =>
+								isCustomEmoji
+									? e.name === messageReaction.emoji.name
+									: e.unified === unicode
+							)
+						const isEditorEmoji =
+							editorEmojis &&
+							editorEmojis.some(e =>
+								isCustomEmoji
+									? e.name === messageReaction.emoji.name
+									: e.unified === unicode
+							)
 
 						log.debug({
 							isApproverEmoji,

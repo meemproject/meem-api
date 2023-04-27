@@ -197,15 +197,9 @@ export default class SlackService {
 			vetoer: {}
 		}
 
-		const approverEmojis = rule.definition.approverEmojis.map(e => {
-			return e.split('-')[0]
-		})
-		const proposerEmojis = rule.definition.proposerEmojis.map(e => {
-			return e.split('-')[0]
-		})
-		const vetoerEmojis = rule.definition.vetoerEmojis.map(e => {
-			return e.split('-')[0]
-		})
+		const approverEmojis = rule.definition.approverEmojis
+		const proposerEmojis = rule.definition.proposerEmojis
+		const vetoerEmojis = rule.definition.vetoerEmojis
 
 		if (message.reactions) {
 			message.reactions.forEach(reaction => {
@@ -222,14 +216,14 @@ export default class SlackService {
 										MeemAPI.PublishType.Proposal &&
 										rule.definition.proposalShareChannel === channelId)) &&
 								approverEmojis &&
-								approverEmojis.includes(unicode)
+								approverEmojis.some(e => e.unified === unicode)
 							const isProposerEmoji =
 								rule.definition.publishType === MeemAPI.PublishType.Proposal &&
 								rule.definition.proposalShareChannel !== channelId &&
 								proposerEmojis &&
-								proposerEmojis.includes(unicode)
+								proposerEmojis.some(e => e.unified === unicode)
 							const isVetoerEmoji =
-								vetoerEmojis && vetoerEmojis.includes(unicode)
+								vetoerEmojis && vetoerEmojis.some(e => e.unified === unicode)
 
 							if (isApproverEmoji) {
 								if (!messageReactions.approver[unicode]) {
