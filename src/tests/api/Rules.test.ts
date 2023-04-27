@@ -21,7 +21,9 @@ class RuleTests extends BaseTest {
 				proposerRoles: [],
 				proposerEmojis: [],
 				approverRoles: ['1064925445562302625'],
-				approverEmojis: ['1f44d'],
+				approverEmojis: [
+					{ id: '1f44d', name: '1f44d', type: 'unified', unified: '1f44d' }
+				],
 				vetoerRoles: [],
 				vetoerEmojis: [],
 				editorRoles: [],
@@ -57,7 +59,9 @@ class RuleTests extends BaseTest {
 				proposerRoles: [],
 				proposerEmojis: [],
 				approverRoles: ['1234'],
-				approverEmojis: ['1f44d'],
+				approverEmojis: [
+					{ id: '1f44d', name: '1f44d', type: 'unified', unified: '1f44d' }
+				],
 				vetoerRoles: [],
 				vetoerEmojis: [],
 				editorRoles: [],
@@ -93,7 +97,9 @@ class RuleTests extends BaseTest {
 				proposerRoles: [],
 				proposerEmojis: [],
 				approverRoles: ['1064925445562302625'],
-				approverEmojis: ['1f44d'],
+				approverEmojis: [
+					{ id: '1f44d', name: '1f44d', type: 'unified', unified: '1f44d' }
+				],
 				vetoerRoles: [],
 				vetoerEmojis: [],
 				editorRoles: [],
@@ -129,7 +135,9 @@ class RuleTests extends BaseTest {
 				proposerRoles: [],
 				proposerEmojis: [],
 				approverRoles: ['1064925445562302625'],
-				approverEmojis: ['1f44d'],
+				approverEmojis: [
+					{ id: '1f44d', name: '1f44d', type: 'unified', unified: '1f44d' }
+				],
 				vetoerRoles: [],
 				vetoerEmojis: [],
 				editorRoles: [],
