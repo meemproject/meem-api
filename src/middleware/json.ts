@@ -7,7 +7,7 @@ export default (app: Express) => {
 
 		// @ts-ignore
 		res.json = function handleJsonResponse(data) {
-			if (['/api/1.0'].includes(req.baseUrl)) {
+			if (['/api/1.0', ''].includes(req.baseUrl)) {
 				json.call(this, {
 					...data,
 					apiVersion: config.version

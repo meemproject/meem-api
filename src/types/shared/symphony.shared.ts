@@ -12,16 +12,29 @@ export enum PublishType {
 	PublishImmediatelyOrEditorApproval = 'publishImmediatelyOrEditorApproval'
 }
 
+export enum EmojiType {
+	Unified = 'unified',
+	Discord = 'discord'
+}
+
+export interface IEmoji {
+	id: string
+	name: string
+	type: EmojiType
+	unified?: string
+	url?: string
+}
+
 export interface IRule {
 	publishType: PublishType
 	proposerRoles: string[]
-	proposerEmojis: string[]
+	proposerEmojis: IEmoji[]
 	approverRoles: string[]
-	approverEmojis: string[]
+	approverEmojis: IEmoji[]
 	vetoerRoles: string[]
-	vetoerEmojis: string[]
+	vetoerEmojis: IEmoji[]
 	editorRoles?: string[]
-	editorEmojis?: string[]
+	editorEmojis?: IEmoji[]
 	proposalChannels: string[]
 	proposalShareChannel: string
 	canVeto: boolean
