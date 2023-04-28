@@ -349,4 +349,15 @@ export default class TestController {
 			status: 'success'
 		})
 	}
+
+	public static async testDecrypt(req: Request, res: Response) {
+		const decrypted = await services.data.decrypt({
+			strToDecrypt: req.query.s as string,
+			privateKey: config.ENCRYPTION_KEY
+		})
+		return res.json({
+			status: 'success',
+			decrypted
+		})
+	}
 }

@@ -188,5 +188,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		router.getAsync('/test/callback', TestController.testCallback)
 		router.postAsync('/test/callback', TestController.testCallback)
 		router.getAsync('/test/summary', TestController.testSummary)
+		router.getAsync('/test/decrypt', TestController.testDecrypt)
 	}
 }
