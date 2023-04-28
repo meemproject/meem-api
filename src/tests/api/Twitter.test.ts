@@ -4,6 +4,7 @@ import BaseTest from '../BaseTest'
 class TwitterTests extends BaseTest {
 	protected async setup() {
 		it('Can split thread', () => this.splitThread())
+		it('Can handle non-split thread', () => this.nonSplitThread())
 	}
 
 	private async splitThread() {
@@ -16,6 +17,15 @@ class TwitterTests extends BaseTest {
 			assert.isTrue(/^\d\/ \w/.test(chunk))
 			assert.isTrue(/\.$/.test(chunk))
 		})
+	}
+
+	private async nonSplitThread() {
+		const str =
+			'Molestias corrupti qui ut ipsam quibusdam fugiat modi. Aut ut nisi ex incidunt velit tempore assumenda veniam. Velit ut commodi dignissimos quia.'
+		const chunks = services.twitter.splitIntoThreadedChunks(str)
+
+		assert.equal(chunks.length, 1)
+		assert.equal(chunks[0], str)
 	}
 }
 

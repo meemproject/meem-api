@@ -94,6 +94,9 @@ export default class RuleService {
 					totalVetoers = r.totalVetoers
 					totalEditors = r.totalEditors
 					messageContent = discordMessage.content
+					discordMessage.mentions.users.forEach(u => {
+						messageContent = messageContent.replace(`<@${u.id}>`, `${u.tag}`)
+					})
 
 					if (
 						discordMessage.channel.type === DiscordChannelType.PublicThread &&
