@@ -14,7 +14,8 @@ export enum PublishType {
 
 export enum EmojiType {
 	Unified = 'unified',
-	Discord = 'discord'
+	Discord = 'discord',
+	Slack = 'slack'
 }
 
 export interface IEmoji {

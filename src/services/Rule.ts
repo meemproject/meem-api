@@ -70,7 +70,7 @@ export default class RuleService {
 		switch (rule.input) {
 			case MeemAPI.RuleIo.Slack:
 				{
-					const r = services.slack.countReactions({
+					const r = await services.slack.countReactions({
 						message: message as SlackMessage,
 						rule,
 						channelId
