@@ -911,46 +911,33 @@ Finally, Meem has even more community tools in the hopper and we’d love to col
 		try {
 			log.debug('handleMessageCreate')
 			if (message.author.id !== config.DISCORD_BOT_ID) {
-				log.debug('Sending message to Meem')
-				// const content = `\`@${message.author.tag}\` (${message.guild?.name}): ${message.content}`
-
-				// await this.sendMessage({
-				// 	channelId: config.DISCORD_MEEM_CHANNEL_ID,
-				// 	message: {
-				// 		...message,
-				// 		content
-				// 	}
-				// })
-
-				if (
-					!config.DISCORD_MENTIONS_WEBHOOK_URL ||
-					config.DISCORD_MENTIONS_WEBHOOK_URL.length === 0
-				) {
+				if (!config.ENABLE_MEEM_HELPDESK) {
 					log.debug(
-						'Not sending feedback webhook because DISCORD_MENTIONS_WEBHOOK_URL is not set'
+						'Not sending feedback webhook because ENABLE_MEEM_HELPDESK is not set'
 					)
 					return
 				}
 				// log.debug('Sending webhook')
-				// const partialResponse = this.parseMessageForWebhook(message)
+				const partialResponse = this.parseMessageForWebhook(message)
 
-				// const body: Omit<
-				// 	MeemAPI.IWebhookBody,
-				// 	'rule' | 'totalApprovals' | 'totalProposers' | 'totalVetoers'
-				// > = {
-				// 	...partialResponse,
-				// 	guildId: message.guildId ?? '',
-				// 	mentions: message.mentions,
-				// 	messageId: partialResponse.messageId ?? '',
-				// 	secret: '',
-				// 	channelId: message.channelId,
-				// 	content: message.content
-				// }
+				const body: Omit<
+					MeemAPI.IWebhookBody,
+					'rule' | 'totalApprovals' | 'totalProposers' | 'totalVetoers'
+				> = {
+					...partialResponse,
+					messageId: partialResponse.messageId ?? '',
+					secret: '',
+					channelId: message.channelId,
+					content: message.content,
+					inputMetadata: {
+						guildId: message.guildId,
+						mentions: message.mentions
+					}
+				}
 
-				// await request
-				// 	.post(config.DISCORD_MENTIONS_WEBHOOK_URL)
-				// 	.timeout(5000)
-				// 	.send(body)
+				services.meemHelpdesk.handleMessage({
+					message: body
+				})
 			}
 		} catch (e) {
 			log.warn(e)
