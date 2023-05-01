@@ -111,21 +111,20 @@ export default class MeemHelpDeskService {
 			message.user?.id !== meemBotId &&
 			message.channelId !== internalChannelId
 		) {
-			const guild = (
-				await request
-					.get(
-						`https://discord.com/api/guilds/${message.inputMetadata.guildId}`
-					)
-					.set({ Authorization: `Bot ${config.DISCORD_APP_TOKEN}` })
-					.send()
-			).body as unknown as Guild
-
 			const { data: originConversations } = await supabase
 				.from('Conversations')
 				.select()
 				.eq('origin_thread_id', `${message.channelId}`)
 
 			if (originConversations && originConversations.length > 0) {
+				const guild = (
+					await request
+						.get(
+							`https://discord.com/api/guilds/${message.inputMetadata.guildId}`
+						)
+						.set({ Authorization: `Bot ${config.DISCORD_APP_TOKEN}` })
+						.send()
+				).body as unknown as Guild
 				conversation = originConversations[0]
 				if (conversation.internal_thread_id) {
 					await request
