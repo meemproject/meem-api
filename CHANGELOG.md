@@ -1,3 +1,10 @@
+## [1.21.1](https://github.com/meemproject/meem-api-aws/compare/v1.21.0...v1.21.1) (2023-05-02)
+
+
+### Bug Fixes
+
+* discord activation for new Discord ([5811ed5](https://github.com/meemproject/meem-api-aws/commit/5811ed5))
+
 # [1.21.0](https://github.com/meemproject/meem-api-aws/compare/v1.20.0...v1.21.0) (2023-05-02)
 
 
