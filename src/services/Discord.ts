@@ -421,7 +421,6 @@ export default class Discord {
 							channelId: message.channelId,
 							rule,
 							message
-
 						})
 					}
 				}
