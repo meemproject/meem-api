@@ -711,46 +711,20 @@ export default class Discord {
 					discord = orm.models.Discord.build()
 				}
 
-				// if (currentDiscord && discord?.id !== currentDiscord?.id) {
-				// 	const agreement = await services.meem.getAgreementById(
-				// 		currentDiscord.agreementId
-				// 	)
-
-				// 	await interaction.editReply({
-				// 		content: `This discord server is already associated with a different account. To change agreements you'll need to disconnect it first.`,
-				// 		components: this.getMessageComponents({
-				// 			slug: agreement?.slug,
-				// 			ctaText: 'Manage Connection'
-				// 		})
-				// 	})
-				// 	break
-				// }
-
 				if (agreementDiscord) {
 					const agreement = await orm.models.Agreement.findOne({
 						where: {
 							id: agreementDiscord.AgreementId
 						}
 					})
-					agreementDiscord.code = null
-					agreementDiscord.DiscordId = discord.id
 					discord.guildId = interaction.guildId
 					discord.name = interaction.guild?.name
 					discord.icon = interaction.guild?.iconURL({ size: 256 })
-					await Promise.all([agreementDiscord.save(), discord.save()])
-					/*
-Greetings, I’m Meem Bot!
+					discord.save()
 
-I can help automate publishing for your community by allowing you to vote on what gets posted to your shared Twitter account.
-
-Tap below to set up your publishing logic.
-
-<Manage Rules>
-
-If you need help at any time or have feedback on how I could work better, just @MeemBot with your question or idea.
-
-Finally, Meem has even more community tools in the hopper and we’d love to collaborate with you! See what we’re up to and share your thoughts: https://form.typeform.com/to/TyeFu5om
-					*/
+					agreementDiscord.code = null
+					agreementDiscord.DiscordId = discord.id
+					agreementDiscord.save()
 
 					await interaction.editReply({
 						content: `Greetings, I’m Meem Bot! \n\nI can help automate publishing for your community by allowing you to vote on what gets posted to your shared Twitter account.\n\nIf you need help at any time or have feedback on how I could work better, just @MeemBot with your question or idea.\n\nFinally, Meem has even more community tools in the hopper and we’d love to collaborate with you! See what we’re up to and share your thoughts: <https://form.typeform.com/to/TyeFu5om>\n\nTap below to set up your publishing logic.`,
