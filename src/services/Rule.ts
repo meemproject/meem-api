@@ -94,6 +94,9 @@ export default class RuleService {
 					totalVetoers = r.totalVetoers
 					totalEditors = r.totalEditors
 					messageContent = discordMessage.content
+					discordMessage.mentions.users.forEach(u => {
+						messageContent = messageContent.replace(`<@${u.id}>`, `${u.tag}`)
+					})
 
 					if (
 						discordMessage.channel.type === DiscordChannelType.PublicThread &&
@@ -718,7 +721,7 @@ export default class RuleService {
 				})
 
 				const emojis = rule.definition.approverEmojis.map(e =>
-					this.unicodeToEmoji(e)
+					this.emojiToSymbol(e)
 				)
 
 				inputPart1 += `When someone shares a new post in this channel, people with the ${this.listItemsToString(
@@ -743,7 +746,7 @@ export default class RuleService {
 					})
 
 					const vetoEmojis = rule.definition.vetoerEmojis
-						.map(e => this.unicodeToEmoji(e))
+						.map(e => this.emojiToSymbol(e))
 						.join('  ')
 
 					inputPart2 += `\n\nPeople with the ${this.listItemsToString(
@@ -775,7 +778,7 @@ export default class RuleService {
 				}
 
 				const emojis = rule.definition.approverEmojis.map(e =>
-					this.unicodeToEmoji(e)
+					this.emojiToSymbol(e)
 				)
 
 				inputPart1 += `When someone shares a new post in this channel, people can vote`
@@ -788,7 +791,7 @@ export default class RuleService {
 
 				if (rule.definition.canVeto) {
 					const vetoEmojis = rule.definition.vetoerEmojis
-						.map(e => this.unicodeToEmoji(e))
+						.map(e => this.emojiToSymbol(e))
 						.join('  ')
 
 					inputPart2 += `\n\nPeople can also veto proposed tweets using the following emoji: ${vetoEmojis}. ${
@@ -877,7 +880,7 @@ export default class RuleService {
 				})
 
 				const emojis = rule.definition.approverEmojis.map(e =>
-					this.unicodeToEmoji(e)
+					this.emojiToSymbol(e)
 				)
 
 				message += `People with the ${this.listItemsToString(
@@ -900,7 +903,7 @@ export default class RuleService {
 					})
 
 					const vetoEmojis = rule.definition.vetoerEmojis
-						.map(e => this.unicodeToEmoji(e))
+						.map(e => this.emojiToSymbol(e))
 						.join('  ')
 
 					message += `\n\nPeople with the ${this.listItemsToString(
@@ -931,7 +934,7 @@ export default class RuleService {
 				}
 
 				const emojis = rule.definition.approverEmojis.map(e =>
-					this.unicodeToEmoji(e)
+					this.emojiToSymbol(e)
 				)
 
 				message += `People can vote using the following emoji: ${emojis.join(
@@ -942,7 +945,7 @@ export default class RuleService {
 
 				if (rule.definition.canVeto) {
 					const vetoEmojis = rule.definition.vetoerEmojis
-						.map(e => this.unicodeToEmoji(e))
+						.map(e => this.emojiToSymbol(e))
 						.join('  ')
 
 					message += `\n\nPeople can veto using the following emoji: ${vetoEmojis}. ${
@@ -983,6 +986,15 @@ export default class RuleService {
 		const hex = emoji.codePointAt(0)?.toString(16)
 
 		return hex
+	}
+
+	public static emojiToSymbol(emoji: string | MeemAPI.IEmoji) {
+		if (typeof emoji === 'string') {
+			return this.unicodeToEmoji(emoji)
+		} else if (emoji.type === MeemAPI.EmojiType.Unified && emoji.unified) {
+			return this.unicodeToEmoji(emoji.unified)
+		}
+		return `:${emoji.name}:`
 	}
 
 	public static unicodeToEmoji(unicode: string) {

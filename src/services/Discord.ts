@@ -464,19 +464,11 @@ export default class Discord {
 
 		const { rule, message } = options
 
-		const approverEmojis = rule.definition.approverEmojis.map(e => {
-			return e.split('-')[0]
-		})
-		const proposerEmojis = rule.definition.proposerEmojis.map(e => {
-			return e.split('-')[0]
-		})
-		const vetoerEmojis = rule.definition.vetoerEmojis.map(e => {
-			return e.split('-')[0]
-		})
+		const approverEmojis = rule.definition.approverEmojis
+		const proposerEmojis = rule.definition.proposerEmojis
+		const vetoerEmojis = rule.definition.vetoerEmojis
 		const editorEmojis = rule.definition.editorEmojis
-			? rule.definition.editorEmojis.map(e => {
-					return e.split('-')[0]
-			  })
+			? rule.definition.editorEmojis
 			: []
 
 		let ruleChannelId = message.channelId
@@ -496,6 +488,7 @@ export default class Discord {
 			for (let i = 0; i < message.reactions.cache.size; i += 1) {
 				const messageReaction = message.reactions.cache.at(i)
 				if (messageReaction?.emoji.name) {
+					const isCustomEmoji = !!messageReaction.emoji.id
 					const unicode = services.rule.emojiToUnicode(
 						messageReaction.emoji.name
 					)
@@ -514,16 +507,36 @@ export default class Discord {
 								(rule.definition.publishType === MeemAPI.PublishType.Proposal &&
 									rule.definition.proposalShareChannel === ruleChannelId)) &&
 							approverEmojis &&
-							approverEmojis.includes(unicode)
+							approverEmojis.some(e =>
+								isCustomEmoji
+									? e.name === messageReaction.emoji.name
+									: e.unified === unicode
+							)
 
 						const isProposerEmoji =
 							rule.definition.publishType === MeemAPI.PublishType.Proposal &&
 							rule.definition.proposalShareChannel !== ruleChannelId &&
 							proposerEmojis &&
-							proposerEmojis.includes(unicode)
+							proposerEmojis.some(e =>
+								isCustomEmoji
+									? e.name === messageReaction.emoji.name
+									: e.unified === unicode
+							)
 
-						const isVetoerEmoji = vetoerEmojis && vetoerEmojis.includes(unicode)
-						const isEditorEmoji = editorEmojis && editorEmojis.includes(unicode)
+						const isVetoerEmoji =
+							vetoerEmojis &&
+							vetoerEmojis.some(e =>
+								isCustomEmoji
+									? e.name === messageReaction.emoji.name
+									: e.unified === unicode
+							)
+						const isEditorEmoji =
+							editorEmojis &&
+							editorEmojis.some(e =>
+								isCustomEmoji
+									? e.name === messageReaction.emoji.name
+									: e.unified === unicode
+							)
 
 						log.debug({
 							isApproverEmoji,
@@ -898,46 +911,33 @@ Finally, Meem has even more community tools in the hopper and we’d love to col
 		try {
 			log.debug('handleMessageCreate')
 			if (message.author.id !== config.DISCORD_BOT_ID) {
-				log.debug('Sending message to Meem')
-				// const content = `\`@${message.author.tag}\` (${message.guild?.name}): ${message.content}`
-
-				// await this.sendMessage({
-				// 	channelId: config.DISCORD_MEEM_CHANNEL_ID,
-				// 	message: {
-				// 		...message,
-				// 		content
-				// 	}
-				// })
-
-				if (
-					!config.DISCORD_MENTIONS_WEBHOOK_URL ||
-					config.DISCORD_MENTIONS_WEBHOOK_URL.length === 0
-				) {
+				if (!config.ENABLE_MEEM_HELPDESK) {
 					log.debug(
-						'Not sending feedback webhook because DISCORD_MENTIONS_WEBHOOK_URL is not set'
+						'Not sending feedback webhook because ENABLE_MEEM_HELPDESK is not set'
 					)
 					return
 				}
 				// log.debug('Sending webhook')
-				// const partialResponse = this.parseMessageForWebhook(message)
+				const partialResponse = this.parseMessageForWebhook(message)
 
-				// const body: Omit<
-				// 	MeemAPI.IWebhookBody,
-				// 	'rule' | 'totalApprovals' | 'totalProposers' | 'totalVetoers'
-				// > = {
-				// 	...partialResponse,
-				// 	guildId: message.guildId ?? '',
-				// 	mentions: message.mentions,
-				// 	messageId: partialResponse.messageId ?? '',
-				// 	secret: '',
-				// 	channelId: message.channelId,
-				// 	content: message.content
-				// }
+				const body: Omit<
+					MeemAPI.IWebhookBody,
+					'rule' | 'totalApprovals' | 'totalProposers' | 'totalVetoers'
+				> = {
+					...partialResponse,
+					messageId: partialResponse.messageId ?? '',
+					secret: '',
+					channelId: message.channelId,
+					content: message.content,
+					inputMetadata: {
+						guildId: message.guildId,
+						mentions: message.mentions
+					}
+				}
 
-				// await request
-				// 	.post(config.DISCORD_MENTIONS_WEBHOOK_URL)
-				// 	.timeout(5000)
-				// 	.send(body)
+				services.meemHelpdesk.handleMessage({
+					message: body
+				})
 			}
 		} catch (e) {
 			log.warn(e)

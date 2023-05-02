@@ -186,9 +186,12 @@ export default class DiscordController {
 		}
 
 		const { emojis } = services.discord.client
+
 		const filteredEmojis = emojis.cache.map(e => ({
-			name: e.name ?? '',
-			id: e.id
+			id: e.id,
+			name: e.name ?? e.id,
+			url: e.url,
+			isAnimated: e.animated
 		}))
 
 		return res.json({

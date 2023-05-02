@@ -1,5 +1,6 @@
 import { auth, Client } from 'twitter-api-sdk'
 import { OAuth2Scopes } from 'twitter-api-sdk/dist/OAuth2User'
+import { createTweet, TwitterBody } from 'twitter-api-sdk/dist/types'
 
 export interface ICreateTweetResult {
 	username?: string
@@ -79,13 +80,39 @@ export default class Twitter {
 			}
 
 			// TODO: Split tweet into tweet thread if it's more than 280 characters
-			const createTweetResult = await client.tweets.createTweet({
-				text: body.substring(0, 279)
-			})
+			const chunks = this.splitIntoThreadedChunks(body)
+			// const createTweetResult = await client.tweets.createTweet({
+			// 	text: body.substring(0, 279)
+			// })
 
-			log.debug(createTweetResult)
+			let firstTweetResult:
+				| Awaited<ReturnType<typeof client.tweets.createTweet>>
+				| undefined
 
-			return { ...createTweetResult, username: twitter.username }
+			for (let i = 0; i < chunks.length; i++) {
+				const chunk = chunks[i]
+				const params: TwitterBody<createTweet> = {
+					text: chunk
+				}
+
+				if (firstTweetResult?.data?.id) {
+					params.reply = {
+						in_reply_to_tweet_id: firstTweetResult.data.id
+					}
+				}
+
+				const createTweetResult = await client.tweets.createTweet(params)
+
+				if (i === 0) {
+					firstTweetResult = createTweetResult
+				}
+
+				log.debug(createTweetResult)
+			}
+
+			log.debug(firstTweetResult)
+
+			return { ...firstTweetResult, username: twitter.username }
 		} catch (e) {
 			// eslint-disable-next-line no-console
 			console.log(e)
@@ -106,5 +133,45 @@ export default class Twitter {
 			}
 			throw e
 		}
+	}
+
+	public static splitIntoThreadedChunks(str: string): string[] {
+		const MAX_CHUNK_LENGTH = 275
+		if (str.length <= MAX_CHUNK_LENGTH) {
+			return [str]
+		}
+
+		const chunks: string[] = []
+		let index = 0
+
+		while (index < str.length) {
+			let endIndex = index + MAX_CHUNK_LENGTH
+
+			// Check if the next chunk would split a sentence
+			const endOfSentence = /[.?!]/
+			let splitIndex = -1
+			for (let i = endIndex; i > index; i--) {
+				if (endOfSentence.test(str.charAt(i))) {
+					splitIndex = i
+					break
+				}
+			}
+
+			// If the next chunk would split a sentence, move the end index back to the end of the previous sentence
+			if (splitIndex !== -1) {
+				endIndex = splitIndex
+			}
+
+			// Construct the chunk string with the appropriate prefix and content
+			const chunk = `${chunks.length + 1}/ ${str
+				.substring(index, endIndex + 1)
+				.trim()}`
+			chunks.push(chunk)
+
+			// Update the index to point to the next sentence after the current chunk
+			index = endIndex + 1
+		}
+
+		return chunks
 	}
 }
