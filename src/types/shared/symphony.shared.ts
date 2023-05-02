@@ -81,7 +81,8 @@ export interface ISlackChannel {
 
 export enum MessageStatus {
 	Pending = 'pending',
-	Handled = 'handled'
+	Handled = 'handled',
+	AwaitingApproval = 'awaitingApproval'
 }
 
 export interface IWebhookAttachment {

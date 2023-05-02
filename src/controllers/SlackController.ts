@@ -305,17 +305,6 @@ export default class SlackController {
 						const message = history.messages[0]
 						for (let i = 0; i < rules.length; i++) {
 							const rule = rules[i]
-							const isHandled = await services.rule.isMessageHandled({
-								agreementId: rule.AgreementId,
-								messageId: message.ts
-							})
-
-							if (isHandled) {
-								log.debug(
-									`Message w/ id ${message.ts} has already been handled`
-								)
-								return
-							}
 							await services.rule.processRule({
 								channelId: event.item.channel,
 								rule,

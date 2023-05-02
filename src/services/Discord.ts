@@ -395,18 +395,6 @@ export default class Discord {
 		try {
 			log.debug('handleMessageReactionForAgreement')
 
-			const isHandled = await services.rule.isMessageHandled({
-				agreementId,
-				messageId: reaction.message.id
-			})
-
-			if (isHandled) {
-				log.debug(
-					`Message w/ id ${reaction.message.id} has already been handled`
-				)
-				return
-			}
-
 			log.debug(`Handling message for agreementId: ${agreementId}`)
 
 			const message = await reaction.message.channel.messages.fetch(
@@ -433,6 +421,7 @@ export default class Discord {
 							channelId: message.channelId,
 							rule,
 							message
+
 						})
 					}
 				}
