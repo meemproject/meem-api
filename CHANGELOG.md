@@ -1,3 +1,26 @@
+## [1.21.1](https://github.com/meemproject/meem-api-aws/compare/v1.21.0...v1.21.1) (2023-05-02)
+
+
+### Bug Fixes
+
+* discord activation for new Discord ([5811ed5](https://github.com/meemproject/meem-api-aws/commit/5811ed5))
+
+# [1.21.0](https://github.com/meemproject/meem-api-aws/compare/v1.20.0...v1.21.0) (2023-05-02)
+
+
+### Features
+
+* custom emoji support ([6efa662](https://github.com/meemproject/meem-api-aws/commit/6efa662))
+* replace discord userIds in message with user tag ([b49b059](https://github.com/meemproject/meem-api-aws/commit/b49b059))
+* split tweet into thread ([cf663df](https://github.com/meemproject/meem-api-aws/commit/cf663df))
+
+# [1.20.0](https://github.com/meemproject/meem-api-aws/compare/v1.19.2...v1.20.0) (2023-04-25)
+
+
+### Features
+
+* new publish types ([4edc4a3](https://github.com/meemproject/meem-api-aws/commit/4edc4a3))
+
 ## [1.19.2](https://github.com/meemproject/meem-api-aws/compare/v1.19.1...v1.19.2) (2023-04-12)
 
 

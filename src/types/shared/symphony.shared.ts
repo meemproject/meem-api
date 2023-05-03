@@ -124,4 +124,5 @@ export interface IWebhookBody {
 	totalVetoers: number
 	reactions: IWebhookReaction[]
 	createdTimestamp?: number
+	inputMetadata?: any
 }

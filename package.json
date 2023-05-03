@@ -1,6 +1,6 @@
 {
 	"name": "@meemproject/meem-api",
-	"version": "1.19.2",
+	"version": "1.21.1",
 	"description": "Meem API",
 	"main": "build/server.js",
 	"engines": {
@@ -71,6 +71,7 @@
 		"@segment/analytics-node": "^1.0.0-beta.23",
 		"@slack/oauth": "^2.6.0",
 		"@slack/web-api": "^6.8.1",
+		"@supabase/supabase-js": "^2.21.0",
 		"@tableland/sdk": "^3.1.5",
 		"@typechain/ethers-v5": "^10.1.0",
 		"alchemy-sdk": "^2.1.1",

@@ -10,10 +10,7 @@ export default {
 	errors,
 	PORT: process.env.PORT ?? 1313,
 	API_URL: process.env.API_URL ?? 1313,
-	MEEM_DOMAIN:
-		process.env.MEEM_DOMAIN ?? process.env.NETWORK === 'rinkeby'
-			? 'https://dev.meem.wtf'
-			: 'https://meem.wtf',
+	MEEM_DOMAIN: process.env.MEEM_DOMAIN ?? 'https://app.meem.wtf',
 	SERVER_LISTENING: process.env.SERVER_LISTENING !== 'false',
 	SERVER_ADMIN_KEY: process.env.SERVER_ADMIN_KEY ?? 'xGugNAB2PEX4uY4sPF',
 	// JWT_SECRET:
@@ -137,9 +134,6 @@ export default {
 	DISCORD_MEEM_ID: process.env.DISCORD_MEEM_ID ?? '',
 	DISCORD_MEEM_GUILD_ID: process.env.DISCORD_MEEM_GUILD_ID ?? '',
 	DISCORD_MEEM_CHANNEL_ID: process.env.DISCORD_MEEM_CHANNEL_ID ?? '',
-	DISCORD_MENTIONS_WEBHOOK_URL: process.env.DISCORD_MENTIONS_WEBHOOK_URL ?? '',
-	DISCORD_MENTIONS_WEBHOOK_SECRET:
-		process.env.DISCORD_MENTIONS_WEBHOOK_SECRET ?? 'M67wE!pU.gNA9t',
 	AUTH0_APP_DOMAIN: process.env.AUTH0_APP_DOMAIN ?? '',
 	AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID ?? '',
 	AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET ?? '',
@@ -206,5 +200,12 @@ export default {
 	GA_CLIENT_ID:
 		process.env.GA_CLIENT_ID ?? 'b8f756de-97f5-4ef1-8bd0-f579f9df7406',
 	OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? '',
-	OPENAI_ORGANIZATION_ID: process.env.OPENAI_ORGANIZATION_ID ?? ''
+	OPENAI_ORGANIZATION_ID: process.env.OPENAI_ORGANIZATION_ID ?? '',
+	ENABLE_MEEM_HELPDESK: process.env.ENABLE_MEEM_HELPDESK === 'true',
+	MEEM_HELPDESK_SUPABASE_SERVICE_KEY:
+		process.env.MEEM_HELPDESK_SUPABASE_SERVICE_KEY ?? '',
+	MEEM_HELPDESK_SUPABASE_SUBDOMAIN:
+		process.env.MEEM_HELPDESK_SUPABASE_SUBDOMAIN ?? '',
+	MEEM_HELPDESK_DISCORD_CHANNEL_ID:
+		process.env.MEEM_HELPDESK_DISCORD_CHANNEL_ID ?? ''
 }
