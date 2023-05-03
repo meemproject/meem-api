@@ -45,6 +45,11 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync('/twitter/auth', TwitterController.auth)
 	router.getAsync('/twitter/callback', TwitterController.callback)
 	router.getAsync('/slack/auth', SlackController.auth)
+	router.getAsync(
+		'/slack/emojis',
+		userLoggedInPolicy,
+		SlackController.getEmojis
+	)
 	router.getAsync('/slack/callback', SlackController.callback)
 	router.getAsync(
 		'/slack/channels',

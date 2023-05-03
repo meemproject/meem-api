@@ -22,26 +22,6 @@ export type IOModel =
 	| undefined
 
 export default class RuleService {
-	public static async isMessageHandled(options: {
-		messageId?: string | null
-		agreementId?: string | null
-	}) {
-		const { agreementId, messageId } = options
-
-		const message = await orm.models.Message.findOne({
-			where: {
-				AgreementId: agreementId,
-				messageId
-			}
-		})
-
-		if (message) {
-			return true
-		}
-
-		return false
-	}
-
 	public static async processRule(options: {
 		channelId: string
 		rule: Rule
@@ -49,15 +29,27 @@ export default class RuleService {
 	}) {
 		const { channelId, rule, message } = options
 
+		const messageId =
+			(message as DiscordMessage).id ?? (message as SlackMessage).ts
+
+		const processedMessage = await orm.models.Message.findOne({
+			where: {
+				AgreementId: rule.AgreementId,
+				messageId
+			}
+		})
+
 		if (!rule.input || !rule.output) {
 			log.crit(`Rule ${rule.id} has no input or output`)
 			return
 		}
 
-		log.debug({ message })
+		if (processedMessage?.status === MeemAPI.MessageStatus.Handled) {
+			log.debug(`Message ${messageId} already handled`)
+			return
+		}
 
-		const messageId =
-			(message as DiscordMessage).id ?? (message as SlackMessage).ts
+		log.debug({ message })
 
 		let parentChannelId: string | undefined
 
@@ -70,7 +62,7 @@ export default class RuleService {
 		switch (rule.input) {
 			case MeemAPI.RuleIo.Slack:
 				{
-					const r = services.slack.countReactions({
+					const r = await services.slack.countReactions({
 						message: message as SlackMessage,
 						rule,
 						channelId
@@ -129,13 +121,8 @@ export default class RuleService {
 			totalVetoers
 		})
 
-		const { shouldPublish } = ruleResult
-		const { shouldMarkAsHandled } = ruleResult
-
-		// const ms = message as SlackMessage
-		// const md = message as DiscordMessage
-
-		// ms.attachments
+		const { shouldPublish, shouldMarkAsHandled, shouldMarkAsAwaitingApproval } =
+			ruleResult
 
 		if (shouldPublish) {
 			switch (rule.output) {
@@ -182,43 +169,6 @@ export default class RuleService {
 						partialResponse = services.discord.parseMessageForWebhook(
 							message as DiscordMessage
 						)
-						// const m = message as DiscordMessage
-						// partialResponse.messageId = m.id
-						// partialResponse.createdTimestamp = m.createdTimestamp
-						// m.reactions.cache.forEach(r => {
-						// 	if (r.emoji.name) {
-						// 		partialResponse.reactions.push({
-						// 			name: r.emoji.name,
-						// 			emoji: r.emoji.name,
-						// 			unicode: this.emojiToUnicode(r.emoji.name),
-						// 			count: r.count
-						// 		})
-						// 	}
-						// })
-
-						// partialResponse.user = {
-						// 	id: m.author.id,
-						// 	username: m.author.username
-						// }
-
-						// m.embeds.forEach(a => {
-						// 	attachments.push({
-						// 		url: a.url,
-						// 		name: a.title,
-						// 		description: a.description
-						// 	})
-						// })
-
-						// m.attachments?.forEach(a => {
-						// 	attachments.push({
-						// 		url: a.url,
-						// 		mimeType: a.contentType,
-						// 		width: a.width,
-						// 		height: a.height,
-						// 		name: a.name,
-						// 		description: a.description
-						// 	})
-						// })
 					} else if (typeof (message as SlackMessage).team === 'string') {
 						const m = message as SlackMessage
 						partialResponse.messageId = m.ts
@@ -342,17 +292,33 @@ export default class RuleService {
 					log.warn(`Output not supported for ${rule.output}`)
 					break
 			}
+		} else if (
+			shouldMarkAsAwaitingApproval &&
+			processedMessage?.status !== MeemAPI.MessageStatus.AwaitingApproval
+		) {
+			await this.sendInputReply({
+				rule,
+				channelId,
+				message,
+				content:
+					'This message has enough votes and is awaiting editor approval.'
+			})
 		} else {
 			log.debug('Not publishing for rule', { rule })
 		}
 
-		if (shouldMarkAsHandled) {
-			log.debug(`Marking message as handled: ${messageId}`)
+		if (shouldMarkAsAwaitingApproval || shouldMarkAsHandled) {
+			log.debug(`Marking message: ${messageId}`, {
+				shouldMarkAsHandled,
+				shouldMarkAsAwaitingApproval
+			})
 			await orm.models.Message.create({
 				AgreementId: rule.AgreementId,
 				messageId,
 				inputType: rule.input,
-				status: MeemAPI.MessageStatus.Handled
+				status: shouldMarkAsHandled
+					? MeemAPI.MessageStatus.Handled
+					: MeemAPI.MessageStatus.AwaitingApproval
 			})
 		}
 	}
@@ -428,6 +394,7 @@ export default class RuleService {
 		} = options
 		let shouldPublish = false
 		let shouldMarkAsHandled = false
+		let shouldMarkAsAwaitingApproval = false
 
 		if (
 			rule.definition.publishType === MeemAPI.PublishType.PublishImmediately &&
@@ -446,17 +413,23 @@ export default class RuleService {
 				MeemAPI.PublishType.PublishAfterApproval &&
 			(rule.definition.proposalChannels.includes(channelId) ||
 				rule.definition.proposalChannels.includes('all')) &&
-			totalApprovals >= rule.definition.votes &&
-			totalEditors &&
-			rule.definition.editorVotes &&
-			totalEditors >= rule.definition.editorVotes &&
-			(!rule.definition.canVeto ||
-				(rule.definition.vetoVotes && totalVetoers < rule.definition.vetoVotes))
+			totalApprovals >= rule.definition.votes
 		) {
 			log.debug('Rule matched publish after approval')
-			// Publish it
-			shouldPublish = true
-			shouldMarkAsHandled = true
+			if (
+				totalEditors &&
+				rule.definition.editorVotes &&
+				totalEditors >= rule.definition.editorVotes &&
+				(!rule.definition.canVeto ||
+					(rule.definition.vetoVotes &&
+						totalVetoers < rule.definition.vetoVotes))
+			) {
+				// Publish it
+				shouldPublish = true
+				shouldMarkAsHandled = true
+			} else {
+				shouldMarkAsAwaitingApproval = true
+			}
 		} else if (
 			rule.definition.publishType ===
 				MeemAPI.PublishType.PublishImmediatelyOrEditorApproval &&
@@ -506,7 +479,8 @@ export default class RuleService {
 
 		return {
 			shouldPublish,
-			shouldMarkAsHandled
+			shouldMarkAsHandled,
+			shouldMarkAsAwaitingApproval
 		}
 	}
 
