@@ -135,7 +135,11 @@ export default class RuleService {
 						agreementTwitterId: rule.outputRef,
 						body: messageContent
 					})
-					if (result.data?.id && result.username) {
+					if (
+						rule.definition.shouldReply &&
+						result.data?.id &&
+						result.username
+					) {
 						await this.sendInputReply({
 							rule,
 							channelId,
@@ -348,11 +352,24 @@ export default class RuleService {
 					return
 				}
 				try {
-					await services.slack.sendMessage({
-						content,
-						slack,
-						channelIds: [channelId]
-					})
+					const slackMessage = message as SlackMessage
+					if (
+						rule.definition.shouldReply &&
+						rule.definition.shouldReplyPrivately &&
+						slackMessage.user
+					) {
+						await services.slack.sendMessage({
+							content,
+							slack,
+							channelIds: [slackMessage.user]
+						})
+					} else if (rule.definition.shouldReply) {
+						await services.slack.sendMessage({
+							content,
+							slack,
+							channelIds: [channelId]
+						})
+					}
 				} catch (e) {
 					log.crit(e)
 					throw e
@@ -362,7 +379,18 @@ export default class RuleService {
 
 			case MeemAPI.RuleIo.Discord: {
 				try {
-					await (message as DiscordMessage).reply(content)
+					if (
+						rule.definition.shouldReply &&
+						rule.definition.shouldReplyPrivately
+					) {
+						await (message as DiscordMessage).author.send({
+							content
+						})
+					} else if (rule.definition.shouldReply) {
+						await (message as DiscordMessage).reply({
+							content
+						})
+					}
 				} catch (e) {
 					log.crit(e)
 					throw e
