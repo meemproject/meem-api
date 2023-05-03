@@ -69,6 +69,7 @@ export default class RuleController {
 			proposeVotes: rule.proposeVotes,
 			editorVotes: rule.editorVotes,
 			shouldReply: rule.shouldReply,
+			shouldReplyPrivately: rule.shouldReplyPrivately,
 			isEnabled: rule.isEnabled
 		}
 

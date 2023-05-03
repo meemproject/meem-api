@@ -353,13 +353,14 @@ export default class RuleService {
 				}
 				try {
 					const slackMessage = message as SlackMessage
-					if (
-						rule.definition.shouldReply &&
-						rule.definition.shouldReplyPrivately &&
-						slackMessage.user
-					) {
+					if (rule.definition.shouldReplyPrivately && slackMessage.user) {
+						const link = await services.slack.getPermalink({
+							slack,
+							channelId,
+							messageTS: slackMessage.ts
+						})
 						await services.slack.sendMessage({
-							content,
+							content: `${content}\n\n${link}`,
 							slack,
 							channelIds: [slackMessage.user]
 						})
@@ -379,15 +380,19 @@ export default class RuleService {
 
 			case MeemAPI.RuleIo.Discord: {
 				try {
-					if (
-						rule.definition.shouldReply &&
-						rule.definition.shouldReplyPrivately
-					) {
-						await (message as DiscordMessage).author.send({
-							content
+					const discordMessage = message as DiscordMessage
+					if (rule.definition.shouldReplyPrivately) {
+						await discordMessage.author.send({
+							content,
+							components: services.discord.getMessageComponents([
+								{
+									url: discordMessage.url,
+									ctaText: 'View Message'
+								}
+							])
 						})
 					} else if (rule.definition.shouldReply) {
-						await (message as DiscordMessage).reply({
+						await discordMessage.reply({
 							content
 						})
 					}
