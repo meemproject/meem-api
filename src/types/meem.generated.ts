@@ -813,6 +813,7 @@ export interface IRule {
 	editorVotes?: number
 	proposeVotes: number
 	shouldReply: boolean
+	shouldReplyPrivately?: boolean
 	ruleId?: string
 	isEnabled: boolean
 }
@@ -899,518 +900,6 @@ export interface IWebhookBody {
 
 
 export namespace v1 {
-
-export namespace GenerateTypes {
-	export interface IPathParams {}
-
-	export const path = () => '/api/1.0/generateTypes'
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		abi?: Record<string, any>[]
-		bundleId?: string
-		name?: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		abi: Record<string, any>[]
-		types: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-/** Get Config */
-export namespace GetConfig {
-	export interface IPathParams {}
-
-	export const path = () => '/api/1.0/config'
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-/** Get Info about Token */
-export namespace GetIPFSFile {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/ipfs`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {
-		filename: string
-	}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-/** Generate nonce for client to sign and verify a user's wallet address */
-export namespace GetNonce {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/getNonce`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {
-		/** The address that will be signing */
-		address: string
-	}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		nonce: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-
-/** Log in a user. */
-export namespace Login {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/login`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-	export interface IRequestBody {
-		/** Login w/ access token provided by Auth0 magic link */
-		accessToken?: string
-
-		/** Login w/ wallet. Both message and signature must be provided */
-		message?: string
-
-		/** Login w/ wallet. Both message and signature must be provided */
-		signature?: string
-
-		/** Whether to connect the login method with the currently authenticated user */
-		shouldConnectUser?: boolean
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		/** JWT that can be used for future authentication */
-		jwt: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-
-export namespace AuthenticateWithDiscord {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		user: { [key: string]: any }
-		accessToken: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetDiscordServers {
-	export interface IPathParams {}
-
-	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {
-		accessToken: string
-	}
-
-	export interface IRequestBody {
-		/** The Discord authentication code */
-		authCode: string
-		/** The Discord authentication callback url */
-		redirectUri: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		discordServers: IDiscordServer[]
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace GetJoinGuildMessage {
-	export interface IPathParams {
-		/** The Agreement id */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/getJoinGuildMessage`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		message: string
-		params: {
-			chainId?: string
-			msg: string
-			method: number
-			addr: string
-			nonce: string
-			hash?: string
-			ts: string
-		}
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace JoinGuild {
-	export interface IPathParams {
-		/** The Agreement id */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/joinGuild`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		message: string
-		params: {
-			chainId?: string
-			msg: string
-			method: number
-			addr: string
-			nonce: string
-			hash?: string
-			ts: string
-		}
-		sig: string
-		mintToken?: boolean
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace CreateBundle {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/epm/bundles`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		name: string
-		description: string
-		// contractIds: string[]
-		contracts: {
-			id: string
-			functionSelectors: string[]
-		}[]
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		bundleId: string
-		types: string
-		abi: Record<string, any>[]
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace CreateContract {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/epm/contracts`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		name: string
-		description: string
-		contractType: ContractType
-		abi: any[]
-		bytecode: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-		contractId: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace TrackContractInstance {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/epm/contractInstances`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		address: string
-		chainId: number
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace UntrackContractInstance {
-	export interface IPathParams {
-		contractInstanceId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/epm/contractInstances/${options.contractInstanceId}`
-
-	export const method = HttpMethod.Delete
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace UpdateBundle {
-	export interface IPathParams {
-		bundleId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/epm/bundles/${options.bundleId}`
-
-	export const method = HttpMethod.Put
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		name: string
-		description: string
-		contracts: {
-			id: string
-			functionSelectors: string[]
-		}[]
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		types: string
-		abi: Record<string, any>[]
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace UpdateWalletContractInstance {
-	export interface IPathParams {
-		contractInstanceId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/epm/walletContractInstances/${options.contractInstanceId}`
-
-	export const method = HttpMethod.Patch
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		note: string
-		name: string
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
 
 /** Bulk mint agreement role tokens */
 export namespace BulkBurnAgreementRoleTokens {
@@ -2412,6 +1901,518 @@ export namespace UpgradeAgreementRole {
 	export interface IResponseBody extends IApiResponseBody {
 		/** The Transaction id */
 		txId: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+
+export namespace AuthenticateWithDiscord {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/authenticate`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		user: { [key: string]: any }
+		accessToken: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GetDiscordServers {
+	export interface IPathParams {}
+
+	export const path = (options: IPathParams) => `/api/1.0/discord/servers`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		accessToken: string
+	}
+
+	export interface IRequestBody {
+		/** The Discord authentication code */
+		authCode: string
+		/** The Discord authentication callback url */
+		redirectUri: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		discordServers: IDiscordServer[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace CreateBundle {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/epm/bundles`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		name: string
+		description: string
+		// contractIds: string[]
+		contracts: {
+			id: string
+			functionSelectors: string[]
+		}[]
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		bundleId: string
+		types: string
+		abi: Record<string, any>[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace CreateContract {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/epm/contracts`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		name: string
+		description: string
+		contractType: ContractType
+		abi: any[]
+		bytecode: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+		contractId: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace TrackContractInstance {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/epm/contractInstances`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		address: string
+		chainId: number
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace UntrackContractInstance {
+	export interface IPathParams {
+		contractInstanceId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/epm/contractInstances/${options.contractInstanceId}`
+
+	export const method = HttpMethod.Delete
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace UpdateBundle {
+	export interface IPathParams {
+		bundleId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/epm/bundles/${options.bundleId}`
+
+	export const method = HttpMethod.Put
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		name: string
+		description: string
+		contracts: {
+			id: string
+			functionSelectors: string[]
+		}[]
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		types: string
+		abi: Record<string, any>[]
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace UpdateWalletContractInstance {
+	export interface IPathParams {
+		contractInstanceId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/epm/walletContractInstances/${options.contractInstanceId}`
+
+	export const method = HttpMethod.Patch
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		note: string
+		name: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace GenerateTypes {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/generateTypes'
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		abi?: Record<string, any>[]
+		bundleId?: string
+		name?: string
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		abi: Record<string, any>[]
+		types: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+/** Get Config */
+export namespace GetConfig {
+	export interface IPathParams {}
+
+	export const path = () => '/api/1.0/config'
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+/** Get Info about Token */
+export namespace GetIPFSFile {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/ipfs`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		filename: string
+	}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+/** Generate nonce for client to sign and verify a user's wallet address */
+export namespace GetNonce {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/getNonce`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {
+		/** The address that will be signing */
+		address: string
+	}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		nonce: string
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+
+export namespace GetJoinGuildMessage {
+	export interface IPathParams {
+		/** The Agreement id */
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/getJoinGuildMessage`
+
+	export const method = HttpMethod.Get
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {}
+
+	export interface IResponseBody extends IApiResponseBody {
+		message: string
+		params: {
+			chainId?: string
+			msg: string
+			method: number
+			addr: string
+			nonce: string
+			hash?: string
+			ts: string
+		}
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+export namespace JoinGuild {
+	export interface IPathParams {
+		/** The Agreement id */
+		agreementId: string
+	}
+
+	export const path = (options: IPathParams) =>
+		`/api/1.0/agreements/${options.agreementId}/joinGuild`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+
+	export interface IRequestBody {
+		message: string
+		params: {
+			chainId?: string
+			msg: string
+			method: number
+			addr: string
+			nonce: string
+			hash?: string
+			ts: string
+		}
+		sig: string
+		mintToken?: boolean
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		status: 'success'
+	}
+
+	export interface IDefinition {
+		pathParams: IPathParams
+		queryParams: IQueryParams
+		requestBody: IRequestBody
+		responseBody: IResponseBody
+	}
+
+	export type Response = IResponseBody | IError
+}
+
+
+
+/** Log in a user. */
+export namespace Login {
+	export interface IPathParams {}
+
+	export const path = () => `/api/1.0/login`
+
+	export const method = HttpMethod.Post
+
+	export interface IQueryParams {}
+	export interface IRequestBody {
+		/** Login w/ access token provided by Auth0 magic link */
+		accessToken?: string
+
+		/** Login w/ wallet. Both message and signature must be provided */
+		message?: string
+
+		/** Login w/ wallet. Both message and signature must be provided */
+		signature?: string
+
+		/** Whether to connect the login method with the currently authenticated user */
+		shouldConnectUser?: boolean
+	}
+
+	export interface IResponseBody extends IApiResponseBody {
+		/** JWT that can be used for future authentication */
+		jwt: string
 	}
 
 	export interface IDefinition {

@@ -44,6 +44,7 @@ export interface IRule {
 	editorVotes?: number
 	proposeVotes: number
 	shouldReply: boolean
+	shouldReplyPrivately?: boolean
 	ruleId?: string
 	isEnabled: boolean
 }

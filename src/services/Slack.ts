@@ -324,4 +324,30 @@ export default class SlackService {
 
 		return emojis
 	}
+
+	public static async getPermalink(options: {
+		channelId: string
+		messageTS?: string
+		slack: Slack
+	}) {
+		const { channelId, messageTS, slack } = options
+
+		if (!messageTS) {
+			return ''
+		}
+
+		const decrypted = await services.data.decrypt({
+			strToDecrypt: slack.encryptedAccessToken,
+			privateKey: config.ENCRYPTION_KEY
+		})
+
+		const client = this.getClient(decrypted.data.accessToken)
+
+		const result = await client.chat.getPermalink({
+			channel: channelId,
+			message_ts: messageTS
+		})
+
+		return result.permalink
+	}
 }
