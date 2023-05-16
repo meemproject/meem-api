@@ -13,9 +13,6 @@ export default {
 	MEEM_DOMAIN: process.env.MEEM_DOMAIN ?? 'https://app.meem.wtf',
 	SERVER_LISTENING: process.env.SERVER_LISTENING !== 'false',
 	SERVER_ADMIN_KEY: process.env.SERVER_ADMIN_KEY ?? 'xGugNAB2PEX4uY4sPF',
-	// JWT_SECRET:
-	// 	process.env.JWT_SECRET ??
-	// 	'ac741f40d71a2564e08180f5eb1cc9dd28e288ed75b33c34cba2fc18a3c31a64e719835877c7a6db9fdae8054037053172aba56f4dabc5f1b',
 	JWT_RSA_PUBLIC_KEY: process.env.JWT_RSA_PUBLIC_KEY ?? '',
 	JWT_RSA_PRIVATE_KEY: process.env.JWT_RSA_PRIVATE_KEY ?? '',
 	JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN
@@ -27,11 +24,7 @@ export default {
 	GENERATE_SHARED_TYPES: process.env.GENERATE_SHARED_TYPES === 'true',
 	TESTING: process.env.TESTING === 'true',
 	DISABLE_RATE_LIMIT: process.env.DISABLE_RATE_LIMIT === 'true',
-
 	DATABASE_URL: process.env.DATABASE_URL ?? 'sqlite::memory:',
-	// DATABASE_URL_TESTING:
-	// 	process.env.DATABASE_URL_TESTING ||
-	// 	`sqlite:${__dirname}/../../tmp/testing.db`,
 	DISABLE_MIGRATIONS: process.env.DISABLE_MIGRATIONS === 'true',
 	DISABLE_ORM_SYNC: process.env.DISABLE_ORM_SYNC === 'true',
 	DATABASE_POOL_MAX: process.env.DATABASE_POOL_MAX
@@ -207,5 +200,7 @@ export default {
 	MEEM_HELPDESK_SUPABASE_SUBDOMAIN:
 		process.env.MEEM_HELPDESK_SUPABASE_SUBDOMAIN ?? '',
 	MEEM_HELPDESK_DISCORD_CHANNEL_ID:
-		process.env.MEEM_HELPDESK_DISCORD_CHANNEL_ID ?? ''
+		process.env.MEEM_HELPDESK_DISCORD_CHANNEL_ID ?? '',
+	AWS_SMTP_ACCESS_KEY_ID: process.env.AWS_SMTP_ACCESS_KEY_ID ?? '',
+	AWS_SMTP_SECRET_ACCESS_KEY: process.env.AWS_SMTP_SECRET_ACCESS_KEY ?? ''
 }

@@ -196,6 +196,7 @@ export default class EthersService {
 		fromVersion: IFacetVersion[]
 		toVersion: IFacetVersion[]
 	}) {
+		throw new Error('DEPRECATED')
 		const {
 			chainId,
 			tableName,
@@ -250,6 +251,7 @@ export default class EthersService {
 		contractAddress?: string
 		parentContractTxtId?: string
 	}) {
+		throw new Error('DEPRECATED')
 		const {
 			chainId,
 			abi,
@@ -301,6 +303,7 @@ export default class EthersService {
 		bytecode: string
 		args: any[]
 	}) {
+		throw new Error('DEPRECATED')
 		const { chainId, abi, bytecode, args } = options
 
 		const txId = uuidv4()
@@ -334,6 +337,7 @@ export default class EthersService {
 		/** Necessary when QueueEvent == DeploySafe */
 		agreementId?: string
 	}) {
+		throw new Error('DEPRECATED')
 		const {
 			abi,
 			functionSignature,
@@ -383,6 +387,8 @@ export default class EthersService {
 		/** Explicitly set the gas limit */
 		gasLimit?: ethers.BigNumberish | Promise<ethers.BigNumberish> | undefined
 	}): Promise<ReturnType<T>> {
+		throw new Error('DEPRECATED')
+
 		const { chainId, fn, params, gasLimit } = options
 		try {
 			await this.acquireLock(chainId)

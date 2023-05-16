@@ -393,4 +393,103 @@ export default class AgreementController {
 			isAdmin
 		})
 	}
+
+	public static async sendInvites(
+		req: IAuthenticatedRequest<MeemAPI.v1.SendAgreementInvites.IDefinition>,
+		res: IResponse<MeemAPI.v1.SendAgreementInvites.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const { agreementId } = req.params
+		const { to } = req.body
+
+		const agreement = await orm.models.Agreement.findOne({
+			where: {
+				id: agreementId
+			}
+		})
+
+		if (!agreement) {
+			throw new Error('AGREEMENT_NOT_FOUND')
+		}
+
+		const isAdmin = await agreement.isAdmin(req.wallet.address)
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const walletAddresses: string[] = []
+		const emails: string[] = []
+
+		to.forEach(t => {
+			if (ethers.utils.isAddress(t)) {
+				walletAddresses.push(ethers.utils.getAddress(t))
+			} else {
+				emails.push(t)
+			}
+		})
+
+		const [agreementTokens, currentTokenId, wallets] = await Promise.all([
+			orm.models.AgreementToken.findAll({
+				where: {
+					AgreementId: agreement.id
+				},
+				include: [
+					{
+						model: orm.models.Wallet,
+						as: 'Owner',
+						where: {
+							address: {
+								[Op.in]: walletAddresses
+							}
+						}
+					}
+				]
+			}),
+			orm.models.AgreementToken.count({
+				where: {
+					AgreementId: agreement.id
+				}
+			}),
+			orm.models.Wallet.findAll({
+				where: {
+					address: {
+						[Op.in]: walletAddresses
+					}
+				}
+			})
+		])
+
+		const newAgreementTokens: Record<string, any>[] = []
+		let tokenId = currentTokenId + 1
+		for (let i = 0; i < walletAddresses.length; i++) {
+			const walletAddress = walletAddresses[i]
+			let wallet = wallets.find(w => w.address === walletAddress)
+			if (!wallet) {
+				wallet = await orm.models.Wallet.create({
+					address: walletAddress
+				})
+			}
+			const agreementToken = agreementTokens.find(t => t.OwnerId === wallet?.id)
+
+			if (!agreementToken) {
+				newAgreementTokens.push({
+					tokenId,
+					AgreementId: agreement.id,
+					OwnerId: wallet.id
+				})
+
+				tokenId++
+			}
+		}
+
+		await orm.models.AgreementToken.bulkCreate(newAgreementTokens)
+
+		return res.json({
+			status: 'success'
+		})
+	}
 }

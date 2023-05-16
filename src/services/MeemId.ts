@@ -76,8 +76,12 @@ export default class MeemIdentityService {
 
 		/** Wallet signature */
 		signature?: string
+
+		/** Optional invite code */
+		inviteCode?: string
 	}) {
-		const { attachToUser, accessToken, message, signature } = options
+		const { attachToUser, accessToken, message, signature, inviteCode } =
+			options
 
 		let wallet: Wallet | undefined | null
 		let user: User | undefined | null = attachToUser
@@ -211,19 +215,46 @@ export default class MeemIdentityService {
 		}
 
 		if (!wallet) {
-			const { tokenId, address: pkpAddress } = await services.lit.mintPKP()
-			wallet = await orm.models.Wallet.create({
-				address: pkpAddress,
-				UserId: user.id,
-				pkpTokenId: tokenId
-			})
-
-			user.DefaultWalletId = wallet.id
-			await user.save()
+			throw new Error('MISSING_WALLET')
 		}
 
-		if (wallet.pkpTokenId === null && wallet.ensFetchedAt === null) {
-			await this.updateENS(wallet)
+		if (inviteCode) {
+			const invite = await orm.models.Invite.findOne({
+				where: {
+					code: inviteCode
+				}
+			})
+
+			if (!invite) {
+				throw new Error('INVALID_NOT_FOUND')
+			}
+
+			const agreementId = invite.AgreementId
+
+			const [agreementToken, tokenId] = await Promise.all([
+				orm.models.AgreementToken.findOne({
+					where: {
+						AgreementId: agreementId,
+						OwnerId: wallet.id
+					}
+				}),
+				orm.models.AgreementToken.count({
+					where: {
+						AgreementId: agreementId
+					}
+				})
+			])
+
+			if (!agreementToken) {
+				await Promise.all([
+					orm.models.AgreementToken.create({
+						tokenId: services.web3.toBigNumber(tokenId + 1).toHexString(),
+						AgreementId: agreementId,
+						OwnerId: wallet.id
+					}),
+					invite.destroy()
+				])
+			}
 		}
 
 		return {

@@ -175,19 +175,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/test/webhook', TestController.testWebhook)
 
 	if (config.ENABLE_TEST_ENDPOINTS) {
-		router.getAsync('/test/gnosis', TestController.testGnosis)
-		router.getAsync('/test/testCron', TestController.testCron)
-		router.getAsync('/test/syncContract', TestController.syncContract)
-		router.getAsync('/test/metadata', TestController.metadata)
-		router.getAsync('/test/hash', TestController.testHash)
 		router.getAsync('/test/releaseLock', TestController.releaseLock)
-		router.getAsync('/test/mintPKP', TestController.mintPKP)
-		router.getAsync('/test/getEthAddress', TestController.getEthAddress)
-		router.getAsync('/test/txEncoding', TestController.testTxEncoding)
-		router.getAsync('/test/testPinata', TestController.testPinata)
-		router.getAsync('/test/callback', TestController.testCallback)
-		router.postAsync('/test/callback', TestController.testCallback)
-		router.getAsync('/test/summary', TestController.testSummary)
-		router.getAsync('/test/decrypt', TestController.testDecrypt)
+		router.getAsync('/test/email', TestController.testEmail)
 	}
 }

@@ -22,6 +22,7 @@ import ContractInstance from '../models/ContractInstance'
 import Discord from '../models/Discord'
 import Extension from '../models/Extension'
 import IdentityProvider from '../models/IdentityProvider'
+import Invite from '../models/Invite'
 import Message from '../models/Message'
 import Rule from '../models/Rule'
 import Slack from '../models/Slack'
@@ -57,6 +58,7 @@ export interface IModels {
 	Discord: typeof Discord
 	Extension: typeof Extension
 	IdentityProvider: typeof IdentityProvider
+	Invite: typeof Invite
 	Message: typeof Message
 	UserIdentity: typeof UserIdentity
 	Transaction: typeof Transaction

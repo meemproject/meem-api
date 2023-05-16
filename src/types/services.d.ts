@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import Agreement from '../services/Agreement'
 import Analytics from '../services/Analytics'
+import Aws from '../services/Aws'
 import Child from '../services/Child'
 import ContractEvents from '../services/ContractEvents'
 import Data from '../services/Data'
@@ -9,7 +10,6 @@ import Db from '../services/Db'
 import Discord from '../services/Discord'
 import Ethers from '../services/Ethers'
 import Git from '../services/Git'
-import Guild from '../services/Guild'
 import Ipfs from '../services/Ipfs'
 import Lint from '../services/Lint'
 import Lit from '../services/Lit'
@@ -17,10 +17,8 @@ import Meem from '../services/Meem'
 import MeemHelpDesk from '../services/MeemHelpdesk'
 import MeemId from '../services/MeemId'
 import Openai from '../services/Openai'
-import Puppeteer from '../services/Puppeteer'
 import Queue from '../services/Queue'
 import Rule from '../services/Rule'
-import Scraper from '../services/Scraper'
 import Slack from '../services/Slack'
 import Storage from '../services/Storage'
 import Testing from '../services/Testing'
@@ -32,7 +30,7 @@ declare global {
 	namespace services {
 		let analytics: typeof Analytics
 		let agreement: typeof Agreement
-		let agreementRole: typeof AgreementRole
+		let aws: typeof Aws
 		let child: typeof Child
 		let contractEvents: typeof ContractEvents
 		let data: typeof Data
