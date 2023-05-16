@@ -81,6 +81,12 @@ export default class TypesService {
 			globby(projectEndpointsGlob)
 		])
 
+		files.sort()
+		endpointFiles.sort()
+		eventsFiles.sort()
+		projectFiles.sort()
+		projectEndpointFiles.sort()
+
 		const [
 			types,
 			endpointTypes,

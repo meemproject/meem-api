@@ -14,7 +14,8 @@ export enum PublishType {
 
 export enum EmojiType {
 	Unified = 'unified',
-	Discord = 'discord'
+	Discord = 'discord',
+	Slack = 'slack'
 }
 
 export interface IEmoji {
@@ -43,6 +44,7 @@ export interface IRule {
 	editorVotes?: number
 	proposeVotes: number
 	shouldReply: boolean
+	shouldReplyPrivately?: boolean
 	ruleId?: string
 	isEnabled: boolean
 }
@@ -80,7 +82,8 @@ export interface ISlackChannel {
 
 export enum MessageStatus {
 	Pending = 'pending',
-	Handled = 'handled'
+	Handled = 'handled',
+	AwaitingApproval = 'awaitingApproval'
 }
 
 export interface IWebhookAttachment {

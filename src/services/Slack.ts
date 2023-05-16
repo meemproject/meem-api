@@ -175,7 +175,7 @@ export default class SlackService {
 	}
 
 	/** Counts reactions for a message based on a rule */
-	public static countReactions(options: {
+	public static async countReactions(options: {
 		rule: Rule
 		message: Message
 		channelId: string
@@ -197,6 +197,17 @@ export default class SlackService {
 			vetoer: {}
 		}
 
+		const agreementSlack = await orm.models.AgreementSlack.findOne({
+			where: {
+				id: rule.inputRef
+			},
+			include: [orm.models.Slack]
+		})
+
+		if (!agreementSlack?.Slack) {
+			throw new Error('SLACK_NOT_FOUND')
+		}
+
 		const approverEmojis = rule.definition.approverEmojis
 		const proposerEmojis = rule.definition.proposerEmojis
 		const vetoerEmojis = rule.definition.vetoerEmojis
@@ -204,44 +215,56 @@ export default class SlackService {
 		if (message.reactions) {
 			message.reactions.forEach(reaction => {
 				if (reaction.name) {
+					let reactionKey: string | undefined | boolean
 					const emoji = slackEmojis.find(e => e.short_name === reaction.name)
+
 					if (emoji) {
-						const unicode = emoji.unified?.toLowerCase()
+						reactionKey = emoji.unified?.toLowerCase()
+					} else {
+						reactionKey = reaction.name
+					}
 
-						if (unicode) {
-							const isApproverEmoji =
-								(rule.definition.publishType ===
-									MeemAPI.PublishType.PublishImmediately ||
-									(rule.definition.publishType ===
-										MeemAPI.PublishType.Proposal &&
-										rule.definition.proposalShareChannel === channelId)) &&
-								approverEmojis &&
-								approverEmojis.some(e => e.unified === unicode)
-							const isProposerEmoji =
-								rule.definition.publishType === MeemAPI.PublishType.Proposal &&
-								rule.definition.proposalShareChannel !== channelId &&
-								proposerEmojis &&
-								proposerEmojis.some(e => e.unified === unicode)
-							const isVetoerEmoji =
-								vetoerEmojis && vetoerEmojis.some(e => e.unified === unicode)
+					if (!reactionKey) {
+						return
+					}
 
-							if (isApproverEmoji) {
-								if (!messageReactions.approver[unicode]) {
-									messageReactions.approver[unicode] = 0
-								}
-								messageReactions.approver[unicode] += reaction.count ?? 0
-							} else if (isProposerEmoji) {
-								if (!messageReactions.proposer[unicode]) {
-									messageReactions.proposer[unicode] = 0
-								}
-								messageReactions.proposer[unicode] += reaction.count ?? 0
-							} else if (isVetoerEmoji) {
-								if (!messageReactions.vetoer[unicode]) {
-									messageReactions.vetoer[unicode] = 0
-								}
-								messageReactions.vetoer[unicode] += reaction.count ?? 0
-							}
+					const isApproverEmoji =
+						(rule.definition.publishType ===
+							MeemAPI.PublishType.PublishImmediately ||
+							(rule.definition.publishType === MeemAPI.PublishType.Proposal &&
+								rule.definition.proposalShareChannel === channelId)) &&
+						approverEmojis &&
+						approverEmojis.some(e =>
+							!emoji ? e.name === reaction.name : e.unified === reactionKey
+						)
+					const isProposerEmoji =
+						rule.definition.publishType === MeemAPI.PublishType.Proposal &&
+						rule.definition.proposalShareChannel !== channelId &&
+						proposerEmojis &&
+						proposerEmojis.some(e =>
+							!emoji ? e.name === reaction.name : e.unified === reactionKey
+						)
+					const isVetoerEmoji =
+						vetoerEmojis &&
+						vetoerEmojis.some(e =>
+							!emoji ? e.name === reaction.name : e.unified === reactionKey
+						)
+
+					if (isApproverEmoji) {
+						if (!messageReactions.approver[reactionKey]) {
+							messageReactions.approver[reactionKey] = 0
 						}
+						messageReactions.approver[reactionKey] += reaction.count ?? 0
+					} else if (isProposerEmoji) {
+						if (!messageReactions.proposer[reactionKey]) {
+							messageReactions.proposer[reactionKey] = 0
+						}
+						messageReactions.proposer[reactionKey] += reaction.count ?? 0
+					} else if (isVetoerEmoji) {
+						if (!messageReactions.vetoer[reactionKey]) {
+							messageReactions.vetoer[reactionKey] = 0
+						}
+						messageReactions.vetoer[reactionKey] += reaction.count ?? 0
 					}
 				}
 			})
@@ -268,5 +291,63 @@ export default class SlackService {
 			totalVetoers,
 			messageReactions
 		}
+	}
+
+	public static async getEmojis(options: { slack: Slack }) {
+		const { slack } = options
+
+		const decrypted = await services.data.decrypt({
+			strToDecrypt: slack.encryptedAccessToken,
+			privateKey: config.ENCRYPTION_KEY
+		})
+
+		const client = this.getClient(decrypted.data.accessToken)
+
+		const result = await client.emoji.list()
+		if (!result.emoji) {
+			return []
+		}
+
+		const emojis: MeemAPI.IEmoji[] = []
+
+		Object.keys(result.emoji).forEach(key => {
+			const val = result.emoji && result.emoji[key]
+			if (val && /^http/.test(val)) {
+				emojis.push({
+					id: key,
+					type: MeemAPI.EmojiType.Slack,
+					name: key,
+					url: val
+				})
+			}
+		})
+
+		return emojis
+	}
+
+	public static async getPermalink(options: {
+		channelId: string
+		messageTS?: string
+		slack: Slack
+	}) {
+		const { channelId, messageTS, slack } = options
+
+		if (!messageTS) {
+			return ''
+		}
+
+		const decrypted = await services.data.decrypt({
+			strToDecrypt: slack.encryptedAccessToken,
+			privateKey: config.ENCRYPTION_KEY
+		})
+
+		const client = this.getClient(decrypted.data.accessToken)
+
+		const result = await client.chat.getPermalink({
+			channel: channelId,
+			message_ts: messageTS
+		})
+
+		return result.permalink
 	}
 }

@@ -52,6 +52,7 @@
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": true
 	},
+	"eslint.codeActionsOnSave.mode": "problems",
 	"cSpell.ignorePaths": [
 		"**/package-lock.json",
 		"**/node_modules/**",

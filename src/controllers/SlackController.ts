@@ -305,17 +305,6 @@ export default class SlackController {
 						const message = history.messages[0]
 						for (let i = 0; i < rules.length; i++) {
 							const rule = rules[i]
-							const isHandled = await services.rule.isMessageHandled({
-								agreementId: rule.AgreementId,
-								messageId: message.ts
-							})
-
-							if (isHandled) {
-								log.debug(
-									`Message w/ id ${message.ts} has already been handled`
-								)
-								return
-							}
 							await services.rule.processRule({
 								channelId: event.item.channel,
 								rule,
@@ -381,5 +370,34 @@ export default class SlackController {
 		return res.json({
 			challenge
 		})
+	}
+
+	public static async getEmojis(
+		req: IAuthenticatedRequest<MeemAPI.v1.GetSlackEmojis.IDefinition>,
+		res: IResponse<MeemAPI.v1.GetSlackEmojis.IResponseBody>
+	) {
+		const { agreementSlackId } = req.query
+		const agreementSlack = await orm.models.AgreementSlack.findOne({
+			where: {
+				id: agreementSlackId
+			},
+			include: [orm.models.Slack, orm.models.Agreement]
+		})
+
+		if (!agreementSlack || !agreementSlack.Slack || !agreementSlack.Agreement) {
+			throw new Error('SLACK_NOT_FOUND')
+		}
+
+		const isAdmin = await agreementSlack.Agreement.isAdmin(req.wallet.address)
+
+		if (!isAdmin) {
+			throw new Error('NOT_AUTHORIZED')
+		}
+
+		const emojis = await services.slack.getEmojis({
+			slack: agreementSlack.Slack
+		})
+
+		return res.json({ emojis })
 	}
 }
