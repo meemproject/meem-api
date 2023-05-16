@@ -22,18 +22,9 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	router.getAsync('/runMigrations', AdminController.runMigrations)
 	router.getAsync('/runSync', AdminController.runSync)
-	// router.getAsync('/agreementSync', AdminController.agreementSync)
-	// router.getAsync('/meemSync', AdminController.meemSync)
-	// router.getAsync('/meemSyncReactions', AdminController.meemSyncReactions)
-	// router.getAsync(
-	// 	'/syncDbMeemIdsToContract',
-	// 	AdminController.syncDbMeemIdsToContract
-	// )
 	router.getAsync('/syncExtensions', AdminController.syncExtensions)
-	// router.getAsync('/syncPermissions', AdminController.syncPermissions)
 	router.getAsync(
 		'/seedIdentityProviders',
 		AdminController.seedIdentityProviders
 	)
-	router.getAsync('/syncPins', AdminController.syncPins)
 }

@@ -31,7 +31,7 @@ export default class AgreementController {
 		req: IRequest<MeemAPI.v1.CreateAgreement.IDefinition>,
 		res: IResponse<MeemAPI.v1.CreateAgreement.IResponseBody>
 	): Promise<Response> {
-		const { name, metadata, isOnChain, chainId, tokenMetadata } = req.body
+		const { name, metadata, tokenMetadata } = req.body
 
 		if (!req.wallet) {
 			throw new Error('USER_NOT_LOGGED_IN')
@@ -51,68 +51,41 @@ export default class AgreementController {
 
 		await req.wallet.enforceTXLimit()
 
-		let result:
-			| {
-					deployContractTxId: string
-					cutTxId: string
-					mintTxId: string | undefined
-					adminRoleDeployContractTxId: string | undefined
-					adminRoleCutTxId: string | undefined
-					adminRoleMintTxId: string | undefined
-					setAdminRoleTxId: string | undefined
-			  }
-			| {
-					agreementId: string
-					slug: string
-					adminAgreementId?: string
-			  }
-
-		if (isOnChain) {
-			if (!chainId) {
-				throw new Error('MISSING_PARAMETERS')
-			}
-			result = await services.agreement.createAgreement({
-				...req.body,
-				chainId,
-				senderWalletAddress: req.wallet.address
+		const { agreement, adminAgreement } =
+			await services.agreement.createAgreementWithoutContract({
+				body: req.body,
+				owner: req.wallet
 			})
-		} else {
-			const { agreement, adminAgreement } =
-				await services.agreement.createAgreementWithoutContract({
-					body: req.body,
-					owner: req.wallet
-				})
 
-			await Promise.all([
-				services.agreement.bulkMint({
-					agreementId: agreement.id,
-					mintedBy: req.wallet.address,
-					tokens: [
-						{
-							to: req.wallet.address,
-							metadata: tokenMetadata
-						}
-					]
-				}),
-				adminAgreement
-					? services.agreement.bulkMint({
-							agreementId: agreement.id,
-							agreementRoleId: adminAgreement.id,
-							mintedBy: req.wallet.address,
-							tokens: [
-								{
-									to: req.wallet.address,
-									metadata: tokenMetadata
-								}
-							]
-					  })
-					: Promise.resolve(null)
-			])
-			result = {
+		await Promise.all([
+			services.agreement.bulkMint({
 				agreementId: agreement.id,
-				slug: agreement.slug,
-				adminAgreementId: adminAgreement?.id
-			}
+				mintedBy: req.wallet.address,
+				tokens: [
+					{
+						to: req.wallet.address,
+						metadata: tokenMetadata
+					}
+				]
+			}),
+			adminAgreement
+				? services.agreement.bulkMint({
+						agreementId: agreement.id,
+						agreementRoleId: adminAgreement.id,
+						mintedBy: req.wallet.address,
+						tokens: [
+							{
+								to: req.wallet.address,
+								metadata: tokenMetadata
+							}
+						]
+				  })
+				: Promise.resolve(null)
+		])
+		const result = {
+			agreementId: agreement.id,
+			slug: agreement.slug,
+			adminAgreementId: adminAgreement?.id
 		}
 
 		return res.json(result)
@@ -160,27 +133,6 @@ export default class AgreementController {
 		return res.json({
 			status: 'success'
 		})
-	}
-
-	public static async createAgreementSafe(
-		req: IRequest<MeemAPI.v1.CreateAgreementSafe.IDefinition>,
-		res: IResponse<MeemAPI.v1.CreateAgreementSafe.IResponseBody>
-	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
-
-		await req.wallet.enforceTXLimit()
-
-		const { agreementId } = req.params
-
-		const result = await services.agreement.createAgreementSafe({
-			...req.body,
-			agreementId,
-			senderWalletAddress: req.wallet.address
-		})
-
-		return res.json(result)
 	}
 
 	public static async setAgreementSafeAddress(

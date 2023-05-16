@@ -3,53 +3,54 @@ import { IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 export default class AgreementRoleController {
 	public static async createAgreementRole(
-		req: IRequest<MeemAPI.v1.CreateAgreementRole.IDefinition>,
-		res: IResponse<MeemAPI.v1.CreateAgreementRole.IResponseBody>
+		_req: IRequest<MeemAPI.v1.CreateAgreementRole.IDefinition>,
+		_res: IResponse<MeemAPI.v1.CreateAgreementRole.IResponseBody>
 	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
+		throw new Error('DEPRECATED')
+		// if (!req.wallet) {
+		// 	throw new Error('USER_NOT_LOGGED_IN')
+		// }
 
-		if (!req.body.name) {
-			throw new Error('MISSING_PARAMETERS')
-		}
+		// if (!req.body.name) {
+		// 	throw new Error('MISSING_PARAMETERS')
+		// }
 
-		if (!req.body.metadata) {
-			throw new Error('MISSING_PARAMETERS')
-		}
+		// if (!req.body.metadata) {
+		// 	throw new Error('MISSING_PARAMETERS')
+		// }
 
-		await req.wallet.enforceTXLimit()
+		// await req.wallet.enforceTXLimit()
 
-		const agreement = await orm.models.Agreement.findOne({
-			where: {
-				id: req.params.agreementId
-			},
-			include: [
-				{
-					model: orm.models.Wallet,
-					as: 'Owner'
-				}
-			]
-		})
+		// const agreement = await orm.models.Agreement.findOne({
+		// 	where: {
+		// 		id: req.params.agreementId
+		// 	},
+		// 	include: [
+		// 		{
+		// 			model: orm.models.Wallet,
+		// 			as: 'Owner'
+		// 		}
+		// 	]
+		// })
 
-		if (!agreement) {
-			throw new Error('AGREEMENT_NOT_FOUND')
-		}
+		// if (!agreement) {
+		// 	throw new Error('AGREEMENT_NOT_FOUND')
+		// }
 
-		const isAdmin = await agreement.isAdmin(req.wallet.address)
+		// const isAdmin = await agreement.isAdmin(req.wallet.address)
 
-		if (!isAdmin) {
-			throw new Error('NOT_AUTHORIZED')
-		}
+		// if (!isAdmin) {
+		// 	throw new Error('NOT_AUTHORIZED')
+		// }
 
-		const result = await services.agreement.createAgreement({
-			...req.body,
-			admins: agreement.Owner?.address ? [agreement.Owner?.address] : [],
-			chainId: agreement.chainId,
-			senderWalletAddress: req.wallet.address
-		})
+		// const result = await services.agreement.createAgreement({
+		// 	...req.body,
+		// 	admins: agreement.Owner?.address ? [agreement.Owner?.address] : [],
+		// 	chainId: agreement.chainId,
+		// 	senderWalletAddress: req.wallet.address
+		// })
 
-		return res.json(result)
+		// return res.json(result)
 	}
 
 	public static async reinitialize(
