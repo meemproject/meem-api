@@ -1,6 +1,5 @@
 import coreExpress, { Express } from 'express'
 import AgreementController from '../controllers/AgreementController'
-import AgreementExtensionController from '../controllers/AgreementExtensionController'
 import AgreementRoleController from '../controllers/AgreementRoleController'
 import ConfigController from '../controllers/ConfigController'
 import DiscordController from '../controllers/DiscordController'
@@ -87,14 +86,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync(
 		'/agreements/:agreementId/isAdmin',
 		AgreementController.checkIsAgreementAdmin
-	)
-	router.postAsync(
-		'/agreements/:agreementId/extensions',
-		AgreementExtensionController.createAgreementExtension
-	)
-	router.putAsync(
-		'/agreements/:agreementId/extensions/:agreementExtensionId',
-		AgreementExtensionController.updateAgreementExtension
 	)
 	router.getAsync(
 		'/agreements/:agreementId/roles',
