@@ -41,10 +41,20 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	/** Agreements and Roles Routes */
 
+	router.postAsync(
+		'/acceptInvite',
+		userLoggedInPolicy,
+		AgreementController.acceptInvite
+	)
 	router.postAsync('/agreements', AgreementController.createAgreement)
 	router.postAsync(
 		'/agreements/isSlugAvailable',
 		AgreementController.isSlugAvailable
+	)
+	router.postAsync(
+		'/agreements/:agreementId/invite',
+		userLoggedInPolicy,
+		AgreementController.sendInvites
 	)
 	router.postAsync(
 		'/agreements/:agreementId/reinitialize',
@@ -177,5 +187,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 	if (config.ENABLE_TEST_ENDPOINTS) {
 		router.getAsync('/test/releaseLock', TestController.releaseLock)
 		router.getAsync('/test/email', TestController.testEmail)
+		router.getAsync('/test/emailHtml', TestController.testEmailHtml)
 	}
 }

@@ -1,5 +1,5 @@
 import AWS from 'aws-sdk'
-import { transactionalTemplate } from '../lib/emailTemplate'
+import type { SendEmailRequest } from 'aws-sdk/clients/ses'
 
 export default class AwsService {
 	public static async sendEmail(options: {
@@ -17,7 +17,7 @@ export default class AwsService {
 				secretAccessKey: config.APP_AWS_SECRET_ACCESS_KEY
 			}
 		})
-		const params = {
+		const params: SendEmailRequest = {
 			Destination: {
 				ToAddresses: to
 			},
@@ -25,11 +25,11 @@ export default class AwsService {
 				Body: {
 					Html: {
 						Charset: 'UTF-8',
-						Data: transactionalTemplate({
-							subject,
-							inboxPreview: "Here's an inbox preview of the message."
-						})
-						// Data: body
+						// Data: transactionalTemplate({
+						// 	subject,
+						// 	inboxPreview: "Here's an inbox preview of the message."
+						// })
+						Data: body
 					}
 				},
 				Subject: {

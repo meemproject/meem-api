@@ -219,42 +219,10 @@ export default class MeemIdentityService {
 		}
 
 		if (inviteCode) {
-			const invite = await orm.models.Invite.findOne({
-				where: {
-					code: inviteCode
-				}
+			await services.agreement.acceptInvite({
+				wallet,
+				code: inviteCode
 			})
-
-			if (!invite) {
-				throw new Error('INVALID_NOT_FOUND')
-			}
-
-			const agreementId = invite.AgreementId
-
-			const [agreementToken, tokenId] = await Promise.all([
-				orm.models.AgreementToken.findOne({
-					where: {
-						AgreementId: agreementId,
-						OwnerId: wallet.id
-					}
-				}),
-				orm.models.AgreementToken.count({
-					where: {
-						AgreementId: agreementId
-					}
-				})
-			])
-
-			if (!agreementToken) {
-				await Promise.all([
-					orm.models.AgreementToken.create({
-						tokenId: services.web3.toBigNumber(tokenId + 1).toHexString(),
-						AgreementId: agreementId,
-						OwnerId: wallet.id
-					}),
-					invite.destroy()
-				])
-			}
 		}
 
 		return {

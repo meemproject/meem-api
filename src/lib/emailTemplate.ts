@@ -218,8 +218,11 @@ export const transactionalTemplate = (options: {
 				color: #aaaaaa !important;
 			}
             .darkmode-fullbleed-bg {
-                background-color: #0F3016 !important;
+                background-color: #F9FF15 !important;
             }
+			.footer-container p {
+				color: #111111 !important;
+			}
 		}
         /* Dark Mode Styles : END */
     </style>
@@ -319,84 +322,17 @@ export const transactionalTemplate = (options: {
 						</tr>`
 									: ''
 							}
-
-                            <tr>
-                                <td style="padding: 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #555555;">
-                                    <h2 style="margin: 0 0 10px 0; font-family: sans-serif; font-size: 18px; line-height: 22px; color: #333333; font-weight: bold;">Praesent in felis ut velit pretium lobortis rhoncus ut&nbsp;erat.</h2>
-                                    <ul style="padding: 0; margin: 0 0 10px 0; list-style-type: disc;">
-										<li style="margin:0 0 10px 30px;" class="list-item-first">A list item.</li>
-										<li style="margin:0 0 10px 30px;">Another list item here.</li>
-										<li style="margin: 0 0 0 30px;" class="list-item-last">Everyone gets a list item, list items for everyone!</li>
-									</ul>
-                                    <p style="margin: 0;">Maecenas sed ante pellentesque, posuere leo id, eleifend dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent laoreet malesuada cursus. Maecenas scelerisque congue eros eu posuere. Praesent in felis ut velit pretium lobortis rhoncus ut&nbsp;erat.</p>
-                                </td>
-                            </tr>
+							<!-- Clear Spacer : BEGIN -->
+							<tr>
+								<td aria-hidden="true" height="40" style="font-size: 0px; line-height: 0px;">
+									&nbsp;
+								</td>
+							</tr>
+							<!-- Clear Spacer : END -->
                         </table>
                     </td>
                 </tr>
                 <!-- 1 Column Text + Button : END -->
-
-                <!-- 2 Even Columns : BEGIN -->
-                <tr>
-                    <td style="padding: 0 10px 40px 10px; background-color: #ffffff;" class="darkmode-bg">
-                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-                            <tr>
-                                <td valign="top" width="50%">
-                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                                        <tr>
-                                            <td style="text-align: center; padding: 0 10px;">
-                                                <img src="https://via.placeholder.com/200" width="200" height="" alt="alt_text" border="0" style="width: 100%; max-width: 200px; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #555555;">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: left; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #555555; padding: 10px 10px 0;">
-                                               <p style="margin: 0;">Maecenas sed ante pellentesque, posuere leo id, eleifend dolor.</p>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                                <td valign="top" width="50%">
-                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                                        <tr>
-                                            <td style="text-align: center; padding: 0 10px;">
-                                                <img src="https://via.placeholder.com/200" width="200" height="" alt="alt_text" border="0" style="width: 100%; max-width: 200px; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #555555;">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: left; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #555555; padding: 10px 10px 0;">
-                                                <p style="margin: 0;">Maecenas sed ante pellentesque, posuere leo id, eleifend dolor.</p>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <!-- 2 Even Columns : END -->
-
-                <!-- Clear Spacer : BEGIN -->
-                <tr>
-                    <td aria-hidden="true" height="40" style="font-size: 0px; line-height: 0px;">
-                        &nbsp;
-                    </td>
-                </tr>
-                <!-- Clear Spacer : END -->
-
-                <!-- 1 Column Text : BEGIN -->
-                <tr>
-                    <td style="background-color: #ffffff;" class="darkmode-bg">
-                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                            <tr>
-                                <td style="padding: 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #555555;">
-                                    <p style="margin: 0;">Maecenas sed ante pellentesque, posuere leo id, eleifend dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent laoreet malesuada cursus. Maecenas scelerisque congue eros eu posuere. Praesent in felis ut velit pretium lobortis rhoncus ut&nbsp;erat.</p>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <!-- 1 Column Text : END -->
-
             </table>
             <!-- Email Body : END -->
 
@@ -404,11 +340,7 @@ export const transactionalTemplate = (options: {
 	        <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: auto;" class="footer">
                 <tr>
                     <td style="padding: 20px; font-family: sans-serif; font-size: 12px; line-height: 15px; text-align: center; color: #ffffff;">
-                        <webversion style="color: #ffffff; text-decoration: underline; font-weight: bold;">View as a Web Page</webversion>
-                        <br><br>
-						Company Name<br><span class="unstyle-auto-detected-links">123 Fake Street, SpringField, OR, 97477 US<br>(123) 456-7890</span>
-                        <br><br>
-                        <unsubscribe style="color: #ffffff; text-decoration: underline;">unsubscribe</unsubscribe>
+						<a href="https://app.meem.wtf">Sent by Meem</a>
                     </td>
                 </tr>
             </table>
@@ -422,7 +354,7 @@ export const transactionalTemplate = (options: {
         </div>
 
         <!-- Full Bleed Background Section : BEGIN -->
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #709f2b;" class="darkmode-fullbleed-bg">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #F9FF15;" class="darkmode-fullbleed-bg">
             <tr>
                 <td>
                     <div align="center" style="max-width: 600px; margin: auto;" class="email-container">
@@ -433,7 +365,7 @@ export const transactionalTemplate = (options: {
                         <![endif]-->
                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                             <tr>
-                                <td style="padding: 20px; text-align: left; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #ffffff;">
+                                <td class="footer-container" style="padding: 20px; text-align: left; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #111111;">
                                     <p style="margin: 0;">Maecenas sed ante pellentesque, posuere leo id, eleifend dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent laoreet malesuada cursus. Maecenas scelerisque congue eros eu posuere. Praesent in felis ut velit pretium lobortis rhoncus ut&nbsp;erat.</p>
                                 </td>
                             </tr>

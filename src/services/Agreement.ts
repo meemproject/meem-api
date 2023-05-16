@@ -1564,4 +1564,57 @@ export default class AgreementService {
 
 		return contract
 	}
+
+	public static async acceptInvite(options: { code: string; wallet: Wallet }) {
+		const { code, wallet } = options
+		if (!code) {
+			throw new Error('MISSING_PARAMETERS')
+		}
+
+		const invite = await orm.models.Invite.findOne({
+			where: {
+				code
+			},
+			include: [orm.models.Agreement]
+		})
+
+		if (!invite || !invite.Agreement) {
+			throw new Error('INVITE_NOT_FOUND')
+		}
+
+		const agreementId = invite.AgreementId
+		const agreement = invite.Agreement
+
+		const result = await Promise.all([
+			orm.models.AgreementToken.findOne({
+				where: {
+					AgreementId: agreementId,
+					OwnerId: wallet.id
+				}
+			}),
+			orm.models.AgreementToken.count({
+				where: {
+					AgreementId: agreementId
+				}
+			})
+		])
+
+		let agreementToken = result[0]
+		const tokenId = result[1]
+
+		if (!agreementToken) {
+			const createResult = await Promise.all([
+				orm.models.AgreementToken.create({
+					tokenId: services.web3.toBigNumber(tokenId + 1).toHexString(),
+					AgreementId: agreementId,
+					OwnerId: wallet.id
+				}),
+				invite.destroy()
+			])
+
+			agreementToken = createResult[0]
+		}
+
+		return { agreement, agreementToken }
+	}
 }

@@ -475,6 +475,12 @@ const errors = {
 			'Something went wrong minting. Check that you have the correct permissions and try again.',
 		friendlyReason:
 			'Something went wrong minting. Check that you have the correct permissions and try again.'
+	},
+	INVITE_NOT_FOUND: {
+		httpCode: 404,
+		status: 'failure',
+		reason: 'The invite could not be found',
+		friendlyReason: 'The invite could not be found'
 	}
 }
 

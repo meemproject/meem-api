@@ -1,6 +1,8 @@
 import { ethers } from 'ethers'
 import { Response } from 'express'
 import { Op } from 'sequelize'
+import { v4 as uuidv4 } from 'uuid'
+import { transactionalTemplate } from '../lib/emailTemplate'
 import { IAuthenticatedRequest, IRequest, IResponse } from '../types/app'
 import { MeemAPI } from '../types/meem.generated'
 export default class AgreementController {
@@ -477,6 +479,7 @@ export default class AgreementController {
 
 			if (!agreementToken) {
 				newAgreementTokens.push({
+					id: uuidv4(),
 					tokenId,
 					AgreementId: agreement.id,
 					OwnerId: wallet.id
@@ -487,9 +490,62 @@ export default class AgreementController {
 		}
 
 		await orm.models.AgreementToken.bulkCreate(newAgreementTokens)
+		const invitesData: Record<string, any>[] = []
+		const subject = `You have been invited to join ${agreement.name}`
+
+		for (let i = 0; i < emails.length; i++) {
+			const email = emails[i]
+
+			const code = uuidv4()
+
+			invitesData.push({
+				id: uuidv4(),
+				code,
+				AgreementId: agreement.id
+			})
+
+			await services.aws.sendEmail({
+				to: [email],
+				subject,
+				body: transactionalTemplate({
+					bodyText: `Click the button below to accept the invite and join ${agreement.name}`,
+					ctaText: 'Accept Invite',
+					ctaUrl: `${config.MEEM_DOMAIN}/invite?code=${code}`,
+					subject,
+					title: `Join ${agreement.name}`
+				})
+			})
+		}
+
+		await orm.models.Invite.bulkCreate(invitesData)
 
 		return res.json({
 			status: 'success'
+		})
+	}
+
+	public static async acceptInvite(
+		req: IAuthenticatedRequest<MeemAPI.v1.AcceptAgreementInvite.IDefinition>,
+		res: IResponse<MeemAPI.v1.AcceptAgreementInvite.IResponseBody>
+	): Promise<Response> {
+		if (!req.wallet) {
+			throw new Error('USER_NOT_LOGGED_IN')
+		}
+
+		const { code } = req.body
+
+		const { agreement, agreementToken } = await services.agreement.acceptInvite(
+			{
+				code,
+				wallet: req.wallet
+			}
+		)
+
+		return res.json({
+			agreementId: agreement.id,
+			agreementTokenId: agreementToken.id,
+			name: agreement.name,
+			slug: agreement.slug
 		})
 	}
 }
