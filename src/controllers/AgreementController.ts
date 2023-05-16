@@ -162,27 +162,6 @@ export default class AgreementController {
 		})
 	}
 
-	public static async setAgreementAdminRole(
-		req: IRequest<MeemAPI.v1.SetAgreementAdminRole.IDefinition>,
-		res: IResponse<MeemAPI.v1.SetAgreementAdminRole.IResponseBody>
-	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
-
-		await req.wallet.enforceTXLimit()
-
-		const { agreementId } = req.params
-
-		const result = await services.agreement.setAgreemetAdminRole({
-			adminAgreementRoleId: req.body.adminAgreementRoleId,
-			agreementId,
-			senderWalletAddress: req.wallet.address
-		})
-
-		return res.json(result)
-	}
-
 	public static async createAgreementSafe(
 		req: IRequest<MeemAPI.v1.CreateAgreementSafe.IDefinition>,
 		res: IResponse<MeemAPI.v1.CreateAgreementSafe.IResponseBody>
@@ -239,27 +218,6 @@ export default class AgreementController {
 		return res.json({
 			status: 'success'
 		})
-	}
-
-	public static async upgradeAgreement(
-		req: IRequest<MeemAPI.v1.UpgradeAgreement.IDefinition>,
-		res: IResponse<MeemAPI.v1.UpgradeAgreement.IResponseBody>
-	): Promise<Response> {
-		if (!req.wallet) {
-			throw new Error('USER_NOT_LOGGED_IN')
-		}
-
-		await req.wallet.enforceTXLimit()
-
-		const { agreementId } = req.params
-
-		const result = await services.agreement.upgradeAgreement({
-			...req.body,
-			agreementId,
-			senderWalletAddress: req.wallet.address
-		})
-
-		return res.json(result)
 	}
 
 	public static async getMintingProof(

@@ -5,7 +5,6 @@ import AgreementRoleController from '../controllers/AgreementRoleController'
 import ConfigController from '../controllers/ConfigController'
 import DiscordController from '../controllers/DiscordController'
 import EPMController from '../controllers/EPMController'
-import MeemController from '../controllers/MeemController'
 import MeemIdController from '../controllers/MeemIdController'
 import TestController from '../controllers/TestController'
 import TypesController from '../controllers/TypesController'
@@ -72,10 +71,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/safe',
 		AgreementController.setAgreementSafeAddress
 	)
-	router.patchAsync(
-		'/agreements/:agreementId/setAdminRole',
-		AgreementController.setAgreementAdminRole
-	)
 	router.postAsync(
 		'/agreements/:agreementId/bulkMint',
 		AgreementController.bulkMint
@@ -84,10 +79,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/bulkBurn',
 		userLoggedInPolicy,
 		AgreementController.bulkBurn
-	)
-	router.postAsync(
-		'/agreements/:agreementId/upgrade',
-		AgreementController.upgradeAgreement
 	)
 	router.getAsync(
 		'/agreements/:agreementId/proof',
@@ -134,10 +125,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId/roles/:agreementRoleId/bulkBurn',
 		AgreementRoleController.bulkBurn
 	)
-	router.postAsync(
-		'/agreements/:agreementId/roles/:agreementRoleId/upgrade',
-		AgreementController.upgradeAgreement
-	)
 
 	/** EPM Routes */
 
@@ -175,8 +162,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 	/** Misc Routes */
 
 	router.getAsync('/config', ConfigController.getConfig)
-	router.getAsync('/ipfs', MeemController.getIPFSFile)
-	router.postAsync('/ipfs', MeemController.saveToIPFS)
 	router.postAsync('/generateTypes', TypesController.generateTypes)
 	router.getAsync('/meem-api.json', TypesController.getOpenAPIFile)
 

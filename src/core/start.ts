@@ -4,7 +4,6 @@ import log, { LogLevel } from '@kengoldfarb/log'
 import express, { Express } from 'express'
 import globby from 'globby'
 import fetch from 'node-fetch'
-import ProviderListener from '../listeners/ProviderListener'
 import Configuration from './Configuration'
 import errorMiddleware from './errorMiddleware'
 import Orm from './Orm'
@@ -173,30 +172,6 @@ export default async function start(options?: {
 
 	errorMiddleware(app)
 	g.listeners = {}
-
-	if (config.ENABLE_PROVIDER_LISTENERS) {
-		g.listeners = {
-			...g.listeners,
-			provider: new ProviderListener()
-		}
-
-		g.listeners.provider.start()
-	} else {
-		log.debug('Provider listener disabled')
-	}
-
-	// if (config.ENABLE_TWITTER_LISTENERS) {
-	// 	g.listeners = {
-	// 		twitter: new TwitterListener()
-	// 	}
-
-	// 	g.listeners.twitter.start()
-	// }
-
-	if (config.ENABLE_SQS_CONSUMER) {
-		// eslint-disable-next-line global-require
-		require('../lib/SQSConsumer')
-	}
 
 	// Fetch polyfill
 	g.fetch = fetch
