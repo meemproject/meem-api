@@ -1,3 +1,12 @@
+# [1.22.0](https://github.com/meemproject/meem-api-aws/compare/v1.21.2...v1.22.0) (2023-05-16)
+
+
+### Features
+
+* handle custom slack emoji ([350a54a](https://github.com/meemproject/meem-api-aws/commit/350a54a))
+* private bot message replies ([f1ba1d5](https://github.com/meemproject/meem-api-aws/commit/f1ba1d5))
+* slack emoji ([82e9589](https://github.com/meemproject/meem-api-aws/commit/82e9589))
+
 ## [1.21.2](https://github.com/meemproject/meem-api-aws/compare/v1.21.1...v1.21.2) (2023-05-02)
 
 ## [1.21.1](https://github.com/meemproject/meem-api-aws/compare/v1.21.0...v1.21.1) (2023-05-02)
