@@ -1,6 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { getMerkleInfo } from '@meemproject/meem-contracts'
-import { Validator } from '@meemproject/metadata'
 // eslint-disable-next-line import/named
 import { ethers } from 'ethers'
 import _ from 'lodash'
@@ -267,16 +266,16 @@ export default class AgreementService {
 			throw new Error('INVALID_METADATA')
 		}
 
-		const contractMetadataValidator = new Validator(metadata)
-		const contractMetadataValidatorResult =
-			contractMetadataValidator.validate(metadata)
+		// const contractMetadataValidator = new Validator(metadata)
+		// const contractMetadataValidatorResult =
+		// 	contractMetadataValidator.validate(metadata)
 
-		if (!contractMetadataValidatorResult.valid) {
-			log.crit(
-				contractMetadataValidatorResult.errors.map((e: any) => e.message)
-			)
-			throw new Error('INVALID_METADATA')
-		}
+		// if (!contractMetadataValidatorResult.valid) {
+		// 	log.crit(
+		// 		contractMetadataValidatorResult.errors.map((e: any) => e.message)
+		// 	)
+		// 	throw new Error('INVALID_METADATA')
+		// }
 
 		const { provider, wallet } = await services.ethers.getProvider({
 			chainId
@@ -506,18 +505,18 @@ export default class AgreementService {
 				throw new Error('INVALID_METADATA')
 			}
 
-			const validator = new Validator({
-				meem_metadata_type: agreementRoleId
-					? 'Meem_AgreementRoleToken'
-					: 'Meem_AgreementToken',
-				meem_metadata_version: token.metadata.meem_metadata_version
-			})
-			const validatorResult = validator.validate(token.metadata)
+			// const validator = new Validator({
+			// 	meem_metadata_type: agreementRoleId
+			// 		? 'Meem_AgreementRoleToken'
+			// 		: 'Meem_AgreementToken',
+			// 	meem_metadata_version: token.metadata.meem_metadata_version
+			// })
+			// const validatorResult = validator.validate(token.metadata)
 
-			if (!validatorResult.valid) {
-				log.crit(validatorResult.errors.map((e: any) => e.message))
-				throw new Error('INVALID_METADATA')
-			}
+			// if (!validatorResult.valid) {
+			// 	log.crit(validatorResult.errors.map((e: any) => e.message))
+			// 	throw new Error('INVALID_METADATA')
+			// }
 
 			toAddresses.push(token.to)
 
@@ -797,17 +796,33 @@ export default class AgreementService {
 				where: {
 					AgreementId: agreementId
 				}
+			}),
+			orm.models.AgreementRole.findOne({
+				where: {
+					AgreementId: agreementId,
+					isAdminRole: true
+				}
+			}),
+			orm.models.AgreementRole.count({
+				where: {
+					AgreementId: agreementId,
+					isAdminRole: true
+				}
 			})
 		])
 
 		let agreementToken = result[0]
 		const tokenId = result[1]
+		const agreementRole = result[2]
+		const agreementRoleTokenId = result[3]
 
 		if (!agreementToken) {
 			const createResult = await Promise.all([
 				orm.models.AgreementToken.create({
 					tokenId: services.web3.toBigNumber(tokenId + 1).toHexString(),
+					tokenURI: '',
 					AgreementId: agreementId,
+					mintedAt: new Date(),
 					OwnerId: wallet.id
 				}),
 				invite.destroy()
@@ -815,7 +830,28 @@ export default class AgreementService {
 
 			agreementToken = createResult[0]
 		}
+		let agreementRoleToken = agreementRole
+			? await orm.models.AgreementRoleToken.findOne({
+					where: {
+						AgreementRoleId: agreementRole.id,
+						OwnerId: wallet.id
+					}
+			  })
+			: null
 
-		return { agreement, agreementToken }
+		if (!agreementRoleToken && agreementRole) {
+			agreementRoleToken = await orm.models.AgreementRoleToken.create({
+				tokenId: services.web3
+					.toBigNumber(agreementRoleTokenId + 1)
+					.toHexString(),
+				tokenURI: '',
+				AgreementId: agreementId,
+				AgreementRoleId: agreementRole.id,
+				mintedAt: new Date(),
+				OwnerId: wallet.id
+			})
+		}
+
+		return { agreement, agreementToken, agreementRole, agreementRoleToken }
 	}
 }

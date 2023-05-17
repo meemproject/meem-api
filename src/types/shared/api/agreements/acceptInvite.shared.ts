@@ -19,6 +19,8 @@ export namespace AcceptAgreementInvite {
 		agreementId: string
 		slug: string
 		agreementTokenId: string
+		agreementRoleId?: string
+		agreementRoleTokenId?: string
 	}
 
 	export interface IDefinition {

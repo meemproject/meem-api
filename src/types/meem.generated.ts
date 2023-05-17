@@ -247,8 +247,8 @@ export interface IMeemSplit {
 	lockedBy: string
 }
 export interface IMeemMetadataLike {
-	meem_metadata_type: string
-	meem_metadata_version: string
+	meem_metadata_type?: string
+	meem_metadata_version?: string
 	[key: string]: any
 }
 
@@ -919,6 +919,8 @@ export namespace AcceptAgreementInvite {
 		agreementId: string
 		slug: string
 		agreementTokenId: string
+		agreementRoleId?: string
+		agreementRoleTokenId?: string
 	}
 
 	export interface IDefinition {
@@ -1356,48 +1358,6 @@ export namespace CreateAgreementRole {
 
 		/** The Transaction id for minting tokens. Transaction #3 */
 		mintTxId?: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-
-/** Create an agreement safe */
-export namespace CreateAgreementSafe {
-	export interface IPathParams {
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/safe`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** Addresses of the safe owners */
-		safeOwners: string[]
-
-		/** Chain id of the safe */
-		chainId?: number
-
-		/** The number of signatures required */
-		threshold?: number
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		/** The Transaction id */
-		txId: string
 	}
 
 	export interface IDefinition {
@@ -2260,90 +2220,6 @@ export namespace GetNonce {
 
 
 
-export namespace GetJoinGuildMessage {
-	export interface IPathParams {
-		/** The Agreement id */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/getJoinGuildMessage`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {
-		message: string
-		params: {
-			chainId?: string
-			msg: string
-			method: number
-			addr: string
-			nonce: string
-			hash?: string
-			ts: string
-		}
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
-export namespace JoinGuild {
-	export interface IPathParams {
-		/** The Agreement id */
-		agreementId: string
-	}
-
-	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/joinGuild`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		message: string
-		params: {
-			chainId?: string
-			msg: string
-			method: number
-			addr: string
-			nonce: string
-			hash?: string
-			ts: string
-		}
-		sig: string
-		mintToken?: boolean
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		status: 'success'
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
 /** Log in a user. */
 export namespace Login {
 	export interface IPathParams {}
@@ -2580,44 +2456,6 @@ export namespace UpdateUserIdentity {
 
 	export type Response = IResponseBody | IError
 }
-
-
-
-
-/** Save some data to IPFS */
-export namespace SaveToIPFS {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/ipfs`
-
-	export const method = HttpMethod.Post
-
-	export interface IQueryParams {}
-
-	export interface IRequestBody {
-		/** The data to save. Only one of "data" or "json" should be sent */
-		data?: string
-
-		/** The JSON to save. Only one of "data" or "json" should be sent */
-		json?: Record<string, any>
-	}
-
-	export interface IResponseBody extends IApiResponseBody {
-		/** The IPFS hash for the saved data */
-		ipfsHash: string
-	}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-// TODO: How to specify json in OpenAPI definition
 
 
 

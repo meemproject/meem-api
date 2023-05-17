@@ -1,5 +1,6 @@
 import AWS from 'aws-sdk'
 import type { SendEmailRequest } from 'aws-sdk/clients/ses'
+import { PromiseResult } from 'aws-sdk/lib/request'
 
 export default class AwsService {
 	public static async sendEmail(options: {
@@ -7,8 +8,13 @@ export default class AwsService {
 		from?: string
 		subject: string
 		body: string
-	}) {
+	}): Promise<PromiseResult<AWS.SES.SendEmailResponse, AWS.AWSError>> {
 		const { to, from, subject, body } = options
+		if (config.TESTING) {
+			// @ts-ignore
+			return
+		}
+
 		const ses = new AWS.SES({
 			region: 'us-east-1',
 

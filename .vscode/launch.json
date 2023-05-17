@@ -54,7 +54,8 @@
 				"PORT": "",
 				"BLUEBIRD_W_FORGOTTEN_RETURN": "0",
 				"DISABLE_ORM_SYNC": "true",
-				"GENERATE_SHARED_TYPES": "false"
+				"GENERATE_SHARED_TYPES": "false",
+				"DATABASE_URL": "sqlite::memory:"
 			}
 		}
 	]

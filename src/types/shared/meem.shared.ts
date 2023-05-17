@@ -192,8 +192,8 @@ export interface IMeemSplit {
 	lockedBy: string
 }
 export interface IMeemMetadataLike {
-	meem_metadata_type: string
-	meem_metadata_version: string
+	meem_metadata_type?: string
+	meem_metadata_version?: string
 	[key: string]: any
 }
 

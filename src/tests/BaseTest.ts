@@ -1,8 +1,11 @@
 import { Server } from 'http'
+import faker from 'faker'
 import { Suite } from 'mocha'
 import supertest, { SuperTest, Test, Response } from 'supertest'
 import start from '../core/start'
+import User from '../models/User'
 import { MeemAPI } from '../types/meem.generated'
+import { wallets, type IMocks } from './mocks'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
@@ -10,6 +13,11 @@ export default class BaseTest {
 	protected server!: Express.Application
 
 	protected request!: SuperTest<Test>
+
+	protected mocks: IMocks = {
+		users: [],
+		agreements: []
+	}
 
 	public constructor(mocha: Suite) {
 		if (!mocha) {
@@ -30,20 +38,64 @@ export default class BaseTest {
 		const { server } = await start()
 		this.server = server as Server
 		this.request = supertest(this.server)
+		await orm.runSync()
 
 		await this.setupMocks()
 	}
 
 	protected async setupMocks() {
-		// const promises = wallets.map(w => {
-		// 	return services.meemId.createOrUpdateMeemId({
-		// 		address: w.address,
-		// 		signature: '',
-		// 		twitterAccessToken: '',
-		// 		twitterAccessSecret: ''
-		// 	})
-		// })
-		// await Promise.all(promises)
+		for (let i = 0; i < wallets.length; i++) {
+			const w = wallets[i]
+			const wallet = await orm.models.Wallet.create({
+				address: w.address
+			})
+			const user = await services.meemId.createOrUpdateUser({
+				wallet
+			})
+
+			this.mocks.users.push(user)
+		}
+	}
+
+	protected async getAgreement() {
+		const wallet = this.mocks.users[0].DefaultWallet
+
+		const result = await services.agreement.createAgreementWithoutContract({
+			body: {
+				name: faker.lorem.words(),
+				metadata: {},
+				shouldCreateAdminRole: true
+			},
+			owner: wallet
+		})
+
+		await Promise.all([
+			services.agreement.bulkMint({
+				agreementId: result.agreement.id,
+				mintedBy: wallet.address,
+				tokens: [
+					{
+						to: wallet.address,
+						metadata: {}
+					}
+				]
+			}),
+			result.adminAgreement
+				? services.agreement.bulkMint({
+						agreementId: result.agreement.id,
+						agreementRoleId: result.adminAgreement.id,
+						mintedBy: wallet.address,
+						tokens: [
+							{
+								to: wallet.address,
+								metadata: {}
+							}
+						]
+				  })
+				: Promise.resolve(null)
+		])
+
+		return result
 	}
 
 	protected async after() {}
@@ -63,12 +115,25 @@ export default class BaseTest {
 		// eslint-disable-next-line @typescript-eslint/ban-types
 		data?: string | object
 		expect?: number
+		user?: User
+		headers?: Record<string, any>
 	}): Promise<Response> {
-		const { path, method, data, query, expect } = options
+		const { path, method, data, query, expect, user, headers } = options
 		let req = this.getRequest(method)(path)
 
 		if (query) {
 			req = req.query(query)
+		}
+
+		if (headers) {
+			Object.keys(headers).forEach(key => req.set(key, headers[key]))
+		}
+
+		if (user) {
+			const jwt = services.meemId.generateJWT({
+				walletAddress: user.DefaultWallet.address
+			})
+			req = req.set('Authorization', `JWT ${jwt}`)
 		}
 
 		if (data) {

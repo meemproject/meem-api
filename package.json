@@ -20,7 +20,7 @@
 		"########## DB Migrations ##########": "",
 		"migration:create": "sequelize migration:create",
 		"########## Tests ##########": "",
-		"test": "NODE_ENV=local DISABLE_MIGRATIONS=true ALLOW_NON_SSL=true ORM_LOGGING=false LOG_LEVEL=debug TESTING=true ENABLE_GUNDB=false GENERATE_SHARED_TYPES=false DISCORD_ENABLE_LISTENERS=false PORT= mocha --exit -r ts-node/register/transpile-only 'src/**/*.test.ts'",
+		"test": "NODE_ENV=local DATABASE_URL=sqlite::memory: DISABLE_MIGRATIONS=true ALLOW_NON_SSL=true ORM_LOGGING=false LOG_LEVEL=debug TESTING=true ENABLE_GUNDB=false GENERATE_SHARED_TYPES=false DISCORD_ENABLE_LISTENERS=false PORT= mocha --exit -r ts-node/register/transpile-only 'src/**/*.test.ts'",
 		"########## Serverless ##########": "",
 		"deploy:dev": "SLS_DEBUG=* sls deploy -s dev",
 		"deploy:staging": "SLS_DEBUG=* sls deploy -s staging",

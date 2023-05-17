@@ -444,18 +444,19 @@ export default class AgreementController {
 
 		const { code } = req.body
 
-		const { agreement, agreementToken } = await services.agreement.acceptInvite(
-			{
+		const { agreement, agreementToken, agreementRole, agreementRoleToken } =
+			await services.agreement.acceptInvite({
 				code,
 				wallet: req.wallet
-			}
-		)
+			})
 
 		return res.json({
 			agreementId: agreement.id,
 			agreementTokenId: agreementToken.id,
 			name: agreement.name,
-			slug: agreement.slug
+			slug: agreement.slug,
+			agreementRoleId: agreementRole?.id,
+			agreementRoleTokenId: agreementRoleToken?.id
 		})
 	}
 }

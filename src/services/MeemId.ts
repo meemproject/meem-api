@@ -457,7 +457,6 @@ export default class MeemIdentityService {
 		wallet: Wallet
 		profilePicBase64?: string
 		displayName?: string
-		isDefaultWallet?: boolean
 	}): Promise<User> {
 		// TODO: Add ability to add another wallet
 		const { wallet, profilePicBase64, displayName } = data
@@ -515,6 +514,9 @@ export default class MeemIdentityService {
 					displayName: displayName ?? null,
 					DefaultWalletId: wallet.id
 				})
+
+				wallet.UserId = user.id
+				await wallet.save()
 
 				const updatedUser = await orm.models.User.findOne({
 					include: [
