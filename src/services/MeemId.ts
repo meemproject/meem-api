@@ -278,6 +278,15 @@ export default class MeemIdentityService {
 			}
 			jwtOptions.expiresIn = exp
 		}
+		log.debug(
+			'Sign JWT',
+			{
+				...data,
+				walletAddress
+			},
+			config.JWT_RSA_PRIVATE_KEY,
+			jwtOptions
+		)
 		const token = jsonwebtoken.sign(
 			{
 				...data,
