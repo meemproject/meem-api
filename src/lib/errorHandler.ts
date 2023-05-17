@@ -63,19 +63,6 @@ function errorHandler(res: Response, errorKey: any) {
 		log.debug(errorKey)
 		switch (typeof errorKey) {
 			case 'object':
-				if (errorKey?.error?.error?.body) {
-					let errStr = 'UNKNOWN_CONTRACT_ERROR'
-					try {
-						const body = JSON.parse(errorKey.error.error.body)
-						log.warn(body)
-						const inter = services.meem.meemInterface()
-						const errInfo = inter.parseError(body.error.data)
-						errStr = errorcodeToErrorString(errInfo.name)
-					} catch (e) {
-						// Unable to parse
-					}
-					return handleStringErrorKey(res, errStr)
-				}
 				if (errorKey.message) {
 					return handleStringErrorKey(res, errorKey.message)
 				}

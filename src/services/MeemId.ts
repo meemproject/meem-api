@@ -76,8 +76,12 @@ export default class MeemIdentityService {
 
 		/** Wallet signature */
 		signature?: string
+
+		/** Optional invite code */
+		inviteCode?: string
 	}) {
-		const { attachToUser, accessToken, message, signature } = options
+		const { attachToUser, accessToken, message, signature, inviteCode } =
+			options
 
 		let wallet: Wallet | undefined | null
 		let user: User | undefined | null = attachToUser
@@ -211,19 +215,14 @@ export default class MeemIdentityService {
 		}
 
 		if (!wallet) {
-			const { tokenId, address: pkpAddress } = await services.lit.mintPKP()
-			wallet = await orm.models.Wallet.create({
-				address: pkpAddress,
-				UserId: user.id,
-				pkpTokenId: tokenId
-			})
-
-			user.DefaultWalletId = wallet.id
-			await user.save()
+			throw new Error('MISSING_WALLET')
 		}
 
-		if (wallet.pkpTokenId === null && wallet.ensFetchedAt === null) {
-			await this.updateENS(wallet)
+		if (inviteCode) {
+			await services.agreement.acceptInvite({
+				wallet,
+				code: inviteCode
+			})
 		}
 
 		return {
@@ -279,6 +278,15 @@ export default class MeemIdentityService {
 			}
 			jwtOptions.expiresIn = exp
 		}
+		log.debug(
+			'Sign JWT',
+			{
+				...data,
+				walletAddress
+			},
+			config.JWT_RSA_PRIVATE_KEY,
+			jwtOptions
+		)
 		const token = jsonwebtoken.sign(
 			{
 				...data,
@@ -458,7 +466,6 @@ export default class MeemIdentityService {
 		wallet: Wallet
 		profilePicBase64?: string
 		displayName?: string
-		isDefaultWallet?: boolean
 	}): Promise<User> {
 		// TODO: Add ability to add another wallet
 		const { wallet, profilePicBase64, displayName } = data
@@ -516,6 +523,9 @@ export default class MeemIdentityService {
 					displayName: displayName ?? null,
 					DefaultWalletId: wallet.id
 				})
+
+				wallet.UserId = user.id
+				await wallet.save()
 
 				const updatedUser = await orm.models.User.findOne({
 					include: [

@@ -1,31 +1,23 @@
 import { IError, HttpMethod, IApiResponseBody } from '../../api.shared'
+import { IMeemMetadataLike } from '../../meem.shared'
 
-export namespace JoinGuild {
+/** Allows invitation via email and/or wallet addresses. In the case of wallet address, this will function the same as bulkMint */
+export namespace SendAgreementInvites {
 	export interface IPathParams {
-		/** The Agreement id */
+		/** The id of the agreement */
 		agreementId: string
 	}
 
 	export const path = (options: IPathParams) =>
-		`/api/1.0/agreements/${options.agreementId}/joinGuild`
+		`/api/1.0/agreements/${options.agreementId}/invite`
 
 	export const method = HttpMethod.Post
 
 	export interface IQueryParams {}
 
 	export interface IRequestBody {
-		message: string
-		params: {
-			chainId?: string
-			msg: string
-			method: number
-			addr: string
-			nonce: string
-			hash?: string
-			ts: string
-		}
-		sig: string
-		mintToken?: boolean
+		/** Array of email and/or wallet addresses */
+		to: string[]
 	}
 
 	export interface IResponseBody extends IApiResponseBody {

@@ -21,6 +21,7 @@ export default class Configuration {
 	public async load(): Promise<typeof defaultConfig> {
 		const file = path.join(this.currentPath, 'config', this.env())
 		const dotenvpath = path.join(process.cwd(), '.env')
+
 		await this.dotenv(dotenvpath)
 
 		const defaultConfig = (await import('../config/default')).default

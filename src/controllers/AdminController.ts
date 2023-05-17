@@ -214,12 +214,4 @@ export default class AdminController {
 			status: 'success'
 		})
 	}
-
-	public static async syncPins(req: Request, res: Response): Promise<Response> {
-		await services.web3.syncPins()
-
-		return res.json({
-			status: 'success'
-		})
-	}
 }

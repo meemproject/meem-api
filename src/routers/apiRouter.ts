@@ -1,11 +1,9 @@
 import coreExpress, { Express } from 'express'
 import AgreementController from '../controllers/AgreementController'
-import AgreementExtensionController from '../controllers/AgreementExtensionController'
 import AgreementRoleController from '../controllers/AgreementRoleController'
 import ConfigController from '../controllers/ConfigController'
 import DiscordController from '../controllers/DiscordController'
 import EPMController from '../controllers/EPMController'
-import MeemController from '../controllers/MeemController'
 import MeemIdController from '../controllers/MeemIdController'
 import TestController from '../controllers/TestController'
 import TypesController from '../controllers/TypesController'
@@ -41,10 +39,20 @@ export default (app: Express, _express: typeof coreExpress) => {
 
 	/** Agreements and Roles Routes */
 
+	router.postAsync(
+		'/acceptInvite',
+		userLoggedInPolicy,
+		AgreementController.acceptInvite
+	)
 	router.postAsync('/agreements', AgreementController.createAgreement)
 	router.postAsync(
 		'/agreements/isSlugAvailable',
 		AgreementController.isSlugAvailable
+	)
+	router.postAsync(
+		'/agreements/:agreementId/invite',
+		userLoggedInPolicy,
+		AgreementController.sendInvites
 	)
 	router.postAsync(
 		'/agreements/:agreementId/reinitialize',
@@ -54,17 +62,9 @@ export default (app: Express, _express: typeof coreExpress) => {
 		'/agreements/:agreementId',
 		AgreementController.updateAgreement
 	)
-	router.postAsync(
-		'/agreements/:agreementId/safe',
-		AgreementController.createAgreementSafe
-	)
 	router.patchAsync(
 		'/agreements/:agreementId/safe',
 		AgreementController.setAgreementSafeAddress
-	)
-	router.patchAsync(
-		'/agreements/:agreementId/setAdminRole',
-		AgreementController.setAgreementAdminRole
 	)
 	router.postAsync(
 		'/agreements/:agreementId/bulkMint',
@@ -75,10 +75,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 		userLoggedInPolicy,
 		AgreementController.bulkBurn
 	)
-	router.postAsync(
-		'/agreements/:agreementId/upgrade',
-		AgreementController.upgradeAgreement
-	)
 	router.getAsync(
 		'/agreements/:agreementId/proof',
 		AgreementController.getMintingProof
@@ -86,14 +82,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.getAsync(
 		'/agreements/:agreementId/isAdmin',
 		AgreementController.checkIsAgreementAdmin
-	)
-	router.postAsync(
-		'/agreements/:agreementId/extensions',
-		AgreementExtensionController.createAgreementExtension
-	)
-	router.putAsync(
-		'/agreements/:agreementId/extensions/:agreementExtensionId',
-		AgreementExtensionController.updateAgreementExtension
 	)
 	router.getAsync(
 		'/agreements/:agreementId/roles',
@@ -123,10 +111,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync(
 		'/agreements/:agreementId/roles/:agreementRoleId/bulkBurn',
 		AgreementRoleController.bulkBurn
-	)
-	router.postAsync(
-		'/agreements/:agreementId/roles/:agreementRoleId/upgrade',
-		AgreementController.upgradeAgreement
 	)
 
 	/** EPM Routes */
@@ -165,8 +149,6 @@ export default (app: Express, _express: typeof coreExpress) => {
 	/** Misc Routes */
 
 	router.getAsync('/config', ConfigController.getConfig)
-	router.getAsync('/ipfs', MeemController.getIPFSFile)
-	router.postAsync('/ipfs', MeemController.saveToIPFS)
 	router.postAsync('/generateTypes', TypesController.generateTypes)
 	router.getAsync('/meem-api.json', TypesController.getOpenAPIFile)
 
@@ -175,19 +157,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/test/webhook', TestController.testWebhook)
 
 	if (config.ENABLE_TEST_ENDPOINTS) {
-		router.getAsync('/test/gnosis', TestController.testGnosis)
-		router.getAsync('/test/testCron', TestController.testCron)
-		router.getAsync('/test/syncContract', TestController.syncContract)
-		router.getAsync('/test/metadata', TestController.metadata)
-		router.getAsync('/test/hash', TestController.testHash)
-		router.getAsync('/test/releaseLock', TestController.releaseLock)
-		router.getAsync('/test/mintPKP', TestController.mintPKP)
-		router.getAsync('/test/getEthAddress', TestController.getEthAddress)
-		router.getAsync('/test/txEncoding', TestController.testTxEncoding)
-		router.getAsync('/test/testPinata', TestController.testPinata)
-		router.getAsync('/test/callback', TestController.testCallback)
-		router.postAsync('/test/callback', TestController.testCallback)
-		router.getAsync('/test/summary', TestController.testSummary)
-		router.getAsync('/test/decrypt', TestController.testDecrypt)
+		router.getAsync('/test/email', TestController.testEmail)
+		router.getAsync('/test/emailHtml', TestController.testEmailHtml)
 	}
 }
