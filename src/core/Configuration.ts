@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import path from 'path'
 import dotenv from 'dotenv'
 import fs from 'fs-extra'
