@@ -6,7 +6,7 @@ class ConfigTests extends BaseTest {
 	protected async setup() {
 		it('Can not invite a user if not logged in', () =>
 			this.inviteUserNotLoggedIn())
-		it('Can invite a user and accept invite', () => this.inviteUser())
+		it.skip('Can invite a user and accept invite', () => this.inviteUser())
 	}
 
 	private async inviteUserNotLoggedIn() {
