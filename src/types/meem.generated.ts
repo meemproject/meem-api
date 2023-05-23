@@ -2889,16 +2889,4 @@ export namespace SlackAuthCallback {
 
 
 
-}
-export enum MeemEvent {
-
-			
-		
-}
-export namespace Events {
-
-}
-
-export type SubscribeType=
-
-export type EventListener=}
+}}
