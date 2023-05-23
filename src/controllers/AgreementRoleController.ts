@@ -197,14 +197,14 @@ export default class AgreementRoleController {
 			throw new Error('NOT_AUTHORIZED')
 		}
 
-		const { txId } = await services.agreement.bulkBurn({
+		await services.agreement.bulkBurn({
 			...req.body,
 			agreementId,
 			agreementRoleId
 		})
 
 		return res.json({
-			txId
+			status: 'success'
 		})
 	}
 

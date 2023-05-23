@@ -5,7 +5,6 @@ import Analytics from '../services/Analytics'
 import Aws from '../services/Aws'
 import Child from '../services/Child'
 import Data from '../services/Data'
-import Db from '../services/Db'
 import Discord from '../services/Discord'
 import Ethers from '../services/Ethers'
 import Lint from '../services/Lint'
@@ -26,7 +25,6 @@ declare global {
 		let aws: typeof Aws
 		let child: typeof Child
 		let data: typeof Data
-		let db: typeof Db
 		let discord: Discord
 		let ethers: Ethers
 		let lint: typeof Lint
