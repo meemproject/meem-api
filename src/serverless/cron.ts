@@ -22,14 +22,6 @@ export const handle: APIGatewayProxyHandler = async (event, _context) => {
 		request = supertest(app)
 	}
 
-	// if (config.AWS_WEBSOCKET_GATEWAY_URL) {
-	// 	sockets.connectLambda({
-	// 		endpoint: config.AWS_WEBSOCKET_GATEWAY_URL
-	// 	})
-	// } else {
-	// 	log.crit('AWS_WEBSOCKET_GATEWAY_URL is not set')
-	// }
-
 	try {
 		// @ts-ignore
 		const { job } = event

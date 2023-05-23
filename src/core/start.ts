@@ -141,18 +141,6 @@ export default async function start(options?: {
 			? await listen(app)
 			: undefined
 
-	// eslint-disable-next-line @typescript-eslint/naming-convention
-	const Sockets = (await import('./Sockets')).default
-	const socketsConfig = (await import('../sockets')).default
-	if (server) {
-		g.sockets = new Sockets({
-			server,
-			eventHandlers: socketsConfig.eventHandlers,
-			canSubscribe: socketsConfig.canSubscribe,
-			adapters: socketsConfig.adapters
-		})
-	}
-
 	if (config.GENERATE_SHARED_TYPES) {
 		const typeGeneratorTimer = log.timerStart()
 		services.types

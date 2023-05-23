@@ -1,5 +1,4 @@
 import { IERC721Base__factory } from '@meemproject/meem-contracts/dist/typechain/factories/@solidstate/contracts/token/ERC721/base/IERC721Base__factory'
-import { MeemMetadataLike } from '@meemproject/metadata'
 import { ethers } from 'ethers'
 import keccak256 from 'keccak256'
 import { DateTime } from 'luxon'
@@ -322,7 +321,7 @@ export default class AgreementRole extends ModelWithAddress<AgreementRole> {
 
 	public address!: string
 
-	public metadata!: MeemMetadataLike
+	public metadata!: MeemAPI.IMeemMetadataLike
 
 	public maxSupply!: string
 

@@ -62,7 +62,6 @@ export default {
 		process.env.DYNAMODB_TWEET_CHECKPOINTS_TABLE ?? '',
 	ENABLE_TEST_ENDPOINTS: process.env.ENABLE_TEST_ENDPOINTS === 'true',
 	WEBSOCKETS_ENABLED: process.env.WEBSOCKETS_ENABLED === 'true',
-	S3_BUCKET: process.env.S3_BUCKET ?? '',
 	MAX_GAS_PRICE_GWEI: process.env.MAX_GAS_PRICE_GWEI
 		? +process.env.MAX_GAS_PRICE_GWEI
 		: 50,

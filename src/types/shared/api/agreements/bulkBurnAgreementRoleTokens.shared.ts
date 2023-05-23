@@ -21,8 +21,7 @@ export namespace BulkBurnAgreementRoleTokens {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The Transaction id. Only if the agreement is on-chain */
-		txId?: string
+		status: 'success'
 	}
 
 	export interface IDefinition {

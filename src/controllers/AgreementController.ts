@@ -271,12 +271,7 @@ export default class AgreementController {
 			})
 		}
 
-		const result = await services.agreement.bulkBurn({
-			...req.body,
-			agreementId
-		})
-
-		return res.json(result)
+		return res.json({ status: 'success' })
 	}
 
 	public static async checkIsAgreementAdmin(

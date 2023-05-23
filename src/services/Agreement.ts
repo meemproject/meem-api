@@ -1,6 +1,4 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { getMerkleInfo } from '@meemproject/meem-contracts'
-// eslint-disable-next-line import/named
 import { ethers } from 'ethers'
 import _ from 'lodash'
 import { Op } from 'sequelize'
@@ -118,22 +116,11 @@ export default class AgreementService {
 
 		const agreementOrRole = agreementRole ?? agreement
 
-		const { contractInitParams, fullMintPermissions } =
-			await this.prepareInitValues({
-				...data,
-				chainId: agreementOrRole.chainId,
-				agreementOrRole
-			})
-
-		if (metadata && agreement.isOnChain) {
-			const result = await services.web3.saveToPinata({
-				json: {
-					...metadata
-				}
-			})
-
-			contractInitParams.contractURI = `ipfs://${result.IpfsHash}`
-		}
+		const { fullMintPermissions } = await this.prepareInitValues({
+			...data,
+			chainId: agreementOrRole.chainId,
+			agreementOrRole
+		})
 
 		// Even if reinitializing role, check parent agreement for admin role.
 		const isAdmin = await agreement.isAdmin(senderWalletAddress)
@@ -143,6 +130,9 @@ export default class AgreementService {
 		}
 
 		agreementOrRole.mintPermissions = fullMintPermissions
+		if (metadata) {
+			agreementOrRole.metadata = metadata
+		}
 
 		await agreementOrRole.save()
 
@@ -265,17 +255,6 @@ export default class AgreementService {
 		if (!metadata?.meem_metadata_version || !metadata?.meem_metadata_type) {
 			throw new Error('INVALID_METADATA')
 		}
-
-		// const contractMetadataValidator = new Validator(metadata)
-		// const contractMetadataValidatorResult =
-		// 	contractMetadataValidator.validate(metadata)
-
-		// if (!contractMetadataValidatorResult.valid) {
-		// 	log.crit(
-		// 		contractMetadataValidatorResult.errors.map((e: any) => e.message)
-		// 	)
-		// 	throw new Error('INVALID_METADATA')
-		// }
 
 		const { provider, wallet } = await services.ethers.getProvider({
 			chainId
@@ -505,19 +484,6 @@ export default class AgreementService {
 				throw new Error('INVALID_METADATA')
 			}
 
-			// const validator = new Validator({
-			// 	meem_metadata_type: agreementRoleId
-			// 		? 'Meem_AgreementRoleToken'
-			// 		: 'Meem_AgreementToken',
-			// 	meem_metadata_version: token.metadata.meem_metadata_version
-			// })
-			// const validatorResult = validator.validate(token.metadata)
-
-			// if (!validatorResult.valid) {
-			// 	log.crit(validatorResult.errors.map((e: any) => e.message))
-			// 	throw new Error('INVALID_METADATA')
-			// }
-
 			toAddresses.push(token.to)
 
 			builtData.push({
@@ -525,17 +491,6 @@ export default class AgreementService {
 				metadata: token.metadata
 			})
 		})
-
-		// Pin to IPFS
-		if (agreement.isOnChain) {
-			for (let i = 0; i < builtData.length; i++) {
-				const item = builtData[i]
-				const result = await services.web3.saveToPinata({
-					json: { ...item.metadata }
-				})
-				item.ipfs = `ipfs://${result.IpfsHash}`
-			}
-		}
 
 		const bulkParams: Parameters<Mycontract['bulkMint']>[0] = builtData.map(
 			item => ({
@@ -660,9 +615,7 @@ export default class AgreementService {
 
 		log.debug('Bulk burning tokens', { tokenIds })
 
-		let txId: string | undefined
-
-		if (agreementRole && !agreementRole.isOnChain) {
+		if (agreementRole) {
 			await orm.models.AgreementRoleToken.destroy({
 				where: {
 					AgreementRoleId: agreementRole.id,
@@ -671,7 +624,7 @@ export default class AgreementService {
 					}
 				}
 			})
-		} else if (agreement && !agreement.isOnChain) {
+		} else if (agreement) {
 			await orm.models.AgreementToken.destroy({
 				where: {
 					AgreementId: agreement.id,
@@ -681,8 +634,6 @@ export default class AgreementService {
 				}
 			})
 		}
-
-		return { txId }
 	}
 
 	public static async updateAgreement(options: {
