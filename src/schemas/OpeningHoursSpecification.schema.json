@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:OpeningHoursSpecification",
+  "title": "OpeningHoursSpecification",
+  "description": "A structured value providing information about the opening hours of a place or a certain service inside a place.\\n\\n\nThe place is __open__ if the [[opens]] property is specified, and __closed__ otherwise.\\n\\nIf the value for the [[closes]] property is less than the value for the [[opens]] property then the hour range is assumed to span over the next day.\n      ",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Structured values are used when the value of a property has a more complex structure than simply being a textual value or a reference to another thing.",
+      "$ref": "schema:StructuredValue"
+    }
+  ],
+  "properties": {
+    "closes": {
+      "description": "The closing hour of the place or service on the given day(s) of the week.",
+      "type": "string",
+      "format": "time"
+    },
+    "dayOfWeek": {
+      "description": "The day of the week for which these opening hours are valid.",
+      "$ref": "schema:DayOfWeek"
+    },
+    "opens": {
+      "description": "The opening hour of the place or service on the given day(s) of the week.",
+      "type": "string",
+      "format": "time"
+    },
+    "validFrom": {
+      "description": "The date when the item becomes valid.",
+      "anyOf": [
+        { "type": "string", "format": "date" },
+        { "type": "string", "format": "date-time" }
+      ]
+    },
+    "validThrough": {
+      "description": "The date after when the item is not valid. For example the end of an offer, salary period, or a period of opening hours.",
+      "anyOf": [
+        { "type": "string", "format": "date" },
+        { "type": "string", "format": "date-time" }
+      ]
+    }
+  }
+}

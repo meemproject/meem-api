@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:BlogPosting",
+  "title": "BlogPosting",
+  "description": "A blog post.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A post to a social media platform, including blog posts, tweets, Facebook posts, etc.",
+      "$ref": "schema:SocialMediaPosting"
+    }
+  ]
+}

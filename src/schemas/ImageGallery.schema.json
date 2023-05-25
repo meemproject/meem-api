@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:ImageGallery",
+  "title": "ImageGallery",
+  "description": "Web page type: Image gallery page.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Web page type: Media gallery page. A mixed-media page that can contains media such as images, videos, and other multimedia.",
+      "$ref": "schema:MediaGallery"
+    }
+  ]
+}

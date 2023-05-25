@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:AutoPartsStore",
+  "title": "AutoPartsStore",
+  "description": "An auto parts store.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Car repair, sales, or parts.",
+      "$ref": "schema:AutomotiveBusiness"
+    },
+    { "description": "A retail good store.", "$ref": "schema:Store" }
+  ]
+}

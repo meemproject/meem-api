@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:EmployeeRole",
+  "title": "EmployeeRole",
+  "description": "A subclass of OrganizationRole used to describe employee relationships.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A subclass of Role used to describe roles within organizations.",
+      "$ref": "schema:OrganizationRole"
+    }
+  ],
+  "properties": {
+    "baseSalary": {
+      "description": "The base salary of the job or of an employee in an EmployeeRole.",
+      "anyOf": [
+        { "type": "number" },
+        { "$ref": "schema:MonetaryAmount" },
+        { "$ref": "schema:PriceSpecification" }
+      ]
+    },
+    "salaryCurrency": {
+      "description": "The currency (coded using [ISO 4217](http://en.wikipedia.org/wiki/ISO_4217) ) used for the main salary information in this job posting or for this employee.",
+      "type": "string"
+    }
+  }
+}

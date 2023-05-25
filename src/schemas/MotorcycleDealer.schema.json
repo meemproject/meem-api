@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:MotorcycleDealer",
+  "title": "MotorcycleDealer",
+  "description": "A motorcycle dealer.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Car repair, sales, or parts.",
+      "$ref": "schema:AutomotiveBusiness"
+    }
+  ]
+}

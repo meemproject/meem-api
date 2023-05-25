@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:RadioEpisode",
+  "title": "RadioEpisode",
+  "description": "A radio episode which can be part of a series or season.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A media episode (e.g. TV, radio, video game) which can be part of a series or season.",
+      "$ref": "schema:Episode"
+    }
+  ]
+}

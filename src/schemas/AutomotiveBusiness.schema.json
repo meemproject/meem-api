@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:AutomotiveBusiness",
+  "title": "AutomotiveBusiness",
+  "description": "Car repair, sales, or parts.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A particular physical business or branch of an organization. Examples of LocalBusiness include a restaurant, a particular branch of a restaurant chain, a branch of a bank, a medical practice, a club, a bowling alley, etc.",
+      "$ref": "schema:LocalBusiness"
+    }
+  ]
+}

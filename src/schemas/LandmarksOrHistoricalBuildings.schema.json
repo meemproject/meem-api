@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:LandmarksOrHistoricalBuildings",
+  "title": "LandmarksOrHistoricalBuildings",
+  "description": "An historical landmark or building.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Entities that have a somewhat fixed, physical extension.",
+      "$ref": "schema:Place"
+    }
+  ]
+}

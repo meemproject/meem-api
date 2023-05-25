@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:Embassy",
+  "title": "Embassy",
+  "description": "An embassy.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A government building.",
+      "$ref": "schema:GovernmentBuilding"
+    }
+  ]
+}

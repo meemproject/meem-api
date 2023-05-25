@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:CookAction",
+  "title": "CookAction",
+  "description": "The act of producing/preparing food.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of deliberately creating/producing/generating/building a result out of the agent.",
+      "$ref": "schema:CreateAction"
+    }
+  ],
+  "properties": {
+    "foodEstablishment": {
+      "description": "A sub property of location. The specific food establishment where the action occurred.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:FoodEstablishment" },
+            { "$ref": "schema:Place" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:FoodEstablishment" },
+              { "$ref": "schema:Place" }
+            ]
+          }
+        }
+      ]
+    },
+    "foodEvent": {
+      "description": "A sub property of location. The specific food event where the action occurred.",
+      "oneOf": [
+        { "$ref": "schema:FoodEvent" },
+        { "type": "array", "items": { "$ref": "schema:FoodEvent" } }
+      ]
+    },
+    "recipe": {
+      "description": "A sub property of instrument. The recipe/instructions used to perform the action.",
+      "oneOf": [
+        { "$ref": "schema:Recipe" },
+        { "type": "array", "items": { "$ref": "schema:Recipe" } }
+      ]
+    }
+  }
+}

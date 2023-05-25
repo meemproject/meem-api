@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:ContactPointOption",
+  "title": "ContactPointOption",
+  "description": "Enumerated options related to a ContactPoint.",
+  "type": "string",
+  "oneOf": [
+    {
+      "description": "Uses devices to support users with hearing impairments.",
+      "const": "HearingImpairedSupported"
+    },
+    {
+      "description": "The associated telephone number is toll free.",
+      "const": "TollFree"
+    }
+  ]
+}

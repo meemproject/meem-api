@@ -1,0 +1,240 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:Service",
+  "title": "Service",
+  "description": "A service provided by an organization, e.g. delivery service, print services, etc.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A utility class that serves as the umbrella for a number of 'intangible' things such as quantities, structured values, etc.",
+      "$ref": "schema:Intangible"
+    }
+  ],
+  "properties": {
+    "aggregateRating": {
+      "description": "The overall rating, based on a collection of reviews or ratings, of the item.",
+      "$ref": "schema:AggregateRating"
+    },
+    "areaServed": {
+      "description": "The geographic area where a service or offered item is provided.",
+      "anyOf": [
+        { "type": "string" },
+        { "$ref": "schema:AdministrativeArea" },
+        { "$ref": "schema:GeoShape" },
+        { "$ref": "schema:Place" }
+      ]
+    },
+    "audience": {
+      "description": "An intended audience, i.e. a group for whom something was created.",
+      "$ref": "schema:Audience"
+    },
+    "availableChannel": {
+      "description": "A means of accessing the service (e.g. a phone bank, a web site, a location, etc.).",
+      "oneOf": [
+        { "$ref": "schema:ServiceChannel" },
+        { "type": "array", "items": { "$ref": "schema:ServiceChannel" } }
+      ]
+    },
+    "award": {
+      "description": "An award won by or for this item.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "brand": {
+      "description": "The brand(s) associated with a product or service, or the brand(s) maintained by an organization or business person.",
+      "anyOf": [{ "$ref": "schema:Brand" }, { "$ref": "schema:Organization" }]
+    },
+    "broker": {
+      "description": "An entity that arranges for an exchange between a buyer and a seller.  In most cases a broker never acquires or releases ownership of a product or service involved in an exchange.  If it is not clear whether an entity is a broker, seller, or buyer, the latter two terms are preferred.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:Organization" },
+            { "$ref": "schema:Person" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:Organization" },
+              { "$ref": "schema:Person" }
+            ]
+          }
+        }
+      ]
+    },
+    "category": {
+      "description": "A category for the item. Greater signs or slashes can be used to informally indicate a category hierarchy.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "type": "string", "format": "uri" },
+            { "type": "string" },
+            { "$ref": "schema:PhysicalActivityCategory" },
+            { "$ref": "schema:Thing" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string", "format": "uri" },
+              { "type": "string" },
+              { "$ref": "schema:PhysicalActivityCategory" },
+              { "$ref": "schema:Thing" }
+            ]
+          }
+        }
+      ]
+    },
+    "hasOfferCatalog": {
+      "description": "Indicates an OfferCatalog listing for this Organization, Person, or Service.",
+      "oneOf": [
+        { "$ref": "schema:OfferCatalog" },
+        { "type": "array", "items": { "$ref": "schema:OfferCatalog" } }
+      ]
+    },
+    "hoursAvailable": {
+      "description": "The hours during which this service or contact is available.",
+      "$ref": "schema:OpeningHoursSpecification"
+    },
+    "isRelatedTo": {
+      "description": "A pointer to another, somehow related product (or multiple products).",
+      "oneOf": [
+        {
+          "anyOf": [{ "$ref": "schema:Product" }, { "$ref": "schema:Service" }]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:Product" },
+              { "$ref": "schema:Service" }
+            ]
+          }
+        }
+      ]
+    },
+    "isSimilarTo": {
+      "description": "A pointer to another, functionally similar product (or multiple products).",
+      "oneOf": [
+        {
+          "anyOf": [{ "$ref": "schema:Product" }, { "$ref": "schema:Service" }]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:Product" },
+              { "$ref": "schema:Service" }
+            ]
+          }
+        }
+      ]
+    },
+    "logo": {
+      "description": "An associated logo.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "type": "string", "format": "uri" },
+            { "$ref": "schema:ImageObject" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string", "format": "uri" },
+              { "$ref": "schema:ImageObject" }
+            ]
+          }
+        }
+      ]
+    },
+    "offers": {
+      "description": "An offer to provide this item—for example, an offer to sell a product, rent the DVD of a movie, perform a service, or give away tickets to an event. Use [[businessFunction]] to indicate the kind of transaction offered, i.e. sell, lease, etc. This property can also be used to describe a [[Demand]]. While this property is listed as expected on a number of common types, it can be used in others. In that case, using a second type, such as Product or a subtype of Product, can clarify the nature of the offer.\n      ",
+      "oneOf": [
+        { "anyOf": [{ "$ref": "schema:Demand" }, { "$ref": "schema:Offer" }] },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [{ "$ref": "schema:Demand" }, { "$ref": "schema:Offer" }]
+          }
+        }
+      ]
+    },
+    "produces": {
+      "description": "The tangible thing generated by the service, e.g. a passport, permit, etc.",
+      "$ref": "schema:Thing"
+    },
+    "provider": {
+      "description": "The service provider, service operator, or service performer; the goods producer. Another party (a seller) may offer those services or goods on behalf of the provider. A provider may also serve as the seller.",
+      "anyOf": [{ "$ref": "schema:Organization" }, { "$ref": "schema:Person" }]
+    },
+    "providerMobility": {
+      "description": "Indicates the mobility of a provided service (e.g. 'static', 'dynamic').",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "review": {
+      "description": "A review of the item.",
+      "oneOf": [
+        { "$ref": "schema:Review" },
+        { "type": "array", "items": { "$ref": "schema:Review" } }
+      ]
+    },
+    "serviceArea": {
+      "description": "The geographic area where the service is provided.",
+      "anyOf": [
+        { "$ref": "schema:AdministrativeArea" },
+        { "$ref": "schema:GeoShape" },
+        { "$ref": "schema:Place" }
+      ]
+    },
+    "serviceAudience": {
+      "description": "The audience eligible for this service.",
+      "$ref": "schema:Audience"
+    },
+    "serviceOutput": {
+      "description": "The tangible thing generated by the service, e.g. a passport, permit, etc.",
+      "$ref": "schema:Thing"
+    },
+    "serviceType": {
+      "description": "The type of service being offered, e.g. veterans' benefits, emergency relief, etc.",
+      "anyOf": [
+        { "type": "string" },
+        { "$ref": "schema:GovernmentBenefitsType" }
+      ]
+    },
+    "slogan": {
+      "description": "A slogan or motto associated with the item.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "termsOfService": {
+      "description": "Human-readable terms of service documentation.",
+      "oneOf": [
+        {
+          "anyOf": [{ "type": "string", "format": "uri" }, { "type": "string" }]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string", "format": "uri" },
+              { "type": "string" }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

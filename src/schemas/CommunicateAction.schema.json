@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:CommunicateAction",
+  "title": "CommunicateAction",
+  "description": "The act of conveying information to another person via a communication medium (instrument) such as speech, email, or telephone conversation.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of interacting with another person or organization.",
+      "$ref": "schema:InteractAction"
+    }
+  ],
+  "properties": {
+    "about": {
+      "description": "The subject matter of the content.",
+      "$ref": "schema:Thing"
+    },
+    "inLanguage": {
+      "description": "The language of the content or performance or used in an action. Please use one of the language codes from the [IETF BCP 47 standard](http://tools.ietf.org/html/bcp47). See also [[availableLanguage]].",
+      "anyOf": [{ "type": "string" }, { "$ref": "schema:Language" }]
+    },
+    "language": {
+      "description": "A sub property of instrument. The language used on this action.",
+      "oneOf": [
+        { "$ref": "schema:Language" },
+        { "type": "array", "items": { "$ref": "schema:Language" } }
+      ]
+    },
+    "recipient": {
+      "description": "A sub property of participant. The participant who is at the receiving end of the action.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:Audience" },
+            { "$ref": "schema:ContactPoint" },
+            { "$ref": "schema:Organization" },
+            { "$ref": "schema:Person" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:Audience" },
+              { "$ref": "schema:ContactPoint" },
+              { "$ref": "schema:Organization" },
+              { "$ref": "schema:Person" }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

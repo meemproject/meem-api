@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:LodgingReservation",
+  "title": "LodgingReservation",
+  "description": "A reservation for lodging at a hotel, motel, inn, etc.\\n\\nNote: This type is for information about actual reservations, e.g. in confirmation emails or HTML pages with individual confirmations of reservations.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Describes a reservation for travel, dining or an event. Some reservations require tickets. \\n\\nNote: This type is for information about actual reservations, e.g. in confirmation emails or HTML pages with individual confirmations of reservations. For offers of tickets, restaurant reservations, flights, or rental cars, use [[Offer]].",
+      "$ref": "schema:Reservation"
+    }
+  ],
+  "properties": {
+    "checkinTime": {
+      "description": "The earliest someone may check into a lodging establishment.",
+      "anyOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "string", "format": "time" }
+      ]
+    },
+    "checkoutTime": {
+      "description": "The latest someone may check out of a lodging establishment.",
+      "anyOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "string", "format": "time" }
+      ]
+    },
+    "lodgingUnitDescription": {
+      "description": "A full description of the lodging unit.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "lodgingUnitType": {
+      "description": "Textual description of the unit type (including suite vs. room, size of bed, etc.).",
+      "oneOf": [
+        {
+          "anyOf": [{ "type": "string" }, { "$ref": "schema:QualitativeValue" }]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "$ref": "schema:QualitativeValue" }
+            ]
+          }
+        }
+      ]
+    },
+    "numAdults": {
+      "description": "The number of adults staying in the unit.",
+      "anyOf": [{ "type": "integer" }, { "$ref": "schema:QuantitativeValue" }]
+    },
+    "numChildren": {
+      "description": "The number of children staying in the unit.",
+      "anyOf": [{ "type": "integer" }, { "$ref": "schema:QuantitativeValue" }]
+    }
+  }
+}

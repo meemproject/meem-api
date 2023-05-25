@@ -16,6 +16,7 @@ import Slack from '../services/Slack'
 import Testing from '../services/Testing'
 import Twitter from '../services/Twitter'
 import Types from '../services/Types'
+import Validator from '../services/Validator'
 import Web3 from '../services/Web3'
 
 declare global {
@@ -36,6 +37,7 @@ declare global {
 		let testing: Testing
 		let twitter: typeof Twitter
 		let types: typeof Types
+		let validator: Validator
 		let web3: typeof Web3
 	}
 }

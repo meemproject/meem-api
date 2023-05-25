@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:PreOrderAction",
+  "title": "PreOrderAction",
+  "description": "An agent orders a (not yet released) object/product/service to be delivered/sent.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of participating in an exchange of goods and services for monetary compensation. An agent trades an object, product or service with a participant in exchange for a one time or periodic payment.",
+      "$ref": "schema:TradeAction"
+    }
+  ]
+}

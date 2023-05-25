@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:FireStation",
+  "title": "FireStation",
+  "description": "A fire station. With firemen.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A public structure, such as a town hall or concert hall.",
+      "$ref": "schema:CivicStructure"
+    },
+    {
+      "description": "An emergency service, such as a fire station or ER.",
+      "$ref": "schema:EmergencyService"
+    }
+  ]
+}

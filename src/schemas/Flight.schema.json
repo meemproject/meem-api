@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:Flight",
+  "title": "Flight",
+  "description": "An airline flight.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A trip or journey. An itinerary of visits to one or more places.",
+      "$ref": "schema:Trip"
+    }
+  ],
+  "properties": {
+    "aircraft": {
+      "description": "The kind of aircraft (e.g., \"Boeing 747\").",
+      "anyOf": [{ "type": "string" }, { "$ref": "schema:Vehicle" }]
+    },
+    "arrivalAirport": {
+      "description": "The airport where the flight terminates.",
+      "$ref": "schema:Airport"
+    },
+    "arrivalGate": {
+      "description": "Identifier of the flight's arrival gate.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "arrivalTerminal": {
+      "description": "Identifier of the flight's arrival terminal.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "boardingPolicy": {
+      "description": "The type of boarding policy used by the airline (e.g. zone-based or group-based).",
+      "$ref": "schema:BoardingPolicyType"
+    },
+    "carrier": {
+      "description": "'carrier' is an out-dated term indicating the 'provider' for parcel delivery and flights.",
+      "$ref": "schema:Organization"
+    },
+    "departureAirport": {
+      "description": "The airport where the flight originates.",
+      "$ref": "schema:Airport"
+    },
+    "departureGate": {
+      "description": "Identifier of the flight's departure gate.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "departureTerminal": {
+      "description": "Identifier of the flight's departure terminal.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "estimatedFlightDuration": {
+      "description": "The estimated time the flight will take.",
+      "anyOf": [
+        { "type": "string", "$comment": "https://schema.org/Duration" },
+        { "type": "string" }
+      ]
+    },
+    "flightDistance": {
+      "description": "The distance of the flight.",
+      "anyOf": [
+        { "type": "string", "$comment": "https://schema.org/Distance" },
+        { "type": "string" }
+      ]
+    },
+    "flightNumber": {
+      "description": "The unique identifier for a flight including the airline IATA code. For example, if describing United flight 110, where the IATA code for United is 'UA', the flightNumber is 'UA110'.",
+      "type": "string"
+    },
+    "mealService": {
+      "description": "Description of the meals that will be provided or available for purchase.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "seller": {
+      "description": "An entity which offers (sells / leases / lends / loans) the services / goods.  A seller may also be a provider.",
+      "anyOf": [{ "$ref": "schema:Organization" }, { "$ref": "schema:Person" }]
+    },
+    "webCheckinTime": {
+      "description": "The time when a passenger can check into the flight online.",
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

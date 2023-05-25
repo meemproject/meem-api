@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:ClaimReview",
+  "title": "ClaimReview",
+  "description": "A fact-checking review of claims made (or reported) in some creative work (referenced via itemReviewed).",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A review of an item - for example, of a restaurant, movie, or store.",
+      "$ref": "schema:Review"
+    }
+  ],
+  "properties": {
+    "claimReviewed": {
+      "description": "A short summary of the specific claims reviewed in a ClaimReview.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    }
+  }
+}

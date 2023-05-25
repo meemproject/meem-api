@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:APIReference",
+  "title": "APIReference",
+  "description": "Reference documentation for application programming interfaces (APIs).",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A technical article - Example: How-to (task) topics, step-by-step, procedural troubleshooting, specifications, etc.",
+      "$ref": "schema:TechArticle"
+    }
+  ],
+  "properties": {
+    "assembly": {
+      "description": "Library file name e.g., mscorlib.dll, system.web.dll.",
+      "type": "string"
+    },
+    "assemblyVersion": {
+      "description": "Associated product/technology version. e.g., .NET Framework 4.5.",
+      "type": "string"
+    },
+    "executableLibraryName": {
+      "description": "Library file name e.g., mscorlib.dll, system.web.dll.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "programmingModel": {
+      "description": "Indicates whether API is managed or unmanaged.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "targetPlatform": {
+      "description": "Type of app development: phone, Metro style, desktop, XBox, etc.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    }
+  }
+}

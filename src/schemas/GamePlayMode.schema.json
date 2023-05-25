@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:GamePlayMode",
+  "title": "GamePlayMode",
+  "description": "Indicates whether this game is multi-player, co-op or single-player.",
+  "type": "string",
+  "oneOf": [
+    {
+      "description": "Play mode: CoOp. Co-operative games, where you play on the same team with friends.",
+      "const": "CoOp"
+    },
+    {
+      "description": "Play mode: MultiPlayer. Requiring or allowing multiple human players to play simultaneously.",
+      "const": "MultiPlayer"
+    },
+    {
+      "description": "Play mode: SinglePlayer. Which is played by a lone player.",
+      "const": "SinglePlayer"
+    }
+  ]
+}

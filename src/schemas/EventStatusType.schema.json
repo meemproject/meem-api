@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:EventStatusType",
+  "title": "EventStatusType",
+  "description": "EventStatusType is an enumeration type whose instances represent several states that an Event may be in.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Lists or enumerations dealing with status types.",
+      "$ref": "schema:StatusEnumeration"
+    }
+  ]
+}

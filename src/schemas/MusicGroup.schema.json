@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:MusicGroup",
+  "title": "MusicGroup",
+  "description": "A musical group, such as a band, an orchestra, or a choir. Can also be a solo musician.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A performance group, such as a band, an orchestra, or a circus.",
+      "$ref": "schema:PerformingGroup"
+    }
+  ],
+  "properties": {
+    "album": {
+      "description": "A music album.",
+      "oneOf": [
+        { "$ref": "schema:MusicAlbum" },
+        { "type": "array", "items": { "$ref": "schema:MusicAlbum" } }
+      ]
+    },
+    "albums": {
+      "description": "A collection of music albums.",
+      "oneOf": [
+        { "$ref": "schema:MusicAlbum" },
+        { "type": "array", "items": { "$ref": "schema:MusicAlbum" } }
+      ]
+    },
+    "genre": {
+      "description": "Genre of the creative work, broadcast channel or group.",
+      "anyOf": [{ "type": "string", "format": "uri" }, { "type": "string" }]
+    },
+    "musicGroupMember": {
+      "description": "A member of a music group—for example, John, Paul, George, or Ringo.",
+      "oneOf": [
+        { "$ref": "schema:Person" },
+        { "type": "array", "items": { "$ref": "schema:Person" } }
+      ]
+    },
+    "track": {
+      "description": "A music recording (track)—usually a single song. If an ItemList is given, the list should contain items of type MusicRecording.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:ItemList" },
+            { "$ref": "schema:MusicRecording" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:ItemList" },
+              { "$ref": "schema:MusicRecording" }
+            ]
+          }
+        }
+      ]
+    },
+    "tracks": {
+      "description": "A music recording (track)—usually a single song.",
+      "oneOf": [
+        { "$ref": "schema:MusicRecording" },
+        { "type": "array", "items": { "$ref": "schema:MusicRecording" } }
+      ]
+    }
+  }
+}

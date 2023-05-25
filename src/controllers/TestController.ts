@@ -2,6 +2,22 @@ import { Request, Response } from 'express'
 import { transactionalTemplate } from '../lib/emailTemplate'
 
 export default class TestController {
+	public static async testSchema(
+		_req: Request,
+		res: Response
+	): Promise<Response> {
+		const result = await services.validator.validate({
+			data: { something: true },
+			schemaName: 'Book'
+		})
+
+		return res.json({
+			status: 'success',
+			isValid: result.valid,
+			result
+		})
+	}
+
 	public static async testWebhook(
 		req: Request,
 		res: Response

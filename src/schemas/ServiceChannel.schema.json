@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:ServiceChannel",
+  "title": "ServiceChannel",
+  "description": "A means for accessing a service, e.g. a government office location, web site, or phone number.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A utility class that serves as the umbrella for a number of 'intangible' things such as quantities, structured values, etc.",
+      "$ref": "schema:Intangible"
+    }
+  ],
+  "properties": {
+    "availableLanguage": {
+      "description": "A language someone may use with or at the item, service or place. Please use one of the language codes from the [IETF BCP 47 standard](http://tools.ietf.org/html/bcp47). See also [[inLanguage]]",
+      "oneOf": [
+        { "anyOf": [{ "type": "string" }, { "$ref": "schema:Language" }] },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [{ "type": "string" }, { "$ref": "schema:Language" }]
+          }
+        }
+      ]
+    },
+    "processingTime": {
+      "description": "Estimated processing time for the service using this channel.",
+      "type": "string",
+      "$comment": "https://schema.org/Duration"
+    },
+    "providesService": {
+      "description": "The service provided by this channel.",
+      "$ref": "schema:Service"
+    },
+    "serviceLocation": {
+      "description": "The location (e.g. civic structure, local business, etc.) where a person can go to access the service.",
+      "$ref": "schema:Place"
+    },
+    "servicePhone": {
+      "description": "The phone number to use to access the service.",
+      "$ref": "schema:ContactPoint"
+    },
+    "servicePostalAddress": {
+      "description": "The address for accessing the service by mail.",
+      "$ref": "schema:PostalAddress"
+    },
+    "serviceSmsNumber": {
+      "description": "The number to access the service by text message.",
+      "$ref": "schema:ContactPoint"
+    },
+    "serviceUrl": {
+      "description": "The website to access the service.",
+      "type": "string",
+      "format": "uri"
+    }
+  }
+}

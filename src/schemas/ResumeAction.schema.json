@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:ResumeAction",
+  "title": "ResumeAction",
+  "description": "The act of resuming a device or application which was formerly paused (e.g. resume music playback or resume a timer).",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "An agent controls a device or application.",
+      "$ref": "schema:ControlAction"
+    }
+  ]
+}

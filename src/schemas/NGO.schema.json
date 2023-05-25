@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:NGO",
+  "title": "NGO",
+  "description": "Organization: Non-governmental Organization.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "An organization such as a school, NGO, corporation, club, etc.",
+      "$ref": "schema:Organization"
+    }
+  ]
+}

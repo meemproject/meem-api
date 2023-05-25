@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:ReplaceAction",
+  "title": "ReplaceAction",
+  "description": "The act of editing a recipient by replacing an old object with a new object.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of managing by changing/editing the state of the object.",
+      "$ref": "schema:UpdateAction"
+    }
+  ],
+  "properties": {
+    "replacee": {
+      "description": "A sub property of object. The object that is being replaced.",
+      "oneOf": [
+        { "$ref": "schema:Thing" },
+        { "type": "array", "items": { "$ref": "schema:Thing" } }
+      ]
+    },
+    "replacer": {
+      "description": "A sub property of object. The object that replaces.",
+      "oneOf": [
+        { "$ref": "schema:Thing" },
+        { "type": "array", "items": { "$ref": "schema:Thing" } }
+      ]
+    }
+  }
+}

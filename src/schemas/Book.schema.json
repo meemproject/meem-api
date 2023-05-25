@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:Book",
+  "title": "Book",
+  "description": "A book.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The most generic kind of creative work, including books, movies, photographs, software programs, etc.",
+      "$ref": "schema:CreativeWork"
+    }
+  ],
+  "properties": {
+    "abridged": {
+      "description": "Indicates whether the book is an abridged edition.",
+      "type": "boolean"
+    },
+    "bookEdition": {
+      "description": "The edition of the book.",
+      "type": "string"
+    },
+    "bookFormat": {
+      "description": "The format of the book.",
+      "$ref": "schema:BookFormatType"
+    },
+    "illustrator": {
+      "description": "The illustrator of the book.",
+      "$ref": "schema:Person"
+    },
+    "isbn": { "description": "The ISBN of the book.", "type": "string" },
+    "numberOfPages": {
+      "description": "The number of pages in the book.",
+      "type": "integer"
+    }
+  }
+}

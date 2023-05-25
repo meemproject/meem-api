@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:ApplyAction",
+  "title": "ApplyAction",
+  "description": "The act of registering to an organization/service without the guarantee to receive it.\\n\\nRelated actions:\\n\\n* [[RegisterAction]]: Unlike RegisterAction, ApplyAction has no guarantees that the application will be accepted.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of manipulating/administering/supervising/controlling one or more objects.",
+      "$ref": "schema:OrganizeAction"
+    }
+  ]
+}

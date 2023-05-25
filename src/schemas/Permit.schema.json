@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:Permit",
+  "title": "Permit",
+  "description": "A permit issued by an organization, e.g. a parking pass.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A utility class that serves as the umbrella for a number of 'intangible' things such as quantities, structured values, etc.",
+      "$ref": "schema:Intangible"
+    }
+  ],
+  "properties": {
+    "issuedBy": {
+      "description": "The organization issuing the ticket or permit.",
+      "$ref": "schema:Organization"
+    },
+    "issuedThrough": {
+      "description": "The service through with the permit was granted.",
+      "$ref": "schema:Service"
+    },
+    "permitAudience": {
+      "description": "The target audience for this permit.",
+      "$ref": "schema:Audience"
+    },
+    "validFor": {
+      "description": "The duration of validity of a permit or similar thing.",
+      "type": "string",
+      "$comment": "https://schema.org/Duration"
+    },
+    "validFrom": {
+      "description": "The date when the item becomes valid.",
+      "anyOf": [
+        { "type": "string", "format": "date" },
+        { "type": "string", "format": "date-time" }
+      ]
+    },
+    "validIn": {
+      "description": "The geographic area where a permit or similar thing is valid.",
+      "$ref": "schema:AdministrativeArea"
+    },
+    "validUntil": {
+      "description": "The date when the item is no longer valid.",
+      "type": "string",
+      "format": "date"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:Residence",
+  "title": "Residence",
+  "description": "The place where a person lives.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Entities that have a somewhat fixed, physical extension.",
+      "$ref": "schema:Place"
+    }
+  ],
+  "properties": {
+    "accommodationFloorPlan": {
+      "description": "A floorplan of some [[Accommodation]].",
+      "oneOf": [
+        { "$ref": "schema:FloorPlan" },
+        { "type": "array", "items": { "$ref": "schema:FloorPlan" } }
+      ]
+    }
+  }
+}

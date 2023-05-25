@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:RentAction",
+  "title": "RentAction",
+  "description": "The act of giving money in return for temporary use, but not ownership, of an object such as a vehicle or property. For example, an agent rents a property from a landlord in exchange for a periodic payment.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of participating in an exchange of goods and services for monetary compensation. An agent trades an object, product or service with a participant in exchange for a one time or periodic payment.",
+      "$ref": "schema:TradeAction"
+    }
+  ],
+  "properties": {
+    "landlord": {
+      "description": "A sub property of participant. The owner of the real estate property.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:Organization" },
+            { "$ref": "schema:Person" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:Organization" },
+              { "$ref": "schema:Person" }
+            ]
+          }
+        }
+      ]
+    },
+    "realEstateAgent": {
+      "description": "A sub property of participant. The real estate agent involved in the action.",
+      "oneOf": [
+        { "$ref": "schema:RealEstateAgent" },
+        { "type": "array", "items": { "$ref": "schema:RealEstateAgent" } }
+      ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:Casino",
+  "title": "Casino",
+  "description": "A casino.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A business providing entertainment.",
+      "$ref": "schema:EntertainmentBusiness"
+    }
+  ]
+}

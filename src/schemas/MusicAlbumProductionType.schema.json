@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:MusicAlbumProductionType",
+  "title": "MusicAlbumProductionType",
+  "description": "Classification of the album by it's type of content: soundtrack, live album, studio album, etc.",
+  "type": "string",
+  "oneOf": [
+    { "description": "CompilationAlbum.", "const": "CompilationAlbum" },
+    { "description": "DJMixAlbum.", "const": "DJMixAlbum" },
+    { "description": "DemoAlbum.", "const": "DemoAlbum" },
+    { "description": "LiveAlbum.", "const": "LiveAlbum" },
+    { "description": "MixtapeAlbum.", "const": "MixtapeAlbum" },
+    { "description": "RemixAlbum.", "const": "RemixAlbum" },
+    { "description": "SoundtrackAlbum.", "const": "SoundtrackAlbum" },
+    { "description": "SpokenWordAlbum.", "const": "SpokenWordAlbum" },
+    { "description": "StudioAlbum.", "const": "StudioAlbum" }
+  ]
+}

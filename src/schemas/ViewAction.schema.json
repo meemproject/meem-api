@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:ViewAction",
+  "title": "ViewAction",
+  "description": "The act of consuming static visual content.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of ingesting information/resources/food.",
+      "$ref": "schema:ConsumeAction"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:DaySpa",
+  "title": "DaySpa",
+  "description": "A day spa.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Health and beauty.",
+      "$ref": "schema:HealthAndBeautyBusiness"
+    }
+  ]
+}

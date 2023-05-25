@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:LiveBlogPosting",
+  "title": "LiveBlogPosting",
+  "description": "A [[LiveBlogPosting]] is a [[BlogPosting]] intended to provide a rolling textual coverage of an ongoing event through continuous updates.",
+  "type": "object",
+  "allOf": [{ "description": "A blog post.", "$ref": "schema:BlogPosting" }],
+  "properties": {
+    "coverageEndTime": {
+      "description": "The time when the live blog will stop covering the Event. Note that coverage may continue after the Event concludes.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "coverageStartTime": {
+      "description": "The time when the live blog will begin covering the Event. Note that coverage may begin before the Event's start time. The LiveBlogPosting may also be created before coverage begins.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "liveBlogUpdate": {
+      "description": "An update to the LiveBlog.",
+      "oneOf": [
+        { "$ref": "schema:BlogPosting" },
+        { "type": "array", "items": { "$ref": "schema:BlogPosting" } }
+      ]
+    }
+  }
+}

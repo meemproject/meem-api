@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:GameServer",
+  "title": "GameServer",
+  "description": "Server that provides game interaction in a multiplayer game.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A utility class that serves as the umbrella for a number of 'intangible' things such as quantities, structured values, etc.",
+      "$ref": "schema:Intangible"
+    }
+  ],
+  "properties": {
+    "game": {
+      "description": "Video game which is played on this server.",
+      "oneOf": [
+        { "$ref": "schema:VideoGame" },
+        { "type": "array", "items": { "$ref": "schema:VideoGame" } }
+      ]
+    },
+    "playersOnline": {
+      "description": "Number of players on the server.",
+      "oneOf": [
+        { "type": "integer" },
+        { "type": "array", "items": { "type": "integer" } }
+      ]
+    },
+    "serverStatus": {
+      "description": "Status of a game server.",
+      "oneOf": [
+        { "$ref": "schema:GameServerStatus" },
+        { "type": "array", "items": { "$ref": "schema:GameServerStatus" } }
+      ]
+    }
+  }
+}

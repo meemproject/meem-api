@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:DiscoverAction",
+  "title": "DiscoverAction",
+  "description": "The act of discovering/finding an object.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of finding an object.\\n\\nRelated actions:\\n\\n* [[SearchAction]]: FindAction is generally lead by a SearchAction, but not necessarily.",
+      "$ref": "schema:FindAction"
+    }
+  ]
+}

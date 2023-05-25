@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:URL",
+  "title": "URL",
+  "description": "Data type: URL.",
+  "type": "object",
+  "allOf": [{ "description": "Data type: Text.", "$ref": "schema:Text" }]
+}

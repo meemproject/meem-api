@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:Specialty",
+  "title": "Specialty",
+  "description": "Any branch of a field in which people typically develop specific expertise, usually after significant study, time, and effort.",
+  "type": "object"
+}

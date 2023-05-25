@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:HinduTemple",
+  "title": "HinduTemple",
+  "description": "A Hindu temple.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Place of worship, such as a church, synagogue, or mosque.",
+      "$ref": "schema:PlaceOfWorship"
+    }
+  ]
+}

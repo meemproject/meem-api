@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:EndorseAction",
+  "title": "EndorseAction",
+  "description": "An agent approves/certifies/likes/supports/sanction an object.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of responding instinctively and emotionally to an object, expressing a sentiment.",
+      "$ref": "schema:ReactAction"
+    }
+  ],
+  "properties": {
+    "endorsee": {
+      "description": "A sub property of participant. The person/organization being supported.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:Organization" },
+            { "$ref": "schema:Person" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:Organization" },
+              { "$ref": "schema:Person" }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

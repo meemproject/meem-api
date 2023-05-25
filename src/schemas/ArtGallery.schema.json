@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:ArtGallery",
+  "title": "ArtGallery",
+  "description": "An art gallery.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A business providing entertainment.",
+      "$ref": "schema:EntertainmentBusiness"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:NutritionInformation",
+  "title": "NutritionInformation",
+  "description": "Nutritional information about the recipe.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Structured values are used when the value of a property has a more complex structure than simply being a textual value or a reference to another thing.",
+      "$ref": "schema:StructuredValue"
+    }
+  ],
+  "properties": {
+    "calories": {
+      "description": "The number of calories.",
+      "type": "string",
+      "$comment": "https://schema.org/Energy"
+    },
+    "carbohydrateContent": {
+      "description": "The number of grams of carbohydrates.",
+      "type": "string",
+      "$comment": "https://schema.org/Mass"
+    },
+    "cholesterolContent": {
+      "description": "The number of milligrams of cholesterol.",
+      "type": "string",
+      "$comment": "https://schema.org/Mass"
+    },
+    "fatContent": {
+      "description": "The number of grams of fat.",
+      "type": "string",
+      "$comment": "https://schema.org/Mass"
+    },
+    "fiberContent": {
+      "description": "The number of grams of fiber.",
+      "type": "string",
+      "$comment": "https://schema.org/Mass"
+    },
+    "proteinContent": {
+      "description": "The number of grams of protein.",
+      "type": "string",
+      "$comment": "https://schema.org/Mass"
+    },
+    "saturatedFatContent": {
+      "description": "The number of grams of saturated fat.",
+      "type": "string",
+      "$comment": "https://schema.org/Mass"
+    },
+    "servingSize": {
+      "description": "The serving size, in terms of the number of volume or mass.",
+      "type": "string"
+    },
+    "sodiumContent": {
+      "description": "The number of milligrams of sodium.",
+      "type": "string",
+      "$comment": "https://schema.org/Mass"
+    },
+    "sugarContent": {
+      "description": "The number of grams of sugar.",
+      "type": "string",
+      "$comment": "https://schema.org/Mass"
+    },
+    "transFatContent": {
+      "description": "The number of grams of trans fat.",
+      "type": "string",
+      "$comment": "https://schema.org/Mass"
+    },
+    "unsaturatedFatContent": {
+      "description": "The number of grams of unsaturated fat.",
+      "type": "string",
+      "$comment": "https://schema.org/Mass"
+    }
+  }
+}
