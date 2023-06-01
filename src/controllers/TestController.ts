@@ -7,7 +7,7 @@ export default class TestController {
 		res: Response
 	): Promise<Response> {
 		const result = await services.validator.validate({
-			data: { something: true },
+			data: { something: true, abridged: 'asdf' },
 			schemaName: 'Book'
 		})
 
@@ -55,9 +55,9 @@ export default class TestController {
 		const html = transactionalTemplate({
 			subject: 'Testing email',
 			inboxPreview: "Here's an inbox preview of the message.",
-			title: 'Testing email',
+			// title: 'Testing email',
 			bodyText:
-				'Ut reprehenderit qui. Animi numquam laborum est recusandae. Sequi iusto nisi assumenda vel est numquam aut. Eius adipisci voluptatem distinctio magnam sed nemo non quas eligendi. Facilis officia et et deleniti consequuntur vel.\n\nLibero magni rem vel. Quo est dignissimos ea ut enim et qui. Dignissimos ratione qui quisquam fuga quos ut delectus quia. Quia nihil a voluptatem ullam. Et veniam maiores consequatur vel et odit et repellat. Quasi accusamus quis.\n\n Quo eius rerum voluptatum doloremque qui nisi explicabo ipsam ipsa. Eum iste molestiae qui facilis velit nisi alias molestias sint. Voluptatem voluptatem rerum consequatur eum quidem perspiciatis. Voluptatum iure modi qui alias eius distinctio at.',
+				'Ut <b>reprehenderit qui</b>. Animi numquam laborum est recusandae. Sequi iusto nisi assumenda vel est numquam aut. Eius adipisci voluptatem distinctio magnam sed nemo non quas eligendi. Facilis officia et et deleniti consequuntur vel.\n\nLibero magni rem vel. Quo est dignissimos ea ut enim et qui. Dignissimos ratione qui quisquam fuga quos ut delectus quia. Quia nihil a voluptatem ullam. Et veniam maiores consequatur vel et odit et repellat. Quasi accusamus quis.\n\n Quo eius rerum voluptatum doloremque qui nisi explicabo ipsam ipsa. Eum iste molestiae qui facilis velit nisi alias molestias sint. Voluptatem voluptatem rerum consequatur eum quidem perspiciatis. Voluptatum iure modi qui alias eius distinctio at.',
 			ctaText: 'Click here to do something',
 			ctaUrl: 'https://meem.wtf'
 		})

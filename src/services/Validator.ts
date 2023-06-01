@@ -55,7 +55,8 @@ export default class Validator {
 		return this.jsonValidator.validate(data, schema, {
 			nestedErrors: true,
 			required: true,
-			allowUnknownAttributes: false
+			allowUnknownAttributes: false,
+			skipAttributes: ['$comment']
 		})
 	}
 

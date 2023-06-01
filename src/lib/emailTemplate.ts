@@ -1,7 +1,7 @@
 export const transactionalTemplate = (options: {
 	subject: string
 	inboxPreview?: string
-	title: string
+	title?: string
 	bodyText: string
 	ctaText?: string
 	ctaUrl?: string
@@ -42,7 +42,7 @@ export const transactionalTemplate = (options: {
 
     <!-- All other clients get the webfont reference; some will render the font and others will silently fail to the fallbacks. More on that here: https://web.archive.org/web/20190717120616/http://stylecampaign.com/blog/2015/02/webfont-support-in-email/ -->
     <!--[if !mso]><!-->
-    <!-- insert web font reference, eg: <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'> -->
+    <link href='https://fonts.googleapis.com/css?family=Inter:400,700' rel='stylesheet' type='text/css'>
     <!--<![endif]-->
 
     <!-- Web Font / @font-face : END -->
@@ -187,6 +187,7 @@ export const transactionalTemplate = (options: {
 	    }
 
         /* Dark Mode Styles : BEGIN */
+        /*
         @media (prefers-color-scheme: dark) {
 			.email-bg {
 				background: #111111 !important;
@@ -224,6 +225,7 @@ export const transactionalTemplate = (options: {
 				color: #111111 !important;
 			}
 		}
+        */
         /* Dark Mode Styles : END */
     </style>
     <!-- Progressive Enhancements : END -->
@@ -235,10 +237,10 @@ export const transactionalTemplate = (options: {
 	2. center tag: for Gmail and Inbox mobile apps and web versions of Gmail, GSuite, Inbox, Yahoo, AOL, Libero, Comcast, freenet, Mail.ru, Orange.fr
 	3. mso conditional: For Windows 10 Mail
 -->
-<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #222222;" class="email-bg">
-	<center role="article" aria-roledescription="email" lang="en" style="width: 100%; background-color: #222222;" class="email-bg">
+<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #F8F8F8;" class="email-bg">
+	<center role="article" aria-roledescription="email" lang="en" style="width: 100%; background-color: #F8F8F8;" class="email-bg">
     <!--[if mso | IE]>
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #222222;" class="email-bg">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F8F8F8;" class="email-bg">
     <tr>
     <td>
     <![endif]-->
@@ -271,18 +273,10 @@ export const transactionalTemplate = (options: {
 
 	        <!-- Email Body : BEGIN -->
 	        <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: auto;">
-		        <!-- Email Header : BEGIN -->
-	            <tr>
-	                <td style="padding: 20px 0; text-align: center">
-	                    <img src="https://via.placeholder.com/200x50" width="200" height="50" alt="alt_text" border="0" style="height: auto; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #555555;">
-	                </td>
-	            </tr>
-		        <!-- Email Header : END -->
-
                 <!-- Hero Image, Flush : BEGIN -->
                 <tr>
-                    <td style="background-color: #ffffff;" class="darkmode-bg">
-                        <img src="https://via.placeholder.com/1200x600" width="600" height="" alt="alt_text" border="0" style="width: 100%; max-width: 600px; height: auto; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #555555; margin: auto; display: block;" class="g-img">
+                    <td style="background-color: #000000;" class="darkmode-bg">
+                        <img src="https://assets.meem.wtf/meem-logo-email.jpg" width="600" height="" alt="alt_text" border="0" style="width: 100%; max-width: 600px; height: auto; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #000000; margin: auto; display: block;" class="g-img">
                     </td>
                 </tr>
                 <!-- Hero Image, Flush : END -->
@@ -292,13 +286,18 @@ export const transactionalTemplate = (options: {
                     <td style="background-color: #ffffff;" class="darkmode-bg">
                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                             <tr>
-                                <td style="padding: 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #555555;">
-                                    <h1 style="margin: 0 0 10px 0; font-family: sans-serif; font-size: 25px; line-height: 30px; color: #333333; font-weight: normal;">${
-																			options.title
-																		}</h1>
-                                    <p style="margin: 0;">${
-																			options.bodyText
-																		}</p>
+                                <td style="padding: 40px; font-family: Inter, sans-serif; font-size: 14px; line-height: 20px; color: #000000;">
+                                ${
+																	options.title
+																		? `<h1 style="margin: 0 0 10px 0; font-family: sans-serif; font-size: 25px; line-height: 30px; color: #333333; font-weight: normal;">${options.title}</h1>`
+																		: ''
+																}
+                                ${
+																	options.bodyText
+																		? `<p style="margin: 0 auto; max-width: 500px;">${options.bodyText}</p>`
+																		: ''
+																}
+
                                 </td>
                             </tr>
 							${
@@ -311,7 +310,7 @@ export const transactionalTemplate = (options: {
 										<td class="button-td button-td-primary" style="border-radius: 4px; background: #222222;">
 											 <a class="button-a button-a-primary" href="${
 													options.ctaUrl
-												}" style="background: #222222; border: 1px solid #000000; font-family: sans-serif; font-size: 15px; line-height: 15px; text-decoration: none; padding: 13px 17px; color: #ffffff; display: block; border-radius: 4px;">${
+												}" style="background: #222222; border: 1px solid #000000; font-family: sans-serif; font-weight: 700; font-size: 14px; line-height: 15px; text-decoration: none; padding: 13px 17px; color: #ffffff; display: block; border-radius: 6px;">${
 											options.ctaText ?? 'Go'
 									  }</a>
 										</td>
@@ -333,54 +332,28 @@ export const transactionalTemplate = (options: {
                     </td>
                 </tr>
                 <!-- 1 Column Text + Button : END -->
-            </table>
-            <!-- Email Body : END -->
-
-            <!-- Email Footer : BEGIN -->
-	        <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: auto;" class="footer">
+                <!-- 1 Column Text : BEGIN -->
                 <tr>
-                    <td style="padding: 20px; font-family: sans-serif; font-size: 12px; line-height: 15px; text-align: center; color: #ffffff;">
-						<a href="https://app.meem.wtf">Sent by Meem</a>
+                    <td style="background-color: #000000;" class="darkmode-bg">
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                            <tr>
+                                <td style="padding: 30px; font-family: Inter, sans-serif; font-size: 14px; line-height: 20px; color: #FFFFFF;">
+                                <p style="margin: 0 auto; max-width: 345px; text-align: center;">Meem is a (co-)operating system for community apps. We’re helping communities work together to craft their own tools.</p>
+
+                                </td>
+                            </tr>
+                        </table>
                     </td>
                 </tr>
+                <!-- 1 Column Text : END -->
             </table>
-            <!-- Email Footer : END -->
-
+            <!-- Email Body : END -->
             <!--[if mso]>
             </td>
             </tr>
             </table>
             <![endif]-->
         </div>
-
-        <!-- Full Bleed Background Section : BEGIN -->
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #F9FF15;" class="darkmode-fullbleed-bg">
-            <tr>
-                <td>
-                    <div align="center" style="max-width: 600px; margin: auto;" class="email-container">
-                        <!--[if mso]>
-                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" align="center">
-                        <tr>
-                        <td>
-                        <![endif]-->
-                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                            <tr>
-                                <td class="footer-container" style="padding: 20px; text-align: left; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #111111;">
-                                    <p style="margin: 0;">Maecenas sed ante pellentesque, posuere leo id, eleifend dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent laoreet malesuada cursus. Maecenas scelerisque congue eros eu posuere. Praesent in felis ut velit pretium lobortis rhoncus ut&nbsp;erat.</p>
-                                </td>
-                            </tr>
-                        </table>
-                        <!--[if mso]>
-                        </td>
-                        </tr>
-                        </table>
-                        <![endif]-->
-                    </div>
-                </td>
-            </tr>
-        </table>
-        <!-- Full Bleed Background Section : END -->
-
     <!--[if mso | IE]>
     </td>
     </tr>
