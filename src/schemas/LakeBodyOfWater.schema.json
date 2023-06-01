@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:LakeBodyOfWater",
+  "title": "LakeBodyOfWater",
+  "description": "A lake (for example, Lake Pontrachain).",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A body of water, such as a sea, ocean, or lake.",
+      "$ref": "schema:BodyOfWater"
+    }
+  ]
+}

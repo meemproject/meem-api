@@ -157,6 +157,7 @@ export default (app: Express, _express: typeof coreExpress) => {
 	router.postAsync('/test/webhook', TestController.testWebhook)
 
 	if (config.ENABLE_TEST_ENDPOINTS) {
+		router.getAsync('/test/schema', TestController.testSchema)
 		router.getAsync('/test/email', TestController.testEmail)
 		router.getAsync('/test/emailHtml', TestController.testEmailHtml)
 	}

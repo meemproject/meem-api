@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:UnRegisterAction",
+  "title": "UnRegisterAction",
+  "description": "The act of un-registering from a service.\\n\\nRelated actions:\\n\\n* [[RegisterAction]]: antonym of UnRegisterAction.\\n* [[LeaveAction]]: Unlike LeaveAction, UnRegisterAction implies that you are unregistering from a service you werer previously registered, rather than leaving a team/group of people.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of interacting with another person or organization.",
+      "$ref": "schema:InteractAction"
+    }
+  ]
+}

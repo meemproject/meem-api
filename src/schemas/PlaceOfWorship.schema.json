@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:PlaceOfWorship",
+  "title": "PlaceOfWorship",
+  "description": "Place of worship, such as a church, synagogue, or mosque.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A public structure, such as a town hall or concert hall.",
+      "$ref": "schema:CivicStructure"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:RsvpResponseType",
+  "title": "RsvpResponseType",
+  "description": "RsvpResponseType is an enumeration type whose instances represent responding to an RSVP request.",
+  "type": "string",
+  "oneOf": [
+    {
+      "description": "The invitee may or may not attend.",
+      "const": "RsvpResponseMaybe"
+    },
+    {
+      "description": "The invitee will not attend.",
+      "const": "RsvpResponseNo"
+    },
+    { "description": "The invitee will attend.", "const": "RsvpResponseYes" }
+  ]
+}

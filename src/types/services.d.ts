@@ -5,7 +5,6 @@ import Analytics from '../services/Analytics'
 import Aws from '../services/Aws'
 import Child from '../services/Child'
 import Data from '../services/Data'
-import Db from '../services/Db'
 import Discord from '../services/Discord'
 import Ethers from '../services/Ethers'
 import Lint from '../services/Lint'
@@ -17,6 +16,7 @@ import Slack from '../services/Slack'
 import Testing from '../services/Testing'
 import Twitter from '../services/Twitter'
 import Types from '../services/Types'
+import Validator from '../services/Validator'
 import Web3 from '../services/Web3'
 
 declare global {
@@ -26,7 +26,6 @@ declare global {
 		let aws: typeof Aws
 		let child: typeof Child
 		let data: typeof Data
-		let db: typeof Db
 		let discord: Discord
 		let ethers: Ethers
 		let lint: typeof Lint
@@ -38,6 +37,7 @@ declare global {
 		let testing: Testing
 		let twitter: typeof Twitter
 		let types: typeof Types
+		let validator: Validator
 		let web3: typeof Web3
 	}
 }

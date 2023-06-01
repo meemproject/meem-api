@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:FinancialService",
+  "title": "FinancialService",
+  "description": "Financial services business.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A particular physical business or branch of an organization. Examples of LocalBusiness include a restaurant, a particular branch of a restaurant chain, a branch of a bank, a medical practice, a club, a bowling alley, etc.",
+      "$ref": "schema:LocalBusiness"
+    }
+  ],
+  "properties": {
+    "feesAndCommissionsSpecification": {
+      "description": "Description of fees, commissions, and other terms applied either to a class of financial product, or by a financial service organization.",
+      "oneOf": [
+        {
+          "anyOf": [{ "type": "string", "format": "uri" }, { "type": "string" }]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string", "format": "uri" },
+              { "type": "string" }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

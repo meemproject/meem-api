@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:ConfirmAction",
+  "title": "ConfirmAction",
+  "description": "The act of notifying someone that a future event/action is going to happen as expected.\\n\\nRelated actions:\\n\\n* [[CancelAction]]: The antonym of ConfirmAction.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of notifying someone of information pertinent to them, with no expectation of a response.",
+      "$ref": "schema:InformAction"
+    }
+  ]
+}

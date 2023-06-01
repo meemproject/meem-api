@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:HighSchool",
+  "title": "HighSchool",
+  "description": "A high school.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "An educational organization.",
+      "$ref": "schema:EducationalOrganization"
+    }
+  ]
+}

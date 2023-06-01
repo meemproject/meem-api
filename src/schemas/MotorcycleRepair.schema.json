@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:MotorcycleRepair",
+  "title": "MotorcycleRepair",
+  "description": "A motorcycle repair shop.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Car repair, sales, or parts.",
+      "$ref": "schema:AutomotiveBusiness"
+    }
+  ]
+}

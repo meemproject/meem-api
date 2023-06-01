@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:Message",
+  "title": "Message",
+  "description": "A single message from a sender to one or more organizations or people.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The most generic kind of creative work, including books, movies, photographs, software programs, etc.",
+      "$ref": "schema:CreativeWork"
+    }
+  ],
+  "properties": {
+    "bccRecipient": {
+      "description": "A sub property of recipient. The recipient blind copied on a message.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:ContactPoint" },
+            { "$ref": "schema:Organization" },
+            { "$ref": "schema:Person" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:ContactPoint" },
+              { "$ref": "schema:Organization" },
+              { "$ref": "schema:Person" }
+            ]
+          }
+        }
+      ]
+    },
+    "ccRecipient": {
+      "description": "A sub property of recipient. The recipient copied on a message.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:ContactPoint" },
+            { "$ref": "schema:Organization" },
+            { "$ref": "schema:Person" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:ContactPoint" },
+              { "$ref": "schema:Organization" },
+              { "$ref": "schema:Person" }
+            ]
+          }
+        }
+      ]
+    },
+    "dateRead": {
+      "description": "The date/time at which the message has been read by the recipient if a single recipient exists.",
+      "anyOf": [
+        { "type": "string", "format": "date" },
+        { "type": "string", "format": "date-time" }
+      ]
+    },
+    "dateReceived": {
+      "description": "The date/time the message was received if a single recipient exists.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "dateSent": {
+      "description": "The date/time at which the message was sent.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "messageAttachment": {
+      "description": "A CreativeWork attached to the message.",
+      "oneOf": [
+        { "$ref": "schema:CreativeWork" },
+        { "type": "array", "items": { "$ref": "schema:CreativeWork" } }
+      ]
+    },
+    "recipient": {
+      "description": "A sub property of participant. The participant who is at the receiving end of the action.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:Audience" },
+            { "$ref": "schema:ContactPoint" },
+            { "$ref": "schema:Organization" },
+            { "$ref": "schema:Person" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:Audience" },
+              { "$ref": "schema:ContactPoint" },
+              { "$ref": "schema:Organization" },
+              { "$ref": "schema:Person" }
+            ]
+          }
+        }
+      ]
+    },
+    "sender": {
+      "description": "A sub property of participant. The participant who is at the sending end of the action.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:Audience" },
+            { "$ref": "schema:Organization" },
+            { "$ref": "schema:Person" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:Audience" },
+              { "$ref": "schema:Organization" },
+              { "$ref": "schema:Person" }
+            ]
+          }
+        }
+      ]
+    },
+    "toRecipient": {
+      "description": "A sub property of recipient. The recipient who was directly sent the message.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:Audience" },
+            { "$ref": "schema:ContactPoint" },
+            { "$ref": "schema:Organization" },
+            { "$ref": "schema:Person" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:Audience" },
+              { "$ref": "schema:ContactPoint" },
+              { "$ref": "schema:Organization" },
+              { "$ref": "schema:Person" }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

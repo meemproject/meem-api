@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:UseAction",
+  "title": "UseAction",
+  "description": "The act of applying an object to its intended purpose.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of ingesting information/resources/food.",
+      "$ref": "schema:ConsumeAction"
+    }
+  ]
+}

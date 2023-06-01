@@ -954,8 +954,7 @@ export namespace BulkBurnAgreementRoleTokens {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The Transaction id. Only if the agreement is on-chain */
-		txId?: string
+		status: 'success'
 	}
 
 	export interface IDefinition {
@@ -990,8 +989,7 @@ export namespace BulkBurnAgreementTokens {
 	}
 
 	export interface IResponseBody extends IApiResponseBody {
-		/** The Transaction id. Only if the agreement is on-chain */
-		txId?: string
+		status: 'success'
 	}
 
 	export interface IDefinition {
@@ -2158,34 +2156,6 @@ export namespace GetConfig {
 
 
 
-/** Get Info about Token */
-export namespace GetIPFSFile {
-	export interface IPathParams {}
-
-	export const path = () => `/api/1.0/ipfs`
-
-	export const method = HttpMethod.Get
-
-	export interface IQueryParams {
-		filename: string
-	}
-
-	export interface IRequestBody {}
-
-	export interface IResponseBody extends IApiResponseBody {}
-
-	export interface IDefinition {
-		pathParams: IPathParams
-		queryParams: IQueryParams
-		requestBody: IRequestBody
-		responseBody: IResponseBody
-	}
-
-	export type Response = IResponseBody | IError
-}
-
-
-
 /** Generate nonce for client to sign and verify a user's wallet address */
 export namespace GetNonce {
 	export interface IPathParams {}
@@ -2887,149 +2857,4 @@ export namespace SlackAuthCallback {
 	export type Response = IResponseBody | IError
 }
 
-}
-export enum MeemEvent {
-
-			Err = 'err',
-MeemIdUpdated = 'meemIdUpdated',
-MeemMinted = 'meemMinted',
-Subscribe = 'subscribe',
-SubscribeAck = 'subscribeAck',
-Unsubscribe = 'unsubscribe',
-UnubscribeAck = 'unubscribeAck',
-		
-}
-export namespace Events {
-
-export namespace Err {
-export const eventName = MeemEvent.Err
- 
-	export const eventSource = EventSource.Server
-
-	export interface ISubscribePayload {}
-
-	export interface IEventPayload extends Record<string, any> {}
-}
-
-
-
-export namespace MeemIdUpdated {
-export const eventName = MeemEvent.MeemIdUpdated
- 
-	export const eventSource = EventSource.Server
-
-	export interface ISubscribePayload {}
-
-	export interface IEventPayload {
-		meemId: IMeemId
-		jwt: string
-	}
-}
-
-
-
-export namespace MeemMinted {
-export const eventName = MeemEvent.MeemMinted
- 
-	export const eventSource = EventSource.Server
-
-	export interface ISubscribePayload {}
-
-	export interface IEventPayload {
-		/** The wallet address where the Meem was minted */
-		toAddress: string
-
-		/** The URI for the minted Meem */
-		tokenURI: string
-
-		/** The tokenId */
-		tokenId: string
-
-		/** The transaction hash */
-		transactionHash: string
-	}
-}
-
-
-
-export namespace Subscribe {
-export const eventName = MeemEvent.Subscribe
- 
-	export const eventSource = EventSource.Client
-
-	export interface IEventPayload {
-		// @ts-ignore
-		type: MeemEvent.Subscribe
-		walletAddress?: string
-		events: {
-			key: string
-			data?: Record<string, any>
-		}[]
-	}
-}
-
-
-
-export namespace SubscribeAck {
-export const eventName = MeemEvent.SubscribeAck
- 
-	export const eventSource = EventSource.Server
-
-	export interface ISubscribePayload {}
-
-	export interface IEventPayload {
-		// @ts-ignore
-		events: SubscribeType[]
-	}
-}
-
-
-
-export namespace Unsubscribe {
-export const eventName = MeemEvent.Unsubscribe
- 
-	export const eventSource = EventSource.Client
-
-	export interface IEventPayload {
-		// @ts-ignore
-		type: MeemEvent.Unsubscribe
-		// @ts-ignore
-		events: SubscribeType[]
-	}
-}
-
-
-
-export namespace UnubscribeAck {
-export const eventName = MeemEvent.UnubscribeAck
- 
-	export const eventSource = EventSource.Server
-
-	export interface ISubscribePayload {}
-
-	export interface IEventPayload {
-		// @ts-ignore
-		events: SubscribeType[]
-	}
-}
-
-}
-
-export type SubscribeType=(Events.Err.ISubscribePayload & { type: MeemEvent.Err }) | (Events.MeemIdUpdated.ISubscribePayload & { type: MeemEvent.MeemIdUpdated }) | (Events.MeemMinted.ISubscribePayload & { type: MeemEvent.MeemMinted }) | (Events.SubscribeAck.ISubscribePayload & { type: MeemEvent.SubscribeAck }) | (Events.UnubscribeAck.ISubscribePayload & { type: MeemEvent.UnubscribeAck })
-
-export type EventListener=({
-						eventName: MeemEvent.Err,
-						handler: (options: {detail: Events.Err.IEventPayload}) => void
-					}) | ({
-						eventName: MeemEvent.MeemIdUpdated,
-						handler: (options: {detail: Events.MeemIdUpdated.IEventPayload}) => void
-					}) | ({
-						eventName: MeemEvent.MeemMinted,
-						handler: (options: {detail: Events.MeemMinted.IEventPayload}) => void
-					}) | ({
-						eventName: MeemEvent.SubscribeAck,
-						handler: (options: {detail: Events.SubscribeAck.IEventPayload}) => void
-					}) | ({
-						eventName: MeemEvent.UnubscribeAck,
-						handler: (options: {detail: Events.UnubscribeAck.IEventPayload}) => void
-					})}
+}}

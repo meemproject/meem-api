@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:FoodEstablishment",
+  "title": "FoodEstablishment",
+  "description": "A food-related business.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A particular physical business or branch of an organization. Examples of LocalBusiness include a restaurant, a particular branch of a restaurant chain, a branch of a bank, a medical practice, a club, a bowling alley, etc.",
+      "$ref": "schema:LocalBusiness"
+    }
+  ],
+  "properties": {
+    "acceptsReservations": {
+      "description": "Indicates whether a FoodEstablishment accepts reservations. Values can be Boolean, an URL at which reservations can be made or (for backwards compatibility) the strings ```Yes``` or ```No```.",
+      "anyOf": [
+        { "type": "boolean" },
+        { "type": "string", "format": "uri" },
+        { "type": "string", "enum": ["Yes", "No"] }
+      ]
+    },
+    "hasMenu": {
+      "description": "Either the actual menu as a structured representation, as text, or a URL of the menu.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "type": "string", "format": "uri" },
+            { "type": "string" },
+            { "$ref": "schema:Menu" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string", "format": "uri" },
+              { "type": "string" },
+              { "$ref": "schema:Menu" }
+            ]
+          }
+        }
+      ]
+    },
+    "menu": {
+      "description": "Either the actual menu as a structured representation, as text, or a URL of the menu.",
+      "anyOf": [
+        { "type": "string", "format": "uri" },
+        { "type": "string" },
+        { "$ref": "schema:Menu" }
+      ]
+    },
+    "servesCuisine": {
+      "description": "The cuisine of the restaurant.",
+      "type": "string"
+    },
+    "starRating": {
+      "description": "An official rating for a lodging business or food establishment, e.g. from national associations or standards bodies. Use the author property to indicate the rating organization, e.g. as an Organization with name such as (e.g. HOTREC, DEHOGA, WHR, or Hotelstars).",
+      "oneOf": [
+        { "$ref": "schema:Rating" },
+        { "type": "array", "items": { "$ref": "schema:Rating" } }
+      ]
+    }
+  }
+}

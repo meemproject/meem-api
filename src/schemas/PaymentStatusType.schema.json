@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:PaymentStatusType",
+  "title": "PaymentStatusType",
+  "description": "A specific payment status. For example, PaymentDue, PaymentComplete, etc.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Lists or enumerations dealing with status types.",
+      "$ref": "schema:StatusEnumeration"
+    }
+  ]
+}

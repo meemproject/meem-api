@@ -121,14 +121,6 @@ export const handle: APIGatewayProxyHandlerV2 = async (event, context) => {
 		}
 	}
 
-	if (config.AWS_WEBSOCKET_GATEWAY_URL) {
-		sockets?.connectLambda({
-			endpoint: config.AWS_WEBSOCKET_GATEWAY_URL
-		})
-	} else {
-		log.crit('AWS_WEBSOCKET_GATEWAY_URL is not set')
-	}
-
 	const method = httpMethod.toLowerCase()
 
 	// @ts-ignore

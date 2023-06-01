@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:PrependAction",
+  "title": "PrependAction",
+  "description": "The act of inserting at the beginning if an ordered collection.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of adding at a specific location in an ordered collection.",
+      "$ref": "schema:InsertAction"
+    }
+  ]
+}

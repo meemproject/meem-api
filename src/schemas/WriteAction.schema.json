@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:WriteAction",
+  "title": "WriteAction",
+  "description": "The act of authoring written creative content.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of deliberately creating/producing/generating/building a result out of the agent.",
+      "$ref": "schema:CreateAction"
+    }
+  ],
+  "properties": {
+    "inLanguage": {
+      "description": "The language of the content or performance or used in an action. Please use one of the language codes from the [IETF BCP 47 standard](http://tools.ietf.org/html/bcp47). See also [[availableLanguage]].",
+      "anyOf": [{ "type": "string" }, { "$ref": "schema:Language" }]
+    },
+    "language": {
+      "description": "A sub property of instrument. The language used on this action.",
+      "oneOf": [
+        { "$ref": "schema:Language" },
+        { "type": "array", "items": { "$ref": "schema:Language" } }
+      ]
+    }
+  }
+}

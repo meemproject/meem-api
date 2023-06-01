@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:BorrowAction",
+  "title": "BorrowAction",
+  "description": "The act of obtaining an object under an agreement to return it at a later date. Reciprocal of LendAction.\\n\\nRelated actions:\\n\\n* [[LendAction]]: Reciprocal of BorrowAction.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of transferring/moving (abstract or concrete) animate or inanimate objects from one place to another.",
+      "$ref": "schema:TransferAction"
+    }
+  ],
+  "properties": {
+    "lender": {
+      "description": "A sub property of participant. The person that lends the object being borrowed.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:Organization" },
+            { "$ref": "schema:Person" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:Organization" },
+              { "$ref": "schema:Person" }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:TypeAndQuantityNode",
+  "title": "TypeAndQuantityNode",
+  "description": "A structured value indicating the quantity, unit of measurement, and business function of goods included in a bundle offer.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Structured values are used when the value of a property has a more complex structure than simply being a textual value or a reference to another thing.",
+      "$ref": "schema:StructuredValue"
+    }
+  ],
+  "properties": {
+    "amountOfThisGood": {
+      "description": "The quantity of the goods included in the offer.",
+      "type": "number"
+    },
+    "businessFunction": {
+      "description": "The business function (e.g. sell, lease, repair, dispose) of the offer or component of a bundle (TypeAndQuantityNode). The default is http://purl.org/goodrelations/v1#Sell.",
+      "$ref": "schema:BusinessFunction"
+    },
+    "typeOfGood": {
+      "description": "The product that this structured value is referring to.",
+      "anyOf": [{ "$ref": "schema:Product" }, { "$ref": "schema:Service" }]
+    },
+    "unitCode": {
+      "description": "The unit of measurement given using the UN/CEFACT Common Code (3 characters) or a URL. Other codes than the UN/CEFACT Common Code may be used with a prefix followed by a colon.",
+      "anyOf": [{ "type": "string", "format": "uri" }, { "type": "string" }]
+    },
+    "unitText": {
+      "description": "A string or text indicating the unit of measurement. Useful if you cannot provide a standard unit code for\nunitCode.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    }
+  }
+}

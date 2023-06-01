@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:MapCategoryType",
+  "title": "MapCategoryType",
+  "description": "An enumeration of several kinds of Map.",
+  "type": "string",
+  "oneOf": [
+    { "description": "A parking map.", "const": "ParkingMap" },
+    { "description": "A seating map.", "const": "SeatingMap" },
+    { "description": "A transit map.", "const": "TransitMap" },
+    {
+      "description": "A venue map (e.g. for malls, auditoriums, museums, etc.).",
+      "const": "VenueMap"
+    }
+  ]
+}

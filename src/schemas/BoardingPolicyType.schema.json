@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:BoardingPolicyType",
+  "title": "BoardingPolicyType",
+  "description": "A type of boarding policy used by an airline.",
+  "type": "string",
+  "oneOf": [
+    {
+      "description": "The airline boards by groups based on check-in time, priority, etc.",
+      "const": "GroupBoardingPolicy"
+    },
+    {
+      "description": "The airline boards by zones of the plane.",
+      "const": "ZoneBoardingPolicy"
+    }
+  ]
+}

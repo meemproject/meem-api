@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:TheaterGroup",
+  "title": "TheaterGroup",
+  "description": "A theater group or company, for example, the Royal Shakespeare Company or Druid Theatre.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A performance group, such as a band, an orchestra, or a circus.",
+      "$ref": "schema:PerformingGroup"
+    }
+  ]
+}

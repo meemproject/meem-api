@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:MusicPlaylist",
+  "title": "MusicPlaylist",
+  "description": "A collection of music tracks in playlist form.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The most generic kind of creative work, including books, movies, photographs, software programs, etc.",
+      "$ref": "schema:CreativeWork"
+    }
+  ],
+  "properties": {
+    "numTracks": {
+      "description": "The number of tracks in this album or playlist.",
+      "type": "integer"
+    },
+    "track": {
+      "description": "A music recording (track)—usually a single song. If an ItemList is given, the list should contain items of type MusicRecording.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:ItemList" },
+            { "$ref": "schema:MusicRecording" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:ItemList" },
+              { "$ref": "schema:MusicRecording" }
+            ]
+          }
+        }
+      ]
+    },
+    "tracks": {
+      "description": "A music recording (track)—usually a single song.",
+      "oneOf": [
+        { "$ref": "schema:MusicRecording" },
+        { "type": "array", "items": { "$ref": "schema:MusicRecording" } }
+      ]
+    }
+  }
+}

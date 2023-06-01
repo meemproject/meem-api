@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:PawnShop",
+  "title": "PawnShop",
+  "description": "A shop that will buy, or lend money against the security of, personal possessions.",
+  "type": "object",
+  "allOf": [{ "description": "A retail good store.", "$ref": "schema:Store" }]
+}

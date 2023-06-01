@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:DigitalDocumentPermissionType",
+  "title": "DigitalDocumentPermissionType",
+  "description": "A type of permission which can be granted for accessing a digital document.",
+  "type": "string",
+  "oneOf": [
+    {
+      "description": "Permission to add comments to the document.",
+      "const": "CommentPermission"
+    },
+    {
+      "description": "Permission to read or view the document.",
+      "const": "ReadPermission"
+    },
+    {
+      "description": "Permission to write or edit the document.",
+      "const": "WritePermission"
+    }
+  ]
+}

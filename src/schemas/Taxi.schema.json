@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:Taxi",
+  "title": "Taxi",
+  "description": "A taxi.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A service provided by an organization, e.g. delivery service, print services, etc.",
+      "$ref": "schema:Service"
+    }
+  ]
+}

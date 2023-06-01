@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:AudioObject",
+  "title": "AudioObject",
+  "description": "An audio file.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset i.e. DataDownload. Note that a creative work may have many media objects associated with it on the same web page. For example, a page about a single song (MusicRecording) may have a music video (VideoObject), and a high and low bandwidth audio stream (2 AudioObject's).",
+      "$ref": "schema:MediaObject"
+    }
+  ],
+  "properties": {
+    "caption": {
+      "description": "The caption for this object. For downloadable machine formats (closed caption, subtitles etc.) use MediaObject and indicate the [[encodingFormat]].",
+      "anyOf": [{ "type": "string" }, { "$ref": "schema:MediaObject" }]
+    },
+    "embeddedTextCaption": {
+      "description": "Represents textual captioning from a [[MediaObject]], e.g. text of a 'meme'.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "transcript": {
+      "description": "If this MediaObject is an AudioObject or VideoObject, the transcript of that object.",
+      "type": "string"
+    }
+  }
+}

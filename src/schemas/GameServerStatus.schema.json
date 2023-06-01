@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:GameServerStatus",
+  "title": "GameServerStatus",
+  "description": "Status of a game server.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Lists or enumerations dealing with status types.",
+      "$ref": "schema:StatusEnumeration"
+    }
+  ]
+}

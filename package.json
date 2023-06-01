@@ -43,6 +43,7 @@
 		"swagger": "npx swagger-inline 'src/types/shared/api/**/*.ts' --base 'src/types/shared/api/swaggerBase.yaml' --format .json > 'src/types/shared/api/meem-api.json'",
 		"generateHasuraMetadata": "tsnd --transpile-only src/scripts/generateHasuraMetadata.ts",
 		"migrateSymphony": "tsnd --transpile-only src/scripts/migrateSymphony.ts",
+		"syncSchema": "tsnd --transpile-only src/scripts/syncSchema.ts",
 		"syncDiscordCommands": "tsnd --transpile-only src/scripts/syncDiscordCommands.ts"
 	},
 	"dependencies": {
@@ -72,6 +73,7 @@
 		"express": "^4.18.1",
 		"fs-extra": "^10.1.0",
 		"globby": "^11.0.4",
+		"jsonschema": "^1.4.1",
 		"jsonwebtoken": "^8.5.1",
 		"keccak256": "^1.0.6",
 		"lodash": "^4.17.21",
@@ -80,6 +82,7 @@
 		"node-fetch": "^2",
 		"openai": "^3.2.1",
 		"pg": "^8.8.0",
+		"schema-dts": "^1.1.2",
 		"sequelize": "^6.23.2",
 		"slug": "^8.0.0",
 		"string-argv": "^0.3.1",

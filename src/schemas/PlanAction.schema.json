@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:PlanAction",
+  "title": "PlanAction",
+  "description": "The act of planning the execution of an event/task/action/reservation/plan to a future date.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of manipulating/administering/supervising/controlling one or more objects.",
+      "$ref": "schema:OrganizeAction"
+    }
+  ],
+  "properties": {
+    "scheduledTime": {
+      "description": "The time the object is scheduled to.",
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

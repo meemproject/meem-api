@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:DeliveryChargeSpecification",
+  "title": "DeliveryChargeSpecification",
+  "description": "The price for the delivery of an offer using a particular delivery method.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A structured value representing a price or price range. Typically, only the subclasses of this type are used for markup. It is recommended to use [[MonetaryAmount]] to describe independent amounts of money such as a salary, credit card limits, etc.",
+      "$ref": "schema:PriceSpecification"
+    }
+  ],
+  "properties": {
+    "appliesToDeliveryMethod": {
+      "description": "The delivery method(s) to which the delivery charge or payment charge specification applies.",
+      "$ref": "schema:DeliveryMethod"
+    },
+    "areaServed": {
+      "description": "The geographic area where a service or offered item is provided.",
+      "anyOf": [
+        { "type": "string" },
+        { "$ref": "schema:AdministrativeArea" },
+        { "$ref": "schema:GeoShape" },
+        { "$ref": "schema:Place" }
+      ]
+    },
+    "eligibleRegion": {
+      "description": "The ISO 3166-1 (ISO 3166-1 alpha-2) or ISO 3166-2 code, the place, or the GeoShape for the geo-political region(s) for which the offer or delivery charge specification is valid.\\n\\nSee also [[ineligibleRegion]].\n    ",
+      "anyOf": [
+        { "type": "string" },
+        { "$ref": "schema:GeoShape" },
+        { "$ref": "schema:Place" }
+      ]
+    },
+    "ineligibleRegion": {
+      "description": "The ISO 3166-1 (ISO 3166-1 alpha-2) or ISO 3166-2 code, the place, or the GeoShape for the geo-political region(s) for which the offer or delivery charge specification is not valid, e.g. a region where the transaction is not allowed.\\n\\nSee also [[eligibleRegion]].\n      ",
+      "anyOf": [
+        { "type": "string" },
+        { "$ref": "schema:GeoShape" },
+        { "$ref": "schema:Place" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:EmailMessage",
+  "title": "EmailMessage",
+  "description": "An email message.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A single message from a sender to one or more organizations or people.",
+      "$ref": "schema:Message"
+    }
+  ]
+}

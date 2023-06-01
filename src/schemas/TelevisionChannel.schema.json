@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:TelevisionChannel",
+  "title": "TelevisionChannel",
+  "description": "A unique instance of a television BroadcastService on a CableOrSatelliteService lineup.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A unique instance of a BroadcastService on a CableOrSatelliteService lineup.",
+      "$ref": "schema:BroadcastChannel"
+    }
+  ]
+}

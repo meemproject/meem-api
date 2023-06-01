@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:DataFeedItem",
+  "title": "DataFeedItem",
+  "description": "A single item within a larger data feed.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A utility class that serves as the umbrella for a number of 'intangible' things such as quantities, structured values, etc.",
+      "$ref": "schema:Intangible"
+    }
+  ],
+  "properties": {
+    "dateCreated": {
+      "description": "The date on which the CreativeWork was created or the item was added to a DataFeed.",
+      "anyOf": [
+        { "type": "string", "format": "date" },
+        { "type": "string", "format": "date-time" }
+      ]
+    },
+    "dateDeleted": {
+      "description": "The datetime the item was removed from the DataFeed.",
+      "anyOf": [
+        { "type": "string", "format": "date" },
+        { "type": "string", "format": "date-time" }
+      ]
+    },
+    "dateModified": {
+      "description": "The date on which the CreativeWork was most recently modified or when the item's entry was modified within a DataFeed.",
+      "anyOf": [
+        { "type": "string", "format": "date" },
+        { "type": "string", "format": "date-time" }
+      ]
+    },
+    "item": {
+      "description": "An entity represented by an entry in a list or data feed (e.g. an 'artist' in a list of 'artists')’.",
+      "oneOf": [
+        { "$ref": "schema:Thing" },
+        { "type": "array", "items": { "$ref": "schema:Thing" } }
+      ]
+    }
+  }
+}

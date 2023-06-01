@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:AggregateRating",
+  "title": "AggregateRating",
+  "description": "The average rating based on multiple ratings or reviews.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A rating is an evaluation on a numeric scale, such as 1 to 5 stars.",
+      "$ref": "schema:Rating"
+    }
+  ],
+  "properties": {
+    "itemReviewed": {
+      "description": "The item that is being reviewed/rated.",
+      "$ref": "schema:Thing"
+    },
+    "ratingCount": {
+      "description": "The count of total number of ratings.",
+      "type": "integer"
+    },
+    "reviewCount": {
+      "description": "The count of total number of reviews.",
+      "type": "integer"
+    }
+  }
+}

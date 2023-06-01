@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:Barcode",
+  "title": "Barcode",
+  "description": "An image of a visual machine-readable code such as a barcode or QR code.",
+  "type": "object",
+  "allOf": [{ "description": "An image file.", "$ref": "schema:ImageObject" }]
+}

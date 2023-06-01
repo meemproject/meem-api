@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:LeaveAction",
+  "title": "LeaveAction",
+  "description": "An agent leaves an event / group with participants/friends at a location.\\n\\nRelated actions:\\n\\n* [[JoinAction]]: The antonym of LeaveAction.\\n* [[UnRegisterAction]]: Unlike UnRegisterAction, LeaveAction implies leaving a group/team of people rather than a service.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of interacting with another person or organization.",
+      "$ref": "schema:InteractAction"
+    }
+  ],
+  "properties": {
+    "event": {
+      "description": "Upcoming or past event associated with this place, organization, or action.",
+      "oneOf": [
+        { "$ref": "schema:Event" },
+        { "type": "array", "items": { "$ref": "schema:Event" } }
+      ]
+    }
+  }
+}

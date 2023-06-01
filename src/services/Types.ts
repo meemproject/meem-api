@@ -52,10 +52,6 @@ export default class TypesService {
 			process.cwd(),
 			'src/types/shared/api/**/*.ts'
 		)
-		const eventsGlob = path.join(
-			process.cwd(),
-			'src/types/shared/events/**/*.ts'
-		)
 		const projectTypesGlob = path.join(
 			process.cwd(),
 			'src/types/projects/**/*.ts'
@@ -65,82 +61,28 @@ export default class TypesService {
 			'src/types/projects/*/api/**/*.ts'
 		)
 
-		const [
-			files,
-			endpointFiles,
-			eventsFiles,
-			projectFiles,
-			projectEndpointFiles
-		] = await Promise.all([
-			globby(sharedTypesGlob, {
-				ignore: [endpointsGlob, eventsGlob]
-			}),
-			globby(endpointsGlob),
-			globby(eventsGlob),
-			globby(projectTypesGlob, { ignore: [projectEndpointsGlob] }),
-			globby(projectEndpointsGlob)
-		])
+		const [files, endpointFiles, projectFiles, projectEndpointFiles] =
+			await Promise.all([
+				globby(sharedTypesGlob, {
+					ignore: [endpointsGlob]
+				}),
+				globby(endpointsGlob),
+				globby(projectTypesGlob, { ignore: [projectEndpointsGlob] }),
+				globby(projectEndpointsGlob)
+			])
 
 		files.sort()
 		endpointFiles.sort()
-		eventsFiles.sort()
 		projectFiles.sort()
 		projectEndpointFiles.sort()
 
-		const [
-			types,
-			endpointTypes,
-			eventTypes,
-			projectTypes,
-			projectEndpointTypes
-		] = await Promise.all([
-			Promise.all(files.map(f => this.parseTypes(f))),
-			Promise.all(endpointFiles.map(f => this.parseTypes(f))),
-			Promise.all(eventsFiles.map(f => this.parseTypes(f))),
-			Promise.all(projectFiles.map(f => this.parseTypes(f))),
-			Promise.all(projectEndpointFiles.map(f => this.parseTypes(f)))
-		])
-
-		const eventDefinitions: string[] = []
-		const eventNamespaces: string[] = []
-		const eventListeners: string[] = []
-		const generatedEventTypes: string[] = []
-		eventTypes.forEach(eventType => {
-			const matches = eventType.match(/namespace (\w+)/)
-			if (matches && matches[1]) {
-				const namespace = matches[1]
-				eventNamespaces.push(namespace)
-				const eventName = `${namespace
-					.charAt(0)
-					.toLowerCase()}${namespace.slice(1)}`
-				eventDefinitions.push(`${namespace} = '${eventName}',`)
-				generatedEventTypes.push(
-					eventType.replace(
-						/export namespace (\w+) {([.\n]*)/,
-						`export namespace $1 {\nexport const eventName = MeemEvent.${namespace}\n $2`
-					)
-				)
-			}
-		})
-		const subscribeTypes: string[] = []
-		eventNamespaces.forEach(ns => {
-			if (!['Subscribe', 'Unsubscribe'].includes(ns)) {
-				subscribeTypes.push(
-					`(Events.${ns}.ISubscribePayload & { type: MeemEvent.${ns} })`
-				)
-			}
-		})
-
-		eventNamespaces.forEach(ns => {
-			if (!['Subscribe', 'Unsubscribe'].includes(ns)) {
-				eventListeners.push(
-					`({
-						eventName: MeemEvent.${ns},
-						handler: (options: {detail: Events.${ns}.IEventPayload}) => void
-					})`
-				)
-			}
-		})
+		const [types, endpointTypes, projectTypes, projectEndpointTypes] =
+			await Promise.all([
+				Promise.all(files.map(f => this.parseTypes(f))),
+				Promise.all(endpointFiles.map(f => this.parseTypes(f))),
+				Promise.all(projectFiles.map(f => this.parseTypes(f))),
+				Promise.all(projectEndpointFiles.map(f => this.parseTypes(f)))
+			])
 
 		let typesConcat = types.join('\n\n')
 
@@ -151,13 +93,7 @@ export default class TypesService {
 			endpointTypesConcat += `\n\n${projectEndpointTypes.join('\n\n')}`
 		}
 
-		const allTypes = `export namespace MeemAPI {\n${typesConcat}\nexport namespace v1 {\n${endpointTypesConcat}\n}\nexport enum MeemEvent {\n
-			${(eventDefinitions ?? []).join('\n')}
-		\n}\nexport namespace Events {\n${generatedEventTypes.join(
-			'\n\n'
-		)}\n}\n\nexport type SubscribeType=${subscribeTypes.join(
-			' | '
-		)}\n\nexport type EventListener=${eventListeners.join(' | ')}}`
+		const allTypes = `export namespace MeemAPI {\n${typesConcat}\nexport namespace v1 {\n${endpointTypesConcat}\n}}`
 
 		return { types: allTypes }
 	}

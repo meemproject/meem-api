@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:InsertAction",
+  "title": "InsertAction",
+  "description": "The act of adding at a specific location in an ordered collection.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of editing by adding an object to a collection.",
+      "$ref": "schema:AddAction"
+    }
+  ],
+  "properties": {
+    "toLocation": {
+      "description": "A sub property of location. The final location of the object or the agent after the action.",
+      "oneOf": [
+        { "$ref": "schema:Place" },
+        { "type": "array", "items": { "$ref": "schema:Place" } }
+      ]
+    }
+  }
+}

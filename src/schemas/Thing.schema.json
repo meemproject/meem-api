@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:Thing",
+  "title": "Thing",
+  "description": "The most generic type of item.",
+  "type": "object",
+  "properties": {
+    "@context": { "type": "string" },
+    "@type": { "type": "string" },
+    "additionalType": {
+      "description": "An additional type for the item, typically used for adding more specific types from external vocabularies in microdata syntax. This is a relationship between something and a class that the thing is in. In RDFa syntax, it is better to use the native RDFa syntax - the 'typeof' attribute - for multiple types. Schema.org tools may have only weaker understanding of extra types, in particular those defined externally.",
+      "oneOf": [
+        { "type": "string", "format": "uri" },
+        { "type": "array", "items": { "type": "string", "format": "uri" } }
+      ]
+    },
+    "alternateName": {
+      "description": "An alias for the item.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "description": {
+      "description": "A description of the item.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "disambiguatingDescription": {
+      "description": "A sub property of description. A short description of the item used to disambiguate from other, similar items. Information from other properties (in particular, name) may be necessary for the description to be useful for disambiguation.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "identifier": {
+      "description": "The identifier property represents any kind of identifier for any kind of [[Thing]], such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links. See [background notes](/docs/datamodel.html#identifierBg) for more details.\n        ",
+      "anyOf": [
+        { "type": "string", "format": "uri" },
+        { "type": "string" },
+        { "$ref": "schema:PropertyValue" }
+      ]
+    },
+    "image": {
+      "description": "An image of the item. This can be a [[URL]] or a fully described [[ImageObject]].",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "type": "string", "format": "uri" },
+            { "$ref": "schema:ImageObject" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string", "format": "uri" },
+              { "$ref": "schema:ImageObject" }
+            ]
+          }
+        }
+      ]
+    },
+    "mainEntityOfPage": {
+      "description": "Indicates a page (or other CreativeWork) for which this thing is the main entity being described. See [background notes](/docs/datamodel.html#mainEntityBackground) for details.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "type": "string", "format": "uri" },
+            { "$ref": "schema:CreativeWork" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string", "format": "uri" },
+              { "$ref": "schema:CreativeWork" }
+            ]
+          }
+        }
+      ]
+    },
+    "name": { "description": "The name of the item.", "type": "string" },
+    "potentialAction": {
+      "description": "Indicates a potential Action, which describes an idealized action in which this thing would play an 'object' role.",
+      "oneOf": [
+        { "$ref": "schema:Action" },
+        { "type": "array", "items": { "$ref": "schema:Action" } }
+      ]
+    },
+    "sameAs": {
+      "description": "URL of a reference Web page that unambiguously indicates the item's identity. E.g. the URL of the item's Wikipedia page, Wikidata entry, or official website.",
+      "oneOf": [
+        { "type": "string", "format": "uri" },
+        { "type": "array", "items": { "type": "string", "format": "uri" } }
+      ]
+    },
+    "subjectOf": {
+      "description": "A CreativeWork or Event about this Thing.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:CreativeWork" },
+            { "$ref": "schema:Event" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:CreativeWork" },
+              { "$ref": "schema:Event" }
+            ]
+          }
+        }
+      ]
+    },
+    "url": {
+      "description": "URL of the item.",
+      "type": "string",
+      "format": "uri"
+    }
+  }
+}

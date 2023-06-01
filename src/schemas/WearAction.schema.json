@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:WearAction",
+  "title": "WearAction",
+  "description": "The act of dressing oneself in clothing.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of applying an object to its intended purpose.",
+      "$ref": "schema:UseAction"
+    }
+  ]
+}

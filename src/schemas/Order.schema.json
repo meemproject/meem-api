@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:Order",
+  "title": "Order",
+  "description": "An order is a confirmation of a transaction (a receipt), which can contain multiple line items, each represented by an Offer that has been accepted by the customer.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A utility class that serves as the umbrella for a number of 'intangible' things such as quantities, structured values, etc.",
+      "$ref": "schema:Intangible"
+    }
+  ],
+  "properties": {
+    "acceptedOffer": {
+      "description": "The offer(s) -- e.g., product, quantity and price combinations -- included in the order.",
+      "oneOf": [
+        { "$ref": "schema:Offer" },
+        { "type": "array", "items": { "$ref": "schema:Offer" } }
+      ]
+    },
+    "billingAddress": {
+      "description": "The billing address for the order.",
+      "$ref": "schema:PostalAddress"
+    },
+    "broker": {
+      "description": "An entity that arranges for an exchange between a buyer and a seller.  In most cases a broker never acquires or releases ownership of a product or service involved in an exchange.  If it is not clear whether an entity is a broker, seller, or buyer, the latter two terms are preferred.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:Organization" },
+            { "$ref": "schema:Person" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:Organization" },
+              { "$ref": "schema:Person" }
+            ]
+          }
+        }
+      ]
+    },
+    "confirmationNumber": {
+      "description": "A number that confirms the given order or payment has been received.",
+      "type": "string"
+    },
+    "customer": {
+      "description": "Party placing the order or paying the invoice.",
+      "anyOf": [{ "$ref": "schema:Organization" }, { "$ref": "schema:Person" }]
+    },
+    "discount": {
+      "description": "Any discount applied (to an Order).",
+      "anyOf": [{ "type": "number" }, { "type": "string" }]
+    },
+    "discountCode": {
+      "description": "Code used to redeem a discount.",
+      "type": "string"
+    },
+    "discountCurrency": {
+      "description": "The currency of the discount.\\n\\nUse standard formats: [ISO 4217 currency format](http://en.wikipedia.org/wiki/ISO_4217) e.g. \"USD\"; [Ticker symbol](https://en.wikipedia.org/wiki/List_of_cryptocurrencies) for cryptocurrencies e.g. \"BTC\"; well known names for [Local Exchange Tradings Systems](https://en.wikipedia.org/wiki/Local_exchange_trading_system) (LETS) and other currency types e.g. \"Ithaca HOUR\".",
+      "type": "string"
+    },
+    "isGift": {
+      "description": "Was the offer accepted as a gift for someone other than the buyer.",
+      "type": "boolean"
+    },
+    "merchant": {
+      "description": "'merchant' is an out-dated term for 'seller'.",
+      "anyOf": [{ "$ref": "schema:Organization" }, { "$ref": "schema:Person" }]
+    },
+    "orderDate": {
+      "description": "Date order was placed.",
+      "anyOf": [
+        { "type": "string", "format": "date" },
+        { "type": "string", "format": "date-time" }
+      ]
+    },
+    "orderDelivery": {
+      "description": "The delivery of the parcel related to this order or order item.",
+      "$ref": "schema:ParcelDelivery"
+    },
+    "orderNumber": {
+      "description": "The identifier of the transaction.",
+      "type": "string"
+    },
+    "orderStatus": {
+      "description": "The current status of the order.",
+      "$ref": "schema:OrderStatus"
+    },
+    "orderedItem": {
+      "description": "The item ordered.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:OrderItem" },
+            { "$ref": "schema:Product" },
+            { "$ref": "schema:Service" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:OrderItem" },
+              { "$ref": "schema:Product" },
+              { "$ref": "schema:Service" }
+            ]
+          }
+        }
+      ]
+    },
+    "partOfInvoice": {
+      "description": "The order is being paid as part of the referenced Invoice.",
+      "$ref": "schema:Invoice"
+    },
+    "paymentDue": {
+      "description": "The date that payment is due.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "paymentDueDate": {
+      "description": "The date that payment is due.",
+      "anyOf": [
+        { "type": "string", "format": "date" },
+        { "type": "string", "format": "date-time" }
+      ]
+    },
+    "paymentMethod": {
+      "description": "The name of the credit card or other method of payment for the order.",
+      "$ref": "schema:PaymentMethod"
+    },
+    "paymentMethodId": {
+      "description": "An identifier for the method of payment used (e.g. the last 4 digits of the credit card).",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "paymentUrl": {
+      "description": "The URL for sending a payment.",
+      "type": "string",
+      "format": "uri"
+    },
+    "seller": {
+      "description": "An entity which offers (sells / leases / lends / loans) the services / goods.  A seller may also be a provider.",
+      "anyOf": [{ "$ref": "schema:Organization" }, { "$ref": "schema:Person" }]
+    }
+  }
+}

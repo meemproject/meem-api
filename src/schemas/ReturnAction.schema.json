@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:ReturnAction",
+  "title": "ReturnAction",
+  "description": "The act of returning to the origin that which was previously received (concrete objects) or taken (ownership).",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "The act of transferring/moving (abstract or concrete) animate or inanimate objects from one place to another.",
+      "$ref": "schema:TransferAction"
+    }
+  ],
+  "properties": {
+    "recipient": {
+      "description": "A sub property of participant. The participant who is at the receiving end of the action.",
+      "oneOf": [
+        {
+          "anyOf": [
+            { "$ref": "schema:Audience" },
+            { "$ref": "schema:ContactPoint" },
+            { "$ref": "schema:Organization" },
+            { "$ref": "schema:Person" }
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "schema:Audience" },
+              { "$ref": "schema:ContactPoint" },
+              { "$ref": "schema:Organization" },
+              { "$ref": "schema:Person" }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:DanceGroup",
+  "title": "DanceGroup",
+  "description": "A dance group—for example, the Alvin Ailey Dance Theater or Riverdance.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A performance group, such as a band, an orchestra, or a circus.",
+      "$ref": "schema:PerformingGroup"
+    }
+  ]
+}

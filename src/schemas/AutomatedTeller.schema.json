@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:AutomatedTeller",
+  "title": "AutomatedTeller",
+  "description": "ATM/cash machine.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "Financial services business.",
+      "$ref": "schema:FinancialService"
+    }
+  ]
+}

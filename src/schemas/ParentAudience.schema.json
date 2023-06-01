@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:ParentAudience",
+  "title": "ParentAudience",
+  "description": "A set of characteristics describing parents, who can be interested in viewing some content.",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "A set of characteristics belonging to people, e.g. who compose an item's target audience.",
+      "$ref": "schema:PeopleAudience"
+    }
+  ],
+  "properties": {
+    "childMaxAge": {
+      "description": "Maximal age of the child.",
+      "type": "number"
+    },
+    "childMinAge": {
+      "description": "Minimal age of the child.",
+      "type": "number"
+    }
+  }
+}
