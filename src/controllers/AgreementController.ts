@@ -413,11 +413,10 @@ export default class AgreementController {
 				to: [email],
 				subject,
 				body: transactionalTemplate({
-					bodyText: `Click the button below to accept the invite and join ${agreement.name}`,
+					bodyText: `You've been invited to join <b>${agreement.name}</b> on Meem!`,
 					ctaText: 'Accept Invite',
 					ctaUrl: `${config.MEEM_DOMAIN}/invite?code=${code}`,
-					subject,
-					title: `Join ${agreement.name}`
+					subject
 				})
 			})
 		}
