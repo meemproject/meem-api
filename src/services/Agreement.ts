@@ -768,19 +768,17 @@ export default class AgreementService {
 		const agreementRoleTokenId = result[3]
 
 		if (!agreementToken) {
-			const createResult = await Promise.all([
-				orm.models.AgreementToken.create({
-					tokenId: services.web3.toBigNumber(tokenId + 1).toHexString(),
-					tokenURI: '',
-					AgreementId: agreementId,
-					mintedAt: new Date(),
-					OwnerId: wallet.id
-				}),
-				invite.destroy()
-			])
-
-			agreementToken = createResult[0]
+			agreementToken = await orm.models.AgreementToken.create({
+				tokenId: services.web3.toBigNumber(tokenId + 1).toHexString(),
+				tokenURI: '',
+				AgreementId: agreementId,
+				mintedAt: new Date(),
+				OwnerId: wallet.id
+			})
 		}
+
+		await invite.destroy()
+
 		let agreementRoleToken = agreementRole
 			? await orm.models.AgreementRoleToken.findOne({
 					where: {
